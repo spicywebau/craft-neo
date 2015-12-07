@@ -8,7 +8,7 @@ namespace Craft;
  * @see https://github.com/benjamminf/craft-neo
  * @package Craft
  */
-class QuickFieldPlugin extends BasePlugin
+class NeoPlugin extends BasePlugin
 {
 	function getName()
 	{
