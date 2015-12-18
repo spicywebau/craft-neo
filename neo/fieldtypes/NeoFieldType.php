@@ -12,6 +12,11 @@ class NeoFieldType extends BaseFieldType
 		return Craft::t('Neo');
 	}
 
+	public function defineContentAttribute()
+	{
+		return false;
+	}
+
 	public function getInputHtml($name, $value)
 	{
 		return craft()->templates->render('neo/_fieldtype/input', array(

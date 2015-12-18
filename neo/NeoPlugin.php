@@ -37,7 +37,7 @@ class NeoPlugin extends BasePlugin
 
 	public function getDocumentationUrl()
 	{
-		return 'https://github.com/benjamminf/craft-neo/blob/master/README.md';
+		return 'https://github.com/benjamminf/craft-neo';
 	}
 
 	public function init()
