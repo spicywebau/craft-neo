@@ -2,7 +2,7 @@
 
 
 {% set blockTypeInput %}
-	<div class="mc-sidebar block-types">
+	<div class="nc-sidebar block-types">
 		<div class="col-inner-container">
 			<div class="heading">
 				<h5>{{ "Block Types"|t }}</h5>
@@ -26,7 +26,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="mc-sidebar fields">
+	<div class="nc-sidebar fields">
 		<div class="col-inner-container hidden">
 			<div class="heading">
 				<h5>{{ "Fields"|t }}</h5>
@@ -121,7 +121,7 @@
 									name: 'blockTypes['~blockType.id~'][fields]['~fieldId~'][type]',
 									options: fieldTypes,
 									value: fieldType.getClassHandle(),
-									errors: (isFieldTypeMissing ? ["The fieldtype class “{class}” could not be found."|t({ class: field.type })] : null),
+									errors: (isFieldTypeMissing ? ["The fieldtype class “{class}�? could not be found."|t({ class: field.type })] : null),
 								}) }}
 
 								<div class="fieldtype-settings">
