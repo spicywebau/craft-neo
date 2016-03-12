@@ -127,7 +127,7 @@ Craft.NeoConfigurator = Garnish.Base.extend(
 			var id = 'new'+this.totalNewBlockTypes;
 
 			var $item = $(
-				'<div class="neoconfigitem mci-blocktype" data-id="'+id+'">' +
+				'<div class="neoconfigitem nci-blocktype" data-id="'+id+'">' +
 					'<div class="name"></div>' +
 					'<div class="handle code"></div>' +
 					'<div class="actions">' +
@@ -472,7 +472,7 @@ var BlockType = Garnish.Base.extend(
 		var id = 'new'+this.totalNewFields;
 
 		var $item = $(
-			'<div class="neoconfigitem mci-field" data-id="'+id+'">' +
+			'<div class="neoconfigitem nci-field" data-id="'+id+'">' +
 				'<div class="name"><em class="light">'+Craft.t('(blank)')+'</em>&nbsp;</div>' +
 				'<div class="handle code">&nbsp;</div>' +
 				'<div class="actions">' +

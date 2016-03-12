@@ -1,7 +1,16 @@
-{% import "_includes/forms" as forms %}
+{% import '_includes/forms' as forms %}
 
+{% set blockTypes = settings.getBlockTypes %}
+
+
+{% set neoSettings = {
+	blockTypes: settings.getBlockTypes()
+} %}
 
 {% set blockTypeInput %}
+	<script data-neo="configurator" type="application/json">
+		{{ neoSettings|json_encode }}
+	</script>
 	<div class="nc-sidebar block-types">
 		<div class="col-inner-container">
 			<div class="heading">
@@ -10,7 +19,7 @@
 			<div class="items">
 				<div class="blocktypes">
 					{% for blockType in settings.getBlockTypes() %}
-						<div class="neoconfigitem mci-blocktype{% if blockType.hasFieldErrors %} error{% endif %}" data-id="{{ blockType.id }}"{% if blockType.hasErrors() %} data-errors="{{ blockType.getErrors() | json_encode }}"{% endif %}>
+						<div class="neoconfigitem nci-blocktype{% if blockType.hasFieldErrors %} error{% endif %}" data-id="{{ blockType.id }}"{% if blockType.hasErrors() %} data-errors="{{ blockType.getErrors() | json_encode }}"{% endif %}>
 							<div class="name">{% if blockType.name %}{{ blockType.name }}{% else %}&nbsp;{% endif %}</div>
 							<div class="handle code">{% if blockType.handle %}{{ blockType.handle }}{% else %}&nbsp;{% endif %}</div>
 							<div class="actions">
@@ -26,31 +35,6 @@
 			</div>
 		</div>
 	</div>
-	<div class="nc-sidebar fields">
-		<div class="col-inner-container hidden">
-			<div class="heading">
-				<h5>{{ "Fields"|t }}</h5>
-			</div>
-			<div class="items">
-				{% for blockType in settings.getBlockTypes() %}
-					<div data-id="{{ blockType.id }}" class="hidden">
-						{% for field in blockType.getFields() %}
-							<div class="neoconfigitem mci-field{% if field.hasErrors() %} error{% endif %}" data-id="{{ field.id }}">
-								<div class="name{% if field.required %} required{% endif %}">
-									{%- if field.name and field.name != '__blank__' %}{{ field.name }}{% else %}<em class="light">{{ '(blank)'|t }}</em>{% endif -%}
-								&nbsp;</div>
-								<div class="handle code">{{ field.handle }}&nbsp;</div>
-								<div class="actions">
-									<a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
-								</div>
-							</div>
-						{% endfor %}
-					</div>
-				{% endfor %}
-				<div class="btn add icon">{{ "New field"|t }}</div>
-			</div>
-		</div>
-	</div>
 	<div class="field-settings">
 		<div class="col-inner-container hidden">
 			<div class="heading">
@@ -58,85 +42,8 @@
 			</div>
 			<div class="items">
 				{% for blockType in settings.getBlockTypes() %}
-					<div data-id="{{ blockType.id }}">
-						{% for field in blockType.getFields() %}
-							{% set fieldId = field.id %}
-							<div data-id="{{ fieldId }}" class="hidden">
-								{{ forms.textField({
-									label: "Name"|t,
-									id: fieldId~'-name',
-									name: 'blockTypes['~blockType.id~'][fields]['~fieldId~'][name]',
-									value: (field.name != '__blank__' ? field.name),
-									errors: field.getErrors('name'),
-									autofocus: true
-								}) }}
+					<div data-id="{{ blockType.id }}" class="hidden">
 
-								{{ forms.textField({
-									label: "Handle"|t,
-									id: fieldId~'-handle',
-									class: 'code',
-									name: 'blockTypes['~blockType.id~'][fields]['~fieldId~'][handle]',
-									maxlength: 64,
-									value: field.handle,
-									errors: field.getErrors('handle'),
-									required: true,
-								}) }}
-
-								{{ forms.textareaField({
-									label: "Instructions"|t,
-									id: fieldId~'-instructions',
-									class: 'nicetext',
-									name: 'blockTypes['~blockType.id~'][fields]['~fieldId~'][instructions]',
-									value: field.instructions,
-									errors: field.getErrors('instructions'),
-								}) }}
-
-								{{ forms.checkboxField({
-									label: "This field is required"|t,
-									name: 'blockTypes['~blockType.id~'][fields]['~fieldId~'][required]',
-									checked: field.required
-								}) }}
-
-								{% if craft.isLocalized() %}
-									{{ forms.checkboxField({
-										label: "This field is translatable"|t,
-										name: 'blockTypes['~blockType.id~'][fields]['~fieldId~'][translatable]',
-										checked: field.translatable
-									}) }}
-								{% endif %}
-
-								<hr>
-
-								{% set fieldType = field.getFieldType() %}
-								{% set isFieldTypeMissing = not fieldType %}
-
-								{% if isFieldTypeMissing %}
-									{% set fieldType = craft.fields.getFieldType('PlainText') %}
-								{% endif %}
-
-								{{ forms.selectField({
-									label: "Field Type"|t,
-									warning: (not field.isNew() ? "Changing this may result in data loss."|t),
-									id: fieldId~'-type',
-									name: 'blockTypes['~blockType.id~'][fields]['~fieldId~'][type]',
-									options: fieldTypes,
-									value: fieldType.getClassHandle(),
-									errors: (isFieldTypeMissing ? ["The fieldtype class â€œ{class}â€? could not be found."|t({ class: field.type })] : null),
-								}) }}
-
-								<div class="fieldtype-settings">
-									<div>
-										{% namespace 'blockTypes['~blockType.id~'][fields]['~fieldId~'][typesettings]' %}
-											{{ fieldType.getSettingsHtml()|raw  }}
-										{% endnamespace %}
-									</div>
-								</div>
-
-								<hr>
-
-								<a class="error delete">{{ "Delete"|t }}</a>
-							</div>
-						{% endfor %}
 					</div>
 				{% endfor %}
 			</div>

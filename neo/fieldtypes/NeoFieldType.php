@@ -46,9 +46,8 @@ class NeoFieldType extends BaseFieldType
 		// Get the available field types data
 		$fieldTypeInfo = $this->_getFieldTypeInfoForConfigurator();
 
-		craft()->templates->includeCssResource('neo/css/configurator.css');
-		craft()->templates->includeJsResource('neo/js/NeoConfigurator.js');
-		craft()->templates->includeJs('new Craft.NeoConfigurator('.JsonHelper::encode($fieldTypeInfo).', "'.craft()->templates->getNamespace().'");');
+		craft()->templates->includeJsResource('neo/dist/main.js');
+		craft()->templates->includeJs('new Neo.Configurator('.JsonHelper::encode($fieldTypeInfo).', "'.craft()->templates->getNamespace().'");');
 
 		craft()->templates->includeTranslations(
 			'Are you sure you want to delete this block type?',
@@ -284,10 +283,9 @@ class NeoFieldType extends BaseFieldType
 		// Get the block types data
 		$blockTypeInfo = $this->_getBlockTypeInfoForInput($name);
 
-		craft()->templates->includeCssResource('neo/css/input.css');
-		craft()->templates->includeJsResource('neo/js/NeoInput.js');
+		craft()->templates->includeJsResource('neo/dist/main.js');
 
-		craft()->templates->includeJs('new Craft.NeoInput(' .
+		craft()->templates->includeJs('new Neo.Input(' .
 			'"'.craft()->templates->namespaceInputId($id).'", ' .
 			JsonHelper::encode($blockTypeInfo).', ' .
 			'"'.craft()->templates->namespaceInputName($name).'", ' .

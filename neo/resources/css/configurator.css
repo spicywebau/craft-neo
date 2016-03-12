@@ -30,9 +30,9 @@ body.rtl .neoconfigitem { padding: 11px 14px 10px 45px; }
 body.ltr .neoconfigitem .actions { right: 0; }
 body.rtl .neoconfigitem .actions { left: 0; }
 
-.neoconfigitem.mci-blocktype .actions { top: 10px; }
+.neoconfigitem.nci-blocktype .actions { top: 10px; }
 
-.neoconfigitem.mci-field .actions { top: 20px; }
+.neoconfigitem.nci-field .actions { top: 20px; }
 
 .neoconfigitem .actions .icon { display: block; margin-bottom: 1px; text-align: center; }
 
