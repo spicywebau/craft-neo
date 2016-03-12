@@ -83,7 +83,7 @@
 	
 	var _craft2 = _interopRequireDefault(_craft);
 	
-	__webpack_require__(5);
+	__webpack_require__(21);
 	
 	var _BlockType = __webpack_require__(11);
 	
@@ -97,21 +97,48 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	console.log((0, _configurator2.default)());
-	
 	exports.default = _garnish2.default.Base.extend({
-		init: function init() {
-			var $template = (0, _jquery2.default)((0, _configurator2.default)());
+	
+		_defaults: {
+			namespace: '',
+			blockTypes: []
 		},
-		setContainerHeight: function setContainerHeight() {
+	
+		_totalNewBlockTypes: 0,
+	
+		init: function init() {
+			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+			settings = Object.assign({}, this._defaults, settings);
+	
+			// Setup <input> field information
+			this.inputNamePrefix = settings.namespace;
+			this.inputIdPrefix = _craft2.default.formatInputId(this.inputNamePrefix);
+	
+			// Initialise the configurator template
+			this.$field = (0, _jquery2.default)('#' + this.inputIdPrefix + '-neo-configurator');
+			this.$inputContainer = this.$field.children('.field').children('.input');
+			this.$inputContainer.html((0, _configurator2.default)());
+	
+			this.$container = this.$field.find('.input').first();
+	
+			this.$blockTypesContainer = this.$container.children('.block-types').children();
+			this.$fieldLayoutContainer = this.$container.children('.field-layout').children();
+	
+			this.setContainerHeight();
+	
+			this.addListener(this.$blockTypesContainer, 'resize', '_setContainerHeight');
+			this.addListener(this.$fieldLayoutContainer, 'resize', '_setContainerHeight');
+		},
+		addBlockType: function addBlockType(blockType) {},
+		_setContainerHeight: function _setContainerHeight() {
 			var _this = this;
 	
 			setTimeout(function () {
-				var maxColHeight = Math.max(400, _this.$blockTypesColumnContainer.height(), _this.$fieldsColumnContainer.height(), _this.$fieldSettingsColumnContainer.height());
+				var maxColHeight = Math.max(400, _this.$blockTypesContainer.height(), _this.$fieldLayoutContainer.height());
 				_this.$container.height(maxColHeight);
 			}, 1);
-		},
-		addBlockType: function addBlockType() {}
+		}
 	});
 
 /***/ },
@@ -133,26 +160,7 @@
 	module.exports = Craft;
 
 /***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var _twig = __webpack_require__(6);
-	
-	var _twig2 = _interopRequireDefault(_twig);
-	
-	var _craft = __webpack_require__(4);
-	
-	var _craft2 = _interopRequireDefault(_craft);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	_twig2.default.extendFilter('t', function (label, placeholders) {
-		return _craft2.default.t(label, placeholders);
-	});
-
-/***/ },
+/* 5 */,
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -547,10 +555,18 @@
 	
 	var _BlockTypeSettingsModal2 = _interopRequireDefault(_BlockTypeSettingsModal);
 	
+	var _blockType = __webpack_require__(22);
+	
+	var _blockType2 = _interopRequireDefault(_blockType);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	exports.default = _garnish2.default.Base.extend({
-		init: function init() {}
+		init: function init(name, handle) {
+			var id = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+	
+			id = isNaN(id) ? 'new' + this._totalNewBlockTypes++ : id;
+		}
 	});
 
 /***/ },
@@ -586,7 +602,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(6).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\configurator.twig", data:[{"type":"raw","value":"<div class=\"nc-sidebar block-types\">\r\n\t<div class=\"col-inner-container\">\r\n\t\t<div class=\"heading\">\r\n\t\t\t<h5>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Block Types"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</h5>\r\n\t\t</div>\r\n\t\t<div class=\"items\">\r\n\t\t\t<div class=\"blocktypes\"></div>\r\n\t\t\t<div class=\"btn add icon\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"New block type"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</div>\r\n\t\t</div>\r\n\t</div>\r\n</div>\r\n\r\n<div class=\"field-layout\">\r\n\t<div class=\"col-inner-container hidden\">\r\n\t\t<div class=\"heading\">\r\n\t\t\t<h5>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Field Layout"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</h5>\r\n\t\t</div>\r\n\t\t<div class=\"items\"></div>\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\configurator.twig", data:[{"type":"raw","value":"<div class=\"nc-sidebar block-types\">\r\n\t<div class=\"col-inner-container\">\r\n\t\t<div class=\"heading\">\r\n\t\t\t<h5>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Block Types"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</h5>\r\n\t\t</div>\r\n\t\t<div class=\"items\">\r\n\t\t\t<div class=\"blocktypes\"></div>\r\n\t\t\t<div class=\"btn add icon\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"New block type"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</div>\r\n\t\t</div>\r\n\t</div>\r\n</div>\r\n\r\n<div class=\"field-layout\">\r\n\t<div class=\"col-inner-container hidden\">\r\n\t\t<div class=\"heading\">\r\n\t\t\t<h5>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Field Layout"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</h5>\r\n\t\t</div>\r\n\t\t<div class=\"items\"></div>\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 
@@ -606,8 +622,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../../node_modules/css-loader/index.js!./../../../../node_modules/sass-loader/index.js!./styles.scss", function() {
-				var newContent = require("!!./../../../../node_modules/css-loader/index.js!./../../../../node_modules/sass-loader/index.js!./styles.scss");
+			module.hot.accept("!!./../../../../../node_modules/css-loader/index.js!./../../../../../node_modules/sass-loader/index.js!./configurator.scss", function() {
+				var newContent = require("!!./../../../../../node_modules/css-loader/index.js!./../../../../../node_modules/sass-loader/index.js!./configurator.scss");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -986,8 +1002,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../../node_modules/css-loader/index.js!./../../../../node_modules/sass-loader/index.js!./styles.scss", function() {
-				var newContent = require("!!./../../../../node_modules/css-loader/index.js!./../../../../node_modules/sass-loader/index.js!./styles.scss");
+			module.hot.accept("!!./../../../../../node_modules/css-loader/index.js!./../../../../../node_modules/sass-loader/index.js!./input.scss", function() {
+				var newContent = require("!!./../../../../../node_modules/css-loader/index.js!./../../../../../node_modules/sass-loader/index.js!./input.scss");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -1009,6 +1025,35 @@
 	
 	// exports
 
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _twig = __webpack_require__(6);
+	
+	var _twig2 = _interopRequireDefault(_twig);
+	
+	var _craft = __webpack_require__(4);
+	
+	var _craft2 = _interopRequireDefault(_craft);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	_twig2.default.extendFilter('t', function (label, placeholders) {
+		return _craft2.default.t(label, placeholders);
+	});
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var twig = __webpack_require__(6).twig,
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\block-type.twig", data:[], allowInlineIncludes: true});
+	
+	module.exports = function(context) { return template.render(context); }
 
 /***/ }
 /******/ ]);

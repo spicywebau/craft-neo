@@ -1,16 +1,6 @@
 {% import '_includes/forms' as forms %}
 
-{% set blockTypes = settings.getBlockTypes %}
-
-
-{% set neoSettings = {
-	blockTypes: settings.getBlockTypes()
-} %}
-
 {% set blockTypeInput %}
-	<script data-neo="configurator" type="application/json">
-		{{ neoSettings|json_encode }}
-	</script>
 	<div class="nc-sidebar block-types">
 		<div class="col-inner-container">
 			<div class="heading">
@@ -56,7 +46,7 @@
 		label: "Configuration"|t,
 		instructions: "Define the types of blocks that can be created within this Neo field, as well as the fields each block type is made up of."|t,
 		name: 'config'
-	}, blockTypeInput) }}
+	}) }}
 </div>
 
 {{ forms.textField({

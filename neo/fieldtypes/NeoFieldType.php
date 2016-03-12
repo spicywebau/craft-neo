@@ -43,36 +43,29 @@ class NeoFieldType extends BaseFieldType
 	 */
 	public function getSettingsHtml()
 	{
-		// Get the available field types data
-		$fieldTypeInfo = $this->_getFieldTypeInfoForConfigurator();
+		$settings = $this->getSettings();
+		$jsBlockTypes = array();
 
-		craft()->templates->includeJsResource('neo/dist/main.js');
-		craft()->templates->includeJs('new Neo.Configurator('.JsonHelper::encode($fieldTypeInfo).', "'.craft()->templates->getNamespace().'");');
-
-		craft()->templates->includeTranslations(
-			'Are you sure you want to delete this block type?',
-			'Are you sure you want to delete this field?',
-			'Field Type',
-			'How you’ll refer to this block type in the templates.',
-			'This field is required',
-			'This field is translatable',
-			'What this block type will be called in the CP.'
-		);
-
-		$fieldTypeOptions = array();
-
-		foreach (craft()->fields->getAllFieldTypes() as $fieldType)
+		foreach($settings->getBlockTypes() as $blockType)
 		{
-			// No Neo-Inception, sorry buddy.
-			if ($fieldType->getClassHandle() != 'Neo')
-			{
-				$fieldTypeOptions[] = array('label' => $fieldType->getName(), 'value' => $fieldType->getClassHandle());
-			}
+			$jsBlockTypes[] = array(
+				'id' => $blockType->id,
+				'name' => $blockType->name,
+				'handle' => $blockType->handle,
+				'errors' => $blockType->getErrors(),
+			);
 		}
 
+		$jsSettings = array(
+			'namespace' => craft()->templates->getNamespace(),
+			'blockTypes' => $jsBlockTypes,
+		);
+
+		craft()->templates->includeJsResource('neo/dist/main.js');
+		craft()->templates->includeJs('new Neo.Configurator(' . JsonHelper::encode($jsSettings) . ')');
+
 		return craft()->templates->render('neo/_fieldtype/settings', array(
-			'settings'   => $this->getSettings(),
-			'fieldTypes' => $fieldTypeOptions
+			'settings' => $this->getSettings(),
 		));
 	}
 
@@ -563,47 +556,6 @@ class NeoFieldType extends BaseFieldType
 
 	// Private Methods
 	// =========================================================================
-
-	/**
-	 * Returns info about each field type for the configurator.
-	 *
-	 * @return array
-	 */
-	private function _getFieldTypeInfoForConfigurator()
-	{
-		$fieldTypes = array();
-
-		// Set a temporary namespace for these
-		$originalNamespace = craft()->templates->getNamespace();
-		$namespace = craft()->templates->namespaceInputName('blockTypes[__BLOCK_TYPE__][fields][__FIELD__][typesettings]', $originalNamespace);
-		craft()->templates->setNamespace($namespace);
-
-		foreach (craft()->fields->getAllFieldTypes() as $fieldType)
-		{
-			$fieldTypeClass = $fieldType->getClassHandle();
-
-			// No Neo-Inception, sorry buddy.
-			if ($fieldTypeClass == 'Neo' || $fieldTypeClass == 'Matrix')
-			{
-				continue;
-			}
-
-			craft()->templates->startJsBuffer();
-			$settingsBodyHtml = craft()->templates->namespaceInputs($fieldType->getSettingsHtml());
-			$settingsFootHtml = craft()->templates->clearJsBuffer();
-
-			$fieldTypes[] = array(
-				'type'             => $fieldTypeClass,
-				'name'             => $fieldType->getName(),
-				'settingsBodyHtml' => $settingsBodyHtml,
-				'settingsFootHtml' => $settingsFootHtml,
-			);
-		}
-
-		craft()->templates->setNamespace($originalNamespace);
-
-		return $fieldTypes;
-	}
 
 	/**
 	 * Returns info about each block type and their field types for the Neo field input.

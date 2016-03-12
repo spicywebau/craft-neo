@@ -4,10 +4,12 @@ import Craft from 'craft'
 
 import SettingsModal from './BlockTypeSettingsModal'
 
+import renderTemplate from './templates/block-type.twig'
+
 export default Garnish.Base.extend({
 
-	init()
+	init(name, handle, id = null)
 	{
-
+		id = (isNaN(id) ? `new${this._totalNewBlockTypes++}` : id)
 	}
 })
