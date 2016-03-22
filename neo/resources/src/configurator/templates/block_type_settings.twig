@@ -1,0 +1,33 @@
+<form class="modal fitted">
+	<div class="body">
+		<div class="field">
+			<div class="heading">
+				<label for="new-block-type-name">{{ 'Name'|t }}</label>
+				<div class="instructions">
+					<p>{{ "What this block type will be called in the CP."|t }}</p>
+				</div>
+			</div>
+			<div class="input">
+				<input type="text" class="text fullwidth" id="new-block-type-name">
+				<ul class="errors" style="display: none;"></ul>
+			</div>
+		</div>
+		<div class="field">
+			<div class="heading">
+				<label for="new-block-type-handle">{{ 'Handle'|t }}</label>
+				<div class="instructions">
+					<p>{{ "How you'll refer to this block type in the templates."|t }}</p>
+				</div>
+			</div>
+			<div class="input">
+				<input type="text" class="text fullwidth code" id="new-block-type-handle">
+				<ul class="errors" style="display: none;"></ul>
+			</div>
+		</div>
+		<a class="error left hidden" style="line-height: 30px;">{{ "Delete"|t }}</a>
+		<div class="buttons right" style="margin-top: 0;">
+			<div class="btn">{{ "Cancel"|t }}</div>
+			<input type="submit" class="btn submit">
+		</div>
+	</div>
+</form>

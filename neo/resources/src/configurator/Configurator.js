@@ -1,11 +1,11 @@
 import $ from 'jquery'
 import Garnish from 'garnish'
 import Craft from 'craft'
-import '../twig-extensions'
 
 import BlockType from './BlockType'
 
 import renderTemplate from './templates/configurator.twig'
+import '../twig-extensions'
 import './styles/configurator.scss'
 
 export default Garnish.Base.extend({
@@ -14,8 +14,6 @@ export default Garnish.Base.extend({
 		namespace: '',
 		blockTypes: []
 	},
-
-	_totalNewBlockTypes: 0,
 
 	init(settings = {})
 	{
@@ -32,29 +30,44 @@ export default Garnish.Base.extend({
 
 		this.$container = this.$field.find('.input').first()
 
-		this.$blockTypesContainer = this.$container.children('.block-types').children();
-		this.$fieldLayoutContainer = this.$container.children('.field-layout').children();
+		this.$blockTypesContainer = this.$container.children('.block-types').children()
+		this.$fieldLayoutContainer = this.$container.children('.field-layout').children()
 
-		this.setContainerHeight()
+		this.$blockTypeItemsContainer = this.$blockTypesContainer.children('.items')
+		this.$itemsContainer = this.$blockTypeItemsContainer.children('.blocktypes')
+		this.$addItemButton = this.$blockTypeItemsContainer.children('.btn.add')
 
-		this.addListener(this.$blockTypesContainer, 'resize', '_setContainerHeight');
-		this.addListener(this.$fieldLayoutContainer, 'resize', '_setContainerHeight');
+		this._setContainerHeight()
+
+		this.addListener(this.$blockTypesContainer, 'resize', '@setContainerHeight')
+		this.addListener(this.$fieldLayoutContainer, 'resize', '@setContainerHeight')
+		this.addListener(this.$addItemButton, 'click', '@newBlockType')
 	},
 
 	addBlockType(blockType)
 	{
+		this.$itemsContainer.append(blockType.$itemContainer)
+	},
 
+	'@newBlockType'()
+	{
+		const blockType = new BlockType()
+		const settingsModal = blockType.getSettingsModal()
+
+		settingsModal.show()
+	},
+
+	'@setContainerHeight'()
+	{
+		setTimeout(() => this._setContainerHeight(), 1)
 	},
 
 	_setContainerHeight()
 	{
-		setTimeout(() =>
-		{
-			var maxColHeight = Math.max(400,
-				this.$blockTypesContainer.height(),
-				this.$fieldLayoutContainer.height()
-			);
-			this.$container.height(maxColHeight);
-		}, 1)
+		const maxColHeight = Math.max(400,
+			this.$blockTypesContainer.height(),
+			this.$fieldLayoutContainer.height())
+
+		this.$container.height(maxColHeight)
 	}
 })

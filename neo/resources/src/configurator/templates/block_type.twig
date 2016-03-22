@@ -1,0 +1,10 @@
+<div class="neoconfigitem nci-blocktype{{ errors|length > 0 ? ' error' : '' }}">
+	<div class="name">{{ name }}</div>
+	<div class="handle code">{{ handle }}</div>
+	<div class="actions">
+		<a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
+		<a class="settings icon{{ errors|length > 0 ? ' error' : '' }}" title="{{ 'Settings'|t }}" role="button"></a>
+	</div>
+	<input class="name-input hidden" name="blockTypes[{{ id }}][name]" value="{{ name }}">
+	<input class="handle-input hidden" name="blockTypes[{{ id }}][handle]" value="{{ handle }}">
+</div>
