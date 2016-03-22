@@ -150,6 +150,11 @@
 				this.$itemsContainer.append(blockType.$itemContainer);
 			}
 	
+			this.trigger('addBlockType', {
+				blockType: blockType,
+				index: index
+			});
+	
 			this._setContainerHeight();
 		},
 		removeBlockType: function removeBlockType(blockType) {
@@ -160,7 +165,14 @@
 			blockType.$itemContainer.remove();
 			blockType.$fieldsContainer.remove();
 	
+			this.trigger('removeBlockType', {
+				blockType: blockType
+			});
+	
 			this._setContainerHeight();
+		},
+		getBlockTypes: function getBlockTypes() {
+			return Array.from(this._blockTypes);
 		},
 		_setContainerHeight: function _setContainerHeight() {
 			var maxColHeight = Math.max(400, this.$blockTypesContainer.height(), this.$fieldLayoutContainer.height());

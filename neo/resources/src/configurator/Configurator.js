@@ -85,6 +85,11 @@ export default Garnish.Base.extend({
 		this._setContainerHeight()
 	},
 
+	getBlockTypes()
+	{
+		return Array.from(this._blockTypes)
+	},
+
 	_setContainerHeight()
 	{
 		const maxColHeight = Math.max(400,
