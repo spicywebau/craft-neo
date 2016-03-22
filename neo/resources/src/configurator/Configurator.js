@@ -63,6 +63,11 @@ export default Garnish.Base.extend({
 			this.$itemsContainer.append(blockType.$itemContainer)
 		}
 
+		this.trigger('addBlockType', {
+			blockType: blockType,
+			index: index
+		})
+
 		this._setContainerHeight()
 	},
 
@@ -72,6 +77,10 @@ export default Garnish.Base.extend({
 
 		blockType.$itemContainer.remove()
 		blockType.$fieldsContainer.remove()
+
+		this.trigger('removeBlockType', {
+			blockType: blockType
+		})
 
 		this._setContainerHeight()
 	},
