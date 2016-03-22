@@ -54,6 +54,17 @@ export default Garnish.Base.extend({
 		const blockType = new BlockType()
 		const settingsModal = blockType.getSettingsModal()
 
+		const onSave = (e) =>
+		{
+			blockType.name = e.name
+			blockType.handle = e.handle
+
+			this.addBlockType(blockType)
+
+			settingsModal.off('save', onSave)
+		}
+
+		settingsModal.on('save', onSave)
 		settingsModal.show()
 	},
 

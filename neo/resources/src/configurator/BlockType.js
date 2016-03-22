@@ -73,8 +73,8 @@ export default Garnish.Base.extend({
 
 		if(this._parsed)
 		{
-			this.$name.text(this._handle)
-			this.$nameInput.val(this._handle)
+			this.$name.text(this._name)
+			this.$nameInput.val(this._name)
 		}
 	},
 

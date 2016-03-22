@@ -137,16 +137,29 @@
 			this.$itemsContainer.append(blockType.$itemContainer);
 		},
 		'@newBlockType': function newBlockType() {
+			var _this = this;
+	
 			var blockType = new _BlockType2.default();
 			var settingsModal = blockType.getSettingsModal();
+	
+			var onSave = function onSave(e) {
+				blockType.name = e.name;
+				blockType.handle = e.handle;
+	
+				_this.addBlockType(blockType);
+	
+				settingsModal.off('save', onSave);
+			};
+	
+			settingsModal.on('save', onSave);
 	
 			settingsModal.show();
 		},
 		'@setContainerHeight': function setContainerHeight() {
-			var _this = this;
+			var _this2 = this;
 	
 			setTimeout(function () {
-				return _this._setContainerHeight();
+				return _this2._setContainerHeight();
 			}, 1);
 		},
 		_setContainerHeight: function _setContainerHeight() {
@@ -274,8 +287,8 @@
 			this._settingsModal.name = name;
 	
 			if (this._parsed) {
-				this.$name.text(this._handle);
-				this.$nameInput.val(this._handle);
+				this.$name.text(this._name);
+				this.$nameInput.val(this._name);
 			}
 		},
 	
@@ -338,11 +351,17 @@
 			this.$form = (0, _jquery2.default)((0, _block_type_settings2.default)());
 			this.$nameInput = this.$form.find('#new-block-type-name');
 			this.$handleInput = this.$form.find('#new-block-type-handle');
+			this.$cancelBtn = this.$form.find('#new-block-type-cancel');
+			this.$deleteBtn = this.$form.find('#new-block-type-delete');
 	
 			this.$form.appendTo(_garnish2.default.$bod);
 			this.setContainer(this.$form);
 	
 			this._handleGenerator = new _craft2.default.HandleGenerator(this.$nameInput, this.$handleInput);
+	
+			this.addListener(this.$cancelBtn, 'click', 'hide');
+			this.addListener(this.$form, 'submit', '@onFormSubmit');
+			this.addListener(this.$deleteBtn, 'click', '@onDeleteClick');
 		},
 	
 	
@@ -364,6 +383,33 @@
 			this._handle = handle;
 	
 			this.$handleInput.val(this._handle);
+		},
+	
+		'@onFormSubmit': function onFormSubmit(e) {
+			e.preventDefault();
+	
+			// Prevent multi form submits with the return key
+			if (!this.visible) return;
+	
+			if (this._handleGenerator.listening) {
+				// Give the handle a chance to catch up with the input
+				this._handleGenerator.updateTarget();
+			}
+	
+			// Basic validation
+			var name = _craft2.default.trim(this.$nameInput.val());
+			var handle = _craft2.default.trim(this.$handleInput.val());
+	
+			if (!name || !handle) {
+				_garnish2.default.shake(this.$form);
+			} else {
+				this.hide();
+	
+				this.trigger('save', {
+					name: name,
+					handle: handle
+				});
+			}
 		}
 	});
 
@@ -372,7 +418,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(8).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\block_type_settings.twig", data:[{"type":"raw","value":"<form class=\"modal fitted\">\r\n\t<div class=\"body\">\r\n\t\t<div class=\"field\">\r\n\t\t\t<div class=\"heading\">\r\n\t\t\t\t<label for=\"new-block-type-name\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Name"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</label>\r\n\t\t\t\t<div class=\"instructions\">\r\n\t\t\t\t\t<p>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"What this block type will be called in the CP."},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\"input\">\r\n\t\t\t\t<input type=\"text\" class=\"text fullwidth\" id=\"new-block-type-name\">\r\n\t\t\t\t<ul class=\"errors\" style=\"display: none;\"></ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\"field\">\r\n\t\t\t<div class=\"heading\">\r\n\t\t\t\t<label for=\"new-block-type-handle\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Handle"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</label>\r\n\t\t\t\t<div class=\"instructions\">\r\n\t\t\t\t\t<p>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"How you'll refer to this block type in the templates."},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\"input\">\r\n\t\t\t\t<input type=\"text\" class=\"text fullwidth code\" id=\"new-block-type-handle\">\r\n\t\t\t\t<ul class=\"errors\" style=\"display: none;\"></ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<a class=\"error left hidden\" style=\"line-height: 30px;\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Delete"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t\t<div class=\"buttons right\" style=\"margin-top: 0;\">\r\n\t\t\t<div class=\"btn\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Cancel"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</div>\r\n\t\t\t<input type=\"submit\" class=\"btn submit\">\r\n\t\t</div>\r\n\t</div>\r\n</form>\r\n"}], allowInlineIncludes: true});
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\block_type_settings.twig", data:[{"type":"raw","value":"<form class=\"modal fitted\">\r\n\t<div class=\"body\">\r\n\t\t<div class=\"field\">\r\n\t\t\t<div class=\"heading\">\r\n\t\t\t\t<label for=\"new-block-type-name\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Name"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</label>\r\n\t\t\t\t<div class=\"instructions\">\r\n\t\t\t\t\t<p>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"What this block type will be called in the CP."},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\"input\">\r\n\t\t\t\t<input type=\"text\" class=\"text fullwidth\" id=\"new-block-type-name\">\r\n\t\t\t\t<ul class=\"errors\" style=\"display: none;\"></ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\"field\">\r\n\t\t\t<div class=\"heading\">\r\n\t\t\t\t<label for=\"new-block-type-handle\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Handle"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</label>\r\n\t\t\t\t<div class=\"instructions\">\r\n\t\t\t\t\t<p>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"How you'll refer to this block type in the templates."},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\"input\">\r\n\t\t\t\t<input type=\"text\" class=\"text fullwidth code\" id=\"new-block-type-handle\">\r\n\t\t\t\t<ul class=\"errors\" style=\"display: none;\"></ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<a class=\"error left hidden\" style=\"line-height: 30px;\" id=\"new-block-type-delete\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Delete"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t\t<div class=\"buttons right\" style=\"margin-top: 0;\">\r\n\t\t\t<div class=\"btn\" id=\"new-block-type-cancel\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Cancel"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</div>\r\n\t\t\t<input type=\"submit\" class=\"btn submit\">\r\n\t\t</div>\r\n\t</div>\r\n</form>\r\n"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 
