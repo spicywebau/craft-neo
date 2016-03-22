@@ -1,4 +1,6 @@
 import $ from 'jquery'
+import '../jquery-extensions'
+
 import Garnish from 'garnish'
 import Craft from 'craft'
 
@@ -14,6 +16,8 @@ export default Garnish.Base.extend({
 		namespace: '',
 		blockTypes: []
 	},
+
+	_blockTypes: [],
 
 	init(settings = {})
 	{
@@ -44,9 +48,41 @@ export default Garnish.Base.extend({
 		this.addListener(this.$addItemButton, 'click', '@newBlockType')
 	},
 
-	addBlockType(blockType)
+	addBlockType(blockType, index = -1)
 	{
-		this.$itemsContainer.append(blockType.$itemContainer)
+		if(index >= 0 && index < this._blockTypes.length)
+		{
+			this._blockTypes = this._blockTypes.splice(index, 0, blockType)
+
+			blockType.$itemContainer.insertAt(index, this.$itemsContainer)
+		}
+		else
+		{
+			this._blockTypes.push(blockType)
+
+			this.$itemsContainer.append(blockType.$itemContainer)
+		}
+
+		this._setContainerHeight()
+	},
+
+	removeBlockType(blockType)
+	{
+		this._blockTypes = this._blockTypes.filter(b => b !== blockType)
+
+		blockType.$itemContainer.remove()
+		blockType.$fieldsContainer.remove()
+
+		this._setContainerHeight()
+	},
+
+	_setContainerHeight()
+	{
+		const maxColHeight = Math.max(400,
+			this.$blockTypesContainer.height(),
+			this.$fieldLayoutContainer.height())
+
+		this.$container.height(maxColHeight)
 	},
 
 	'@newBlockType'()
@@ -71,14 +107,5 @@ export default Garnish.Base.extend({
 	'@setContainerHeight'()
 	{
 		setTimeout(() => this._setContainerHeight(), 1)
-	},
-
-	_setContainerHeight()
-	{
-		const maxColHeight = Math.max(400,
-			this.$blockTypesContainer.height(),
-			this.$fieldLayoutContainer.height())
-
-		this.$container.height(maxColHeight)
 	}
 })
