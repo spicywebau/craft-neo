@@ -52,6 +52,16 @@ export default Garnish.Modal.extend({
 		this.$handleInput.val(this._handle)
 	},
 
+	show()
+	{
+		if(!Garnish.isMobileBrowser())
+		{
+			setTimeout(() => this.$nameInput.focus(), 100);
+		}
+
+		this.base()
+	},
+
 	enableDeleteButton()
 	{
 		this.$deleteBtn.removeClass('hidden')

@@ -459,6 +459,17 @@
 			this.$handleInput.val(this._handle);
 		},
 	
+		show: function show() {
+			var _this = this;
+	
+			if (!_garnish2.default.isMobileBrowser()) {
+				setTimeout(function () {
+					return _this.$nameInput.focus();
+				}, 100);
+			}
+	
+			this.base();
+		},
 		enableDeleteButton: function enableDeleteButton() {
 			this.$deleteBtn.removeClass('hidden');
 		},
