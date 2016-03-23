@@ -191,12 +191,17 @@
 	
 			var onSave = function onSave(e) {
 				_this.addBlockType(blockType);
-	
-				settingsModal.enableDeleteButton();
 				settingsModal.off('save', onSave);
 			};
 	
+			var onFadeOut = function onFadeOut(e) {
+				settingsModal.enableDeleteButton();
+				settingsModal.off('fadeOut', onFadeOut);
+			};
+	
 			settingsModal.on('save', onSave);
+			settingsModal.on('fadeOut', onFadeOut);
+	
 			settingsModal.show();
 		},
 		'@setContainerHeight': function setContainerHeight() {
@@ -482,6 +487,10 @@
 		enableDeleteButton: function enableDeleteButton() {
 			this.$deleteBtn.removeClass('hidden');
 		},
+		_destroy: function _destroy() {
+			this.$container.remove();
+			this.$shade.remove();
+		},
 		'@save': function save(e) {
 			e.preventDefault();
 	
@@ -515,11 +524,19 @@
 			}
 		},
 		'@delete': function _delete(e) {
+			var _this2 = this;
+	
 			e.preventDefault();
 	
-			this.hide();
+			if (confirm(_craft2.default.t('Are you sure you want to delete this block type?'))) {
+				this.on('fadeOut', function (e) {
+					return _this2._destroy();
+				});
 	
-			this.trigger('delete');
+				this.hide();
+	
+				this.trigger('delete');
+			}
 		}
 	});
 

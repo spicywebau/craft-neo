@@ -67,6 +67,12 @@ export default Garnish.Modal.extend({
 		this.$deleteBtn.removeClass('hidden')
 	},
 
+	_destroy()
+	{
+		this.$container.remove();
+		this.$shade.remove();
+	},
+
 	'@save'(e)
 	{
 		e.preventDefault()
@@ -110,8 +116,13 @@ export default Garnish.Modal.extend({
 	{
 		e.preventDefault()
 
-		this.hide()
+		if(confirm(Craft.t('Are you sure you want to delete this block type?')))
+		{
+			this.on('fadeOut', e => this._destroy())
 
-		this.trigger('delete')
+			this.hide()
+
+			this.trigger('delete')
+		}
 	}
 })

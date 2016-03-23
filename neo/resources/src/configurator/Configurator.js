@@ -109,12 +109,18 @@ export default Garnish.Base.extend({
 		const onSave = (e) =>
 		{
 			this.addBlockType(blockType)
-
-			settingsModal.enableDeleteButton()
 			settingsModal.off('save', onSave)
 		}
 
+		const onFadeOut = (e) =>
+		{
+			settingsModal.enableDeleteButton()
+			settingsModal.off('fadeOut', onFadeOut)
+		}
+
 		settingsModal.on('save', onSave)
+		settingsModal.on('fadeOut', onFadeOut)
+
 		settingsModal.show()
 	},
 
