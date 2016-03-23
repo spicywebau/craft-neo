@@ -3,8 +3,8 @@ import $ from 'jquery'
 import Garnish from 'garnish'
 import Craft from 'craft'
 
-import renderTemplate from './settingsmodal.twig'
-import '../../twig-extensions'
+import renderTemplate from './templates/blocktype_settingsmodal.twig'
+import '../twig-extensions'
 
 export default Garnish.Modal.extend({
 

@@ -4,31 +4,32 @@ import '../jquery-extensions'
 import Garnish from 'garnish'
 import Craft from 'craft'
 
-import BlockType from './blocktype/BlockType'
+import NS from '../namespace'
 
-import renderTemplate from './configurator.twig'
+import BlockType from './BlockType'
+
+import renderTemplate from './templates/configurator.twig'
 import '../twig-extensions'
-import './configurator.scss'
+import './styles/configurator.scss'
+
+const _defaults = {
+	namespace: [],
+	blockTypes: []
+}
 
 export default Garnish.Base.extend({
 
-	_defaults: {
-		namespace: '',
-		blockTypes: []
-	},
-
+	_templateNs: [],
 	_blockTypes: [],
 
 	init(settings = {})
 	{
-		settings = Object.assign({}, this._defaults, settings)
+		settings = Object.assign({}, _defaults, settings)
 
-		// Setup <input> field information
-		this.inputNamePrefix = settings.namespace
-		this.inputIdPrefix = Craft.formatInputId(this.inputNamePrefix)
+		this._templateNs = NS.parse(settings.namespace)
 
-		// Initialise the configurator template
-		this.$field = $(`\#${this.inputIdPrefix}-neo-configurator`)
+		const inputIdPrefix = Craft.formatInputId(settings.namespace)
+		this.$field = $(`\#${inputIdPrefix}-neo-configurator`)
 		this.$inputContainer = this.$field.children('.field').children('.input')
 		this.$inputContainer.html(renderTemplate())
 
@@ -56,6 +57,8 @@ export default Garnish.Base.extend({
 		this.addListener(this.$blockTypesContainer, 'resize', '@setContainerHeight')
 		this.addListener(this.$fieldLayoutContainer, 'resize', '@setContainerHeight')
 		this.addListener(this.$addItemButton, 'click', '@newBlockType')
+
+		window.ns = this
 	},
 
 	addBlockType(blockType, index = -1)
@@ -142,7 +145,10 @@ export default Garnish.Base.extend({
 
 	'@newBlockType'()
 	{
-		const blockType = new BlockType()
+		const blockType = new BlockType({
+			namespace: [...this._templateNs, 'blockTypes']
+		})
+
 		const settingsModal = blockType.getSettingsModal()
 
 		blockType.on('delete', e => this.removeBlockType(blockType))

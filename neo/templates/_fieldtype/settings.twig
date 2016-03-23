@@ -1,6 +1,11 @@
 {% import '_includes/forms' as forms %}
 
 <div id="neo-configurator" class="neo-configurator">
+	<template data-neo="template.fld">
+		{% include '_includes/fieldlayoutdesigner' with {
+			fieldLayout: false
+		} only %}
+	</template>
 	{{ forms.field({
 		label: "Configuration"|t,
 		instructions: "Define the types of blocks that can be created within this Neo field, as well as the fields each block type is made up of."|t,
