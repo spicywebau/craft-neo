@@ -4,9 +4,9 @@ import Garnish from 'garnish'
 import Craft from 'craft'
 
 import SettingsModal from './BlockTypeSettingsModal'
+import Fields from './BlockTypeFields'
 
-import renderItemTemplate from './templates/block_type.twig'
-import renderFieldsTemplate from './templates/block_type_fields.twig'
+import renderTemplate from './templates/block_type.twig'
 import '../twig-extensions'
 
 export default Garnish.Base.extend({
@@ -18,6 +18,7 @@ export default Garnish.Base.extend({
 	{
 		this._errors = errors
 		this._settingsModal = new SettingsModal()
+		this._fields = new Fields()
 
 		this._settingsModal.on('save', e =>
 		{
@@ -38,10 +39,9 @@ export default Garnish.Base.extend({
 			errors: this._errors
 		}
 
-		this.$itemContainer = $(renderItemTemplate(context))
-		this.$fieldsContainer = $(renderFieldsTemplate(context))
+		this.$container = $(renderTemplate(context))
 
-		const $itemNeo = this.$itemContainer.find('[data-neo]')
+		const $itemNeo = this.$container.find('[data-neo]')
 
 		this.$name = $itemNeo.filter('[data-neo="text.name"]')
 		this.$nameInput = $itemNeo.filter('[data-neo="input.name"]')
@@ -114,6 +114,11 @@ export default Garnish.Base.extend({
 	getSettingsModal()
 	{
 		return this._settingsModal
+	},
+
+	getFields()
+	{
+		return this._fields
 	},
 
 	'@edit'(e)

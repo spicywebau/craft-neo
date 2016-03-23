@@ -37,9 +37,11 @@ export default Garnish.Base.extend({
 		this.$blockTypesContainer = this.$container.children('.block-types').children()
 		this.$fieldLayoutContainer = this.$container.children('.field-layout').children()
 
-		this.$blockTypeItemsContainer = this.$blockTypesContainer.children('.items')
-		this.$itemsContainer = this.$blockTypeItemsContainer.children('.blocktypes')
-		this.$addItemButton = this.$blockTypeItemsContainer.children('.btn.add')
+		const $blockTypeItemsContainer = this.$blockTypesContainer.children('.items')
+		this.$itemsContainer = $blockTypeItemsContainer.children('.blocktypes')
+		this.$addItemButton = $blockTypeItemsContainer.children('.btn.add')
+
+		this.$fieldsContainer = this.$fieldLayoutContainer.children('.items')
 
 		this._blockTypeSort = new Garnish.DragSort(null, {
 			handle: '[data-neo="button.move"]',
@@ -61,17 +63,18 @@ export default Garnish.Base.extend({
 		if(index >= 0 && index < this._blockTypes.length)
 		{
 			this._blockTypes = this._blockTypes.splice(index, 0, blockType)
-
-			blockType.$itemContainer.insertAt(index, this.$itemsContainer)
+			blockType.$container.insertAt(index, this.$itemsContainer)
 		}
 		else
 		{
 			this._blockTypes.push(blockType)
-
-			this.$itemsContainer.append(blockType.$itemContainer)
+			this.$itemsContainer.append(blockType.$container)
 		}
 
-		this._blockTypeSort.addItems(blockType.$itemContainer);
+		this._blockTypeSort.addItems(blockType.$container);
+
+		this.$fieldsContainer.append(blockType.getFields().$container)
+		this.$fieldLayoutContainer.removeClass('hidden')
 
 		this.trigger('addBlockType', {
 			blockType: blockType,
@@ -85,8 +88,15 @@ export default Garnish.Base.extend({
 	{
 		this._blockTypes = this._blockTypes.filter(b => b !== blockType)
 
-		blockType.$itemContainer.remove()
-		blockType.$fieldsContainer.remove()
+		this._blockTypeSort.removeItems(blockType.$container);
+
+		blockType.$container.remove()
+		blockType.getFields().$container.remove()
+
+		if(this._blockTypes.length === 0)
+		{
+			this.$fieldLayoutContainer.addClass('hidden')
+		}
 
 		this.trigger('removeBlockType', {
 			blockType: blockType
@@ -104,10 +114,7 @@ export default Garnish.Base.extend({
 	{
 		return this._blockTypes.find(blockType =>
 		{
-			return (
-				blockType.$itemContainer.is($element) ||
-				blockType.$fieldsContainer.is($element)
-			)
+			return blockType.$container.is($element)
 		})
 	},
 

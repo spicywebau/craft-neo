@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Coming+Soon');
+
 $sidebar-width: 200px;
 
 .neo-configurator {
@@ -44,10 +46,6 @@ $sidebar-width: 200px;
 	.field-layout {
 		position: relative;
 		height: 100%;
-
-		.items {
-			padding: 24px;
-		}
 	}
 
 	.nc-sidebar,
