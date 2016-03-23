@@ -19,6 +19,12 @@ export default Garnish.Base.extend({
 		this._errors = errors
 		this._settingsModal = new SettingsModal()
 
+		this._settingsModal.on('save', e =>
+		{
+			this.name = e.name
+			this.handle = e.handle
+		})
+
 		this.id = id
 		this.name = name
 		this.handle = handle
@@ -39,8 +45,10 @@ export default Garnish.Base.extend({
 		this.$handleInput = this.$itemContainer.children('.handle-input')
 
 		const $actions = this.$itemContainer.children('.actions')
-		this.$moveButton = $actions.children('.move')
-		this.$settingsButton = $actions.children('.settings')
+		this.$moveBtn = $actions.children('.move')
+		this.$settingsBtn = $actions.children('.settings')
+
+		this.addListener(this.$settingsBtn, 'click', '@edit')
 
 		this._parsed = true
 	},
@@ -104,5 +112,15 @@ export default Garnish.Base.extend({
 	getSettingsModal()
 	{
 		return this._settingsModal
+	},
+
+	'@edit'(e)
+	{
+		e.preventDefault()
+
+		this._settingsModal.name = this._name
+		this._settingsModal.handle = this._handle
+
+		this._settingsModal.show()
 	}
 })

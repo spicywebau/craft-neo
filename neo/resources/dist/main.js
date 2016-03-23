@@ -186,9 +186,6 @@
 			var settingsModal = blockType.getSettingsModal();
 	
 			var onSave = function onSave(e) {
-				blockType.name = e.name;
-				blockType.handle = e.handle;
-	
 				_this.addBlockType(blockType);
 	
 				settingsModal.off('save', onSave);
@@ -291,11 +288,18 @@
 		_parsed: false,
 	
 		init: function init(name, handle) {
+			var _this = this;
+	
 			var id = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 			var errors = arguments.length <= 3 || arguments[3] === undefined ? [] : arguments[3];
 	
 			this._errors = errors;
 			this._settingsModal = new _BlockTypeSettingsModal2.default();
+	
+			this._settingsModal.on('save', function (e) {
+				_this.name = e.name;
+				_this.handle = e.handle;
+			});
 	
 			this.id = id;
 			this.name = name;
@@ -317,8 +321,10 @@
 			this.$handleInput = this.$itemContainer.children('.handle-input');
 	
 			var $actions = this.$itemContainer.children('.actions');
-			this.$moveButton = $actions.children('.move');
-			this.$settingsButton = $actions.children('.settings');
+			this.$moveBtn = $actions.children('.move');
+			this.$settingsBtn = $actions.children('.settings');
+	
+			this.addListener(this.$settingsBtn, 'click', '@edit');
 	
 			this._parsed = true;
 		},
@@ -371,6 +377,14 @@
 		},
 		getSettingsModal: function getSettingsModal() {
 			return this._settingsModal;
+		},
+		'@edit': function edit(e) {
+			e.preventDefault();
+	
+			this._settingsModal.name = this._name;
+			this._settingsModal.handle = this._handle;
+	
+			this._settingsModal.show();
 		}
 	});
 
@@ -420,8 +434,8 @@
 			this._handleGenerator = new _craft2.default.HandleGenerator(this.$nameInput, this.$handleInput);
 	
 			this.addListener(this.$cancelBtn, 'click', 'hide');
-			this.addListener(this.$form, 'submit', '@onFormSubmit');
-			this.addListener(this.$deleteBtn, 'click', '@onDeleteClick');
+			this.addListener(this.$form, 'submit', '@save');
+			this.addListener(this.$deleteBtn, 'click', '@delete');
 		},
 	
 	
@@ -432,7 +446,7 @@
 		set name(name) {
 			this._name = name;
 	
-			this.$nameInput.val(this._handle);
+			this.$nameInput.val(this._name);
 		},
 	
 		get handle() {
@@ -445,7 +459,10 @@
 			this.$handleInput.val(this._handle);
 		},
 	
-		'@onFormSubmit': function onFormSubmit(e) {
+		enableDeleteButton: function enableDeleteButton() {
+			this.$deleteBtn.removeClass('hidden');
+		},
+		'@save': function save(e) {
 			e.preventDefault();
 	
 			// Prevent multi form submits with the return key
@@ -470,6 +487,11 @@
 					handle: handle
 				});
 			}
+		},
+		'@delete': function _delete(e) {
+			e.preventDefault();
+	
+			this.trigger('delete');
 		}
 	});
 

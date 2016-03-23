@@ -24,8 +24,8 @@ export default Garnish.Modal.extend({
 		this._handleGenerator = new Craft.HandleGenerator(this.$nameInput, this.$handleInput)
 
 		this.addListener(this.$cancelBtn, 'click', 'hide')
-		this.addListener(this.$form, 'submit', '@onFormSubmit')
-		this.addListener(this.$deleteBtn, 'click', '@onDeleteClick')
+		this.addListener(this.$form, 'submit', '@save')
+		this.addListener(this.$deleteBtn, 'click', '@delete')
 	},
 
 	get name()
@@ -37,7 +37,7 @@ export default Garnish.Modal.extend({
 	{
 		this._name = name
 
-		this.$nameInput.val(this._handle)
+		this.$nameInput.val(this._name)
 	},
 
 	get handle()
@@ -52,7 +52,12 @@ export default Garnish.Modal.extend({
 		this.$handleInput.val(this._handle)
 	},
 
-	'@onFormSubmit': function(e)
+	enableDeleteButton()
+	{
+		this.$deleteBtn.removeClass('hidden')
+	},
+
+	'@save'(e)
 	{
 		e.preventDefault()
 
@@ -82,5 +87,12 @@ export default Garnish.Modal.extend({
 				handle: handle
 			})
 		}
+	},
+
+	'@delete'(e)
+	{
+		e.preventDefault()
+
+		this.trigger('delete')
 	}
 })
