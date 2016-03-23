@@ -110,6 +110,8 @@ export default Garnish.Modal.extend({
 	{
 		e.preventDefault()
 
+		this.hide()
+
 		this.trigger('delete')
 	}
 })

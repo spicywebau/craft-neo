@@ -104,10 +104,13 @@ export default Garnish.Base.extend({
 		const blockType = new BlockType()
 		const settingsModal = blockType.getSettingsModal()
 
+		blockType.on('delete', e => this.removeBlockType(blockType))
+
 		const onSave = (e) =>
 		{
 			this.addBlockType(blockType)
 
+			settingsModal.enableDeleteButton()
 			settingsModal.off('save', onSave)
 		}
 

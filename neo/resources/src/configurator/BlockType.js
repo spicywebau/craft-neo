@@ -25,6 +25,8 @@ export default Garnish.Base.extend({
 			this.handle = e.handle
 		})
 
+		this._settingsModal.on('delete', e => this.trigger('delete'))
+
 		this.id = id
 		this.name = name
 		this.handle = handle

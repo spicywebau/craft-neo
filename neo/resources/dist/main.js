@@ -185,9 +185,14 @@
 			var blockType = new _BlockType2.default();
 			var settingsModal = blockType.getSettingsModal();
 	
+			blockType.on('delete', function (e) {
+				return _this.removeBlockType(blockType);
+			});
+	
 			var onSave = function onSave(e) {
 				_this.addBlockType(blockType);
 	
+				settingsModal.enableDeleteButton();
 				settingsModal.off('save', onSave);
 			};
 	
@@ -299,6 +304,10 @@
 			this._settingsModal.on('save', function (e) {
 				_this.name = e.name;
 				_this.handle = e.handle;
+			});
+	
+			this._settingsModal.on('delete', function (e) {
+				return _this.trigger('delete');
 			});
 	
 			this.id = id;
@@ -507,6 +516,8 @@
 		},
 		'@delete': function _delete(e) {
 			e.preventDefault();
+	
+			this.hide();
 	
 			this.trigger('delete');
 		}
