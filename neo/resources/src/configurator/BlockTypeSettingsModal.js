@@ -13,10 +13,13 @@ export default Garnish.Modal.extend({
 		this.base()
 
 		this.$form = $(renderTemplate())
-		this.$nameInput = this.$form.find('#new-block-type-name')
-		this.$handleInput = this.$form.find('#new-block-type-handle')
-		this.$cancelBtn = this.$form.find('#new-block-type-cancel')
-		this.$deleteBtn = this.$form.find('#new-block-type-delete')
+
+		const $formNeo = this.$form.find('[data-neo]')
+
+		this.$nameInput = $formNeo.filter('[data-neo="input.name"]')
+		this.$handleInput = $formNeo.filter('[data-neo="input.handle"]')
+		this.$cancelBtn = $formNeo.filter('[data-neo="button.cancel"]')
+		this.$deleteBtn = $formNeo.filter('[data-neo="button.delete"]')
 
 		this.$form.appendTo(Garnish.$bod)
 		this.setContainer(this.$form)

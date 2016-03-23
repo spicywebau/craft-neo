@@ -41,14 +41,14 @@ export default Garnish.Base.extend({
 		this.$itemContainer = $(renderItemTemplate(context))
 		this.$fieldsContainer = $(renderFieldsTemplate(context))
 
-		this.$name = this.$itemContainer.children('.name')
-		this.$nameInput = this.$itemContainer.children('.name-input')
-		this.$handle = this.$itemContainer.children('.handle')
-		this.$handleInput = this.$itemContainer.children('.handle-input')
+		const $itemNeo = this.$itemContainer.find('[data-neo]')
 
-		const $actions = this.$itemContainer.children('.actions')
-		this.$moveBtn = $actions.children('.move')
-		this.$settingsBtn = $actions.children('.settings')
+		this.$name = $itemNeo.filter('[data-neo="text.name"]')
+		this.$nameInput = $itemNeo.filter('[data-neo="input.name"]')
+		this.$handle = $itemNeo.filter('[data-neo="text.handle"]')
+		this.$handleInput = $itemNeo.filter('[data-neo="input.handle"]')
+		this.$moveBtn = $itemNeo.filter('[data-neo="button.move"]')
+		this.$settingsBtn = $itemNeo.filter('[data-neo="button.settings"]')
 
 		this.addListener(this.$settingsBtn, 'click', '@edit')
 
