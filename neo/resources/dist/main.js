@@ -488,9 +488,15 @@
 			var name = _craft2.default.trim(this.$nameInput.val());
 			var handle = _craft2.default.trim(this.$handleInput.val());
 	
-			if (!name || !handle) {
+			if (!name) {
 				_garnish2.default.shake(this.$form);
 			} else {
+				if (!handle) {
+					handle = this._handleGenerator.generateTargetValue(name);
+	
+					this.$handleInput.val(handle);
+				}
+	
 				this.hide();
 	
 				this.trigger('save', {

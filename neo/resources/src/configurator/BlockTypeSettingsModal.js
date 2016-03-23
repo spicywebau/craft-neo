@@ -81,15 +81,22 @@ export default Garnish.Modal.extend({
 		}
 
 		// Basic validation
-		const name = Craft.trim(this.$nameInput.val())
-		const handle = Craft.trim(this.$handleInput.val())
+		let name = Craft.trim(this.$nameInput.val())
+		let handle = Craft.trim(this.$handleInput.val())
 
-		if(!name || !handle)
+		if(!name)
 		{
 			Garnish.shake(this.$form)
 		}
 		else
 		{
+			if(!handle)
+			{
+				handle = this._handleGenerator.generateTargetValue(name)
+
+				this.$handleInput.val(handle)
+			}
+
 			this.hide()
 
 			this.trigger('save', {
