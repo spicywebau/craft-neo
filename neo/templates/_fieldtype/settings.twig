@@ -1,46 +1,5 @@
 {% import '_includes/forms' as forms %}
 
-{% set blockTypeInput %}
-	<div class="nc-sidebar block-types">
-		<div class="col-inner-container">
-			<div class="heading">
-				<h5>{{ "Block Types"|t }}</h5>
-			</div>
-			<div class="items">
-				<div class="blocktypes">
-					{% for blockType in settings.getBlockTypes() %}
-						<div class="neoconfigitem nci-blocktype{% if blockType.hasFieldErrors %} error{% endif %}" data-id="{{ blockType.id }}"{% if blockType.hasErrors() %} data-errors="{{ blockType.getErrors() | json_encode }}"{% endif %}>
-							<div class="name">{% if blockType.name %}{{ blockType.name }}{% else %}&nbsp;{% endif %}</div>
-							<div class="handle code">{% if blockType.handle %}{{ blockType.handle }}{% else %}&nbsp;{% endif %}</div>
-							<div class="actions">
-								<a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
-								<a class="settings icon{% if blockType.hasErrors() %} error{% endif %}" title="{{ 'Settings'|t }}" role="button"></a>
-							</div>
-							<input class="hidden" name="blockTypes[{{ blockType.id }}][name]" value="{{ blockType.name }}">
-							<input class="hidden" name="blockTypes[{{ blockType.id }}][handle]" value="{{ blockType.handle }}">
-						</div>
-					{% endfor %}
-				</div>
-				<div class="btn add icon">{{ "New block type"|t }}</div>
-			</div>
-		</div>
-	</div>
-	<div class="field-settings">
-		<div class="col-inner-container hidden">
-			<div class="heading">
-				<h5>{{ "Field Settings"|t }}</h5>
-			</div>
-			<div class="items">
-				{% for blockType in settings.getBlockTypes() %}
-					<div data-id="{{ blockType.id }}" class="hidden">
-
-					</div>
-				{% endfor %}
-			</div>
-		</div>
-	</div>
-{% endset %}
-
 <div id="neo-configurator" class="neo-configurator">
 	{{ forms.field({
 		label: "Configuration"|t,
