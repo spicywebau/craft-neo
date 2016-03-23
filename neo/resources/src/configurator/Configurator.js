@@ -4,11 +4,11 @@ import '../jquery-extensions'
 import Garnish from 'garnish'
 import Craft from 'craft'
 
-import BlockType from './BlockType'
+import BlockType from './blocktype/BlockType'
 
-import renderTemplate from './templates/configurator.twig'
+import renderTemplate from './configurator.twig'
 import '../twig-extensions'
-import './styles/configurator.scss'
+import './configurator.scss'
 
 export default Garnish.Base.extend({
 

@@ -3,11 +3,11 @@ import $ from 'jquery'
 import Garnish from 'garnish'
 import Craft from 'craft'
 
-import SettingsModal from './BlockTypeSettingsModal'
-import Fields from './BlockTypeFields'
+import SettingsModal from './SettingsModal'
+import FieldLayout from '../fieldlayout/FieldLayout'
 
-import renderTemplate from './templates/block_type.twig'
-import '../twig-extensions'
+import renderTemplate from './blocktype.twig'
+import '../../twig-extensions'
 
 export default Garnish.Base.extend({
 
@@ -18,7 +18,7 @@ export default Garnish.Base.extend({
 	{
 		this._errors = errors
 		this._settingsModal = new SettingsModal()
-		this._fields = new Fields()
+		this._fieldLayout = new FieldLayout()
 
 		this._settingsModal.on('save', e =>
 		{
@@ -116,9 +116,9 @@ export default Garnish.Base.extend({
 		return this._settingsModal
 	},
 
-	getFields()
+	getFieldLayout()
 	{
-		return this._fields
+		return this._fieldLayout
 	},
 
 	'@edit'(e)
