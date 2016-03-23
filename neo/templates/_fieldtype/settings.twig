@@ -3,7 +3,8 @@
 <div id="neo-configurator" class="neo-configurator">
 	<template data-neo="template.fld">
 		{% include '_includes/fieldlayoutdesigner' with {
-			fieldLayout: false
+			fieldLayout: false,
+			instructions: ""
 		} only %}
 	</template>
 	{{ forms.field({

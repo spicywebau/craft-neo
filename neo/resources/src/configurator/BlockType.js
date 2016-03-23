@@ -52,7 +52,8 @@ export default Garnish.Base.extend({
 
 		this._fieldLayout = new FieldLayoutDesigner({
 			namespace: this._templateNs,
-			blockId: this.id
+			blockId: this.id,
+			blockName: this.name
 		})
 
 		NS.enter(this._templateNs)
@@ -114,6 +115,11 @@ export default Garnish.Base.extend({
 		if(this._settingsModal)
 		{
 			this._settingsModal.name = this._name
+		}
+
+		if(this._fieldLayout)
+		{
+			this._fieldLayout.blockName = this._name
 		}
 
 		if(this._parsed)

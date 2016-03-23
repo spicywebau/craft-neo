@@ -502,7 +502,8 @@
 	
 			this._fieldLayout = new _BlockTypeFLD2.default({
 				namespace: this._templateNs,
-				blockId: this.id
+				blockId: this.id,
+				blockName: this.name
 			});
 	
 			_namespace2.default.enter(this._templateNs);
@@ -558,6 +559,10 @@
 	
 			if (this._settingsModal) {
 				this._settingsModal.name = this._name;
+			}
+	
+			if (this._fieldLayout) {
+				this._fieldLayout.blockName = this._name;
 			}
 	
 			if (this._parsed) {
@@ -1196,13 +1201,15 @@
 	
 	var _defaults = {
 		namespace: [],
-		blockId: null
+		blockId: null,
+		blockName: ''
 	};
 	
 	exports.default = _craft2.default.FieldLayoutDesigner.extend({
 	
 		_templateNs: [],
 		_blockId: null,
+		_blockName: '',
 	
 		init: function init() {
 			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -1213,6 +1220,7 @@
 			this._templateNs.push(null); // So block ID can override
 	
 			this.blockId = settings.blockId;
+			this.blockName = settings.blockName;
 	
 			var $template = (0, _jquery2.default)('template[data-neo="template.fld"]');
 			var $fld = (0, _jquery2.default)($template[0].content).children().clone();
@@ -1228,6 +1236,10 @@
 			});
 	
 			_namespace2.default.leave();
+	
+			this.$instructions = this.$container.find('.instructions');
+	
+			this._updateInstructions();
 		},
 	
 	
@@ -1244,9 +1256,24 @@
 			this._updateNamespace();
 		},
 	
+		get blockName() {
+			return this._blockName;
+		},
+	
+		set blockName(name) {
+			this._blockName = name;
+	
+			this._updateInstructions();
+		},
+	
 		_updateNamespace: function _updateNamespace() {
 			if (this.$container) {
 				// TODO Go through all inputs and change their names
+			}
+		},
+		_updateInstructions: function _updateInstructions() {
+			if (this.$instructions) {
+				this.$instructions.text(_craft2.default.t("For block type {blockType}", { blockType: this.blockName }));
 			}
 		}
 	});

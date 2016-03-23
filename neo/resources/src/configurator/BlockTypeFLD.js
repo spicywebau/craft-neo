@@ -7,13 +7,15 @@ import NS from '../namespace'
 
 const _defaults = {
 	namespace: [],
-	blockId: null
+	blockId: null,
+	blockName: ''
 }
 
 export default Craft.FieldLayoutDesigner.extend({
 
 	_templateNs: [],
 	_blockId: null,
+	_blockName: '',
 
 	init(settings = {})
 	{
@@ -23,6 +25,7 @@ export default Craft.FieldLayoutDesigner.extend({
 		this._templateNs.push(null) // So block ID can override
 
 		this.blockId = settings.blockId
+		this.blockName = settings.blockName
 
 		const $template = $('template[data-neo="template.fld"]')
 		const $fld = $($template[0].content).children().clone()
@@ -38,6 +41,10 @@ export default Craft.FieldLayoutDesigner.extend({
 		})
 
 		NS.leave()
+
+		this.$instructions = this.$container.find('.instructions')
+
+		this._updateInstructions()
 	},
 
 	get blockId()
@@ -55,11 +62,31 @@ export default Craft.FieldLayoutDesigner.extend({
 		this._updateNamespace()
 	},
 
+	get blockName()
+	{
+		return this._blockName
+	},
+
+	set blockName(name)
+	{
+		this._blockName = name
+
+		this._updateInstructions()
+	},
+
 	_updateNamespace()
 	{
 		if(this.$container)
 		{
 			// TODO Go through all inputs and change their names
+		}
+	},
+
+	_updateInstructions()
+	{
+		if(this.$instructions)
+		{
+			this.$instructions.text(Craft.t("For block type {blockType}", {blockType: this.blockName}))
 		}
 	}
 })
