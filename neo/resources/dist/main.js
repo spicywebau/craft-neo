@@ -164,7 +164,7 @@
 	
 			this._blockTypeSort.addItems(blockType.$container);
 	
-			this.$fieldsContainer.append(blockType.getFields().$container);
+			this.$fieldsContainer.append(blockType.getFieldLayout().$container);
 			this.$fieldLayoutContainer.removeClass('hidden');
 	
 			this.trigger('addBlockType', {
@@ -182,7 +182,7 @@
 			this._blockTypeSort.removeItems(blockType.$container);
 	
 			blockType.$container.remove();
-			blockType.getFields().$container.remove();
+			blockType.getFieldLayout().$container.remove();
 	
 			if (this._blockTypes.length === 0) {
 				this.$fieldLayoutContainer.addClass('hidden');
