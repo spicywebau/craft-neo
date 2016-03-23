@@ -41,6 +41,14 @@ export default Garnish.Base.extend({
 		this.$itemsContainer = this.$blockTypeItemsContainer.children('.blocktypes')
 		this.$addItemButton = this.$blockTypeItemsContainer.children('.btn.add')
 
+		this._blockTypeSort = new Garnish.DragSort(null, {
+			handle: '[data-neo="button.move"]',
+			axis: 'y',
+			magnetStrength: 4,
+			helperLagBase: 1.5,
+			onSortChange: () => this._updateBlockTypeOrder()
+		})
+
 		this._setContainerHeight()
 
 		this.addListener(this.$blockTypesContainer, 'resize', '@setContainerHeight')
@@ -62,6 +70,8 @@ export default Garnish.Base.extend({
 
 			this.$itemsContainer.append(blockType.$itemContainer)
 		}
+
+		this._blockTypeSort.addItems(blockType.$itemContainer);
 
 		this.trigger('addBlockType', {
 			blockType: blockType,
@@ -88,6 +98,30 @@ export default Garnish.Base.extend({
 	getBlockTypes()
 	{
 		return Array.from(this._blockTypes)
+	},
+
+	getBlockTypeByElement($element)
+	{
+		return this._blockTypes.find(blockType =>
+		{
+			return (
+				blockType.$itemContainer.is($element) ||
+				blockType.$fieldsContainer.is($element)
+			)
+		})
+	},
+
+	_updateBlockTypeOrder()
+	{
+		const blockTypes = []
+
+		this._blockTypeSort.$items.each((index, element) =>
+		{
+			const blockType = this.getBlockTypeByElement(element)
+			blockTypes.push(blockType)
+		})
+
+		this._blockTypes = blockTypes
 	},
 
 	_setContainerHeight()

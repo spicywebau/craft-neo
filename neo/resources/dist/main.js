@@ -109,6 +109,8 @@
 		_blockTypes: [],
 	
 		init: function init() {
+			var _this = this;
+	
 			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	
 			settings = Object.assign({}, this._defaults, settings);
@@ -131,6 +133,16 @@
 			this.$itemsContainer = this.$blockTypeItemsContainer.children('.blocktypes');
 			this.$addItemButton = this.$blockTypeItemsContainer.children('.btn.add');
 	
+			this._blockTypeSort = new _garnish2.default.DragSort(null, {
+				handle: '[data-neo="button.move"]',
+				axis: 'y',
+				magnetStrength: 4,
+				helperLagBase: 1.5,
+				onSortChange: function onSortChange() {
+					return _this._updateBlockTypeOrder();
+				}
+			});
+	
 			this._setContainerHeight();
 	
 			this.addListener(this.$blockTypesContainer, 'resize', '@setContainerHeight');
@@ -149,6 +161,8 @@
 	
 				this.$itemsContainer.append(blockType.$itemContainer);
 			}
+	
+			this._blockTypeSort.addItems(blockType.$itemContainer);
 	
 			this.trigger('addBlockType', {
 				blockType: blockType,
@@ -174,23 +188,40 @@
 		getBlockTypes: function getBlockTypes() {
 			return Array.from(this._blockTypes);
 		},
+		getBlockTypeByElement: function getBlockTypeByElement($element) {
+			return this._blockTypes.find(function (blockType) {
+				return blockType.$itemContainer.is($element) || blockType.$fieldsContainer.is($element);
+			});
+		},
+		_updateBlockTypeOrder: function _updateBlockTypeOrder() {
+			var _this2 = this;
+	
+			var blockTypes = [];
+	
+			this._blockTypeSort.$items.each(function (index, element) {
+				var blockType = _this2.getBlockTypeByElement(element);
+				blockTypes.push(blockType);
+			});
+	
+			this._blockTypes = blockTypes;
+		},
 		_setContainerHeight: function _setContainerHeight() {
 			var maxColHeight = Math.max(400, this.$blockTypesContainer.height(), this.$fieldLayoutContainer.height());
 	
 			this.$container.height(maxColHeight);
 		},
 		'@newBlockType': function newBlockType() {
-			var _this = this;
+			var _this3 = this;
 	
 			var blockType = new _BlockType2.default();
 			var settingsModal = blockType.getSettingsModal();
 	
 			blockType.on('delete', function (e) {
-				return _this.removeBlockType(blockType);
+				return _this3.removeBlockType(blockType);
 			});
 	
 			var onSave = function onSave(e) {
-				_this.addBlockType(blockType);
+				_this3.addBlockType(blockType);
 				settingsModal.off('save', onSave);
 			};
 	
@@ -205,10 +236,10 @@
 			settingsModal.show();
 		},
 		'@setContainerHeight': function setContainerHeight() {
-			var _this2 = this;
+			var _this4 = this;
 	
 			setTimeout(function () {
-				return _this2._setContainerHeight();
+				return _this4._setContainerHeight();
 			}, 1);
 		}
 	});
