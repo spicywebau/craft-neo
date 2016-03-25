@@ -564,6 +564,8 @@
 			this.$moveBtn = $itemNeo.filter('[data-neo="button.move"]');
 			this.$settingsBtn = $itemNeo.filter('[data-neo="button.settings"]');
 	
+			this.deselect();
+	
 			this.addListener(this.$settingsBtn, 'click', '@edit');
 	
 			this._parsed = true;
