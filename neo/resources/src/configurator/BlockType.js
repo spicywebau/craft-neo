@@ -25,6 +25,7 @@ export default Garnish.Base.extend({
 
 	_templateNs: [],
 	_parsed: false,
+	_selected: false,
 
 	init(settings = {})
 	{
@@ -163,6 +164,36 @@ export default Garnish.Base.extend({
 	getFieldLayout()
 	{
 		return this._fieldLayout
+	},
+
+	select()
+	{
+		this.toggleSelect(true)
+	},
+
+	deselect()
+	{
+		this.toggleSelect(false)
+	},
+
+	toggleSelect: function(select)
+	{
+		this._selected = (typeof select === 'boolean' ? select : !this._selected)
+
+		if(this._fieldLayout)
+		{
+			this._fieldLayout.$container.toggleClass('hidden', !this._selected)
+		}
+
+		if(this._parsed)
+		{
+			this.$container.toggleClass('sel', this._selected)
+		}
+	},
+
+	isSelected()
+	{
+		return this._selected
 	},
 
 	'@edit'(e)

@@ -79,6 +79,8 @@ export default Garnish.Base.extend({
 		this.$fieldsContainer.append(blockType.getFieldLayout().$container)
 		this.$fieldLayoutContainer.removeClass('hidden')
 
+		this.addListener(blockType.$container, 'click', '@selectBlockType')
+
 		this.trigger('addBlockType', {
 			blockType: blockType,
 			index: index
@@ -101,6 +103,8 @@ export default Garnish.Base.extend({
 			this.$fieldLayoutContainer.addClass('hidden')
 		}
 
+		this.removeListener(blockType.$container, 'click')
+
 		this.trigger('removeBlockType', {
 			blockType: blockType
 		})
@@ -119,6 +123,14 @@ export default Garnish.Base.extend({
 		{
 			return blockType.$container.is($element)
 		})
+	},
+
+	selectBlockType(blockType)
+	{
+		for(let bt of this._blockTypes)
+		{
+			bt.toggleSelect(bt === blockType)
+		}
 	},
 
 	_updateBlockTypeOrder()
@@ -156,6 +168,8 @@ export default Garnish.Base.extend({
 		const onSave = (e) =>
 		{
 			this.addBlockType(blockType)
+			this.selectBlockType(blockType)
+
 			settingsModal.off('save', onSave)
 		}
 
@@ -174,5 +188,12 @@ export default Garnish.Base.extend({
 	'@setContainerHeight'()
 	{
 		setTimeout(() => this._setContainerHeight(), 1)
+	},
+
+	'@selectBlockType'(e)
+	{
+		const blockType = this.getBlockTypeByElement(e.currentTarget)
+
+		this.selectBlockType(blockType)
 	}
 })

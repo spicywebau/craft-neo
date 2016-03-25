@@ -174,6 +174,8 @@
 			this.$fieldsContainer.append(blockType.getFieldLayout().$container);
 			this.$fieldLayoutContainer.removeClass('hidden');
 	
+			this.addListener(blockType.$container, 'click', '@selectBlockType');
+	
 			this.trigger('addBlockType', {
 				blockType: blockType,
 				index: index
@@ -195,6 +197,8 @@
 				this.$fieldLayoutContainer.addClass('hidden');
 			}
 	
+			this.removeListener(blockType.$container, 'click');
+	
 			this.trigger('removeBlockType', {
 				blockType: blockType
 			});
@@ -208,6 +212,32 @@
 			return this._blockTypes.find(function (blockType) {
 				return blockType.$container.is($element);
 			});
+		},
+		selectBlockType: function selectBlockType(blockType) {
+			var _iteratorNormalCompletion = true;
+			var _didIteratorError = false;
+			var _iteratorError = undefined;
+	
+			try {
+				for (var _iterator = this._blockTypes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					var bt = _step.value;
+	
+					bt.toggleSelect(bt === blockType);
+				}
+			} catch (err) {
+				_didIteratorError = true;
+				_iteratorError = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion && _iterator.return) {
+						_iterator.return();
+					}
+				} finally {
+					if (_didIteratorError) {
+						throw _iteratorError;
+					}
+				}
+			}
 		},
 		_updateBlockTypeOrder: function _updateBlockTypeOrder() {
 			var _this2 = this;
@@ -241,6 +271,8 @@
 	
 			var onSave = function onSave(e) {
 				_this3.addBlockType(blockType);
+				_this3.selectBlockType(blockType);
+	
 				settingsModal.off('save', onSave);
 			};
 	
@@ -260,6 +292,11 @@
 			setTimeout(function () {
 				return _this4._setContainerHeight();
 			}, 1);
+		},
+		'@selectBlockType': function selectBlockType(e) {
+			var blockType = this.getBlockTypeByElement(e.currentTarget);
+	
+			this.selectBlockType(blockType);
 		}
 	});
 
@@ -471,6 +508,7 @@
 	
 		_templateNs: [],
 		_parsed: false,
+		_selected: false,
 	
 		init: function init() {
 			var _this = this;
@@ -596,6 +634,29 @@
 		},
 		getFieldLayout: function getFieldLayout() {
 			return this._fieldLayout;
+		},
+		select: function select() {
+			this.toggleSelect(true);
+		},
+		deselect: function deselect() {
+			this.toggleSelect(false);
+		},
+	
+	
+		toggleSelect: function toggleSelect(select) {
+			this._selected = typeof select === 'boolean' ? select : !this._selected;
+	
+			if (this._fieldLayout) {
+				this._fieldLayout.$container.toggleClass('hidden', !this._selected);
+			}
+	
+			if (this._parsed) {
+				this.$container.toggleClass('sel', this._selected);
+			}
+		},
+	
+		isSelected: function isSelected() {
+			return this._selected;
 		},
 		'@edit': function edit(e) {
 			e.preventDefault();
