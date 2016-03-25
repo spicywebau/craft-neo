@@ -7,6 +7,7 @@ import NS from '../namespace'
 
 const _defaults = {
 	namespace: [],
+	layout: [],
 	blockId: null,
 	blockName: ''
 }
@@ -43,6 +44,8 @@ export default Craft.FieldLayoutDesigner.extend({
 		NS.leave()
 
 		this.$instructions = this.$container.find('.instructions')
+
+
 
 		this._updateInstructions()
 	},

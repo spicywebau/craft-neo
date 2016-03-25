@@ -60,7 +60,8 @@ export default Garnish.Base.extend({
 				name: blockTypeInfo.name,
 				handle: blockTypeInfo.handle,
 				id: blockTypeInfo.id,
-				errors: blockTypeInfo.errors
+				errors: blockTypeInfo.errors,
+				fieldLayout: blockTypeInfo.fieldLayout
 			})
 
 			this.addBlockType(blockType)

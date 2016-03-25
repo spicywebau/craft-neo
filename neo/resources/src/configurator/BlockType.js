@@ -16,7 +16,8 @@ const _defaults = {
 	name: '',
 	handle: '',
 	id: null,
-	errors: []
+	errors: [],
+	fieldLayout: []
 }
 
 let _totalNewBlockTypes = 0
@@ -53,6 +54,7 @@ export default Garnish.Base.extend({
 
 		this._fieldLayout = new FieldLayoutDesigner({
 			namespace: this._templateNs,
+			layout: settings.fieldLayout,
 			blockId: this.id,
 			blockName: this.name
 		})
@@ -77,7 +79,7 @@ export default Garnish.Base.extend({
 		this.$moveBtn = $itemNeo.filter('[data-neo="button.move"]')
 		this.$settingsBtn = $itemNeo.filter('[data-neo="button.settings"]')
 
-		this.deselect()
+		this.deselect();
 
 		this.addListener(this.$settingsBtn, 'click', '@edit')
 
