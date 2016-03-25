@@ -57,8 +57,6 @@ export default Garnish.Base.extend({
 		this.addListener(this.$blockTypesContainer, 'resize', '@setContainerHeight')
 		this.addListener(this.$fieldLayoutContainer, 'resize', '@setContainerHeight')
 		this.addListener(this.$addItemButton, 'click', '@newBlockType')
-
-		window.ns = this
 	},
 
 	addBlockType(blockType, index = -1)
