@@ -162,60 +162,6 @@ class NeoService extends BaseApplicationComponent
 
 		$blockTypeRecord->validateUniques = true;
 
-		// Can't validate multiple new rows at once so we'll need to give these temporary context to avoid false unique
-		// handle validation errors, and just validate those manually. Also apply the future fieldColumnPrefix so that
-		// field handle validation takes its length into account.
-		$contentService = craft()->content;
-		$originalFieldContext      = $contentService->fieldContext;
-		$originalFieldColumnPrefix = $contentService->fieldColumnPrefix;
-
-		$contentService->fieldContext      = StringHelper::randomString(10);
-		$contentService->fieldColumnPrefix = 'field_'.$blockType->handle.'_';
-
-		foreach ($blockType->getFields() as $field)
-		{
-			// Hack to allow blank field names
-			if (!$field->name)
-			{
-				$field->name = '__blank__';
-			}
-
-			craft()->fields->validateField($field);
-
-			// Make sure the block type handle + field handle combo is unique for the whole field. This prevents us from
-			// worrying about content column conflicts like "a" + "b_c" == "a_b" + "c".
-			if ($blockType->handle && $field->handle)
-			{
-				$blockTypeAndFieldHandle = $blockType->handle.'_'.$field->handle;
-
-				if (in_array($blockTypeAndFieldHandle, $this->_uniqueBlockTypeAndFieldHandles))
-				{
-					// This error *might* not be entirely accurate, but it's such an edge case that it's probably better
-					// for the error to be worded for the common problem (two duplicate handles within the same block
-					// type).
-					$error = Craft::t('{attribute} "{value}" has already been taken.', array(
-						'attribute' => Craft::t('Handle'),
-						'value' => $field->handle
-					));
-
-					$field->addError('handle', $error);
-				}
-				else
-				{
-					$this->_uniqueBlockTypeAndFieldHandles[] = $blockTypeAndFieldHandle;
-				}
-			}
-
-			if ($field->hasErrors() || $field->hasSettingErrors())
-			{
-				$blockType->hasFieldErrors = true;
-				$validates = false;
-			}
-		}
-
-		$contentService->fieldContext      = $originalFieldContext;
-		$contentService->fieldColumnPrefix = $originalFieldColumnPrefix;
-
 		return $validates;
 	}
 
@@ -236,51 +182,28 @@ class NeoService extends BaseApplicationComponent
 			$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 			try
 			{
-				$contentService = craft()->content;
-				$fieldsService  = craft()->fields;
-
-				$originalFieldContext         = $contentService->fieldContext;
-				$originalFieldColumnPrefix    = $contentService->fieldColumnPrefix;
-				$originalOldFieldColumnPrefix = $fieldsService->oldFieldColumnPrefix;
-
 				// Get the block type record
 				$blockTypeRecord = $this->_getBlockTypeRecord($blockType);
 				$isNewBlockType = $blockType->isNew();
+				$oldBlockType = $isNewBlockType ? null : Neo_BlockTypeModel::populateModel($blockTypeRecord);
 
-				if (!$isNewBlockType)
+				// Is there a new field layout?
+				$fieldLayout = $blockType->getFieldLayout();
+
+				if (!$fieldLayout->id)
 				{
-					// Get the old block type fields
-					$oldBlockTypeRecord = Neo_BlockTypeRecord::model()->findById($blockType->id);
-					$oldBlockType = Neo_BlockTypeModel::populateModel($oldBlockTypeRecord);
-
-					$contentService->fieldContext        = 'neoBlockType:'.$blockType->id;
-					$contentService->fieldColumnPrefix   = 'field_'.$oldBlockType->handle.'_';
-					$fieldsService->oldFieldColumnPrefix = 'field_'.$oldBlockType->handle.'_';
-
-					$oldFieldsById = array();
-
-					foreach ($oldBlockType->getFields() as $field)
+					// Delete the old one
+					if (!$isNewBlockType && $oldBlockType->fieldLayoutId)
 					{
-						$oldFieldsById[$field->id] = $field;
+						craft()->fields->deleteLayoutById($oldBlockType->fieldLayoutId);
 					}
 
-					// Figure out which ones are still around
-					foreach ($blockType->getFields() as $field)
-					{
-						if (!$field->isNew())
-						{
-							unset($oldFieldsById[$field->id]);
-						}
-					}
+					// Save the new one
+					craft()->fields->saveLayout($fieldLayout);
 
-					// Drop the old fields that aren't around anymore
-					foreach ($oldFieldsById as $field)
-					{
-						$fieldsService->deleteField($field);
-					}
-
-					// Refresh the schema cache
-					craft()->db->getSchema()->refresh();
+					// Update the entry type record/model with the new layout ID
+					$blockType->fieldLayoutId = $fieldLayout->id;
+					$blockTypeRecord->fieldLayoutId = $fieldLayout->id;
 				}
 
 				// Set the basic info on the new block type record
@@ -298,66 +221,8 @@ class NeoService extends BaseApplicationComponent
 					$blockType->id = $blockTypeRecord->id;
 				}
 
-				// Save the fields and field layout
-				// -------------------------------------------------------------
-
-				$fieldLayoutFields = array();
-				$sortOrder = 0;
-
-				// Resetting the fieldContext here might be redundant if this isn't a new blocktype but whatever
-				$contentService->fieldContext      = 'neoBlockType:'.$blockType->id;
-				$contentService->fieldColumnPrefix = 'field_'.$blockType->handle.'_';
-
-				foreach ($blockType->getFields() as $field)
-				{
-					// Hack to allow blank field names
-					if (!$field->name)
-					{
-						$field->name = '__blank__';
-					}
-
-					if (!$fieldsService->saveField($field, false))
-					{
-						throw new Exception(Craft::t('An error occurred while saving this Neo block type.'));
-					}
-
-					$fieldLayoutField = new FieldLayoutFieldModel();
-					$fieldLayoutField->fieldId = $field->id;
-					$fieldLayoutField->required = $field->required;
-					$fieldLayoutField->sortOrder = ++$sortOrder;
-
-					$fieldLayoutFields[] = $fieldLayoutField;
-				}
-
-				$contentService->fieldContext        = $originalFieldContext;
-				$contentService->fieldColumnPrefix   = $originalFieldColumnPrefix;
-				$fieldsService->oldFieldColumnPrefix = $originalOldFieldColumnPrefix;
-
-				$fieldLayoutTab = new FieldLayoutTabModel();
-				$fieldLayoutTab->name = 'Content';
-				$fieldLayoutTab->sortOrder = 1;
-				$fieldLayoutTab->setFields($fieldLayoutFields);
-
-				$fieldLayout = new FieldLayoutModel();
-				$fieldLayout->type = Neo_ElementType::NeoBlock;
-				$fieldLayout->setTabs(array($fieldLayoutTab));
-				$fieldLayout->setFields($fieldLayoutFields);
-
-				$fieldsService->saveLayout($fieldLayout);
-
-				// Update the block type model & record with our new field layout ID
-				$blockType->setFieldLayout($fieldLayout);
-				$blockType->fieldLayoutId = $fieldLayout->id;
-				$blockTypeRecord->fieldLayoutId = $fieldLayout->id;
-
 				// Update the block type with the field layout ID
 				$blockTypeRecord->save(false);
-
-				if (!$isNewBlockType)
-				{
-					// Delete the old field layout
-					$fieldsService->deleteLayoutById($oldBlockType->fieldLayoutId);
-				}
 
 				if ($transaction !== null)
 				{
@@ -403,27 +268,6 @@ class NeoService extends BaseApplicationComponent
 				->queryColumn();
 
 			$this->deleteBlockById($blockIds);
-
-			// Set the new contentTable
-			$originalContentTable = craft()->content->contentTable;
-			$neoField = craft()->fields->getFieldById($blockType->fieldId);
-			$newContentTable = $this->getContentTableName($neoField);
-			craft()->content->contentTable = $newContentTable;
-
-			// Set the new fieldColumnPrefix
-			$originalFieldColumnPrefix = craft()->content->fieldColumnPrefix;
-			craft()->content->fieldColumnPrefix = 'field_'.$blockType->handle.'_';
-
-
-			// Now delete the block type fields
-			foreach ($blockType->getFields() as $field)
-			{
-				craft()->fields->deleteField($field);
-			}
-
-			// Restore the contentTable and the fieldColumnPrefix to original values.
-			craft()->content->fieldColumnPrefix = $originalFieldColumnPrefix;
-			craft()->content->contentTable = $newContentTable;
 
 			// Delete the field layout
 			craft()->fields->deleteLayoutById($blockType->fieldLayoutId);
@@ -519,23 +363,6 @@ class NeoService extends BaseApplicationComponent
 			{
 				$neoField = $settings->getField();
 
-				// Create the content table first since the block type fields will need it
-				$oldContentTable = $this->getContentTableName($neoField, true);
-				$newContentTable = $this->getContentTableName($neoField);
-
-				// Do we need to create/rename the content table?
-				if (!craft()->db->tableExists($newContentTable))
-				{
-					if ($oldContentTable && craft()->db->tableExists($oldContentTable))
-					{
-						MigrationHelper::renameTable($oldContentTable, $newContentTable);
-					}
-					else
-					{
-						$this->_createContentTable($newContentTable);
-					}
-				}
-
 				// Delete the old block types first, in case there's a handle conflict with one of the new ones
 				$oldBlockTypes = $this->getBlockTypesByFieldId($neoField->id);
 				$oldBlockTypesById = array();
@@ -561,9 +388,6 @@ class NeoService extends BaseApplicationComponent
 				// Save the new ones
 				$sortOrder = 0;
 
-				$originalContentTable = craft()->content->contentTable;
-				craft()->content->contentTable = $newContentTable;
-
 				foreach ($settings->getBlockTypes() as $blockType)
 				{
 					$sortOrder++;
@@ -571,8 +395,6 @@ class NeoService extends BaseApplicationComponent
 					$blockType->sortOrder = $sortOrder;
 					$this->saveBlockType($blockType, false);
 				}
-
-				craft()->content->contentTable = $originalContentTable;
 
 				if ($transaction !== null)
 				{
@@ -613,10 +435,6 @@ class NeoService extends BaseApplicationComponent
 		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 		try
 		{
-			$originalContentTable = craft()->content->contentTable;
-			$contentTable = $this->getContentTableName($neoField);
-			craft()->content->contentTable = $contentTable;
-
 			// Delete the block types
 			$blockTypes = $this->getBlockTypesByFieldId($neoField->id);
 
@@ -624,11 +442,6 @@ class NeoService extends BaseApplicationComponent
 			{
 				$this->deleteBlockType($blockType);
 			}
-
-			// Drop the content table
-			craft()->db->createCommand()->dropTable($contentTable);
-
-			craft()->content->contentTable = $originalContentTable;
 
 			if ($transaction !== null)
 			{
@@ -646,42 +459,6 @@ class NeoService extends BaseApplicationComponent
 
 			throw $e;
 		}
-	}
-
-	/**
-	 * Returns the content table name for a given Neo field.
-	 *
-	 * @param FieldModel $neoField  The Neo field.
-	 * @param bool       $useOldHandle Whether the method should use the field’s old handle when determining the table
-	 *                                 name (e.g. to get the existing table name, rather than the new one).
-	 *
-	 * @return string|false The table name, or `false` if $useOldHandle was set to `true` and there was no old handle.
-	 */
-	public function getContentTableName(FieldModel $neoField, $useOldHandle = false)
-	{
-		$name = '';
-
-		do
-		{
-			if ($useOldHandle)
-			{
-				if (!$neoField->oldHandle)
-				{
-					return false;
-				}
-
-				$handle = $neoField->oldHandle;
-			}
-			else
-			{
-				$handle = $neoField->handle;
-			}
-
-			$name = '_'.StringHelper::toLowerCase($handle).$name;
-		}
-		while ($neoField = $this->getParentNeoField($neoField));
-
-		return 'neocontent'.$name;
 	}
 
 	/**
@@ -1056,25 +833,6 @@ class NeoService extends BaseApplicationComponent
 		{
 			return new Neo_BlockRecord();
 		}
-	}
-
-	/**
-	 * Creates the content table for a Neo field.
-	 *
-	 * @param string $name
-	 *
-	 * @return null
-	 */
-	private function _createContentTable($name)
-	{
-		craft()->db->createCommand()->createTable($name, array(
-			'elementId' => array('column' => ColumnType::Int, 'null' => false),
-			'locale'    => array('column' => ColumnType::Locale, 'null' => false)
-		));
-
-		craft()->db->createCommand()->createIndex($name, 'elementId,locale', true);
-		craft()->db->createCommand()->addForeignKey($name, 'elementId', 'elements', 'id', 'CASCADE', null);
-		craft()->db->createCommand()->addForeignKey($name, 'locale', 'locales', 'locale', 'CASCADE', 'CASCADE');
 	}
 
 	/**

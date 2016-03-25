@@ -21,10 +21,6 @@ class Neo_BlockTypeModel extends BaseModel
 	 */
 	public $hasFieldErrors = false;
 
-	/**
-	 * @var
-	 */
-	private $_fields;
 
 	// Public Methods
 	// =========================================================================
@@ -57,45 +53,6 @@ class Neo_BlockTypeModel extends BaseModel
 	public function isNew()
 	{
 		return (!$this->id || strncmp($this->id, 'new', 3) === 0);
-	}
-
-	/**
-	 * Returns the fields associated with this block type.
-	 *
-	 * @return array
-	 */
-	public function getFields()
-	{
-		if (!isset($this->_fields))
-		{
-			$this->_fields = array();
-
-			// Preload all of the fields in this block type's context
-			craft()->fields->getAllFields(null, 'neoBlockType:'.$this->id);
-
-			$fieldLayoutFields = $this->getFieldLayout()->getFields();
-
-			foreach ($fieldLayoutFields as $fieldLayoutField)
-			{
-				$field = $fieldLayoutField->getField();
-				$field->required = $fieldLayoutField->required;
-				$this->_fields[] = $field;
-			}
-		}
-
-		return $this->_fields;
-	}
-
-	/**
-	 * Sets the fields associated with this block type.
-	 *
-	 * @param array $fields
-	 *
-	 * @return null
-	 */
-	public function setFields($fields)
-	{
-		$this->_fields = $fields;
 	}
 
 	// Protected Methods

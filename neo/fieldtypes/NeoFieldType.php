@@ -96,31 +96,16 @@ class NeoFieldType extends BaseFieldType
 				$blockType->name    = $blockTypeSettings['name'];
 				$blockType->handle  = $blockTypeSettings['handle'];
 
-				$fields = array();
-
-				if (!empty($blockTypeSettings['fields']))
+				if(!empty($blockTypeSettings['fieldLayout']))
 				{
-					foreach ($blockTypeSettings['fields'] as $fieldId => $fieldSettings)
-					{
-						$field = new FieldModel();
-						$field->id           = $fieldId;
-						$field->name         = $fieldSettings['name'];
-						$field->handle       = $fieldSettings['handle'];
-						$field->instructions = $fieldSettings['instructions'];
-						$field->required     = !empty($fieldSettings['required']);
-						$field->translatable = !empty($fieldSettings['translatable']);
-						$field->type         = $fieldSettings['type'];
+					$fieldLayoutPost = $blockTypeSettings['fieldLayout'];
+					$requiredFieldPost = empty($blockTypeSettings['requiredFields']) ? array() : $blockTypeSettings['requiredFields'];
 
-						if (isset($fieldSettings['typesettings']))
-						{
-							$field->settings = $fieldSettings['typesettings'];
-						}
-
-						$fields[] = $field;
-					}
+					$fieldLayout = craft()->fields->assembleLayout($fieldLayoutPost, $requiredFieldPost);
+					$fieldLayout->type = Neo_ElementType::NeoBlock;
+					$blockType->setFieldLayout($fieldLayout);
 				}
 
-				$blockType->setFields($fields);
 				$blockTypes[] = $blockType;
 			}
 		}

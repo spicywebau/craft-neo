@@ -12,7 +12,12 @@ class NeoPlugin extends BasePlugin
 {
 	function getName()
 	{
-		return Craft::t('Neo');
+		return "Neo";
+	}
+
+	function getDescription()
+	{
+		return Craft::t("A Matrix-like field type that groups existing fields");
 	}
 
 	function getVersion()

@@ -134,35 +134,6 @@ class Neo_BlockModel extends BaseElementModel
 		$this->_owner = $owner;
 	}
 
-	/**
-	 * @inheritDoc BaseElementModel::getContentTable()
-	 *
-	 * @return string
-	 */
-	public function getContentTable()
-	{
-		return craft()->neo->getContentTableName($this->_getField());
-	}
-
-	/**
-	 * @inheritDoc BaseElementModel::getFieldColumnPrefix()
-	 *
-	 * @return string
-	 */
-	public function getFieldColumnPrefix()
-	{
-		return 'field_'.$this->getType()->handle.'_';
-	}
-
-	/**
-	 * Returns the field context this element's content uses.
-	 *
-	 * @return string
-	 */
-	public function getFieldContext()
-	{
-		return 'neoBlockType:'.$this->typeId;
-	}
 
 	// Protected Methods
 	// =========================================================================
