@@ -48,11 +48,33 @@ class NeoFieldType extends BaseFieldType
 
 		foreach($settings->getBlockTypes() as $blockType)
 		{
+			$fieldLayout = $blockType->getFieldLayout();
+			$fieldLayoutTabs = $fieldLayout->getTabs();
+
+			$jsFieldLayout = array();
+
+			foreach($fieldLayoutTabs as $tab)
+			{
+				$tabFields = $tab->getFields();
+				$jsTabFields = array();
+
+				foreach($tabFields as $field)
+				{
+					$jsTabFields[] = $field->id;
+				}
+
+				$jsFieldLayout[] = array(
+					'name' => $tab->name,
+					'fields' => $jsTabFields,
+				);
+			}
+
 			$jsBlockTypes[] = array(
 				'id' => $blockType->id,
 				'name' => $blockType->name,
 				'handle' => $blockType->handle,
 				'errors' => $blockType->getErrors(),
+				'fieldLayout' => $jsFieldLayout,
 			);
 		}
 
