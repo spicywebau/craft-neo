@@ -52,6 +52,20 @@ export default Garnish.Base.extend({
 			onSortChange: () => this._updateBlockTypeOrder()
 		})
 
+		// Add the existing block types
+		for(let blockTypeInfo of settings.blockTypes)
+		{
+			let blockType = new BlockType({
+				namespace: [...this._templateNs, 'blockTypes'],
+				name: blockTypeInfo.name,
+				handle: blockTypeInfo.handle,
+				id: blockTypeInfo.id,
+				errors: blockTypeInfo.errors
+			})
+
+			this.addBlockType(blockType)
+		}
+
 		this._setContainerHeight()
 
 		this.addListener(this.$blockTypesContainer, 'resize', '@setContainerHeight')
