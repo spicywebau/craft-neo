@@ -1,117 +1,121 @@
-$sidebar-width: 200px;
-
-.neo-configurator {
-
-	> .field {
-		max-width: none;
-
-		> .input {
-			position: relative;
-			overflow: hidden;
-			border: 1px solid #e3e5e8;
-			border-radius: 3px;
-			box-shadow: 0 0 5px rgba(#33aaff, 0);
-			transition: box-shadow linear 0.1s;
-
-			body.ltr & { padding-left:  $sidebar-width; }
-			body.rtl & { padding-right: $sidebar-width; }
-		}
-	}
-
-	.nc-sidebar {
-		position: absolute;
-		top: 0;
-		margin: 0;
-		border: none;
-		width: $sidebar-width;
-		height: 100%;
-		background: rgba(#000, 0.03);
-		box-shadow: inset -1px 0 0 rgba(#000, 0.06);
-
-		body.ltr & { left:  0; }
-		body.rtl & { right: 0; }
-
-		.items {
-			margin-top: -1px;
-			padding-top: 1px;
-
-			.btn {
-				margin: 14px;
-			}
-		}
-	}
-
-	.field-layout {
-		position: relative;
-		height: 100%;
-	}
-
-	.nc-sidebar,
-	.field-layout {
-
-		> .col-inner-container > .heading {
-			margin: 0;
-			padding: 7px 14px 6px;
-			border-bottom: 1px solid rgba(#000, 0.06);
-			background-image: linear-gradient(transparent, rgba(#000, 0.03));
-		}
-	}
+.neo-configurator > .field > .input {
+	display: flex;
+	min-height: 400px;
 }
 
-.neoconfigitem {
-	user-select: none;
-	cursor: default;
-	position: relative;
-	margin-top: -1px;
-	border-bottom: 1px solid rgba(#000, 0.06);
+[data-neo='template.fld'] {
+	display: none;
+}
 
-	body.ltr & { padding: 11px 45px 10px 14px; }
-	body.rtl & { padding: 11px 14px 10px 45px; }
+.nc {
 
-	&.sel {
-		background: rgba(#000, 0.05);
-	}
+	&_sidebar {
+		width: 200px;
+		border: 1px solid #ebebeb;
+		background-color: #fafafa;
 
-	&.error {
-		background: rgba(#f00, 0.1);
+		&_list {
+			margin: 0 -1px;
 
-		&.sel {
-			background: rgba(#C80000, 0.2);
+			&_item {
+				cursor: default;
+				position: relative;
+				margin-top: -1px;
+				padding: 10px 14px 10px 40px;
+				border: 1px solid #ebebeb;
+				background-color: #fcfcfc;
+
+				> .label {
+					color: #29323d;
+
+					&:empty {
+						font-style: italic;
+						color: #8f98a3;
+
+						&::before {
+							content: "(blank)";
+						}
+					}
+				}
+
+				&.is-selected {
+					z-index: 1;
+					border-color: #dedede;
+					background-color: #ececec;
+				}
+
+				&.type-heading {
+					margin-top: 10px;
+
+					> .label {
+						font-size: 11px;
+						font-weight: bold;
+						text-transform: uppercase;
+						color: #b9bfc6;
+					}
+				}
+
+				> .move {
+					display: block;
+					position: absolute;
+					top: 11px;
+					left: 7px;
+					width: 24px;
+					text-align: center;
+				}
+			}
+		}
+
+		&_buttons {
+			padding: 14px;
+
+			> .btn.type-heading {
+				font-size: 11px;
+				font-weight: bold;
+				text-transform: uppercase;
+				color: #b9bfc6;
+			}
 		}
 	}
 
-	.handle {
-		font-size: 11px;
-		color: #8f98a3;
-	}
+	&_main {
+		flex-grow: 1;
+		flex-shrink: 20; // Fixes weird layout bug when switching tabs
+		border: 1px solid #ebebeb;
+		border-left: 0;
 
-	.actions {
-		position: absolute;
-		top: 10px;
-		width: 24px;
+		&_tabs {
+			display: flex;
+			border-bottom: 1px solid #ebebeb;
+			background-image: linear-gradient(#f7f7f8, #f4f5f6);
 
-		body.ltr & { right: 0; }
-		body.rtl & { left:  0; }
+			&_tab {
+				display: block;
+				padding: 10px 24px;
+				color: #555;
 
-		.icon {
-			display: block;
-			margin-bottom: 1px;
-			text-align: center;
-
-			&.settings {
-
-				&::before {
-					color: rgba(#000, 0.2);
-				}
-
-				&.error::before {
-					color: #da5a47;
-				}
-
-				&:not(.disabled):hover::before {
+				&:hover {
+					text-decoration: none;
 					color: #0d78f2;
 				}
+
+				&.is-selected {
+					margin-bottom: -1px;
+					padding-bottom: 11px;
+					border-left: 1px solid #ebebeb;
+					border-right: 1px solid #ebebeb;
+					background-color: #fff;
+					color: #29323d;
+
+					&:first-child {
+						border-left: 0;
+					}
+				}
 			}
+		}
+
+		&_content {
+			padding: 24px;
 		}
 	}
 }

@@ -1,10 +1,8 @@
-<div class="neoconfigitem nci-blocktype{{ errors|length > 0 ? ' error' : '' }}">
-	<div class="name" data-neo="text.name">{{ name }}</div>
-	<div class="handle code" data-neo="text.handle">{{ handle }}</div>
-	<div class="actions">
-		<a class="move icon" title="{{ 'Reorder'|t }}" role="button" data-neo="button.move"></a>
-		<a class="settings icon{{ errors|length > 0 ? ' error' : '' }}" title="{{ 'Settings'|t }}" role="button" data-neo="button.settings"></a>
-	</div>
-	<input class="hidden" name="{{ (id ~ '[name]')|ns }}" value="{{ name }}" data-neo="input.name">
-	<input class="hidden" name="{{ (id ~ '[handle]')|ns }}" value="{{ handle }}" data-neo="input.handle">
+{% set id = settings.getId() %}
+{% set name = settings.getName() %}
+{% set errors = settings.getErrors() %}
+
+<div class="nc_sidebar_list_item {{ errors|length > 0 ? 'has-errors' : '' }}">
+	<div class="label" data-neo-bt="text.name">{{ name|t }}</div>
+	<a class="move icon" title="{{ "Reorder"|t }}" role="button" data-neo-bt="button.move"></a>
 </div>

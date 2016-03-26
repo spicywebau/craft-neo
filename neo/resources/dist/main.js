@@ -93,6 +93,14 @@
 	
 	var _BlockType2 = _interopRequireDefault(_BlockType);
 	
+	var _BlockTypeSettings = __webpack_require__(8);
+	
+	var _BlockTypeSettings2 = _interopRequireDefault(_BlockTypeSettings);
+	
+	var _BlockTypeFieldLayout = __webpack_require__(16);
+	
+	var _BlockTypeFieldLayout2 = _interopRequireDefault(_BlockTypeFieldLayout);
+	
 	var _configurator = __webpack_require__(18);
 	
 	var _configurator2 = _interopRequireDefault(_configurator);
@@ -122,29 +130,33 @@
 	
 			settings = Object.assign({}, _defaults, settings);
 	
+			var inputIdPrefix = _craft2.default.formatInputId(settings.namespace);
+			var $field = (0, _jquery2.default)('#' + inputIdPrefix + '-neo-configurator');
+			var $input = $field.children('.field').children('.input');
+	
 			this._templateNs = _namespace2.default.parse(settings.namespace);
 	
-			var inputIdPrefix = _craft2.default.formatInputId(settings.namespace);
-			this.$field = (0, _jquery2.default)('#' + inputIdPrefix + '-neo-configurator');
-			this.$inputContainer = this.$field.children('.field').children('.input');
-			this.$inputContainer.html((0, _configurator2.default)());
+			_namespace2.default.enter(this._templateNs);
 	
-			this.$container = this.$field.find('.input').first();
+			this.$container = (0, _jquery2.default)((0, _configurator2.default)());
+			$input.append(this.$container);
 	
-			this.$blockTypesContainer = this.$container.children('.block-types').children();
-			this.$fieldLayoutContainer = this.$container.children('.field-layout').children();
+			_namespace2.default.leave();
 	
-			var $blockTypeItemsContainer = this.$blockTypesContainer.children('.items');
-			this.$itemsContainer = $blockTypeItemsContainer.children('.blocktypes');
-			this.$addItemButton = $blockTypeItemsContainer.children('.btn.add');
-	
-			this.$fieldsContainer = this.$fieldLayoutContainer.children('.items');
+			var $neo = this.$container.find('[data-neo]');
+			this.$mainContainer = $neo.filter('[data-neo="container.main"]');
+			this.$sidebarContainer = $neo.filter('[data-neo="container.sidebar"]');
+			this.$blockTypesContainer = $neo.filter('[data-neo="container.blockTypes"]');
+			this.$settingsContainer = $neo.filter('[data-neo="container.settings"]');
+			this.$fieldLayoutContainer = $neo.filter('[data-neo="container.fieldLayout"]');
+			this.$blockTypeButton = $neo.filter('[data-neo="button.blockType"]');
+			this.$groupButton = $neo.filter('[data-neo="button.group"]');
+			this.$settingsButton = $neo.filter('[data-neo="button.settings"]');
+			this.$fieldLayoutButton = $neo.filter('[data-neo="button.fieldLayout"]');
 	
 			this._blockTypeSort = new _garnish2.default.DragSort(null, {
-				handle: '[data-neo="button.move"]',
+				handle: '[data-neo-bt="button.move"]',
 				axis: 'y',
-				magnetStrength: 4,
-				helperLagBase: 1.5,
 				onSortChange: function onSortChange() {
 					return _this._updateBlockTypeOrder();
 				}
@@ -164,7 +176,8 @@
 						name: blockTypeInfo.name,
 						handle: blockTypeInfo.handle,
 						id: blockTypeInfo.id,
-						errors: blockTypeInfo.errors
+						errors: blockTypeInfo.errors,
+						fieldLayout: blockTypeInfo.fieldLayout
 					});
 	
 					this.addBlockType(blockType);
@@ -184,38 +197,51 @@
 				}
 			}
 	
-			this._setContainerHeight();
+			this.selectTab('settings');
 	
-			this.addListener(this.$blockTypesContainer, 'resize', '@setContainerHeight');
-			this.addListener(this.$fieldLayoutContainer, 'resize', '@setContainerHeight');
-			this.addListener(this.$addItemButton, 'click', '@newBlockType');
+			this.addListener(this.$blockTypeButton, 'click', '@newBlockType');
+			this.addListener(this.$groupButton, 'click', '@newGroup');
+			this.addListener(this.$settingsButton, 'click', function () {
+				return _this.selectTab('settings');
+			});
+			this.addListener(this.$fieldLayoutButton, 'click', function () {
+				return _this.selectTab('fieldLayout');
+			});
 		},
 		addBlockType: function addBlockType(blockType) {
 			var index = arguments.length <= 1 || arguments[1] === undefined ? -1 : arguments[1];
 	
+			var settings = blockType.getSettings();
+			var fieldLayout = blockType.getFieldLayout();
+	
 			if (index >= 0 && index < this._blockTypes.length) {
 				this._blockTypes = this._blockTypes.splice(index, 0, blockType);
-				blockType.$container.insertAt(index, this.$itemsContainer);
+				blockType.$container.insertAt(index, this.$blockTypesContainer);
 			} else {
 				this._blockTypes.push(blockType);
-				this.$itemsContainer.append(blockType.$container);
+				this.$blockTypesContainer.append(blockType.$container);
 			}
 	
 			this._blockTypeSort.addItems(blockType.$container);
 	
-			this.$fieldsContainer.append(blockType.getFieldLayout().$container);
-			this.$fieldLayoutContainer.removeClass('hidden');
+			if (settings) this.$settingsContainer.append(settings.$container);
+			if (fieldLayout) this.$fieldLayoutContainer.append(fieldLayout.$container);
+	
+			this.$mainContainer.removeClass('hidden');
 	
 			this.addListener(blockType.$container, 'click', '@selectBlockType');
+	
+			this._updateBlockTypeOrder();
 	
 			this.trigger('addBlockType', {
 				blockType: blockType,
 				index: index
 			});
-	
-			this._setContainerHeight();
 		},
 		removeBlockType: function removeBlockType(blockType) {
+			var settings = blockType.getSettings();
+			var fieldLayout = blockType.getFieldLayout();
+	
 			this._blockTypes = this._blockTypes.filter(function (b) {
 				return b !== blockType;
 			});
@@ -223,19 +249,20 @@
 			this._blockTypeSort.removeItems(blockType.$container);
 	
 			blockType.$container.remove();
-			blockType.getFieldLayout().$container.remove();
+			if (settings) settings.$container.remove();
+			if (fieldLayout) fieldLayout.$container.remove();
 	
 			if (this._blockTypes.length === 0) {
-				this.$fieldLayoutContainer.addClass('hidden');
+				this.$mainContainer.addClass('hidden');
 			}
 	
 			this.removeListener(blockType.$container, 'click');
 	
+			this._updateBlockTypeOrder();
+	
 			this.trigger('removeBlockType', {
 				blockType: blockType
 			});
-	
-			this._setContainerHeight();
 		},
 		getBlockTypes: function getBlockTypes() {
 			return Array.from(this._blockTypes);
@@ -246,6 +273,10 @@
 			});
 		},
 		selectBlockType: function selectBlockType(blockType) {
+			var focusFirstInput = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+	
+			var settings = blockType.getSettings();
+	
 			var _iteratorNormalCompletion2 = true;
 			var _didIteratorError2 = false;
 			var _iteratorError2 = undefined;
@@ -270,6 +301,19 @@
 					}
 				}
 			}
+	
+			if (focusFirstInput && settings && !_garnish2.default.isMobileBrowser()) {
+				setTimeout(function () {
+					return settings.$nameInput.focus();
+				}, 100);
+			}
+		},
+		selectTab: function selectTab(tab) {
+			this.$settingsContainer.toggleClass('hidden', tab !== 'settings');
+			this.$fieldLayoutContainer.toggleClass('hidden', tab !== 'fieldLayout');
+	
+			this.$settingsButton.toggleClass('is-selected', tab === 'settings');
+			this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout');
 		},
 		_updateBlockTypeOrder: function _updateBlockTypeOrder() {
 			var _this2 = this;
@@ -278,52 +322,40 @@
 	
 			this._blockTypeSort.$items.each(function (index, element) {
 				var blockType = _this2.getBlockTypeByElement(element);
+				var settings = blockType.getSettings();
+	
+				if (settings) settings.setSortOrder(index);
+	
 				blockTypes.push(blockType);
 			});
 	
 			this._blockTypes = blockTypes;
 		},
-		_setContainerHeight: function _setContainerHeight() {
-			var maxColHeight = Math.max(400, this.$blockTypesContainer.height(), this.$fieldLayoutContainer.height());
-	
-			this.$container.height(maxColHeight);
-		},
 		'@newBlockType': function newBlockType() {
-			var _this3 = this;
+			var namespace = [].concat(_toConsumableArray(this._templateNs), ['blockTypes']);
+			var id = _BlockTypeSettings2.default.getNewId();
+	
+			var settings = new _BlockTypeSettings2.default({
+				namespace: [].concat(_toConsumableArray(namespace), [id]),
+				sortOrder: this._blockTypes.length,
+				id: id
+			});
+	
+			var fieldLayout = new _BlockTypeFieldLayout2.default({
+				namespace: [].concat(_toConsumableArray(namespace), [id])
+			});
 	
 			var blockType = new _BlockType2.default({
-				namespace: [].concat(_toConsumableArray(this._templateNs), ['blockTypes'])
+				namespace: namespace,
+				settings: settings,
+				fieldLayout: fieldLayout
 			});
 	
-			var settingsModal = blockType.getSettingsModal();
-	
-			blockType.on('delete', function (e) {
-				return _this3.removeBlockType(blockType);
-			});
-	
-			var onSave = function onSave(e) {
-				_this3.addBlockType(blockType);
-				_this3.selectBlockType(blockType);
-	
-				settingsModal.off('save', onSave);
-			};
-	
-			var onFadeOut = function onFadeOut(e) {
-				settingsModal.enableDeleteButton();
-				settingsModal.off('fadeOut', onFadeOut);
-			};
-	
-			settingsModal.on('save', onSave);
-			settingsModal.on('fadeOut', onFadeOut);
-	
-			settingsModal.show();
+			this.addBlockType(blockType);
+			this.selectBlockType(blockType);
 		},
-		'@setContainerHeight': function setContainerHeight() {
-			var _this4 = this;
-	
-			setTimeout(function () {
-				return _this4._setContainerHeight();
-			}, 1);
+		'@newGroup': function newGroup() {
+			// TODO
 		},
 		'@selectBlockType': function selectBlockType(e) {
 			var blockType = this.getBlockTypeByElement(e.currentTarget);
@@ -510,13 +542,13 @@
 	
 	var _namespace2 = _interopRequireDefault(_namespace);
 	
-	var _BlockTypeSettingsModal = __webpack_require__(8);
+	var _BlockTypeSettings = __webpack_require__(8);
 	
-	var _BlockTypeSettingsModal2 = _interopRequireDefault(_BlockTypeSettingsModal);
+	var _BlockTypeSettings2 = _interopRequireDefault(_BlockTypeSettings);
 	
-	var _BlockTypeFLD = __webpack_require__(16);
+	var _BlockTypeFieldLayout = __webpack_require__(16);
 	
-	var _BlockTypeFLD2 = _interopRequireDefault(_BlockTypeFLD);
+	var _BlockTypeFieldLayout2 = _interopRequireDefault(_BlockTypeFieldLayout);
 	
 	var _blocktype = __webpack_require__(17);
 	
@@ -528,13 +560,9 @@
 	
 	var _defaults = {
 		namespace: [],
-		name: '',
-		handle: '',
-		id: null,
-		errors: []
+		settings: null,
+		fieldLayout: null
 	};
-	
-	var _totalNewBlockTypes = 0;
 	
 	exports.default = _garnish2.default.Base.extend({
 	
@@ -550,121 +578,35 @@
 			settings = Object.assign({}, _defaults, settings);
 	
 			this._templateNs = _namespace2.default.parse(settings.namespace);
-			this._errors = settings.errors;
-	
-			this.id = settings.id;
-			this.name = settings.name;
-			this.handle = settings.handle;
-	
-			this._settingsModal = new _BlockTypeSettingsModal2.default({
-				name: this.name,
-				handle: this.handle
-			});
-	
-			this._settingsModal.on('save', function (e) {
-				_this.name = e.name;
-				_this.handle = e.handle;
-			});
-	
-			this._settingsModal.on('delete', function (e) {
-				return _this.trigger('delete');
-			});
-	
-			this._fieldLayout = new _BlockTypeFLD2.default({
-				namespace: this._templateNs,
-				blockId: this.id,
-				blockName: this.name
-			});
+			this._settings = settings.settings;
+			this._fieldLayout = settings.fieldLayout;
 	
 			_namespace2.default.enter(this._templateNs);
 	
 			this.$container = (0, _jquery2.default)((0, _blocktype2.default)({
-				id: this.id,
-				name: this.name,
-				handle: this.handle,
-				errors: this._errors
+				settings: this._settings,
+				fieldLayout: this._fieldLayout
 			}));
 	
 			_namespace2.default.leave();
 	
-			var $itemNeo = this.$container.find('[data-neo]');
+			var $neo = this.$container.find('[data-neo-bt]');
+			this.$nameText = $neo.filter('[data-neo-bt="text.name"]');
+			this.$moveButton = $neo.filter('[data-neo-bt="button.move"]');
 	
-			this.$name = $itemNeo.filter('[data-neo="text.name"]');
-			this.$nameInput = $itemNeo.filter('[data-neo="input.name"]');
-			this.$handle = $itemNeo.filter('[data-neo="text.handle"]');
-			this.$handleInput = $itemNeo.filter('[data-neo="input.handle"]');
-			this.$moveBtn = $itemNeo.filter('[data-neo="button.move"]');
-			this.$settingsBtn = $itemNeo.filter('[data-neo="button.settings"]');
+			if (this._settings) {
+				this._settings.on('change', function (e) {
+					return _this._updateTemplate(e);
+				});
+			}
 	
 			this.deselect();
-	
-			this.addListener(this.$settingsBtn, 'click', '@edit');
-	
-			this._parsed = true;
 		},
-	
-	
-		get id() {
-			return this._id;
-		},
-	
-		set id(id) {
-			id = parseInt(id);
-			this._id = isNaN(id) ? 'new' + _totalNewBlockTypes++ : id;
-	
-			if (this._fieldLayout) {
-				this._fieldLayout.blockId = this._id;
-			}
-	
-			if (this._parsed) {
-				this.$nameInput.prop('blockType[' + this._id + '][name]');
-				this.$handleInput.prop('blockType[' + this._id + '][handle]');
-			}
-		},
-	
-		get name() {
-			return this._name;
-		},
-	
-		set name(name) {
-			this._name = name;
-	
-			if (this._settingsModal) {
-				this._settingsModal.name = this._name;
-			}
-	
-			if (this._fieldLayout) {
-				this._fieldLayout.blockName = this._name;
-			}
-	
-			if (this._parsed) {
-				this.$name.text(this._name);
-				this.$nameInput.val(this._name);
-			}
-		},
-	
-		get handle() {
-			return this._handle;
-		},
-	
-		set handle(handle) {
-			this._handle = handle;
-	
-			if (this._settingsModal) {
-				this._settingsModal.handle = this._handle;
-			}
-	
-			if (this._parsed) {
-				this.$handle.text(this._handle);
-				this.$handleInput.val(this._handle);
-			}
-		},
-	
 		getErrors: function getErrors() {
 			return Array.from(this._errors);
 		},
-		getSettingsModal: function getSettingsModal() {
-			return this._settingsModal;
+		getSettings: function getSettings() {
+			return this._settings;
 		},
 		getFieldLayout: function getFieldLayout() {
 			return this._fieldLayout;
@@ -680,25 +622,31 @@
 		toggleSelect: function toggleSelect(select) {
 			this._selected = typeof select === 'boolean' ? select : !this._selected;
 	
+			if (this._settings) {
+				this._settings.$container.toggleClass('hidden', !this._selected);
+			}
+	
 			if (this._fieldLayout) {
 				this._fieldLayout.$container.toggleClass('hidden', !this._selected);
 			}
 	
-			if (this._parsed) {
-				this.$container.toggleClass('sel', this._selected);
-			}
+			this.$container.toggleClass('is-selected', this._selected);
 		},
 	
 		isSelected: function isSelected() {
 			return this._selected;
 		},
-		'@edit': function edit(e) {
-			e.preventDefault();
+		_updateTemplate: function _updateTemplate() {
+			var settings = this.getSettings();
+			var fieldLayout = this.getFieldLayout();
 	
-			this._settingsModal.name = this._name;
-			this._settingsModal.handle = this._handle;
+			if (settings) {
+				this.$nameText.text(settings.getName());
 	
-			this._settingsModal.show();
+				if (fieldLayout) {
+					fieldLayout.setBlockName(settings.getName());
+				}
+			}
 		}
 	});
 
@@ -724,122 +672,157 @@
 	
 	var _craft2 = _interopRequireDefault(_craft);
 	
-	var _blocktype_settingsmodal = __webpack_require__(9);
+	var _namespace = __webpack_require__(6);
 	
-	var _blocktype_settingsmodal2 = _interopRequireDefault(_blocktype_settingsmodal);
+	var _namespace2 = _interopRequireDefault(_namespace);
+	
+	var _blocktype_settings = __webpack_require__(9);
+	
+	var _blocktype_settings2 = _interopRequireDefault(_blocktype_settings);
 	
 	__webpack_require__(15);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	exports.default = _garnish2.default.Modal.extend({
+	var _defaults = {
+		namespace: [],
+		id: null,
+		sortOrder: 0,
+		name: '',
+		handle: '',
+		maxBlocks: 0,
+		childBlocks: null,
+		errors: []
+	};
+	
+	exports.default = _garnish2.default.Base.extend({
+	
+		_templateNs: [],
+	
+		$sortOrderInput: new _jquery2.default(),
+		$nameInput: new _jquery2.default(),
+		$handleInput: new _jquery2.default(),
+		$maxBlocksInput: new _jquery2.default(),
+	
 		init: function init() {
-			this.base();
+			var _this = this;
 	
-			this.$form = (0, _jquery2.default)((0, _blocktype_settingsmodal2.default)());
+			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	
-			var $formNeo = this.$form.find('[data-neo]');
+			settings = Object.assign({}, _defaults, settings);
 	
-			this.$nameInput = $formNeo.filter('[data-neo="input.name"]');
-			this.$handleInput = $formNeo.filter('[data-neo="input.handle"]');
-			this.$cancelBtn = $formNeo.filter('[data-neo="button.cancel"]');
-			this.$deleteBtn = $formNeo.filter('[data-neo="button.delete"]');
+			this._templateNs = _namespace2.default.parse(settings.namespace);
+			this._id = settings.id;
+			this._errors = settings.errors;
 	
-			this.$form.appendTo(_garnish2.default.$bod);
-			this.setContainer(this.$form);
+			this.setSortOrder(settings.sortOrder);
+			this.setName(settings.name);
+			this.setHandle(settings.handle);
+			this.setMaxBlocks(settings.maxBlocks);
+	
+			_namespace2.default.enter(this._templateNs);
+	
+			this.$container = (0, _jquery2.default)((0, _blocktype_settings2.default)({
+				id: this.getId(),
+				sortOrder: this.getSortOrder(),
+				name: this.getName(),
+				handle: this.getHandle(),
+				maxBlocks: this.getMaxBlocks(),
+				errors: this.getErrors()
+			}));
+	
+			_namespace2.default.leave();
+	
+			var $neo = this.$container.find('[data-neo-bts]');
+			this.$sortOrderInput = $neo.filter('[data-neo-bts="input.sortOrder"]');
+			this.$nameInput = $neo.filter('[data-neo-bts="input.name"]');
+			this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]');
+			this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]');
+			this.$deleteButton = $neo.filter('[data-neo-bts="button.delete"]');
 	
 			this._handleGenerator = new _craft2.default.HandleGenerator(this.$nameInput, this.$handleInput);
 	
-			this.addListener(this.$cancelBtn, 'click', 'hide');
-			this.addListener(this.$form, 'submit', '@save');
-			this.addListener(this.$deleteBtn, 'click', '@delete');
+			this.addListener(this.$nameInput, 'keyup change', function () {
+				return _this.setName(_this.$nameInput.val());
+			});
+			this.addListener(this.$handleInput, 'keyup change', function () {
+				return _this.setHandle(_this.$handleInput.val());
+			});
+			this.addListener(this.$maxBlocksInput, 'keyup change', function () {
+				return _this.setMaxBlocks(_this.$maxBlocksInput.val());
+			});
 		},
+		getId: function getId() {
+			return this._id;
+		},
+		getErrors: function getErrors() {
+			return Array.from(this._errors);
+		},
+		getSortOrder: function getSortOrder() {
+			return this._sortOrder;
+		},
+		setSortOrder: function setSortOrder(sortOrder) {
+			var oldSortOrder = this._sortOrder;
+			this._sortOrder = sortOrder | 0;
 	
+			this.$sortOrderInput.val(this._sortOrder);
 	
-		get name() {
+			this.trigger('change', {
+				property: 'sortOrder',
+				oldValue: oldSortOrder,
+				newValue: this._sortOrder
+			});
+		},
+		getName: function getName() {
 			return this._name;
 		},
-	
-		set name(name) {
+		setName: function setName(name) {
+			var oldName = this._name;
 			this._name = name;
 	
 			this.$nameInput.val(this._name);
-		},
 	
-		get handle() {
+			this.trigger('change', {
+				property: 'name',
+				oldValue: oldName,
+				newValue: this._name
+			});
+		},
+		getHandle: function getHandle() {
 			return this._handle;
 		},
-	
-		set handle(handle) {
+		setHandle: function setHandle(handle) {
+			var oldHandle = this._handle;
 			this._handle = handle;
 	
 			this.$handleInput.val(this._handle);
+	
+			this.trigger('change', {
+				property: 'handle',
+				oldValue: oldHandle,
+				newValue: this._handle
+			});
 		},
-	
-		show: function show() {
-			var _this = this;
-	
-			if (!_garnish2.default.isMobileBrowser()) {
-				setTimeout(function () {
-					return _this.$nameInput.focus();
-				}, 100);
-			}
-	
-			this.base();
+		getMaxBlocks: function getMaxBlocks() {
+			return this._maxBlocks;
 		},
-		enableDeleteButton: function enableDeleteButton() {
-			this.$deleteBtn.removeClass('hidden');
-		},
-		_destroy: function _destroy() {
-			this.$container.remove();
-			this.$shade.remove();
-		},
-		'@save': function save(e) {
-			e.preventDefault();
+		setMaxBlocks: function setMaxBlocks(maxBlocks) {
+			var oldMaxBlocks = this._maxBlocks;
+			this._maxBlocks = Math.max(0, maxBlocks | 0);
 	
-			// Prevent multi form submits with the return key
-			if (!this.visible) return;
+			this.$maxBlocksInput.val(this._maxBlocks);
 	
-			if (this._handleGenerator.listening) {
-				// Give the handle a chance to catch up with the input
-				this._handleGenerator.updateTarget();
-			}
+			this.trigger('change', {
+				property: 'maxBlocks',
+				oldValue: oldMaxBlocks,
+				newValue: this._maxBlocks
+			});
+		}
+	}, {
+		_totalNewBlockTypes: 0,
 	
-			// Basic validation
-			var name = _craft2.default.trim(this.$nameInput.val());
-			var handle = _craft2.default.trim(this.$handleInput.val());
-	
-			if (!name) {
-				_garnish2.default.shake(this.$form);
-			} else {
-				if (!handle) {
-					handle = this._handleGenerator.generateTargetValue(name);
-	
-					this.$handleInput.val(handle);
-				}
-	
-				this.hide();
-	
-				this.trigger('save', {
-					name: name,
-					handle: handle
-				});
-			}
-		},
-		'@delete': function _delete(e) {
-			var _this2 = this;
-	
-			e.preventDefault();
-	
-			if (confirm(_craft2.default.t('Are you sure you want to delete this block type?'))) {
-				this.on('fadeOut', function (e) {
-					return _this2._destroy();
-				});
-	
-				this.hide();
-	
-				this.trigger('delete');
-			}
+		getNewId: function getNewId() {
+			return 'new' + this._totalNewBlockTypes++;
 		}
 	});
 
@@ -848,7 +831,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(10).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\blocktype_settingsmodal.twig", data:[{"type":"logic","token":{"type":"Twig.logic.type.set","key":"uid","expression":[{"type":"Twig.expression.type._function","fn":"uniqueId","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\r\n<form class=\"modal fitted\">\r\n\t<div class=\"body\">\r\n\t\t<div class=\"field\">\r\n\t\t\t<div class=\"heading\">\r\n\t\t\t\t<label for=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"uid","match":["uid"]}]},{"type":"raw","value":"-name\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Name"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</label>\r\n\t\t\t\t<div class=\"instructions\">\r\n\t\t\t\t\t<p>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"What this block type will be called in the CP."},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\"input\">\r\n\t\t\t\t<input type=\"text\" class=\"text fullwidth\" id=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"uid","match":["uid"]}]},{"type":"raw","value":"-name\" data-neo=\"input.name\">\r\n\t\t\t\t<ul class=\"errors\" style=\"display: none;\"></ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\"field\">\r\n\t\t\t<div class=\"heading\">\r\n\t\t\t\t<label for=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"uid","match":["uid"]}]},{"type":"raw","value":"-handle\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Handle"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</label>\r\n\t\t\t\t<div class=\"instructions\">\r\n\t\t\t\t\t<p>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"How you'll refer to this block type in the templates."},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\"input\">\r\n\t\t\t\t<input type=\"text\" class=\"text fullwidth code\" id=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"uid","match":["uid"]}]},{"type":"raw","value":"-handle\" data-neo=\"input.handle\">\r\n\t\t\t\t<ul class=\"errors\" style=\"display: none;\"></ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<a class=\"error left hidden\" style=\"line-height: 30px;\" data-neo=\"button.delete\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Delete"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t\t<div class=\"buttons right\" style=\"margin-top: 0;\">\r\n\t\t\t<div class=\"btn\" data-neo=\"button.cancel\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Cancel"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</div>\r\n\t\t\t<input type=\"submit\" class=\"btn submit\">\r\n\t\t</div>\r\n\t</div>\r\n</form>\r\n"}], allowInlineIncludes: true});
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\blocktype_settings.twig", data:[{"type":"logic","token":{"type":"Twig.logic.type.macro","macroName":"field","parameters":["settings"],"output":[{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"settings","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"id","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"id"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"label","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"label"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"instructions","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"instructions"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"required","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"required"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"locale","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"locale"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"input","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"input"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"warning","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"warning"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"errors","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"errors"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\r\n\t<div class=\"field\">\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"label","match":["label"]},{"type":"Twig.expression.type.variable","value":"instructions","match":["instructions"]},{"type":"Twig.expression.type.operator.binary","value":"or","precidence":14,"associativity":"leftToRight","operator":"or"}],"output":[{"type":"raw","value":"\r\n\t\t\t<div class=\"heading\">\r\n\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"label","match":["label"]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t<label"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"required","match":["required"]}],"output":[{"type":"raw","value":" class=\"required\""}]}},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"id","match":["id"]}],"output":[{"type":"raw","value":" for=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"id","match":["id"]}]},{"type":"raw","value":"\""}]}},{"type":"raw","value":">\r\n\t\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"label","match":["label"]},{"type":"Twig.expression.type.filter","value":"raw","match":["|raw","raw"]}]},{"type":"raw","value":"\r\n\t\t\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"locale","match":["locale"]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t\t\t<span class=\"locale\">"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"locale","match":["locale"]}]},{"type":"raw","value":"</span>\r\n\t\t\t\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t\t\t\t</label>\r\n\t\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"instructions","match":["instructions"]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t<div class=\"instructions\">"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"instructions","match":["instructions"]},{"type":"Twig.expression.type.filter","value":"raw","match":["|raw","raw"]}]},{"type":"raw","value":"</div>\r\n\t\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t\t</div>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t\t<div class=\"input "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"orientation","match":["orientation"]}]},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"errors","match":["errors"]}],"output":[{"type":"raw","value":" errors"}]}},{"type":"raw","value":"\">\r\n\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"input","match":["input"]},{"type":"Twig.expression.type.filter","value":"raw","match":["|raw","raw"]}]},{"type":"raw","value":"\r\n\t\t</div>\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"warning","match":["warning"]}],"output":[{"type":"raw","value":"\r\n\t\t\t<p class=\"warning\">"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"warning","match":["warning"]}]},{"type":"raw","value":"</p>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"errors","match":["errors"]}],"output":[{"type":"raw","value":"\r\n\t\t\t<ul class=\"errors\">\r\n\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"error","expression":[{"type":"Twig.expression.type.variable","value":"errors","match":["errors"]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t<li>"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"error","match":["error"]}]},{"type":"raw","value":"</li>\r\n\t\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t\t</ul>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t</div>\r\n"}]}},{"type":"raw","value":"\r\n\r\n"},{"type":"logic","token":{"type":"Twig.logic.type.macro","macroName":"input","parameters":["settings"],"output":[{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.from","expression":"_self","macroNames":{"field":"field"},"stack":[{"type":"Twig.expression.type.variable","value":"_self","match":["_self"]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"settings","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"type","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"type"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.string","value":"text"},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"attributes","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"attributes"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"id","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"id"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"name","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"name"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"value","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"value"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"class","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"class"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"fullWidth","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"fullWidth"},{"type":"Twig.expression.type.filter","value":"default","match":["|default","default"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.bool","value":true},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\r\n\t"},{"type":"logic","token":{"type":"Twig.logic.type.setcapture","key":"input","output":[{"type":"raw","value":"\r\n\t\t<input class=\"text "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"fullWidth","match":["fullWidth"]},{"type":"Twig.expression.type.string","value":"fullwidth"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":" "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"class","match":["class"]}]},{"type":"raw","value":"\"\r\n\t\t\t   type=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]}]},{"type":"raw","value":"\"\r\n\t\t\t   id=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"id","match":["id"]}]},{"type":"raw","value":"\"\r\n\t\t\t   name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"name","match":["name"]}]},{"type":"raw","value":"\"\r\n\t\t\t   value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"value","match":["value"]}]},{"type":"raw","value":"\"\r\n\t\t\t   "},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":"attrName","value_var":"attrValue","expression":[{"type":"Twig.expression.type.variable","value":"attributes","match":["attributes"]}],"output":[{"type":"raw","value":"\r\n\t\t           "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"attrName","match":["attrName"]}]},{"type":"raw","value":"=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"attrValue","match":["attrValue"]}]},{"type":"raw","value":"\"\r\n\t\t       "}]}},{"type":"raw","value":"\r\n\t\t\t   autocomplete=\"off\">\r\n\t"}]}},{"type":"raw","value":"\r\n\r\n\t"},{"type":"output","stack":[{"type":"Twig.expression.type._function","fn":"field","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.filter","value":"merge","match":["|merge","merge"],"params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"input"},{"type":"Twig.expression.type.variable","value":"input","match":["input"]},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n"}]}},{"type":"raw","value":"\r\n\r\n"},{"type":"logic","token":{"type":"Twig.logic.type.import","expression":"_self","contextName":"macros","stack":[{"type":"Twig.expression.type.variable","value":"_self","match":["_self"]}]}},{"type":"raw","value":"\r\n\r\n<div>\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"sortOrder"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"sortOrder","match":["sortOrder"]}]},{"type":"raw","value":"\" data-neo-bts=\"input.sortOrder\">\r\n\r\n\t<div>\r\n\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"macros","match":["macros"]},{"type":"Twig.expression.type.key.period","key":"input","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"type"},{"type":"Twig.expression.type.string","value":"text"},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"name"},{"type":"Twig.expression.type.string","value":"name"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"label"},{"type":"Twig.expression.type.string","value":"Name"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"instructions"},{"type":"Twig.expression.type.string","value":"What this block type will be called in the CP."},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"required"},{"type":"Twig.expression.type.bool","value":true},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"value"},{"type":"Twig.expression.type.variable","value":"name","match":["name"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"attributes"},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"data-neo-bts"},{"type":"Twig.expression.type.string","value":"input.name"},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\r\n\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"macros","match":["macros"]},{"type":"Twig.expression.type.key.period","key":"input","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"type"},{"type":"Twig.expression.type.string","value":"text"},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"name"},{"type":"Twig.expression.type.string","value":"handle"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"label"},{"type":"Twig.expression.type.string","value":"Handle"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"instructions"},{"type":"Twig.expression.type.string","value":"How you'll refer to this block type in the templates."},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"required"},{"type":"Twig.expression.type.bool","value":true},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"class"},{"type":"Twig.expression.type.string","value":"code"},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"value"},{"type":"Twig.expression.type.variable","value":"handle","match":["handle"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"attributes"},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"data-neo-bts"},{"type":"Twig.expression.type.string","value":"input.handle"},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\r\n\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"macros","match":["macros"]},{"type":"Twig.expression.type.key.period","key":"input","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"type"},{"type":"Twig.expression.type.string","value":"number"},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"name"},{"type":"Twig.expression.type.string","value":"maxBlocks"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"label"},{"type":"Twig.expression.type.string","value":"Max Blocks"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"instructions"},{"type":"Twig.expression.type.string","value":"The maximum number of blocks of this type the field is allowed to have."},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"fullWidth"},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"value"},{"type":"Twig.expression.type.variable","value":"maxBlocks","match":["maxBlocks"]},{"type":"Twig.expression.type.number","value":0,"match":["0",null]},{"type":"Twig.expression.type.operator.binary","value":">","precidence":8,"associativity":"leftToRight","operator":">"},{"type":"Twig.expression.type.variable","value":"maxBlocks","match":["maxBlocks"]},{"type":"Twig.expression.type.null","value":null},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"attributes"},{"type":"Twig.expression.type.object.start","value":"{","match":["{"]},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"min"},{"type":"Twig.expression.type.number","value":0,"match":["0",null]},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"style"},{"type":"Twig.expression.type.string","value":"width: 80px;"},{"type":"Twig.expression.type.comma"},{"type":"Twig.expression.type.operator.binary","value":":","precidence":16,"associativity":"rightToLeft","operator":":","key":"data-neo-bts"},{"type":"Twig.expression.type.string","value":"input.maxBlocks"},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.object.end","value":"}","match":["}"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\t</div>\r\n\r\n\t<hr>\r\n\r\n\t<a class=\"error delete\" data-neo-bts=\"button.delete\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Delete block type"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n</div>"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 
@@ -1296,6 +1279,7 @@
 	
 	var _defaults = {
 		namespace: [],
+		layout: [],
 		blockId: null,
 		blockName: ''
 	};
@@ -1303,7 +1287,6 @@
 	exports.default = _craft2.default.FieldLayoutDesigner.extend({
 	
 		_templateNs: [],
-		_blockId: null,
 		_blockName: '',
 	
 		init: function init() {
@@ -1312,10 +1295,8 @@
 			settings = Object.assign({}, _defaults, settings);
 	
 			this._templateNs = _namespace2.default.parse(settings.namespace);
-			this._templateNs.push(null); // So block ID can override
 	
-			this.blockId = settings.blockId;
-			this.blockName = settings.blockName;
+			this.setBlockName(settings.blockName);
 	
 			var $template = (0, _jquery2.default)('template[data-neo="template.fld"]');
 			var $fld = (0, _jquery2.default)($template[0].content).children().clone();
@@ -1336,39 +1317,17 @@
 	
 			this._updateInstructions();
 		},
-	
-	
-		get blockId() {
-			return this._blockId;
-		},
-	
-		set blockId(id) {
-			this._blockId = id;
-	
-			this._templateNs.pop();
-			this._templateNs.push(id);
-	
-			this._updateNamespace();
-		},
-	
-		get blockName() {
+		getBlockName: function getBlockName() {
 			return this._blockName;
 		},
-	
-		set blockName(name) {
+		setBlockName: function setBlockName(name) {
 			this._blockName = name;
 	
 			this._updateInstructions();
 		},
-	
-		_updateNamespace: function _updateNamespace() {
-			if (this.$container) {
-				// TODO Go through all inputs and change their names
-			}
-		},
 		_updateInstructions: function _updateInstructions() {
 			if (this.$instructions) {
-				this.$instructions.text(_craft2.default.t("For block type {blockType}", { blockType: this.blockName }));
+				this.$instructions.html(_craft2.default.t("For block type {blockType}", { blockType: this.getBlockName() || '&hellip;' }));
 			}
 		}
 	});
@@ -1378,7 +1337,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(10).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\blocktype.twig", data:[{"type":"raw","value":"<div class=\"neoconfigitem nci-blocktype"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"errors","match":["errors"]},{"type":"Twig.expression.type.filter","value":"length","match":["|length","length"]},{"type":"Twig.expression.type.number","value":0,"match":["0",null]},{"type":"Twig.expression.type.operator.binary","value":">","precidence":8,"associativity":"leftToRight","operator":">"},{"type":"Twig.expression.type.string","value":" error"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\">\r\n\t<div class=\"name\" data-neo=\"text.name\">"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"name","match":["name"]}]},{"type":"raw","value":"</div>\r\n\t<div class=\"handle code\" data-neo=\"text.handle\">"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"handle","match":["handle"]}]},{"type":"raw","value":"</div>\r\n\t<div class=\"actions\">\r\n\t\t<a class=\"move icon\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Reorder"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo=\"button.move\"></a>\r\n\t\t<a class=\"settings icon"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"errors","match":["errors"]},{"type":"Twig.expression.type.filter","value":"length","match":["|length","length"]},{"type":"Twig.expression.type.number","value":0,"match":["0",null]},{"type":"Twig.expression.type.operator.binary","value":">","precidence":8,"associativity":"leftToRight","operator":">"},{"type":"Twig.expression.type.string","value":" error"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Settings"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo=\"button.settings\"></a>\r\n\t</div>\r\n\t<input class=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":true,"params":[{"type":"Twig.expression.type.variable","value":"id","match":["id"]},{"type":"Twig.expression.type.string","value":"[name]"},{"type":"Twig.expression.type.operator.binary","value":"~","precidence":6,"associativity":"leftToRight","operator":"~"}]},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"name","match":["name"]}]},{"type":"raw","value":"\" data-neo=\"input.name\">\r\n\t<input class=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":true,"params":[{"type":"Twig.expression.type.variable","value":"id","match":["id"]},{"type":"Twig.expression.type.string","value":"[handle]"},{"type":"Twig.expression.type.operator.binary","value":"~","precidence":6,"associativity":"leftToRight","operator":"~"}]},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"handle","match":["handle"]}]},{"type":"raw","value":"\" data-neo=\"input.handle\">\r\n</div>\r\n"}], allowInlineIncludes: true});
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\blocktype.twig", data:[{"type":"logic","token":{"type":"Twig.logic.type.set","key":"id","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"getId","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"name","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"errors","expression":[{"type":"Twig.expression.type.variable","value":"settings","match":["settings"]},{"type":"Twig.expression.type.key.period","key":"getErrors","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\r\n<div class=\"nc_sidebar_list_item "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"errors","match":["errors"]},{"type":"Twig.expression.type.filter","value":"length","match":["|length","length"]},{"type":"Twig.expression.type.number","value":0,"match":["0",null]},{"type":"Twig.expression.type.operator.binary","value":">","precidence":8,"associativity":"leftToRight","operator":">"},{"type":"Twig.expression.type.string","value":"has-errors"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\">\r\n\t<div class=\"label\" data-neo-bt=\"text.name\">"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"name","match":["name"]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</div>\r\n\t<a class=\"move icon\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Reorder"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-bt=\"button.move\"></a>\r\n</div>\r\n"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 
@@ -1387,7 +1346,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(10).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\configurator.twig", data:[{"type":"raw","value":"<div class=\"nc-sidebar block-types\">\r\n\t<div class=\"col-inner-container\">\r\n\t\t<div class=\"heading\">\r\n\t\t\t<h5>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Block Types"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</h5>\r\n\t\t</div>\r\n\t\t<div class=\"items\">\r\n\t\t\t<div class=\"blocktypes\"></div>\r\n\t\t\t<div class=\"btn add icon\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"New block type"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</div>\r\n\t\t</div>\r\n\t</div>\r\n</div>\r\n\r\n<div class=\"field-layout\">\r\n\t<div class=\"col-inner-container hidden\">\r\n\t\t<div class=\"heading\">\r\n\t\t\t<h5>"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Field Layout"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</h5>\r\n\t\t</div>\r\n\t\t<div class=\"items\"></div>\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\configurator\\templates\\configurator.twig", data:[{"type":"raw","value":"<div class=\"nc_sidebar\" data-neo=\"container.sidebar\">\r\n\t<div class=\"nc_sidebar_list\" data-neo=\"container.blockTypes\"></div>\r\n\t<div class=\"nc_sidebar_buttons btngroup\">\r\n\t\t<a class=\"btn add icon\" role=\"button\" data-neo=\"button.blockType\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Block type"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t\t<a class=\"btn type-heading\" role=\"button\" data-neo=\"button.group\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Group"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t</div>\r\n</div>\r\n\r\n<div class=\"nc_main\" data-neo=\"container.main\">\r\n\t<div class=\"nc_main_tabs\">\r\n\t\t<a class=\"nc_main_tabs_tab is-selected\" role=\"button\" data-neo=\"button.settings\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Settings"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t\t<a class=\"nc_main_tabs_tab\" role=\"button\" data-neo=\"button.fieldLayout\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Field Layout"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t</div>\r\n\t<div class=\"nc_main_content\" data-neo=\"container.settings\"></div>\r\n\t<div class=\"nc_main_content\" data-neo=\"container.fieldLayout\"></div>\r\n</div>\r\n"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 
@@ -1426,7 +1385,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".neo-configurator > .field {\n  max-width: none; }\n  .neo-configurator > .field > .input {\n    position: relative;\n    overflow: hidden;\n    border: 1px solid #e3e5e8;\n    border-radius: 3px;\n    box-shadow: 0 0 5px rgba(51, 170, 255, 0);\n    transition: box-shadow linear 0.1s; }\n    body.ltr .neo-configurator > .field > .input {\n      padding-left: 200px; }\n    body.rtl .neo-configurator > .field > .input {\n      padding-right: 200px; }\n\n.neo-configurator .nc-sidebar {\n  position: absolute;\n  top: 0;\n  margin: 0;\n  border: none;\n  width: 200px;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.03);\n  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.06); }\n  body.ltr .neo-configurator .nc-sidebar {\n    left: 0; }\n  body.rtl .neo-configurator .nc-sidebar {\n    right: 0; }\n  .neo-configurator .nc-sidebar .items {\n    margin-top: -1px;\n    padding-top: 1px; }\n    .neo-configurator .nc-sidebar .items .btn {\n      margin: 14px; }\n\n.neo-configurator .field-layout {\n  position: relative;\n  height: 100%; }\n\n.neo-configurator .nc-sidebar > .col-inner-container > .heading,\n.neo-configurator .field-layout > .col-inner-container > .heading {\n  margin: 0;\n  padding: 7px 14px 6px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.06);\n  background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.03)); }\n\n.neoconfigitem {\n  user-select: none;\n  cursor: default;\n  position: relative;\n  margin-top: -1px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.06); }\n  body.ltr .neoconfigitem {\n    padding: 11px 45px 10px 14px; }\n  body.rtl .neoconfigitem {\n    padding: 11px 14px 10px 45px; }\n  .neoconfigitem.sel {\n    background: rgba(0, 0, 0, 0.05); }\n  .neoconfigitem.error {\n    background: rgba(255, 0, 0, 0.1); }\n    .neoconfigitem.error.sel {\n      background: rgba(200, 0, 0, 0.2); }\n  .neoconfigitem .handle {\n    font-size: 11px;\n    color: #8f98a3; }\n  .neoconfigitem .actions {\n    position: absolute;\n    top: 10px;\n    width: 24px; }\n    body.ltr .neoconfigitem .actions {\n      right: 0; }\n    body.rtl .neoconfigitem .actions {\n      left: 0; }\n    .neoconfigitem .actions .icon {\n      display: block;\n      margin-bottom: 1px;\n      text-align: center; }\n      .neoconfigitem .actions .icon.settings::before {\n        color: rgba(0, 0, 0, 0.2); }\n      .neoconfigitem .actions .icon.settings.error::before {\n        color: #da5a47; }\n      .neoconfigitem .actions .icon.settings:not(.disabled):hover::before {\n        color: #0d78f2; }\n", ""]);
+	exports.push([module.id, ".neo-configurator > .field > .input {\n  display: flex;\n  min-height: 400px; }\n\n[data-neo='template.fld'] {\n  display: none; }\n\n.nc_sidebar {\n  width: 200px;\n  border: 1px solid #ebebeb;\n  background-color: #fafafa; }\n  .nc_sidebar_list {\n    margin: 0 -1px; }\n    .nc_sidebar_list_item {\n      cursor: default;\n      position: relative;\n      margin-top: -1px;\n      padding: 10px 14px 10px 40px;\n      border: 1px solid #ebebeb;\n      background-color: #fcfcfc; }\n      .nc_sidebar_list_item > .label {\n        color: #29323d; }\n        .nc_sidebar_list_item > .label:empty {\n          font-style: italic;\n          color: #8f98a3; }\n          .nc_sidebar_list_item > .label:empty::before {\n            content: \"(blank)\"; }\n      .nc_sidebar_list_item.is-selected {\n        z-index: 1;\n        border-color: #dedede;\n        background-color: #ececec; }\n      .nc_sidebar_list_item.type-heading {\n        margin-top: 10px; }\n        .nc_sidebar_list_item.type-heading > .label {\n          font-size: 11px;\n          font-weight: bold;\n          text-transform: uppercase;\n          color: #b9bfc6; }\n      .nc_sidebar_list_item > .move {\n        display: block;\n        position: absolute;\n        top: 11px;\n        left: 7px;\n        width: 24px;\n        text-align: center; }\n  .nc_sidebar_buttons {\n    padding: 14px; }\n    .nc_sidebar_buttons > .btn.type-heading {\n      font-size: 11px;\n      font-weight: bold;\n      text-transform: uppercase;\n      color: #b9bfc6; }\n\n.nc_main {\n  flex-grow: 1;\n  flex-shrink: 20;\n  border: 1px solid #ebebeb;\n  border-left: 0; }\n  .nc_main_tabs {\n    display: flex;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6); }\n    .nc_main_tabs_tab {\n      display: block;\n      padding: 10px 24px;\n      color: #555; }\n      .nc_main_tabs_tab:hover {\n        text-decoration: none;\n        color: #0d78f2; }\n      .nc_main_tabs_tab.is-selected {\n        margin-bottom: -1px;\n        padding-bottom: 11px;\n        border-left: 1px solid #ebebeb;\n        border-right: 1px solid #ebebeb;\n        background-color: #fff;\n        color: #29323d; }\n        .nc_main_tabs_tab.is-selected:first-child {\n          border-left: 0; }\n  .nc_main_content {\n    padding: 24px; }\n", ""]);
 	
 	// exports
 

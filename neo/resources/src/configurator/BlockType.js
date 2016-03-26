@@ -5,22 +5,17 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
-import SettingsModal from './BlockTypeSettingsModal'
-import FieldLayoutDesigner from './BlockTypeFLD'
+import Settings from './BlockTypeSettings'
+import FieldLayout from './BlockTypeFieldLayout'
 
 import renderTemplate from './templates/blocktype.twig'
 import '../twig-extensions'
 
 const _defaults = {
 	namespace: [],
-	name: '',
-	handle: '',
-	id: null,
-	errors: [],
-	fieldLayout: []
+	settings: null,
+	fieldLayout: null
 }
-
-let _totalNewBlockTypes = 0
 
 export default Garnish.Base.extend({
 
@@ -33,126 +28,28 @@ export default Garnish.Base.extend({
 		settings = Object.assign({}, _defaults, settings)
 
 		this._templateNs = NS.parse(settings.namespace)
-		this._errors = settings.errors
-
-		this.id = settings.id
-		this.name = settings.name
-		this.handle = settings.handle
-
-		this._settingsModal = new SettingsModal({
-			name: this.name,
-			handle: this.handle
-		})
-
-		this._settingsModal.on('save', e =>
-		{
-			this.name = e.name
-			this.handle = e.handle
-		})
-
-		this._settingsModal.on('delete', e => this.trigger('delete'))
-
-		this._fieldLayout = new FieldLayoutDesigner({
-			namespace: this._templateNs,
-			layout: settings.fieldLayout,
-			blockId: this.id,
-			blockName: this.name
-		})
+		this._settings = settings.settings
+		this._fieldLayout = settings.fieldLayout
 
 		NS.enter(this._templateNs)
 
 		this.$container = $(renderTemplate({
-			id: this.id,
-			name: this.name,
-			handle: this.handle,
-			errors: this._errors
+			settings:    this._settings,
+			fieldLayout: this._fieldLayout
 		}))
 
 		NS.leave()
 
-		const $itemNeo = this.$container.find('[data-neo]')
+		const $neo = this.$container.find('[data-neo-bt]')
+		this.$nameText = $neo.filter('[data-neo-bt="text.name"]')
+		this.$moveButton = $neo.filter('[data-neo-bt="button.move"]')
 
-		this.$name = $itemNeo.filter('[data-neo="text.name"]')
-		this.$nameInput = $itemNeo.filter('[data-neo="input.name"]')
-		this.$handle = $itemNeo.filter('[data-neo="text.handle"]')
-		this.$handleInput = $itemNeo.filter('[data-neo="input.handle"]')
-		this.$moveBtn = $itemNeo.filter('[data-neo="button.move"]')
-		this.$settingsBtn = $itemNeo.filter('[data-neo="button.settings"]')
-
-		this.deselect();
-
-		this.addListener(this.$settingsBtn, 'click', '@edit')
-
-		this._parsed = true
-	},
-
-	get id()
-	{
-		return this._id
-	},
-
-	set id(id)
-	{
-		id = parseInt(id)
-		this._id = (isNaN(id) ? `new${_totalNewBlockTypes++}` : id)
-
-		if(this._fieldLayout)
+		if(this._settings)
 		{
-			this._fieldLayout.blockId = this._id
+			this._settings.on('change', e => this._updateTemplate(e))
 		}
 
-		if(this._parsed)
-		{
-			this.$nameInput.prop(`blockType[${this._id}][name]`)
-			this.$handleInput.prop(`blockType[${this._id}][handle]`)
-		}
-	},
-
-	get name()
-	{
-		return this._name
-	},
-
-	set name(name)
-	{
-		this._name = name
-
-		if(this._settingsModal)
-		{
-			this._settingsModal.name = this._name
-		}
-
-		if(this._fieldLayout)
-		{
-			this._fieldLayout.blockName = this._name
-		}
-
-		if(this._parsed)
-		{
-			this.$name.text(this._name)
-			this.$nameInput.val(this._name)
-		}
-	},
-
-	get handle()
-	{
-		return this._handle
-	},
-
-	set handle(handle)
-	{
-		this._handle = handle
-
-		if(this._settingsModal)
-		{
-			this._settingsModal.handle = this._handle
-		}
-
-		if(this._parsed)
-		{
-			this.$handle.text(this._handle)
-			this.$handleInput.val(this._handle)
-		}
+		this.deselect()
 	},
 
 	getErrors()
@@ -160,9 +57,9 @@ export default Garnish.Base.extend({
 		return Array.from(this._errors)
 	},
 
-	getSettingsModal()
+	getSettings()
 	{
-		return this._settingsModal
+		return this._settings
 	},
 
 	getFieldLayout()
@@ -184,15 +81,17 @@ export default Garnish.Base.extend({
 	{
 		this._selected = (typeof select === 'boolean' ? select : !this._selected)
 
+		if(this._settings)
+		{
+			this._settings.$container.toggleClass('hidden', !this._selected)
+		}
+
 		if(this._fieldLayout)
 		{
 			this._fieldLayout.$container.toggleClass('hidden', !this._selected)
 		}
 
-		if(this._parsed)
-		{
-			this.$container.toggleClass('sel', this._selected)
-		}
+		this.$container.toggleClass('is-selected', this._selected)
 	},
 
 	isSelected()
@@ -200,13 +99,19 @@ export default Garnish.Base.extend({
 		return this._selected
 	},
 
-	'@edit'(e)
+	_updateTemplate()
 	{
-		e.preventDefault()
+		const settings = this.getSettings()
+		const fieldLayout = this.getFieldLayout()
 
-		this._settingsModal.name = this._name
-		this._settingsModal.handle = this._handle
+		if(settings)
+		{
+			this.$nameText.text(settings.getName())
 
-		this._settingsModal.show()
+			if(fieldLayout)
+			{
+				fieldLayout.setBlockName(settings.getName())
+			}
+		}
 	}
 })

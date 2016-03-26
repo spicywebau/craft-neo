@@ -7,6 +7,8 @@ import Craft from 'craft'
 import NS from '../namespace'
 
 import BlockType from './BlockType'
+import BlockTypeSettings from './BlockTypeSettings'
+import BlockTypeFieldLayout from './BlockTypeFieldLayout'
 
 import renderTemplate from './templates/configurator.twig'
 import '../twig-extensions'
@@ -26,29 +28,33 @@ export default Garnish.Base.extend({
 	{
 		settings = Object.assign({}, _defaults, settings)
 
+		const inputIdPrefix = Craft.formatInputId(settings.namespace)
+		const $field = $(`\#${inputIdPrefix}-neo-configurator`)
+		const $input = $field.children('.field').children('.input')
+
 		this._templateNs = NS.parse(settings.namespace)
 
-		const inputIdPrefix = Craft.formatInputId(settings.namespace)
-		this.$field = $(`\#${inputIdPrefix}-neo-configurator`)
-		this.$inputContainer = this.$field.children('.field').children('.input')
-		this.$inputContainer.html(renderTemplate())
+		NS.enter(this._templateNs)
 
-		this.$container = this.$field.find('.input').first()
+		this.$container = $(renderTemplate())
+		$input.append(this.$container)
 
-		this.$blockTypesContainer = this.$container.children('.block-types').children()
-		this.$fieldLayoutContainer = this.$container.children('.field-layout').children()
+		NS.leave()
 
-		const $blockTypeItemsContainer = this.$blockTypesContainer.children('.items')
-		this.$itemsContainer = $blockTypeItemsContainer.children('.blocktypes')
-		this.$addItemButton = $blockTypeItemsContainer.children('.btn.add')
-
-		this.$fieldsContainer = this.$fieldLayoutContainer.children('.items')
+		const $neo = this.$container.find('[data-neo]')
+		this.$mainContainer = $neo.filter('[data-neo="container.main"]')
+		this.$sidebarContainer = $neo.filter('[data-neo="container.sidebar"]')
+		this.$blockTypesContainer = $neo.filter('[data-neo="container.blockTypes"]')
+		this.$settingsContainer = $neo.filter('[data-neo="container.settings"]')
+		this.$fieldLayoutContainer = $neo.filter('[data-neo="container.fieldLayout"]')
+		this.$blockTypeButton = $neo.filter('[data-neo="button.blockType"]')
+		this.$groupButton = $neo.filter('[data-neo="button.group"]')
+		this.$settingsButton = $neo.filter('[data-neo="button.settings"]')
+		this.$fieldLayoutButton = $neo.filter('[data-neo="button.fieldLayout"]')
 
 		this._blockTypeSort = new Garnish.DragSort(null, {
-			handle: '[data-neo="button.move"]',
+			handle: '[data-neo-bt="button.move"]',
 			axis: 'y',
-			magnetStrength: 4,
-			helperLagBase: 1.5,
 			onSortChange: () => this._updateBlockTypeOrder()
 		})
 
@@ -67,62 +73,72 @@ export default Garnish.Base.extend({
 			this.addBlockType(blockType)
 		}
 
-		this._setContainerHeight()
+		this.selectTab('settings')
 
-		this.addListener(this.$blockTypesContainer, 'resize', '@setContainerHeight')
-		this.addListener(this.$fieldLayoutContainer, 'resize', '@setContainerHeight')
-		this.addListener(this.$addItemButton, 'click', '@newBlockType')
+		this.addListener(this.$blockTypeButton, 'click', '@newBlockType')
+		this.addListener(this.$groupButton, 'click', '@newGroup')
+		this.addListener(this.$settingsButton, 'click', () => this.selectTab('settings'))
+		this.addListener(this.$fieldLayoutButton, 'click', () => this.selectTab('fieldLayout'))
 	},
 
 	addBlockType(blockType, index = -1)
 	{
+		const settings = blockType.getSettings()
+		const fieldLayout = blockType.getFieldLayout()
+
 		if(index >= 0 && index < this._blockTypes.length)
 		{
 			this._blockTypes = this._blockTypes.splice(index, 0, blockType)
-			blockType.$container.insertAt(index, this.$itemsContainer)
+			blockType.$container.insertAt(index, this.$blockTypesContainer)
 		}
 		else
 		{
 			this._blockTypes.push(blockType)
-			this.$itemsContainer.append(blockType.$container)
+			this.$blockTypesContainer.append(blockType.$container)
 		}
 
 		this._blockTypeSort.addItems(blockType.$container);
 
-		this.$fieldsContainer.append(blockType.getFieldLayout().$container)
-		this.$fieldLayoutContainer.removeClass('hidden')
+		if(settings) this.$settingsContainer.append(settings.$container)
+		if(fieldLayout) this.$fieldLayoutContainer.append(fieldLayout.$container)
+
+		this.$mainContainer.removeClass('hidden')
 
 		this.addListener(blockType.$container, 'click', '@selectBlockType')
+
+		this._updateBlockTypeOrder()
 
 		this.trigger('addBlockType', {
 			blockType: blockType,
 			index: index
 		})
-
-		this._setContainerHeight()
 	},
 
 	removeBlockType(blockType)
 	{
+		const settings = blockType.getSettings()
+		const fieldLayout = blockType.getFieldLayout()
+
 		this._blockTypes = this._blockTypes.filter(b => b !== blockType)
 
 		this._blockTypeSort.removeItems(blockType.$container);
 
 		blockType.$container.remove()
-		blockType.getFieldLayout().$container.remove()
+		if(settings) settings.$container.remove()
+		if(fieldLayout) fieldLayout.$container.remove()
 
 		if(this._blockTypes.length === 0)
 		{
-			this.$fieldLayoutContainer.addClass('hidden')
+			this.$mainContainer.addClass('hidden')
 		}
 
 		this.removeListener(blockType.$container, 'click')
 
+		this._updateBlockTypeOrder()
+
 		this.trigger('removeBlockType', {
 			blockType: blockType
 		})
-
-		this._setContainerHeight()
 	},
 
 	getBlockTypes()
@@ -138,12 +154,28 @@ export default Garnish.Base.extend({
 		})
 	},
 
-	selectBlockType(blockType)
+	selectBlockType(blockType, focusFirstInput = true)
 	{
+		const settings = blockType.getSettings()
+
 		for(let bt of this._blockTypes)
 		{
 			bt.toggleSelect(bt === blockType)
 		}
+
+		if(focusFirstInput && settings && !Garnish.isMobileBrowser())
+		{
+			setTimeout(() => settings.$nameInput.focus(), 100)
+		}
+	},
+
+	selectTab(tab)
+	{
+		this.$settingsContainer.toggleClass('hidden', tab !== 'settings')
+		this.$fieldLayoutContainer.toggleClass('hidden', tab !== 'fieldLayout')
+
+		this.$settingsButton.toggleClass('is-selected', tab === 'settings')
+		this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout')
 	},
 
 	_updateBlockTypeOrder()
@@ -153,54 +185,44 @@ export default Garnish.Base.extend({
 		this._blockTypeSort.$items.each((index, element) =>
 		{
 			const blockType = this.getBlockTypeByElement(element)
+			const settings = blockType.getSettings()
+
+			if(settings) settings.setSortOrder(index)
+
 			blockTypes.push(blockType)
 		})
 
 		this._blockTypes = blockTypes
 	},
 
-	_setContainerHeight()
-	{
-		const maxColHeight = Math.max(400,
-			this.$blockTypesContainer.height(),
-			this.$fieldLayoutContainer.height())
-
-		this.$container.height(maxColHeight)
-	},
-
 	'@newBlockType'()
 	{
-		const blockType = new BlockType({
-			namespace: [...this._templateNs, 'blockTypes']
+		const namespace = [...this._templateNs, 'blockTypes']
+		const id = BlockTypeSettings.getNewId()
+
+		const settings = new BlockTypeSettings({
+			namespace: [...namespace, id],
+			sortOrder: this._blockTypes.length,
+			id: id
 		})
 
-		const settingsModal = blockType.getSettingsModal()
+		const fieldLayout = new BlockTypeFieldLayout({
+			namespace: [...namespace, id]
+		})
 
-		blockType.on('delete', e => this.removeBlockType(blockType))
+		const blockType = new BlockType({
+			namespace: namespace,
+			settings: settings,
+			fieldLayout: fieldLayout
+		})
 
-		const onSave = (e) =>
-		{
-			this.addBlockType(blockType)
-			this.selectBlockType(blockType)
-
-			settingsModal.off('save', onSave)
-		}
-
-		const onFadeOut = (e) =>
-		{
-			settingsModal.enableDeleteButton()
-			settingsModal.off('fadeOut', onFadeOut)
-		}
-
-		settingsModal.on('save', onSave)
-		settingsModal.on('fadeOut', onFadeOut)
-
-		settingsModal.show()
+		this.addBlockType(blockType)
+		this.selectBlockType(blockType)
 	},
 
-	'@setContainerHeight'()
+	'@newGroup'()
 	{
-		setTimeout(() => this._setContainerHeight(), 1)
+		// TODO
 	},
 
 	'@selectBlockType'(e)
