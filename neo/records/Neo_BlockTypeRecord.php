@@ -98,6 +98,7 @@ class Neo_BlockTypeRecord extends BaseRecord
 		return array(
 			'name'       => array(AttributeType::Name, 'required' => true),
 			'handle'     => array(AttributeType::Handle, 'required' => true),
+			'maxBlocks'  => AttributeType::Number,
 			'sortOrder'  => AttributeType::SortOrder,
 		);
 	}

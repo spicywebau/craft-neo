@@ -169,15 +169,29 @@
 	
 			try {
 				for (var _iterator = settings.blockTypes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var blockTypeInfo = _step.value;
+					var btInfo = _step.value;
+	
+					var btNamespace = [].concat(_toConsumableArray(this._templateNs), ['blockTypes']);
+	
+					var btSettings = new _BlockTypeSettings2.default({
+						namespace: [].concat(_toConsumableArray(btNamespace), [btInfo.id]),
+						sortOrder: btInfo.sortOrder,
+						id: btInfo.id,
+						name: btInfo.name,
+						handle: btInfo.handle,
+						maxBlocks: btInfo.maxBlocks,
+						errors: btInfo.errors
+					});
+	
+					var btFieldLayout = new _BlockTypeFieldLayout2.default({
+						namespace: [].concat(_toConsumableArray(btNamespace), [btInfo.id]),
+						layout: btInfo.fieldLayout
+					});
 	
 					var blockType = new _BlockType2.default({
-						namespace: [].concat(_toConsumableArray(this._templateNs), ['blockTypes']),
-						name: blockTypeInfo.name,
-						handle: blockTypeInfo.handle,
-						id: blockTypeInfo.id,
-						errors: blockTypeInfo.errors,
-						fieldLayout: blockTypeInfo.fieldLayout
+						namespace: btNamespace,
+						settings: btSettings,
+						fieldLayout: btFieldLayout
 					});
 	
 					this.addBlockType(blockType);
@@ -1298,7 +1312,7 @@
 		blockName: ''
 	};
 	
-	exports.default = _craft2.default.FieldLayoutDesigner.extend({
+	exports.default = _garnish2.default.Base.extend({
 	
 		_templateNs: [],
 		_blockName: '',
@@ -1313,13 +1327,12 @@
 			this.setBlockName(settings.blockName);
 	
 			var $template = (0, _jquery2.default)('template[data-neo="template.fld"]');
-			var $fld = (0, _jquery2.default)($template[0].content).children().clone();
-	
-			$fld.removeAttr('id');
+			this.$container = (0, _jquery2.default)($template[0].content).children().clone();
+			this.$container.removeAttr('id');
 	
 			_namespace2.default.enter(this._templateNs);
 	
-			this.base($fld, {
+			this._fld = new _craft2.default.FieldLayoutDesigner(this.$container, {
 				customizableTabs: true,
 				fieldInputName: _namespace2.default.fieldName('fieldLayout[__TAB_NAME__][]'),
 				requiredFieldInputName: _namespace2.default.fieldName('requiredFields[]')
@@ -1328,6 +1341,33 @@
 			_namespace2.default.leave();
 	
 			this.$instructions = this.$container.find('.instructions');
+	
+			console.log(settings.layout);
+	
+			var _iteratorNormalCompletion = true;
+			var _didIteratorError = false;
+			var _iteratorError = undefined;
+	
+			try {
+				for (var _iterator = settings.layout[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					var tab = _step.value;
+	
+					this.addTab(tab.name);
+				}
+			} catch (err) {
+				_didIteratorError = true;
+				_iteratorError = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion && _iterator.return) {
+						_iterator.return();
+					}
+				} finally {
+					if (_didIteratorError) {
+						throw _iteratorError;
+					}
+				}
+			}
 	
 			this._updateInstructions();
 		},
@@ -1338,6 +1378,30 @@
 			this._blockName = name;
 	
 			this._updateInstructions();
+		},
+		addTab: function addTab() {
+			var name = arguments.length <= 0 || arguments[0] === undefined ? 'Tab' + (this._fld.tabGrid.$items.length + 1) : arguments[0];
+	
+			var fld = this._fld;
+			var $tab = (0, _jquery2.default)('\n\t\t\t<div class="fld-tab">\n\t\t\t\t<div class="tabs">\n\t\t\t\t\t<div class="tab sel draggable">\n\t\t\t\t\t\t<span>' + name + '</span>\n\t\t\t\t\t\t<a class="settings icon" title="' + _craft2.default.t('Rename') + '"></a>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="fld-tabcontent"></div>\n\t\t\t</div>\n\t\t').appendTo(fld.$tabContainer);
+	
+			fld.tabGrid.addItems($tab);
+			fld.tabDrag.addItems($tab);
+	
+			var $containerNext = this.$container.next();
+			var $containerParent = this.$container.parent();
+	
+			this.$container.appendTo(document.body);
+	
+			fld.initTab($tab);
+	
+			if ($containerNext.length > 0) {
+				$containerNext.after(this.$container);
+			} else {
+				$containerParent.append(this.$container);
+			}
+	
+			return $tab;
 		},
 		_updateInstructions: function _updateInstructions() {
 			if (this.$instructions) {

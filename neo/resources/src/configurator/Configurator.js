@@ -59,15 +59,29 @@ export default Garnish.Base.extend({
 		})
 
 		// Add the existing block types
-		for(let blockTypeInfo of settings.blockTypes)
+		for(let btInfo of settings.blockTypes)
 		{
+			let btNamespace = [...this._templateNs, 'blockTypes']
+
+			let btSettings = new BlockTypeSettings({
+				namespace: [...btNamespace, btInfo.id],
+				sortOrder: btInfo.sortOrder,
+				id: btInfo.id,
+				name: btInfo.name,
+				handle: btInfo.handle,
+				maxBlocks: btInfo.maxBlocks,
+				errors: btInfo.errors
+			})
+
+			let btFieldLayout = new BlockTypeFieldLayout({
+				namespace: [...btNamespace, btInfo.id],
+				layout: btInfo.fieldLayout
+			})
+
 			let blockType = new BlockType({
-				namespace: [...this._templateNs, 'blockTypes'],
-				name: blockTypeInfo.name,
-				handle: blockTypeInfo.handle,
-				id: blockTypeInfo.id,
-				errors: blockTypeInfo.errors,
-				fieldLayout: blockTypeInfo.fieldLayout
+				namespace: btNamespace,
+				settings: btSettings,
+				fieldLayout: btFieldLayout
 			})
 
 			this.addBlockType(blockType)

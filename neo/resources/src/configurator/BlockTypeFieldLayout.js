@@ -12,7 +12,7 @@ const _defaults = {
 	blockName: ''
 }
 
-export default Craft.FieldLayoutDesigner.extend({
+export default Garnish.Base.extend({
 
 	_templateNs: [],
 	_blockName: '',
@@ -26,13 +26,12 @@ export default Craft.FieldLayoutDesigner.extend({
 		this.setBlockName(settings.blockName)
 
 		const $template = $('template[data-neo="template.fld"]')
-		const $fld = $($template[0].content).children().clone()
-
-		$fld.removeAttr('id')
+		this.$container = $($template[0].content).children().clone()
+		this.$container.removeAttr('id')
 
 		NS.enter(this._templateNs)
 
-		this.base($fld, {
+		this._fld = new Craft.FieldLayoutDesigner(this.$container, {
 			customizableTabs: true,
 			fieldInputName: NS.fieldName('fieldLayout[__TAB_NAME__][]'),
 			requiredFieldInputName: NS.fieldName('requiredFields[]')
@@ -41,6 +40,14 @@ export default Craft.FieldLayoutDesigner.extend({
 		NS.leave()
 
 		this.$instructions = this.$container.find('.instructions')
+
+		console.log(settings.layout)
+
+		for(let tab of settings.layout)
+		{
+			this.addTab(tab.name)
+		}
+
 
 		this._updateInstructions()
 	},
@@ -51,6 +58,52 @@ export default Craft.FieldLayoutDesigner.extend({
 		this._blockName = name
 
 		this._updateInstructions()
+	},
+
+	addTab(name = 'Tab' + (this._fld.tabGrid.$items.length + 1))
+	{
+		const fld = this._fld
+		const $tab = $(`
+			<div class="fld-tab">
+				<div class="tabs">
+					<div class="tab sel draggable">
+						<span>${name}</span>
+						<a class="settings icon" title="${Craft.t('Rename')}"></a>
+					</div>
+				</div>
+				<div class="fld-tabcontent"></div>
+			</div>
+		`).appendTo(fld.$tabContainer)
+
+		fld.tabGrid.addItems($tab)
+		fld.tabDrag.addItems($tab)
+
+		// In order for tabs to be added to the FLD, the FLD must be visible in the DOM.
+		// To ensure this, the FLD is momentarily placed in the root body element, then after the tab has been added,
+		// it is placed back in the same position it was.
+
+		const $containerNext = this.$container.next()
+		const $containerParent = this.$container.parent()
+
+		this.$container.appendTo(document.body)
+
+		fld.initTab($tab)
+
+		if($containerNext.length > 0)
+		{
+			$containerNext.before(this.$container)
+		}
+		else
+		{
+			$containerParent.append(this.$container)
+		}
+
+		return $tab
+	},
+
+	addFieldToTab($tab, fieldId)
+	{
+		
 	},
 
 	_updateInstructions()

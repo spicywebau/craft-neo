@@ -71,6 +71,7 @@ class Neo_BlockTypeModel extends BaseModel
 			'fieldLayoutId' => AttributeType::String,
 			'name'          => AttributeType::String,
 			'handle'        => AttributeType::String,
+			'maxBlocks'     => AttributeType::Number,
 			'sortOrder'     => AttributeType::Number,
 		);
 	}

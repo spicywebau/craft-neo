@@ -71,8 +71,10 @@ class NeoFieldType extends BaseFieldType
 
 			$jsBlockTypes[] = array(
 				'id' => $blockType->id,
+				'sortOrder' => $blockType->sortOrder,
 				'name' => $blockType->name,
 				'handle' => $blockType->handle,
+				'maxBlocks' => $blockType->maxBlocks,
 				'errors' => $blockType->getErrors(),
 				'fieldLayout' => $jsFieldLayout,
 			);
@@ -108,15 +110,17 @@ class NeoFieldType extends BaseFieldType
 		$neoSettings = new Neo_SettingsModel($this->model);
 		$blockTypes = array();
 
-		if (!empty($settings['blockTypes']))
+		if(!empty($settings['blockTypes']))
 		{
-			foreach ($settings['blockTypes'] as $blockTypeId => $blockTypeSettings)
+			foreach($settings['blockTypes'] as $blockTypeId => $blockTypeSettings)
 			{
 				$blockType = new Neo_BlockTypeModel();
-				$blockType->id      = $blockTypeId;
-				$blockType->fieldId = $this->model->id;
-				$blockType->name    = $blockTypeSettings['name'];
-				$blockType->handle  = $blockTypeSettings['handle'];
+				$blockType->id        = $blockTypeId;
+				$blockType->fieldId   = $this->model->id;
+				$blockType->name      = $blockTypeSettings['name'];
+				$blockType->handle    = $blockTypeSettings['handle'];
+				$blockType->maxBlocks = $blockTypeSettings['maxBlocks'];
+				$blockType->sortOrder = $blockTypeSettings['sortOrder'];
 
 				if(!empty($blockTypeSettings['fieldLayout']))
 				{
@@ -134,7 +138,7 @@ class NeoFieldType extends BaseFieldType
 
 		$neoSettings->setBlockTypes($blockTypes);
 
-		if (!empty($settings['maxBlocks']))
+		if(!empty($settings['maxBlocks']))
 		{
 			$neoSettings->maxBlocks = $settings['maxBlocks'];
 		}
