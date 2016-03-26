@@ -232,9 +232,10 @@
 			this.$mainContainer.removeClass('hidden');
 	
 			this.addListener(blockType.$container, 'click', '@selectBlockType');
-	
 			blockType.on('delete.configurator', function () {
-				return _this2.removeBlockType(blockType);
+				if (confirm(_craft2.default.t('Are you sure you want to delete this block type?'))) {
+					_this2.removeBlockType(blockType);
+				}
 			});
 	
 			this._updateBlockTypeOrder();
