@@ -105,6 +105,7 @@ export default Garnish.Base.extend({
 		this.$mainContainer.removeClass('hidden')
 
 		this.addListener(blockType.$container, 'click', '@selectBlockType')
+		blockType.on('delete.configurator', () => this.removeBlockType(blockType))
 
 		this._updateBlockTypeOrder()
 
@@ -133,6 +134,7 @@ export default Garnish.Base.extend({
 		}
 
 		this.removeListener(blockType.$container, 'click')
+		blockType.off('delete.configurator')
 
 		this._updateBlockTypeOrder()
 

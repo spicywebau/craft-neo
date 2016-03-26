@@ -209,6 +209,8 @@
 			});
 		},
 		addBlockType: function addBlockType(blockType) {
+			var _this2 = this;
+	
 			var index = arguments.length <= 1 || arguments[1] === undefined ? -1 : arguments[1];
 	
 			var settings = blockType.getSettings();
@@ -230,6 +232,10 @@
 			this.$mainContainer.removeClass('hidden');
 	
 			this.addListener(blockType.$container, 'click', '@selectBlockType');
+	
+			blockType.on('delete.configurator', function () {
+				return _this2.removeBlockType(blockType);
+			});
 	
 			this._updateBlockTypeOrder();
 	
@@ -257,6 +263,7 @@
 			}
 	
 			this.removeListener(blockType.$container, 'click');
+			blockType.off('delete.configurator');
 	
 			this._updateBlockTypeOrder();
 	
@@ -316,12 +323,12 @@
 			this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout');
 		},
 		_updateBlockTypeOrder: function _updateBlockTypeOrder() {
-			var _this2 = this;
+			var _this3 = this;
 	
 			var blockTypes = [];
 	
 			this._blockTypeSort.$items.each(function (index, element) {
-				var blockType = _this2.getBlockTypeByElement(element);
+				var blockType = _this3.getBlockTypeByElement(element);
 				var settings = blockType.getSettings();
 	
 				if (settings) settings.setSortOrder(index);
@@ -595,8 +602,11 @@
 			this.$moveButton = $neo.filter('[data-neo-bt="button.move"]');
 	
 			if (this._settings) {
-				this._settings.on('change', function (e) {
-					return _this._updateTemplate(e);
+				this._settings.on('change', function () {
+					return _this._updateTemplate();
+				});
+				this._settings.on('delete', function () {
+					return _this.trigger('delete');
 				});
 			}
 	
@@ -750,6 +760,9 @@
 			});
 			this.addListener(this.$maxBlocksInput, 'keyup change', function () {
 				return _this.setMaxBlocks(_this.$maxBlocksInput.val());
+			});
+			this.addListener(this.$deleteButton, 'click', function () {
+				return _this.trigger('delete');
 			});
 		},
 		getId: function getId() {
@@ -1385,7 +1398,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".neo-configurator > .field > .input {\n  display: flex;\n  min-height: 400px; }\n\n[data-neo='template.fld'] {\n  display: none; }\n\n.nc_sidebar {\n  width: 200px;\n  border: 1px solid #ebebeb;\n  background-color: #fafafa; }\n  .nc_sidebar_list {\n    margin: 0 -1px; }\n    .nc_sidebar_list_item {\n      cursor: default;\n      position: relative;\n      margin-top: -1px;\n      padding: 10px 14px 10px 40px;\n      border: 1px solid #ebebeb;\n      background-color: #fcfcfc; }\n      .nc_sidebar_list_item > .label {\n        color: #29323d; }\n        .nc_sidebar_list_item > .label:empty {\n          font-style: italic;\n          color: #8f98a3; }\n          .nc_sidebar_list_item > .label:empty::before {\n            content: \"(blank)\"; }\n      .nc_sidebar_list_item.is-selected {\n        z-index: 1;\n        border-color: #dedede;\n        background-color: #ececec; }\n      .nc_sidebar_list_item.type-heading {\n        margin-top: 10px; }\n        .nc_sidebar_list_item.type-heading > .label {\n          font-size: 11px;\n          font-weight: bold;\n          text-transform: uppercase;\n          color: #b9bfc6; }\n      .nc_sidebar_list_item > .move {\n        display: block;\n        position: absolute;\n        top: 11px;\n        left: 7px;\n        width: 24px;\n        text-align: center; }\n  .nc_sidebar_buttons {\n    padding: 14px; }\n    .nc_sidebar_buttons > .btn.type-heading {\n      font-size: 11px;\n      font-weight: bold;\n      text-transform: uppercase;\n      color: #b9bfc6; }\n\n.nc_main {\n  flex-grow: 1;\n  flex-shrink: 20;\n  border: 1px solid #ebebeb;\n  border-left: 0; }\n  .nc_main_tabs {\n    display: flex;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6); }\n    .nc_main_tabs_tab {\n      display: block;\n      padding: 10px 24px;\n      color: #555; }\n      .nc_main_tabs_tab:hover {\n        text-decoration: none;\n        color: #0d78f2; }\n      .nc_main_tabs_tab.is-selected {\n        margin-bottom: -1px;\n        padding-bottom: 11px;\n        border-left: 1px solid #ebebeb;\n        border-right: 1px solid #ebebeb;\n        background-color: #fff;\n        color: #29323d; }\n        .nc_main_tabs_tab.is-selected:first-child {\n          border-left: 0; }\n  .nc_main_content {\n    padding: 24px; }\n", ""]);
+	exports.push([module.id, ".neo-configurator > .field > .input {\n  display: flex;\n  min-height: 400px; }\n\n[data-neo='template.fld'] {\n  display: none; }\n\n.nc_sidebar {\n  width: 200px;\n  border: 1px solid #ebebeb;\n  background-color: #fafafa; }\n  .nc_sidebar_list {\n    margin: 0 -1px; }\n    .nc_sidebar_list_item {\n      cursor: default;\n      position: relative;\n      margin-top: -1px;\n      padding: 10px 14px 10px 40px;\n      border: 1px solid #ebebeb;\n      background-color: #fcfcfc; }\n      .nc_sidebar_list_item > .label {\n        color: #29323d; }\n        .nc_sidebar_list_item > .label:empty {\n          font-style: italic;\n          color: #8f98a3; }\n          .nc_sidebar_list_item > .label:empty::before {\n            content: \"(blank)\"; }\n      .nc_sidebar_list_item > .move {\n        display: block;\n        position: absolute;\n        top: 11px;\n        left: 7px;\n        width: 24px;\n        text-align: center; }\n      .nc_sidebar_list_item.is-selected {\n        z-index: 1;\n        border-color: #dedede;\n        background-color: #ececec; }\n      .nc_sidebar_list_item.type-heading {\n        margin-top: 10px; }\n        .nc_sidebar_list_item.type-heading > .label {\n          font-size: 11px;\n          font-weight: bold;\n          text-transform: uppercase;\n          color: #b9bfc6; }\n  .nc_sidebar_buttons {\n    padding: 14px; }\n    .nc_sidebar_buttons > .btn.type-heading {\n      font-size: 11px;\n      font-weight: bold;\n      text-transform: uppercase;\n      color: #b9bfc6; }\n\n.nc_main {\n  flex-grow: 1;\n  flex-shrink: 20;\n  border: 1px solid #ebebeb;\n  border-left: 0; }\n  .nc_main_tabs {\n    display: flex;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6); }\n    .nc_main_tabs_tab {\n      display: block;\n      padding: 10px 24px;\n      color: #555; }\n      .nc_main_tabs_tab:hover {\n        text-decoration: none;\n        color: #0d78f2; }\n      .nc_main_tabs_tab.is-selected {\n        margin-bottom: -1px;\n        padding-bottom: 11px;\n        border-left: 1px solid #ebebeb;\n        border-right: 1px solid #ebebeb;\n        background-color: #fff;\n        color: #29323d; }\n        .nc_main_tabs_tab.is-selected:first-child {\n          border-left: 0; }\n  .nc_main_content {\n    padding: 24px; }\n", ""]);
 	
 	// exports
 

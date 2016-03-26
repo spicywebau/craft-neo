@@ -38,6 +38,15 @@
 					}
 				}
 
+				> .move {
+					display: block;
+					position: absolute;
+					top: 11px;
+					left: 7px;
+					width: 24px;
+					text-align: center;
+				}
+
 				&.is-selected {
 					z-index: 1;
 					border-color: #dedede;
@@ -53,15 +62,6 @@
 						text-transform: uppercase;
 						color: #b9bfc6;
 					}
-				}
-
-				> .move {
-					display: block;
-					position: absolute;
-					top: 11px;
-					left: 7px;
-					width: 24px;
-					text-align: center;
 				}
 			}
 		}

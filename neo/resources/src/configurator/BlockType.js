@@ -46,7 +46,8 @@ export default Garnish.Base.extend({
 
 		if(this._settings)
 		{
-			this._settings.on('change', e => this._updateTemplate(e))
+			this._settings.on('change', () => this._updateTemplate())
+			this._settings.on('delete', () => this.trigger('delete'))
 		}
 
 		this.deselect()
