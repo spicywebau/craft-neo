@@ -130,7 +130,7 @@ export default Garnish.Base.extend({
 		const oldMaxBlocks = this._maxBlocks
 		this._maxBlocks = Math.max(0, maxBlocks|0)
 
-		this.$maxBlocksInput.val(this._maxBlocks)
+		this.$maxBlocksInput.val(this._maxBlocks > 0 ? this._maxBlocks : null)
 
 		this.trigger('change', {
 			property: 'maxBlocks',
