@@ -123,6 +123,16 @@ export default Garnish.Base.extend({
 			this._fld.unusedFieldGrid.removeItems($unusedGroup)
 		}
 
+		let $fieldInput = $field.find('.id-input')
+		if($fieldInput.length === 0)
+		{
+			let tabName = $tab.find('.tab > span').text()
+			let inputName = this._fld.getFieldInputName(tabName)
+
+			$fieldInput = $(`<input class="id-input" type="hidden" name="${inputName}" value="${fieldId}">`)
+			$field.append($fieldInput)
+		}
+
 		$field.prepend(`<a class="settings icon" title="${Craft.t('Edit')}"></a>`);
 		$fieldContainer.append($field)
 		this._fld.initField($field)

@@ -1452,6 +1452,15 @@
 				this._fld.unusedFieldGrid.removeItems($unusedGroup);
 			}
 	
+			var $fieldInput = $field.find('.id-input');
+			if ($fieldInput.length === 0) {
+				var tabName = $tab.find('.tab > span').text();
+				var inputName = this._fld.getFieldInputName(tabName);
+	
+				$fieldInput = (0, _jquery2.default)('<input class="id-input" type="hidden" name="' + inputName + '" value="' + fieldId + '">');
+				$field.append($fieldInput);
+			}
+	
 			$field.prepend('<a class="settings icon" title="' + _craft2.default.t('Edit') + '"></a>');
 			$fieldContainer.append($field);
 			this._fld.initField($field);
