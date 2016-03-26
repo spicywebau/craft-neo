@@ -1342,8 +1342,6 @@
 	
 			this.$instructions = this.$container.find('.instructions');
 	
-			console.log(settings.layout);
-	
 			var _iteratorNormalCompletion = true;
 			var _didIteratorError = false;
 			var _iteratorError = undefined;
@@ -1352,7 +1350,32 @@
 				for (var _iterator = settings.layout[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var tab = _step.value;
 	
-					this.addTab(tab.name);
+					var $tab = this.addTab(tab.name);
+	
+					var _iteratorNormalCompletion2 = true;
+					var _didIteratorError2 = false;
+					var _iteratorError2 = undefined;
+	
+					try {
+						for (var _iterator2 = tab.fields[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+							var fieldId = _step2.value;
+	
+							this.addFieldToTab($tab, fieldId);
+						}
+					} catch (err) {
+						_didIteratorError2 = true;
+						_iteratorError2 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion2 && _iterator2.return) {
+								_iterator2.return();
+							}
+						} finally {
+							if (_didIteratorError2) {
+								throw _iteratorError2;
+							}
+						}
+					}
 				}
 			} catch (err) {
 				_didIteratorError = true;
@@ -1379,6 +1402,11 @@
 	
 			this._updateInstructions();
 		},
+	
+	
+		/**
+	  * @see Craft.FieldLayoutDesigner.addTab
+	  */
 		addTab: function addTab() {
 			var name = arguments.length <= 0 || arguments[0] === undefined ? 'Tab' + (this._fld.tabGrid.$items.length + 1) : arguments[0];
 	
@@ -1388,6 +1416,10 @@
 			fld.tabGrid.addItems($tab);
 			fld.tabDrag.addItems($tab);
 	
+			// In order for tabs to be added to the FLD, the FLD must be visible in the DOM.
+			// To ensure this, the FLD is momentarily placed in the root body element, then after the tab has been added,
+			// it is placed back in the same position it was.
+	
 			var $containerNext = this.$container.next();
 			var $containerParent = this.$container.parent();
 	
@@ -1396,12 +1428,34 @@
 			fld.initTab($tab);
 	
 			if ($containerNext.length > 0) {
-				$containerNext.after(this.$container);
+				$containerNext.before(this.$container);
 			} else {
 				$containerParent.append(this.$container);
 			}
 	
 			return $tab;
+		},
+	
+	
+		/**
+	  * @see Craft.FieldLayoutDesigner.FieldDrag.onDragStop
+	  */
+		addFieldToTab: function addFieldToTab($tab, fieldId) {
+			var $unusedField = this._fld.$allFields.filter('[data-id="' + fieldId + '"]');
+			var $unusedGroup = $unusedField.closest('.fld-tab');
+			var $field = $unusedField.clone().removeClass('unused');
+			var $fieldContainer = $tab.find('.fld-tabcontent');
+	
+			$unusedField.addClass('hidden');
+			if ($unusedField.siblings(':not(.hidden)').length === 0) {
+				$unusedGroup.addClass('hidden');
+				this._fld.unusedFieldGrid.removeItems($unusedGroup);
+			}
+	
+			$field.prepend('<a class="settings icon" title="' + _craft2.default.t('Edit') + '"></a>');
+			$fieldContainer.append($field);
+			this._fld.initField($field);
+			this._fld.fieldDrag.addItems($field);
 		},
 		_updateInstructions: function _updateInstructions() {
 			if (this.$instructions) {

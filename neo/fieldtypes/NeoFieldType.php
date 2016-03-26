@@ -60,7 +60,7 @@ class NeoFieldType extends BaseFieldType
 
 				foreach($tabFields as $field)
 				{
-					$jsTabFields[] = $field->id;
+					$jsTabFields[] = $field->fieldId;
 				}
 
 				$jsFieldLayout[] = array(

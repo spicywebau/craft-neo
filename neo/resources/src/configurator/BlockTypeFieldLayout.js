@@ -41,13 +41,15 @@ export default Garnish.Base.extend({
 
 		this.$instructions = this.$container.find('.instructions')
 
-		console.log(settings.layout)
-
 		for(let tab of settings.layout)
 		{
-			this.addTab(tab.name)
-		}
+			let $tab = this.addTab(tab.name)
 
+			for(let fieldId of tab.fields)
+			{
+				this.addFieldToTab($tab, fieldId)
+			}
+		}
 
 		this._updateInstructions()
 	},
@@ -60,6 +62,9 @@ export default Garnish.Base.extend({
 		this._updateInstructions()
 	},
 
+	/**
+	 * @see Craft.FieldLayoutDesigner.addTab
+	 */
 	addTab(name = 'Tab' + (this._fld.tabGrid.$items.length + 1))
 	{
 		const fld = this._fld
@@ -101,9 +106,27 @@ export default Garnish.Base.extend({
 		return $tab
 	},
 
+	/**
+	 * @see Craft.FieldLayoutDesigner.FieldDrag.onDragStop
+	 */
 	addFieldToTab($tab, fieldId)
 	{
-		
+		const $unusedField = this._fld.$allFields.filter(`[data-id="${fieldId}"]`)
+		const $unusedGroup = $unusedField.closest('.fld-tab')
+		const $field = $unusedField.clone().removeClass('unused')
+		const $fieldContainer = $tab.find('.fld-tabcontent')
+
+		$unusedField.addClass('hidden')
+		if($unusedField.siblings(':not(.hidden)').length === 0)
+		{
+			$unusedGroup.addClass('hidden')
+			this._fld.unusedFieldGrid.removeItems($unusedGroup)
+		}
+
+		$field.prepend(`<a class="settings icon" title="${Craft.t('Edit')}"></a>`);
+		$fieldContainer.append($field)
+		this._fld.initField($field)
+		this._fld.fieldDrag.addItems($field)
 	},
 
 	_updateInstructions()
