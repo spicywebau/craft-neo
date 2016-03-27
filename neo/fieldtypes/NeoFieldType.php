@@ -80,9 +80,19 @@ class NeoFieldType extends BaseFieldType
 			);
 		}
 
+		/*craft()->templates->startJsBuffer();
+
+		$fieldLayoutHtml = craft()->templates->render('_includes/fieldlayoutdesigner', array(
+			'fieldLayout' => false,
+			'instructions' => '',
+		));
+
+		craft()->templates->clearJsBuffer();*/
+
 		$jsSettings = array(
 			'namespace' => craft()->templates->getNamespace(),
 			'blockTypes' => $jsBlockTypes,
+			//'fieldLayoutHtml' => $fieldLayoutHtml,
 		);
 
 		craft()->templates->includeJsResource('neo/dist/main.js');
@@ -287,14 +297,15 @@ class NeoFieldType extends BaseFieldType
 		// Get the block types data
 		$blockTypeInfo = $this->_getBlockTypeInfoForInput($name);
 
-		craft()->templates->includeJsResource('neo/dist/main.js');
+		$jsSettings = array(
+			'namespace' => craft()->templates->namespaceInputName($name),
+			'blockTypes' => $blockTypeInfo,
+			'inputId' => craft()->templates->namespaceInputId($id),
+			'maxBlocks' => $settings->maxBlocks
+		);
 
-		craft()->templates->includeJs('new Neo.Input(' .
-			'"'.craft()->templates->namespaceInputId($id).'", ' .
-			JsonHelper::encode($blockTypeInfo).', ' .
-			'"'.craft()->templates->namespaceInputName($name).'", ' .
-			($settings->maxBlocks ? $settings->maxBlocks : 'null') .
-		');');
+		craft()->templates->includeJsResource('neo/dist/main.js');
+		craft()->templates->includeJs('new Neo.Input(' . JsonHelper::encode($jsSettings) . ')');
 
 		craft()->templates->includeTranslations(
 			'Actions',

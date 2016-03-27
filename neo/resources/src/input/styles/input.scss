@@ -1,0 +1,51 @@
+.neo-input {
+
+}
+
+.ni {
+
+	&_block {
+		margin-bottom: 10px;
+		border-radius: 3px;
+		border: 1px solid #ebebeb;
+		overflow: hidden;
+
+		&_topbar {
+			display: flex;
+			height: 30px;
+			line-height: 30px;
+			background-color: #f1f3f4;
+			color: #8f98a3;
+
+			&_item {
+				padding: 0 8px;
+
+				+ .ni_block_topbar_item {
+					padding-left: 0;
+				}
+
+				&.size-full {
+					flex-grow: 1;
+				}
+
+				> .status {
+					margin: 10px 5px 0 0;
+				}
+
+				> a {
+					color: rgba(#29323d, 0.25);
+
+					&:hover {
+						color: #0d78f2;
+					}
+				}
+			}
+		}
+
+		&_content {
+			padding: 14px;
+			border-top: 1px solid #ebebeb;
+			background-color: #fafafa;
+		}
+	}
+}

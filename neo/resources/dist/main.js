@@ -155,6 +155,7 @@
 			this.$fieldLayoutButton = $neo.filter('[data-neo="button.fieldLayout"]');
 	
 			this._blockTypeSort = new _garnish2.default.DragSort(null, {
+				container: this.$blockTypeItemsContainer,
 				handle: '[data-neo-bt="button.move"]',
 				axis: 'y',
 				onSortChange: function onSortChange() {
@@ -1526,7 +1527,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".neo-configurator > .field > .input {\n  display: flex;\n  min-height: 400px; }\n\n[data-neo='template.fld'] {\n  display: none; }\n\n.nc_sidebar {\n  width: 200px;\n  border: 1px solid #ebebeb;\n  background-color: #fafafa; }\n  .nc_sidebar_title {\n    padding: 10px 24px;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6);\n    color: #555; }\n  .nc_sidebar_list {\n    margin: 0 -1px; }\n    .nc_sidebar_list:not(:empty) {\n      padding-top: 10px; }\n    .nc_sidebar_list_item {\n      cursor: default;\n      position: relative;\n      margin-top: -1px;\n      padding: 10px 14px 10px 40px;\n      border: 1px solid #ebebeb;\n      background-color: #fcfcfc; }\n      .nc_sidebar_list_item > .label {\n        color: #29323d; }\n        .nc_sidebar_list_item > .label:empty {\n          font-style: italic;\n          color: #8f98a3; }\n          .nc_sidebar_list_item > .label:empty::before {\n            content: \"(blank)\"; }\n      .nc_sidebar_list_item > .move {\n        display: block;\n        position: absolute;\n        top: 11px;\n        left: 7px;\n        width: 24px;\n        text-align: center; }\n      .nc_sidebar_list_item.is-selected {\n        z-index: 1;\n        border-color: #dedede;\n        background-color: #ececec; }\n      .nc_sidebar_list_item.type-heading {\n        margin-top: 10px; }\n        .nc_sidebar_list_item.type-heading > .label {\n          font-size: 11px;\n          font-weight: bold;\n          text-transform: uppercase;\n          color: #b9bfc6; }\n  .nc_sidebar_buttons {\n    padding: 14px; }\n    .nc_sidebar_buttons > .btn.type-heading {\n      font-size: 11px;\n      font-weight: bold;\n      text-transform: uppercase;\n      color: #b9bfc6; }\n\n.nc_main {\n  flex-grow: 1;\n  flex-shrink: 20;\n  border: 1px solid #ebebeb;\n  border-left: 0; }\n  .nc_main_tabs {\n    display: flex;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6); }\n    .nc_main_tabs_tab {\n      display: block;\n      padding: 10px 24px;\n      color: #555; }\n      .nc_main_tabs_tab:hover {\n        text-decoration: none;\n        color: #0d78f2; }\n      .nc_main_tabs_tab.is-selected {\n        margin-bottom: -1px;\n        padding-bottom: 11px;\n        border-left: 1px solid #ebebeb;\n        border-right: 1px solid #ebebeb;\n        background-color: #fff;\n        color: #29323d; }\n        .nc_main_tabs_tab.is-selected:first-child {\n          border-left: 0; }\n  .nc_main_content {\n    padding: 24px; }\n", ""]);
+	exports.push([module.id, ".neo-configurator > .field > .input {\n  display: flex;\n  min-height: 400px; }\n\n[data-neo='template.fld'] {\n  display: none; }\n\n.nc_sidebar {\n  width: 200px;\n  border: 1px solid #ebebeb;\n  background-color: #fafafa; }\n  .nc_sidebar_title {\n    padding: 10px 24px;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6);\n    color: #8f98a3; }\n  .nc_sidebar_list {\n    margin: 0 -1px; }\n    .nc_sidebar_list:not(:empty) {\n      padding-top: 10px; }\n    .nc_sidebar_list_item {\n      cursor: default;\n      position: relative;\n      margin-top: -1px;\n      padding: 10px 14px 10px 40px;\n      border: 1px solid #ebebeb;\n      background-color: #fcfcfc; }\n      .nc_sidebar_list_item > .label {\n        color: #29323d; }\n        .nc_sidebar_list_item > .label:empty {\n          font-style: italic;\n          color: #8f98a3; }\n          .nc_sidebar_list_item > .label:empty::before {\n            content: \"(blank)\"; }\n      .nc_sidebar_list_item > .move {\n        display: block;\n        position: absolute;\n        top: 11px;\n        left: 7px;\n        width: 24px;\n        text-align: center; }\n      .nc_sidebar_list_item.is-selected {\n        z-index: 1;\n        border-color: #dedede;\n        background-color: #ececec; }\n      .nc_sidebar_list_item.type-heading {\n        margin-top: 10px; }\n        .nc_sidebar_list_item.type-heading > .label {\n          font-size: 11px;\n          font-weight: bold;\n          text-transform: uppercase;\n          color: #b9bfc6; }\n  .nc_sidebar_buttons {\n    padding: 14px; }\n    .nc_sidebar_buttons > .btn.type-heading {\n      font-size: 11px;\n      font-weight: bold;\n      text-transform: uppercase;\n      color: #b9bfc6; }\n\n.nc_main {\n  flex-grow: 1;\n  flex-shrink: 20;\n  border: 1px solid #ebebeb;\n  border-left: 0; }\n  .nc_main_tabs {\n    display: flex;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6); }\n    .nc_main_tabs_tab {\n      display: block;\n      padding: 10px 24px;\n      color: #555; }\n      .nc_main_tabs_tab:hover {\n        text-decoration: none;\n        color: #0d78f2; }\n      .nc_main_tabs_tab.is-selected {\n        margin-bottom: -1px;\n        padding-bottom: 11px;\n        border-left: 1px solid #ebebeb;\n        border-right: 1px solid #ebebeb;\n        background-color: #fff;\n        color: #29323d; }\n        .nc_main_tabs_tab.is-selected:first-child {\n          border-left: 0; }\n  .nc_main_content {\n    padding: 24px; }\n", ""]);
 	
 	// exports
 
@@ -1855,6 +1856,8 @@
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
+	__webpack_require__(3);
+	
 	var _garnish = __webpack_require__(4);
 	
 	var _garnish2 = _interopRequireDefault(_garnish);
@@ -1863,22 +1866,346 @@
 	
 	var _craft2 = _interopRequireDefault(_craft);
 	
-	__webpack_require__(24);
+	var _namespace = __webpack_require__(6);
+	
+	var _namespace2 = _interopRequireDefault(_namespace);
+	
+	var _BlockType = __webpack_require__(24);
+	
+	var _BlockType2 = _interopRequireDefault(_BlockType);
+	
+	var _Block = __webpack_require__(25);
+	
+	var _Block2 = _interopRequireDefault(_Block);
+	
+	var _input = __webpack_require__(27);
+	
+	var _input2 = _interopRequireDefault(_input);
+	
+	__webpack_require__(15);
+	
+	__webpack_require__(28);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	var _defaults = {
+		namespace: [],
+		blockTypes: [],
+		inputId: null,
+		maxBlocks: 0
+	};
+	
 	exports.default = _garnish2.default.Base.extend({
-		init: function init() {}
+	
+		_templateNs: [],
+		_blockTypes: [],
+		_blocks: [],
+	
+		init: function init() {
+			var _this = this;
+	
+			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+			settings = Object.assign({}, _defaults, settings);
+	
+			this._templateNs = _namespace2.default.parse(settings.namespace);
+	
+			_namespace2.default.enter(this._templateNs);
+	
+			this.$container = (0, _jquery2.default)('#' + settings.inputId).append((0, _input2.default)({
+				blockTypes: settings.blockTypes
+			}));
+	
+			_namespace2.default.leave();
+	
+			var _iteratorNormalCompletion = true;
+			var _didIteratorError = false;
+			var _iteratorError = undefined;
+	
+			try {
+				for (var _iterator = settings.blockTypes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					var btInfo = _step.value;
+	
+					var blockType = new _BlockType2.default(btInfo);
+					this._blockTypes.push(blockType);
+					this._blockTypes[blockType.getHandle()] = blockType;
+				}
+			} catch (err) {
+				_didIteratorError = true;
+				_iteratorError = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion && _iterator.return) {
+						_iterator.return();
+					}
+				} finally {
+					if (_didIteratorError) {
+						throw _iteratorError;
+					}
+				}
+			}
+	
+			var $neo = this.$container.find('[data-neo]');
+			this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]');
+			this.$blockButtons = $neo.filter('[data-neo="button.addBlock"]');
+	
+			this._blockSort = new _garnish2.default.DragSort(null, {
+				container: this.$blocksContainer,
+				handle: '[data-neo-b="button.move"]',
+				axis: 'y',
+				filter: function filter() {
+					// Only return all the selected items if the target item is selected
+					if (_this._blockSort.$targetItem.hasClass('sel')) {
+						return _this.getSelectedBlocks();
+					} else {
+						return _this._blockSort.$targetItem;
+					}
+				},
+				collapseDraggees: true,
+				magnetStrength: 4,
+				helperLagBase: 1.5,
+				helperOpacity: 0.9,
+				onSortChange: function onSortChange() {
+					return _this._updateBlockOrder();
+				}
+			});
+	
+			this.addListener(this.$blockButtons, 'click', '@newBlock');
+		},
+		addBlock: function addBlock(block) {
+			var index = arguments.length <= 1 || arguments[1] === undefined ? -1 : arguments[1];
+	
+			if (index >= 0 && index < this._blocks.length) {
+				this._blocks = this._blocks.splice(index, 0, block);
+				block.$container.insertAt(index, this.$blocksContainer);
+			} else {
+				this._blocks.push(block);
+				this.$blocksContainer.append(block.$container);
+			}
+	
+			this._blockSort.addItems(block.$container);
+	
+			block.initUi();
+	
+			this._updateBlockOrder();
+		},
+		getSelectedBlocks: function getSelectedBlocks() {},
+		'@newBlock': function newBlock(e) {
+			var $button = (0, _jquery2.default)(e.currentTarget);
+			var blockTypeHandle = $button.attr('data-neo-info');
+			var blockType = this._blockTypes[blockTypeHandle];
+			var blockId = _Block2.default.getNewId();
+	
+			var block = new _Block2.default({
+				namespace: this._templateNs,
+				blockType: blockType,
+				id: blockId
+			});
+	
+			this.addBlock(block);
+		},
+		_updateBlockOrder: function _updateBlockOrder() {}
 	});
 
 /***/ },
 /* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _jquery = __webpack_require__(2);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	__webpack_require__(3);
+	
+	var _garnish = __webpack_require__(4);
+	
+	var _garnish2 = _interopRequireDefault(_garnish);
+	
+	var _craft = __webpack_require__(5);
+	
+	var _craft2 = _interopRequireDefault(_craft);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var _defaults = {
+		name: '',
+		handle: '',
+		maxBlocks: 0,
+		bodyHtml: '',
+		footHtml: ''
+	};
+	
+	exports.default = _garnish2.default.Base.extend({
+		init: function init() {
+			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+			settings = Object.assign({}, _defaults, settings);
+	
+			this._name = settings.name;
+			this._handle = settings.handle;
+			this._maxBlocks = settings.maxBlocks | 0;
+			this._bodyHtml = settings.bodyHtml;
+			this._footHtml = settings.footHtml;
+		},
+		getName: function getName() {
+			return this._name;
+		},
+		getHandle: function getHandle() {
+			return this._handle;
+		},
+		getMaxBlocks: function getMaxBlocks() {
+			return this._maxBlocks;
+		},
+		getBodyHtml: function getBodyHtml() {
+			var blockId = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+	
+			if (blockId !== null) {
+				return this._bodyHtml.replace(/__BLOCK__/g, blockId);
+			}
+	
+			return this._bodyHtml;
+		},
+		getFootHtml: function getFootHtml() {
+			var blockId = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+	
+			if (blockId !== null) {
+				return this._footHtml.replace(/__BLOCK__/g, blockId);
+			}
+	
+			return this._footHtml;
+		}
+	});
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _jquery = __webpack_require__(2);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	__webpack_require__(3);
+	
+	var _garnish = __webpack_require__(4);
+	
+	var _garnish2 = _interopRequireDefault(_garnish);
+	
+	var _craft = __webpack_require__(5);
+	
+	var _craft2 = _interopRequireDefault(_craft);
+	
+	var _namespace = __webpack_require__(6);
+	
+	var _namespace2 = _interopRequireDefault(_namespace);
+	
+	var _block = __webpack_require__(26);
+	
+	var _block2 = _interopRequireDefault(_block);
+	
+	__webpack_require__(15);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var _defaults = {
+		namespace: [],
+		blockType: null,
+		id: null
+	};
+	
+	exports.default = _garnish2.default.Base.extend({
+	
+		_templateNs: [],
+		_blockType: null,
+		_initialised: false,
+	
+		init: function init() {
+			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+			settings = Object.assign({}, _defaults, settings);
+	
+			this._templateNs = _namespace2.default.parse(settings.namespace);
+			this._blockType = settings.blockType;
+			this._id = settings.id;
+	
+			_namespace2.default.enter(this._templateNs);
+	
+			this.$container = (0, _jquery2.default)((0, _block2.default)({
+				type: this._blockType
+			}));
+	
+			_namespace2.default.leave();
+	
+			var $neo = this.$container.find('[data-neo-b]');
+			this.$contentContainer = $neo.filter('[data-neo-b="container.content"]');
+			this.$content = (0, _jquery2.default)(this._blockType.getBodyHtml(this._id)).appendTo(this.$contentContainer);
+		},
+		initUi: function initUi() {
+			if (!this._initialised) {
+				this.$foot = (0, _jquery2.default)(this._blockType.getFootHtml(this._id));
+	
+				_garnish2.default.$bod.append(this.$foot);
+				_craft2.default.initUiElements(this.$contentContainer);
+	
+				this._initialised = true;
+			}
+		},
+		destroy: function destroy() {
+			if (this._initialised) {
+				this.$foot.remove();
+			}
+		},
+		getBlockType: function getBlockType() {
+			return this._blockType;
+		},
+		getId: function getId() {
+			return this._id;
+		}
+	}, {
+		_totalNewBlocks: 0,
+	
+		getNewId: function getNewId() {
+			return 'new' + this._totalNewBlocks++;
+		}
+	});
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var twig = __webpack_require__(10).twig,
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\block.twig", data:[{"type":"raw","value":"<div class=\"ni_block\">\r\n\t<div class=\"ni_block_topbar\">\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<div class=\"checkbox\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Select"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" data-neo-b=\"select\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<strong>"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</strong>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item size-full\">\r\n\t\t\t<span data-neo-b=\"text.content\"></span>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<div class=\"status hidden\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disabled"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" data-neo-b=\"status\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"settings icon menubtn\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Actions"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.actions\"></a>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"move icon\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Reorder"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.move\"></a>\r\n\t\t</div>\r\n\t</div>\r\n\t<div class=\"ni_block_content\" data-neo-b=\"container.content\"></div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	
+	module.exports = function(context) { return template.render(context); }
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var twig = __webpack_require__(10).twig,
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\input.twig", data:[{"type":"raw","value":"<div class=\"ni_blocks\" data-neo=\"container.blocks\"></div>\r\n\r\n<div class=\"ni_buttons\">\r\n\t<div class=\"btngroup\">\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"blockType","expression":[{"type":"Twig.expression.type.variable","value":"blockTypes","match":["blockTypes"]}],"output":[{"type":"raw","value":"\r\n\t\t\t<div class=\"btn"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"}],"output":[{"type":"raw","value":" add icon"}]}},{"type":"raw","value":"\" data-neo=\"button.addBlock\" data-neo-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"handle"}]},{"type":"raw","value":"\">\r\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"name"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t\t\t</div>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	
+	module.exports = function(context) { return template.render(context); }
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(25);
+	var content = __webpack_require__(29);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(22)(content, {});
@@ -1898,7 +2225,7 @@
 	}
 
 /***/ },
-/* 25 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(21)();
@@ -1906,7 +2233,7 @@
 	
 	
 	// module
-	exports.push([module.id, "", ""]);
+	exports.push([module.id, ".ni_block {\n  margin-bottom: 10px;\n  border-radius: 3px;\n  border: 1px solid #ebebeb;\n  overflow: hidden; }\n  .ni_block_topbar {\n    display: flex;\n    height: 30px;\n    line-height: 30px;\n    background-color: #f1f3f4;\n    color: #8f98a3; }\n    .ni_block_topbar_item {\n      padding: 0 8px; }\n      .ni_block_topbar_item + .ni_block_topbar_item {\n        padding-left: 0; }\n      .ni_block_topbar_item.size-full {\n        flex-grow: 1; }\n      .ni_block_topbar_item > .status {\n        margin: 10px 5px 0 0; }\n      .ni_block_topbar_item > a {\n        color: rgba(41, 50, 61, 0.25); }\n        .ni_block_topbar_item > a:hover {\n          color: #0d78f2; }\n  .ni_block_content {\n    padding: 14px;\n    border-top: 1px solid #ebebeb;\n    background-color: #fafafa; }\n", ""]);
 	
 	// exports
 

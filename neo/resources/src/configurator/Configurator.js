@@ -53,6 +53,7 @@ export default Garnish.Base.extend({
 		this.$fieldLayoutButton = $neo.filter('[data-neo="button.fieldLayout"]')
 
 		this._blockTypeSort = new Garnish.DragSort(null, {
+			container: this.$blockTypeItemsContainer,
 			handle: '[data-neo-bt="button.move"]',
 			axis: 'y',
 			onSortChange: () => this._updateBlockTypeOrder()
