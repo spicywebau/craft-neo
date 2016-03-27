@@ -127,6 +127,23 @@
 
 		&_content {
 			padding: 24px;
+
+			// Couldn't help myself, just had to fix some Craft styles that were bugging the hell out of me for so long
+			.fieldlayoutform {
+
+				.tab {
+					background: transparent;
+					box-shadow: none;
+				}
+
+				.fld-field {
+					margin-top: 7px;
+				}
+
+				.fld-tabcontent:not(:empty) {
+					padding-top: 13px - 7px;
+				}
+			}
 		}
 	}
 }

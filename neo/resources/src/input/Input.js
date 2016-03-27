@@ -110,7 +110,7 @@ export default Garnish.Base.extend({
 		const blockId = Block.getNewId()
 
 		const block = new Block({
-			namespace: this._templateNs,
+			namespace: [...this._templateNs, blockId],
 			blockType: blockType,
 			id: blockId
 		})

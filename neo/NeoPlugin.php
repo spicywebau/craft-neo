@@ -37,7 +37,7 @@ class NeoPlugin extends BasePlugin
 
 	function getDeveloperUrl()
 	{
-		return 'http://benf.co';
+		return 'http://benjamminf.github.io';
 	}
 
 	public function getDocumentationUrl()
@@ -57,6 +57,6 @@ class NeoPlugin extends BasePlugin
 
 	public function isCraftRequiredVersion()
 	{
-		return version_compare(craft()->getVersion(), '2.5', '>=');
+		return version_compare(craft()->getVersion(), '2.6', '>=');
 	}
 }

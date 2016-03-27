@@ -18,7 +18,11 @@
 			color: #8f98a3;
 
 			&_item {
+				cursor: default;
 				padding: 0 8px;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				user-select: none;
 
 				+ .ni_block_topbar_item {
 					padding-left: 0;
@@ -26,6 +30,31 @@
 
 				&.size-full {
 					flex-grow: 1;
+				}
+
+				&.tabs {
+
+					.tab {
+						display: block;
+						height: 30px;
+						padding: 0 10px;
+						float: left;
+						color: rgba(#29323d, 0.5);
+
+						&:hover {
+							color: #0d78f2;
+						}
+
+						&.is-selected {
+							cursor: default;
+							border: 1px solid #ebebeb;
+							border-top: 0;
+							border-bottom-color: #fafafa;
+							margin-bottom: -1px;
+							background-color: #fafafa;
+							color: #576575;
+						}
+					}
 				}
 
 				> .status {
@@ -46,6 +75,31 @@
 			padding: 14px;
 			border-top: 1px solid #ebebeb;
 			background-color: #fafafa;
+		}
+
+		&.is-contracted {
+
+			.ni_block_topbar_item {
+
+				&.tabs {
+					display: none;
+				}
+			}
+
+			.ni_block_content {
+				display: none;
+			}
+		}
+
+		&.is-disabled {
+
+			.ni_block_content > .field {
+				pointer-events: none;
+				opacity: 0.5;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				user-select: none;
+			}
 		}
 	}
 }

@@ -1527,7 +1527,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".neo-configurator > .field > .input {\n  display: flex;\n  min-height: 400px; }\n\n[data-neo='template.fld'] {\n  display: none; }\n\n.nc_sidebar {\n  width: 200px;\n  border: 1px solid #ebebeb;\n  background-color: #fafafa; }\n  .nc_sidebar_title {\n    padding: 10px 24px;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6);\n    color: #8f98a3; }\n  .nc_sidebar_list {\n    margin: 0 -1px; }\n    .nc_sidebar_list:not(:empty) {\n      padding-top: 10px; }\n    .nc_sidebar_list_item {\n      cursor: default;\n      position: relative;\n      margin-top: -1px;\n      padding: 10px 14px 10px 40px;\n      border: 1px solid #ebebeb;\n      background-color: #fcfcfc; }\n      .nc_sidebar_list_item > .label {\n        color: #29323d; }\n        .nc_sidebar_list_item > .label:empty {\n          font-style: italic;\n          color: #8f98a3; }\n          .nc_sidebar_list_item > .label:empty::before {\n            content: \"(blank)\"; }\n      .nc_sidebar_list_item > .move {\n        display: block;\n        position: absolute;\n        top: 11px;\n        left: 7px;\n        width: 24px;\n        text-align: center; }\n      .nc_sidebar_list_item.is-selected {\n        z-index: 1;\n        border-color: #dedede;\n        background-color: #ececec; }\n      .nc_sidebar_list_item.type-heading {\n        margin-top: 10px; }\n        .nc_sidebar_list_item.type-heading > .label {\n          font-size: 11px;\n          font-weight: bold;\n          text-transform: uppercase;\n          color: #b9bfc6; }\n  .nc_sidebar_buttons {\n    padding: 14px; }\n    .nc_sidebar_buttons > .btn.type-heading {\n      font-size: 11px;\n      font-weight: bold;\n      text-transform: uppercase;\n      color: #b9bfc6; }\n\n.nc_main {\n  flex-grow: 1;\n  flex-shrink: 20;\n  border: 1px solid #ebebeb;\n  border-left: 0; }\n  .nc_main_tabs {\n    display: flex;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6); }\n    .nc_main_tabs_tab {\n      display: block;\n      padding: 10px 24px;\n      color: #555; }\n      .nc_main_tabs_tab:hover {\n        text-decoration: none;\n        color: #0d78f2; }\n      .nc_main_tabs_tab.is-selected {\n        margin-bottom: -1px;\n        padding-bottom: 11px;\n        border-left: 1px solid #ebebeb;\n        border-right: 1px solid #ebebeb;\n        background-color: #fff;\n        color: #29323d; }\n        .nc_main_tabs_tab.is-selected:first-child {\n          border-left: 0; }\n  .nc_main_content {\n    padding: 24px; }\n", ""]);
+	exports.push([module.id, ".neo-configurator > .field > .input {\n  display: flex;\n  min-height: 400px; }\n\n[data-neo='template.fld'] {\n  display: none; }\n\n.nc_sidebar {\n  width: 200px;\n  border: 1px solid #ebebeb;\n  background-color: #fafafa; }\n  .nc_sidebar_title {\n    padding: 10px 24px;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6);\n    color: #8f98a3; }\n  .nc_sidebar_list {\n    margin: 0 -1px; }\n    .nc_sidebar_list:not(:empty) {\n      padding-top: 10px; }\n    .nc_sidebar_list_item {\n      cursor: default;\n      position: relative;\n      margin-top: -1px;\n      padding: 10px 14px 10px 40px;\n      border: 1px solid #ebebeb;\n      background-color: #fcfcfc; }\n      .nc_sidebar_list_item > .label {\n        color: #29323d; }\n        .nc_sidebar_list_item > .label:empty {\n          font-style: italic;\n          color: #8f98a3; }\n          .nc_sidebar_list_item > .label:empty::before {\n            content: \"(blank)\"; }\n      .nc_sidebar_list_item > .move {\n        display: block;\n        position: absolute;\n        top: 11px;\n        left: 7px;\n        width: 24px;\n        text-align: center; }\n      .nc_sidebar_list_item.is-selected {\n        z-index: 1;\n        border-color: #dedede;\n        background-color: #ececec; }\n      .nc_sidebar_list_item.type-heading {\n        margin-top: 10px; }\n        .nc_sidebar_list_item.type-heading > .label {\n          font-size: 11px;\n          font-weight: bold;\n          text-transform: uppercase;\n          color: #b9bfc6; }\n  .nc_sidebar_buttons {\n    padding: 14px; }\n    .nc_sidebar_buttons > .btn.type-heading {\n      font-size: 11px;\n      font-weight: bold;\n      text-transform: uppercase;\n      color: #b9bfc6; }\n\n.nc_main {\n  flex-grow: 1;\n  flex-shrink: 20;\n  border: 1px solid #ebebeb;\n  border-left: 0; }\n  .nc_main_tabs {\n    display: flex;\n    border-bottom: 1px solid #ebebeb;\n    background-image: linear-gradient(#f7f7f8, #f4f5f6); }\n    .nc_main_tabs_tab {\n      display: block;\n      padding: 10px 24px;\n      color: #555; }\n      .nc_main_tabs_tab:hover {\n        text-decoration: none;\n        color: #0d78f2; }\n      .nc_main_tabs_tab.is-selected {\n        margin-bottom: -1px;\n        padding-bottom: 11px;\n        border-left: 1px solid #ebebeb;\n        border-right: 1px solid #ebebeb;\n        background-color: #fff;\n        color: #29323d; }\n        .nc_main_tabs_tab.is-selected:first-child {\n          border-left: 0; }\n  .nc_main_content {\n    padding: 24px; }\n    .nc_main_content .fieldlayoutform .tab {\n      background: transparent;\n      box-shadow: none; }\n    .nc_main_content .fieldlayoutform .fld-field {\n      margin-top: 7px; }\n    .nc_main_content .fieldlayoutform .fld-tabcontent:not(:empty) {\n      padding-top: 6px; }\n", ""]);
 	
 	// exports
 
@@ -1888,6 +1888,8 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
 	var _defaults = {
 		namespace: [],
 		blockTypes: [],
@@ -1997,7 +1999,7 @@
 			var blockId = _Block2.default.getNewId();
 	
 			var block = new _Block2.default({
-				namespace: this._templateNs,
+				namespace: [].concat(_toConsumableArray(this._templateNs), [blockId]),
 				blockType: blockType,
 				id: blockId
 			});
@@ -2129,6 +2131,8 @@
 		_templateNs: [],
 		_blockType: null,
 		_initialised: false,
+		_expanded: true,
+		_enabled: true,
 	
 		init: function init() {
 			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -2149,20 +2153,35 @@
 	
 			var $neo = this.$container.find('[data-neo-b]');
 			this.$contentContainer = $neo.filter('[data-neo-b="container.content"]');
+			this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]');
+			this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]');
+			this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]');
+			this.$status = $neo.filter('[data-neo-b="status"]');
+	
 			this.$content = (0, _jquery2.default)(this._blockType.getBodyHtml(this._id)).appendTo(this.$contentContainer);
+	
+			this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle');
 		},
 		initUi: function initUi() {
+			var _this = this;
+	
 			if (!this._initialised) {
 				this.$foot = (0, _jquery2.default)(this._blockType.getFootHtml(this._id));
 	
 				_garnish2.default.$bod.append(this.$foot);
 				_craft2.default.initUiElements(this.$contentContainer);
 	
+				this._settingsMenu = new _garnish2.default.MenuBtn(this.$settingsButton);
+				this._settingsMenu.on('optionSelect', function (e) {
+					return _this['@settingSelect'](e);
+				});
+	
 				this._initialised = true;
 			}
 		},
 		destroy: function destroy() {
 			if (this._initialised) {
+				this.$container.remove();
 				this.$foot.remove();
 			}
 		},
@@ -2171,6 +2190,66 @@
 		},
 		getId: function getId() {
 			return this._id;
+		},
+		collapse: function collapse() {
+			this.toggleExpansion(false);
+		},
+		expand: function expand() {
+			this.toggleExpansion(true);
+		},
+		toggleExpansion: function toggleExpansion() {
+			var expand = arguments.length <= 0 || arguments[0] === undefined ? !this._expanded : arguments[0];
+	
+			this._expanded = expand;
+	
+			var expandContainer = this.$menuContainer.find('[data-action="expand"]').parent();
+			var collapseContainer = this.$menuContainer.find('[data-action="collapse"]').parent();
+	
+			this.$container.toggleClass('is-expanded', this._expanded).toggleClass('is-contracted', !this._expanded);
+	
+			expandContainer.toggleClass('hidden', this._expanded);
+			collapseContainer.toggleClass('hidden', !this._expanded);
+		},
+		disable: function disable() {
+			this.toggleEnabled(false);
+		},
+		enable: function enable() {
+			this.toggleEnabled(true);
+		},
+		toggleEnabled: function toggleEnabled() {
+			var enable = arguments.length <= 0 || arguments[0] === undefined ? !this._enabled : arguments[0];
+	
+			this._enabled = enable;
+	
+			var enableContainer = this.$menuContainer.find('[data-action="enable"]').parent();
+			var disableContainer = this.$menuContainer.find('[data-action="disable"]').parent();
+	
+			this.$container.toggleClass('is-enabled', this._enabled).toggleClass('is-disabled', !this._enabled);
+	
+			this.$status.toggleClass('hidden', this._enabled);
+	
+			enableContainer.toggleClass('hidden', this._enabled);
+			disableContainer.toggleClass('hidden', !this._enabled);
+		},
+		'@settingSelect': function settingSelect(e) {
+			var $option = (0, _jquery2.default)(e.option);
+	
+			switch ($option.attr('data-action')) {
+				case 'collapse':
+					this.collapse();break;
+				case 'expand':
+					this.expand();break;
+				case 'disable':
+					this.disable();this.collapse();break;
+				case 'enable':
+					this.enable();break;
+				case 'delete':
+					this.destroy();break;
+			}
+		},
+		'@doubleClickTitle': function doubleClickTitle(e) {
+			e.preventDefault();
+			this.toggleExpansion();
 		}
 	}, {
 		_totalNewBlocks: 0,
@@ -2185,7 +2264,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(10).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\block.twig", data:[{"type":"raw","value":"<div class=\"ni_block\">\r\n\t<div class=\"ni_block_topbar\">\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<div class=\"checkbox\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Select"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" data-neo-b=\"select\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<strong>"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</strong>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item size-full\">\r\n\t\t\t<span data-neo-b=\"text.content\"></span>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<div class=\"status hidden\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disabled"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" data-neo-b=\"status\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"settings icon menubtn\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Actions"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.actions\"></a>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"move icon\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Reorder"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.move\"></a>\r\n\t\t</div>\r\n\t</div>\r\n\t<div class=\"ni_block_content\" data-neo-b=\"container.content\"></div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\block.twig", data:[{"type":"raw","value":"<div class=\"ni_block\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"type"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"enabled"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\"1\">\r\n\t<div class=\"ni_block_topbar\">\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<div class=\"checkbox\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Select"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" data-neo-b=\"select\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\" data-neo-b=\"button.toggler\">\r\n\t\t\t<strong>"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</strong>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item size-full\" data-neo-b=\"button.toggler\">\r\n\t\t\t<span data-neo-b=\"text.content\"></span>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item tabs\">\r\n\t\t\t<a class=\"tab is-selected\" data-neo-b=\"button.tab\" data-neo-b-info=\"content\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Content"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t\t\t<a class=\"tab\" data-neo-b=\"button.tab\" data-neo-b-info=\"settings\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Settings"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item hidden\" data-neo-b=\"status\">\r\n\t\t\t<div class=\"status off\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disabled"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"settings icon menubtn\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Actions"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.actions\"></a>\r\n\t\t\t<div class=\"menu\" data-neo-b=\"container.menu\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"collapse\" data-action=\"collapse\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Collapse"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"expand\" data-action=\"expand\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Expand"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li><a data-icon=\"disabled\" data-action=\"disable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"enabled\" data-action=\"enable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Enable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<hr class=\"padded\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"remove\" data-action=\"delete\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Delete"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"move icon\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Reorder"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.move\"></a>\r\n\t\t</div>\r\n\t</div>\r\n\t<div class=\"ni_block_content\" data-neo-b=\"container.content\"></div>\r\n</div>\r\n"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 
@@ -2233,7 +2312,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".ni_block {\n  margin-bottom: 10px;\n  border-radius: 3px;\n  border: 1px solid #ebebeb;\n  overflow: hidden; }\n  .ni_block_topbar {\n    display: flex;\n    height: 30px;\n    line-height: 30px;\n    background-color: #f1f3f4;\n    color: #8f98a3; }\n    .ni_block_topbar_item {\n      padding: 0 8px; }\n      .ni_block_topbar_item + .ni_block_topbar_item {\n        padding-left: 0; }\n      .ni_block_topbar_item.size-full {\n        flex-grow: 1; }\n      .ni_block_topbar_item > .status {\n        margin: 10px 5px 0 0; }\n      .ni_block_topbar_item > a {\n        color: rgba(41, 50, 61, 0.25); }\n        .ni_block_topbar_item > a:hover {\n          color: #0d78f2; }\n  .ni_block_content {\n    padding: 14px;\n    border-top: 1px solid #ebebeb;\n    background-color: #fafafa; }\n", ""]);
+	exports.push([module.id, ".ni_block {\n  margin-bottom: 10px;\n  border-radius: 3px;\n  border: 1px solid #ebebeb;\n  overflow: hidden; }\n  .ni_block_topbar {\n    display: flex;\n    height: 30px;\n    line-height: 30px;\n    background-color: #f1f3f4;\n    color: #8f98a3; }\n    .ni_block_topbar_item {\n      cursor: default;\n      padding: 0 8px;\n      -webkit-user-select: none;\n      -moz-user-select: none;\n      user-select: none; }\n      .ni_block_topbar_item + .ni_block_topbar_item {\n        padding-left: 0; }\n      .ni_block_topbar_item.size-full {\n        flex-grow: 1; }\n      .ni_block_topbar_item.tabs .tab {\n        display: block;\n        height: 30px;\n        padding: 0 10px;\n        float: left;\n        color: rgba(41, 50, 61, 0.5); }\n        .ni_block_topbar_item.tabs .tab:hover {\n          color: #0d78f2; }\n        .ni_block_topbar_item.tabs .tab.is-selected {\n          cursor: default;\n          border: 1px solid #ebebeb;\n          border-top: 0;\n          border-bottom-color: #fafafa;\n          margin-bottom: -1px;\n          background-color: #fafafa;\n          color: #576575; }\n      .ni_block_topbar_item > .status {\n        margin: 10px 5px 0 0; }\n      .ni_block_topbar_item > a {\n        color: rgba(41, 50, 61, 0.25); }\n        .ni_block_topbar_item > a:hover {\n          color: #0d78f2; }\n  .ni_block_content {\n    padding: 14px;\n    border-top: 1px solid #ebebeb;\n    background-color: #fafafa; }\n  .ni_block.is-contracted .ni_block_topbar_item.tabs {\n    display: none; }\n  .ni_block.is-contracted .ni_block_content {\n    display: none; }\n  .ni_block.is-disabled .ni_block_content > .field {\n    pointer-events: none;\n    opacity: 0.5;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    user-select: none; }\n", ""]);
 	
 	// exports
 
