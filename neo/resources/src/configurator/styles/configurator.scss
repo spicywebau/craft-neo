@@ -14,8 +14,19 @@
 		border: 1px solid #ebebeb;
 		background-color: #fafafa;
 
+		&_title {
+			padding: 10px 24px;
+			border-bottom: 1px solid #ebebeb;
+			background-image: linear-gradient(#f7f7f8, #f4f5f6);
+			color: #555;
+		}
+
 		&_list {
 			margin: 0 -1px;
+
+			&:not(:empty) {
+				padding-top: 10px;
+			}
 
 			&_item {
 				cursor: default;

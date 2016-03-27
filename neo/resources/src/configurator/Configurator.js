@@ -84,7 +84,7 @@ export default Garnish.Base.extend({
 				fieldLayout: btFieldLayout
 			})
 
-			this.addBlockType(blockType)
+			this.addBlockType(blockType, btSettings.getSortOrder() - 1)
 		}
 
 		this.selectTab('settings')
@@ -209,7 +209,7 @@ export default Garnish.Base.extend({
 			const blockType = this.getBlockTypeByElement(element)
 			const settings = blockType.getSettings()
 
-			if(settings) settings.setSortOrder(index)
+			if(settings) settings.setSortOrder(index + 1)
 
 			blockTypes.push(blockType)
 		})
