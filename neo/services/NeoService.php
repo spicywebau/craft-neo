@@ -505,15 +505,10 @@ class NeoService extends BaseApplicationComponent
 		$blockRecord->validate();
 		$block->addErrors($blockRecord->getErrors());
 
-		$originalFieldContext = craft()->content->fieldContext;
-		craft()->content->fieldContext = 'neoBlockType:'.$block->typeId;
-
-		if (!craft()->content->validateContent($block))
+		if(!craft()->content->validateContent($block))
 		{
 			$block->addErrors($block->getContent()->getErrors());
 		}
-
-		craft()->content->fieldContext = $originalFieldContext;
 
 		return !$block->hasErrors();
 	}
