@@ -1883,13 +1883,17 @@
 	
 	var _Block2 = _interopRequireDefault(_Block);
 	
-	var _input = __webpack_require__(28);
+	var _Buttons = __webpack_require__(28);
+	
+	var _Buttons2 = _interopRequireDefault(_Buttons);
+	
+	var _input = __webpack_require__(30);
 	
 	var _input2 = _interopRequireDefault(_input);
 	
 	__webpack_require__(15);
 	
-	__webpack_require__(29);
+	__webpack_require__(31);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1919,6 +1923,7 @@
 			this._templateNs = _namespace2.default.parse(settings.namespace);
 			this._blockTypes = [];
 			this._blocks = [];
+			this._maxBlocks = settings.maxBlocks;
 	
 			_namespace2.default.enter(this._templateNs);
 	
@@ -1958,7 +1963,17 @@
 	
 			var $neo = this.$container.find('[data-neo]');
 			this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]');
-			this.$blockButtons = $neo.filter('[data-neo="button.addBlock"]');
+			this.$buttonsContainer = $neo.filter('[data-neo="container.buttons"]');
+	
+			this._buttons = new _Buttons2.default({
+				blockTypes: this._blockTypes,
+				maxBlocks: this._maxBlocks
+			});
+	
+			this.$buttonsContainer.append(this._buttons.$container);
+			this._buttons.on('newBlock', function (e) {
+				return _this['@newBlock'](e);
+			});
 	
 			this._blockSort = new _garnish2.default.DragSort(null, {
 				container: this.$blocksContainer,
@@ -2024,8 +2039,6 @@
 					}
 				}
 			}
-	
-			this.addListener(this.$blockButtons, 'click', '@newBlock');
 		},
 		addBlock: function addBlock(block) {
 			var _this2 = this;
@@ -2060,6 +2073,7 @@
 				});
 			});
 	
+			this._buttons.update(this.getBlocks());
 			this._updateBlockOrder();
 		},
 		removeBlock: function removeBlock(block) {
@@ -2071,11 +2085,16 @@
 			});
 			this._blockSort.removeItems(block.$container);
 			this._blockSelect.removeItems(block.$container);
+	
+			this._buttons.update(this.getBlocks());
 		},
 		getBlockByElement: function getBlockByElement($block) {
 			return this._blocks.find(function (block) {
 				return block.$container.is($block);
 			});
+		},
+		getBlocks: function getBlocks() {
+			return Array.from(this._blocks);
 		},
 		getSelectedBlocks: function getSelectedBlocks() {
 			var $selectedBlocks = this._blockSelect.getSelectedItems();
@@ -2126,9 +2145,7 @@
 			}
 		},
 		'@newBlock': function newBlock(e) {
-			var $button = (0, _jquery2.default)(e.currentTarget);
-			var blockTypeHandle = $button.attr('data-neo-info');
-			var blockType = this._blockTypes[blockTypeHandle];
+			var blockType = e.blockType;
 			var blockId = _Block2.default.getNewId();
 	
 			var block = new _Block2.default({
@@ -2527,19 +2544,133 @@
 /* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var twig = __webpack_require__(10).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\input.twig", data:[{"type":"raw","value":"<div class=\"ni_blocks\" data-neo=\"container.blocks\"></div>\r\n\r\n<div class=\"ni_buttons\">\r\n\t<div class=\"btngroup\">\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"blockType","expression":[{"type":"Twig.expression.type.variable","value":"blockTypes","match":["blockTypes"]}],"output":[{"type":"raw","value":"\r\n\t\t\t<div class=\"btn"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"}],"output":[{"type":"raw","value":" add icon"}]}},{"type":"raw","value":"\" data-neo=\"button.addBlock\" data-neo-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"handle"}]},{"type":"raw","value":"\">\r\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"name"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t\t\t</div>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	'use strict';
 	
-	module.exports = function(context) { return template.render(context); }
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _jquery = __webpack_require__(2);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	__webpack_require__(3);
+	
+	var _garnish = __webpack_require__(4);
+	
+	var _garnish2 = _interopRequireDefault(_garnish);
+	
+	var _craft = __webpack_require__(5);
+	
+	var _craft2 = _interopRequireDefault(_craft);
+	
+	var _buttons = __webpack_require__(29);
+	
+	var _buttons2 = _interopRequireDefault(_buttons);
+	
+	__webpack_require__(15);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var _defaults = {
+		blockTypes: [],
+		maxBlocks: 0
+	};
+	
+	exports.default = _garnish2.default.Base.extend({
+	
+		_blockTypes: [],
+		_maxBlocks: 0,
+	
+		init: function init() {
+			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+			settings = Object.assign({}, _defaults, settings);
+	
+			this._blockTypes = Array.from(settings.blockTypes);
+			this._maxBlocks = settings.maxBlocks;
+	
+			this.$container = (0, _jquery2.default)((0, _buttons2.default)({
+				blockTypes: this._blockTypes,
+				maxBlocks: this._maxBlocks
+			}));
+	
+			var $neo = this.$container.find('[data-neo-bn]');
+			this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]');
+	
+			this.addListener(this.$blockButtons, 'activate', '@newBlock');
+		},
+		update: function update() {
+			var blocks = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+	
+			var that = this;
+			var allDisabled = this._maxBlocks > 0 && blocks.length >= this._maxBlocks;
+	
+			this.$blockButtons.each(function () {
+				var $button = (0, _jquery2.default)(this);
+				var disabled = allDisabled;
+	
+				if (!disabled) {
+					(function () {
+						var blockType = that.getBlockTypeByButton($button);
+						var blocksOfType = blocks.filter(function (b) {
+							return b.getBlockType().getHandle() === blockType.getHandle();
+						});
+						var maxBlockTypes = blockType.getMaxBlocks();
+	
+						disabled = maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes;
+					})();
+				}
+	
+				$button.toggleClass('disabled', disabled);
+			});
+		},
+		getBlockTypeByButton: function getBlockTypeByButton($button) {
+			var btHandle = $button.attr('data-neo-bn-info');
+	
+			return this._blockTypes.find(function (bt) {
+				return bt.getHandle() === btHandle;
+			});
+		},
+		'@newBlock': function newBlock(e) {
+			var $button = (0, _jquery2.default)(e.currentTarget);
+			var blockTypeHandle = $button.attr('data-neo-bn-info');
+			var blockType = this._blockTypes.find(function (bt) {
+				return bt.getHandle() === blockTypeHandle;
+			});
+	
+			this.trigger('newBlock', {
+				blockType: blockType
+			});
+		}
+	});
 
 /***/ },
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var twig = __webpack_require__(10).twig,
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\buttons.twig", data:[{"type":"raw","value":"<div class=\"ni_buttons\">\r\n\t<div class=\"btngroup\">\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"blockType","expression":[{"type":"Twig.expression.type.variable","value":"blockTypes","match":["blockTypes"]}],"output":[{"type":"raw","value":"\r\n\t\t\t<div class=\"btn"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"}],"output":[{"type":"raw","value":" add icon"}]}},{"type":"raw","value":"\"\r\n\t\t\t\t data-neo-bn=\"button.addBlock\"\r\n\t\t\t\t data-neo-bn-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t\t\t</div>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	
+	module.exports = function(context) { return template.render(context); }
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var twig = __webpack_require__(10).twig,
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\input.twig", data:[{"type":"raw","value":"<div class=\"ni_blocks\" data-neo=\"container.blocks\"></div>\r\n<div data-neo=\"container.buttons\"></div>\r\n"}], allowInlineIncludes: true});
+	
+	module.exports = function(context) { return template.render(context); }
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(30);
+	var content = __webpack_require__(32);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(22)(content, {});
@@ -2559,7 +2690,7 @@
 	}
 
 /***/ },
-/* 30 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(21)();

@@ -8,6 +8,7 @@ import NS from '../namespace'
 
 import BlockType from './BlockType'
 import Block from './Block'
+import Buttons from './Buttons'
 
 import renderTemplate from './templates/input.twig'
 import '../twig-extensions'
@@ -34,6 +35,7 @@ export default Garnish.Base.extend({
 		this._templateNs = NS.parse(settings.namespace)
 		this._blockTypes = []
 		this._blocks = []
+		this._maxBlocks = settings.maxBlocks
 
 		NS.enter(this._templateNs)
 
@@ -53,7 +55,15 @@ export default Garnish.Base.extend({
 
 		const $neo = this.$container.find('[data-neo]')
 		this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]')
-		this.$blockButtons = $neo.filter('[data-neo="button.addBlock"]')
+		this.$buttonsContainer = $neo.filter('[data-neo="container.buttons"]')
+
+		this._buttons = new Buttons({
+			blockTypes: this._blockTypes,
+			maxBlocks: this._maxBlocks
+		})
+
+		this.$buttonsContainer.append(this._buttons.$container)
+		this._buttons.on('newBlock', e => this['@newBlock'](e))
 
 		this._blockSort = new Garnish.DragSort(null, {
 			container: this.$blocksContainer,
@@ -101,8 +111,6 @@ export default Garnish.Base.extend({
 			let block = new Block(bInfo)
 			this.addBlock(block)
 		}
-
-		this.addListener(this.$blockButtons, 'click', '@newBlock')
 	},
 
 	addBlock(block, index = -1)
@@ -126,6 +134,7 @@ export default Garnish.Base.extend({
 		block.on('toggleEnabled.input',   e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
 
+		this._buttons.update(this.getBlocks())
 		this._updateBlockOrder()
 	},
 
@@ -137,11 +146,18 @@ export default Garnish.Base.extend({
 		this._blocks = this._blocks.filter(b => b !== block)
 		this._blockSort.removeItems(block.$container)
 		this._blockSelect.removeItems(block.$container)
+
+		this._buttons.update(this.getBlocks())
 	},
 
 	getBlockByElement($block)
 	{
 		return this._blocks.find(block => block.$container.is($block))
+	},
+
+	getBlocks()
+	{
+		return Array.from(this._blocks)
 	},
 
 	getSelectedBlocks()
@@ -177,9 +193,7 @@ export default Garnish.Base.extend({
 
 	'@newBlock'(e)
 	{
-		const $button = $(e.currentTarget)
-		const blockTypeHandle = $button.attr('data-neo-info')
-		const blockType = this._blockTypes[blockTypeHandle]
+		const blockType = e.blockType
 		const blockId = Block.getNewId()
 
 		const block = new Block({
