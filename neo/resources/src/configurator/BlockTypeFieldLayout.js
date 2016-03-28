@@ -45,9 +45,9 @@ export default Garnish.Base.extend({
 		{
 			let $tab = this.addTab(tab.name)
 
-			for(let fieldId of tab.fields)
+			for(let field of tab.fields)
 			{
-				this.addFieldToTab($tab, fieldId)
+				this.addFieldToTab($tab, field.id, field.required == 1)
 			}
 		}
 
@@ -109,8 +109,10 @@ export default Garnish.Base.extend({
 	/**
 	 * @see Craft.FieldLayoutDesigner.FieldDrag.onDragStop
 	 */
-	addFieldToTab($tab, fieldId)
+	addFieldToTab($tab, fieldId, required = null)
 	{
+		required = !!required
+
 		const $unusedField = this._fld.$allFields.filter(`[data-id="${fieldId}"]`)
 		const $unusedGroup = $unusedField.closest('.fld-tab')
 		const $field = $unusedField.clone().removeClass('unused')
@@ -137,6 +139,25 @@ export default Garnish.Base.extend({
 		$fieldContainer.append($field)
 		this._fld.initField($field)
 		this._fld.fieldDrag.addItems($field)
+
+		this.toggleFieldRequire(fieldId, required)
+	},
+
+	toggleFieldRequire(fieldId, required = null)
+	{
+		const $field = this._fld.$tabContainer.find(`[data-id="${fieldId}"]`)
+		const isRequired = $field.hasClass('fld-required')
+
+		if(required === null || required !== isRequired)
+		{
+			const $editButton = $field.find('.settings')
+			const menuButton = $editButton.data('menubtn')
+			const menu = menuButton.menu
+			const $options = menu.$options
+			const $requiredOption = $options.filter('.toggle-required')
+
+			this._fld.toggleRequiredField($field, $requiredOption)
+		}
 	},
 
 	_updateInstructions()

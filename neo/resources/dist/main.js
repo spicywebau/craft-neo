@@ -1364,9 +1364,9 @@
 	
 					try {
 						for (var _iterator2 = tab.fields[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-							var fieldId = _step2.value;
+							var field = _step2.value;
 	
-							this.addFieldToTab($tab, fieldId);
+							this.addFieldToTab($tab, field.id, field.required == 1);
 						}
 					} catch (err) {
 						_didIteratorError2 = true;
@@ -1447,6 +1447,10 @@
 	  * @see Craft.FieldLayoutDesigner.FieldDrag.onDragStop
 	  */
 		addFieldToTab: function addFieldToTab($tab, fieldId) {
+			var required = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+	
+			required = !!required;
+	
 			var $unusedField = this._fld.$allFields.filter('[data-id="' + fieldId + '"]');
 			var $unusedGroup = $unusedField.closest('.fld-tab');
 			var $field = $unusedField.clone().removeClass('unused');
@@ -1471,6 +1475,24 @@
 			$fieldContainer.append($field);
 			this._fld.initField($field);
 			this._fld.fieldDrag.addItems($field);
+	
+			this.toggleFieldRequire(fieldId, required);
+		},
+		toggleFieldRequire: function toggleFieldRequire(fieldId) {
+			var required = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+	
+			var $field = this._fld.$tabContainer.find('[data-id="' + fieldId + '"]');
+			var isRequired = $field.hasClass('fld-required');
+	
+			if (required === null || required !== isRequired) {
+				var $editButton = $field.find('.settings');
+				var menuButton = $editButton.data('menubtn');
+				var menu = menuButton.menu;
+				var $options = menu.$options;
+				var $requiredOption = $options.filter('.toggle-required');
+	
+				this._fld.toggleRequiredField($field, $requiredOption);
+			}
 		},
 		_updateInstructions: function _updateInstructions() {
 			if (this.$instructions) {
