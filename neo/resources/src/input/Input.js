@@ -62,9 +62,9 @@ export default Garnish.Base.extend({
 			filter: () =>
 			{
 				// Only return all the selected items if the target item is selected
-				if(this._blockSort.$targetItem.hasClass('sel'))
+				if(this._blockSort.$targetItem.hasClass('is-selected'))
 				{
-					return this.getSelectedBlocks()
+					return this._blockSelect.getSelectedItems()
 				}
 				else
 				{

@@ -7,7 +7,7 @@
 	&_block {
 		margin-bottom: 10px;
 		border-radius: 3px;
-		border: 1px solid #ebebeb;
+		border: 1px solid #e3e5e8;
 		overflow: hidden;
 
 		&:focus {
@@ -18,7 +18,7 @@
 			display: flex;
 			height: 30px;
 			line-height: 30px;
-			background-color: #f1f3f4;
+			background-color: #eef0f1;
 			color: #8f98a3;
 
 			&_item {
@@ -52,7 +52,7 @@
 						&.is-selected {
 							cursor: default;
 							padding: 0 9px;
-							border: 1px solid #ebebeb;
+							border: 1px solid #e3e5e8;
 							border-top: 0;
 							border-bottom-color: #fafafa;
 							margin-bottom: -1px;
@@ -82,7 +82,7 @@
 
 		&_content {
 			padding: 14px;
-			border-top: 1px solid #ebebeb;
+			border-top: 1px solid #e3e5e8;
 			background-color: #fafafa;
 
 			&_tab {
