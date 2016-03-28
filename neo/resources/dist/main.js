@@ -2053,6 +2053,9 @@
 		removeBlock: function removeBlock(block) {
 			block.$container.remove();
 	
+			this._blocks = this._blocks.filter(function (b) {
+				return b !== block;
+			});
 			this._blockSort.removeItems(block.$container);
 			this._blockSelect.removeItems(block.$container);
 		},

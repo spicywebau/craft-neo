@@ -131,6 +131,7 @@ export default Garnish.Base.extend({
 	{
 		block.$container.remove()
 
+		this._blocks = this._blocks.filter(b => b !== block)
 		this._blockSort.removeItems(block.$container)
 		this._blockSelect.removeItems(block.$container)
 	},
