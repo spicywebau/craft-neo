@@ -50,8 +50,10 @@
 						display: block;
 						height: 30px;
 						padding: 0 10px;
-						float: left;
 						color: rgba(#29323d, 0.5);
+
+						body.ltr & { float: left;  }
+						body.rtl & { float: right; }
 
 						&:hover {
 							color: #0d78f2;
