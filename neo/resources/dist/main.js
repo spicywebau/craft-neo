@@ -785,6 +785,10 @@
 		getId: function getId() {
 			return this._id;
 		},
+		isNew: function isNew() {
+			return (/^new/.test(this.getId())
+			);
+		},
 		getErrors: function getErrors() {
 			return Array.from(this._errors);
 		},
@@ -2244,7 +2248,9 @@
 	
 			this.$container = (0, _jquery2.default)((0, _block2.default)({
 				type: this._blockType,
-				id: this._id
+				id: this._id,
+				enabled: !!settings.enabled,
+				collapsed: !!settings.collapsed
 			}));
 	
 			_namespace2.default.leave();
@@ -2256,6 +2262,8 @@
 			this.$tabButton = $neo.filter('[data-neo-b="button.tab"]');
 			this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]');
 			this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]');
+			this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]');
+			this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]');
 			this.$status = $neo.filter('[data-neo-b="status"]');
 	
 			this.toggleEnabled(settings.enabled);
@@ -2302,14 +2310,23 @@
 		getId: function getId() {
 			return this._id;
 		},
+		isNew: function isNew() {
+			return (/^new/.test(this.getId())
+			);
+		},
 		collapse: function collapse() {
-			this.toggleExpansion(false);
+			var save = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+	
+			this.toggleExpansion(false, save);
 		},
 		expand: function expand() {
-			this.toggleExpansion(true);
+			var save = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+	
+			this.toggleExpansion(true, save);
 		},
 		toggleExpansion: function toggleExpansion() {
 			var expand = arguments.length <= 0 || arguments[0] === undefined ? !this._expanded : arguments[0];
+			var save = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 	
 			if (expand !== this._expanded) {
 				this._expanded = expand;
@@ -2322,8 +2339,25 @@
 				expandContainer.toggleClass('hidden', this._expanded);
 				collapseContainer.toggleClass('hidden', !this._expanded);
 	
+				this.$collapsedInput.val(this._expanded ? 0 : 1);
+	
+				if (save) {
+					this.saveExpansion();
+				}
+	
 				this.trigger('toggleExpansion', {
 					expanded: this._expanded
+				});
+			}
+		},
+		isExpanded: function isExpanded() {
+			return this._expanded;
+		},
+		saveExpansion: function saveExpansion() {
+			if (!this.isNew()) {
+				_craft2.default.queueActionRequest('neo/saveExpansion', {
+					expanded: this.isExpanded(),
+					blockId: this.getId()
 				});
 			}
 		},
@@ -2349,10 +2383,15 @@
 				enableContainer.toggleClass('hidden', this._enabled);
 				disableContainer.toggleClass('hidden', !this._enabled);
 	
+				this.$enabledInput.val(this._enabled ? 1 : 0);
+	
 				this.trigger('toggleEnabled', {
 					enabled: this._enabled
 				});
 			}
+		},
+		isEnabled: function isEnabled() {
+			return this._enabled;
 		},
 		selectTab: function selectTab(name) {
 			var $tabs = (0, _jquery2.default)().add(this.$tabButton).add(this.$tabContainer);
@@ -2410,7 +2449,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(10).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\block.twig", data:[{"type":"raw","value":"<div class=\"ni_block\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"type"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"enabled"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\"1\">\r\n\t<div class=\"ni_block_topbar\">\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<div class=\"checkbox\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Select"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" data-neo-b=\"select\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\" data-neo-b=\"button.toggler\">\r\n\t\t\t<strong>"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</strong>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item size-full\" data-neo-b=\"button.toggler\">\r\n\t\t\t<span data-neo-b=\"text.content\"></span>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item tabs\">\r\n\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"tab","expression":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getTabs","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t<a class=\"tab "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"},{"type":"Twig.expression.type.string","value":"is-selected"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\"\r\n\t\t\t\t   data-neo-b=\"button.tab\"\r\n\t\t\t\t   data-neo-b-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"name"}]},{"type":"raw","value":"\">\r\n\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"name"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t\t\t\t</a>\r\n\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item hidden\" data-neo-b=\"status\">\r\n\t\t\t<div class=\"status off\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disabled"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"settings icon menubtn\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Actions"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.actions\"></a>\r\n\t\t\t<div class=\"menu\" data-neo-b=\"container.menu\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"collapse\" data-action=\"collapse\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Collapse"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"expand\" data-action=\"expand\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Expand"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li><a data-icon=\"disabled\" data-action=\"disable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"enabled\" data-action=\"enable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Enable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<hr class=\"padded\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"remove\" data-action=\"delete\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Delete"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"move icon\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Reorder"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.move\"></a>\r\n\t\t</div>\r\n\t</div>\r\n\t<div class=\"ni_block_content\" data-neo-b=\"container.content\">\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"tab","expression":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getTabs","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}],"output":[{"type":"raw","value":"\r\n\t\t\t<div class=\"ni_block_content_tab "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"},{"type":"Twig.expression.type.string","value":"is-selected"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\"\r\n\t\t\t\t data-neo-b=\"container.tab\"\r\n\t\t\t\t data-neo-b-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"name"}]},{"type":"raw","value":"\">\r\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"getBodyHtml","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.variable","value":"id","match":["id"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\t\t\t</div>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\block.twig", data:[{"type":"raw","value":"<div class=\"ni_block\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"type"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"enabled"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"enabled","match":["enabled"]},{"type":"Twig.expression.type.number","value":1,"match":["1",null]},{"type":"Twig.expression.type.number","value":0,"match":["0",null]},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\" data-neo-b=\"input.enabled\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"collapsed"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"collapsed","match":["collapsed"]},{"type":"Twig.expression.type.number","value":1,"match":["1",null]},{"type":"Twig.expression.type.number","value":0,"match":["0",null]},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\" data-neo-b=\"input.collapsed\">\r\n\t<div class=\"ni_block_topbar\">\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<div class=\"checkbox\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Select"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" data-neo-b=\"select\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\" data-neo-b=\"button.toggler\">\r\n\t\t\t<strong>"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</strong>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item size-full\" data-neo-b=\"button.toggler\">\r\n\t\t\t<span data-neo-b=\"text.content\"></span>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item tabs\">\r\n\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"tab","expression":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getTabs","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t<a class=\"tab "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"},{"type":"Twig.expression.type.string","value":"is-selected"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\"\r\n\t\t\t\t   data-neo-b=\"button.tab\"\r\n\t\t\t\t   data-neo-b-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"name"}]},{"type":"raw","value":"\">\r\n\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"name"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t\t\t\t</a>\r\n\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item hidden\" data-neo-b=\"status\">\r\n\t\t\t<div class=\"status off\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disabled"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"settings icon menubtn\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Actions"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.actions\"></a>\r\n\t\t\t<div class=\"menu\" data-neo-b=\"container.menu\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"collapse\" data-action=\"collapse\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Collapse"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"expand\" data-action=\"expand\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Expand"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li><a data-icon=\"disabled\" data-action=\"disable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"enabled\" data-action=\"enable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Enable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<hr class=\"padded\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"remove\" data-action=\"delete\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Delete"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"move icon\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Reorder"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.move\"></a>\r\n\t\t</div>\r\n\t</div>\r\n\t<div class=\"ni_block_content\" data-neo-b=\"container.content\">\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"tab","expression":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getTabs","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}],"output":[{"type":"raw","value":"\r\n\t\t\t<div class=\"ni_block_content_tab "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"},{"type":"Twig.expression.type.string","value":"is-selected"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\"\r\n\t\t\t\t data-neo-b=\"container.tab\"\r\n\t\t\t\t data-neo-b-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"name"}]},{"type":"raw","value":"\">\r\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"getBodyHtml","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.variable","value":"id","match":["id"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\t\t\t</div>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 

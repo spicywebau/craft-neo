@@ -37,7 +37,9 @@ export default Garnish.Base.extend({
 
 		this.$container = $(renderTemplate({
 			type: this._blockType,
-			id: this._id
+			id: this._id,
+			enabled: !!settings.enabled,
+			collapsed: !!settings.collapsed
 		}))
 
 		NS.leave()
@@ -49,6 +51,8 @@ export default Garnish.Base.extend({
 		this.$tabButton = $neo.filter('[data-neo-b="button.tab"]')
 		this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]')
 		this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
+		this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
+		this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
 		this.$status = $neo.filter('[data-neo-b="status"]')
 
 		this.toggleEnabled(settings.enabled)
@@ -100,17 +104,22 @@ export default Garnish.Base.extend({
 		return this._id
 	},
 
-	collapse()
+	isNew()
 	{
-		this.toggleExpansion(false)
+		return /^new/.test(this.getId())
 	},
 
-	expand()
+	collapse(save = true)
 	{
-		this.toggleExpansion(true)
+		this.toggleExpansion(false, save)
 	},
 
-	toggleExpansion(expand = !this._expanded)
+	expand(save = true)
+	{
+		this.toggleExpansion(true, save)
+	},
+
+	toggleExpansion(expand = !this._expanded, save = true)
 	{
 		if(expand !== this._expanded)
 		{
@@ -126,8 +135,31 @@ export default Garnish.Base.extend({
 			expandContainer.toggleClass('hidden', this._expanded)
 			collapseContainer.toggleClass('hidden', !this._expanded)
 
+			this.$collapsedInput.val(this._expanded ? 0 : 1)
+
+			if(save)
+			{
+				this.saveExpansion()
+			}
+
 			this.trigger('toggleExpansion', {
 				expanded: this._expanded
+			})
+		}
+	},
+
+	isExpanded()
+	{
+		return this._expanded
+	},
+
+	saveExpansion()
+	{
+		if(!this.isNew())
+		{
+			Craft.queueActionRequest('neo/saveExpansion', {
+				expanded: this.isExpanded(),
+				blockId: this.getId()
 			})
 		}
 	},
@@ -160,10 +192,17 @@ export default Garnish.Base.extend({
 			enableContainer.toggleClass('hidden', this._enabled)
 			disableContainer.toggleClass('hidden', !this._enabled)
 
+			this.$enabledInput.val(this._enabled ? 1 : 0)
+
 			this.trigger('toggleEnabled', {
 				enabled: this._enabled
 			})
 		}
+	},
+
+	isEnabled()
+	{
+		return this._enabled
 	},
 
 	selectTab(name)

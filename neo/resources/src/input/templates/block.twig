@@ -1,6 +1,7 @@
 <div class="ni_block">
 	<input type="hidden" name="{{ 'type'|ns }}" value="{{ type.getHandle() }}">
-	<input type="hidden" name="{{ 'enabled'|ns }}" value="1">
+	<input type="hidden" name="{{ 'enabled'|ns }}" value="{{ enabled ? 1 : 0 }}" data-neo-b="input.enabled">
+	<input type="hidden" name="{{ 'collapsed'|ns }}" value="{{ collapsed ? 1 : 0 }}" data-neo-b="input.collapsed">
 	<div class="ni_block_topbar">
 		<div class="ni_block_topbar_item">
 			<div class="checkbox" title="{{ "Select"|t }}" data-neo-b="select"></div>

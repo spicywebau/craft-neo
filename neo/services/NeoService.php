@@ -500,6 +500,7 @@ class NeoService extends BaseApplicationComponent
 		$blockRecord->ownerId   = $block->ownerId;
 		$blockRecord->typeId    = $block->typeId;
 		$blockRecord->sortOrder = $block->sortOrder;
+		$blockRecord->collapsed = $block->collapsed;
 
 		$blockRecord->validate();
 		$block->addErrors($blockRecord->getErrors());
@@ -555,6 +556,7 @@ class NeoService extends BaseApplicationComponent
 			$blockRecord->ownerLocale = $block->ownerLocale;
 			$blockRecord->typeId      = $block->typeId;
 			$blockRecord->sortOrder   = $block->sortOrder;
+			$blockRecord->collapsed   = $block->collapsed;
 
 			$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 			try
@@ -590,6 +592,20 @@ class NeoService extends BaseApplicationComponent
 		return false;
 	}
 
+	public function saveBlockCollapse(Neo_BlockModel $block)
+	{
+		$tableName = (new Neo_BlockRecord())->getTableName();
+
+		craft()->db->createCommand()->update(
+			$tableName,
+			array('collapsed' => $block->collapsed ? 1 : 0),
+			'id = :id',
+			array(':id' => $block->id)
+		);
+
+		return true;
+	}
+
 	/**
 	 * Deletes a block(s) by its ID.
 	 *
@@ -607,17 +623,6 @@ class NeoService extends BaseApplicationComponent
 		if (!is_array($blockIds))
 		{
 			$blockIds = array($blockIds);
-		}
-
-		if (!craft()->isConsole())
-		{
-			// Tell the browser to forget about these
-			// craft()->userSession->addJsResourceFlash('js/NeoInput.js');
-
-			foreach ($blockIds as $blockId)
-			{
-				// craft()->userSession->addJsFlash('Craft.NeoInput.forgetCollapsedBlockId('.$blockId.');');
-			}
 		}
 
 		// Pass this along to ElementsService for the heavy lifting
@@ -656,7 +661,6 @@ class NeoService extends BaseApplicationComponent
 			$this->_applyFieldTranslationSetting($owner, $field, $blocks);
 
 			$blockIds = array();
-			$collapsedBlockIds = array();
 
 			foreach ($blocks as $block)
 			{
@@ -666,12 +670,6 @@ class NeoService extends BaseApplicationComponent
 				$this->saveBlock($block, false);
 
 				$blockIds[] = $block->id;
-
-				// Tell the browser to collapse this block?
-				if ($block->collapsed)
-				{
-					$collapsedBlockIds[] = $block->id;
-				}
 			}
 
 			// Get the IDs of blocks that are row deleted
@@ -713,17 +711,6 @@ class NeoService extends BaseApplicationComponent
 			}
 
 			throw $e;
-		}
-
-		// Tell the browser to collapse any new block IDs
-		if (!craft()->isConsole() && $collapsedBlockIds)
-		{
-			craft()->userSession->addJsResourceFlash('js/NeoInput.js');
-
-			foreach ($collapsedBlockIds as $blockId)
-			{
-				craft()->userSession->addJsFlash('Craft.NeoInput.rememberCollapsedBlockId('.$blockId.');');
-			}
 		}
 
 		return true;

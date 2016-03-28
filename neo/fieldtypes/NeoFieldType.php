@@ -413,9 +413,6 @@ class NeoFieldType extends BaseFieldType
 				$block->typeId  = $blockType->id;
 				$block->ownerId = $ownerId;
 				$block->locale  = $this->element->locale;
-
-				// Preserve the collapsed state, which the browser can't remember on its own for new blocks
-				$block->collapsed = !empty($blockData['collapsed']);
 			}
 			else
 			{
@@ -424,6 +421,7 @@ class NeoFieldType extends BaseFieldType
 
 			$block->setOwner($this->element);
 			$block->enabled = (isset($blockData['enabled']) ? (bool) $blockData['enabled'] : true);
+			$block->collapsed = (isset($blockData['collapsed']) ? (bool) $blockData['collapsed'] : false);
 
 			// Set the content post location on the block if we can
 			$ownerContentPostLocation = $this->element->getContentPostLocation();

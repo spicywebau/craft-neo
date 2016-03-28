@@ -74,6 +74,11 @@ export default Garnish.Base.extend({
 		return this._id
 	},
 
+	isNew()
+	{
+		return /^new/.test(this.getId())
+	},
+
 	getErrors()
 	{
 		return Array.from(this._errors)
