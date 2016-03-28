@@ -122,7 +122,7 @@ export default Garnish.Base.extend({
 		this._blockSelect.addItems(block.$container)
 
 		block.initUi()
-		block.on('destroy', () => this.removeBlock(block))
+		block.on('destroy', () => this['@deleteBlock']({block: block}))
 
 		this._updateBlockOrder()
 	},
@@ -136,9 +136,16 @@ export default Garnish.Base.extend({
 		this._blockSelect.removeItems(block.$container)
 	},
 
+	getBlockByElement($block)
+	{
+		return this._blocks.find(block => block.$container.is($block))
+	},
+
 	getSelectedBlocks()
 	{
+		const $selectedBlocks = this._blockSelect.getSelectedItems()
 
+		return this._blocks.filter(block => block.$container.is($selectedBlocks))
 	},
 
 	'@newBlock'(e)
@@ -155,6 +162,23 @@ export default Garnish.Base.extend({
 		})
 
 		this.addBlock(block)
+	},
+
+	'@deleteBlock'(e)
+	{
+		const block = e.block
+
+		if(block.isSelected())
+		{
+			for(let selectedBlock of this.getSelectedBlocks())
+			{
+				this.removeBlock(selectedBlock)
+			}
+		}
+		else
+		{
+			this.removeBlock(block)
+		}
 	},
 
 	_updateBlockOrder()

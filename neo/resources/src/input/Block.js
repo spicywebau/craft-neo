@@ -109,6 +109,11 @@ export default Garnish.Base.extend({
 		return /^new/.test(this.getId())
 	},
 
+	isSelected()
+	{
+		return this.$container.hasClass('is-selected')
+	},
+
 	collapse(save = true)
 	{
 		this.toggleExpansion(false, save)
