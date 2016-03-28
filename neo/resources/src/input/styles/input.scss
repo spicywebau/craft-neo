@@ -10,6 +10,10 @@
 		border: 1px solid #ebebeb;
 		overflow: hidden;
 
+		&:focus {
+			outline: 0;
+		}
+
 		&_topbar {
 			display: flex;
 			height: 30px;
@@ -56,6 +60,10 @@
 							color: #576575;
 						}
 					}
+				}
+
+				> .checkbox {
+					color: #29323d;
 				}
 
 				> .status {

@@ -16,6 +16,7 @@ import './styles/input.scss'
 const _defaults = {
 	namespace: [],
 	blockTypes: [],
+	blocks: [],
 	inputId: null,
 	maxBlocks: 0
 }
@@ -45,6 +46,7 @@ export default Garnish.Base.extend({
 		for(let btInfo of settings.blockTypes)
 		{
 			let blockType = new BlockType(btInfo)
+
 			this._blockTypes.push(blockType)
 			this._blockTypes[blockType.getHandle()] = blockType
 		}
@@ -76,6 +78,22 @@ export default Garnish.Base.extend({
 			onSortChange: () => this._updateBlockOrder()
 		})
 
+		this._blockSelect = new Garnish.Select(this.$blocksContainer, null, {
+			multi: true,
+			vertical: true,
+			handle: '[data-neo-b="select"], [data-neo-b="button.toggler"]',
+			checkboxMode: true,
+			selectedClass: 'is-selected sel'
+		});
+
+		for(let bInfo of settings.blocks)
+		{
+			bInfo.blockType = this._blockTypes[bInfo.blockType]
+
+			let block = new Block(bInfo)
+			this.addBlock(block)
+		}
+
 		this.addListener(this.$blockButtons, 'click', '@newBlock')
 	},
 
@@ -93,10 +111,20 @@ export default Garnish.Base.extend({
 		}
 
 		this._blockSort.addItems(block.$container)
+		this._blockSelect.addItems(block.$container)
 
 		block.initUi()
+		block.on('destroy', () => this.removeBlock(block))
 
 		this._updateBlockOrder()
+	},
+
+	removeBlock(block)
+	{
+		block.$container.remove()
+
+		this._blockSort.removeItems(block.$container)
+		this._blockSelect.removeItems(block.$container)
 	},
 
 	getSelectedBlocks()

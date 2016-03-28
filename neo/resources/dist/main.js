@@ -1894,6 +1894,7 @@
 	var _defaults = {
 		namespace: [],
 		blockTypes: [],
+		blocks: [],
 		inputId: null,
 		maxBlocks: 0
 	};
@@ -1932,6 +1933,7 @@
 					var btInfo = _step.value;
 	
 					var blockType = new _BlockType2.default(btInfo);
+	
 					this._blockTypes.push(blockType);
 					this._blockTypes[blockType.getHandle()] = blockType;
 				}
@@ -1975,9 +1977,47 @@
 				}
 			});
 	
+			this._blockSelect = new _garnish2.default.Select(this.$blocksContainer, null, {
+				multi: true,
+				vertical: true,
+				handle: '[data-neo-b="select"], [data-neo-b="button.toggler"]',
+				checkboxMode: true,
+				selectedClass: 'is-selected sel'
+			});
+	
+			var _iteratorNormalCompletion2 = true;
+			var _didIteratorError2 = false;
+			var _iteratorError2 = undefined;
+	
+			try {
+				for (var _iterator2 = settings.blocks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+					var bInfo = _step2.value;
+	
+					bInfo.blockType = this._blockTypes[bInfo.blockType];
+	
+					var block = new _Block2.default(bInfo);
+					this.addBlock(block);
+				}
+			} catch (err) {
+				_didIteratorError2 = true;
+				_iteratorError2 = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion2 && _iterator2.return) {
+						_iterator2.return();
+					}
+				} finally {
+					if (_didIteratorError2) {
+						throw _iteratorError2;
+					}
+				}
+			}
+	
 			this.addListener(this.$blockButtons, 'click', '@newBlock');
 		},
 		addBlock: function addBlock(block) {
+			var _this2 = this;
+	
 			var index = arguments.length <= 1 || arguments[1] === undefined ? -1 : arguments[1];
 	
 			if (index >= 0 && index < this._blocks.length) {
@@ -1989,10 +2029,20 @@
 			}
 	
 			this._blockSort.addItems(block.$container);
+			this._blockSelect.addItems(block.$container);
 	
 			block.initUi();
+			block.on('destroy', function () {
+				return _this2.removeBlock(block);
+			});
 	
 			this._updateBlockOrder();
+		},
+		removeBlock: function removeBlock(block) {
+			block.$container.remove();
+	
+			this._blockSort.removeItems(block.$container);
+			this._blockSelect.removeItems(block.$container);
 		},
 		getSelectedBlocks: function getSelectedBlocks() {},
 		'@newBlock': function newBlock(e) {
@@ -2221,12 +2271,16 @@
 				});
 	
 				this._initialised = true;
+	
+				this.trigger('initUi');
 			}
 		},
 		destroy: function destroy() {
 			if (this._initialised) {
 				this.$container.remove();
 				this.$foot.remove();
+	
+				this.trigger('destroy');
 			}
 		},
 		getBlockType: function getBlockType() {
@@ -2244,15 +2298,21 @@
 		toggleExpansion: function toggleExpansion() {
 			var expand = arguments.length <= 0 || arguments[0] === undefined ? !this._expanded : arguments[0];
 	
-			this._expanded = expand;
+			if (expand !== this._expanded) {
+				this._expanded = expand;
 	
-			var expandContainer = this.$menuContainer.find('[data-action="expand"]').parent();
-			var collapseContainer = this.$menuContainer.find('[data-action="collapse"]').parent();
+				var expandContainer = this.$menuContainer.find('[data-action="expand"]').parent();
+				var collapseContainer = this.$menuContainer.find('[data-action="collapse"]').parent();
 	
-			this.$container.toggleClass('is-expanded', this._expanded).toggleClass('is-contracted', !this._expanded);
+				this.$container.toggleClass('is-expanded', this._expanded).toggleClass('is-contracted', !this._expanded);
 	
-			expandContainer.toggleClass('hidden', this._expanded);
-			collapseContainer.toggleClass('hidden', !this._expanded);
+				expandContainer.toggleClass('hidden', this._expanded);
+				collapseContainer.toggleClass('hidden', !this._expanded);
+	
+				this.trigger('toggleExpansion', {
+					expanded: this._expanded
+				});
+			}
 		},
 		disable: function disable() {
 			this.toggleEnabled(false);
@@ -2263,22 +2323,36 @@
 		toggleEnabled: function toggleEnabled() {
 			var enable = arguments.length <= 0 || arguments[0] === undefined ? !this._enabled : arguments[0];
 	
-			this._enabled = enable;
+			if (enable !== this._enabled) {
+				this._enabled = enable;
 	
-			var enableContainer = this.$menuContainer.find('[data-action="enable"]').parent();
-			var disableContainer = this.$menuContainer.find('[data-action="disable"]').parent();
+				var enableContainer = this.$menuContainer.find('[data-action="enable"]').parent();
+				var disableContainer = this.$menuContainer.find('[data-action="disable"]').parent();
 	
-			this.$container.toggleClass('is-enabled', this._enabled).toggleClass('is-disabled', !this._enabled);
+				this.$container.toggleClass('is-enabled', this._enabled).toggleClass('is-disabled', !this._enabled);
 	
-			this.$status.toggleClass('hidden', this._enabled);
+				this.$status.toggleClass('hidden', this._enabled);
 	
-			enableContainer.toggleClass('hidden', this._enabled);
-			disableContainer.toggleClass('hidden', !this._enabled);
+				enableContainer.toggleClass('hidden', this._enabled);
+				disableContainer.toggleClass('hidden', !this._enabled);
+	
+				this.trigger('toggleEnabled', {
+					enabled: this._enabled
+				});
+			}
 		},
 		selectTab: function selectTab(name) {
 			var $tabs = (0, _jquery2.default)().add(this.$tabButton).add(this.$tabContainer);
 	
-			$tabs.removeClass('is-selected').filter('[data-neo-b-info="' + name + '"]').addClass('is-selected');
+			$tabs.removeClass('is-selected');
+	
+			var $tab = $tabs.filter('[data-neo-b-info="' + name + '"]').addClass('is-selected');
+	
+			this.trigger('selectTab', {
+				tabName: name,
+				$tabButton: $tab.filter('[data-neo-b="button.tab"]'),
+				$tabContainer: $tab.filter('[data-neo-b="container.tab"]')
+			});
 		},
 		'@settingSelect': function settingSelect(e) {
 			var $option = (0, _jquery2.default)(e.option);
@@ -2289,7 +2363,8 @@
 				case 'expand':
 					this.expand();break;
 				case 'disable':
-					this.disable();this.collapse();break;
+					this.disable();
+					this.collapse();break;
 				case 'enable':
 					this.enable();break;
 				case 'delete':
@@ -2370,7 +2445,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".ni_block {\n  margin-bottom: 10px;\n  border-radius: 3px;\n  border: 1px solid #ebebeb;\n  overflow: hidden; }\n  .ni_block_topbar {\n    display: flex;\n    height: 30px;\n    line-height: 30px;\n    background-color: #f1f3f4;\n    color: #8f98a3; }\n    .ni_block_topbar_item {\n      cursor: default;\n      padding: 0 8px;\n      -webkit-user-select: none;\n      -moz-user-select: none;\n      user-select: none; }\n      .ni_block_topbar_item + .ni_block_topbar_item {\n        padding-left: 0; }\n      .ni_block_topbar_item.size-full {\n        flex-grow: 1; }\n      .ni_block_topbar_item.tabs .tab {\n        display: block;\n        height: 30px;\n        padding: 0 10px;\n        float: left;\n        color: rgba(41, 50, 61, 0.5); }\n        .ni_block_topbar_item.tabs .tab:hover {\n          color: #0d78f2; }\n        .ni_block_topbar_item.tabs .tab.is-selected {\n          cursor: default;\n          padding: 0 9px;\n          border: 1px solid #ebebeb;\n          border-top: 0;\n          border-bottom-color: #fafafa;\n          margin-bottom: -1px;\n          background-color: #fafafa;\n          color: #576575; }\n      .ni_block_topbar_item > .status {\n        margin: 10px 5px 0 0; }\n      .ni_block_topbar_item > a {\n        color: rgba(41, 50, 61, 0.25); }\n        .ni_block_topbar_item > a:hover {\n          color: #0d78f2; }\n  .ni_block_content {\n    padding: 14px;\n    border-top: 1px solid #ebebeb;\n    background-color: #fafafa; }\n    .ni_block_content_tab {\n      display: none; }\n      .ni_block_content_tab.is-selected {\n        display: block; }\n  .ni_block.is-contracted .ni_block_topbar_item.tabs {\n    display: none; }\n  .ni_block.is-contracted .ni_block_content {\n    display: none; }\n  .ni_block.is-disabled .ni_block_content_tab {\n    pointer-events: none;\n    opacity: 0.5;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    user-select: none; }\n", ""]);
+	exports.push([module.id, ".ni_block {\n  margin-bottom: 10px;\n  border-radius: 3px;\n  border: 1px solid #ebebeb;\n  overflow: hidden; }\n  .ni_block:focus {\n    outline: 0; }\n  .ni_block_topbar {\n    display: flex;\n    height: 30px;\n    line-height: 30px;\n    background-color: #f1f3f4;\n    color: #8f98a3; }\n    .ni_block_topbar_item {\n      cursor: default;\n      padding: 0 8px;\n      -webkit-user-select: none;\n      -moz-user-select: none;\n      user-select: none; }\n      .ni_block_topbar_item + .ni_block_topbar_item {\n        padding-left: 0; }\n      .ni_block_topbar_item.size-full {\n        flex-grow: 1; }\n      .ni_block_topbar_item.tabs .tab {\n        display: block;\n        height: 30px;\n        padding: 0 10px;\n        float: left;\n        color: rgba(41, 50, 61, 0.5); }\n        .ni_block_topbar_item.tabs .tab:hover {\n          color: #0d78f2; }\n        .ni_block_topbar_item.tabs .tab.is-selected {\n          cursor: default;\n          padding: 0 9px;\n          border: 1px solid #ebebeb;\n          border-top: 0;\n          border-bottom-color: #fafafa;\n          margin-bottom: -1px;\n          background-color: #fafafa;\n          color: #576575; }\n      .ni_block_topbar_item > .checkbox {\n        color: #29323d; }\n      .ni_block_topbar_item > .status {\n        margin: 10px 5px 0 0; }\n      .ni_block_topbar_item > a {\n        color: rgba(41, 50, 61, 0.25); }\n        .ni_block_topbar_item > a:hover {\n          color: #0d78f2; }\n  .ni_block_content {\n    padding: 14px;\n    border-top: 1px solid #ebebeb;\n    background-color: #fafafa; }\n    .ni_block_content_tab {\n      display: none; }\n      .ni_block_content_tab.is-selected {\n        display: block; }\n  .ni_block.is-contracted .ni_block_topbar_item.tabs {\n    display: none; }\n  .ni_block.is-contracted .ni_block_content {\n    display: none; }\n  .ni_block.is-disabled .ni_block_content_tab {\n    pointer-events: none;\n    opacity: 0.5;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    user-select: none; }\n", ""]);
 	
 	// exports
 

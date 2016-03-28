@@ -69,6 +69,8 @@ export default Garnish.Base.extend({
 			this._settingsMenu.on('optionSelect', e => this['@settingSelect'](e))
 
 			this._initialised = true
+
+			this.trigger('initUi')
 		}
 	},
 
@@ -78,6 +80,8 @@ export default Garnish.Base.extend({
 		{
 			this.$container.remove()
 			this.$foot.remove()
+
+			this.trigger('destroy')
 		}
 	},
 
@@ -103,17 +107,24 @@ export default Garnish.Base.extend({
 
 	toggleExpansion(expand = !this._expanded)
 	{
-		this._expanded = expand
+		if(expand !== this._expanded)
+		{
+			this._expanded = expand
 
-		const expandContainer = this.$menuContainer.find('[data-action="expand"]').parent()
-		const collapseContainer = this.$menuContainer.find('[data-action="collapse"]').parent()
+			const expandContainer = this.$menuContainer.find('[data-action="expand"]').parent()
+			const collapseContainer = this.$menuContainer.find('[data-action="collapse"]').parent()
 
-		this.$container
-			.toggleClass('is-expanded', this._expanded)
-			.toggleClass('is-contracted', !this._expanded)
+			this.$container
+				.toggleClass('is-expanded', this._expanded)
+				.toggleClass('is-contracted', !this._expanded)
 
-		expandContainer.toggleClass('hidden', this._expanded)
-		collapseContainer.toggleClass('hidden', !this._expanded)
+			expandContainer.toggleClass('hidden', this._expanded)
+			collapseContainer.toggleClass('hidden', !this._expanded)
+
+			this.trigger('toggleExpansion', {
+				expanded: this._expanded
+			})
+		}
 	},
 
 	disable()
@@ -128,19 +139,26 @@ export default Garnish.Base.extend({
 
 	toggleEnabled(enable = !this._enabled)
 	{
-		this._enabled = enable
+		if(enable !== this._enabled)
+		{
+			this._enabled = enable
 
-		const enableContainer = this.$menuContainer.find('[data-action="enable"]').parent()
-		const disableContainer = this.$menuContainer.find('[data-action="disable"]').parent()
+			const enableContainer = this.$menuContainer.find('[data-action="enable"]').parent()
+			const disableContainer = this.$menuContainer.find('[data-action="disable"]').parent()
 
-		this.$container
-			.toggleClass('is-enabled', this._enabled)
-			.toggleClass('is-disabled', !this._enabled)
+			this.$container
+				.toggleClass('is-enabled', this._enabled)
+				.toggleClass('is-disabled', !this._enabled)
 
-		this.$status.toggleClass('hidden', this._enabled)
+			this.$status.toggleClass('hidden', this._enabled)
 
-		enableContainer.toggleClass('hidden', this._enabled)
-		disableContainer.toggleClass('hidden', !this._enabled)
+			enableContainer.toggleClass('hidden', this._enabled)
+			disableContainer.toggleClass('hidden', !this._enabled)
+
+			this.trigger('toggleEnabled', {
+				enabled: this._enabled
+			})
+		}
 	},
 
 	selectTab(name)
@@ -150,7 +168,14 @@ export default Garnish.Base.extend({
 			.add(this.$tabContainer)
 
 		$tabs.removeClass('is-selected')
-			.filter(`[data-neo-b-info="${name}"]`).addClass('is-selected')
+
+		const $tab = $tabs.filter(`[data-neo-b-info="${name}"]`).addClass('is-selected')
+
+		this.trigger('selectTab', {
+			tabName: name,
+			$tabButton: $tab.filter('[data-neo-b="button.tab"]'),
+			$tabContainer: $tab.filter('[data-neo-b="container.tab"]')
+		})
 	},
 
 	'@settingSelect'(e)
@@ -159,11 +184,12 @@ export default Garnish.Base.extend({
 
 		switch($option.attr('data-action'))
 		{
-			case 'collapse': this.collapse(); break
-			case 'expand':   this.expand();   break
-			case 'disable':  this.disable(); this.collapse(); break
-			case 'enable':   this.enable();   break
-			case 'delete':   this.destroy();  break
+			case 'collapse': this.collapse() ; break
+			case 'expand':   this.expand()   ; break
+			case 'disable':  this.disable()
+			                 this.collapse() ; break
+			case 'enable':   this.enable()   ; break
+			case 'delete':   this.destroy()  ; break
 		}
 	},
 

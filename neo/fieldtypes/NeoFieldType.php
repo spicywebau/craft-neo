@@ -294,14 +294,23 @@ class NeoFieldType extends BaseFieldType
 			'static' => false
 		));
 
-		// Get the block types data
 		$blockTypeInfo = $this->_getBlockTypeInfoForInput($name);
+
+		$blockInfo = array();
+		foreach($value as $block)
+		{
+			$blockInfo[] = array(
+				'id' => $block->id,
+				'blockType' => $block->getType()->handle,
+			);
+		}
 
 		$jsSettings = array(
 			'namespace' => craft()->templates->namespaceInputName($name),
 			'blockTypes' => $blockTypeInfo,
 			'inputId' => craft()->templates->namespaceInputId($id),
-			'maxBlocks' => $settings->maxBlocks
+			'maxBlocks' => $settings->maxBlocks,
+			'blocks' => $blockInfo,
 		);
 
 		craft()->templates->includeJsResource('neo/dist/main.js');
