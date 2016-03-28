@@ -162,7 +162,7 @@ export default Garnish.Base.extend({
 	{
 		if(!this.isNew())
 		{
-			Craft.queueActionRequest('neo/saveExpansion', {
+			Craft.postActionRequest('neo/saveExpansion', {
 				expanded: this.isExpanded(),
 				blockId: this.getId()
 			})

@@ -2044,14 +2044,27 @@
 			this._blockSelect.addItems(block.$container);
 	
 			block.initUi();
-			block.on('destroy', function () {
-				return _this2['@deleteBlock']({ block: block });
+			block.on('destroy.input', function (e) {
+				return _this2._blockBatch(block, function (b) {
+					return _this2.removeBlock(b);
+				});
+			});
+			block.on('toggleEnabled.input', function (e) {
+				return _this2._blockBatch(block, function (b) {
+					return b.toggleEnabled(e.enabled);
+				});
+			});
+			block.on('toggleExpansion.input', function (e) {
+				return _this2._blockBatch(block, function (b) {
+					return b.toggleExpansion(e.expanded);
+				});
 			});
 	
 			this._updateBlockOrder();
 		},
 		removeBlock: function removeBlock(block) {
 			block.$container.remove();
+			block.off('.input');
 	
 			this._blocks = this._blocks.filter(function (b) {
 				return b !== block;
@@ -2071,6 +2084,47 @@
 				return block.$container.is($selectedBlocks);
 			});
 		},
+		_updateBlockOrder: function _updateBlockOrder() {
+			var _this3 = this;
+	
+			var blocks = [];
+	
+			this._blockSort.$items.each(function (index, element) {
+				var block = _this3.getBlockByElement(element);
+	
+				blocks.push(block);
+			});
+	
+			this._blocks = blocks;
+		},
+		_blockBatch: function _blockBatch(block, callback) {
+			var blocks = block.isSelected() ? this.getSelectedBlocks() : [block];
+	
+			var _iteratorNormalCompletion3 = true;
+			var _didIteratorError3 = false;
+			var _iteratorError3 = undefined;
+	
+			try {
+				for (var _iterator3 = blocks[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+					var b = _step3.value;
+	
+					callback(b);
+				}
+			} catch (err) {
+				_didIteratorError3 = true;
+				_iteratorError3 = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion3 && _iterator3.return) {
+						_iterator3.return();
+					}
+				} finally {
+					if (_didIteratorError3) {
+						throw _iteratorError3;
+					}
+				}
+			}
+		},
 		'@newBlock': function newBlock(e) {
 			var $button = (0, _jquery2.default)(e.currentTarget);
 			var blockTypeHandle = $button.attr('data-neo-info');
@@ -2084,40 +2138,7 @@
 			});
 	
 			this.addBlock(block);
-		},
-		'@deleteBlock': function deleteBlock(e) {
-			var block = e.block;
-	
-			if (block.isSelected()) {
-				var _iteratorNormalCompletion3 = true;
-				var _didIteratorError3 = false;
-				var _iteratorError3 = undefined;
-	
-				try {
-					for (var _iterator3 = this.getSelectedBlocks()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-						var selectedBlock = _step3.value;
-	
-						this.removeBlock(selectedBlock);
-					}
-				} catch (err) {
-					_didIteratorError3 = true;
-					_iteratorError3 = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion3 && _iterator3.return) {
-							_iterator3.return();
-						}
-					} finally {
-						if (_didIteratorError3) {
-							throw _iteratorError3;
-						}
-					}
-				}
-			} else {
-				this.removeBlock(block);
-			}
-		},
-		_updateBlockOrder: function _updateBlockOrder() {}
+		}
 	});
 
 /***/ },
@@ -2404,7 +2425,7 @@
 		},
 		saveExpansion: function saveExpansion() {
 			if (!this.isNew()) {
-				_craft2.default.queueActionRequest('neo/saveExpansion', {
+				_craft2.default.postActionRequest('neo/saveExpansion', {
 					expanded: this.isExpanded(),
 					blockId: this.getId()
 				});

@@ -122,7 +122,9 @@ export default Garnish.Base.extend({
 		this._blockSelect.addItems(block.$container)
 
 		block.initUi()
-		block.on('destroy', () => this['@deleteBlock']({block: block}))
+		block.on('destroy.input',         e => this._blockBatch(block, b => this.removeBlock(b)))
+		block.on('toggleEnabled.input',   e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
+		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
 
 		this._updateBlockOrder()
 	},
@@ -130,6 +132,7 @@ export default Garnish.Base.extend({
 	removeBlock(block)
 	{
 		block.$container.remove()
+		block.off('.input')
 
 		this._blocks = this._blocks.filter(b => b !== block)
 		this._blockSort.removeItems(block.$container)
@@ -148,6 +151,30 @@ export default Garnish.Base.extend({
 		return this._blocks.filter(block => block.$container.is($selectedBlocks))
 	},
 
+	_updateBlockOrder()
+	{
+		const blocks = []
+
+		this._blockSort.$items.each((index, element) =>
+		{
+			const block = this.getBlockByElement(element)
+
+			blocks.push(block)
+		})
+
+		this._blocks = blocks
+	},
+
+	_blockBatch(block, callback)
+	{
+		const blocks = block.isSelected() ? this.getSelectedBlocks() : [block]
+
+		for(let b of blocks)
+		{
+			callback(b)
+		}
+	},
+
 	'@newBlock'(e)
 	{
 		const $button = $(e.currentTarget)
@@ -162,27 +189,5 @@ export default Garnish.Base.extend({
 		})
 
 		this.addBlock(block)
-	},
-
-	'@deleteBlock'(e)
-	{
-		const block = e.block
-
-		if(block.isSelected())
-		{
-			for(let selectedBlock of this.getSelectedBlocks())
-			{
-				this.removeBlock(selectedBlock)
-			}
-		}
-		else
-		{
-			this.removeBlock(block)
-		}
-	},
-
-	_updateBlockOrder()
-	{
-
 	}
 })
