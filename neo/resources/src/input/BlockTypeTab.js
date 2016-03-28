@@ -13,8 +13,8 @@ export default Garnish.Base.extend({
 		settings = Object.assign({}, _defaults, settings)
 
 		this._name = settings.name
-		this._bodyHtml = settings.bodyHtml
-		this._footHtml = settings.footHtml
+		this._bodyHtml = settings.bodyHtml || ''
+		this._footHtml = settings.footHtml || ''
 	},
 
 	getName() { return this._name },
