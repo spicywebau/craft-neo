@@ -31,6 +31,8 @@ export default Garnish.Base.extend({
 		settings = Object.assign({}, _defaults, settings)
 
 		this._templateNs = NS.parse(settings.namespace)
+		this._blockTypes = []
+		this._blocks = []
 
 		NS.enter(this._templateNs)
 

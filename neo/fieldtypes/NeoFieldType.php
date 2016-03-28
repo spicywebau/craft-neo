@@ -588,69 +588,90 @@ class NeoFieldType extends BaseFieldType
 	 */
 	private function _getBlockTypeInfoForInput($name)
 	{
-		$blockTypes = array();
+		$jsBlockTypes = array();
 
 		// Set a temporary namespace for these
 		$originalNamespace = craft()->templates->getNamespace();
 		$namespace = craft()->templates->namespaceInputName($name.'[__BLOCK__][fields]', $originalNamespace);
 		craft()->templates->setNamespace($namespace);
 
-		foreach ($this->getSettings()->getBlockTypes() as $blockType)
+		$settings = $this->getSettings();
+		$blockTypes = $settings->getBlockTypes();
+
+		foreach($blockTypes as $blockType)
 		{
-			// Create a fake Neo_BlockModel so the field types have a way to get at the owner element, if there is one
+			$fieldLayout = $blockType->getFieldLayout();
+			$fieldLayoutTabs = $fieldLayout->getTabs();
+
+
+
+			// Create a fake Neo Block model so the field types have a way to get at the owner element, if there is one
 			$block = new Neo_BlockModel();
 			$block->fieldId = $this->model->id;
 			$block->typeId = $blockType->id;
 
-			if ($this->element)
+			if($this->element)
 			{
 				$block->setOwner($this->element);
 				$block->locale = $this->element->locale;
 			}
 
-			$fieldLayoutFields = $blockType->getFieldLayout()->getFields();
+			$jsTabs = array();
 
-			foreach ($fieldLayoutFields as $fieldLayoutField)
+			foreach($fieldLayoutTabs as $fieldLayoutTab)
 			{
-				$fieldType = $fieldLayoutField->getField()->getFieldType();
+				$jsTab = array(
+					'name' => Craft::t($fieldLayoutTab->name),
+					'bodyHtml' => '',
+					'footHtml' => '',
+				);
 
-				if ($fieldType)
+				$fieldLayoutFields = $fieldLayoutTab->getFields();
+
+				foreach($fieldLayoutFields as $fieldLayoutField)
 				{
-					$fieldType->element = $block;
-					$fieldType->setIsFresh(true);
+					$fieldType = $fieldLayoutField->getField()->getFieldType();
+
+					if ($fieldType)
+					{
+						$fieldType->element = $block;
+						$fieldType->setIsFresh(true);
+					}
 				}
+
+				craft()->templates->startJsBuffer();
+
+				$jsTab['bodyHtml'] = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', array(
+					'namespace' => null,
+					'fields'    => $fieldLayoutFields
+				)));
+
+				// Reset $_isFresh's
+				foreach($fieldLayoutFields as $fieldLayoutField)
+				{
+					$fieldType = $fieldLayoutField->getField()->getFieldType();
+
+					if($fieldType)
+					{
+						$fieldType->setIsFresh(null);
+					}
+				}
+
+				$jsTab['footHtml'] = craft()->templates->clearJsBuffer();
+
+				$jsTabs[] = $jsTab;
 			}
 
-			craft()->templates->startJsBuffer();
-
-			$bodyHtml = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', array(
-				'namespace' => null,
-				'fields'    => $fieldLayoutFields
-			)));
-
-			// Reset $_isFresh's
-			foreach ($fieldLayoutFields as $fieldLayoutField)
-			{
-				$fieldType = $fieldLayoutField->getField()->getFieldType();
-
-				if ($fieldType)
-				{
-					$fieldType->setIsFresh(null);
-				}
-			}
-
-			$footHtml = craft()->templates->clearJsBuffer();
-
-			$blockTypes[] = array(
-				'handle'   => $blockType->handle,
-				'name'     => Craft::t($blockType->name),
-				'bodyHtml' => $bodyHtml,
-				'footHtml' => $footHtml,
+			$jsBlockTypes[] = array(
+				'handle'    => $blockType->handle,
+				'name'      => Craft::t($blockType->name),
+				'maxBlocks' => $blockType->maxBlocks,
+				'tabs'      => $jsTabs,
 			);
 		}
 
 		craft()->templates->setNamespace($originalNamespace);
 
-		return $blockTypes;
+		return $jsBlockTypes;
 	}
 }

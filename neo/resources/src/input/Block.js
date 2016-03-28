@@ -34,28 +34,33 @@ export default Garnish.Base.extend({
 		NS.enter(this._templateNs)
 
 		this.$container = $(renderTemplate({
-			type: this._blockType
+			type: this._blockType,
+			id: this._id
 		}))
 
 		NS.leave()
 
 		const $neo = this.$container.find('[data-neo-b]')
 		this.$contentContainer = $neo.filter('[data-neo-b="container.content"]')
+		this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]')
 		this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]')
+		this.$tabButton = $neo.filter('[data-neo-b="button.tab"]')
 		this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]')
 		this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
 		this.$status = $neo.filter('[data-neo-b="status"]')
 
-		this.$content = $(this._blockType.getBodyHtml(this._id)).appendTo(this.$contentContainer)
-
 		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
+		this.addListener(this.$tabButton, 'click', '@setTab')
 	},
 
 	initUi()
 	{
 		if(!this._initialised)
 		{
-			this.$foot = $(this._blockType.getFootHtml(this._id))
+			const tabs = this._blockType.getTabs()
+
+			let footList = tabs.map(tab => tab.getFootHtml(this._id))
+			this.$foot = $(footList.join(''))
 
 			Garnish.$bod.append(this.$foot)
 			Craft.initUiElements(this.$contentContainer)
@@ -138,6 +143,16 @@ export default Garnish.Base.extend({
 		disableContainer.toggleClass('hidden', !this._enabled)
 	},
 
+	selectTab(name)
+	{
+		const $tabs = $()
+			.add(this.$tabButton)
+			.add(this.$tabContainer)
+
+		$tabs.removeClass('is-selected')
+			.filter(`[data-neo-b-info="${name}"]`).addClass('is-selected')
+	},
+
 	'@settingSelect'(e)
 	{
 		const $option = $(e.option)
@@ -155,7 +170,18 @@ export default Garnish.Base.extend({
 	'@doubleClickTitle'(e)
 	{
 		e.preventDefault()
+
 		this.toggleExpansion()
+	},
+
+	'@setTab'(e)
+	{
+		e.preventDefault()
+
+		const $tab = $(e.currentTarget)
+		const tabName = $tab.attr('data-neo-b-info')
+
+		this.selectTab(tabName)
 	}
 },
 {

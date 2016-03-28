@@ -12,8 +12,13 @@
 			<span data-neo-b="text.content"></span>
 		</div>
 		<div class="ni_block_topbar_item tabs">
-			<a class="tab is-selected" data-neo-b="button.tab" data-neo-b-info="content">{{ "Content"|t }}</a>
-			<a class="tab" data-neo-b="button.tab" data-neo-b-info="settings">{{ "Settings"|t }}</a>
+			{% for tab in type.getTabs() %}
+				<a class="tab {{ loop.first ? 'is-selected' : '' }}"
+				   data-neo-b="button.tab"
+				   data-neo-b-info="{{ tab.name }}">
+					{{ tab.name|t }}
+				</a>
+			{% endfor %}
 		</div>
 		<div class="ni_block_topbar_item hidden" data-neo-b="status">
 			<div class="status off" title="{{ "Disabled"|t }}"></div>
@@ -37,5 +42,13 @@
 			<a class="move icon" title="{{ "Reorder"|t }}" role="button" data-neo-b="button.move"></a>
 		</div>
 	</div>
-	<div class="ni_block_content" data-neo-b="container.content"></div>
+	<div class="ni_block_content" data-neo-b="container.content">
+		{% for tab in type.getTabs() %}
+			<div class="ni_block_content_tab {{ loop.first ? 'is-selected' : '' }}"
+				 data-neo-b="container.tab"
+				 data-neo-b-info="{{ tab.name }}">
+				{{ tab.getBodyHtml(id) }}
+			</div>
+		{% endfor %}
+	</div>
 </div>

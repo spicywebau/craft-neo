@@ -135,6 +135,7 @@
 			var $input = $field.children('.field').children('.input');
 	
 			this._templateNs = _namespace2.default.parse(settings.namespace);
+			this._blockTypes = [];
 	
 			_namespace2.default.enter(this._templateNs);
 	
@@ -1874,17 +1875,17 @@
 	
 	var _BlockType2 = _interopRequireDefault(_BlockType);
 	
-	var _Block = __webpack_require__(25);
+	var _Block = __webpack_require__(26);
 	
 	var _Block2 = _interopRequireDefault(_Block);
 	
-	var _input = __webpack_require__(27);
+	var _input = __webpack_require__(28);
 	
 	var _input2 = _interopRequireDefault(_input);
 	
 	__webpack_require__(15);
 	
-	__webpack_require__(28);
+	__webpack_require__(29);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1911,6 +1912,8 @@
 			settings = Object.assign({}, _defaults, settings);
 	
 			this._templateNs = _namespace2.default.parse(settings.namespace);
+			this._blockTypes = [];
+			this._blocks = [];
 	
 			_namespace2.default.enter(this._templateNs);
 	
@@ -2019,19 +2022,13 @@
 		value: true
 	});
 	
-	var _jquery = __webpack_require__(2);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	__webpack_require__(3);
-	
 	var _garnish = __webpack_require__(4);
 	
 	var _garnish2 = _interopRequireDefault(_garnish);
 	
-	var _craft = __webpack_require__(5);
+	var _BlockTypeTab = __webpack_require__(25);
 	
-	var _craft2 = _interopRequireDefault(_craft);
+	var _BlockTypeTab2 = _interopRequireDefault(_BlockTypeTab);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2039,8 +2036,7 @@
 		name: '',
 		handle: '',
 		maxBlocks: 0,
-		bodyHtml: '',
-		footHtml: ''
+		tabs: []
 	};
 	
 	exports.default = _garnish2.default.Base.extend({
@@ -2052,8 +2048,9 @@
 			this._name = settings.name;
 			this._handle = settings.handle;
 			this._maxBlocks = settings.maxBlocks | 0;
-			this._bodyHtml = settings.bodyHtml;
-			this._footHtml = settings.footHtml;
+			this._tabs = settings.tabs.map(function (tab) {
+				return new _BlockTypeTab2.default(tab);
+			});
 		},
 		getName: function getName() {
 			return this._name;
@@ -2063,6 +2060,46 @@
 		},
 		getMaxBlocks: function getMaxBlocks() {
 			return this._maxBlocks;
+		},
+		getTabs: function getTabs() {
+			return Array.from(this._tabs);
+		}
+	});
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _garnish = __webpack_require__(4);
+	
+	var _garnish2 = _interopRequireDefault(_garnish);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var _defaults = {
+		name: '',
+		bodyHtml: '',
+		footHtml: ''
+	};
+	
+	exports.default = _garnish2.default.Base.extend({
+		init: function init() {
+			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+			settings = Object.assign({}, _defaults, settings);
+	
+			this._name = settings.name;
+			this._bodyHtml = settings.bodyHtml;
+			this._footHtml = settings.footHtml;
+		},
+		getName: function getName() {
+			return this._name;
 		},
 		getBodyHtml: function getBodyHtml() {
 			var blockId = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
@@ -2085,7 +2122,7 @@
 	});
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2112,7 +2149,7 @@
 	
 	var _namespace2 = _interopRequireDefault(_namespace);
 	
-	var _block = __webpack_require__(26);
+	var _block = __webpack_require__(27);
 	
 	var _block2 = _interopRequireDefault(_block);
 	
@@ -2146,27 +2183,34 @@
 			_namespace2.default.enter(this._templateNs);
 	
 			this.$container = (0, _jquery2.default)((0, _block2.default)({
-				type: this._blockType
+				type: this._blockType,
+				id: this._id
 			}));
 	
 			_namespace2.default.leave();
 	
 			var $neo = this.$container.find('[data-neo-b]');
 			this.$contentContainer = $neo.filter('[data-neo-b="container.content"]');
+			this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]');
 			this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]');
+			this.$tabButton = $neo.filter('[data-neo-b="button.tab"]');
 			this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]');
 			this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]');
 			this.$status = $neo.filter('[data-neo-b="status"]');
 	
-			this.$content = (0, _jquery2.default)(this._blockType.getBodyHtml(this._id)).appendTo(this.$contentContainer);
-	
 			this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle');
+			this.addListener(this.$tabButton, 'click', '@setTab');
 		},
 		initUi: function initUi() {
 			var _this = this;
 	
 			if (!this._initialised) {
-				this.$foot = (0, _jquery2.default)(this._blockType.getFootHtml(this._id));
+				var tabs = this._blockType.getTabs();
+	
+				var footList = tabs.map(function (tab) {
+					return tab.getFootHtml(_this._id);
+				});
+				this.$foot = (0, _jquery2.default)(footList.join(''));
 	
 				_garnish2.default.$bod.append(this.$foot);
 				_craft2.default.initUiElements(this.$contentContainer);
@@ -2231,6 +2275,11 @@
 			enableContainer.toggleClass('hidden', this._enabled);
 			disableContainer.toggleClass('hidden', !this._enabled);
 		},
+		selectTab: function selectTab(name) {
+			var $tabs = (0, _jquery2.default)().add(this.$tabButton).add(this.$tabContainer);
+	
+			$tabs.removeClass('is-selected').filter('[data-neo-b-info="' + name + '"]').addClass('is-selected');
+		},
 		'@settingSelect': function settingSelect(e) {
 			var $option = (0, _jquery2.default)(e.option);
 	
@@ -2249,7 +2298,16 @@
 		},
 		'@doubleClickTitle': function doubleClickTitle(e) {
 			e.preventDefault();
+	
 			this.toggleExpansion();
+		},
+		'@setTab': function setTab(e) {
+			e.preventDefault();
+	
+			var $tab = (0, _jquery2.default)(e.currentTarget);
+			var tabName = $tab.attr('data-neo-b-info');
+	
+			this.selectTab(tabName);
 		}
 	}, {
 		_totalNewBlocks: 0,
@@ -2260,16 +2318,16 @@
 	});
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(10).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\block.twig", data:[{"type":"raw","value":"<div class=\"ni_block\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"type"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"enabled"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\"1\">\r\n\t<div class=\"ni_block_topbar\">\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<div class=\"checkbox\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Select"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" data-neo-b=\"select\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\" data-neo-b=\"button.toggler\">\r\n\t\t\t<strong>"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</strong>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item size-full\" data-neo-b=\"button.toggler\">\r\n\t\t\t<span data-neo-b=\"text.content\"></span>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item tabs\">\r\n\t\t\t<a class=\"tab is-selected\" data-neo-b=\"button.tab\" data-neo-b-info=\"content\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Content"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t\t\t<a class=\"tab\" data-neo-b=\"button.tab\" data-neo-b-info=\"settings\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Settings"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item hidden\" data-neo-b=\"status\">\r\n\t\t\t<div class=\"status off\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disabled"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"settings icon menubtn\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Actions"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.actions\"></a>\r\n\t\t\t<div class=\"menu\" data-neo-b=\"container.menu\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"collapse\" data-action=\"collapse\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Collapse"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"expand\" data-action=\"expand\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Expand"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li><a data-icon=\"disabled\" data-action=\"disable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"enabled\" data-action=\"enable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Enable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<hr class=\"padded\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"remove\" data-action=\"delete\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Delete"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"move icon\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Reorder"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.move\"></a>\r\n\t\t</div>\r\n\t</div>\r\n\t<div class=\"ni_block_content\" data-neo-b=\"container.content\"></div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\block.twig", data:[{"type":"raw","value":"<div class=\"ni_block\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"type"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t<input type=\"hidden\" name=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"enabled"},{"type":"Twig.expression.type.filter","value":"ns","match":["|ns","ns"]}]},{"type":"raw","value":"\" value=\"1\">\r\n\t<div class=\"ni_block_topbar\">\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<div class=\"checkbox\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Select"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" data-neo-b=\"select\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\" data-neo-b=\"button.toggler\">\r\n\t\t\t<strong>"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</strong>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item size-full\" data-neo-b=\"button.toggler\">\r\n\t\t\t<span data-neo-b=\"text.content\"></span>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item tabs\">\r\n\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"tab","expression":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getTabs","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t<a class=\"tab "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"},{"type":"Twig.expression.type.string","value":"is-selected"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\"\r\n\t\t\t\t   data-neo-b=\"button.tab\"\r\n\t\t\t\t   data-neo-b-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"name"}]},{"type":"raw","value":"\">\r\n\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"name"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t\t\t\t</a>\r\n\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item hidden\" data-neo-b=\"status\">\r\n\t\t\t<div class=\"status off\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disabled"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\"></div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"settings icon menubtn\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Actions"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.actions\"></a>\r\n\t\t\t<div class=\"menu\" data-neo-b=\"container.menu\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"collapse\" data-action=\"collapse\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Collapse"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"expand\" data-action=\"expand\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Expand"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li><a data-icon=\"disabled\" data-action=\"disable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Disable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t\t<li class=\"hidden\"><a data-icon=\"enabled\" data-action=\"enable\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Enable"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<hr class=\"padded\">\r\n\t\t\t\t<ul class=\"padded\">\r\n\t\t\t\t\t<li><a data-icon=\"remove\" data-action=\"delete\">"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Delete"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"</a></li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\"ni_block_topbar_item\">\r\n\t\t\t<a class=\"move icon\" title=\""},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Reorder"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\" role=\"button\" data-neo-b=\"button.move\"></a>\r\n\t\t</div>\r\n\t</div>\r\n\t<div class=\"ni_block_content\" data-neo-b=\"container.content\">\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"tab","expression":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.key.period","key":"getTabs","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}],"output":[{"type":"raw","value":"\r\n\t\t\t<div class=\"ni_block_content_tab "},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"},{"type":"Twig.expression.type.string","value":"is-selected"},{"type":"Twig.expression.type.string","value":""},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]},{"type":"raw","value":"\"\r\n\t\t\t\t data-neo-b=\"container.tab\"\r\n\t\t\t\t data-neo-b-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"name"}]},{"type":"raw","value":"\">\r\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"tab","match":["tab"]},{"type":"Twig.expression.type.key.period","key":"getBodyHtml","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.variable","value":"id","match":["id"]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\t\t\t</div>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(10).twig,
@@ -2278,13 +2336,13 @@
 	module.exports = function(context) { return template.render(context); }
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(29);
+	var content = __webpack_require__(30);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(22)(content, {});
@@ -2304,7 +2362,7 @@
 	}
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(21)();
@@ -2312,7 +2370,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".ni_block {\n  margin-bottom: 10px;\n  border-radius: 3px;\n  border: 1px solid #ebebeb;\n  overflow: hidden; }\n  .ni_block_topbar {\n    display: flex;\n    height: 30px;\n    line-height: 30px;\n    background-color: #f1f3f4;\n    color: #8f98a3; }\n    .ni_block_topbar_item {\n      cursor: default;\n      padding: 0 8px;\n      -webkit-user-select: none;\n      -moz-user-select: none;\n      user-select: none; }\n      .ni_block_topbar_item + .ni_block_topbar_item {\n        padding-left: 0; }\n      .ni_block_topbar_item.size-full {\n        flex-grow: 1; }\n      .ni_block_topbar_item.tabs .tab {\n        display: block;\n        height: 30px;\n        padding: 0 10px;\n        float: left;\n        color: rgba(41, 50, 61, 0.5); }\n        .ni_block_topbar_item.tabs .tab:hover {\n          color: #0d78f2; }\n        .ni_block_topbar_item.tabs .tab.is-selected {\n          cursor: default;\n          border: 1px solid #ebebeb;\n          border-top: 0;\n          border-bottom-color: #fafafa;\n          margin-bottom: -1px;\n          background-color: #fafafa;\n          color: #576575; }\n      .ni_block_topbar_item > .status {\n        margin: 10px 5px 0 0; }\n      .ni_block_topbar_item > a {\n        color: rgba(41, 50, 61, 0.25); }\n        .ni_block_topbar_item > a:hover {\n          color: #0d78f2; }\n  .ni_block_content {\n    padding: 14px;\n    border-top: 1px solid #ebebeb;\n    background-color: #fafafa; }\n  .ni_block.is-contracted .ni_block_topbar_item.tabs {\n    display: none; }\n  .ni_block.is-contracted .ni_block_content {\n    display: none; }\n  .ni_block.is-disabled .ni_block_content > .field {\n    pointer-events: none;\n    opacity: 0.5;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    user-select: none; }\n", ""]);
+	exports.push([module.id, ".ni_block {\n  margin-bottom: 10px;\n  border-radius: 3px;\n  border: 1px solid #ebebeb;\n  overflow: hidden; }\n  .ni_block_topbar {\n    display: flex;\n    height: 30px;\n    line-height: 30px;\n    background-color: #f1f3f4;\n    color: #8f98a3; }\n    .ni_block_topbar_item {\n      cursor: default;\n      padding: 0 8px;\n      -webkit-user-select: none;\n      -moz-user-select: none;\n      user-select: none; }\n      .ni_block_topbar_item + .ni_block_topbar_item {\n        padding-left: 0; }\n      .ni_block_topbar_item.size-full {\n        flex-grow: 1; }\n      .ni_block_topbar_item.tabs .tab {\n        display: block;\n        height: 30px;\n        padding: 0 10px;\n        float: left;\n        color: rgba(41, 50, 61, 0.5); }\n        .ni_block_topbar_item.tabs .tab:hover {\n          color: #0d78f2; }\n        .ni_block_topbar_item.tabs .tab.is-selected {\n          cursor: default;\n          padding: 0 9px;\n          border: 1px solid #ebebeb;\n          border-top: 0;\n          border-bottom-color: #fafafa;\n          margin-bottom: -1px;\n          background-color: #fafafa;\n          color: #576575; }\n      .ni_block_topbar_item > .status {\n        margin: 10px 5px 0 0; }\n      .ni_block_topbar_item > a {\n        color: rgba(41, 50, 61, 0.25); }\n        .ni_block_topbar_item > a:hover {\n          color: #0d78f2; }\n  .ni_block_content {\n    padding: 14px;\n    border-top: 1px solid #ebebeb;\n    background-color: #fafafa; }\n    .ni_block_content_tab {\n      display: none; }\n      .ni_block_content_tab.is-selected {\n        display: block; }\n  .ni_block.is-contracted .ni_block_topbar_item.tabs {\n    display: none; }\n  .ni_block.is-contracted .ni_block_content {\n    display: none; }\n  .ni_block.is-disabled .ni_block_content_tab {\n    pointer-events: none;\n    opacity: 0.5;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    user-select: none; }\n", ""]);
 	
 	// exports
 

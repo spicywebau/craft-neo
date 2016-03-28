@@ -1,15 +1,12 @@
-import $ from 'jquery'
-import '../jquery-extensions'
-
 import Garnish from 'garnish'
-import Craft from 'craft'
+
+import Tab from './BlockTypeTab'
 
 const _defaults = {
 	name: '',
 	handle: '',
 	maxBlocks: 0,
-	bodyHtml: '',
-	footHtml: ''
+	tabs: []
 }
 
 export default Garnish.Base.extend({
@@ -21,31 +18,11 @@ export default Garnish.Base.extend({
 		this._name = settings.name
 		this._handle = settings.handle
 		this._maxBlocks = settings.maxBlocks|0
-		this._bodyHtml = settings.bodyHtml
-		this._footHtml = settings.footHtml
+		this._tabs = settings.tabs.map(tab => new Tab(tab))
 	},
 
 	getName() { return this._name },
 	getHandle() { return this._handle },
 	getMaxBlocks() { return this._maxBlocks },
-
-	getBodyHtml(blockId = null)
-	{
-		if(blockId !== null)
-		{
-			return this._bodyHtml.replace(/__BLOCK__/g, blockId)
-		}
-
-		return this._bodyHtml
-	},
-
-	getFootHtml(blockId = null)
-	{
-		if(blockId !== null)
-		{
-			return this._footHtml.replace(/__BLOCK__/g, blockId)
-		}
-
-		return this._footHtml
-	}
+	getTabs() { return Array.from(this._tabs) }
 })

@@ -33,6 +33,7 @@ export default Garnish.Base.extend({
 		const $input = $field.children('.field').children('.input')
 
 		this._templateNs = NS.parse(settings.namespace)
+		this._blockTypes = []
 
 		NS.enter(this._templateNs)
 

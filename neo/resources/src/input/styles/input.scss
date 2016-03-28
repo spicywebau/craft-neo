@@ -47,6 +47,7 @@
 
 						&.is-selected {
 							cursor: default;
+							padding: 0 9px;
 							border: 1px solid #ebebeb;
 							border-top: 0;
 							border-bottom-color: #fafafa;
@@ -75,6 +76,14 @@
 			padding: 14px;
 			border-top: 1px solid #ebebeb;
 			background-color: #fafafa;
+
+			&_tab {
+				display: none;
+
+				&.is-selected {
+					display: block;
+				}
+			}
 		}
 
 		&.is-contracted {
@@ -93,7 +102,7 @@
 
 		&.is-disabled {
 
-			.ni_block_content > .field {
+			.ni_block_content_tab {
 				pointer-events: none;
 				opacity: 0.5;
 				-webkit-user-select: none;
