@@ -12,7 +12,7 @@
 		<div class="ni_block_topbar_item size-full" data-neo-b="button.toggler">
 			<span data-neo-b="text.content"></span>
 		</div>
-		<div class="ni_block_topbar_item tabs">
+		<div class="ni_block_topbar_item tabs {{ type.getTabs()|length > 1 ? '' : 'hidden' }}">
 			{% for tab in type.getTabs() %}
 				<a class="tab {{ loop.first ? 'is-selected' : '' }}"
 				   data-neo-b="button.tab"
