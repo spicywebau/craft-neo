@@ -91,6 +91,10 @@
 				&.is-selected {
 					display: block;
 				}
+
+				> .field {
+					margin: 18px 0;
+				}
 			}
 		}
 
