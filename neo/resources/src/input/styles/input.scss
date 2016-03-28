@@ -35,7 +35,8 @@
 				-moz-user-select: none;
 				user-select: none;
 
-				+ .ni_block_topbar_item {
+				body.ltr &:not(:first-child),
+				body.rtl &:not(:last-child) {
 					padding-left: 0;
 				}
 
