@@ -135,8 +135,14 @@ export default Garnish.Base.extend({
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
 		block.on('addBlockAbove.input',   e => this['@addBlockAbove'](e))
 
+		this._destroyTempButtons()
 		this._updateButtons()
 		this._updateBlockOrder()
+
+		this.trigger('addBlock', {
+			block: block,
+			index: index
+		})
 	},
 
 	removeBlock(block)
@@ -148,7 +154,12 @@ export default Garnish.Base.extend({
 		this._blockSort.removeItems(block.$container)
 		this._blockSelect.removeItems(block.$container)
 
+		this._destroyTempButtons()
 		this._updateButtons()
+
+		this.trigger('removeBlock', {
+			block: block
+		})
 	},
 
 	getBlockByElement($block)
@@ -197,6 +208,11 @@ export default Garnish.Base.extend({
 		const blocks = this.getBlocks()
 
 		this._buttons.update(blocks)
+
+		if(this._tempButtons)
+		{
+			this._tempButtons.update(blocks)
+		}
 	},
 
 	_blockBatch(block, callback)
@@ -206,6 +222,16 @@ export default Garnish.Base.extend({
 		for(let b of blocks)
 		{
 			callback(b)
+		}
+	},
+
+	_destroyTempButtons()
+	{
+		if(this._tempButtons)
+		{
+			this._tempButtons.off('newBlock')
+			this._tempButtons.$container.remove()
+			this._tempButtons = null
 		}
 	},
 
@@ -223,10 +249,13 @@ export default Garnish.Base.extend({
 
 	'@addBlockAbove'(e)
 	{
+		this._destroyTempButtons()
+
 		const block = e.block
 		const buttons = new Buttons({
 			blockTypes: this.getBlockTypes(),
-			maxBlocks: this.getMaxBlocks()
+			maxBlocks: this.getMaxBlocks(),
+			blocks: this.getBlocks()
 		})
 
 		block.$container.before(buttons.$container)
@@ -236,9 +265,8 @@ export default Garnish.Base.extend({
 				blockType: e.blockType,
 				index: this._blocks.indexOf(block)
 			})
-
-			buttons.off('newBlock')
-			buttons.$container.remove()
 		})
+
+		this._tempButtons = buttons
 	}
 })
