@@ -287,11 +287,11 @@ class NeoFieldType extends BaseFieldType
 		}
 
 		$html = craft()->templates->render('neo/_fieldtype/input', array(
-			'id' => $id,
-			'name' => $name,
+			'id'         => $id,
+			'name'       => $name,
 			'blockTypes' => $settings->getBlockTypes(),
-			'blocks' => $value,
-			'static' => false
+			'blocks'     => $value,
+			'static'     => false
 		));
 
 		$blockTypeInfo = $this->_getBlockTypeInfoForInput($name);
@@ -300,17 +300,21 @@ class NeoFieldType extends BaseFieldType
 		foreach($value as $block)
 		{
 			$blockInfo[] = array(
-				'id' => $block->id,
+				'id'        => $block->id,
 				'blockType' => $block->getType()->handle,
+				'sortOrder' => $block->sortOrder,
+				'collapsed' => (bool) $block->collapsed,
+				'enabled'   => (bool) $block->enabled,
+				'tabs'      => $this->_getBlockHtml($block, $name),
 			);
 		}
 
 		$jsSettings = array(
-			'namespace' => craft()->templates->namespaceInputName($name),
+			'namespace'  => craft()->templates->namespaceInputName($name),
 			'blockTypes' => $blockTypeInfo,
-			'inputId' => craft()->templates->namespaceInputId($id),
-			'maxBlocks' => $settings->maxBlocks,
-			'blocks' => $blockInfo,
+			'inputId'    => craft()->templates->namespaceInputId($id),
+			'maxBlocks'  => $settings->maxBlocks,
+			'blocks'     => $blockInfo,
 		);
 
 		craft()->templates->includeJsResource('neo/dist/main.js');
@@ -599,21 +603,11 @@ class NeoFieldType extends BaseFieldType
 	{
 		$jsBlockTypes = array();
 
-		// Set a temporary namespace for these
-		$originalNamespace = craft()->templates->getNamespace();
-		$namespace = craft()->templates->namespaceInputName($name.'[__BLOCK__][fields]', $originalNamespace);
-		craft()->templates->setNamespace($namespace);
-
 		$settings = $this->getSettings();
 		$blockTypes = $settings->getBlockTypes();
 
 		foreach($blockTypes as $blockType)
 		{
-			$fieldLayout = $blockType->getFieldLayout();
-			$fieldLayoutTabs = $fieldLayout->getTabs();
-
-
-
 			// Create a fake Neo Block model so the field types have a way to get at the owner element, if there is one
 			$block = new Neo_BlockModel();
 			$block->fieldId = $this->model->id;
@@ -625,62 +619,80 @@ class NeoFieldType extends BaseFieldType
 				$block->locale = $this->element->locale;
 			}
 
-			$jsTabs = array();
-
-			foreach($fieldLayoutTabs as $fieldLayoutTab)
-			{
-				$jsTab = array(
-					'name' => Craft::t($fieldLayoutTab->name),
-					'bodyHtml' => '',
-					'footHtml' => '',
-				);
-
-				$fieldLayoutFields = $fieldLayoutTab->getFields();
-
-				foreach($fieldLayoutFields as $fieldLayoutField)
-				{
-					$fieldType = $fieldLayoutField->getField()->getFieldType();
-
-					if ($fieldType)
-					{
-						$fieldType->element = $block;
-						$fieldType->setIsFresh(true);
-					}
-				}
-
-				craft()->templates->startJsBuffer();
-
-				$jsTab['bodyHtml'] = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', array(
-					'namespace' => null,
-					'fields'    => $fieldLayoutFields
-				)));
-
-				// Reset $_isFresh's
-				foreach($fieldLayoutFields as $fieldLayoutField)
-				{
-					$fieldType = $fieldLayoutField->getField()->getFieldType();
-
-					if($fieldType)
-					{
-						$fieldType->setIsFresh(null);
-					}
-				}
-
-				$jsTab['footHtml'] = craft()->templates->clearJsBuffer();
-
-				$jsTabs[] = $jsTab;
-			}
-
 			$jsBlockTypes[] = array(
 				'handle'    => $blockType->handle,
 				'name'      => Craft::t($blockType->name),
 				'maxBlocks' => $blockType->maxBlocks,
-				'tabs'      => $jsTabs,
+				'tabs'      => $this->_getBlockTypeHtml($blockType, null, $name),
 			);
 		}
 
-		craft()->templates->setNamespace($originalNamespace);
-
 		return $jsBlockTypes;
+	}
+
+	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null)
+	{
+		$oldNamespace = craft()->templates->getNamespace();
+		$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
+		craft()->templates->setNamespace($newNamespace);
+
+		$tabsHtml = array();
+
+		$fieldLayout = $blockType->getFieldLayout();
+		$fieldLayoutTabs = $fieldLayout->getTabs();
+
+		foreach($fieldLayoutTabs as $fieldLayoutTab)
+		{
+			$tabHtml = array(
+				'name' => Craft::t($fieldLayoutTab->name),
+				'bodyHtml' => '',
+				'footHtml' => '',
+			);
+
+			$fieldLayoutFields = $fieldLayoutTab->getFields();
+
+			foreach($fieldLayoutFields as $fieldLayoutField)
+			{
+				$fieldType = $fieldLayoutField->getField()->getFieldType();
+
+				if ($fieldType)
+				{
+					$fieldType->element = $block;
+					$fieldType->setIsFresh(true);
+				}
+			}
+
+			craft()->templates->startJsBuffer();
+
+			$tabHtml['bodyHtml'] = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', array(
+				'namespace' => null,
+				'element'   => $block,
+				'fields'    => $fieldLayoutFields,
+			)));
+
+			// Reset $_isFresh's
+			foreach($fieldLayoutFields as $fieldLayoutField)
+			{
+				$fieldType = $fieldLayoutField->getField()->getFieldType();
+
+				if($fieldType)
+				{
+					$fieldType->setIsFresh(null);
+				}
+			}
+
+			$tabHtml['footHtml'] = craft()->templates->clearJsBuffer();
+
+			$tabsHtml[] = $tabHtml;
+		}
+
+		craft()->templates->setNamespace($oldNamespace);
+
+		return $tabsHtml;
+	}
+
+	private function _getBlockHtml(Neo_BlockModel $block, $namespace = null)
+	{
+		return $this->_getBlockTypeHtml($block->getType(), $block, $namespace);
 	}
 }

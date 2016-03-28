@@ -350,7 +350,7 @@ Craft.NeoInput = Garnish.Base.extend(
 	{
 		if (typeof html == 'string')
 		{
-			return html.replace(/__BLOCK__/g, id);
+			return html.replace(/__NEOBLOCK__/g, id);
 		}
 		else
 		{

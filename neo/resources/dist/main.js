@@ -1993,7 +1993,15 @@
 				for (var _iterator2 = settings.blocks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 					var bInfo = _step2.value;
 	
-					bInfo.blockType = this._blockTypes[bInfo.blockType];
+					var _blockType = this._blockTypes[bInfo.blockType];
+	
+					bInfo.namespace = [].concat(_toConsumableArray(this._templateNs), [bInfo.id]);
+					bInfo.blockType = new _BlockType2.default({
+						name: _blockType.getName(),
+						handle: _blockType.getHandle(),
+						maxBlocks: _blockType.getMaxBlocks(),
+						tabs: bInfo.tabs
+					});
 	
 					var block = new _Block2.default(bInfo);
 					this.addBlock(block);
@@ -2155,7 +2163,7 @@
 			var blockId = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 	
 			if (blockId !== null) {
-				return this._bodyHtml.replace(/__BLOCK__/g, blockId);
+				return this._bodyHtml.replace(/__NEOBLOCK__/g, blockId);
 			}
 	
 			return this._bodyHtml;
@@ -2164,7 +2172,7 @@
 			var blockId = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 	
 			if (blockId !== null) {
-				return this._footHtml.replace(/__BLOCK__/g, blockId);
+				return this._footHtml.replace(/__NEOBLOCK__/g, blockId);
 			}
 	
 			return this._footHtml;
@@ -2210,7 +2218,9 @@
 	var _defaults = {
 		namespace: [],
 		blockType: null,
-		id: null
+		id: null,
+		enabled: true,
+		collapsed: false
 	};
 	
 	exports.default = _garnish2.default.Base.extend({
@@ -2247,6 +2257,9 @@
 			this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]');
 			this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]');
 			this.$status = $neo.filter('[data-neo-b="status"]');
+	
+			this.toggleEnabled(settings.enabled);
+			this.toggleExpansion(!settings.collapsed);
 	
 			this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle');
 			this.addListener(this.$tabButton, 'click', '@setTab');

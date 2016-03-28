@@ -23,7 +23,7 @@ export default Garnish.Base.extend({
 	{
 		if(blockId !== null)
 		{
-			return this._bodyHtml.replace(/__BLOCK__/g, blockId)
+			return this._bodyHtml.replace(/__NEOBLOCK__/g, blockId)
 		}
 
 		return this._bodyHtml
@@ -33,7 +33,7 @@ export default Garnish.Base.extend({
 	{
 		if(blockId !== null)
 		{
-			return this._footHtml.replace(/__BLOCK__/g, blockId)
+			return this._footHtml.replace(/__NEOBLOCK__/g, blockId)
 		}
 
 		return this._footHtml

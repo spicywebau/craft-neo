@@ -88,7 +88,15 @@ export default Garnish.Base.extend({
 
 		for(let bInfo of settings.blocks)
 		{
-			bInfo.blockType = this._blockTypes[bInfo.blockType]
+			let blockType = this._blockTypes[bInfo.blockType]
+
+			bInfo.namespace = [...this._templateNs, bInfo.id]
+			bInfo.blockType = new BlockType({
+				name:      blockType.getName(),
+				handle:    blockType.getHandle(),
+				maxBlocks: blockType.getMaxBlocks(),
+				tabs:      bInfo.tabs
+			})
 
 			let block = new Block(bInfo)
 			this.addBlock(block)

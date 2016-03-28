@@ -12,7 +12,9 @@ import '../twig-extensions'
 const _defaults = {
 	namespace: [],
 	blockType: null,
-	id: null
+	id: null,
+	enabled: true,
+	collapsed: false
 }
 
 export default Garnish.Base.extend({
@@ -48,6 +50,9 @@ export default Garnish.Base.extend({
 		this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]')
 		this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
 		this.$status = $neo.filter('[data-neo-b="status"]')
+
+		this.toggleEnabled(settings.enabled)
+		this.toggleExpansion(!settings.collapsed)
 
 		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')

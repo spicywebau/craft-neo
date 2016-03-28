@@ -612,11 +612,11 @@ class NeoService extends BaseApplicationComponent
 		if (!craft()->isConsole())
 		{
 			// Tell the browser to forget about these
-			craft()->userSession->addJsResourceFlash('js/NeoInput.js');
+			// craft()->userSession->addJsResourceFlash('js/NeoInput.js');
 
 			foreach ($blockIds as $blockId)
 			{
-				craft()->userSession->addJsFlash('Craft.NeoInput.forgetCollapsedBlockId('.$blockId.');');
+				// craft()->userSession->addJsFlash('Craft.NeoInput.forgetCollapsedBlockId('.$blockId.');');
 			}
 		}
 
