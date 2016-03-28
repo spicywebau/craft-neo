@@ -162,7 +162,7 @@ export default Garnish.Base.extend({
 	{
 		if(!this.isNew())
 		{
-			Craft.postActionRequest('neo/saveExpansion', {
+			Craft.queueActionRequest('neo/saveExpansion', {
 				expanded: this.isExpanded(),
 				blockId: this.getId()
 			})
@@ -239,6 +239,12 @@ export default Garnish.Base.extend({
 			                 this.collapse() ; break
 			case 'enable':   this.enable()   ; break
 			case 'delete':   this.destroy()  ; break
+
+			case 'add':
+				this.trigger('addBlockAbove', {
+					block: this
+				})
+				break
 		}
 	},
 

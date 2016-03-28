@@ -58,8 +58,8 @@ export default Garnish.Base.extend({
 		this.$buttonsContainer = $neo.filter('[data-neo="container.buttons"]')
 
 		this._buttons = new Buttons({
-			blockTypes: this._blockTypes,
-			maxBlocks: this._maxBlocks
+			blockTypes: this.getBlockTypes(),
+			maxBlocks: this.getMaxBlocks()
 		})
 
 		this.$buttonsContainer.append(this._buttons.$container)
@@ -117,13 +117,13 @@ export default Garnish.Base.extend({
 	{
 		if(index >= 0 && index < this._blocks.length)
 		{
-			this._blocks = this._blocks.splice(index, 0, block)
-			block.$container.insertAt(index, this.$blocksContainer)
+			this._blocks[index].$container.before(block.$container)
+			this._blocks.splice(index, 0, block)
 		}
 		else
 		{
-			this._blocks.push(block)
 			this.$blocksContainer.append(block.$container)
+			this._blocks.push(block)
 		}
 
 		this._blockSort.addItems(block.$container)
@@ -133,8 +133,9 @@ export default Garnish.Base.extend({
 		block.on('destroy.input',         e => this._blockBatch(block, b => this.removeBlock(b)))
 		block.on('toggleEnabled.input',   e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
+		block.on('addBlockAbove.input',   e => this['@addBlockAbove'](e))
 
-		this._buttons.update(this.getBlocks())
+		this._updateButtons()
 		this._updateBlockOrder()
 	},
 
@@ -147,7 +148,7 @@ export default Garnish.Base.extend({
 		this._blockSort.removeItems(block.$container)
 		this._blockSelect.removeItems(block.$container)
 
-		this._buttons.update(this.getBlocks())
+		this._updateButtons()
 	},
 
 	getBlockByElement($block)
@@ -158,6 +159,16 @@ export default Garnish.Base.extend({
 	getBlocks()
 	{
 		return Array.from(this._blocks)
+	},
+
+	getBlockTypes()
+	{
+		return Array.from(this._blockTypes)
+	},
+
+	getMaxBlocks()
+	{
+		return this._maxBlocks
 	},
 
 	getSelectedBlocks()
@@ -181,6 +192,13 @@ export default Garnish.Base.extend({
 		this._blocks = blocks
 	},
 
+	_updateButtons()
+	{
+		const blocks = this.getBlocks()
+
+		this._buttons.update(blocks)
+	},
+
 	_blockBatch(block, callback)
 	{
 		const blocks = block.isSelected() ? this.getSelectedBlocks() : [block]
@@ -193,15 +211,34 @@ export default Garnish.Base.extend({
 
 	'@newBlock'(e)
 	{
-		const blockType = e.blockType
 		const blockId = Block.getNewId()
-
 		const block = new Block({
 			namespace: [...this._templateNs, blockId],
-			blockType: blockType,
+			blockType: e.blockType,
 			id: blockId
 		})
 
-		this.addBlock(block)
+		this.addBlock(block, e.index)
+	},
+
+	'@addBlockAbove'(e)
+	{
+		const block = e.block
+		const buttons = new Buttons({
+			blockTypes: this.getBlockTypes(),
+			maxBlocks: this.getMaxBlocks()
+		})
+
+		block.$container.before(buttons.$container)
+		buttons.on('newBlock', e =>
+		{
+			this['@newBlock']({
+				blockType: e.blockType,
+				index: this._blocks.indexOf(block)
+			})
+
+			buttons.off('newBlock')
+			buttons.$container.remove()
+		})
 	}
 })

@@ -4,6 +4,13 @@
 
 .ni {
 
+	&_blocks {
+
+		> .ni_buttons {
+			margin-bottom: 10px;
+		}
+	}
+
 	&_block {
 		margin-bottom: 10px;
 		border-radius: 3px;

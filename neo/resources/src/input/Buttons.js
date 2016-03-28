@@ -9,7 +9,8 @@ import '../twig-extensions'
 
 const _defaults = {
 	blockTypes: [],
-	maxBlocks: 0
+	maxBlocks: 0,
+	blocks: null
 }
 
 export default Garnish.Base.extend({
@@ -31,6 +32,11 @@ export default Garnish.Base.extend({
 
 		const $neo = this.$container.find('[data-neo-bn]')
 		this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]')
+
+		if(settings.blocks)
+		{
+			this.update(settings.blocks)
+		}
 
 		this.addListener(this.$blockButtons, 'activate', '@newBlock')
 	},

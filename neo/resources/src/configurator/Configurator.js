@@ -104,7 +104,7 @@ export default Garnish.Base.extend({
 
 		if(index >= 0 && index < this._blockTypes.length)
 		{
-			this._blockTypes = this._blockTypes.splice(index, 0, blockType)
+			this._blockTypes.splice(index, 0, blockType)
 			blockType.$container.insertAt(index, this.$blockTypesContainer)
 		}
 		else
