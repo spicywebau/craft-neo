@@ -20,10 +20,10 @@ Neo is currently in alpha, so feel free to try it out! Keep in mind that breakin
 
 ### Feature checklist
 
-- [x] Using existing fields
-- [x] Tabbed field sections
+- [x] ~~Using existing fields~~
+- [x] ~~Tabbed field sections~~
 - [ ] Block type groups
-- [x] Block type max count
+- [x] ~~Block type max count~~
 - [ ] Block hierarchy
 - [ ] Reasons support
 - [ ] Relabel support
