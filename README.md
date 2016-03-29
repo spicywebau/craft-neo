@@ -3,6 +3,8 @@
 
 Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the concept of the [Matrix field type](https://craftcms.com/features/matrix) with a bunch of cool new features. Neo is built from the ground up, and in the classic style of Craft, so as to feel like it's native to the core product.
 
+![Configurator screenshot](demo/configurator-screenshot.png)
+
 ## Features
 
 - **Use existing fields for your block types**
