@@ -1,6 +1,9 @@
 .neo-configurator > .field > .input {
 	display: flex;
 	min-height: 400px;
+	overflow: hidden;
+	border-radius: 3px;
+	border: 1px solid #ebebeb;
 }
 
 [data-neo='template.fld'] {
@@ -11,7 +14,7 @@
 
 	&_sidebar {
 		width: 200px;
-		border: 1px solid #ebebeb;
+		border-right: 1px solid #ebebeb;
 		background-color: #fafafa;
 
 		&_title {
@@ -92,8 +95,6 @@
 	&_main {
 		flex-grow: 1;
 		flex-shrink: 20; // Fixes weird layout bug when switching tabs
-		border: 1px solid #ebebeb;
-		border-left: 0;
 
 		&_tabs {
 			display: flex;
