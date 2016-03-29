@@ -82,6 +82,7 @@
 			instructions: "What this block type will be called in the CP."|t,
 			required: true,
 			value: name,
+			errors: errors.name,
 			attributes: {
 				'data-neo-bts': 'input.name'
 			}
@@ -95,6 +96,7 @@
 			required: true,
 			class: 'code',
 			value: handle,
+			errors: errors.handle,
 			attributes: {
 				'data-neo-bts': 'input.handle'
 			}
@@ -107,6 +109,7 @@
 			instructions: "The maximum number of blocks of this type the field is allowed to have."|t,
 			fullWidth: false,
 			value: maxBlocks > 0 ? maxBlocks : null,
+			errors: errors.maxBlocks,
 			attributes: {
 				min: 0,
 				style: 'width: 80px;',
