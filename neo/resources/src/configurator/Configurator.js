@@ -9,6 +9,8 @@ import NS from '../namespace'
 import BlockType from './BlockType'
 import BlockTypeSettings from './BlockTypeSettings'
 import BlockTypeFieldLayout from './BlockTypeFieldLayout'
+import Group from './Group'
+import GroupSettings from './GroupSettings'
 
 import renderTemplate from './templates/configurator.twig'
 import '../twig-extensions'
@@ -57,7 +59,7 @@ export default Garnish.Base.extend({
 
 		this._itemSort = new Garnish.DragSort(null, {
 			container: this.$blockTypeItemsContainer,
-			handle: '[data-neo-bt="button.move"]',
+			handle: '[data-neo-bt="button.move"], [data-neo-g="button.move"]',
 			axis: 'y',
 			onSortChange: () => this._updateItemOrder()
 		})
@@ -154,7 +156,7 @@ export default Garnish.Base.extend({
 
 		this._updateItemOrder()
 
-		if(this._blockTypes.length === 0)
+		if(this._getItemCount() === 0)
 		{
 			this.$mainContainer.addClass('hidden')
 		}
@@ -177,13 +179,110 @@ export default Garnish.Base.extend({
 		})
 	},
 
-	selectBlockType(blockType, focusFirstInput = true)
+	selectBlockType(blockType, focusFirstInput)
 	{
-		const settings = blockType.getSettings()
+		focusFirstInput = typeof focusFirstInput === 'boolean' ? focusFirstInput : true
+
+		const settings = blockType ? blockType.getSettings() : null
 
 		for(let bt of this._blockTypes)
 		{
 			bt.toggleSelect(bt === blockType)
+		}
+
+		if(blockType)
+		{
+			this.selectGroup(null)
+		}
+
+		if(focusFirstInput && settings && !Garnish.isMobileBrowser())
+		{
+			setTimeout(() => settings.$nameInput.focus(), 100)
+		}
+	},
+
+	addGroup(group, index = -1)
+	{
+		const settings = group.getSettings()
+
+		if(index >= 0 && index < this._getItemCount())
+		{
+			group.$container.insertAt(index, this.$blockTypesContainer)
+		}
+		else
+		{
+			this.$blockTypesContainer.append(group.$container)
+		}
+
+		this._itemSort.addItems(group.$container);
+
+		if(settings) this.$settingsContainer.append(settings.$container)
+
+		this.$mainContainer.removeClass('hidden')
+
+		this.addListener(group.$container, 'click', '@selectGroup')
+		group.on('delete.configurator', () => this.removeGroup(group))
+
+		this._groups.push(group)
+		this._updateItemOrder()
+
+		this.trigger('addGroup', {
+			group: group,
+			index: index
+		})
+	},
+
+	removeGroup(group)
+	{
+		const settings = group.getSettings()
+
+		this._itemSort.removeItems(group.$container);
+
+		group.$container.remove()
+		if(settings) settings.$container.remove()
+
+		this.removeListener(group.$container, 'click')
+		group.off('delete.configurator')
+
+		this._updateItemOrder()
+
+		if(this._getItemCount() === 0)
+		{
+			this.$mainContainer.addClass('hidden')
+		}
+
+		this.trigger('removeGroup', {
+			group: group
+		})
+	},
+
+	getGroups()
+	{
+		return Array.from(this._groups)
+	},
+
+	getGroupByElement($element)
+	{
+		return this._groups.find(group =>
+		{
+			return group.$container.is($element)
+		})
+	},
+
+	selectGroup(group, focusFirstInput)
+	{
+		focusFirstInput = typeof focusFirstInput === 'boolean' ? focusFirstInput : true
+
+		const settings = group ? group.getSettings() : null
+
+		for(let g of this._groups)
+		{
+			g.toggleSelect(g === group)
+		}
+
+		if(group)
+		{
+			this.selectBlockType(null)
 		}
 
 		if(focusFirstInput && settings && !Garnish.isMobileBrowser())
@@ -209,18 +308,31 @@ export default Garnish.Base.extend({
 	_updateItemOrder()
 	{
 		const blockTypes = []
+		const groups = []
 
 		this._itemSort.$items.each((index, element) =>
 		{
 			const blockType = this.getBlockTypeByElement(element)
-			const settings = blockType.getSettings()
+			const group = this.getGroupByElement(element)
 
-			if(settings) settings.setSortOrder(index + 1)
+			if(blockType)
+			{
+				const settings = blockType.getSettings()
+				if(settings) settings.setSortOrder(index + 1)
 
-			blockTypes.push(blockType)
+				blockTypes.push(blockType)
+			}
+			else if(group)
+			{
+				const settings = group.getSettings()
+				if(settings) settings.setSortOrder(index + 1)
+
+				groups.push(group)
+			}
 		})
 
 		this._blockTypes = blockTypes
+		this._groups = groups
 	},
 
 	'@newBlockType'()
@@ -230,7 +342,7 @@ export default Garnish.Base.extend({
 
 		const settings = new BlockTypeSettings({
 			namespace: [...namespace, id],
-			sortOrder: this._blockTypes.length,
+			sortOrder: this._getItemCount(),
 			id: id
 		})
 
@@ -250,7 +362,20 @@ export default Garnish.Base.extend({
 
 	'@newGroup'()
 	{
-		// TODO
+		const namespace = [...this._templateNs, 'groups']
+
+		const settings = new GroupSettings({
+			namespace: [...namespace, ''],
+			sortOrder: this._getItemCount()
+		})
+
+		const group = new Group({
+			namespace: namespace,
+			settings: settings
+		})
+
+		this.addGroup(group)
+		this.selectGroup(group)
 	},
 
 	'@selectBlockType'(e)
@@ -258,5 +383,12 @@ export default Garnish.Base.extend({
 		const blockType = this.getBlockTypeByElement(e.currentTarget)
 
 		this.selectBlockType(blockType)
+	},
+
+	'@selectGroup'(e)
+	{
+		const group = this.getGroupByElement(e.currentTarget)
+
+		this.selectGroup(group)
 	}
 })
