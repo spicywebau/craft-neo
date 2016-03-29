@@ -1994,6 +1994,7 @@
 			this._buttons.on('newBlock', function (e) {
 				return _this['@newBlock'](e);
 			});
+			this._buttons.initUi();
 	
 			this._blockSort = new _garnish2.default.DragSort(null, {
 				container: this.$blocksContainer,
@@ -2159,10 +2160,10 @@
 		_updateButtons: function _updateButtons() {
 			var blocks = this.getBlocks();
 	
-			this._buttons.update(blocks);
+			this._buttons.updateButtonStates(blocks);
 	
 			if (this._tempButtons) {
-				this._tempButtons.update(blocks);
+				this._tempButtons.updateButtonStates(blocks);
 			}
 		},
 		_blockBatch: function _blockBatch(block, callback) {
@@ -2229,6 +2230,8 @@
 					index: _this4._blocks.indexOf(block)
 				});
 			});
+	
+			buttons.initUi();
 	
 			this._tempButtons = buttons;
 		}
@@ -2666,6 +2669,8 @@
 		_maxBlocks: 0,
 	
 		init: function init() {
+			var _this = this;
+	
 			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	
 			settings = Object.assign({}, _defaults, settings);
@@ -2679,15 +2684,24 @@
 			}));
 	
 			var $neo = this.$container.find('[data-neo-bn]');
+			this.$buttonsContainer = $neo.filter('[data-neo-bn="container.buttons"]');
+			this.$menuContainer = $neo.filter('[data-neo-bn="container.menu"]');
 			this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]');
 	
 			if (settings.blocks) {
-				this.update(settings.blocks);
+				this.updateButtonStates(settings.blocks);
 			}
 	
 			this.addListener(this.$blockButtons, 'activate', '@newBlock');
+			this.addListener(this.$container, 'resize', function () {
+				return _this.updateResponsiveness();
+			});
 		},
-		update: function update() {
+		initUi: function initUi() {
+			_craft2.default.initUiElements(this.$container);
+			this.updateResponsiveness();
+		},
+		updateButtonStates: function updateButtonStates() {
 			var blocks = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 	
 			var that = this;
@@ -2711,6 +2725,16 @@
 	
 				$button.toggleClass('disabled', disabled);
 			});
+		},
+		updateResponsiveness: function updateResponsiveness() {
+			if (!this._buttonsContainerWidth) {
+				this._buttonsContainerWidth = this.$buttonsContainer.width();
+			}
+	
+			var isMobile = this.$container.width() < this._buttonsContainerWidth;
+	
+			this.$buttonsContainer.toggleClass('hidden', isMobile);
+			this.$menuContainer.toggleClass('hidden', !isMobile);
 		},
 		getBlockTypeByButton: function getBlockTypeByButton($button) {
 			var btHandle = $button.attr('data-neo-bn-info');
@@ -2737,7 +2761,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(10).twig,
-	    template = twig({id:"/Applications/AMPPS/www/craft-neo/craft/plugins/neo/resources/src/input/templates/buttons.twig", data:[{"type":"raw","value":"<div class=\"ni_buttons\">\n\t<div class=\"btngroup\">\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"blockType","expression":[{"type":"Twig.expression.type.variable","value":"blockTypes","match":["blockTypes"]}],"output":[{"type":"raw","value":"\t\t\t<div class=\"btn"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"}],"output":[{"type":"raw","value":" add icon"}]}},{"type":"raw","value":"\"\n\t\t\t\t data-neo-bn=\"button.addBlock\"\n\t\t\t\t data-neo-bn-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\n\t\t\t</div>\n\t\t"}]}},{"type":"raw","value":"\t</div>\n</div>\n"}], allowInlineIncludes: true});
+	    template = twig({id:"/Applications/AMPPS/www/craft-neo/craft/plugins/neo/resources/src/input/templates/buttons.twig", data:[{"type":"raw","value":"<div class=\"ni_buttons\">\n\t<div class=\"btngroup\"\n\t     data-neo-bn=\"container.buttons\">\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"blockType","expression":[{"type":"Twig.expression.type.variable","value":"blockTypes","match":["blockTypes"]}],"output":[{"type":"raw","value":"\t\t\t<div class=\"btn"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"}],"output":[{"type":"raw","value":" add icon"}]}},{"type":"raw","value":"\"\n\t\t\t\t data-neo-bn=\"button.addBlock\"\n\t\t\t\t data-neo-bn-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\n\t\t\t</div>\n\t\t"}]}},{"type":"raw","value":"\t</div>\n\t<div class=\"btn add icon menubtn hidden\"\n\t     data-neo-bn=\"container.menu\">\n\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Add a block"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\n\t</div>\n\t<div class=\"menu\">\n\t\t<ul>\n\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"blockType","expression":[{"type":"Twig.expression.type.variable","value":"blockTypes","match":["blockTypes"]}],"output":[{"type":"raw","value":"\t\t\t\t<li>\n\t\t\t\t\t<a data-neo-bn=\"button.addBlock\"\n\t\t\t\t\t   data-neo-bn-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\n\t\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t"}]}},{"type":"raw","value":"\t\t</ul>\n\t</div>\n</div>\n"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 

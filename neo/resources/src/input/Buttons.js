@@ -31,17 +31,26 @@ export default Garnish.Base.extend({
 		}))
 
 		const $neo = this.$container.find('[data-neo-bn]')
+		this.$buttonsContainer = $neo.filter('[data-neo-bn="container.buttons"]')
+		this.$menuContainer = $neo.filter('[data-neo-bn="container.menu"]')
 		this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]')
 
 		if(settings.blocks)
 		{
-			this.update(settings.blocks)
+			this.updateButtonStates(settings.blocks)
 		}
 
 		this.addListener(this.$blockButtons, 'activate', '@newBlock')
+		this.addListener(this.$container, 'resize', () => this.updateResponsiveness());
 	},
 
-	update(blocks = [])
+	initUi()
+	{
+		Craft.initUiElements(this.$container)
+		this.updateResponsiveness()
+	},
+
+	updateButtonStates(blocks = [])
 	{
 		const that = this
 		const allDisabled = (this._maxBlocks > 0 && blocks.length >= this._maxBlocks)
@@ -62,6 +71,19 @@ export default Garnish.Base.extend({
 
 			$button.toggleClass('disabled', disabled)
 		})
+	},
+
+	updateResponsiveness()
+	{
+		if(!this._buttonsContainerWidth)
+		{
+			this._buttonsContainerWidth = this.$buttonsContainer.width()
+		}
+
+		const isMobile = (this.$container.width() < this._buttonsContainerWidth)
+
+		this.$buttonsContainer.toggleClass('hidden', isMobile)
+		this.$menuContainer.toggleClass('hidden', !isMobile)
 	},
 
 	getBlockTypeByButton($button)

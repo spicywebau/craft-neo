@@ -64,6 +64,7 @@ export default Garnish.Base.extend({
 
 		this.$buttonsContainer.append(this._buttons.$container)
 		this._buttons.on('newBlock', e => this['@newBlock'](e))
+		this._buttons.initUi()
 
 		this._blockSort = new Garnish.DragSort(null, {
 			container: this.$blocksContainer,
@@ -207,11 +208,11 @@ export default Garnish.Base.extend({
 	{
 		const blocks = this.getBlocks()
 
-		this._buttons.update(blocks)
+		this._buttons.updateButtonStates(blocks)
 
 		if(this._tempButtons)
 		{
-			this._tempButtons.update(blocks)
+			this._tempButtons.updateButtonStates(blocks)
 		}
 	},
 
@@ -266,6 +267,8 @@ export default Garnish.Base.extend({
 				index: this._blocks.indexOf(block)
 			})
 		})
+
+		buttons.initUi()
 
 		this._tempButtons = buttons
 	}

@@ -1,5 +1,6 @@
 <div class="ni_buttons">
-	<div class="btngroup">
+	<div class="btngroup"
+	     data-neo-bn="container.buttons">
 		{% for blockType in blockTypes %}
 			<div class="btn{% if loop.first %} add icon{% endif %}"
 				 data-neo-bn="button.addBlock"
@@ -7,5 +8,21 @@
 				{{ blockType.getName()|t }}
 			</div>
 		{% endfor %}
+	</div>
+	<div class="btn add icon menubtn hidden"
+	     data-neo-bn="container.menu">
+		{{ "Add a block"|t }}
+	</div>
+	<div class="menu">
+		<ul>
+			{% for blockType in blockTypes %}
+				<li>
+					<a data-neo-bn="button.addBlock"
+					   data-neo-bn-info="{{ blockType.getHandle() }}">
+						{{ blockType.getName()|t }}
+					</a>
+				</li>
+			{% endfor %}
+		</ul>
 	</div>
 </div>
