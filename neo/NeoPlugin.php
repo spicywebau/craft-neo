@@ -17,7 +17,7 @@ class NeoPlugin extends BasePlugin
 
 	function getDescription()
 	{
-		return Craft::t("A Matrix-like field type that groups existing fields");
+		return Craft::t("A Matrix-like field type that uses existing fields");
 	}
 
 	function getVersion()
