@@ -20,7 +20,6 @@ const _defaults = {
 export default Garnish.Base.extend({
 
 	_templateNs: [],
-	_parsed: false,
 	_selected: false,
 
 	init(settings = {})
