@@ -5,6 +5,8 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
+import Settings from './Settings'
+
 import renderTemplate from './templates/blocktype_settings.twig'
 import '../twig-extensions'
 
@@ -19,7 +21,7 @@ const _defaults = {
 	errors: {}
 }
 
-export default Garnish.Base.extend({
+export default Settings.extend({
 
 	_templateNs: [],
 
@@ -84,19 +86,11 @@ export default Garnish.Base.extend({
 		return this._errors
 	},
 
-	getSortOrder() { return this._sortOrder },
 	setSortOrder(sortOrder)
 	{
-		const oldSortOrder = this._sortOrder
-		this._sortOrder = sortOrder|0
+		this.base(sortOrder)
 
-		this.$sortOrderInput.val(this._sortOrder)
-
-		this.trigger('change', {
-			property: 'sortOrder',
-			oldValue: oldSortOrder,
-			newValue: this._sortOrder
-		})
+		this.$sortOrderInput.val(this.getSortOrder())
 	},
 
 	getName() { return this._name },

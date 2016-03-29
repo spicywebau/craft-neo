@@ -5,6 +5,7 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
+import Item from './Item'
 import Settings from './BlockTypeSettings'
 import FieldLayout from './BlockTypeFieldLayout'
 
@@ -17,10 +18,9 @@ const _defaults = {
 	fieldLayout: null
 }
 
-export default Garnish.Base.extend({
+export default Item.extend({
 
 	_templateNs: [],
-	_selected: false,
 
 	init(settings = {})
 	{
@@ -62,36 +62,23 @@ export default Garnish.Base.extend({
 		return this._fieldLayout
 	},
 
-	select()
-	{
-		this.toggleSelect(true)
-	},
-
-	deselect()
-	{
-		this.toggleSelect(false)
-	},
-
 	toggleSelect: function(select)
 	{
-		this._selected = (typeof select === 'boolean' ? select : !this._selected)
+		this.base(select)
+
+		const selected = this.isSelected()
 
 		if(this._settings)
 		{
-			this._settings.$container.toggleClass('hidden', !this._selected)
+			this._settings.$container.toggleClass('hidden', !selected)
 		}
 
 		if(this._fieldLayout)
 		{
-			this._fieldLayout.$container.toggleClass('hidden', !this._selected)
+			this._fieldLayout.$container.toggleClass('hidden', !selected)
 		}
 
-		this.$container.toggleClass('is-selected', this._selected)
-	},
-
-	isSelected()
-	{
-		return this._selected
+		this.$container.toggleClass('is-selected', selected)
 	},
 
 	_updateTemplate()

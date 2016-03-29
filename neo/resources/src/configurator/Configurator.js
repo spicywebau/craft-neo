@@ -23,6 +23,7 @@ export default Garnish.Base.extend({
 
 	_templateNs: [],
 	_blockTypes: [],
+	_groups: [],
 
 	init(settings = {})
 	{
@@ -34,6 +35,7 @@ export default Garnish.Base.extend({
 
 		this._templateNs = NS.parse(settings.namespace)
 		this._blockTypes = []
+		this._groups = []
 
 		NS.enter(this._templateNs)
 
@@ -53,11 +55,11 @@ export default Garnish.Base.extend({
 		this.$settingsButton = $neo.filter('[data-neo="button.settings"]')
 		this.$fieldLayoutButton = $neo.filter('[data-neo="button.fieldLayout"]')
 
-		this._blockTypeSort = new Garnish.DragSort(null, {
+		this._itemSort = new Garnish.DragSort(null, {
 			container: this.$blockTypeItemsContainer,
 			handle: '[data-neo-bt="button.move"]',
 			axis: 'y',
-			onSortChange: () => this._updateBlockTypeOrder()
+			onSortChange: () => this._updateItemOrder()
 		})
 
 		// Add the existing block types
@@ -102,18 +104,16 @@ export default Garnish.Base.extend({
 		const settings = blockType.getSettings()
 		const fieldLayout = blockType.getFieldLayout()
 
-		if(index >= 0 && index < this._blockTypes.length)
+		if(index >= 0 && index < this._getItemCount())
 		{
-			this._blockTypes.splice(index, 0, blockType)
 			blockType.$container.insertAt(index, this.$blockTypesContainer)
 		}
 		else
 		{
-			this._blockTypes.push(blockType)
 			this.$blockTypesContainer.append(blockType.$container)
 		}
 
-		this._blockTypeSort.addItems(blockType.$container);
+		this._itemSort.addItems(blockType.$container);
 
 		if(settings) this.$settingsContainer.append(settings.$container)
 		if(fieldLayout) this.$fieldLayoutContainer.append(fieldLayout.$container)
@@ -129,7 +129,8 @@ export default Garnish.Base.extend({
 			}
 		})
 
-		this._updateBlockTypeOrder()
+		this._blockTypes.push(blockType)
+		this._updateItemOrder()
 
 		this.trigger('addBlockType', {
 			blockType: blockType,
@@ -142,23 +143,21 @@ export default Garnish.Base.extend({
 		const settings = blockType.getSettings()
 		const fieldLayout = blockType.getFieldLayout()
 
-		this._blockTypes = this._blockTypes.filter(b => b !== blockType)
-
-		this._blockTypeSort.removeItems(blockType.$container);
+		this._itemSort.removeItems(blockType.$container);
 
 		blockType.$container.remove()
 		if(settings) settings.$container.remove()
 		if(fieldLayout) fieldLayout.$container.remove()
 
+		this.removeListener(blockType.$container, 'click')
+		blockType.off('delete.configurator')
+
+		this._updateItemOrder()
+
 		if(this._blockTypes.length === 0)
 		{
 			this.$mainContainer.addClass('hidden')
 		}
-
-		this.removeListener(blockType.$container, 'click')
-		blockType.off('delete.configurator')
-
-		this._updateBlockTypeOrder()
 
 		this.trigger('removeBlockType', {
 			blockType: blockType
@@ -202,11 +201,16 @@ export default Garnish.Base.extend({
 		this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout')
 	},
 
-	_updateBlockTypeOrder()
+	_getItemCount()
+	{
+		return this._blockTypes.length + this._groups.length
+	},
+
+	_updateItemOrder()
 	{
 		const blockTypes = []
 
-		this._blockTypeSort.$items.each((index, element) =>
+		this._itemSort.$items.each((index, element) =>
 		{
 			const blockType = this.getBlockTypeByElement(element)
 			const settings = blockType.getSettings()
