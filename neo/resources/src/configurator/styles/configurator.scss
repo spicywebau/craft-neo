@@ -1,9 +1,6 @@
 .neo-configurator > .field > .input {
 	display: flex;
 	min-height: 400px;
-	overflow: hidden;
-	border-radius: 3px;
-	border: 1px solid #ebebeb;
 }
 
 [data-neo='template.fld'] {
@@ -14,11 +11,14 @@
 
 	&_sidebar {
 		width: 200px;
-		border-right: 1px solid #ebebeb;
+		border-top-left-radius: 3px;
+		border-bottom-left-radius: 3px;
+		border: 1px solid #ebebeb;
 		background-color: #fafafa;
 
 		&_title {
 			padding: 10px 24px;
+			border-top-left-radius: 3px;
 			border-bottom: 1px solid #ebebeb;
 			background-image: linear-gradient(#f7f7f8, #f4f5f6);
 			color: #8f98a3;
@@ -67,6 +67,21 @@
 					background-color: #ececec;
 				}
 
+				&.has-errors {
+					z-index: 2;
+					border-color: #efc7c7;
+					background-color: #f9e0e0;
+
+					> .label {
+						color: #da5a47;
+					}
+
+					&.is-selected {
+						border-color: #e1bbbb;
+						background-color: #efc7c7;
+					}
+				}
+
 				&.type-heading {
 					margin-top: 10px;
 
@@ -95,9 +110,14 @@
 	&_main {
 		flex-grow: 1;
 		flex-shrink: 20; // Fixes weird layout bug when switching tabs
+		border-top-right-radius: 3px;
+		border-bottom-right-radius: 3px;
+		border: 1px solid #ebebeb;
+		border-left: 0;
 
 		&_tabs {
 			display: flex;
+			border-top-right-radius: 3px;
 			border-bottom: 1px solid #ebebeb;
 			background-image: linear-gradient(#f7f7f8, #f4f5f6);
 

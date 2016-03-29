@@ -16,7 +16,7 @@ const _defaults = {
 	handle: '',
 	maxBlocks: 0,
 	childBlocks: null,
-	errors: []
+	errors: {}
 }
 
 export default Garnish.Base.extend({
@@ -81,7 +81,7 @@ export default Garnish.Base.extend({
 
 	getErrors()
 	{
-		return Array.from(this._errors)
+		return this._errors
 	},
 
 	getSortOrder() { return this._sortOrder },

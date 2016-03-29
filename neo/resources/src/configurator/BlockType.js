@@ -53,11 +53,6 @@ export default Garnish.Base.extend({
 		this.deselect()
 	},
 
-	getErrors()
-	{
-		return Array.from(this._errors)
-	},
-
 	getSettings()
 	{
 		return this._settings
