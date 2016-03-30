@@ -1805,6 +1805,8 @@
 					return _this.trigger('destroy');
 				});
 			}
+	
+			this.deselect();
 		},
 	
 	

@@ -45,6 +45,8 @@ export default Item.extend({
 			settingsObj.on('change', () => this._updateTemplate())
 			settingsObj.on('destroy', () => this.trigger('destroy'))
 		}
+
+		this.deselect()
 	},
 
 	toggleSelect: function(select)
