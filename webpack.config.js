@@ -1,3 +1,4 @@
+var webpack = require('webpack')
 var path = require('path')
 
 module.exports = {
@@ -12,6 +13,13 @@ module.exports = {
 		craft: 'Craft',
 		garnish: 'Garnish'
 	},
+	plugins: [
+		new webpack.optimize.UglifyJsPlugin({
+			compress: {
+				warnings: false
+			}
+		})
+	],
 	module: {
 		loaders: [
 			{
