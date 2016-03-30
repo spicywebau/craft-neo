@@ -309,6 +309,13 @@ class NeoFieldType extends BaseFieldType
 	{
 		$id = craft()->templates->formatInputId($name);
 		$settings = $this->getSettings();
+		$namespace = craft()->templates->getNamespace();
+		$namespaceSize = substr_count($namespace, '[') + 1;
+
+		if($namespaceSize > 1)
+		{
+			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
+		}
 
 		if ($value instanceof ElementCriteriaModel)
 		{
@@ -316,6 +323,11 @@ class NeoFieldType extends BaseFieldType
 			$value->status = null;
 			$value->localeEnabled = null;
 		}
+		else if(!$value)
+		{
+			$value = array();
+		}
+
 
 		$html = craft()->templates->render('neo/_fieldtype/input', array(
 			'id'         => $id,
