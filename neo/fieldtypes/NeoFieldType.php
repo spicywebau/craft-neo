@@ -93,20 +93,20 @@ class NeoFieldType extends BaseFieldType
 			);
 		}
 
-		/*craft()->templates->startJsBuffer();
+		craft()->templates->startJsBuffer();
 
 		$fieldLayoutHtml = craft()->templates->render('_includes/fieldlayoutdesigner', array(
 			'fieldLayout' => false,
 			'instructions' => '',
 		));
 
-		craft()->templates->clearJsBuffer();*/
+		craft()->templates->clearJsBuffer();
 
 		$jsSettings = array(
 			'namespace' => craft()->templates->getNamespace(),
 			'blockTypes' => $jsBlockTypes,
 			'groups' => $jsGroups,
-			//'fieldLayoutHtml' => $fieldLayoutHtml,
+			'fieldLayoutHtml' => $fieldLayoutHtml,
 		);
 
 		craft()->templates->includeJsResource('neo/dist/main.js');

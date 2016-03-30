@@ -124,7 +124,8 @@
 	var _defaults = {
 		namespace: [],
 		blockTypes: [],
-		groups: []
+		groups: [],
+		fieldLayoutHtml: ''
 	};
 	
 	exports.default = _garnish2.default.Base.extend({
@@ -144,6 +145,7 @@
 			var $input = $field.children('.field').children('.input');
 	
 			this._templateNs = _namespace2.default.parse(settings.namespace);
+			this._fieldLayoutHtml = settings.fieldLayoutHtml;
 			this._items = [];
 	
 			_namespace2.default.enter(this._templateNs);
@@ -198,6 +200,7 @@
 	
 					var btFieldLayout = new _BlockTypeFieldLayout2.default({
 						namespace: [].concat(_toConsumableArray(btNamespace), [btInfo.id]),
+						html: this._fieldLayoutHtml,
 						layout: btInfo.fieldLayout
 					});
 	
@@ -457,7 +460,8 @@
 			});
 	
 			var fieldLayout = new _BlockTypeFieldLayout2.default({
-				namespace: [].concat(_toConsumableArray(namespace), [id])
+				namespace: [].concat(_toConsumableArray(namespace), [id]),
+				html: this._fieldLayoutHtml
 			});
 	
 			var blockType = new _BlockType2.default({
@@ -1522,6 +1526,7 @@
 	
 	var _defaults = {
 		namespace: [],
+		html: '',
 		layout: [],
 		blockId: null,
 		blockName: ''
@@ -1541,8 +1546,7 @@
 	
 			this.setBlockName(settings.blockName);
 	
-			var $template = (0, _jquery2.default)('template[data-neo="template.fld"]');
-			this.$container = (0, _jquery2.default)($template[0].content).children().clone();
+			this.$container = (0, _jquery2.default)(settings.html);
 			this.$container.removeAttr('id');
 	
 			_namespace2.default.enter(this._templateNs);

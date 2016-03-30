@@ -7,6 +7,7 @@ import NS from '../namespace'
 
 const _defaults = {
 	namespace: [],
+	html: '',
 	layout: [],
 	blockId: null,
 	blockName: ''
@@ -25,8 +26,7 @@ export default Garnish.Base.extend({
 
 		this.setBlockName(settings.blockName)
 
-		const $template = $('template[data-neo="template.fld"]')
-		this.$container = $($template[0].content).children().clone()
+		this.$container = $(settings.html)
 		this.$container.removeAttr('id')
 
 		NS.enter(this._templateNs)

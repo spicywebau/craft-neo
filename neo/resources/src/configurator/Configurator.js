@@ -19,7 +19,8 @@ import './styles/configurator.scss'
 const _defaults = {
 	namespace: [],
 	blockTypes: [],
-	groups: []
+	groups: [],
+	fieldLayoutHtml: ''
 }
 
 export default Garnish.Base.extend({
@@ -36,6 +37,7 @@ export default Garnish.Base.extend({
 		const $input = $field.children('.field').children('.input')
 
 		this._templateNs = NS.parse(settings.namespace)
+		this._fieldLayoutHtml = settings.fieldLayoutHtml
 		this._items = []
 
 		NS.enter(this._templateNs)
@@ -82,6 +84,7 @@ export default Garnish.Base.extend({
 
 			let btFieldLayout = new BlockTypeFieldLayout({
 				namespace: [...btNamespace, btInfo.id],
+				html: this._fieldLayoutHtml,
 				layout: btInfo.fieldLayout
 			})
 
@@ -280,7 +283,8 @@ export default Garnish.Base.extend({
 		})
 
 		const fieldLayout = new BlockTypeFieldLayout({
-			namespace: [...namespace, id]
+			namespace: [...namespace, id],
+			html: this._fieldLayoutHtml
 		})
 
 		const blockType = new BlockType({
