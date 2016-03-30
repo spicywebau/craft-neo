@@ -2,9 +2,9 @@ var path = require('path')
 
 module.exports = {
 	devtool: 'source-map',
-	entry: './neo/resources/src/main.js',
+	entry: './src/main.js',
 	output: {
-		path: './neo/resources/dist/',
+		path: './neo/resources/',
 		filename: 'main.js'
 	},
 	externals: {
@@ -26,7 +26,7 @@ module.exports = {
 				loader: 'babel-loader',
 				test: /\.jsx?$/,
 				include: [
-					path.resolve(__dirname, 'neo/resources/src')
+					path.resolve(__dirname, 'src')
 				],
 				query: {
 					presets: ['es2015']

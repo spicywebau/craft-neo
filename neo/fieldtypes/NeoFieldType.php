@@ -43,7 +43,7 @@ class NeoFieldType extends BaseFieldType
 	 */
 	public function getSettingsHtml()
 	{
-		if($this->_getNamespaceDepth() > 1)
+		if($this->_getNamespaceDepth() > 2)
 		{
 			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
 		}
@@ -114,7 +114,7 @@ class NeoFieldType extends BaseFieldType
 			'fieldLayoutHtml' => $fieldLayoutHtml,
 		);
 
-		craft()->templates->includeJsResource('neo/dist/main.js');
+		craft()->templates->includeJsResource('neo/main.js');
 		craft()->templates->includeJs('new Neo.Configurator(' . JsonHelper::encode($jsSettings) . ')');
 
 		return craft()->templates->render('neo/_fieldtype/settings', array(
@@ -383,7 +383,7 @@ class NeoFieldType extends BaseFieldType
 			'blocks'     => $blockInfo,
 		);
 
-		craft()->templates->includeJsResource('neo/dist/main.js');
+		craft()->templates->includeJsResource('neo/main.js');
 		craft()->templates->includeJs('new Neo.Input(' . JsonHelper::encode($jsSettings) . ')');
 
 		craft()->templates->includeTranslations(
