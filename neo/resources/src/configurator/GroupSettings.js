@@ -49,7 +49,7 @@ export default Settings.extend({
 		this.$deleteButton = $neo.filter('[data-neo-gs="button.delete"]')
 
 		this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
-		this.addListener(this.$deleteButton, 'click', () => this.trigger('delete'))
+		this.addListener(this.$deleteButton, 'click', () => this.destroy())
 	},
 
 	setSortOrder(sortOrder)

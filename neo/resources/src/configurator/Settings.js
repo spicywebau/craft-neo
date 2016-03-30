@@ -4,6 +4,7 @@ import Garnish from 'garnish'
 
 export default Garnish.Base.extend({
 
+	$container: new $,
 	_sortOrder: 0,
 
 	getSortOrder()
@@ -21,5 +22,10 @@ export default Garnish.Base.extend({
 			oldValue: oldSortOrder,
 			newValue: this._sortOrder
 		})
+	},
+
+	destroy()
+	{
+		this.trigger('destroy')
 	}
 })

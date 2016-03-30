@@ -256,7 +256,7 @@
 			this.$mainContainer.removeClass('hidden');
 	
 			this.addListener(blockType.$container, 'click', '@selectBlockType');
-			blockType.on('delete.configurator', function () {
+			blockType.on('destroy.configurator', function () {
 				if (confirm(_craft2.default.t('Are you sure you want to delete this block type?'))) {
 					_this2.removeBlockType(blockType);
 				}
@@ -281,7 +281,7 @@
 			if (fieldLayout) fieldLayout.$container.remove();
 	
 			this.removeListener(blockType.$container, 'click');
-			blockType.off('delete.configurator');
+			blockType.off('.configurator');
 	
 			this._updateItemOrder();
 	
@@ -361,7 +361,7 @@
 			this.$mainContainer.removeClass('hidden');
 	
 			this.addListener(group.$container, 'click', '@selectGroup');
-			group.on('delete.configurator', function () {
+			group.on('destroy.configurator', function () {
 				return _this3.removeGroup(group);
 			});
 	
@@ -382,7 +382,7 @@
 			if (settings) settings.$container.remove();
 	
 			this.removeListener(group.$container, 'click');
-			group.off('delete.configurator');
+			group.off('.configurator');
 	
 			this._updateItemOrder();
 	
@@ -729,7 +729,6 @@
 	
 	var _defaults = {
 		namespace: [],
-		settings: null,
 		fieldLayout: null
 	};
 	
@@ -742,16 +741,18 @@
 	
 			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	
+			this.base(settings);
+	
+			var settingsObj = this.getSettings();
 			settings = Object.assign({}, _defaults, settings);
 	
 			this._templateNs = _namespace2.default.parse(settings.namespace);
-			this._settings = settings.settings;
 			this._fieldLayout = settings.fieldLayout;
 	
 			_namespace2.default.enter(this._templateNs);
 	
 			this.$container = (0, _jquery2.default)((0, _blocktype2.default)({
-				settings: this._settings,
+				settings: settingsObj,
 				fieldLayout: this._fieldLayout
 			}));
 	
@@ -761,19 +762,16 @@
 			this.$nameText = $neo.filter('[data-neo-bt="text.name"]');
 			this.$moveButton = $neo.filter('[data-neo-bt="button.move"]');
 	
-			if (this._settings) {
-				this._settings.on('change', function () {
+			if (settingsObj) {
+				settingsObj.on('change', function () {
 					return _this._updateTemplate();
 				});
-				this._settings.on('delete', function () {
-					return _this.trigger('delete');
+				settingsObj.on('destroy', function () {
+					return _this.trigger('destroy');
 				});
 			}
 	
 			this.deselect();
-		},
-		getSettings: function getSettings() {
-			return this._settings;
 		},
 		getFieldLayout: function getFieldLayout() {
 			return this._fieldLayout;
@@ -783,14 +781,16 @@
 		toggleSelect: function toggleSelect(select) {
 			this.base(select);
 	
+			var settings = this.getSettings();
+			var fieldLayout = this.getFieldLayout();
 			var selected = this.isSelected();
 	
-			if (this._settings) {
-				this._settings.$container.toggleClass('hidden', !selected);
+			if (settings) {
+				settings.$container.toggleClass('hidden', !selected);
 			}
 	
-			if (this._fieldLayout) {
-				this._fieldLayout.$container.toggleClass('hidden', !selected);
+			if (fieldLayout) {
+				fieldLayout.$container.toggleClass('hidden', !selected);
 			}
 	
 			this.$container.toggleClass('is-selected', selected);
@@ -830,10 +830,24 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	var _defaults = {
+		settings: null
+	};
+	
 	exports.default = _garnish2.default.Base.extend({
 	
 		_selected: false,
 	
+		init: function init() {
+			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+			settings = Object.assign({}, _defaults, settings);
+	
+			this._settings = settings.settings;
+		},
+		getSettings: function getSettings() {
+			return this._settings;
+		},
 		select: function select() {
 			this.toggleSelect(true);
 		},
@@ -961,7 +975,7 @@
 				return _this.setMaxBlocks(_this.$maxBlocksInput.val());
 			});
 			this.addListener(this.$deleteButton, 'click', function () {
-				return _this.trigger('delete');
+				return _this.destroy();
 			});
 		},
 		getId: function getId() {
@@ -1054,6 +1068,7 @@
 	
 	exports.default = _garnish2.default.Base.extend({
 	
+		$container: new _jquery2.default(),
 		_sortOrder: 0,
 	
 		getSortOrder: function getSortOrder() {
@@ -1068,6 +1083,9 @@
 				oldValue: oldSortOrder,
 				newValue: this._sortOrder
 			});
+		},
+		destroy: function destroy() {
+			this.trigger('destroy');
 		}
 	});
 
@@ -1775,8 +1793,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var _defaults = {
-		namespace: [],
-		settings: null
+		namespace: []
 	};
 	
 	exports.default = _Item2.default.extend({
@@ -1788,15 +1805,17 @@
 	
 			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	
+			this.base(settings);
+	
 			settings = Object.assign({}, _defaults, settings);
 	
+			var settingsObj = this.getSettings();
 			this._templateNs = _namespace2.default.parse(settings.namespace);
-			this._settings = settings.settings;
 	
 			_namespace2.default.enter(this._templateNs);
 	
 			this.$container = (0, _jquery2.default)((0, _group2.default)({
-				settings: this._settings
+				settings: settingsObj
 			}));
 	
 			_namespace2.default.leave();
@@ -1805,27 +1824,25 @@
 			this.$nameText = $neo.filter('[data-neo-g="text.name"]');
 			this.$moveButton = $neo.filter('[data-neo-g="button.move"]');
 	
-			if (this._settings) {
-				this._settings.on('change', function () {
+			if (settingsObj) {
+				settingsObj.on('change', function () {
 					return _this._updateTemplate();
 				});
-				this._settings.on('delete', function () {
-					return _this.trigger('delete');
+				settingsObj.on('destroy', function () {
+					return _this.trigger('destroy');
 				});
 			}
-		},
-		getSettings: function getSettings() {
-			return this._settings;
 		},
 	
 	
 		toggleSelect: function toggleSelect(select) {
 			this.base(select);
 	
+			var settings = this.getSettings();
 			var selected = this.isSelected();
 	
-			if (this._settings) {
-				this._settings.$container.toggleClass('hidden', !selected);
+			if (settings) {
+				settings.$container.toggleClass('hidden', !selected);
 			}
 	
 			this.$container.toggleClass('is-selected', selected);
@@ -1923,7 +1940,7 @@
 				return _this.setName(_this.$nameInput.val());
 			});
 			this.addListener(this.$deleteButton, 'click', function () {
-				return _this.trigger('delete');
+				return _this.destroy();
 			});
 		},
 		setSortOrder: function setSortOrder(sortOrder) {

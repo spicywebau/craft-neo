@@ -12,8 +12,7 @@ import renderTemplate from './templates/group.twig'
 import '../twig-extensions'
 
 const _defaults = {
-	namespace: [],
-	settings: null
+	namespace: []
 }
 
 export default Item.extend({
@@ -22,15 +21,17 @@ export default Item.extend({
 
 	init(settings = {})
 	{
+		this.base(settings)
+
 		settings = Object.assign({}, _defaults, settings)
 
+		const settingsObj = this.getSettings()
 		this._templateNs = NS.parse(settings.namespace)
-		this._settings = settings.settings
 
 		NS.enter(this._templateNs)
 
 		this.$container = $(renderTemplate({
-			settings: this._settings
+			settings: settingsObj
 		}))
 
 		NS.leave()
@@ -39,27 +40,23 @@ export default Item.extend({
 		this.$nameText = $neo.filter('[data-neo-g="text.name"]')
 		this.$moveButton = $neo.filter('[data-neo-g="button.move"]')
 
-		if(this._settings)
+		if(settingsObj)
 		{
-			this._settings.on('change', () => this._updateTemplate())
-			this._settings.on('delete', () => this.trigger('delete'))
+			settingsObj.on('change', () => this._updateTemplate())
+			settingsObj.on('destroy', () => this.trigger('destroy'))
 		}
-	},
-
-	getSettings()
-	{
-		return this._settings
 	},
 
 	toggleSelect: function(select)
 	{
 		this.base(select)
 
+		const settings = this.getSettings()
 		const selected = this.isSelected()
 
-		if(this._settings)
+		if(settings)
 		{
-			this._settings.$container.toggleClass('hidden', !selected)
+			settings.$container.toggleClass('hidden', !selected)
 		}
 
 		this.$container.toggleClass('is-selected', selected)

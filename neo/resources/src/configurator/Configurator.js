@@ -123,7 +123,7 @@ export default Garnish.Base.extend({
 		this.$mainContainer.removeClass('hidden')
 
 		this.addListener(blockType.$container, 'click', '@selectBlockType')
-		blockType.on('delete.configurator', () =>
+		blockType.on('destroy.configurator', () =>
 		{
 			if(confirm(Craft.t('Are you sure you want to delete this block type?')))
 			{
@@ -152,7 +152,7 @@ export default Garnish.Base.extend({
 		if(fieldLayout) fieldLayout.$container.remove()
 
 		this.removeListener(blockType.$container, 'click')
-		blockType.off('delete.configurator')
+		blockType.off('.configurator')
 
 		this._updateItemOrder()
 
@@ -221,7 +221,7 @@ export default Garnish.Base.extend({
 		this.$mainContainer.removeClass('hidden')
 
 		this.addListener(group.$container, 'click', '@selectGroup')
-		group.on('delete.configurator', () => this.removeGroup(group))
+		group.on('destroy.configurator', () => this.removeGroup(group))
 
 		this._groups.push(group)
 		this._updateItemOrder()
@@ -242,7 +242,7 @@ export default Garnish.Base.extend({
 		if(settings) settings.$container.remove()
 
 		this.removeListener(group.$container, 'click')
-		group.off('delete.configurator')
+		group.off('.configurator')
 
 		this._updateItemOrder()
 

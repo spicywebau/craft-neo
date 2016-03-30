@@ -14,7 +14,6 @@ import '../twig-extensions'
 
 const _defaults = {
 	namespace: [],
-	settings: null,
 	fieldLayout: null
 }
 
@@ -24,16 +23,18 @@ export default Item.extend({
 
 	init(settings = {})
 	{
+		this.base(settings)
+
+		const settingsObj = this.getSettings()
 		settings = Object.assign({}, _defaults, settings)
 
 		this._templateNs = NS.parse(settings.namespace)
-		this._settings = settings.settings
 		this._fieldLayout = settings.fieldLayout
 
 		NS.enter(this._templateNs)
 
 		this.$container = $(renderTemplate({
-			settings:    this._settings,
+			settings:    settingsObj,
 			fieldLayout: this._fieldLayout
 		}))
 
@@ -43,18 +44,13 @@ export default Item.extend({
 		this.$nameText = $neo.filter('[data-neo-bt="text.name"]')
 		this.$moveButton = $neo.filter('[data-neo-bt="button.move"]')
 
-		if(this._settings)
+		if(settingsObj)
 		{
-			this._settings.on('change', () => this._updateTemplate())
-			this._settings.on('delete', () => this.trigger('delete'))
+			settingsObj.on('change', () => this._updateTemplate())
+			settingsObj.on('destroy', () => this.trigger('destroy'))
 		}
 
 		this.deselect()
-	},
-
-	getSettings()
-	{
-		return this._settings
 	},
 
 	getFieldLayout()
@@ -66,16 +62,18 @@ export default Item.extend({
 	{
 		this.base(select)
 
+		const settings = this.getSettings()
+		const fieldLayout = this.getFieldLayout()
 		const selected = this.isSelected()
 
-		if(this._settings)
+		if(settings)
 		{
-			this._settings.$container.toggleClass('hidden', !selected)
+			settings.$container.toggleClass('hidden', !selected)
 		}
 
-		if(this._fieldLayout)
+		if(fieldLayout)
 		{
-			this._fieldLayout.$container.toggleClass('hidden', !selected)
+			fieldLayout.$container.toggleClass('hidden', !selected)
 		}
 
 		this.$container.toggleClass('is-selected', selected)
