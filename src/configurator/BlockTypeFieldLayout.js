@@ -23,6 +23,7 @@ export default Garnish.Base.extend({
 		settings = Object.assign({}, _defaults, settings)
 
 		this._templateNs = NS.parse(settings.namespace)
+		this._blockId = settings.blockId
 
 		this.setBlockName(settings.blockName)
 
@@ -52,6 +53,12 @@ export default Garnish.Base.extend({
 		}
 
 		this._updateInstructions()
+		this._initReasonsPlugin()
+	},
+
+	getBlockId()
+	{
+		return this._blockId
 	},
 
 	getBlockName() { return this._blockName },
@@ -165,6 +172,24 @@ export default Garnish.Base.extend({
 		if(this.$instructions)
 		{
 			this.$instructions.html(Craft.t("For block type {blockType}", {blockType: this.getBlockName() || '&hellip;'}))
+		}
+	},
+
+	_initReasonsPlugin()
+	{
+		if(Craft.ReasonsPlugin)
+		{
+			const reasons = new Craft.ReasonsPlugin.FieldLayoutDesigner(this.$container)
+			const id = this.getBlockId()
+
+			reasons.settings.formSelector = '.fieldlayoutform'
+
+			reasons.init()
+
+			reasons.$conditionalsInput.prop('name', `_reasons[neo][${id}]`)
+			reasons.$conditionalsIdInput.prop('name', `_reasonsId[neo][${id}]`)
+
+			this._reasons = reasons
 		}
 	}
 })
