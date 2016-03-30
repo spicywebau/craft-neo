@@ -12,7 +12,9 @@
 		> .menubtn {
 			position: absolute;
 			top: 0;
-			left: 0;
+
+			body.ltr & { left:  0; }
+			body.rtl & { right: 0; }
 		}
 	}
 
