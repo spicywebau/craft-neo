@@ -43,6 +43,11 @@ class NeoFieldType extends BaseFieldType
 	 */
 	public function getSettingsHtml()
 	{
+		if($this->_getNamespaceDepth() > 1)
+		{
+			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
+		}
+
 		$settings = $this->getSettings();
 		$jsBlockTypes = array();
 		$jsGroups = array();
@@ -307,15 +312,13 @@ class NeoFieldType extends BaseFieldType
 	 */
 	public function getInputHtml($name, $value)
 	{
-		$id = craft()->templates->formatInputId($name);
-		$settings = $this->getSettings();
-		$namespace = craft()->templates->getNamespace();
-		$namespaceSize = substr_count($namespace, '[') + 1;
-
-		if($namespaceSize > 1)
+		if($this->_getNamespaceDepth() > 1)
 		{
 			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
 		}
+
+		$id = craft()->templates->formatInputId($name);
+		$settings = $this->getSettings();
 
 		if ($value instanceof ElementCriteriaModel)
 		{
@@ -652,6 +655,13 @@ class NeoFieldType extends BaseFieldType
 
 	// Private Methods
 	// =========================================================================
+
+	private function _getNamespaceDepth()
+	{
+		$namespace = craft()->templates->getNamespace();
+
+		return substr_count($namespace, '[') + 1;
+	}
 
 	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null)
 	{
