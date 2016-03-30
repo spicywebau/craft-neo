@@ -189,6 +189,12 @@ export default Garnish.Base.extend({
 			item.$container.remove()
 			if(settings) settings.$container.remove()
 
+			if(item instanceof BlockType)
+			{
+				const fieldLayout = item.getFieldLayout()
+				if(fieldLayout) fieldLayout.$container.remove()
+			}
+
 			this.removeListener(item.$container, 'click')
 			item.off('.configurator')
 

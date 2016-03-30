@@ -356,6 +356,11 @@
 				item.$container.remove();
 				if (settings) settings.$container.remove();
 	
+				if (item instanceof _BlockType2.default) {
+					var fieldLayout = item.getFieldLayout();
+					if (fieldLayout) fieldLayout.$container.remove();
+				}
+	
 				this.removeListener(item.$container, 'click');
 				item.off('.configurator');
 	
