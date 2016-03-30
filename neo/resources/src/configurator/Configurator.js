@@ -274,7 +274,7 @@ export default Garnish.Base.extend({
 		const namespace = [...this._templateNs, 'groups']
 
 		const settings = new GroupSettings({
-			namespace: [...namespace, ''],
+			namespace: namespace,
 			sortOrder: this._items.length
 		})
 
