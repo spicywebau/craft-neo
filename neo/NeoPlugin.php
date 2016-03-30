@@ -62,17 +62,6 @@ class NeoPlugin extends BasePlugin
 
 	public function onBeforeInstall()
 	{
-		if(!$this->isCraftRequiredVersion())
-		{
-			$message = Craft::t("Neo requires Craft version {version} or newer. Installation was aborted.", array(
-				'version' => $this->getCraftMinimumVersion(),
-			));
-
-			craft()->userSession->setError($message);
-
-			return false;
-		}
-
-		return true;
+		return $this->isCraftRequiredVersion();
 	}
 }
