@@ -266,7 +266,7 @@
 	
 			try {
 				for (var _iterator3 = existingItems.sort(function (a, b) {
-					return a.getSettings().getSortOrder() > b.getSettings().getSortOrder();
+					return a.getSettings().getSortOrder() - b.getSettings().getSortOrder();
 				})[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 					var item = _step3.value;
 	
@@ -2348,21 +2348,25 @@
 	
 	var _BlockType2 = _interopRequireDefault(_BlockType);
 	
-	var _Block = __webpack_require__(33);
+	var _Group = __webpack_require__(33);
+	
+	var _Group2 = _interopRequireDefault(_Group);
+	
+	var _Block = __webpack_require__(34);
 	
 	var _Block2 = _interopRequireDefault(_Block);
 	
-	var _Buttons = __webpack_require__(35);
+	var _Buttons = __webpack_require__(36);
 	
 	var _Buttons2 = _interopRequireDefault(_Buttons);
 	
-	var _input = __webpack_require__(37);
+	var _input = __webpack_require__(38);
 	
 	var _input2 = _interopRequireDefault(_input);
 	
 	__webpack_require__(18);
 	
-	__webpack_require__(38);
+	__webpack_require__(39);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2371,6 +2375,7 @@
 	var _defaults = {
 		namespace: [],
 		blockTypes: [],
+		groups: [],
 		blocks: [],
 		inputId: null,
 		maxBlocks: 0
@@ -2379,8 +2384,6 @@
 	exports.default = _garnish2.default.Base.extend({
 	
 		_templateNs: [],
-		_blockTypes: [],
-		_blocks: [],
 	
 		init: function init() {
 			var _this = this;
@@ -2391,6 +2394,7 @@
 	
 			this._templateNs = _namespace2.default.parse(settings.namespace);
 			this._blockTypes = [];
+			this._groups = [];
 			this._blocks = [];
 			this._maxBlocks = settings.maxBlocks;
 	
@@ -2430,12 +2434,40 @@
 				}
 			}
 	
+			var _iteratorNormalCompletion2 = true;
+			var _didIteratorError2 = false;
+			var _iteratorError2 = undefined;
+	
+			try {
+				for (var _iterator2 = settings.groups[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+					var gInfo = _step2.value;
+	
+					var group = new _Group2.default(gInfo);
+	
+					this._groups.push(group);
+				}
+			} catch (err) {
+				_didIteratorError2 = true;
+				_iteratorError2 = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion2 && _iterator2.return) {
+						_iterator2.return();
+					}
+				} finally {
+					if (_didIteratorError2) {
+						throw _iteratorError2;
+					}
+				}
+			}
+	
 			var $neo = this.$container.find('[data-neo]');
 			this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]');
 			this.$buttonsContainer = $neo.filter('[data-neo="container.buttons"]');
 	
 			this._buttons = new _Buttons2.default({
 				blockTypes: this.getBlockTypes(),
+				groups: this.getGroups(),
 				maxBlocks: this.getMaxBlocks()
 			});
 	
@@ -2474,13 +2506,13 @@
 				selectedClass: 'is-selected sel'
 			});
 	
-			var _iteratorNormalCompletion2 = true;
-			var _didIteratorError2 = false;
-			var _iteratorError2 = undefined;
+			var _iteratorNormalCompletion3 = true;
+			var _didIteratorError3 = false;
+			var _iteratorError3 = undefined;
 	
 			try {
-				for (var _iterator2 = settings.blocks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-					var bInfo = _step2.value;
+				for (var _iterator3 = settings.blocks[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+					var bInfo = _step3.value;
 	
 					var _blockType = this._blockTypes[bInfo.blockType];
 	
@@ -2496,16 +2528,16 @@
 					this.addBlock(block);
 				}
 			} catch (err) {
-				_didIteratorError2 = true;
-				_iteratorError2 = err;
+				_didIteratorError3 = true;
+				_iteratorError3 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion2 && _iterator2.return) {
-						_iterator2.return();
+					if (!_iteratorNormalCompletion3 && _iterator3.return) {
+						_iterator3.return();
 					}
 				} finally {
-					if (_didIteratorError2) {
-						throw _iteratorError2;
+					if (_didIteratorError3) {
+						throw _iteratorError3;
 					}
 				}
 			}
@@ -2583,6 +2615,9 @@
 		getBlockTypes: function getBlockTypes() {
 			return Array.from(this._blockTypes);
 		},
+		getGroups: function getGroups() {
+			return Array.from(this._groups);
+		},
 		getMaxBlocks: function getMaxBlocks() {
 			return this._maxBlocks;
 		},
@@ -2618,27 +2653,27 @@
 		_blockBatch: function _blockBatch(block, callback) {
 			var blocks = block.isSelected() ? this.getSelectedBlocks() : [block];
 	
-			var _iteratorNormalCompletion3 = true;
-			var _didIteratorError3 = false;
-			var _iteratorError3 = undefined;
+			var _iteratorNormalCompletion4 = true;
+			var _didIteratorError4 = false;
+			var _iteratorError4 = undefined;
 	
 			try {
-				for (var _iterator3 = blocks[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-					var b = _step3.value;
+				for (var _iterator4 = blocks[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+					var b = _step4.value;
 	
 					callback(b);
 				}
 			} catch (err) {
-				_didIteratorError3 = true;
-				_iteratorError3 = err;
+				_didIteratorError4 = true;
+				_iteratorError4 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion3 && _iterator3.return) {
-						_iterator3.return();
+					if (!_iteratorNormalCompletion4 && _iterator4.return) {
+						_iterator4.return();
 					}
 				} finally {
-					if (_didIteratorError3) {
-						throw _iteratorError3;
+					if (_didIteratorError4) {
+						throw _iteratorError4;
 					}
 				}
 			}
@@ -2668,6 +2703,7 @@
 			var block = e.block;
 			var buttons = new _Buttons2.default({
 				blockTypes: this.getBlockTypes(),
+				groups: this.getGroups(),
 				maxBlocks: this.getMaxBlocks(),
 				blocks: this.getBlocks()
 			});
@@ -2707,6 +2743,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var _defaults = {
+		sortOrder: 0,
 		name: '',
 		handle: '',
 		maxBlocks: 0,
@@ -2719,12 +2756,19 @@
 	
 			settings = Object.assign({}, _defaults, settings);
 	
+			this._sortOrder = settings.sortOrder | 0;
 			this._name = settings.name;
 			this._handle = settings.handle;
 			this._maxBlocks = settings.maxBlocks | 0;
 			this._tabs = settings.tabs.map(function (tab) {
 				return new _BlockTypeTab2.default(tab);
 			});
+		},
+		getType: function getType() {
+			return 'blockType';
+		},
+		getSortOrder: function getSortOrder() {
+			return this._sortOrder;
 		},
 		getName: function getName() {
 			return this._name;
@@ -2805,6 +2849,50 @@
 		value: true
 	});
 	
+	var _garnish = __webpack_require__(4);
+	
+	var _garnish2 = _interopRequireDefault(_garnish);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var _defaults = {
+		sortOrder: 0,
+		name: ''
+	};
+	
+	exports.default = _garnish2.default.Base.extend({
+		init: function init() {
+			var settings = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+			settings = Object.assign({}, _defaults, settings);
+	
+			this._sortOrder = settings.sortOrder | 0;
+			this._name = settings.name;
+		},
+		getType: function getType() {
+			return 'group';
+		},
+		getSortOrder: function getSortOrder() {
+			return this._sortOrder;
+		},
+		getName: function getName() {
+			return this._name;
+		},
+		isBlank: function isBlank() {
+			return !this._name;
+		}
+	});
+
+/***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
 	var _jquery = __webpack_require__(2);
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
@@ -2823,7 +2911,7 @@
 	
 	var _namespace2 = _interopRequireDefault(_namespace);
 	
-	var _block = __webpack_require__(34);
+	var _block = __webpack_require__(35);
 	
 	var _block2 = _interopRequireDefault(_block);
 	
@@ -3066,7 +3154,7 @@
 	});
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(13).twig,
@@ -3075,7 +3163,7 @@
 	module.exports = function(context) { return template.render(context); }
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3098,7 +3186,7 @@
 	
 	var _craft2 = _interopRequireDefault(_craft);
 	
-	var _buttons = __webpack_require__(36);
+	var _buttons = __webpack_require__(37);
 	
 	var _buttons2 = _interopRequireDefault(_buttons);
 	
@@ -3106,8 +3194,11 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
 	var _defaults = {
 		blockTypes: [],
+		groups: [],
 		maxBlocks: 0,
 		blocks: null
 	};
@@ -3115,6 +3206,7 @@
 	exports.default = _garnish2.default.Base.extend({
 	
 		_blockTypes: [],
+		_groups: [],
 		_maxBlocks: 0,
 	
 		init: function init() {
@@ -3125,10 +3217,17 @@
 			settings = Object.assign({}, _defaults, settings);
 	
 			this._blockTypes = Array.from(settings.blockTypes);
+			this._groups = Array.from(settings.groups);
 			this._maxBlocks = settings.maxBlocks;
+	
+			var items = [].concat(_toConsumableArray(this._blockTypes), _toConsumableArray(this._groups)).sort(function (a, b) {
+				return a.getSortOrder() - b.getSortOrder();
+			});
 	
 			this.$container = (0, _jquery2.default)((0, _buttons2.default)({
 				blockTypes: this._blockTypes,
+				groups: this._groups,
+				items: items,
 				maxBlocks: this._maxBlocks
 			}));
 	
@@ -3176,6 +3275,7 @@
 			});
 		},
 		updateResponsiveness: function updateResponsiveness() {
+			console.log(this._buttonsContainerWidth);
 			if (!this._buttonsContainerWidth) {
 				this._buttonsContainerWidth = this.$buttonsContainer.width();
 			}
@@ -3206,16 +3306,16 @@
 	});
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(13).twig,
-	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\buttons.twig", data:[{"type":"raw","value":"<div class=\"ni_buttons\">\r\n\t<div class=\"btngroup\"\r\n\t     data-neo-bn=\"container.buttons\">\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"blockType","expression":[{"type":"Twig.expression.type.variable","value":"blockTypes","match":["blockTypes"]}],"output":[{"type":"raw","value":"\r\n\t\t\t<div class=\"btn"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"}],"output":[{"type":"raw","value":" add icon"}]}},{"type":"raw","value":"\"\r\n\t\t\t\t data-neo-bn=\"button.addBlock\"\r\n\t\t\t\t data-neo-bn-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t\t\t</div>\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t</div>\r\n\t<div class=\"btn add icon menubtn hidden\"\r\n\t     data-neo-bn=\"container.menu\">\r\n\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Add a block"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t</div>\r\n\t<div class=\"menu\">\r\n\t\t<ul>\r\n\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"blockType","expression":[{"type":"Twig.expression.type.variable","value":"blockTypes","match":["blockTypes"]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t<li>\r\n\t\t\t\t\t<a data-neo-bn=\"button.addBlock\"\r\n\t\t\t\t\t   data-neo-bn-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"blockType","match":["blockType"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t\t\t\t\t</a>\r\n\t\t\t\t</li>\r\n\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t</ul>\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
+	    template = twig({id:"C:\\Users\\Benjamin\\Documents\\Web\\craft-neo\\craft\\plugins\\neo\\resources\\src\\input\\templates\\buttons.twig", data:[{"type":"raw","value":"<div class=\"ni_buttons\">\r\n\t<div class=\"btngroup\"\r\n\t     data-neo-bn=\"container.buttons\">\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"currentGroup","expression":[{"type":"Twig.expression.type.bool","value":false}]}},{"type":"raw","value":"\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"item","expression":[{"type":"Twig.expression.type.variable","value":"items","match":["items"]}],"output":[{"type":"raw","value":"\r\n\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"type","expression":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getType","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.string","value":"blockType"},{"type":"Twig.expression.type.operator.binary","value":"==","precidence":9,"associativity":"leftToRight","operator":"=="}],"output":[{"type":"raw","value":"\r\n\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"currentGroup","match":["currentGroup"]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t<li>\r\n\t\t\t\t\t\t<a data-neo-bn=\"button.addBlock\"\r\n\t\t\t\t\t\t   data-neo-bn-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t\t\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\t\t\t\t\t\t</a>\r\n\t\t\t\t\t</li>\r\n\t\t\t\t"}]}},{"type":"logic","token":{"type":"Twig.logic.type.else","match":["else"],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t<div class=\"btn"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"}],"output":[{"type":"raw","value":" add icon"}]}},{"type":"raw","value":"\"\r\n\t\t\t\t\t\t data-neo-bn=\"button.addBlock\"\r\n\t\t\t\t\t\t data-neo-bn-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\t\t\t\t\t</div>\r\n\t\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t\t"}]}},{"type":"logic","token":{"type":"Twig.logic.type.elseif","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.string","value":"group"},{"type":"Twig.expression.type.operator.binary","value":"==","precidence":9,"associativity":"leftToRight","operator":"=="}],"output":[{"type":"raw","value":"\r\n\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"currentGroup","match":["currentGroup"]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"</ul></div>"}]},{"type":"raw","value":"\r\n\t\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"currentGroup","expression":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"isBlank","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]}},{"type":"raw","value":"\r\n\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"currentGroup","match":["currentGroup"]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t<div class=\"btn"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"loop","match":["loop"]},{"type":"Twig.expression.type.key.period","key":"first"}],"output":[{"type":"raw","value":" add icon"}]}},{"type":"raw","value":" menubtn\">\r\n\t\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"<div class=\"menu\"><ul>"}]},{"type":"raw","value":"\r\n\t\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"currentGroup","match":["currentGroup"]}],"output":[{"type":"raw","value":"\r\n\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"</ul></div>"}]},{"type":"raw","value":"\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t</div>\r\n\t<div class=\"btn add icon menubtn hidden\"\r\n\t     data-neo-bn=\"container.menu\">\r\n\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"Add a block"},{"type":"Twig.expression.type.filter","value":"t","match":["|t","t"]}]},{"type":"raw","value":"\r\n\t</div>\r\n\t<div class=\"menu\">\r\n\t\t<ul>\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"currentGroup","expression":[{"type":"Twig.expression.type.bool","value":false}]}},{"type":"raw","value":"\r\n\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.for","key_var":null,"value_var":"item","expression":[{"type":"Twig.expression.type.variable","value":"items","match":["items"]}],"output":[{"type":"raw","value":"\r\n\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"type","expression":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getType","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]}},{"type":"raw","value":"\r\n\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.string","value":"blockType"},{"type":"Twig.expression.type.operator.binary","value":"==","precidence":9,"associativity":"leftToRight","operator":"=="}],"output":[{"type":"raw","value":"\r\n\t\t\t\t<li>\r\n\t\t\t\t\t<a data-neo-bn=\"button.addBlock\"\r\n\t\t\t\t\t   data-neo-bn-info=\""},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getHandle","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\">\r\n\t\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"\r\n\t\t\t\t\t</a>\r\n\t\t\t\t</li>\r\n\t\t\t"}]}},{"type":"logic","token":{"type":"Twig.logic.type.elseif","stack":[{"type":"Twig.expression.type.variable","value":"type","match":["type"]},{"type":"Twig.expression.type.string","value":"group"},{"type":"Twig.expression.type.operator.binary","value":"==","precidence":9,"associativity":"leftToRight","operator":"=="}],"output":[{"type":"raw","value":"\r\n\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"</ul>"}]},{"type":"raw","value":"\r\n\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.set","key":"currentGroup","expression":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"isBlank","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]},{"type":"Twig.expression.type.bool","value":false},{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.operator.binary","value":"?","precidence":16,"associativity":"rightToLeft","operator":"?"}]}},{"type":"raw","value":"\r\n\t\t\t\t"},{"type":"logic","token":{"type":"Twig.logic.type.if","stack":[{"type":"Twig.expression.type.variable","value":"currentGroup","match":["currentGroup"]}],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t<h6>"},{"type":"output","stack":[{"type":"Twig.expression.type.variable","value":"item","match":["item"]},{"type":"Twig.expression.type.key.period","key":"getName","params":[{"type":"Twig.expression.type.parameter.start","value":"(","match":["("]},{"type":"Twig.expression.type.parameter.end","value":")","match":[")"],"expression":false}]}]},{"type":"raw","value":"</h6>\r\n\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"<ul class=\"padded\">"}]},{"type":"raw","value":"\r\n\t\t\t\t"}]}},{"type":"logic","token":{"type":"Twig.logic.type.else","match":["else"],"output":[{"type":"raw","value":"\r\n\t\t\t\t\t"},{"type":"output","stack":[{"type":"Twig.expression.type.string","value":"<ul>"}]},{"type":"raw","value":"\r\n\t\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t\t"}]}},{"type":"raw","value":"\r\n\t\t"}]}},{"type":"raw","value":"\r\n\t\t</ul>\r\n\t</div>\r\n</div>\r\n"}], allowInlineIncludes: true});
 	
 	module.exports = function(context) { return template.render(context); }
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var twig = __webpack_require__(13).twig,
@@ -3224,13 +3324,13 @@
 	module.exports = function(context) { return template.render(context); }
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(39);
+	var content = __webpack_require__(40);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(29)(content, {});
@@ -3250,7 +3350,7 @@
 	}
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(28)();
@@ -3258,7 +3358,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".ni_blocks > .ni_buttons {\n  margin-bottom: 10px; }\n\n.ni_block {\n  margin-bottom: 10px;\n  border-radius: 3px;\n  border: 1px solid #e3e5e8;\n  overflow: hidden; }\n  .ni_block:focus {\n    outline: 0; }\n  .ni_block_topbar {\n    display: flex;\n    height: 30px;\n    line-height: 30px;\n    background-color: #eef0f1;\n    color: #8f98a3; }\n    .ni_block_topbar_item {\n      cursor: default;\n      padding: 0 8px;\n      -webkit-user-select: none;\n      -moz-user-select: none;\n      user-select: none; }\n      body.ltr .ni_block_topbar_item:not(:first-child),\n      body.rtl .ni_block_topbar_item:not(:last-child) {\n        padding-left: 0; }\n      .ni_block_topbar_item.size-full {\n        flex-grow: 1; }\n      .ni_block_topbar_item.tabs .tab {\n        display: block;\n        height: 30px;\n        padding: 0 10px;\n        color: rgba(41, 50, 61, 0.5); }\n        body.ltr .ni_block_topbar_item.tabs .tab {\n          float: left; }\n        body.rtl .ni_block_topbar_item.tabs .tab {\n          float: right; }\n        .ni_block_topbar_item.tabs .tab:hover {\n          color: #0d78f2; }\n        .ni_block_topbar_item.tabs .tab.is-selected {\n          cursor: default;\n          padding: 0 9px;\n          border: 1px solid #e3e5e8;\n          border-top: 0;\n          border-bottom-color: #fafafa;\n          margin-bottom: -1px;\n          background-color: #fafafa;\n          color: #576575; }\n      .ni_block_topbar_item > .checkbox {\n        color: #29323d; }\n      .ni_block_topbar_item > .status {\n        margin: 10px 5px 0 0; }\n      .ni_block_topbar_item > a {\n        color: rgba(41, 50, 61, 0.25); }\n        .ni_block_topbar_item > a:hover {\n          color: #0d78f2; }\n  .ni_block_content {\n    padding: 14px;\n    border-top: 1px solid #e3e5e8;\n    background-color: #fafafa; }\n    .ni_block_content_tab {\n      display: none; }\n      .ni_block_content_tab.is-selected {\n        display: block; }\n      .ni_block_content_tab > .field {\n        margin: 18px 0; }\n  .ni_block.is-contracted .ni_block_topbar_item.tabs {\n    display: none; }\n  .ni_block.is-contracted .ni_block_content {\n    display: none; }\n  .ni_block.is-disabled .ni_block_content_tab {\n    pointer-events: none;\n    opacity: 0.5;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    user-select: none; }\n", ""]);
+	exports.push([module.id, ".ni_buttons {\n  position: relative;\n  height: 30px; }\n  .ni_buttons > .btngroup,\n  .ni_buttons > .menubtn {\n    position: absolute;\n    top: 0;\n    left: 0; }\n\n.ni_blocks > .ni_buttons {\n  margin-bottom: 10px; }\n\n.ni_block {\n  margin-bottom: 10px;\n  border-radius: 3px;\n  border: 1px solid #e3e5e8;\n  overflow: hidden; }\n  .ni_block:focus {\n    outline: 0; }\n  .ni_block_topbar {\n    display: flex;\n    height: 30px;\n    line-height: 30px;\n    background-color: #eef0f1;\n    color: #8f98a3; }\n    .ni_block_topbar_item {\n      cursor: default;\n      padding: 0 8px;\n      -webkit-user-select: none;\n      -moz-user-select: none;\n      user-select: none; }\n      body.ltr .ni_block_topbar_item:not(:first-child),\n      body.rtl .ni_block_topbar_item:not(:last-child) {\n        padding-left: 0; }\n      .ni_block_topbar_item.size-full {\n        flex-grow: 1; }\n      .ni_block_topbar_item.tabs .tab {\n        display: block;\n        height: 30px;\n        padding: 0 10px;\n        color: rgba(41, 50, 61, 0.5); }\n        body.ltr .ni_block_topbar_item.tabs .tab {\n          float: left; }\n        body.rtl .ni_block_topbar_item.tabs .tab {\n          float: right; }\n        .ni_block_topbar_item.tabs .tab:hover {\n          color: #0d78f2; }\n        .ni_block_topbar_item.tabs .tab.is-selected {\n          cursor: default;\n          padding: 0 9px;\n          border: 1px solid #e3e5e8;\n          border-top: 0;\n          border-bottom-color: #fafafa;\n          margin-bottom: -1px;\n          background-color: #fafafa;\n          color: #576575; }\n      .ni_block_topbar_item > .checkbox {\n        color: #29323d; }\n      .ni_block_topbar_item > .status {\n        margin: 10px 5px 0 0; }\n      .ni_block_topbar_item > a {\n        color: rgba(41, 50, 61, 0.25); }\n        .ni_block_topbar_item > a:hover {\n          color: #0d78f2; }\n  .ni_block_content {\n    padding: 14px;\n    border-top: 1px solid #e3e5e8;\n    background-color: #fafafa; }\n    .ni_block_content_tab {\n      display: none; }\n      .ni_block_content_tab.is-selected {\n        display: block; }\n      .ni_block_content_tab > .field {\n        margin: 18px 0; }\n  .ni_block.is-contracted .ni_block_topbar_item.tabs {\n    display: none; }\n  .ni_block.is-contracted .ni_block_content {\n    display: none; }\n  .ni_block.is-disabled .ni_block_content_tab {\n    pointer-events: none;\n    opacity: 0.5;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    user-select: none; }\n", ""]);
 	
 	// exports
 

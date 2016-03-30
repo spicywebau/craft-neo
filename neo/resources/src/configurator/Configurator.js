@@ -110,7 +110,7 @@ export default Garnish.Base.extend({
 			existingItems.push(group)
 		}
 
-		for(let item of existingItems.sort((a, b) => a.getSettings().getSortOrder() > b.getSettings().getSortOrder()))
+		for(let item of existingItems.sort((a, b) => a.getSettings().getSortOrder() - b.getSettings().getSortOrder()))
 		{
 			this.addItem(item)
 		}

@@ -1,13 +1,40 @@
 <div class="ni_buttons">
 	<div class="btngroup"
 	     data-neo-bn="container.buttons">
-		{% for blockType in blockTypes %}
-			<div class="btn{% if loop.first %} add icon{% endif %}"
-				 data-neo-bn="button.addBlock"
-				 data-neo-bn-info="{{ blockType.getHandle() }}">
-				{{ blockType.getName()|t }}
-			</div>
+		{% set currentGroup = false %}
+		{% for item in items %}
+			{% set type = item.getType() %}
+			{% if type == 'blockType' %}
+				{% if currentGroup %}
+					<li>
+						<a data-neo-bn="button.addBlock"
+						   data-neo-bn-info="{{ item.getHandle() }}">
+							{{ item.getName() }}
+						</a>
+					</li>
+				{% else %}
+					<div class="btn{% if loop.first %} add icon{% endif %}"
+						 data-neo-bn="button.addBlock"
+						 data-neo-bn-info="{{ item.getHandle() }}">
+						{{ item.getName() }}
+					</div>
+				{% endif %}
+			{% elseif type == 'group' %}
+				{% if currentGroup %}
+					{{ '</ul></div>' }}
+				{% endif %}
+				{% set currentGroup = item.isBlank() ? false : item %}
+				{% if currentGroup %}
+					<div class="btn{% if loop.first %} add icon{% endif %} menubtn">
+						{{ item.getName() }}
+					</div>
+					{{ '<div class="menu"><ul>' }}
+				{% endif %}
+			{% endif %}
 		{% endfor %}
+		{% if currentGroup %}
+			{{ '</ul></div>' }}
+		{% endif %}
 	</div>
 	<div class="btn add icon menubtn hidden"
 	     data-neo-bn="container.menu">
@@ -15,14 +42,27 @@
 	</div>
 	<div class="menu">
 		<ul>
-			{% for blockType in blockTypes %}
+		{% set currentGroup = false %}
+		{% for item in items %}
+			{% set type = item.getType() %}
+			{% if type == 'blockType' %}
 				<li>
 					<a data-neo-bn="button.addBlock"
-					   data-neo-bn-info="{{ blockType.getHandle() }}">
-						{{ blockType.getName()|t }}
+					   data-neo-bn-info="{{ item.getHandle() }}">
+						{{ item.getName() }}
 					</a>
 				</li>
-			{% endfor %}
+			{% elseif type == 'group' %}
+				{{ '</ul>' }}
+				{% set currentGroup = item.isBlank() ? false : item %}
+				{% if currentGroup %}
+					<h6>{{ item.getName() }}</h6>
+					{{ '<ul class="padded">' }}
+				{% else %}
+					{{ '<ul>' }}
+				{% endif %}
+			{% endif %}
+		{% endfor %}
 		</ul>
 	</div>
 </div>

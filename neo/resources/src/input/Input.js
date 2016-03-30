@@ -7,6 +7,7 @@ import Craft from 'craft'
 import NS from '../namespace'
 
 import BlockType from './BlockType'
+import Group from './Group'
 import Block from './Block'
 import Buttons from './Buttons'
 
@@ -17,6 +18,7 @@ import './styles/input.scss'
 const _defaults = {
 	namespace: [],
 	blockTypes: [],
+	groups: [],
 	blocks: [],
 	inputId: null,
 	maxBlocks: 0
@@ -25,8 +27,6 @@ const _defaults = {
 export default Garnish.Base.extend({
 
 	_templateNs: [],
-	_blockTypes: [],
-	_blocks: [],
 
 	init(settings = {})
 	{
@@ -34,6 +34,7 @@ export default Garnish.Base.extend({
 
 		this._templateNs = NS.parse(settings.namespace)
 		this._blockTypes = []
+		this._groups = []
 		this._blocks = []
 		this._maxBlocks = settings.maxBlocks
 
@@ -53,12 +54,20 @@ export default Garnish.Base.extend({
 			this._blockTypes[blockType.getHandle()] = blockType
 		}
 
+		for(let gInfo of settings.groups)
+		{
+			let group = new Group(gInfo)
+
+			this._groups.push(group)
+		}
+
 		const $neo = this.$container.find('[data-neo]')
 		this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]')
 		this.$buttonsContainer = $neo.filter('[data-neo="container.buttons"]')
 
 		this._buttons = new Buttons({
 			blockTypes: this.getBlockTypes(),
+			groups: this.getGroups(),
 			maxBlocks: this.getMaxBlocks()
 		})
 
@@ -178,6 +187,11 @@ export default Garnish.Base.extend({
 		return Array.from(this._blockTypes)
 	},
 
+	getGroups()
+	{
+		return Array.from(this._groups)
+	},
+
 	getMaxBlocks()
 	{
 		return this._maxBlocks
@@ -255,6 +269,7 @@ export default Garnish.Base.extend({
 		const block = e.block
 		const buttons = new Buttons({
 			blockTypes: this.getBlockTypes(),
+			groups: this.getGroups(),
 			maxBlocks: this.getMaxBlocks(),
 			blocks: this.getBlocks()
 		})

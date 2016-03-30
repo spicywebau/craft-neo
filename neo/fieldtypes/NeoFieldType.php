@@ -325,7 +325,26 @@ class NeoFieldType extends BaseFieldType
 			'static'     => false
 		));
 
-		$blockTypeInfo = $this->_getBlockTypeInfoForInput($name);
+		$blockTypeInfo = array();
+		foreach($settings->getBlockTypes() as $blockType)
+		{
+			$blockTypeInfo[] = array(
+				'sortOrder' => $blockType->sortOrder,
+				'handle'    => $blockType->handle,
+				'name'      => Craft::t($blockType->name),
+				'maxBlocks' => $blockType->maxBlocks,
+				'tabs'      => $this->_getBlockTypeHtml($blockType, null, $name),
+			);
+		}
+
+		$groupInfo = array();
+		foreach($settings->getGroups() as $group)
+		{
+			$groupInfo[] = array(
+				'sortOrder' => $group->sortOrder,
+				'name' => $group->name,
+			);
+		}
 
 		$blockInfo = array();
 		foreach($value as $block)
@@ -343,6 +362,7 @@ class NeoFieldType extends BaseFieldType
 		$jsSettings = array(
 			'namespace'  => craft()->templates->namespaceInputName($name),
 			'blockTypes' => $blockTypeInfo,
+			'groups'     => $groupInfo,
 			'inputId'    => craft()->templates->namespaceInputId($id),
 			'maxBlocks'  => $settings->maxBlocks,
 			'blocks'     => $blockInfo,
@@ -620,44 +640,6 @@ class NeoFieldType extends BaseFieldType
 
 	// Private Methods
 	// =========================================================================
-
-	/**
-	 * Returns info about each block type and their field types for the Neo field input.
-	 *
-	 * @param string $name
-	 *
-	 * @return array
-	 */
-	private function _getBlockTypeInfoForInput($name)
-	{
-		$jsBlockTypes = array();
-
-		$settings = $this->getSettings();
-		$blockTypes = $settings->getBlockTypes();
-
-		foreach($blockTypes as $blockType)
-		{
-			// Create a fake Neo Block model so the field types have a way to get at the owner element, if there is one
-			$block = new Neo_BlockModel();
-			$block->fieldId = $this->model->id;
-			$block->typeId = $blockType->id;
-
-			if($this->element)
-			{
-				$block->setOwner($this->element);
-				$block->locale = $this->element->locale;
-			}
-
-			$jsBlockTypes[] = array(
-				'handle'    => $blockType->handle,
-				'name'      => Craft::t($blockType->name),
-				'maxBlocks' => $blockType->maxBlocks,
-				'tabs'      => $this->_getBlockTypeHtml($blockType, null, $name),
-			);
-		}
-
-		return $jsBlockTypes;
-	}
 
 	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null)
 	{

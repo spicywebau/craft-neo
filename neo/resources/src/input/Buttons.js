@@ -9,6 +9,7 @@ import '../twig-extensions'
 
 const _defaults = {
 	blockTypes: [],
+	groups: [],
 	maxBlocks: 0,
 	blocks: null
 }
@@ -16,6 +17,7 @@ const _defaults = {
 export default Garnish.Base.extend({
 
 	_blockTypes: [],
+	_groups: [],
 	_maxBlocks: 0,
 
 	init(settings = {})
@@ -23,10 +25,15 @@ export default Garnish.Base.extend({
 		settings = Object.assign({}, _defaults, settings)
 
 		this._blockTypes = Array.from(settings.blockTypes)
+		this._groups = Array.from(settings.groups)
 		this._maxBlocks = settings.maxBlocks
+
+		const items = [...this._blockTypes, ...this._groups].sort((a, b) => a.getSortOrder() - b.getSortOrder())
 
 		this.$container = $(renderTemplate({
 			blockTypes: this._blockTypes,
+			groups: this._groups,
+			items: items,
 			maxBlocks: this._maxBlocks
 		}))
 
@@ -75,6 +82,7 @@ export default Garnish.Base.extend({
 
 	updateResponsiveness()
 	{
+		console.log(this._buttonsContainerWidth)
 		if(!this._buttonsContainerWidth)
 		{
 			this._buttonsContainerWidth = this.$buttonsContainer.width()
