@@ -186,8 +186,8 @@ export default Garnish.Base.extend({
 
 			reasons.init()
 
-			reasons.$conditionalsInput.prop('name', `_reasons[neo][${id}]`)
-			reasons.$conditionalsIdInput.prop('name', `_reasonsId[neo][${id}]`)
+			reasons.$conditionalsInput.prop('name', `neo[reasons][${id}]`)
+			reasons.$conditionalsIdInput.prop('name', `neo[reasonsId][${id}]`)
 
 			this._reasons = reasons
 		}

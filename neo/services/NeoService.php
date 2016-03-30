@@ -57,6 +57,8 @@ class NeoService extends BaseApplicationComponent
 	 */
 	private $_parentNeoFields;
 
+	public $currentSavingBlockType;
+
 	// Public Methods
 	// =========================================================================
 
@@ -216,6 +218,8 @@ class NeoService extends BaseApplicationComponent
 	{
 		if (!$validate || $this->validateBlockType($blockType))
 		{
+			$this->currentSavingBlockType = $blockType;
+
 			$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 			try
 			{
@@ -276,6 +280,8 @@ class NeoService extends BaseApplicationComponent
 
 				throw $e;
 			}
+
+			$this->currentSavingBlockType = null;
 
 			return true;
 		}
