@@ -24,8 +24,7 @@ const _defaults = {
 export default Garnish.Base.extend({
 
 	_templateNs: [],
-	_blockTypes: [],
-	_groups: [],
+	_items: [],
 
 	init(settings = {})
 	{
@@ -36,8 +35,7 @@ export default Garnish.Base.extend({
 		const $input = $field.children('.field').children('.input')
 
 		this._templateNs = NS.parse(settings.namespace)
-		this._blockTypes = []
-		this._groups = []
+		this._items = []
 
 		NS.enter(this._templateNs)
 
@@ -90,7 +88,7 @@ export default Garnish.Base.extend({
 				fieldLayout: btFieldLayout
 			})
 
-			this.addBlockType(blockType, btSettings.getSortOrder() - 1)
+			this.addItem(blockType, btSettings.getSortOrder() - 1)
 		}
 
 		this.selectTab('settings')
@@ -101,194 +99,120 @@ export default Garnish.Base.extend({
 		this.addListener(this.$fieldLayoutButton, 'click', () => this.selectTab('fieldLayout'))
 	},
 
-	addBlockType(blockType, index = -1)
+	addItem(item, index = -1)
 	{
-		const settings = blockType.getSettings()
-		const fieldLayout = blockType.getFieldLayout()
+		const settings = item.getSettings()
 
-		if(index >= 0 && index < this._getItemCount())
+		if(index >= 0 && index < this._items.length)
 		{
-			blockType.$container.insertAt(index, this.$blockTypesContainer)
+			item.$container.insertAt(index, this.$blockTypesContainer)
 		}
 		else
 		{
-			this.$blockTypesContainer.append(blockType.$container)
+			this.$blockTypesContainer.append(item.$container)
 		}
 
-		this._itemSort.addItems(blockType.$container);
+		this._itemSort.addItems(item.$container);
 
 		if(settings) this.$settingsContainer.append(settings.$container)
-		if(fieldLayout) this.$fieldLayoutContainer.append(fieldLayout.$container)
 
 		this.$mainContainer.removeClass('hidden')
 
-		this.addListener(blockType.$container, 'click', '@selectBlockType')
-		blockType.on('destroy.configurator', () =>
-		{
-			if(confirm(Craft.t('Are you sure you want to delete this block type?')))
-			{
-				this.removeBlockType(blockType)
-			}
-		})
+		this.addListener(item.$container, 'click', '@selectItem')
+		item.on('destroy.configurator', () => this.removeItem(item, (item instanceof BlockType)))
 
-		this._blockTypes.push(blockType)
+		if(item instanceof BlockType)
+		{
+			const fieldLayout = item.getFieldLayout()
+			if(fieldLayout) this.$fieldLayoutContainer.append(fieldLayout.$container)
+		}
+
+		this._items.push(item)
 		this._updateItemOrder()
 
-		this.trigger('addBlockType', {
-			blockType: blockType,
+		this.trigger('addItem', {
+			item: item,
 			index: index
 		})
 	},
 
-	removeBlockType(blockType)
+	removeItem(item, showConfirm)
 	{
-		const settings = blockType.getSettings()
-		const fieldLayout = blockType.getFieldLayout()
+		showConfirm = (typeof showConfirm === 'boolean' ? showConfirm : false)
 
-		this._itemSort.removeItems(blockType.$container);
-
-		blockType.$container.remove()
-		if(settings) settings.$container.remove()
-		if(fieldLayout) fieldLayout.$container.remove()
-
-		this.removeListener(blockType.$container, 'click')
-		blockType.off('.configurator')
-
-		this._updateItemOrder()
-
-		if(this._getItemCount() === 0)
+		if(showConfirm)
 		{
-			this.$mainContainer.addClass('hidden')
+			const message = Craft.t('Are you sure you want to delete this {type}?', {type:
+				item instanceof BlockType ? 'block type' :
+				item instanceof Group ? 'group' :
+				'item'
+			})
+
+			if(confirm(message))
+			{
+				this.removeItem(item, false)
+			}
+		}
+		else
+		{
+			const settings = item.getSettings()
+
+			this._itemSort.removeItems(item.$container);
+
+			item.$container.remove()
+			if(settings) settings.$container.remove()
+
+			this.removeListener(item.$container, 'click')
+			item.off('.configurator')
+
+			this._updateItemOrder()
+
+			if(this._items.length === 0)
+			{
+				this.$mainContainer.addClass('hidden')
+			}
+
+			this.trigger('removeItem', {
+				item: item
+			})
+		}
+	},
+
+	getItems()
+	{
+		return Array.from(this._items)
+	},
+
+	getItemByElement($element)
+	{
+		return this._items.find(item => item.$container.is($element))
+	},
+
+	selectItem(item, focusInput)
+	{
+		focusInput = (typeof focusInput === 'boolean' ? focusInput : true)
+
+		const settings = item ? item.getSettings() : null
+
+		for(let i of this._items)
+		{
+			i.toggleSelect(i === item)
 		}
 
-		this.trigger('removeBlockType', {
-			blockType: blockType
-		})
+		if(focusInput && settings && !Garnish.isMobileBrowser())
+		{
+			setTimeout(() => settings.getFocusInput().focus(), 100)
+		}
 	},
 
 	getBlockTypes()
 	{
-		return Array.from(this._blockTypes)
-	},
-
-	getBlockTypeByElement($element)
-	{
-		return this._blockTypes.find(blockType =>
-		{
-			return blockType.$container.is($element)
-		})
-	},
-
-	selectBlockType(blockType, focusFirstInput)
-	{
-		focusFirstInput = typeof focusFirstInput === 'boolean' ? focusFirstInput : true
-
-		const settings = blockType ? blockType.getSettings() : null
-
-		for(let bt of this._blockTypes)
-		{
-			bt.toggleSelect(bt === blockType)
-		}
-
-		if(blockType)
-		{
-			this.selectGroup(null)
-		}
-
-		if(focusFirstInput && settings && !Garnish.isMobileBrowser())
-		{
-			setTimeout(() => settings.$nameInput.focus(), 100)
-		}
-	},
-
-	addGroup(group, index = -1)
-	{
-		const settings = group.getSettings()
-
-		if(index >= 0 && index < this._getItemCount())
-		{
-			group.$container.insertAt(index, this.$blockTypesContainer)
-		}
-		else
-		{
-			this.$blockTypesContainer.append(group.$container)
-		}
-
-		this._itemSort.addItems(group.$container);
-
-		if(settings) this.$settingsContainer.append(settings.$container)
-
-		this.$mainContainer.removeClass('hidden')
-
-		this.addListener(group.$container, 'click', '@selectGroup')
-		group.on('destroy.configurator', () => this.removeGroup(group))
-
-		this._groups.push(group)
-		this._updateItemOrder()
-
-		this.trigger('addGroup', {
-			group: group,
-			index: index
-		})
-	},
-
-	removeGroup(group)
-	{
-		const settings = group.getSettings()
-
-		this._itemSort.removeItems(group.$container);
-
-		group.$container.remove()
-		if(settings) settings.$container.remove()
-
-		this.removeListener(group.$container, 'click')
-		group.off('.configurator')
-
-		this._updateItemOrder()
-
-		if(this._getItemCount() === 0)
-		{
-			this.$mainContainer.addClass('hidden')
-		}
-
-		this.trigger('removeGroup', {
-			group: group
-		})
+		return this._items.filter(item => item instanceof BlockType)
 	},
 
 	getGroups()
 	{
-		return Array.from(this._groups)
-	},
-
-	getGroupByElement($element)
-	{
-		return this._groups.find(group =>
-		{
-			return group.$container.is($element)
-		})
-	},
-
-	selectGroup(group, focusFirstInput)
-	{
-		focusFirstInput = typeof focusFirstInput === 'boolean' ? focusFirstInput : true
-
-		const settings = group ? group.getSettings() : null
-
-		for(let g of this._groups)
-		{
-			g.toggleSelect(g === group)
-		}
-
-		if(group)
-		{
-			this.selectBlockType(null)
-		}
-
-		if(focusFirstInput && settings && !Garnish.isMobileBrowser())
-		{
-			setTimeout(() => settings.$nameInput.focus(), 100)
-		}
+		return this._items.filter(item => item instanceof Group)
 	},
 
 	selectTab(tab)
@@ -300,39 +224,24 @@ export default Garnish.Base.extend({
 		this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout')
 	},
 
-	_getItemCount()
-	{
-		return this._blockTypes.length + this._groups.length
-	},
-
 	_updateItemOrder()
 	{
-		const blockTypes = []
-		const groups = []
+		const items = []
 
 		this._itemSort.$items.each((index, element) =>
 		{
-			const blockType = this.getBlockTypeByElement(element)
-			const group = this.getGroupByElement(element)
+			const item = this.getItemByElement(element)
 
-			if(blockType)
+			if(item)
 			{
-				const settings = blockType.getSettings()
+				const settings = item.getSettings()
 				if(settings) settings.setSortOrder(index + 1)
 
-				blockTypes.push(blockType)
-			}
-			else if(group)
-			{
-				const settings = group.getSettings()
-				if(settings) settings.setSortOrder(index + 1)
-
-				groups.push(group)
+				items.push(item)
 			}
 		})
 
-		this._blockTypes = blockTypes
-		this._groups = groups
+		this._items = items
 	},
 
 	'@newBlockType'()
@@ -342,7 +251,7 @@ export default Garnish.Base.extend({
 
 		const settings = new BlockTypeSettings({
 			namespace: [...namespace, id],
-			sortOrder: this._getItemCount(),
+			sortOrder: this._items.length,
 			id: id
 		})
 
@@ -356,8 +265,8 @@ export default Garnish.Base.extend({
 			fieldLayout: fieldLayout
 		})
 
-		this.addBlockType(blockType)
-		this.selectBlockType(blockType)
+		this.addItem(blockType)
+		this.selectItem(blockType)
 	},
 
 	'@newGroup'()
@@ -366,7 +275,7 @@ export default Garnish.Base.extend({
 
 		const settings = new GroupSettings({
 			namespace: [...namespace, ''],
-			sortOrder: this._getItemCount()
+			sortOrder: this._items.length
 		})
 
 		const group = new Group({
@@ -374,21 +283,14 @@ export default Garnish.Base.extend({
 			settings: settings
 		})
 
-		this.addGroup(group)
-		this.selectGroup(group)
+		this.addItem(group)
+		this.selectItem(group)
 	},
 
-	'@selectBlockType'(e)
+	'@selectItem'(e)
 	{
-		const blockType = this.getBlockTypeByElement(e.currentTarget)
+		const item = this.getItemByElement(e.currentTarget)
 
-		this.selectBlockType(blockType)
-	},
-
-	'@selectGroup'(e)
-	{
-		const group = this.getGroupByElement(e.currentTarget)
-
-		this.selectGroup(group)
+		this.selectItem(item)
 	}
 })

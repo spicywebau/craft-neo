@@ -129,8 +129,7 @@
 	exports.default = _garnish2.default.Base.extend({
 	
 		_templateNs: [],
-		_blockTypes: [],
-		_groups: [],
+		_items: [],
 	
 		init: function init() {
 			var _this = this;
@@ -144,8 +143,7 @@
 			var $input = $field.children('.field').children('.input');
 	
 			this._templateNs = _namespace2.default.parse(settings.namespace);
-			this._blockTypes = [];
-			this._groups = [];
+			this._items = [];
 	
 			_namespace2.default.enter(this._templateNs);
 	
@@ -206,7 +204,7 @@
 						fieldLayout: btFieldLayout
 					});
 	
-					this.addBlockType(blockType, btSettings.getSortOrder() - 1);
+					this.addItem(blockType, btSettings.getSortOrder() - 1);
 				}
 			} catch (err) {
 				_didIteratorError = true;
@@ -234,87 +232,97 @@
 				return _this.selectTab('fieldLayout');
 			});
 		},
-		addBlockType: function addBlockType(blockType) {
+		addItem: function addItem(item) {
 			var _this2 = this;
 	
 			var index = arguments.length <= 1 || arguments[1] === undefined ? -1 : arguments[1];
 	
-			var settings = blockType.getSettings();
-			var fieldLayout = blockType.getFieldLayout();
+			var settings = item.getSettings();
 	
-			if (index >= 0 && index < this._getItemCount()) {
-				blockType.$container.insertAt(index, this.$blockTypesContainer);
+			if (index >= 0 && index < this._items.length) {
+				item.$container.insertAt(index, this.$blockTypesContainer);
 			} else {
-				this.$blockTypesContainer.append(blockType.$container);
+				this.$blockTypesContainer.append(item.$container);
 			}
 	
-			this._itemSort.addItems(blockType.$container);
+			this._itemSort.addItems(item.$container);
 	
 			if (settings) this.$settingsContainer.append(settings.$container);
-			if (fieldLayout) this.$fieldLayoutContainer.append(fieldLayout.$container);
 	
 			this.$mainContainer.removeClass('hidden');
 	
-			this.addListener(blockType.$container, 'click', '@selectBlockType');
-			blockType.on('destroy.configurator', function () {
-				if (confirm(_craft2.default.t('Are you sure you want to delete this block type?'))) {
-					_this2.removeBlockType(blockType);
-				}
+			this.addListener(item.$container, 'click', '@selectItem');
+			item.on('destroy.configurator', function () {
+				return _this2.removeItem(item, item instanceof _BlockType2.default);
 			});
 	
-			this._blockTypes.push(blockType);
+			if (item instanceof _BlockType2.default) {
+				var fieldLayout = item.getFieldLayout();
+				if (fieldLayout) this.$fieldLayoutContainer.append(fieldLayout.$container);
+			}
+	
+			this._items.push(item);
 			this._updateItemOrder();
 	
-			this.trigger('addBlockType', {
-				blockType: blockType,
+			this.trigger('addItem', {
+				item: item,
 				index: index
 			});
 		},
-		removeBlockType: function removeBlockType(blockType) {
-			var settings = blockType.getSettings();
-			var fieldLayout = blockType.getFieldLayout();
+		removeItem: function removeItem(item, showConfirm) {
+			showConfirm = typeof showConfirm === 'boolean' ? showConfirm : false;
 	
-			this._itemSort.removeItems(blockType.$container);
+			if (showConfirm) {
+				var message = _craft2.default.t('Are you sure you want to delete this {type}?', { type: item instanceof _BlockType2.default ? 'block type' : item instanceof _Group2.default ? 'group' : 'item'
+				});
 	
-			blockType.$container.remove();
-			if (settings) settings.$container.remove();
-			if (fieldLayout) fieldLayout.$container.remove();
+				if (confirm(message)) {
+					this.removeItem(item, false);
+				}
+			} else {
+				var settings = item.getSettings();
 	
-			this.removeListener(blockType.$container, 'click');
-			blockType.off('.configurator');
+				this._itemSort.removeItems(item.$container);
 	
-			this._updateItemOrder();
+				item.$container.remove();
+				if (settings) settings.$container.remove();
 	
-			if (this._getItemCount() === 0) {
-				this.$mainContainer.addClass('hidden');
+				this.removeListener(item.$container, 'click');
+				item.off('.configurator');
+	
+				this._updateItemOrder();
+	
+				if (this._items.length === 0) {
+					this.$mainContainer.addClass('hidden');
+				}
+	
+				this.trigger('removeItem', {
+					item: item
+				});
 			}
-	
-			this.trigger('removeBlockType', {
-				blockType: blockType
+		},
+		getItems: function getItems() {
+			return Array.from(this._items);
+		},
+		getItemByElement: function getItemByElement($element) {
+			return this._items.find(function (item) {
+				return item.$container.is($element);
 			});
 		},
-		getBlockTypes: function getBlockTypes() {
-			return Array.from(this._blockTypes);
-		},
-		getBlockTypeByElement: function getBlockTypeByElement($element) {
-			return this._blockTypes.find(function (blockType) {
-				return blockType.$container.is($element);
-			});
-		},
-		selectBlockType: function selectBlockType(blockType, focusFirstInput) {
-			focusFirstInput = typeof focusFirstInput === 'boolean' ? focusFirstInput : true;
+		selectItem: function selectItem(item, focusInput) {
+			focusInput = typeof focusInput === 'boolean' ? focusInput : true;
 	
-			var settings = blockType ? blockType.getSettings() : null;
+			var settings = item ? item.getSettings() : null;
 	
 			var _iteratorNormalCompletion2 = true;
 			var _didIteratorError2 = false;
 			var _iteratorError2 = undefined;
 	
 			try {
-				for (var _iterator2 = this._blockTypes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-					var bt = _step2.value;
+				for (var _iterator2 = this._items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+					var i = _step2.value;
 	
-					bt.toggleSelect(bt === blockType);
+					i.toggleSelect(i === item);
 				}
 			} catch (err) {
 				_didIteratorError2 = true;
@@ -331,116 +339,21 @@
 				}
 			}
 	
-			if (blockType) {
-				this.selectGroup(null);
-			}
-	
-			if (focusFirstInput && settings && !_garnish2.default.isMobileBrowser()) {
+			if (focusInput && settings && !_garnish2.default.isMobileBrowser()) {
 				setTimeout(function () {
-					return settings.$nameInput.focus();
+					return settings.getFocusInput().focus();
 				}, 100);
 			}
 		},
-		addGroup: function addGroup(group) {
-			var _this3 = this;
-	
-			var index = arguments.length <= 1 || arguments[1] === undefined ? -1 : arguments[1];
-	
-			var settings = group.getSettings();
-	
-			if (index >= 0 && index < this._getItemCount()) {
-				group.$container.insertAt(index, this.$blockTypesContainer);
-			} else {
-				this.$blockTypesContainer.append(group.$container);
-			}
-	
-			this._itemSort.addItems(group.$container);
-	
-			if (settings) this.$settingsContainer.append(settings.$container);
-	
-			this.$mainContainer.removeClass('hidden');
-	
-			this.addListener(group.$container, 'click', '@selectGroup');
-			group.on('destroy.configurator', function () {
-				return _this3.removeGroup(group);
-			});
-	
-			this._groups.push(group);
-			this._updateItemOrder();
-	
-			this.trigger('addGroup', {
-				group: group,
-				index: index
-			});
-		},
-		removeGroup: function removeGroup(group) {
-			var settings = group.getSettings();
-	
-			this._itemSort.removeItems(group.$container);
-	
-			group.$container.remove();
-			if (settings) settings.$container.remove();
-	
-			this.removeListener(group.$container, 'click');
-			group.off('.configurator');
-	
-			this._updateItemOrder();
-	
-			if (this._getItemCount() === 0) {
-				this.$mainContainer.addClass('hidden');
-			}
-	
-			this.trigger('removeGroup', {
-				group: group
+		getBlockTypes: function getBlockTypes() {
+			return this._items.filter(function (item) {
+				return item instanceof _BlockType2.default;
 			});
 		},
 		getGroups: function getGroups() {
-			return Array.from(this._groups);
-		},
-		getGroupByElement: function getGroupByElement($element) {
-			return this._groups.find(function (group) {
-				return group.$container.is($element);
+			return this._items.filter(function (item) {
+				return item instanceof _Group2.default;
 			});
-		},
-		selectGroup: function selectGroup(group, focusFirstInput) {
-			focusFirstInput = typeof focusFirstInput === 'boolean' ? focusFirstInput : true;
-	
-			var settings = group ? group.getSettings() : null;
-	
-			var _iteratorNormalCompletion3 = true;
-			var _didIteratorError3 = false;
-			var _iteratorError3 = undefined;
-	
-			try {
-				for (var _iterator3 = this._groups[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-					var g = _step3.value;
-	
-					g.toggleSelect(g === group);
-				}
-			} catch (err) {
-				_didIteratorError3 = true;
-				_iteratorError3 = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion3 && _iterator3.return) {
-						_iterator3.return();
-					}
-				} finally {
-					if (_didIteratorError3) {
-						throw _iteratorError3;
-					}
-				}
-			}
-	
-			if (group) {
-				this.selectBlockType(null);
-			}
-	
-			if (focusFirstInput && settings && !_garnish2.default.isMobileBrowser()) {
-				setTimeout(function () {
-					return settings.$nameInput.focus();
-				}, 100);
-			}
 		},
 		selectTab: function selectTab(tab) {
 			this.$settingsContainer.toggleClass('hidden', tab !== 'settings');
@@ -449,34 +362,23 @@
 			this.$settingsButton.toggleClass('is-selected', tab === 'settings');
 			this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout');
 		},
-		_getItemCount: function _getItemCount() {
-			return this._blockTypes.length + this._groups.length;
-		},
 		_updateItemOrder: function _updateItemOrder() {
-			var _this4 = this;
+			var _this3 = this;
 	
-			var blockTypes = [];
-			var groups = [];
+			var items = [];
 	
 			this._itemSort.$items.each(function (index, element) {
-				var blockType = _this4.getBlockTypeByElement(element);
-				var group = _this4.getGroupByElement(element);
+				var item = _this3.getItemByElement(element);
 	
-				if (blockType) {
-					var settings = blockType.getSettings();
+				if (item) {
+					var settings = item.getSettings();
 					if (settings) settings.setSortOrder(index + 1);
 	
-					blockTypes.push(blockType);
-				} else if (group) {
-					var _settings = group.getSettings();
-					if (_settings) _settings.setSortOrder(index + 1);
-	
-					groups.push(group);
+					items.push(item);
 				}
 			});
 	
-			this._blockTypes = blockTypes;
-			this._groups = groups;
+			this._items = items;
 		},
 		'@newBlockType': function newBlockType() {
 			var namespace = [].concat(_toConsumableArray(this._templateNs), ['blockTypes']);
@@ -484,7 +386,7 @@
 	
 			var settings = new _BlockTypeSettings2.default({
 				namespace: [].concat(_toConsumableArray(namespace), [id]),
-				sortOrder: this._getItemCount(),
+				sortOrder: this._items.length,
 				id: id
 			});
 	
@@ -498,15 +400,15 @@
 				fieldLayout: fieldLayout
 			});
 	
-			this.addBlockType(blockType);
-			this.selectBlockType(blockType);
+			this.addItem(blockType);
+			this.selectItem(blockType);
 		},
 		'@newGroup': function newGroup() {
 			var namespace = [].concat(_toConsumableArray(this._templateNs), ['groups']);
 	
 			var settings = new _GroupSettings2.default({
 				namespace: [].concat(_toConsumableArray(namespace), ['']),
-				sortOrder: this._getItemCount()
+				sortOrder: this._items.length
 			});
 	
 			var group = new _Group2.default({
@@ -514,18 +416,13 @@
 				settings: settings
 			});
 	
-			this.addGroup(group);
-			this.selectGroup(group);
+			this.addItem(group);
+			this.selectItem(group);
 		},
-		'@selectBlockType': function selectBlockType(e) {
-			var blockType = this.getBlockTypeByElement(e.currentTarget);
+		'@selectItem': function selectItem(e) {
+			var item = this.getItemByElement(e.currentTarget);
 	
-			this.selectBlockType(blockType);
-		},
-		'@selectGroup': function selectGroup(e) {
-			var group = this.getGroupByElement(e.currentTarget);
-	
-			this.selectGroup(group);
+			this.selectItem(item);
 		}
 	});
 
@@ -978,6 +875,9 @@
 				return _this.destroy();
 			});
 		},
+		getFocusInput: function getFocusInput() {
+			return this.$nameInput;
+		},
 		getId: function getId() {
 			return this._id;
 		},
@@ -1083,6 +983,9 @@
 				oldValue: oldSortOrder,
 				newValue: this._sortOrder
 			});
+		},
+		getFocusElement: function getFocusElement() {
+			return new _jquery2.default();
 		},
 		destroy: function destroy() {
 			this.trigger('destroy');
@@ -1942,6 +1845,9 @@
 			this.addListener(this.$deleteButton, 'click', function () {
 				return _this.destroy();
 			});
+		},
+		getFocusInput: function getFocusInput() {
+			return this.$nameInput;
 		},
 		setSortOrder: function setSortOrder(sortOrder) {
 			this.base(sortOrder);

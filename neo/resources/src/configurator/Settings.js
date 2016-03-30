@@ -24,6 +24,11 @@ export default Garnish.Base.extend({
 		})
 	},
 
+	getFocusElement()
+	{
+		return new $
+	},
+
 	destroy()
 	{
 		this.trigger('destroy')

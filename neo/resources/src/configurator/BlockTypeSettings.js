@@ -71,6 +71,11 @@ export default Settings.extend({
 		this.addListener(this.$deleteButton, 'click', () => this.destroy())
 	},
 
+	getFocusInput()
+	{
+		return this.$nameInput
+	},
+
 	getId()
 	{
 		return this._id
