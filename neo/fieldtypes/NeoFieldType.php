@@ -658,18 +658,30 @@ class NeoFieldType extends BaseFieldType
 				'name' => Craft::t($fieldLayoutTab->name),
 				'bodyHtml' => '',
 				'footHtml' => '',
+				'errors' => array(),
 			);
 
 			$fieldLayoutFields = $fieldLayoutTab->getFields();
 
 			foreach($fieldLayoutFields as $fieldLayoutField)
 			{
-				$fieldType = $fieldLayoutField->getField()->getFieldType();
+				$field = $fieldLayoutField->getField();
+				$fieldType = $field->getFieldType();
 
-				if ($fieldType)
+				if($fieldType)
 				{
 					$fieldType->element = $block;
 					$fieldType->setIsFresh(true);
+
+					if($block)
+					{
+						$fieldErrors = $block->getErrors($field->handle);
+
+						if(!empty($fieldErrors))
+						{
+							$tabHtml['errors'] = array_merge($tabHtml['errors'], $fieldErrors);
+						}
+					}
 				}
 			}
 

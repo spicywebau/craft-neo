@@ -81,6 +81,10 @@
 							background-color: #fafafa;
 							color: #576575;
 						}
+
+						&.has-errors {
+							color: #da5a47;
+						}
 					}
 				}
 

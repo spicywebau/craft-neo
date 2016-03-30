@@ -82,7 +82,6 @@ export default Garnish.Base.extend({
 
 	updateResponsiveness()
 	{
-		console.log(this._buttonsContainerWidth)
 		if(!this._buttonsContainerWidth)
 		{
 			this._buttonsContainerWidth = this.$buttonsContainer.width()
