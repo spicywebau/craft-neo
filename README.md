@@ -16,7 +16,7 @@ Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the conce
 
 ## Release
 
-Neo is currently in alpha, so feel free to try it out! Keep in mind that breaking changes are to be expected with later releases, without migration. Point is, don't use it in production quite yet.
+During the release of `0.x` versions, breaking changes are to be expected with without migration options. Do not use in production until version `1.0` is released.
 
 ### Feature checklist
 
@@ -29,6 +29,6 @@ Neo is currently in alpha, so feel free to try it out! Keep in mind that breakin
 - [ ] Relabel support
 - [ ] Quick Field support
 
-### ETA
+### Version `1.0` ETA
 
-No `1.0` ETA just yet, but it's looking to be around end of April 2016. In the meantime, `0.x` releases will start around early-mid April.
+Version `1.0` will release with all features around the end of April 2016. In the meantime, `0.x` versions will be released with partial feature support.
