@@ -45,6 +45,7 @@ class NeoFieldType extends BaseFieldType
 	{
 		$settings = $this->getSettings();
 		$jsBlockTypes = array();
+		$jsGroups = array();
 
 		foreach($settings->getBlockTypes() as $blockType)
 		{
@@ -83,6 +84,15 @@ class NeoFieldType extends BaseFieldType
 			);
 		}
 
+		foreach($settings->getGroups() as $group)
+		{
+			$jsGroups[] = array(
+				'id' => $group->id,
+				'sortOrder' => $group->sortOrder,
+				'name' => $group->name,
+			);
+		}
+
 		/*craft()->templates->startJsBuffer();
 
 		$fieldLayoutHtml = craft()->templates->render('_includes/fieldlayoutdesigner', array(
@@ -95,6 +105,7 @@ class NeoFieldType extends BaseFieldType
 		$jsSettings = array(
 			'namespace' => craft()->templates->getNamespace(),
 			'blockTypes' => $jsBlockTypes,
+			'groups' => $jsGroups,
 			//'fieldLayoutHtml' => $fieldLayoutHtml,
 		);
 
@@ -122,6 +133,7 @@ class NeoFieldType extends BaseFieldType
 
 		$neoSettings = new Neo_SettingsModel($this->model);
 		$blockTypes = array();
+		$groups = array();
 
 		if(!empty($settings['blockTypes']))
 		{
@@ -149,7 +161,23 @@ class NeoFieldType extends BaseFieldType
 			}
 		}
 
+		if(!empty($settings['groups']))
+		{
+			$names = $settings['groups']['name'];
+			$sortOrders = $settings['groups']['sortOrder'];
+
+			for($i = 0; $i < count($names); $i++)
+			{
+				$group = new Neo_GroupModel();
+				$group->name = $names[$i];
+				$group->sortOrder = $sortOrders[$i];
+
+				$groups[] = $group;
+			}
+		}
+
 		$neoSettings->setBlockTypes($blockTypes);
+		$neoSettings->setGroups($groups);
 
 		if(!empty($settings['maxBlocks']))
 		{

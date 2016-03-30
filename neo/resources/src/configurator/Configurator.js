@@ -18,7 +18,8 @@ import './styles/configurator.scss'
 
 const _defaults = {
 	namespace: [],
-	blockTypes: []
+	blockTypes: [],
+	groups: []
 }
 
 export default Garnish.Base.extend({
@@ -62,11 +63,13 @@ export default Garnish.Base.extend({
 			onSortChange: () => this._updateItemOrder()
 		})
 
-		// Add the existing block types
+		// Add the existing block types and groups
+		const existingItems = []
+		const btNamespace = [...this._templateNs, 'blockTypes']
+		const gNamespace  = [...this._templateNs, 'groups']
+
 		for(let btInfo of settings.blockTypes)
 		{
-			let btNamespace = [...this._templateNs, 'blockTypes']
-
 			let btSettings = new BlockTypeSettings({
 				namespace: [...btNamespace, btInfo.id],
 				sortOrder: btInfo.sortOrder,
@@ -88,7 +91,28 @@ export default Garnish.Base.extend({
 				fieldLayout: btFieldLayout
 			})
 
-			this.addItem(blockType, btSettings.getSortOrder() - 1)
+			existingItems.push(blockType)
+		}
+
+		for(let gInfo of settings.groups)
+		{
+			let gSettings = new GroupSettings({
+				namespace: gNamespace,
+				sortOrder: gInfo.sortOrder,
+				name: gInfo.name
+			})
+
+			let group = new Group({
+				namespace: gNamespace,
+				settings: gSettings
+			})
+
+			existingItems.push(group)
+		}
+
+		for(let item of existingItems.sort((a, b) => a.getSettings().getSortOrder() > b.getSettings().getSortOrder()))
+		{
+			this.addItem(item)
 		}
 
 		this.selectTab('settings')

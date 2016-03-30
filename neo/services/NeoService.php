@@ -22,21 +22,25 @@ class NeoService extends BaseApplicationComponent
 	 * @var
 	 */
 	private $_blockTypesById;
+	private $_groupsById;
 
 	/**
 	 * @var
 	 */
 	private $_blockTypesByFieldId;
+	private $_groupsByFieldId;
 
 	/**
 	 * @var
 	 */
 	private $_fetchedAllBlockTypesForFieldId;
+	private $_fetchedAllGroupsForFieldId;
 
 	/**
 	 * @var
 	 */
 	private $_blockTypeRecordsById;
+	private $_groupRecordsById;
 
 	/**
 	 * @var
@@ -66,7 +70,7 @@ class NeoService extends BaseApplicationComponent
 	 */
 	public function getBlockTypesByFieldId($fieldId, $indexBy = null)
 	{
-		if (empty($this->_fetchedAllBlockTypesForFieldId[$fieldId]))
+		if(empty($this->_fetchedAllBlockTypesForFieldId[$fieldId]))
 		{
 			$this->_blockTypesByFieldId[$fieldId] = array();
 
@@ -74,7 +78,7 @@ class NeoService extends BaseApplicationComponent
 				->where('fieldId = :fieldId', array(':fieldId' => $fieldId))
 				->queryAll();
 
-			foreach ($results as $result)
+			foreach($results as $result)
 			{
 				$blockType = new Neo_BlockTypeModel($result);
 				$this->_blockTypesById[$blockType->id] = $blockType;
@@ -84,21 +88,54 @@ class NeoService extends BaseApplicationComponent
 			$this->_fetchedAllBlockTypesForFieldId[$fieldId] = true;
 		}
 
-		if (!$indexBy)
-		{
-			return $this->_blockTypesByFieldId[$fieldId];
-		}
-		else
+		if($indexBy)
 		{
 			$blockTypes = array();
 
-			foreach ($this->_blockTypesByFieldId[$fieldId] as $blockType)
+			foreach($this->_blockTypesByFieldId[$fieldId] as $blockType)
 			{
 				$blockTypes[$blockType->$indexBy] = $blockType;
 			}
 
 			return $blockTypes;
 		}
+
+		return $this->_blockTypesByFieldId[$fieldId];
+	}
+
+	public function getGroupsByFieldId($fieldId, $indexBy = null)
+	{
+		if(empty($this->_fetchedAllGroupsForFieldId[$fieldId]))
+		{
+			$this->_groupsByFieldId[$fieldId] = array();
+
+			$results = $this->_createGroupQuery()
+				->where('fieldId = :fieldId', array(':fieldId' => $fieldId))
+				->queryAll();
+
+			foreach($results as $result)
+			{
+				$group = new Neo_GroupModel($result);
+				$this->_groupsById[$group->id] = $group;
+				$this->_groupsByFieldId[$fieldId][] = $group;
+			}
+
+			$this->_fetchedAllGroupsForFieldId[$fieldId] = true;
+		}
+
+		if($indexBy)
+		{
+			$groups = array();
+
+			foreach($this->_groupsByFieldId[$fieldId] as $group)
+			{
+				$groups[$group->$indexBy] = $group;
+			}
+
+			return $groups;
+		}
+
+		return $this->_groupsByFieldId[$fieldId];
 	}
 
 	/**
@@ -248,6 +285,38 @@ class NeoService extends BaseApplicationComponent
 		}
 	}
 
+	public function saveGroup(Neo_GroupModel $group)
+	{
+		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		try
+		{
+			$groupRecord = new Neo_GroupRecord();
+			$groupRecord->fieldId   = $group->fieldId;
+			$groupRecord->name      = $group->name;
+			$groupRecord->sortOrder = $group->sortOrder;
+
+			$groupRecord->save(false);
+
+			$group->id = $groupRecord->id;
+
+			if($transaction !== null)
+			{
+				$transaction->commit();
+			}
+		}
+		catch(\Exception $e)
+		{
+			if($transaction !== null)
+			{
+				$transaction->rollback();
+			}
+
+			throw $e;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Deletes a block type.
 	 *
@@ -284,6 +353,32 @@ class NeoService extends BaseApplicationComponent
 			return (bool) $affectedRows;
 		}
 		catch (\Exception $e)
+		{
+			if ($transaction !== null)
+			{
+				$transaction->rollback();
+			}
+
+			throw $e;
+		}
+	}
+
+	public function deleteGroupsByFieldId($fieldId)
+	{
+		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		try
+		{
+			$affectedRows = craft()->db->createCommand()
+				->delete('neogroups', array('fieldId' => $fieldId));
+
+			if($transaction !== null)
+			{
+				$transaction->commit();
+			}
+
+			return (bool) $affectedRows;
+		}
+		catch(\Exception $e)
 		{
 			if ($transaction !== null)
 			{
@@ -386,13 +481,14 @@ class NeoService extends BaseApplicationComponent
 					$this->deleteBlockType($blockType);
 				}
 
+				$this->deleteGroupsByFieldId($neoField->id);
+
 				// Save the new ones
 				$sortOrder = 0;
 
 				foreach ($settings->getBlockTypes() as $blockType)
 				{
 					$sortOrder++;
-
 					$blockType->fieldId = $neoField->id;
 
 					if(!$blockType->sortOrder)
@@ -401,6 +497,19 @@ class NeoService extends BaseApplicationComponent
 					}
 
 					$this->saveBlockType($blockType, false);
+				}
+
+				foreach ($settings->getGroups() as $group)
+				{
+					$sortOrder++;
+					$group->fieldId = $neoField->id;
+
+					if(!$group->sortOrder)
+					{
+						$group->sortOrder = $sortOrder;
+					}
+
+					$this->saveGroup($group);
 				}
 
 				if ($transaction !== null)
@@ -757,6 +866,14 @@ class NeoService extends BaseApplicationComponent
 		return craft()->db->createCommand()
 			->select('id, fieldId, fieldLayoutId, name, handle, maxBlocks, sortOrder')
 			->from('neoblocktypes')
+			->order('sortOrder');
+	}
+
+	private function _createGroupQuery()
+	{
+		return craft()->db->createCommand()
+			->select('id, fieldId, name, sortOrder')
+			->from('neogroups')
 			->order('sortOrder');
 	}
 

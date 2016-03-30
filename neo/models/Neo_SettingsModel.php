@@ -25,6 +25,7 @@ class Neo_SettingsModel extends BaseModel
 	 * @var
 	 */
 	private $_blockTypes;
+	private $_groups;
 
 	// Public Methods
 	// =========================================================================
@@ -83,6 +84,38 @@ class Neo_SettingsModel extends BaseModel
 	public function setBlockTypes($blockTypes)
 	{
 		$this->_blockTypes = $blockTypes;
+	}
+
+	/**
+	 * Returns the groups.
+	 *
+	 * @return array
+	 */
+	public function getGroups()
+	{
+		if(!isset($this->_groups))
+		{
+			if(!empty($this->_neoField->id))
+			{
+				$this->_groups = craft()->neo->getGroupsByFieldId($this->_neoField->id);
+			}
+			else
+			{
+				$this->_groups = array();
+			}
+		}
+
+		return $this->_groups;
+	}
+
+	/**
+	 * Sets the groups.
+	 *
+	 * @param array $groups
+	 */
+	public function setGroups($groups)
+	{
+		$this->_groups = $groups;
 	}
 
 	/**

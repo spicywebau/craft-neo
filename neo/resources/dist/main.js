@@ -123,7 +123,8 @@
 	
 	var _defaults = {
 		namespace: [],
-		blockTypes: []
+		blockTypes: [],
+		groups: []
 	};
 	
 	exports.default = _garnish2.default.Base.extend({
@@ -172,7 +173,11 @@
 				}
 			});
 	
-			// Add the existing block types
+			// Add the existing block types and groups
+			var existingItems = [];
+			var btNamespace = [].concat(_toConsumableArray(this._templateNs), ['blockTypes']);
+			var gNamespace = [].concat(_toConsumableArray(this._templateNs), ['groups']);
+	
 			var _iteratorNormalCompletion = true;
 			var _didIteratorError = false;
 			var _iteratorError = undefined;
@@ -180,8 +185,6 @@
 			try {
 				for (var _iterator = settings.blockTypes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var btInfo = _step.value;
-	
-					var btNamespace = [].concat(_toConsumableArray(this._templateNs), ['blockTypes']);
 	
 					var btSettings = new _BlockTypeSettings2.default({
 						namespace: [].concat(_toConsumableArray(btNamespace), [btInfo.id]),
@@ -204,7 +207,7 @@
 						fieldLayout: btFieldLayout
 					});
 	
-					this.addItem(blockType, btSettings.getSortOrder() - 1);
+					existingItems.push(blockType);
 				}
 			} catch (err) {
 				_didIteratorError = true;
@@ -217,6 +220,69 @@
 				} finally {
 					if (_didIteratorError) {
 						throw _iteratorError;
+					}
+				}
+			}
+	
+			var _iteratorNormalCompletion2 = true;
+			var _didIteratorError2 = false;
+			var _iteratorError2 = undefined;
+	
+			try {
+				for (var _iterator2 = settings.groups[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+					var gInfo = _step2.value;
+	
+					var gSettings = new _GroupSettings2.default({
+						namespace: gNamespace,
+						sortOrder: gInfo.sortOrder,
+						name: gInfo.name
+					});
+	
+					var group = new _Group2.default({
+						namespace: gNamespace,
+						settings: gSettings
+					});
+	
+					existingItems.push(group);
+				}
+			} catch (err) {
+				_didIteratorError2 = true;
+				_iteratorError2 = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion2 && _iterator2.return) {
+						_iterator2.return();
+					}
+				} finally {
+					if (_didIteratorError2) {
+						throw _iteratorError2;
+					}
+				}
+			}
+	
+			var _iteratorNormalCompletion3 = true;
+			var _didIteratorError3 = false;
+			var _iteratorError3 = undefined;
+	
+			try {
+				for (var _iterator3 = existingItems.sort(function (a, b) {
+					return a.getSettings().getSortOrder() > b.getSettings().getSortOrder();
+				})[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+					var item = _step3.value;
+	
+					this.addItem(item);
+				}
+			} catch (err) {
+				_didIteratorError3 = true;
+				_iteratorError3 = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion3 && _iterator3.return) {
+						_iterator3.return();
+					}
+				} finally {
+					if (_didIteratorError3) {
+						throw _iteratorError3;
 					}
 				}
 			}
@@ -314,27 +380,27 @@
 	
 			var settings = item ? item.getSettings() : null;
 	
-			var _iteratorNormalCompletion2 = true;
-			var _didIteratorError2 = false;
-			var _iteratorError2 = undefined;
+			var _iteratorNormalCompletion4 = true;
+			var _didIteratorError4 = false;
+			var _iteratorError4 = undefined;
 	
 			try {
-				for (var _iterator2 = this._items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-					var i = _step2.value;
+				for (var _iterator4 = this._items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+					var i = _step4.value;
 	
 					i.toggleSelect(i === item);
 				}
 			} catch (err) {
-				_didIteratorError2 = true;
-				_iteratorError2 = err;
+				_didIteratorError4 = true;
+				_iteratorError4 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion2 && _iterator2.return) {
-						_iterator2.return();
+					if (!_iteratorNormalCompletion4 && _iterator4.return) {
+						_iterator4.return();
 					}
 				} finally {
-					if (_didIteratorError2) {
-						throw _iteratorError2;
+					if (_didIteratorError4) {
+						throw _iteratorError4;
 					}
 				}
 			}
