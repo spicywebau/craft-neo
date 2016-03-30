@@ -22,7 +22,12 @@ class NeoPlugin extends BasePlugin
 
 	function getVersion()
 	{
-		return '0.0.1';
+		return '0.1.0';
+	}
+
+	public function getCraftMinimumVersion()
+	{
+		return '2.6';
 	}
 
 	public function getSchemaVersion()
@@ -45,18 +50,29 @@ class NeoPlugin extends BasePlugin
 		return 'https://github.com/benjamminf/craft-neo';
 	}
 
-	public function init()
+	public function getReleaseFeedUrl()
 	{
-		parent::init();
-
-		if($this->isCraftRequiredVersion())
-		{
-
-		}
+		return 'https://raw.githubusercontent.com/benjamminf/craft-neo/master/releases.json';
 	}
 
 	public function isCraftRequiredVersion()
 	{
-		return version_compare(craft()->getVersion(), '2.6', '>=');
+		return version_compare(craft()->getVersion(), $this->getCraftMinimumVersion(), '>=');
+	}
+
+	public function onBeforeInstall()
+	{
+		if(!$this->isCraftRequiredVersion())
+		{
+			$message = Craft::t("Neo requires Craft version {version} or newer. Installation was aborted.", array(
+				'version' => $this->getCraftMinimumVersion(),
+			));
+
+			craft()->userSession->setError($message);
+
+			return false;
+		}
+
+		return true;
 	}
 }
