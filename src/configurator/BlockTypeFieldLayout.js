@@ -13,6 +13,8 @@ const _defaults = {
 	blockName: ''
 }
 
+let _reasonsInitialised = false
+
 export default Garnish.Base.extend({
 
 	_templateNs: [],
@@ -185,12 +187,18 @@ export default Garnish.Base.extend({
 
 			reasons.settings.formSelector = '.fieldlayoutform'
 
+			if(_reasonsInitialised)
+			{
+				reasons.onFieldSettingsMenuItemClick = $.noop
+			}
+
 			reasons.init()
 
 			reasons.$conditionalsInput.prop('name', `neo[reasons][${id}]`)
 			reasons.$conditionalsIdInput.prop('name', `neo[reasonsId][${id}]`)
 
 			this._reasons = reasons
+			_reasonsInitialised = true
 		}
 	}
 })
