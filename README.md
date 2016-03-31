@@ -16,7 +16,7 @@ Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the conce
 
 ## Release
 
-During the release of `0.x` versions, breaking changes are to be expected with without migration options. Do not use in production until version `1.0` is released.
+During the release of `0.x` versions, breaking changes are to be expected without migration. Do not use in production until version `1.0` is released.
 
 ### Feature checklist
 
