@@ -179,8 +179,9 @@ export default Garnish.Base.extend({
 	{
 		if(Craft.ReasonsPlugin)
 		{
-			const reasons = new Craft.ReasonsPlugin.FieldLayoutDesigner(this.$container)
 			const id = this.getBlockId()
+			const conditionals = Craft.ReasonsPlugin.neoData.conditionals[id]
+			const reasons = new Craft.ReasonsPlugin.FieldLayoutDesigner(this.$container, conditionals)
 
 			reasons.settings.formSelector = '.fieldlayoutform'
 
