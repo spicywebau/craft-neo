@@ -859,6 +859,18 @@ class NeoService extends BaseApplicationComponent
 		return $this->_parentNeoFields[$neoField->id];
 	}
 
+	public function requirePlugin($pluginHandle)
+	{
+		if(!craft()->plugins->getPlugin($plugin))
+		{
+			$message = Craft::t("The plugin \"{plugin}\" is required for Neo to use this functionality.", array(
+				'plugin' => $plugin
+			));
+
+			throw new Exception($message);
+		}
+	}
+
 	// Private Methods
 	// =========================================================================
 
