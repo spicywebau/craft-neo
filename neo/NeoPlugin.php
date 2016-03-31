@@ -60,34 +60,15 @@ class NeoPlugin extends BasePlugin
 		return version_compare(craft()->getVersion(), $this->getCraftMinimumVersion(), '>=');
 	}
 
+	public function init()
+	{
+		parent::init();
+
+		craft()->neo_reasons->pluginInit();
+	}
+
 	public function onBeforeInstall()
 	{
 		return $this->isCraftRequiredVersion();
-	}
-
-	public function onSaveFieldLayout(Event $e)
-	{
-		$fieldLayout = $e->params['layout'];
-		$postData = craft()->request->getPost('neo');
-		$blockType = craft()->neo->currentSavingBlockType;
-
-		if($postData && $blockType)
-		{
-			if(isset($postData['reasons']))
-			{
-				craft()->neo->requirePlugin('reasons');
-
-				$reasonsPost = $postData['reasons'][$blockType->id];
-
-				if($reasonsPost)
-				{
-					$conditionalsModel = new Reasons_ConditionalsModel();
-					$conditionalsModel->fieldLayoutId = $fieldLayout->id;
-					$conditionalsModel->conditionals = $reasonsPost;
-
-					craft()->neo_reasons->saveConditionals($conditionalsModel);
-				}
-			}
-		}
 	}
 }

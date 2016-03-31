@@ -859,7 +859,7 @@ class NeoService extends BaseApplicationComponent
 		return $this->_parentNeoFields[$neoField->id];
 	}
 
-	public function requirePlugin($pluginHandle)
+	public function requirePlugin($plugin)
 	{
 		if(!craft()->plugins->getPlugin($plugin))
 		{
