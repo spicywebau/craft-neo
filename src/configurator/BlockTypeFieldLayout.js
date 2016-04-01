@@ -188,7 +188,7 @@ export default Garnish.Base.extend({
 			const Editor = ReasonsEditor(Reasons.FieldLayoutDesigner)
 
 			const id = this.getBlockId()
-			const conditionals = Reasons.neoData.conditionals[id]
+			const conditionals = Reasons.Neo.conditionals[id]
 
 			this._reasons = new Editor(this.$container, conditionals, id)
 		}

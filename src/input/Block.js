@@ -243,7 +243,7 @@ export default Garnish.Base.extend({
 
 			const type = this.getBlockType()
 			const typeId = type.getId()
-			const conditionals = Reasons.neoData.conditionals[typeId]
+			const conditionals = Reasons.Neo.conditionals[typeId]
 
 			this._reasons = new Renderer(this.$contentContainer, conditionals)
 		}

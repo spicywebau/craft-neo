@@ -17,7 +17,7 @@ class Neo_ReasonsService extends BaseApplicationComponent
 					'conditionals' => $this->getConditionals(),
 				);
 
-				craft()->templates->includeJs('if(window.Craft && Craft.ReasonsPlugin) Craft.ReasonsPlugin.neoData = ' . JsonHelper::encode($data));
+				craft()->templates->includeJs('if(window.Craft && Craft.ReasonsPlugin) Craft.ReasonsPlugin.Neo = ' . JsonHelper::encode($data));
 			}
 
 			craft()->on('fields.saveFieldLayout', array($this, 'onSaveFieldLayout'));
