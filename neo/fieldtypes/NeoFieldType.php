@@ -344,6 +344,7 @@ class NeoFieldType extends BaseFieldType
 		foreach($settings->getBlockTypes() as $blockType)
 		{
 			$blockTypeInfo[] = array(
+				'id'        => $blockType->id,
 				'sortOrder' => $blockType->sortOrder,
 				'handle'    => $blockType->handle,
 				'name'      => Craft::t($blockType->name),

@@ -17,6 +17,8 @@ const _defaults = {
 	collapsed: false
 }
 
+let _reasonsInitialised = false
+
 export default Garnish.Base.extend({
 
 	_templateNs: [],
@@ -78,6 +80,8 @@ export default Garnish.Base.extend({
 			this._settingsMenu.on('optionSelect', e => this['@settingSelect'](e))
 
 			this._initialised = true
+
+			this._initReasonsPlugin()
 
 			this.trigger('initUi')
 		}
@@ -225,6 +229,26 @@ export default Garnish.Base.extend({
 			$tabButton: $tab.filter('[data-neo-b="button.tab"]'),
 			$tabContainer: $tab.filter('[data-neo-b="container.tab"]')
 		})
+	},
+
+	_initReasonsPlugin()
+	{
+		if(Craft.ReasonsPlugin)
+		{
+			const ConditionalsRenderer = Craft.ReasonsPlugin.ConditionalsRenderer
+
+			const type = this.getBlockType()
+			const typeId = type.getId()
+			const conditionals = Craft.ReasonsPlugin.neoData.conditionals[typeId]
+
+			if(_reasonsInitialised)
+			{
+				ConditionalsRenderer.prototype.onInputWrapperClick = $.noop
+			}
+
+			this._reasons = new ConditionalsRenderer(this.$contentContainer, conditionals)
+			_reasonsInitialised = true
+		}
 	},
 
 	'@settingSelect'(e)
