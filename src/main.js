@@ -3,7 +3,5 @@ import Input from './input/Input'
 
 window.Neo = {
 	Configurator: Configurator,
-	Input: Input,
-
-	ReasonsPlugin: {conditionals: {}}
+	Input: Input
 }

@@ -6,6 +6,8 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
+import ReasonsRenderer from '../plugins/reasons/Renderer'
+
 import renderTemplate from './templates/block.twig'
 import '../twig-extensions'
 
@@ -16,8 +18,6 @@ const _defaults = {
 	enabled: true,
 	collapsed: false
 }
-
-let _reasonsInitialised = false
 
 export default Garnish.Base.extend({
 
@@ -93,6 +93,8 @@ export default Garnish.Base.extend({
 		{
 			this.$container.remove()
 			this.$foot.remove()
+
+			this._destroyReasonsPlugin()
 
 			this.trigger('destroy')
 		}
@@ -233,21 +235,25 @@ export default Garnish.Base.extend({
 
 	_initReasonsPlugin()
 	{
-		if(Craft.ReasonsPlugin)
+		const Reasons = Craft.ReasonsPlugin
+
+		if(Reasons)
 		{
-			const ConditionalsRenderer = Craft.ReasonsPlugin.ConditionalsRenderer
+			const Renderer = ReasonsRenderer(Reasons.ConditionalsRenderer)
 
 			const type = this.getBlockType()
 			const typeId = type.getId()
-			const conditionals = Craft.ReasonsPlugin.neoData.conditionals[typeId]
+			const conditionals = Reasons.neoData.conditionals[typeId]
 
-			if(_reasonsInitialised)
-			{
-				ConditionalsRenderer.prototype.onInputWrapperClick = $.noop
-			}
+			this._reasons = new Renderer(this.$contentContainer, conditionals)
+		}
+	},
 
-			this._reasons = new ConditionalsRenderer(this.$contentContainer, conditionals)
-			_reasonsInitialised = true
+	_destroyReasonsPlugin()
+	{
+		if(this._reasons)
+		{
+			this._reasons.destroy()
 		}
 	},
 
