@@ -5,6 +5,8 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
+import ReasonsEditor from '../plugins/reasons/Editor'
+
 const _defaults = {
 	namespace: [],
 	html: '',
@@ -179,26 +181,24 @@ export default Garnish.Base.extend({
 
 	_initReasonsPlugin()
 	{
-		if(Craft.ReasonsPlugin)
+		const Reasons = Craft.ReasonsPlugin
+
+		if(Reasons)
 		{
+			const Editor = ReasonsEditor(Reasons.FieldLayoutDesigner)
+
 			const id = this.getBlockId()
-			const conditionals = Craft.ReasonsPlugin.neoData.conditionals[id]
-			const reasons = new Craft.ReasonsPlugin.FieldLayoutDesigner(this.$container, conditionals)
+			const conditionals = Reasons.neoData.conditionals[id]
 
-			reasons.settings.formSelector = '.fieldlayoutform'
+			this._reasons = new Editor(this.$container, conditionals, id)
+		}
+	},
 
-			if(_reasonsInitialised)
-			{
-				reasons.onFieldSettingsMenuItemClick = $.noop
-			}
-
-			reasons.init()
-
-			reasons.$conditionalsInput.prop('name', `neo[reasons][${id}]`)
-			reasons.$conditionalsIdInput.prop('name', `neo[reasonsId][${id}]`)
-
-			this._reasons = reasons
-			_reasonsInitialised = true
+	_destroyReasonsPlugin()
+	{
+		if(this._reasons)
+		{
+			this._reasons.destroy()
 		}
 	}
 })
