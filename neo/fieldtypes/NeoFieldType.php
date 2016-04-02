@@ -551,6 +551,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			}
 		}
 
+		// TODO validate individual blocktype max blocks
+
 		if ($errors)
 		{
 			return $errors;
@@ -689,7 +691,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	{
 		$namespace = craft()->templates->getNamespace();
 
-		return substr_count($namespace, '[') + 1;
+		return preg_match_all('/\\bfields\\b/', $namespace);
 	}
 
 	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null)
