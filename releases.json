@@ -1,5 +1,14 @@
 [
 	{
+		"version": "0.2.1",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.2.1.zip",
+		"date": "2016-04-02T19:40:00+11:00",
+		"notes": [
+			"[Added] Added support for eager loading",
+			"[Fixed] Fix issue where some saved field values wouldn't load inside a Neo block"
+		]
+	},
+	{
 		"version": "0.2.0",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.2.0.zip",
 		"date": "2016-04-02T00:25:00+11:00",
