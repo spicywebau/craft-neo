@@ -1,6 +1,4 @@
-import Garnish from 'garnish'
-
-const NS = Garnish.Base.extend({
+export default {
 
 	_stack: [ [] ],
 
@@ -106,6 +104,4 @@ const NS = Garnish.Base.extend({
 	{
 		return fieldName.match(/[^\[\]\s]+/g) || []
 	}
-})
-
-export default new NS()
+}
