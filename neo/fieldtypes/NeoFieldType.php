@@ -722,7 +722,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				if($fieldType)
 				{
 					$fieldType->element = $block;
-					$fieldType->setIsFresh(true);
+					$fieldType->setIsFresh($block == null);
 
 					if($block)
 					{
