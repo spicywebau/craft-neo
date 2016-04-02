@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.app.fieldtypes
  * @since     1.3
  */
-class NeoFieldType extends BaseFieldType
+class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 {
 	// Public Methods
 	// =========================================================================
@@ -639,6 +639,34 @@ class NeoFieldType extends BaseFieldType
 		{
 			return '<p class="light">'.Craft::t('No blocks.').'</p>';
 		}
+	}
+
+	public function getEagerLoadingMap($sourceElements)
+	{
+		// Get the source element IDs
+		$sourceElementIds = array();
+
+		foreach($sourceElements as $sourceElement)
+		{
+			$sourceElementIds[] = $sourceElement->id;
+		}
+
+		// Return any relation data on these elements, defined with this field
+		$map = craft()->db->createCommand()
+			->select('ownerId as source, id as target')
+			->from('neo_blocks')
+			->where(
+				array('and', 'fieldId=:fieldId', array('in', 'ownerId', $sourceElementIds)),
+				array(':fieldId' => $this->model->id)
+			)
+			->order('sortOrder')
+			->queryAll();
+
+		return array(
+			'elementType' => Neo_ElementType::NeoBlock,
+			'map' => $map,
+			'criteria' => array('fieldId' => $this->model->id),
+		);
 	}
 
 	// Protected Methods
