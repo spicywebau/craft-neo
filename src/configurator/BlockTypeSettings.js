@@ -157,16 +157,43 @@ export default Settings.extend({
 		})
 	},
 
-	getChildBlocks() { return this._childBlocks },
+	getChildBlocks()
+	{
+		const select = this._childBlocksSelect
+		const childBlocks = []
+
+		if(select.$all.prop('checked'))
+		{
+			return true
+		}
+
+		select.$options.each(function(index)
+		{
+			const $option = $(this)
+			childBlocks.push($option.prop('checked'))
+		})
+
+		return childBlocks
+	},
+
 	setChildBlocks(childBlocks)
 	{
+		const select = this._childBlocksSelect
+
 		if(childBlocks === true)
 		{
-			// Tick all
+			select.$all.prop('checked', true)
+			select.onAllChange()
 		}
 		else
 		{
+			select.$all.prop('checked', false)
 
+			select.$options.each(function(index)
+			{
+				const $option = $(this)
+				$option.prop('checked', childBlocks[index])
+			})
 		}
 	},
 
