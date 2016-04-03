@@ -80,7 +80,7 @@ export default Garnish.Base.extend({
 				handle: btInfo.handle,
 				maxBlocks: btInfo.maxBlocks,
 				errors: btInfo.errors,
-				childBlockTypes: this.getBlockTypes()
+				childBlockTypes: existingItems.filter(item => item instanceof BlockType)
 			})
 
 			let btFieldLayout = new BlockTypeFieldLayout({
