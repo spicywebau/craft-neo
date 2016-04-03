@@ -193,11 +193,8 @@ export default Settings.extend({
 				$checkbox.insertAt(index, this.$childBlocksContainer)
 			}
 
-			const $neo = $checkbox.find('[data-neo-btsc]')
-			const $labelText = $neo.filter('[data-neo-btsc="text.label"]')
-
 			const eventNs = '.childBlock' + this.getId()
-			settings.on('change' + eventNs, e => (e.property === 'name') && $labelText.text(e.newValue))
+			settings.on('change' + eventNs, e => this['@onChildBlockTypeChange'](e, blockType, $checkbox))
 			settings.on('destroy' + eventNs, e => this.removeChildBlockType(blockType))
 		}
 	},
@@ -216,6 +213,32 @@ export default Settings.extend({
 
 			const eventNs = '.childBlock' + this.getId()
 			settings.off(eventNs)
+		}
+	},
+
+	'@onChildBlockTypeChange'(e, blockType, $checkbox)
+	{
+		const settings = blockType.getSettings()
+
+		const $neo = $checkbox.find('[data-neo-btsc]')
+		const $labelText = $neo.filter('[data-neo-btsc="text.label"]')
+
+		switch(e.property)
+		{
+			case 'name':
+				$labelText.text(e.newValue)
+				break
+
+			case 'sortOrder':
+				const oldIndex = this._childBlockTypes.indexOf(blockType)
+				const newIndex = settings.getSortOrder() - 1
+
+				this._childBlockTypes.splice(oldIndex, 1)
+				this._childBlockTypes.splice(newIndex, 0, blockType)
+
+				$checkbox.insertAt(newIndex, this.$childBlocksContainer)
+
+				break
 		}
 	}
 },
