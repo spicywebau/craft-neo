@@ -79,7 +79,8 @@ export default Garnish.Base.extend({
 				name: btInfo.name,
 				handle: btInfo.handle,
 				maxBlocks: btInfo.maxBlocks,
-				errors: btInfo.errors
+				errors: btInfo.errors,
+				childBlockTypes: this.getBlockTypes()
 			})
 
 			let btFieldLayout = new BlockTypeFieldLayout({
@@ -157,6 +158,15 @@ export default Garnish.Base.extend({
 
 		this._items.push(item)
 		this._updateItemOrder()
+
+		if(item instanceof BlockType)
+		{
+			for(let blockType of this.getBlockTypes())
+			{
+				let btSettings = blockType.getSettings()
+				if(btSettings) btSettings.addChildBlockType(item, index)
+			}
+		}
 
 		this.trigger('addItem', {
 			item: item,
@@ -286,7 +296,8 @@ export default Garnish.Base.extend({
 		const settings = new BlockTypeSettings({
 			namespace: [...namespace, id],
 			sortOrder: this._items.length,
-			id: id
+			id: id,
+			childBlockTypes: this.getBlockTypes()
 		})
 
 		const fieldLayout = new BlockTypeFieldLayout({

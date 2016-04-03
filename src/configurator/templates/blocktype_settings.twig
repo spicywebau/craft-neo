@@ -58,12 +58,7 @@
 					<input type="checkbox" value="*" id="{{ childBlocksId }}" class="all checkbox" name="{{ childBlocksName }}">
 					<label for="{{ childBlocksId }}"><strong>{{ "All"|t }}</strong></label>
 				</div>
-				<div data-neo-bts="container.childBlocks">
-					<div>
-						<input type="checkbox" value="value" id="{{ childBlocksId }}-1" class="checkbox" name="{{ childBlocksName }}[]">
-						<label for="{{ childBlocksId }}-1">Block Type</label>
-					</div>
-				</div>
+				<div data-neo-bts="container.childBlocks"></div>
 			</div>
 		{% endset %}
 		{{ macros.field({
