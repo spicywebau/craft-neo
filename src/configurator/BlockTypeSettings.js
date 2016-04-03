@@ -206,8 +206,8 @@ export default Settings.extend({
 			const settings = blockType.getSettings()
 			const $checkbox = $(renderCheckbox({
 				id: 'childBlock-' + settings.getId(),
-				name: '',
-				value: settings.getId(),
+				name: 'childBlocks',
+				value: settings.getHandle(),
 				label: settings.getName()
 			}))
 
@@ -260,6 +260,7 @@ export default Settings.extend({
 		const settings = blockType.getSettings()
 
 		const $neo = $checkbox.find('[data-neo-btsc]')
+		const $input = $neo.filter('[data-neo-btsc="input"]')
 		const $labelText = $neo.filter('[data-neo-btsc="text.label"]')
 
 		switch(e.property)
@@ -267,6 +268,10 @@ export default Settings.extend({
 			case 'name':
 				$labelText.text(e.newValue)
 				break
+
+			case 'handle':
+				$input.val(e.newValue)
+				break;
 
 			case 'sortOrder':
 				const oldIndex = this._childBlockTypes.indexOf(blockType)
