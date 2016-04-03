@@ -8,6 +8,7 @@ const _defaults = {
 	name: '',
 	handle: '',
 	maxBlocks: 0,
+	childBlocks: false,
 	tabs: []
 }
 
@@ -22,6 +23,7 @@ export default Garnish.Base.extend({
 		this._name = settings.name
 		this._handle = settings.handle
 		this._maxBlocks = settings.maxBlocks|0
+		this._childBlocks = settings.childBlocks
 		this._tabs = settings.tabs.map(tab => new Tab(tab))
 	},
 
@@ -31,5 +33,21 @@ export default Garnish.Base.extend({
 	getName() { return this._name },
 	getHandle() { return this._handle },
 	getMaxBlocks() { return this._maxBlocks },
-	getTabs() { return Array.from(this._tabs) }
+	getChildBlocks() { return this._childBlocks },
+	getTabs() { return Array.from(this._tabs) },
+
+	getChildBlockItems(items)
+	{
+		const handles = this.getChildBlocks()
+
+		return items.filter(item =>
+			item.getType() === 'group' || (
+				handles === true ||
+				handles === '*' || (
+					Array.isArray(handles) &&
+					handles.includes(item.getHandle())
+				)
+			)
+		)
+	}
 })

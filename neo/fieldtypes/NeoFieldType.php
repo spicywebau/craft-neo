@@ -346,12 +346,13 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		foreach($settings->getBlockTypes() as $blockType)
 		{
 			$blockTypeInfo[] = array(
-				'id'        => $blockType->id,
-				'sortOrder' => $blockType->sortOrder,
-				'handle'    => $blockType->handle,
-				'name'      => Craft::t($blockType->name),
-				'maxBlocks' => $blockType->maxBlocks,
-				'tabs'      => $this->_getBlockTypeHtml($blockType, null, $name),
+				'id'          => $blockType->id,
+				'sortOrder'   => $blockType->sortOrder,
+				'handle'      => $blockType->handle,
+				'name'        => Craft::t($blockType->name),
+				'maxBlocks'   => $blockType->maxBlocks,
+				'childBlocks' => $blockType->childBlocks,
+				'tabs'        => $this->_getBlockTypeHtml($blockType, null, $name),
 			);
 		}
 
@@ -373,6 +374,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'sortOrder' => $block->sortOrder,
 				'collapsed' => (bool) $block->collapsed,
 				'enabled'   => (bool) $block->enabled,
+				'level'     => $block->level,
 				'tabs'      => $this->_getBlockHtml($block, $name),
 			);
 		}

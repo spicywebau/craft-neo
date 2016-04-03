@@ -117,6 +117,11 @@ export default Garnish.Base.extend({
 				maxBlocks: blockType.getMaxBlocks(),
 				tabs:      bInfo.tabs
 			})
+			bInfo.buttons = new Buttons({
+				blockTypes: blockType.getChildBlockItems(this.getItems()),
+				groups: this.getGroups(),
+				maxBlocks: this.getMaxBlocks()
+			})
 
 			let block = new Block(bInfo)
 			this.addBlock(block)
@@ -192,6 +197,11 @@ export default Garnish.Base.extend({
 		return Array.from(this._groups)
 	},
 
+	getItems()
+	{
+		return [...this.getBlockTypes(), ...this.getGroups()].sort((a, b) => a.getSortOrder() - b.getSortOrder())
+	},
+
 	getMaxBlocks()
 	{
 		return this._maxBlocks
@@ -256,7 +266,12 @@ export default Garnish.Base.extend({
 		const block = new Block({
 			namespace: [...this._templateNs, blockId],
 			blockType: e.blockType,
-			id: blockId
+			id: blockId,
+			buttons: new Buttons({
+				blockTypes: e.blockType.getChildBlockItems(this.getItems()),
+				groups: this.getGroups(),
+				maxBlocks: this.getMaxBlocks()
+			})
 		})
 
 		this.addBlock(block, e.index)

@@ -6,6 +6,8 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
+import Buttons from './Buttons'
+
 import ReasonsRenderer from '../plugins/reasons/Renderer'
 
 import renderTemplate from './templates/block.twig'
@@ -15,6 +17,7 @@ const _defaults = {
 	namespace: [],
 	blockType: null,
 	id: null,
+	buttons: null,
 	enabled: true,
 	collapsed: false
 }
@@ -34,6 +37,7 @@ export default Garnish.Base.extend({
 		this._templateNs = NS.parse(settings.namespace)
 		this._blockType = settings.blockType
 		this._id = settings.id
+		this._buttons = settings.buttons
 
 		NS.enter(this._templateNs)
 
@@ -48,6 +52,7 @@ export default Garnish.Base.extend({
 
 		const $neo = this.$container.find('[data-neo-b]')
 		this.$contentContainer = $neo.filter('[data-neo-b="container.content"]')
+		this.$childrenContainer = $neo.filter('[data-neo-b="container.children"]')
 		this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]')
 		this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]')
 		this.$tabButton = $neo.filter('[data-neo-b="button.tab"]')
@@ -56,6 +61,11 @@ export default Garnish.Base.extend({
 		this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
 		this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
 		this.$status = $neo.filter('[data-neo-b="status"]')
+
+		if(this._buttons)
+		{
+			this.$childrenContainer.append(this._buttons.$container)
+		}
 
 		this.toggleEnabled(settings.enabled)
 		this.toggleExpansion(!settings.collapsed)
@@ -80,6 +90,11 @@ export default Garnish.Base.extend({
 			this._settingsMenu.on('optionSelect', e => this['@settingSelect'](e))
 
 			this._initialised = true
+
+			if(this._buttons)
+			{
+				this._buttons.initUi()
+			}
 
 			this._initReasonsPlugin()
 
@@ -108,6 +123,11 @@ export default Garnish.Base.extend({
 	getId()
 	{
 		return this._id
+	},
+
+	getButtons()
+	{
+		return this._buttons
 	},
 
 	isNew()

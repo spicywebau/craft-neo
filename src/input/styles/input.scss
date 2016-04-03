@@ -113,6 +113,10 @@
 			border-top: 1px solid #e3e5e8;
 			background-color: #fafafa;
 
+			&:empty {
+				display: none;
+			}
+
 			&_tab {
 				display: none;
 
@@ -124,6 +128,12 @@
 					margin: 18px 0;
 				}
 			}
+		}
+
+		&_children {
+			padding: 14px;
+			border-top: 1px solid #e3e5e8;
+			background-color: #eef0f1;
 		}
 
 		&.is-contracted {
