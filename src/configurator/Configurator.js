@@ -120,6 +120,14 @@ export default Garnish.Base.extend({
 			this.addItem(item)
 		}
 
+		for(let blockType of this.getBlockTypes())
+		{
+			let btSettings = blockType.getSettings()
+			let info = settings.blockTypes.find(i => i.handle === btSettings.getHandle())
+
+			btSettings.setChildBlocks(info.childBlocks)
+		}
+
 		this.selectTab('settings')
 
 		this.addListener(this.$blockTypeButton, 'click', '@newBlockType')

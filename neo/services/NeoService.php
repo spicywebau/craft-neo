@@ -248,11 +248,12 @@ class NeoService extends BaseApplicationComponent
 				}
 
 				// Set the basic info on the new block type record
-				$blockTypeRecord->fieldId   = $blockType->fieldId;
-				$blockTypeRecord->name      = $blockType->name;
-				$blockTypeRecord->handle    = $blockType->handle;
-				$blockTypeRecord->sortOrder = $blockType->sortOrder;
-				$blockTypeRecord->maxBlocks = $blockType->maxBlocks;
+				$blockTypeRecord->fieldId     = $blockType->fieldId;
+				$blockTypeRecord->name        = $blockType->name;
+				$blockTypeRecord->handle      = $blockType->handle;
+				$blockTypeRecord->sortOrder   = $blockType->sortOrder;
+				$blockTypeRecord->maxBlocks   = $blockType->maxBlocks;
+				$blockTypeRecord->childBlocks = $blockType->childBlocks;
 
 				// Save it, minus the field layout for now
 				$blockTypeRecord->save(false);
@@ -882,7 +883,7 @@ class NeoService extends BaseApplicationComponent
 	private function _createBlockTypeQuery()
 	{
 		return craft()->db->createCommand()
-			->select('id, fieldId, fieldLayoutId, name, handle, maxBlocks, sortOrder')
+			->select('id, fieldId, fieldLayoutId, name, handle, maxBlocks, childBlocks, sortOrder')
 			->from('neoblocktypes')
 			->order('sortOrder');
 	}

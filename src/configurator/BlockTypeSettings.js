@@ -79,6 +79,8 @@ export default Settings.extend({
 			this.addChildBlockType(blockType)
 		}
 
+		this.setChildBlocks(settings.childBlocks)
+
 		this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
 		this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
 		this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
@@ -180,20 +182,24 @@ export default Settings.extend({
 	{
 		const select = this._childBlocksSelect
 
-		if(childBlocks === true)
+		if(childBlocks === true || childBlocks === '*')
 		{
 			select.$all.prop('checked', true)
 			select.onAllChange()
 		}
-		else
+		else if(Array.isArray(childBlocks))
 		{
 			select.$all.prop('checked', false)
 
-			select.$options.each(function(index)
+			for(let handle of childBlocks)
 			{
-				const $option = $(this)
-				$option.prop('checked', childBlocks[index])
-			})
+				select.$options.filter(`[value="${handle}"]`).prop('checked', true)
+			}
+		}
+		else
+		{
+			select.$all.prop('checked', false)
+			select.$options.prop('checked', false)
 		}
 	},
 

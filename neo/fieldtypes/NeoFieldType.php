@@ -84,6 +84,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'name' => $blockType->name,
 				'handle' => $blockType->handle,
 				'maxBlocks' => $blockType->maxBlocks,
+				'childBlocks' => $blockType->childBlocks,
 				'errors' => $blockType->getErrors(),
 				'fieldLayout' => $jsFieldLayout,
 			);
@@ -145,12 +146,13 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			foreach($settings['blockTypes'] as $blockTypeId => $blockTypeSettings)
 			{
 				$blockType = new Neo_BlockTypeModel();
-				$blockType->id        = $blockTypeId;
-				$blockType->fieldId   = $this->model->id;
-				$blockType->name      = $blockTypeSettings['name'];
-				$blockType->handle    = $blockTypeSettings['handle'];
-				$blockType->maxBlocks = $blockTypeSettings['maxBlocks'];
-				$blockType->sortOrder = $blockTypeSettings['sortOrder'];
+				$blockType->id          = $blockTypeId;
+				$blockType->fieldId     = $this->model->id;
+				$blockType->name        = $blockTypeSettings['name'];
+				$blockType->handle      = $blockTypeSettings['handle'];
+				$blockType->maxBlocks   = $blockTypeSettings['maxBlocks'];
+				$blockType->sortOrder   = $blockTypeSettings['sortOrder'];
+				$blockType->childBlocks = $blockTypeSettings['childBlocks'];
 
 				if(!empty($blockTypeSettings['fieldLayout']))
 				{
