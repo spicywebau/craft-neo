@@ -65,9 +65,13 @@ export default Settings.extend({
 		this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
 		this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
 		this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
+		this.$childBlocksInput = $neo.filter('[data-neo-bts="input.childBlocks"]')
 		this.$childBlocksContainer = $neo.filter('[data-neo-bts="container.childBlocks"]')
 		this.$deleteButton = $neo.filter('[data-neo-bts="button.delete"]')
 
+		this.$childBlocksInput.checkboxselect()
+
+		this._childBlocksSelect = this.$childBlocksInput.data('checkboxSelect')
 		this._handleGenerator = new Craft.HandleGenerator(this.$nameInput, this.$handleInput)
 
 		for(let blockType of settings.childBlockTypes)
@@ -193,6 +197,11 @@ export default Settings.extend({
 				$checkbox.insertAt(index, this.$childBlocksContainer)
 			}
 
+			const select = this._childBlocksSelect
+			const allChecked = select.$all.prop('checked')
+			select.$options = select.$options.add($checkbox.find('input'))
+			if(allChecked) select.onAllChange()
+
 			const eventNs = '.childBlock' + this.getId()
 			settings.on('change' + eventNs, e => this['@onChildBlockTypeChange'](e, blockType, $checkbox))
 			settings.on('destroy' + eventNs, e => this.removeChildBlockType(blockType))
@@ -210,6 +219,9 @@ export default Settings.extend({
 			const $checkbox = this.$childBlocksContainer.children().eq(index)
 
 			$checkbox.remove()
+
+			const select = this._childBlocksSelect
+			select.$options = select.$options.remove($checkbox.find('input'))
 
 			const eventNs = '.childBlock' + this.getId()
 			settings.off(eventNs)
