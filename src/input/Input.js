@@ -125,14 +125,15 @@ export default Garnish.Base.extend({
 			})
 
 			let block = new Block(bInfo)
-			this.addBlock(block, -1, bInfo.level|0)
+			this.addBlock(block, -1, bInfo.level|0, false)
 		}
 	},
 
-	addBlock(block, index = -1, level = 0)
+	addBlock(block, index = -1, level = 0, animate = null)
 	{
 		const blockCount = this._blocks.length
 		index = (index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount)
+		animate = (typeof animate === 'boolean' ? animate : true)
 
 		const prevBlock = index > 0 ? this._blocks[index - 1] : false
 		const nextBlock = index < blockCount ? this._blocks[index] : false
@@ -179,21 +180,41 @@ export default Garnish.Base.extend({
 		this._updateButtons()
 		this._updateBlockOrder()
 
+		if(animate)
+		{
+			block.$container
+				.css({
+					opacity: 0,
+					marginBottom: -(block.$container.outerHeight())
+				})
+				.velocity({
+					opacity: 1,
+					marginBottom: 10
+				}, 'fast', e =>
+				{
+					Garnish.requestAnimationFrame(function()
+					{
+						Garnish.scrollContainerToElement(block.$container)
+					})
+				})
+		}
+
 		this.trigger('addBlock', {
 			block: block,
 			index: index
 		})
 	},
 
-	removeBlock(block)
+	removeBlock(block, animate = null)
 	{
+		animate = (typeof animate === 'boolean' ? animate : true)
+
 		const childBlocks = this._findChildBlocks(this._blocks.indexOf(block))
 		for(let childBlock of childBlocks)
 		{
 			this.removeBlock(childBlock)
 		}
 
-		block.$container.remove()
 		block.off('.input')
 
 		this._blocks = this._blocks.filter(b => b !== block)
@@ -202,6 +223,23 @@ export default Garnish.Base.extend({
 
 		this._destroyTempButtons()
 		this._updateButtons()
+
+		if(animate)
+		{
+			block.$container
+				.css({
+					opacity: 1,
+					marginBottom: 10
+				})
+				.velocity({
+					opacity: 0,
+					marginBottom: -(block.$container.outerHeight())
+				}, 'fast', e => block.$container.remove())
+		}
+		else
+		{
+			block.$container.remove()
+		}
 
 		this.trigger('removeBlock', {
 			block: block
