@@ -1,5 +1,14 @@
 [
 	{
+		"version": "0.3.1",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.3.1.zip",
+		"date": "2016-04-06T20:20:00+11:00",
+		"notes": [
+			"[Improved] Implemented transitions when adding/removing blocks",
+			"[Fixed] Fixed bug where child blocks weren't being appended correctly"
+		]
+	},
+	{
 		"version": "0.3.0",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.3.0.zip",
 		"date": "2016-04-06T17:35:00+11:00",
