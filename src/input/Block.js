@@ -46,7 +46,8 @@ export default Garnish.Base.extend({
 			type: this._blockType,
 			id: this._id,
 			enabled: !!settings.enabled,
-			collapsed: !!settings.collapsed
+			collapsed: !!settings.collapsed,
+			level: settings.level
 		}))
 
 		NS.leave()
@@ -63,6 +64,7 @@ export default Garnish.Base.extend({
 		this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
 		this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
 		this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
+		this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
 		this.$status = $neo.filter('[data-neo-b="status"]')
 
 		if(this._buttons)
@@ -139,6 +141,7 @@ export default Garnish.Base.extend({
 	{
 		this._level = level|0
 
+		this.$levelInput.val(this._level)
 		this.$container.toggleClass('is-level-odd', !!(this._level % 2))
 		this.$container.toggleClass('is-level-even', !(this._level % 2))
 	},
