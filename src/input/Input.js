@@ -193,13 +193,7 @@ export default Garnish.Base.extend({
 				.velocity({
 					opacity: 1,
 					marginBottom: 10
-				}, 'fast', e =>
-				{
-					Garnish.requestAnimationFrame(function()
-					{
-						Garnish.scrollContainerToElement(block.$container)
-					})
-				})
+				}, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(block.$container)))
 		}
 
 		this.trigger('addBlock', {
@@ -329,12 +323,32 @@ export default Garnish.Base.extend({
 		}
 	},
 
-	_destroyTempButtons()
+	_destroyTempButtons(animate = null)
 	{
+		animate = (typeof animate === 'boolean' ? animate : true)
+
 		if(this._tempButtons)
 		{
-			this._tempButtons.off('newBlock')
-			this._tempButtons.$container.remove()
+			const buttons = this._tempButtons
+			buttons.off('newBlock')
+
+			if(animate)
+			{
+				buttons.$container
+					.css({
+						opacity: 1,
+						marginBottom: 10
+					})
+					.velocity({
+						opacity: 0,
+						marginBottom: -(buttons.$container.outerHeight())
+					}, 'fast', e => buttons.$container.remove())
+			}
+			else
+			{
+				buttons.$container.remove()
+			}
+
 			this._tempButtons = null
 		}
 	},
@@ -421,6 +435,7 @@ export default Garnish.Base.extend({
 		})
 
 		block.$container.before(buttons.$container)
+
 		buttons.on('newBlock', e =>
 		{
 			this['@newBlock']({
@@ -431,6 +446,19 @@ export default Garnish.Base.extend({
 		})
 
 		buttons.initUi()
+
+		if(e.animate !== false)
+		{
+			buttons.$container
+				.css({
+					opacity: 0,
+					marginBottom: -(buttons.$container.outerHeight())
+				})
+				.velocity({
+					opacity: 1,
+					marginBottom: 10
+				}, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(buttons.$container)))
+		}
 
 		this._tempButtons = buttons
 	}
