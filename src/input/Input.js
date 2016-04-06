@@ -157,7 +157,7 @@ export default Garnish.Base.extend({
 			}
 			else
 			{
-				prevBlock.$blocksContainer.append(block.$container)
+				prevBlock.$blocksContainer.prepend(block.$container)
 			}
 
 			this._blocks.splice(index, 0, block)
