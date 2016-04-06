@@ -208,14 +208,15 @@ export default Garnish.Base.extend({
 		})
 	},
 
-	removeBlock(block, animate = null)
+	removeBlock(block, animate = null, _delayAnimate = null)
 	{
 		animate = (typeof animate === 'boolean' ? animate : true)
+		_delayAnimate = (typeof _delayAnimate === 'boolean' ? _delayAnimate : false)
 
 		const childBlocks = this._findChildBlocks(this._blocks.indexOf(block))
 		for(let childBlock of childBlocks)
 		{
-			this.removeBlock(childBlock)
+			this.removeBlock(childBlock, true, true)
 		}
 
 		block.off('.input')
@@ -236,7 +237,7 @@ export default Garnish.Base.extend({
 				})
 				.velocity({
 					opacity: 0,
-					marginBottom: -(block.$container.outerHeight())
+					marginBottom: _delayAnimate ? 10 : -(block.$container.outerHeight())
 				}, 'fast', e => block.$container.remove())
 		}
 		else
