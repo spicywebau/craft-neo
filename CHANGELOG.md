@@ -1,5 +1,9 @@
 ## Changelog
 
+#### v0.3.1
+- `Improved` Implemented transitions when adding/removing blocks
+- `Fixed` Fixed bug where child blocks weren't being appended correctly
+
 #### v0.3.0
 - `Added` Added support for block hierarchies
 
