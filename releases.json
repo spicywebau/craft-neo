@@ -1,5 +1,13 @@
 [
 	{
+		"version": "0.3.0",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.3.0.zip",
+		"date": "2016-04-06T17:35:00+11:00",
+		"notes": [
+			"[Added] Added support for block hierarchies"
+		]
+	},
+	{
 		"version": "0.2.1",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.2.1.zip",
 		"date": "2016-04-02T19:40:00+11:00",
