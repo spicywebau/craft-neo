@@ -58,7 +58,10 @@
 			</div>
 		{% endfor
 	%}</div>
-	{% if type.getChildBlocks() is not empty %}
-		<div class="ni_block_children" data-neo-b="container.children"></div>
+	{% if type.isParent() %}
+		<div class="ni_block_children" data-neo-b="container.children">
+			<div class="ni_blocks" data-neo-b="container.blocks"></div>
+			<div data-neo-b="container.buttons"></div>
+		</div>
 	{% endif %}
 </div>

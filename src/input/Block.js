@@ -17,6 +17,7 @@ const _defaults = {
 	namespace: [],
 	blockType: null,
 	id: null,
+	level: 0,
 	buttons: null,
 	enabled: true,
 	collapsed: false
@@ -37,6 +38,7 @@ export default Garnish.Base.extend({
 		this._templateNs = NS.parse(settings.namespace)
 		this._blockType = settings.blockType
 		this._id = settings.id
+		this._level = settings.level|0
 		this._buttons = settings.buttons
 
 		NS.enter(this._templateNs)
@@ -53,6 +55,8 @@ export default Garnish.Base.extend({
 		const $neo = this.$container.find('[data-neo-b]')
 		this.$contentContainer = $neo.filter('[data-neo-b="container.content"]')
 		this.$childrenContainer = $neo.filter('[data-neo-b="container.children"]')
+		this.$blocksContainer = $neo.filter('[data-neo-b="container.blocks"]')
+		this.$buttonsContainer = $neo.filter('[data-neo-b="container.buttons"]')
 		this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]')
 		this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]')
 		this.$tabButton = $neo.filter('[data-neo-b="button.tab"]')
@@ -64,7 +68,8 @@ export default Garnish.Base.extend({
 
 		if(this._buttons)
 		{
-			this.$childrenContainer.append(this._buttons.$container)
+			this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, {level: this.getLevel() + 1})))
+			this.$buttonsContainer.append(this._buttons.$container)
 		}
 
 		this.toggleEnabled(settings.enabled)
@@ -123,6 +128,16 @@ export default Garnish.Base.extend({
 	getId()
 	{
 		return this._id
+	},
+
+	getLevel()
+	{
+		return this._level
+	},
+
+	setLevel(level)
+	{
+		this._level = level|0
 	},
 
 	getButtons()

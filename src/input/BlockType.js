@@ -38,16 +38,18 @@ export default Garnish.Base.extend({
 
 	getChildBlockItems(items)
 	{
-		const handles = this.getChildBlocks()
+		return items.filter(item => item.getType() === 'group' || this.hasChildBlock(item.getHandle()))
+	},
 
-		return items.filter(item =>
-			item.getType() === 'group' || (
-				handles === true ||
-				handles === '*' || (
-					Array.isArray(handles) &&
-					handles.includes(item.getHandle())
-				)
-			)
-		)
+	isParent()
+	{
+		const cb = this.getChildBlocks()
+		return cb === true || cb === '*' || (Array.isArray(cb) && cb.length > 0)
+	},
+
+	hasChildBlock(handle)
+	{
+		const cb = this.getChildBlocks()
+		return cb === true || cb === '*' || (Array.isArray(cb) && cb.includes(handle))
 	}
 })

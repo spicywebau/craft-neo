@@ -128,18 +128,41 @@ export default Garnish.Base.extend({
 		}
 	},
 
-	addBlock(block, index = -1)
+	addBlock(block, index = -1, level = 0)
 	{
-		if(index >= 0 && index < this._blocks.length)
+		const blockCount = this._blocks.length
+		index = (index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount)
+
+		const prevBlock = index > 0 ? this._blocks[index - 1] : false
+		const nextBlock = index < blockCount ? this._blocks[index] : false
+
+		if(!prevBlock)
 		{
-			this._blocks[index].$container.before(block.$container)
-			this._blocks.splice(index, 0, block)
+			this.$blocksContainer.prepend(block.$container)
+			this._blocks.unshift(block)
 		}
 		else
 		{
-			this.$blocksContainer.append(block.$container)
-			this._blocks.push(block)
+			const minLevel = nextBlock ? nextBlock.getLevel() : 0
+			const maxLevel = prevBlock.getLevel() + (prevBlock.getBlockType().isParent() ? 1 : 0)
+
+			level = Math.max(minLevel, Math.min(level, maxLevel))
+
+			const prevBlockOnLevel = this._findPrevBlockOnLevel(index, level)
+
+			if(prevBlockOnLevel)
+			{
+				prevBlockOnLevel.$container.after(block.$container)
+			}
+			else
+			{
+				prevBlock.$blocksContainer.append(block.$container)
+			}
+
+			this._blocks.splice(index, 0, block)
 		}
+
+		block.setLevel(level)
 
 		this._blockSort.addItems(block.$container)
 		this._blockSelect.addItems(block.$container)
@@ -148,6 +171,7 @@ export default Garnish.Base.extend({
 		block.on('destroy.input',         e => this._blockBatch(block, b => this.removeBlock(b)))
 		block.on('toggleEnabled.input',   e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
+		block.on('newBlock.input',        e => this['@newBlock'](Object.assign(e, {index: this._blocks.indexOf(block) + 1})))
 		block.on('addBlockAbove.input',   e => this['@addBlockAbove'](e))
 
 		this._destroyTempButtons()
@@ -162,6 +186,12 @@ export default Garnish.Base.extend({
 
 	removeBlock(block)
 	{
+		const childBlocks = this._findChildBlocks(this._blocks.indexOf(block))
+		for(let childBlock of childBlocks)
+		{
+			this.removeBlock(childBlock)
+		}
+
 		block.$container.remove()
 		block.off('.input')
 
@@ -210,7 +240,6 @@ export default Garnish.Base.extend({
 	getSelectedBlocks()
 	{
 		const $selectedBlocks = this._blockSelect.getSelectedItems()
-
 		return this._blocks.filter(block => block.$container.is($selectedBlocks))
 	},
 
@@ -221,7 +250,6 @@ export default Garnish.Base.extend({
 		this._blockSort.$items.each((index, element) =>
 		{
 			const block = this.getBlockByElement(element)
-
 			blocks.push(block)
 		})
 
@@ -231,7 +259,6 @@ export default Garnish.Base.extend({
 	_updateButtons()
 	{
 		const blocks = this.getBlocks()
-
 		this._buttons.updateButtonStates(blocks)
 
 		if(this._tempButtons)
@@ -260,6 +287,58 @@ export default Garnish.Base.extend({
 		}
 	},
 
+	_findPrevBlockOnLevel(index, level)
+	{
+		const blocks = this._blocks
+
+		let block = blocks[--index]
+		let lowestLevel = Number.MAX_VALUE
+
+		while(block)
+		{
+			let blockLevel = block.getLevel()
+
+			if(blockLevel < lowestLevel)
+			{
+				if(blockLevel === level)
+				{
+					return block
+				}
+
+				lowestLevel = blockLevel
+			}
+
+			block = this._blocks[--index]
+		}
+
+		return false
+	},
+
+	_findChildBlocks(index)
+	{
+		const blocks = this._blocks
+		const block = blocks[index]
+		const childBlocks = []
+
+		if(block)
+		{
+			const level = block.getLevel()
+
+			let currentBlock = blocks[++index]
+			while(currentBlock && currentBlock.getLevel() > level)
+			{
+				if(currentBlock.getLevel() === level + 1)
+				{
+					childBlocks.push(currentBlock)
+				}
+
+				currentBlock = blocks[++index]
+			}
+		}
+
+		return childBlocks
+	},
+
 	'@newBlock'(e)
 	{
 		const blockId = Block.getNewId()
@@ -274,7 +353,7 @@ export default Garnish.Base.extend({
 			})
 		})
 
-		this.addBlock(block, e.index)
+		this.addBlock(block, e.index, e.level)
 	},
 
 	'@addBlockAbove'(e)
@@ -294,7 +373,8 @@ export default Garnish.Base.extend({
 		{
 			this['@newBlock']({
 				blockType: e.blockType,
-				index: this._blocks.indexOf(block)
+				index: this._blocks.indexOf(block),
+				level: block.getLevel()
 			})
 		})
 
