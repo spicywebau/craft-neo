@@ -266,6 +266,15 @@ export default Garnish.Base.extend({
 		{
 			this._tempButtons.updateButtonStates(blocks)
 		}
+
+		for(let block of blocks)
+		{
+			let buttons = block.getButtons()
+			if(buttons)
+			{
+				buttons.updateButtonStates(blocks)
+			}
+		}
 	},
 
 	_blockBatch(block, callback)
