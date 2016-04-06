@@ -113,7 +113,6 @@ export default Garnish.Base.extend({
 	{
 		if(this._initialised)
 		{
-			this.$container.remove()
 			this.$foot.remove()
 
 			this._destroyReasonsPlugin()

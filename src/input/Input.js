@@ -125,14 +125,15 @@ export default Garnish.Base.extend({
 			})
 
 			let block = new Block(bInfo)
-			this.addBlock(block, -1, bInfo.level|0)
+			this.addBlock(block, -1, bInfo.level|0, false)
 		}
 	},
 
-	addBlock(block, index = -1, level = 0)
+	addBlock(block, index = -1, level = 0, animate = null)
 	{
 		const blockCount = this._blocks.length
 		index = (index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount)
+		animate = (typeof animate === 'boolean' ? animate : true)
 
 		const prevBlock = index > 0 ? this._blocks[index - 1] : false
 		const nextBlock = index < blockCount ? this._blocks[index] : false
@@ -140,7 +141,6 @@ export default Garnish.Base.extend({
 		if(!prevBlock)
 		{
 			this.$blocksContainer.prepend(block.$container)
-			this._blocks.unshift(block)
 		}
 		else
 		{
@@ -159,12 +159,11 @@ export default Garnish.Base.extend({
 			{
 				prevBlock.$blocksContainer.prepend(block.$container)
 			}
-
-			this._blocks.splice(index, 0, block)
 		}
 
 		block.setLevel(level)
 
+		this._blocks.push(block)
 		this._blockSort.addItems(block.$container)
 		this._blockSelect.addItems(block.$container)
 
@@ -172,12 +171,30 @@ export default Garnish.Base.extend({
 		block.on('destroy.input',         e => this._blockBatch(block, b => this.removeBlock(b)))
 		block.on('toggleEnabled.input',   e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
-		block.on('newBlock.input',        e => this['@newBlock'](Object.assign(e, {index: this._blocks.indexOf(block) + 1})))
+		block.on('newBlock.input',        e =>
+		{
+			const nextBlock = this.getBlockByElement(block.$container.next())
+			const index = (nextBlock ? this._blocks.indexOf(nextBlock) : -1)
+			this['@newBlock'](Object.assign(e, {index: index}))
+		})
 		block.on('addBlockAbove.input',   e => this['@addBlockAbove'](e))
 
 		this._destroyTempButtons()
 		this._updateButtons()
 		this._updateBlockOrder()
+
+		if(animate)
+		{
+			block.$container
+				.css({
+					opacity: 0,
+					marginBottom: -(block.$container.outerHeight())
+				})
+				.velocity({
+					opacity: 1,
+					marginBottom: 10
+				}, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(block.$container)))
+		}
 
 		this.trigger('addBlock', {
 			block: block,
@@ -185,15 +202,17 @@ export default Garnish.Base.extend({
 		})
 	},
 
-	removeBlock(block)
+	removeBlock(block, animate = null, _delayAnimate = null)
 	{
+		animate = (typeof animate === 'boolean' ? animate : true)
+		_delayAnimate = (typeof _delayAnimate === 'boolean' ? _delayAnimate : false)
+
 		const childBlocks = this._findChildBlocks(this._blocks.indexOf(block))
 		for(let childBlock of childBlocks)
 		{
-			this.removeBlock(childBlock)
+			this.removeBlock(childBlock, true, true)
 		}
 
-		block.$container.remove()
 		block.off('.input')
 
 		this._blocks = this._blocks.filter(b => b !== block)
@@ -202,6 +221,23 @@ export default Garnish.Base.extend({
 
 		this._destroyTempButtons()
 		this._updateButtons()
+
+		if(animate)
+		{
+			block.$container
+				.css({
+					opacity: 1,
+					marginBottom: 10
+				})
+				.velocity({
+					opacity: 0,
+					marginBottom: _delayAnimate ? 10 : -(block.$container.outerHeight())
+				}, 'fast', e => block.$container.remove())
+		}
+		else
+		{
+			block.$container.remove()
+		}
 
 		this.trigger('removeBlock', {
 			block: block
@@ -287,12 +323,32 @@ export default Garnish.Base.extend({
 		}
 	},
 
-	_destroyTempButtons()
+	_destroyTempButtons(animate = null)
 	{
+		animate = (typeof animate === 'boolean' ? animate : true)
+
 		if(this._tempButtons)
 		{
-			this._tempButtons.off('newBlock')
-			this._tempButtons.$container.remove()
+			const buttons = this._tempButtons
+			buttons.off('newBlock')
+
+			if(animate)
+			{
+				buttons.$container
+					.css({
+						opacity: 1,
+						marginBottom: 10
+					})
+					.velocity({
+						opacity: 0,
+						marginBottom: -(buttons.$container.outerHeight())
+					}, 'fast', e => buttons.$container.remove())
+			}
+			else
+			{
+				buttons.$container.remove()
+			}
+
 			this._tempButtons = null
 		}
 	},
@@ -379,6 +435,7 @@ export default Garnish.Base.extend({
 		})
 
 		block.$container.before(buttons.$container)
+
 		buttons.on('newBlock', e =>
 		{
 			this['@newBlock']({
@@ -389,6 +446,19 @@ export default Garnish.Base.extend({
 		})
 
 		buttons.initUi()
+
+		if(e.animate !== false)
+		{
+			buttons.$container
+				.css({
+					opacity: 0,
+					marginBottom: -(buttons.$container.outerHeight())
+				})
+				.velocity({
+					opacity: 1,
+					marginBottom: 10
+				}, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(buttons.$container)))
+		}
 
 		this._tempButtons = buttons
 	}
