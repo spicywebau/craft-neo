@@ -141,7 +141,6 @@ export default Garnish.Base.extend({
 		if(!prevBlock)
 		{
 			this.$blocksContainer.prepend(block.$container)
-			this._blocks.unshift(block)
 		}
 		else
 		{
@@ -160,12 +159,11 @@ export default Garnish.Base.extend({
 			{
 				prevBlock.$blocksContainer.prepend(block.$container)
 			}
-
-			this._blocks.splice(index, 0, block)
 		}
 
 		block.setLevel(level)
 
+		this._blocks.push(block)
 		this._blockSort.addItems(block.$container)
 		this._blockSelect.addItems(block.$container)
 
@@ -173,7 +171,12 @@ export default Garnish.Base.extend({
 		block.on('destroy.input',         e => this._blockBatch(block, b => this.removeBlock(b)))
 		block.on('toggleEnabled.input',   e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
-		block.on('newBlock.input',        e => this['@newBlock'](Object.assign(e, {index: this._blocks.indexOf(block) + 1})))
+		block.on('newBlock.input',        e =>
+		{
+			const nextBlock = this.getBlockByElement(block.$container.next())
+			const index = (nextBlock ? this._blocks.indexOf(nextBlock) : -1)
+			this['@newBlock'](Object.assign(e, {index: index}))
+		})
 		block.on('addBlockAbove.input',   e => this['@addBlockAbove'](e))
 
 		this._destroyTempButtons()
