@@ -38,7 +38,6 @@ export default Garnish.Base.extend({
 		this._templateNs = NS.parse(settings.namespace)
 		this._blockType = settings.blockType
 		this._id = settings.id
-		this._level = settings.level|0
 		this._buttons = settings.buttons
 
 		NS.enter(this._templateNs)
@@ -72,6 +71,7 @@ export default Garnish.Base.extend({
 			this.$buttonsContainer.append(this._buttons.$container)
 		}
 
+		this.setLevel(settings.level)
 		this.toggleEnabled(settings.enabled)
 		this.toggleExpansion(!settings.collapsed)
 
@@ -138,6 +138,9 @@ export default Garnish.Base.extend({
 	setLevel(level)
 	{
 		this._level = level|0
+
+		this.$container.toggleClass('is-level-odd', !!(this._level % 2))
+		this.$container.toggleClass('is-level-even', !(this._level % 2))
 	},
 
 	getButtons()

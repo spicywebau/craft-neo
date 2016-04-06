@@ -136,28 +136,39 @@
 			background-color: #eef0f1;
 		}
 
+		&.is-level-odd {
+
+			> .ni_block_topbar,
+			> .ni_block_children {
+				background-color: white;
+			}
+		}
+
 		&.is-contracted {
 
-			.ni_block_topbar_item {
+			> .ni_block_topbar {
 
-				&.tabs {
+				.ni_block_topbar_item.tabs {
 					display: none;
 				}
 			}
 
-			.ni_block_content {
+			> .ni_block_content {
 				display: none;
 			}
 		}
 
 		&.is-disabled {
 
-			.ni_block_content_tab {
-				pointer-events: none;
-				opacity: 0.5;
-				-webkit-user-select: none;
-				-moz-user-select: none;
-				user-select: none;
+			> .ni_block_content {
+
+				.ni_block_content_tab {
+					pointer-events: none;
+					opacity: 0.5;
+					-webkit-user-select: none;
+					-moz-user-select: none;
+					user-select: none;
+				}
 			}
 		}
 	}
