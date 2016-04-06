@@ -17,11 +17,14 @@ export default Garnish.Base.extend({
 		const oldSortOrder = this._sortOrder
 		this._sortOrder = sortOrder|0
 
-		this.trigger('change', {
-			property: 'sortOrder',
-			oldValue: oldSortOrder,
-			newValue: this._sortOrder
-		})
+		if(oldSortOrder !== this._sortOrder)
+		{
+			this.trigger('change', {
+				property: 'sortOrder',
+				oldValue: oldSortOrder,
+				newValue: this._sortOrder
+			})
+		}
 	},
 
 	getFocusElement()

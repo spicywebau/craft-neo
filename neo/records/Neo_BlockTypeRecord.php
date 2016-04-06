@@ -96,10 +96,11 @@ class Neo_BlockTypeRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return array(
-			'name'       => array(AttributeType::Name, 'required' => true),
-			'handle'     => array(AttributeType::Handle, 'required' => true),
-			'maxBlocks'  => array(AttributeType::Number, 'default' => 0),
-			'sortOrder'  => AttributeType::SortOrder,
+			'name'        => array(AttributeType::Name, 'required' => true),
+			'handle'      => array(AttributeType::Handle, 'required' => true),
+			'maxBlocks'   => array(AttributeType::Number, 'default' => 0),
+			'childBlocks' => AttributeType::Mixed,
+			'sortOrder'   => AttributeType::SortOrder,
 		);
 	}
 }

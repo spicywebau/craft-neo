@@ -8,6 +8,7 @@ import NS from '../namespace'
 import Settings from './Settings'
 
 import renderTemplate from './templates/blocktype_settings.twig'
+import renderCheckbox from './templates/blocktype_settings_checkbox.twig'
 import '../twig-extensions'
 
 const _defaults = {
@@ -18,12 +19,14 @@ const _defaults = {
 	handle: '',
 	maxBlocks: 0,
 	childBlocks: null,
+	childBlockTypes: [],
 	errors: {}
 }
 
 export default Settings.extend({
 
 	_templateNs: [],
+	_childBlockTypes: [],
 
 	$sortOrderInput: new $,
 	$nameInput: new $,
@@ -35,6 +38,7 @@ export default Settings.extend({
 		settings = Object.assign({}, _defaults, settings)
 
 		this._templateNs = NS.parse(settings.namespace)
+		this._childBlockTypes = []
 		this._id = settings.id
 		this._errors = settings.errors
 
@@ -61,12 +65,24 @@ export default Settings.extend({
 		this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
 		this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
 		this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
+		this.$childBlocksInput = $neo.filter('[data-neo-bts="input.childBlocks"]')
+		this.$childBlocksContainer = $neo.filter('[data-neo-bts="container.childBlocks"]')
 		this.$deleteButton = $neo.filter('[data-neo-bts="button.delete"]')
 
+		this.$childBlocksInput.checkboxselect()
+
+		this._childBlocksSelect = this.$childBlocksInput.data('checkboxSelect')
 		this._handleGenerator = new Craft.HandleGenerator(this.$nameInput, this.$handleInput)
 
+		for(let blockType of settings.childBlockTypes)
+		{
+			this.addChildBlockType(blockType)
+		}
+
+		this.setChildBlocks(settings.childBlocks)
+
 		this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
-		this.addListener(this.$handleInput, 'keyup change', () => this.setHandle(this.$handleInput.val()))
+		this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
 		this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
 		this.addListener(this.$deleteButton, 'click', () => this.destroy())
 	},
@@ -141,6 +157,139 @@ export default Settings.extend({
 			oldValue: oldMaxBlocks,
 			newValue: this._maxBlocks
 		})
+	},
+
+	getChildBlocks()
+	{
+		const select = this._childBlocksSelect
+		const childBlocks = []
+
+		if(select.$all.prop('checked'))
+		{
+			return true
+		}
+
+		select.$options.each(function(index)
+		{
+			const $option = $(this)
+			childBlocks.push($option.prop('checked'))
+		})
+
+		return childBlocks
+	},
+
+	setChildBlocks(childBlocks)
+	{
+		const select = this._childBlocksSelect
+
+		if(childBlocks === true || childBlocks === '*')
+		{
+			select.$all.prop('checked', true)
+			select.onAllChange()
+		}
+		else if(Array.isArray(childBlocks))
+		{
+			select.$all.prop('checked', false)
+
+			for(let handle of childBlocks)
+			{
+				select.$options.filter(`[value="${handle}"]`).prop('checked', true)
+			}
+		}
+		else
+		{
+			select.$all.prop('checked', false)
+			select.$options.prop('checked', false)
+		}
+	},
+
+	addChildBlockType(blockType, index = -1)
+	{
+		if(!this._childBlockTypes.includes(blockType))
+		{
+			NS.enter(this._templateNs)
+
+			const settings = blockType.getSettings()
+			const $checkbox = $(renderCheckbox({
+				id: 'childBlock-' + settings.getId(),
+				name: 'childBlocks',
+				value: settings.getHandle(),
+				label: settings.getName()
+			}))
+
+			NS.leave()
+
+			if(index < 0 || index >= this._childBlockTypes.length)
+			{
+				this._childBlockTypes.push(blockType)
+				this.$childBlocksContainer.append($checkbox)
+			}
+			else
+			{
+				this._childBlockTypes.splice(index, 0, blockType)
+				$checkbox.insertAt(index, this.$childBlocksContainer)
+			}
+
+			const select = this._childBlocksSelect
+			const allChecked = select.$all.prop('checked')
+			select.$options = select.$options.add($checkbox.find('input'))
+			if(allChecked) select.onAllChange()
+
+			const eventNs = '.childBlock' + this.getId()
+			settings.on('change' + eventNs, e => this['@onChildBlockTypeChange'](e, blockType, $checkbox))
+			settings.on('destroy' + eventNs, e => this.removeChildBlockType(blockType))
+		}
+	},
+
+	removeChildBlockType(blockType)
+	{
+		const index = this._childBlockTypes.indexOf(blockType)
+		if(index >= 0)
+		{
+			this._childBlockTypes.splice(index, 1)
+
+			const settings = blockType.getSettings()
+			const $checkbox = this.$childBlocksContainer.children().eq(index)
+
+			$checkbox.remove()
+
+			const select = this._childBlocksSelect
+			select.$options = select.$options.remove($checkbox.find('input'))
+
+			const eventNs = '.childBlock' + this.getId()
+			settings.off(eventNs)
+		}
+	},
+
+	'@onChildBlockTypeChange'(e, blockType, $checkbox)
+	{
+		const settings = blockType.getSettings()
+
+		const $neo = $checkbox.find('[data-neo-btsc]')
+		const $input = $neo.filter('[data-neo-btsc="input"]')
+		const $labelText = $neo.filter('[data-neo-btsc="text.label"]')
+
+		switch(e.property)
+		{
+			case 'name':
+				$labelText.text(e.newValue)
+				break
+
+			case 'handle':
+				$input.val(e.newValue)
+				break;
+
+			case 'sortOrder':
+				const oldIndex = this._childBlockTypes.indexOf(blockType)
+				const newIndex = settings.getSortOrder() - 1
+
+				this._childBlockTypes.splice(oldIndex, 1)
+				this._childBlockTypes.splice(newIndex, 0, blockType)
+
+				$checkbox.insertAt(newIndex, this.$childBlocksContainer)
+
+				break
+		}
 	}
 },
 {

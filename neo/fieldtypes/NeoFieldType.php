@@ -84,6 +84,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'name' => $blockType->name,
 				'handle' => $blockType->handle,
 				'maxBlocks' => $blockType->maxBlocks,
+				'childBlocks' => $blockType->childBlocks,
 				'errors' => $blockType->getErrors(),
 				'fieldLayout' => $jsFieldLayout,
 			);
@@ -145,12 +146,13 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			foreach($settings['blockTypes'] as $blockTypeId => $blockTypeSettings)
 			{
 				$blockType = new Neo_BlockTypeModel();
-				$blockType->id        = $blockTypeId;
-				$blockType->fieldId   = $this->model->id;
-				$blockType->name      = $blockTypeSettings['name'];
-				$blockType->handle    = $blockTypeSettings['handle'];
-				$blockType->maxBlocks = $blockTypeSettings['maxBlocks'];
-				$blockType->sortOrder = $blockTypeSettings['sortOrder'];
+				$blockType->id          = $blockTypeId;
+				$blockType->fieldId     = $this->model->id;
+				$blockType->name        = $blockTypeSettings['name'];
+				$blockType->handle      = $blockTypeSettings['handle'];
+				$blockType->maxBlocks   = $blockTypeSettings['maxBlocks'];
+				$blockType->sortOrder   = $blockTypeSettings['sortOrder'];
+				$blockType->childBlocks = $blockTypeSettings['childBlocks'];
 
 				if(!empty($blockTypeSettings['fieldLayout']))
 				{
@@ -344,12 +346,13 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		foreach($settings->getBlockTypes() as $blockType)
 		{
 			$blockTypeInfo[] = array(
-				'id'        => $blockType->id,
-				'sortOrder' => $blockType->sortOrder,
-				'handle'    => $blockType->handle,
-				'name'      => Craft::t($blockType->name),
-				'maxBlocks' => $blockType->maxBlocks,
-				'tabs'      => $this->_getBlockTypeHtml($blockType, null, $name),
+				'id'          => $blockType->id,
+				'sortOrder'   => $blockType->sortOrder,
+				'handle'      => $blockType->handle,
+				'name'        => Craft::t($blockType->name),
+				'maxBlocks'   => $blockType->maxBlocks,
+				'childBlocks' => $blockType->childBlocks,
+				'tabs'        => $this->_getBlockTypeHtml($blockType, null, $name),
 			);
 		}
 
@@ -371,6 +374,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'sortOrder' => $block->sortOrder,
 				'collapsed' => (bool) $block->collapsed,
 				'enabled'   => (bool) $block->enabled,
+				'level'     => $block->level,
 				'tabs'      => $this->_getBlockHtml($block, $name),
 			);
 		}
@@ -489,6 +493,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$block->setOwner($this->element);
 			$block->enabled = (isset($blockData['enabled']) ? (bool) $blockData['enabled'] : true);
 			$block->collapsed = (isset($blockData['collapsed']) ? (bool) $blockData['collapsed'] : false);
+			$block->level = (isset($blockData['level']) ? intval($blockData['level']) : 0);
 
 			// Set the content post location on the block if we can
 			$ownerContentPostLocation = $this->element->getContentPostLocation();
@@ -550,6 +555,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				$errors[] = Craft::t('There can’t be more than {max} blocks.', array('max' => $maxBlocks));
 			}
 		}
+
+		// TODO validate individual blocktype max blocks
 
 		if ($errors)
 		{
@@ -689,7 +696,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	{
 		$namespace = craft()->templates->getNamespace();
 
-		return substr_count($namespace, '[') + 1;
+		return preg_match_all('/\\bfields\\b/', $namespace);
 	}
 
 	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null)

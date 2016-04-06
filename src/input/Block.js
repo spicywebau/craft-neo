@@ -6,6 +6,8 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
+import Buttons from './Buttons'
+
 import ReasonsRenderer from '../plugins/reasons/Renderer'
 
 import renderTemplate from './templates/block.twig'
@@ -15,6 +17,8 @@ const _defaults = {
 	namespace: [],
 	blockType: null,
 	id: null,
+	level: 0,
+	buttons: null,
 	enabled: true,
 	collapsed: false
 }
@@ -34,6 +38,7 @@ export default Garnish.Base.extend({
 		this._templateNs = NS.parse(settings.namespace)
 		this._blockType = settings.blockType
 		this._id = settings.id
+		this._buttons = settings.buttons
 
 		NS.enter(this._templateNs)
 
@@ -41,13 +46,17 @@ export default Garnish.Base.extend({
 			type: this._blockType,
 			id: this._id,
 			enabled: !!settings.enabled,
-			collapsed: !!settings.collapsed
+			collapsed: !!settings.collapsed,
+			level: settings.level
 		}))
 
 		NS.leave()
 
 		const $neo = this.$container.find('[data-neo-b]')
 		this.$contentContainer = $neo.filter('[data-neo-b="container.content"]')
+		this.$childrenContainer = $neo.filter('[data-neo-b="container.children"]')
+		this.$blocksContainer = $neo.filter('[data-neo-b="container.blocks"]')
+		this.$buttonsContainer = $neo.filter('[data-neo-b="container.buttons"]')
 		this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]')
 		this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]')
 		this.$tabButton = $neo.filter('[data-neo-b="button.tab"]')
@@ -55,8 +64,16 @@ export default Garnish.Base.extend({
 		this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
 		this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
 		this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
+		this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
 		this.$status = $neo.filter('[data-neo-b="status"]')
 
+		if(this._buttons)
+		{
+			this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, {level: this.getLevel() + 1})))
+			this.$buttonsContainer.append(this._buttons.$container)
+		}
+
+		this.setLevel(settings.level)
 		this.toggleEnabled(settings.enabled)
 		this.toggleExpansion(!settings.collapsed)
 
@@ -80,6 +97,11 @@ export default Garnish.Base.extend({
 			this._settingsMenu.on('optionSelect', e => this['@settingSelect'](e))
 
 			this._initialised = true
+
+			if(this._buttons)
+			{
+				this._buttons.initUi()
+			}
 
 			this._initReasonsPlugin()
 
@@ -108,6 +130,25 @@ export default Garnish.Base.extend({
 	getId()
 	{
 		return this._id
+	},
+
+	getLevel()
+	{
+		return this._level
+	},
+
+	setLevel(level)
+	{
+		this._level = level|0
+
+		this.$levelInput.val(this._level)
+		this.$container.toggleClass('is-level-odd', !!(this._level % 2))
+		this.$container.toggleClass('is-level-even', !(this._level % 2))
+	},
+
+	getButtons()
+	{
+		return this._buttons
 	},
 
 	isNew()

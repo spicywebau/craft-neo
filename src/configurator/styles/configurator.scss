@@ -118,7 +118,7 @@
 
 	&_main {
 		flex-grow: 1;
-		flex-shrink: 20; // Fixes weird layout bug when switching tabs
+		flex-shrink: 9999; // Fixes weird layout bug when switching tabs
 		border-top-right-radius: 3px;
 		border-bottom-right-radius: 3px;
 		border: 1px solid #ebebeb;
@@ -172,6 +172,23 @@
 
 				.fld-tabcontent:not(:empty) {
 					padding-top: 13px - 7px;
+				}
+			}
+
+			.checkbox + label {
+				color: #576575;
+
+				&:empty {
+
+					&::after {
+						content: '(blank)';
+						font-size: inherit;
+						font-style: italic;
+						color: #8f98a3;
+					}
+
+					body.ltr & { padding-left:  20px; }
+					body.rtl & { padding-right: 20px; }
 				}
 			}
 		}

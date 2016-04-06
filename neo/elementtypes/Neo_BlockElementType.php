@@ -58,6 +58,7 @@ class Neo_BlockElementType extends BaseElementType
 			'fieldId'     => AttributeType::Number,
 			'order'       => array(AttributeType::String, 'default' => 'neoblocks.sortOrder'),
 			'collapsed'   => array(AttributeType::String, 'default' => 'neoblocks.collapsed'),
+			'level'       => array(AttributeType::String, 'default' => 'neoblocks.level'),
 			'ownerId'     => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
 			'type'        => AttributeType::Mixed,
@@ -75,7 +76,7 @@ class Neo_BlockElementType extends BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect('neoblocks.fieldId, neoblocks.ownerId, neoblocks.ownerLocale, neoblocks.typeId, neoblocks.sortOrder, neoblocks.collapsed')
+			->addSelect('neoblocks.fieldId, neoblocks.ownerId, neoblocks.ownerLocale, neoblocks.typeId, neoblocks.sortOrder, neoblocks.collapsed, neoblocks.level')
 			->join('neoblocks neoblocks', 'neoblocks.id = elements.id');
 
 		if ($criteria->fieldId)
