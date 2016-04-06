@@ -241,7 +241,7 @@ export default Garnish.Base.extend({
 	getSelectedBlocks()
 	{
 		const $selectedBlocks = this._blockSelect.getSelectedItems()
-		return this._blocks.filter(block => block.$container.is($selectedBlocks))
+		return this._blocks.filter(block => block.$container.closest($selectedBlocks).length > 0)
 	},
 
 	_updateBlockOrder()
