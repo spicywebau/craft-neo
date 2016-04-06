@@ -22,7 +22,7 @@ class NeoPlugin extends BasePlugin
 
 	function getVersion()
 	{
-		return '0.2.1';
+		return '0.3.0';
 	}
 
 	public function getCraftMinimumVersion()

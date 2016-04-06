@@ -24,7 +24,7 @@ During the release of `0.x` versions, breaking changes are to be expected withou
 - [x] ~~Tabbed field sections~~
 - [x] ~~Block type groups~~
 - [x] ~~Block type max count~~
-- [ ] Block hierarchy
+- [x] ~~Block hierarchy~~
 - [x] ~~Reasons support~~
 - [ ] Relabel support
 - [ ] Quick Field support
