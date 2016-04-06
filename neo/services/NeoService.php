@@ -668,6 +668,7 @@ class NeoService extends BaseApplicationComponent
 			$blockRecord->typeId      = $block->typeId;
 			$blockRecord->sortOrder   = $block->sortOrder;
 			$blockRecord->collapsed   = $block->collapsed;
+			$blockRecord->level       = $block->level;
 
 			$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 			try

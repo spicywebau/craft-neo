@@ -55,6 +55,7 @@ class Neo_BlockRecord extends BaseRecord
 			array('columns' => array('typeId')),
 			array('columns' => array('sortOrder')),
 			array('columns' => array('collapsed')),
+			array('columns' => array('level')),
 		);
 	}
 
@@ -71,6 +72,7 @@ class Neo_BlockRecord extends BaseRecord
 		return array(
 			'sortOrder'   => AttributeType::SortOrder,
 			'collapsed'   => AttributeType::Bool,
+			'level'       => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
 		);
 	}

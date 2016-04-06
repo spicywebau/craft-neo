@@ -493,6 +493,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$block->setOwner($this->element);
 			$block->enabled = (isset($blockData['enabled']) ? (bool) $blockData['enabled'] : true);
 			$block->collapsed = (isset($blockData['collapsed']) ? (bool) $blockData['collapsed'] : false);
+			$block->level = (isset($blockData['level']) ? intval($blockData['level']) : 0);
 
 			// Set the content post location on the block if we can
 			$ownerContentPostLocation = $this->element->getContentPostLocation();

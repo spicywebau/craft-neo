@@ -112,10 +112,11 @@ export default Garnish.Base.extend({
 
 			bInfo.namespace = [...this._templateNs, bInfo.id]
 			bInfo.blockType = new BlockType({
-				name:      blockType.getName(),
-				handle:    blockType.getHandle(),
+				name: blockType.getName(),
+				handle: blockType.getHandle(),
 				maxBlocks: blockType.getMaxBlocks(),
-				tabs:      bInfo.tabs
+				childBlocks: blockType.getChildBlocks(),
+				tabs: bInfo.tabs
 			})
 			bInfo.buttons = new Buttons({
 				blockTypes: blockType.getChildBlockItems(this.getItems()),
@@ -124,7 +125,7 @@ export default Garnish.Base.extend({
 			})
 
 			let block = new Block(bInfo)
-			this.addBlock(block)
+			this.addBlock(block, -1, bInfo.level|0)
 		}
 	},
 
