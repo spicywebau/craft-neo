@@ -122,7 +122,9 @@
 		border-top-right-radius: 3px;
 		border-bottom-right-radius: 3px;
 		border: 1px solid #ebebeb;
-		border-left: 0;
+
+		body.ltr & { border-left:  0; }
+		body.rtl & { border-right: 0; }
 
 		&_tabs {
 			display: flex;
@@ -149,7 +151,9 @@
 					color: #29323d;
 
 					&:first-child {
-						border-left: 0;
+
+						body.ltr & { border-left:  0; }
+						body.rtl & { border-right: 0; }
 					}
 				}
 			}
