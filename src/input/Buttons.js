@@ -51,6 +51,7 @@ export default Garnish.Base.extend({
 		this.$buttonsContainer = $neo.filter('[data-neo-bn="container.buttons"]')
 		this.$menuContainer = $neo.filter('[data-neo-bn="container.menu"]')
 		this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]')
+		this.$groupButtons = $neo.filter('[data-neo-bn="button.group"]')
 
 		if(settings.blocks)
 		{
@@ -84,6 +85,21 @@ export default Garnish.Base.extend({
 				const maxBlockTypes = blockType.getMaxBlocks()
 
 				disabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
+			}
+
+			$button.toggleClass('disabled', disabled)
+		})
+
+		this.$groupButtons.each(function()
+		{
+			const $button = $(this)
+			const menu = $button.data('menubtn')
+			let disabled = allDisabled
+
+			if(!disabled && menu)
+			{
+				const $menuButtons = menu.menu.$options
+				disabled = ($menuButtons.length === $menuButtons.filter('.disabled').length)
 			}
 
 			$button.toggleClass('disabled', disabled)
