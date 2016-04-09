@@ -58,6 +58,7 @@ export default Garnish.Base.extend({
 
 		this._updateInstructions()
 		this._initReasonsPlugin()
+		this._initRelabelPlugin()
 	},
 
 	getBlockId()
@@ -199,6 +200,19 @@ export default Garnish.Base.extend({
 		if(this._reasons)
 		{
 			this._reasons.destroy()
+		}
+	},
+
+	_initRelabelPlugin()
+	{
+		if(this._fld.relabel)
+		{
+			const relabel = this._fld.relabel
+
+			const id = this.getBlockId()
+			relabel.namespace = `neo[relabel][${id}]`;
+
+			this._relabel = relabel
 		}
 	}
 })

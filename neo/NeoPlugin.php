@@ -65,6 +65,7 @@ class NeoPlugin extends BasePlugin
 		parent::init();
 
 		craft()->neo_reasons->pluginInit();
+		craft()->neo_relabel->pluginInit();
 	}
 
 	public function onBeforeInstall()
