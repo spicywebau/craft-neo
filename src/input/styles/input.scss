@@ -48,6 +48,7 @@
 				-webkit-user-select: none;
 				-moz-user-select: none;
 				user-select: none;
+				white-space: nowrap;
 
 				body.ltr &:not(:first-child),
 				body.rtl &:not(:last-child) {
@@ -56,6 +57,11 @@
 
 				&.size-full {
 					flex-grow: 1;
+				}
+
+				&.clip-text {
+					overflow: hidden;
+					text-overflow: ellipsis;
 				}
 
 				&.tabs {
