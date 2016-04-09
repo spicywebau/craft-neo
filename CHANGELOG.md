@@ -1,8 +1,10 @@
 ## Changelog
 
-#### v0.3.1
+#### v0.4.0
 - `Improved` Implemented transitions when adding/removing blocks
+- `Improved` Group buttons now disable when all their child buttons are also disabled
 - `Fixed` Fixed bug where child blocks weren't being appended correctly
+- `Fixed` Fixed bug with button layout on child blocks when groups were involved
 
 #### v0.3.0
 - `Added` Added support for block hierarchies
