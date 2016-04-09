@@ -87,6 +87,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'childBlocks' => $blockType->childBlocks,
 				'errors' => $blockType->getErrors(),
 				'fieldLayout' => $jsFieldLayout,
+				'fieldLayoutId' => $fieldLayout->id,
 			);
 		}
 
