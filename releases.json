@@ -1,11 +1,13 @@
 [
 	{
-		"version": "0.3.1",
-		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.3.1.zip",
-		"date": "2016-04-06T20:20:00+11:00",
+		"version": "0.4.0",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.4.0.zip",
+		"date": "2016-04-09T10:35:00+11:00",
 		"notes": [
 			"[Improved] Implemented transitions when adding/removing blocks",
-			"[Fixed] Fixed bug where child blocks weren't being appended correctly"
+			"[Improved] Group buttons now disable when all their child buttons are also disabled",
+			"[Fixed] Fixed bug where child blocks weren't being appended correctly",
+			"[Fixed] Fixed bug with button layout on child blocks when groups were involved"
 		]
 	},
 	{
