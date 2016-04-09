@@ -10,6 +10,7 @@ import '../twig-extensions'
 const _defaults = {
 	blockTypes: [],
 	groups: [],
+	items: null,
 	maxBlocks: 0,
 	blocks: null
 }
@@ -24,16 +25,25 @@ export default Garnish.Base.extend({
 	{
 		settings = Object.assign({}, _defaults, settings)
 
-		this._blockTypes = Array.from(settings.blockTypes)
-		this._groups = Array.from(settings.groups)
-		this._maxBlocks = settings.maxBlocks
+		if(settings.items)
+		{
+			this._items = Array.from(settings.items)
+			this._blockTypes = this._items.filter(i => i.getType() === 'blockType')
+			this._groups = this._items.filter(i => i.getType() === 'group')
+		}
+		else
+		{
+			this._blockTypes = Array.from(settings.blockTypes)
+			this._groups = Array.from(settings.groups)
+			this._items = [...this._blockTypes, ...this._groups].sort((a, b) => a.getSortOrder() - b.getSortOrder())
+		}
 
-		const items = [...this._blockTypes, ...this._groups].sort((a, b) => a.getSortOrder() - b.getSortOrder())
+		this._maxBlocks = settings.maxBlocks|0
 
 		this.$container = $(renderTemplate({
 			blockTypes: this._blockTypes,
 			groups: this._groups,
-			items: items,
+			items: this._items,
 			maxBlocks: this._maxBlocks
 		}))
 
@@ -41,6 +51,7 @@ export default Garnish.Base.extend({
 		this.$buttonsContainer = $neo.filter('[data-neo-bn="container.buttons"]')
 		this.$menuContainer = $neo.filter('[data-neo-bn="container.menu"]')
 		this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]')
+		this.$groupButtons = $neo.filter('[data-neo-bn="button.group"]')
 
 		if(settings.blocks)
 		{
@@ -74,6 +85,21 @@ export default Garnish.Base.extend({
 				const maxBlockTypes = blockType.getMaxBlocks()
 
 				disabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
+			}
+
+			$button.toggleClass('disabled', disabled)
+		})
+
+		this.$groupButtons.each(function()
+		{
+			const $button = $(this)
+			const menu = $button.data('menubtn')
+			let disabled = allDisabled
+
+			if(!disabled && menu)
+			{
+				const $menuButtons = menu.menu.$options
+				disabled = ($menuButtons.length === $menuButtons.filter('.disabled').length)
 			}
 
 			$button.toggleClass('disabled', disabled)

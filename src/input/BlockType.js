@@ -38,7 +38,17 @@ export default Garnish.Base.extend({
 
 	getChildBlockItems(items)
 	{
-		return items.filter(item => item.getType() === 'group' || this.hasChildBlock(item.getHandle()))
+		const firstPass = items.filter(item => item.getType() === 'group' || this.hasChildBlock(item.getHandle()))
+		return firstPass.filter((item, i) =>
+		{
+			if(item.getType() === 'group')
+			{
+				const nextItem = firstPass[i + 1]
+				return nextItem && nextItem.getType() !== 'group'
+			}
+
+			return true
+		})
 	},
 
 	isParent()

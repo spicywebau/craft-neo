@@ -119,8 +119,7 @@ export default Garnish.Base.extend({
 				tabs: bInfo.tabs
 			})
 			bInfo.buttons = new Buttons({
-				blockTypes: blockType.getChildBlockItems(this.getItems()),
-				groups: this.getGroups(),
+				items: blockType.getChildBlockItems(this.getItems()),
 				maxBlocks: this.getMaxBlocks()
 			})
 
@@ -413,8 +412,7 @@ export default Garnish.Base.extend({
 			blockType: e.blockType,
 			id: blockId,
 			buttons: new Buttons({
-				blockTypes: e.blockType.getChildBlockItems(this.getItems()),
-				groups: this.getGroups(),
+				items: e.blockType.getChildBlockItems(this.getItems()),
 				maxBlocks: this.getMaxBlocks()
 			})
 		})

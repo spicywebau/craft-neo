@@ -25,7 +25,8 @@
 				{% endif %}
 				{% set currentGroup = item.isBlank() ? false : item %}
 				{% if currentGroup %}
-					<div class="btn{% if loop.first %} add icon{% endif %} menubtn">
+					<div class="btn{% if loop.first %} add icon{% endif %} menubtn"
+						 data-neo-bn="button.group">
 						{{ item.getName() }}
 					</div>
 					{{ '<div class="menu"><ul>' }}
