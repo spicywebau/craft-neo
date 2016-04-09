@@ -1,5 +1,13 @@
 [
 	{
+		"version": "0.5.0",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.5.0.zip",
+		"date": "2016-04-09T13:45:00+11:00",
+		"notes": [
+			"[Added] Added support for the Relabel plugin"
+		]
+	},
+	{
 		"version": "0.4.0",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.4.0.zip",
 		"date": "2016-04-09T10:35:00+11:00",
