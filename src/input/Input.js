@@ -112,6 +112,8 @@ export default Garnish.Base.extend({
 
 			bInfo.namespace = [...this._templateNs, bInfo.id]
 			bInfo.blockType = new BlockType({
+				id: blockType.getId(),
+				fieldLayoutId: blockType.getFieldLayoutId(),
 				name: blockType.getName(),
 				handle: blockType.getHandle(),
 				maxBlocks: blockType.getMaxBlocks(),

@@ -11,6 +11,7 @@ const _defaults = {
 	namespace: [],
 	html: '',
 	layout: [],
+	id: -1,
 	blockId: null,
 	blockName: ''
 }
@@ -27,6 +28,7 @@ export default Garnish.Base.extend({
 		settings = Object.assign({}, _defaults, settings)
 
 		this._templateNs = NS.parse(settings.namespace)
+		this._id = settings.id|0
 		this._blockId = settings.blockId
 
 		this.setBlockName(settings.blockName)
@@ -58,6 +60,12 @@ export default Garnish.Base.extend({
 
 		this._updateInstructions()
 		this._initReasonsPlugin()
+		this._initRelabelPlugin()
+	},
+
+	getId()
+	{
+		return this._id
 	},
 
 	getBlockId()
@@ -199,6 +207,20 @@ export default Garnish.Base.extend({
 		if(this._reasons)
 		{
 			this._reasons.destroy()
+		}
+	},
+
+	_initRelabelPlugin()
+	{
+		if(this._fld.relabel)
+		{
+			const relabel = this._fld.relabel
+
+			const id = this.getBlockId()
+			relabel.namespace = `neo[relabel][${id}]`;
+			relabel.applyLabels(this.getId())
+
+			this._relabel = relabel
 		}
 	}
 })

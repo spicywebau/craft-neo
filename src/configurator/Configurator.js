@@ -87,6 +87,7 @@ export default Garnish.Base.extend({
 				namespace: [...btNamespace, btInfo.id],
 				html: this._fieldLayoutHtml,
 				layout: btInfo.fieldLayout,
+				id: btInfo.fieldLayoutId,
 				blockId: btInfo.id
 			})
 

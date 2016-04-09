@@ -94,7 +94,7 @@ class Neo_ReasonsService extends BaseApplicationComponent
 					$conditionalsModel->fieldLayoutId = $fieldLayout->id;
 					$conditionalsModel->conditionals = $reasonsPost;
 
-					craft()->neo_reasons->saveConditionals($conditionalsModel);
+					$this->saveConditionals($conditionalsModel);
 				}
 			}
 		}

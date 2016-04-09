@@ -104,6 +104,7 @@ export default Garnish.Base.extend({
 			}
 
 			this._initReasonsPlugin()
+			this._initRelabelPlugin()
 
 			this.trigger('initUi')
 		}
@@ -294,6 +295,21 @@ export default Garnish.Base.extend({
 		if(this._reasons)
 		{
 			this._reasons.destroy()
+		}
+	},
+
+	_initRelabelPlugin()
+	{
+		const Relabel = window.Relabel
+
+		if(Relabel)
+		{
+			NS.enter(this._templateNs)
+
+			const blockType = this.getBlockType()
+			Relabel.applyLabels(this.$contentContainer, blockType.getFieldLayoutId(), NS.value())
+
+			NS.leave()
 		}
 	},
 
