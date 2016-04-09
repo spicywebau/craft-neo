@@ -7,21 +7,23 @@
 		<div class="ni_block_topbar_item" data-neo-b="select">
 			<div class="checkbox" title="{{ "Select"|t }}"></div>
 		</div>
-		<div class="ni_block_topbar_item" data-neo-b="button.toggler">
+		<div class="ni_block_topbar_item clip-text" data-neo-b="button.toggler">
 			<span>{{ type.getName()|t }}</span>
 		</div>
 		<div class="ni_block_topbar_item size-full" data-neo-b="button.toggler">
 			<span data-neo-b="text.content"></span>
 		</div>
-		<div class="ni_block_topbar_item tabs {{ type.getTabs()|length > 1 ? '' : 'hidden' }}">
-			{% for tab in type.getTabs() %}
-				<a class="tab {{ loop.first ? 'is-selected' : '' }} {{ tab.getErrors()|length > 0 ? 'has-errors' : '' }}"
-				   data-neo-b="button.tab"
-				   data-neo-b-info="{{ tab.name }}">
-					{{ tab.name|t }}
-				</a>
-			{% endfor %}
-		</div>
+		{% if type.getTabs()|length > 1 %}
+			<div class="ni_block_topbar_item tabs">
+				{% for tab in type.getTabs() %}
+					<a class="tab {{ loop.first ? 'is-selected' : '' }} {{ tab.getErrors()|length > 0 ? 'has-errors' : '' }}"
+					   data-neo-b="button.tab"
+					   data-neo-b-info="{{ tab.name }}">
+						{{ tab.name|t }}
+					</a>
+				{% endfor %}
+			</div>
+		{% endif %}
 		<div class="ni_block_topbar_item hidden" data-neo-b="status">
 			<div class="status off" title="{{ "Disabled"|t }}"></div>
 		</div>

@@ -1,5 +1,8 @@
 ## Changelog
 
+#### v0.5.0
+- `Added` Added support for the Relabel plugin
+
 #### v0.4.0
 - `Improved` Implemented transitions when adding/removing blocks
 - `Improved` Group buttons now disable when all their child buttons are also disabled
