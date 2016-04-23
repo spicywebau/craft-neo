@@ -76,9 +76,22 @@ export default Garnish.Base.extend({
 			this.$buttonsContainer.append(this._buttons.$container)
 		}
 
+		let hasErrors = false
+		if(this._blockType)
+		{
+			for(let tab of this._blockType.getTabs())
+			{
+				if(tab.getErrors().length > 0)
+				{
+					hasErrors = true
+					break
+				}
+			}
+		}
+
 		this.setLevel(settings.level)
 		this.toggleEnabled(settings.enabled)
-		this.toggleExpansion(!settings.collapsed, false, false)
+		this.toggleExpansion(hasErrors ? true : !settings.collapsed, false, false)
 
 		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')
