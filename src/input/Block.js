@@ -218,16 +218,26 @@ export default Garnish.Base.extend({
 				opacity: 0,
 				height: 0
 			}
+			const clearCss = {
+				opacity: '',
+				height: ''
+			}
 
 			if(animate)
 			{
 				this.$bodyContainer
 					.css(this._expanded ? collapsedCss : expandedCss)
-					.velocity(this._expanded ? expandedCss : collapsedCss, 'fast')
+					.velocity(this._expanded ? expandedCss : collapsedCss, 'fast', e =>
+					{
+						if(this._expanded)
+						{
+							this.$bodyContainer.css(clearCss)
+						}
+					})
 			}
 			else
 			{
-				this.$bodyContainer.css(this._expanded ? expandedCss : collapsedCss)
+				this.$bodyContainer.css(this._expanded ? clearCss : collapsedCss)
 			}
 
 			this.$collapsedInput.val(this._expanded ? 0 : 1)
