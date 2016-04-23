@@ -66,7 +66,7 @@ export default Garnish.Base.extend({
 		this.$buttonsContainer = $neo.filter('[data-neo="container.buttons"]')
 
 		this._buttons = new Buttons({
-			blockTypes: this.getBlockTypes(),
+			blockTypes: this.getBlockTypes(true),
 			groups: this.getGroups(),
 			maxBlocks: this.getMaxBlocks()
 		})
@@ -120,6 +120,7 @@ export default Garnish.Base.extend({
 				handle: blockType.getHandle(),
 				maxBlocks: blockType.getMaxBlocks(),
 				childBlocks: blockType.getChildBlocks(),
+				topLevel: blockType.getTopLevel(),
 				tabs: bInfo.tabs
 			})
 			bInfo.buttons = new Buttons({
@@ -262,9 +263,13 @@ export default Garnish.Base.extend({
 		return Array.from(this._blocks)
 	},
 
-	getBlockTypes()
+	getBlockTypes(topLevelOnly)
 	{
-		return Array.from(this._blockTypes)
+		topLevelOnly = (typeof topLevelOnly === 'boolean' ? topLevelOnly : false)
+
+		return topLevelOnly ?
+			this._blockTypes.filter(bt => bt.getTopLevel()) :
+			Array.from(this._blockTypes)
 	},
 
 	getGroups()
@@ -435,7 +440,7 @@ export default Garnish.Base.extend({
 
 		const block = e.block
 		const buttons = new Buttons({
-			blockTypes: this.getBlockTypes(),
+			blockTypes: this.getBlockTypes(true),
 			groups: this.getGroups(),
 			maxBlocks: this.getMaxBlocks(),
 			blocks: this.getBlocks()

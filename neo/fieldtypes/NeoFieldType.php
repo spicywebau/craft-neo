@@ -304,6 +304,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'name' => Craft::t($blockType->name),
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
+				'topLevel' => (bool) $blockType->topLevel,
 				'tabs' => $this->_getBlockTypeHtml($blockType, null, $name),
 			];
 		}
