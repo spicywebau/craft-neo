@@ -70,19 +70,21 @@
 			<a class="move icon" title="{{ "Reorder"|t }}" role="button" data-neo-b="button.move"></a>
 		</div>
 	</div>
-	<div class="ni_block_content" data-neo-b="container.content">{%
-		for tab in type.getTabs() %}
-			<div class="ni_block_content_tab {{ loop.first ? 'is-selected' : '' }}"
-				 data-neo-b="container.tab"
-				 data-neo-b-info="{{ tab.name }}">
-				{{ tab.getBodyHtml(id) }}
+	<div class="ni_block_body" data-neo-b="container.body">
+		<div class="ni_block_content" data-neo-b="container.content">{%
+			for tab in type.getTabs() %}
+				<div class="ni_block_content_tab {{ loop.first ? 'is-selected' : '' }}"
+					 data-neo-b="container.tab"
+					 data-neo-b-info="{{ tab.name }}">
+					{{ tab.getBodyHtml(id) }}
+				</div>
+			{% endfor
+		%}</div>
+		{% if type.isParent() %}
+			<div class="ni_block_children" data-neo-b="container.children">
+				<div class="ni_blocks" data-neo-b="container.blocks"></div>
+				<div data-neo-b="container.buttons"></div>
 			</div>
-		{% endfor
-	%}</div>
-	{% if type.isParent() %}
-		<div class="ni_block_children" data-neo-b="container.children">
-			<div class="ni_blocks" data-neo-b="container.blocks"></div>
-			<div data-neo-b="container.buttons"></div>
-		</div>
-	{% endif %}
+		{% endif %}
+	</div>
 </div>
