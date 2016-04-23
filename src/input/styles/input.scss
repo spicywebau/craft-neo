@@ -178,7 +178,7 @@
 		&.is-level-odd {
 
 			> .ni_block_topbar,
-			> .ni_block_children {
+			> .ni_block_body > .ni_block_children {
 				background-color: white;
 			}
 		}
