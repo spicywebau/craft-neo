@@ -272,6 +272,8 @@ export default Garnish.Base.extend({
 
 		const $tab = $tabs.filter(`[data-neo-b-info="${name}"]`).addClass('is-selected')
 
+		this.$tabsButton.text(name)
+
 		this.trigger('selectTab', {
 			tabName: name,
 			$tabButton: $tab.filter('[data-neo-b="button.tab"]'),

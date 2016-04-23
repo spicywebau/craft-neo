@@ -211,6 +211,12 @@
 
 .neo_block_tabs-menu {
 
+	a.is-selected {
+		cursor: default;
+		pointer-events: none;
+		opacity: 0.25;
+	}
+
 	a.has-errors {
 		color: #da5a47;
 	}

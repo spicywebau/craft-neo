@@ -31,7 +31,7 @@
 					<ul>
 						{% for tab in type.getTabs() %}
 							<li>
-								<a class="{{ loop.first ? ' disabled' : '' }} {{ tab.getErrors()|length > 0 ? ' has-errors' : '' }}"
+								<a class="{{ loop.first ? ' is-selected' : '' }} {{ tab.getErrors()|length > 0 ? ' has-errors' : '' }}"
 								   data-neo-b="button.tab"
 								   data-neo-b-info="{{ tab.name }}">
 									{{ tab.name|t }}
