@@ -277,7 +277,7 @@ export default Settings.extend({
 
 			case 'handle':
 				$input.val(e.newValue)
-				break;
+				break
 
 			case 'sortOrder':
 				const oldIndex = this._childBlockTypes.indexOf(blockType)
