@@ -106,7 +106,7 @@ export default Garnish.Base.extend({
 			}
 
 			this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
-			this.updateResponsiveness()
+			Garnish.requestAnimationFrame(() => this.updateResponsiveness())
 
 			this._initReasonsPlugin()
 			this._initRelabelPlugin()
