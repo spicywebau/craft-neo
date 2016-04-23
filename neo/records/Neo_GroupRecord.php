@@ -10,16 +10,19 @@ class Neo_GroupRecord extends BaseRecord
 
 	public function defineRelations()
 	{
-		return array(
-			'field' => array(static::BELONGS_TO, 'FieldRecord', 'required' => true, 'onDelete' => static::CASCADE),
-		);
+		return [
+			'field' => [static::BELONGS_TO, 'FieldRecord',
+				'required' => true,
+				'onDelete' => static::CASCADE
+			],
+		];
 	}
 
 	protected function defineAttributes()
 	{
-		return array(
-			'name'      => AttributeType::Name,
+		return [
+			'name' => AttributeType::Name,
 			'sortOrder' => AttributeType::SortOrder,
-		);
+		];
 	}
 }

@@ -7,7 +7,7 @@ class Neo_RelabelService extends BaseApplicationComponent
 	{
 		if(craft()->plugins->getPlugin('relabel') && craft()->request->isCpRequest() && !craft()->isConsole())
 		{
-			craft()->on('fields.saveFieldLayout', array($this, 'onSaveFieldLayout'));
+			craft()->on('fields.saveFieldLayout', [$this, 'onSaveFieldLayout']);
 		}
 	}
 

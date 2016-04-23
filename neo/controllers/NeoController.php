@@ -13,8 +13,8 @@ class NeoController extends BaseController
 
 		$success = craft()->neo->saveBlockCollapse($block);
 
-		$this->returnJson(array(
+		$this->returnJson([
 			'success' => $success,
-		));
+		]);
 	}
 }

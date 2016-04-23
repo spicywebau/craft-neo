@@ -10,11 +10,11 @@ class Neo_GroupModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
-			'id'        => AttributeType::Number,
-			'fieldId'   => AttributeType::Number,
-			'name'      => AttributeType::String,
+		return [
+			'id' => AttributeType::Number,
+			'fieldId' => AttributeType::Number,
+			'name' => AttributeType::String,
 			'sortOrder' => AttributeType::Number,
-		);
+		];
 	}
 }

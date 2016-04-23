@@ -10,17 +10,17 @@ namespace Craft;
  */
 class NeoPlugin extends BasePlugin
 {
-	function getName()
+	public function getName()
 	{
 		return "Neo";
 	}
 
-	function getDescription()
+	public function getDescription()
 	{
 		return Craft::t("A Matrix-like field type that uses existing fields");
 	}
 
-	function getVersion()
+	public function getVersion()
 	{
 		return '0.5.0';
 	}
@@ -35,12 +35,12 @@ class NeoPlugin extends BasePlugin
 		return '0.0.1';
 	}
 
-	function getDeveloper()
+	public function getDeveloper()
 	{
 		return 'Benjamin Fleming';
 	}
 
-	function getDeveloperUrl()
+	public function getDeveloperUrl()
 	{
 		return 'http://benjamminf.github.io';
 	}
