@@ -65,15 +65,22 @@
 				}
 
 				&.tabs {
+					position: relative;
+
+					.tabs_inner {
+						position: absolute;
+						top: 0;
+						white-space: nowrap;
+
+						body.ltr & { right: 8px; direction: ltr; }
+						body.rtl & { left:  8px; direction: rtl; }
+					}
 
 					.tab {
-						display: block;
+						display: inline-block;
 						height: 30px;
 						padding: 0 10px;
 						color: rgba(#29323d, 0.5);
-
-						body.ltr & { float: left;  }
-						body.rtl & { float: right; }
 
 						&:hover {
 							color: #0d78f2;
@@ -154,7 +161,7 @@
 
 			> .ni_block_topbar {
 
-				.ni_block_topbar_item.tabs {
+				.ni_block_topbar_item.tabs .tabs_inner {
 					display: none;
 				}
 			}
