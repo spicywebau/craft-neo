@@ -18,6 +18,7 @@ const _defaults = {
 	name: '',
 	handle: '',
 	maxBlocks: 0,
+	topLevel: true,
 	childBlocks: null,
 	childBlockTypes: [],
 	errors: {}
@@ -46,6 +47,7 @@ export default Settings.extend({
 		this.setName(settings.name)
 		this.setHandle(settings.handle)
 		this.setMaxBlocks(settings.maxBlocks)
+		this.setTopLevel(settings.topLevel)
 
 		NS.enter(this._templateNs)
 
@@ -55,6 +57,7 @@ export default Settings.extend({
 			name:      this.getName(),
 			handle:    this.getHandle(),
 			maxBlocks: this.getMaxBlocks(),
+			topLevel:  this.getTopLevel(),
 			errors:    this.getErrors()
 		}))
 
@@ -65,13 +68,15 @@ export default Settings.extend({
 		this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
 		this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
 		this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
+		this.$topLevelInput = $neo.filter('[data-neo-bts="input.topLevel"]')
 		this.$childBlocksInput = $neo.filter('[data-neo-bts="input.childBlocks"]')
 		this.$childBlocksContainer = $neo.filter('[data-neo-bts="container.childBlocks"]')
 		this.$deleteButton = $neo.filter('[data-neo-bts="button.delete"]')
 
-		this.$childBlocksInput.checkboxselect()
+		Craft.initUiElements(this.$container)
 
 		this._childBlocksSelect = this.$childBlocksInput.data('checkboxSelect')
+		this._topLevelLightswitch = this.$topLevelInput.data('lightswitch')
 		this._handleGenerator = new Craft.HandleGenerator(this.$nameInput, this.$handleInput)
 
 		for(let blockType of settings.childBlockTypes)
@@ -156,6 +161,25 @@ export default Settings.extend({
 			property: 'maxBlocks',
 			oldValue: oldMaxBlocks,
 			newValue: this._maxBlocks
+		})
+	},
+
+	getTopLevel() { return this._topLevel },
+	setTopLevel(topLevel)
+	{
+		const oldTopLevel = this._topLevel
+		this._topLevel = !!topLevel
+
+		if(this._topLevelLightswitch)
+		{
+			this._topLevelLightswitch.on = this._topLevel
+			this._topLevelLightswitch.toggle()
+		}
+
+		this.trigger('change', {
+			property: 'topLevel',
+			oldValue: oldTopLevel,
+			newValue: this._topLevel
 		})
 	},
 

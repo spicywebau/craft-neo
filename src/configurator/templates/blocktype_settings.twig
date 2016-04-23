@@ -67,6 +67,17 @@
 			instructions: "Which block types do you want to allow as children?"|t,
 			input: childBlocksInput
 		}) }}
+
+		{{ macros.lightswitch({
+			id: 'topLevel'|ns('id'),
+			name: 'topLevel'|ns,
+			label: "Top Level"|t,
+			instructions: "Will this block type be allowed at the top level?"|t,
+			checked: topLevel,
+			attributes: {
+				'data-neo-bts': 'input.topLevel'
+			}
+		}) }}
 	</div>
 
 	<hr>
