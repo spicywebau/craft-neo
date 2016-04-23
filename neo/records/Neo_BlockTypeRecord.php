@@ -56,6 +56,7 @@ class Neo_BlockTypeRecord extends BaseRecord
 			'handle' => [AttributeType::Handle, 'required' => true],
 			'maxBlocks' => [AttributeType::Number, 'default' => 0],
 			'childBlocks' => AttributeType::Mixed,
+			'topLevel' => [AttributeType::Bool, 'default' => true],
 			'sortOrder' => AttributeType::SortOrder,
 		];
 	}
