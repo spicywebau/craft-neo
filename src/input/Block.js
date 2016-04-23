@@ -53,6 +53,7 @@ export default Garnish.Base.extend({
 		NS.leave()
 
 		const $neo = this.$container.find('[data-neo-b]')
+		this.$bodyContainer = $neo.filter('[data-neo-b="container.body"]')
 		this.$contentContainer = $neo.filter('[data-neo-b="container.content"]')
 		this.$childrenContainer = $neo.filter('[data-neo-b="container.children"]')
 		this.$blocksContainer = $neo.filter('[data-neo-b="container.blocks"]')
@@ -77,7 +78,7 @@ export default Garnish.Base.extend({
 
 		this.setLevel(settings.level)
 		this.toggleEnabled(settings.enabled)
-		this.toggleExpansion(!settings.collapsed)
+		this.toggleExpansion(!settings.collapsed, false, false)
 
 		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')
@@ -166,18 +167,22 @@ export default Garnish.Base.extend({
 		return this.$container.hasClass('is-selected')
 	},
 
-	collapse(save = true)
+	collapse(save, animate)
 	{
-		this.toggleExpansion(false, save)
+		this.toggleExpansion(false, save, animate)
 	},
 
-	expand(save = true)
+	expand(save, animate)
 	{
-		this.toggleExpansion(true, save)
+		this.toggleExpansion(true, save, animate)
 	},
 
-	toggleExpansion(expand = !this._expanded, save = true)
+	toggleExpansion(expand, save, animate)
 	{
+		expand  = (typeof expand  === 'boolean' ? expand  : !this._expanded)
+		save    = (typeof save    === 'boolean' ? save    : true)
+		animate = (typeof animate === 'boolean' ? animate : true)
+
 		if(expand !== this._expanded)
 		{
 			this._expanded = expand
@@ -191,6 +196,26 @@ export default Garnish.Base.extend({
 
 			expandContainer.toggleClass('hidden', this._expanded)
 			collapseContainer.toggleClass('hidden', !this._expanded)
+
+			const expandedCss = {
+				opacity: 1,
+				height: this.$contentContainer.outerHeight() + this.$childrenContainer.outerHeight()
+			}
+			const collapsedCss = {
+				opacity: 0,
+				height: 0
+			}
+
+			if(animate)
+			{
+				this.$bodyContainer
+					.css(this._expanded ? collapsedCss : expandedCss)
+					.velocity(this._expanded ? expandedCss : collapsedCss, 'fast')
+			}
+			else
+			{
+				this.$bodyContainer.css(this._expanded ? expandedCss : collapsedCss)
+			}
 
 			this.$collapsedInput.val(this._expanded ? 0 : 1)
 

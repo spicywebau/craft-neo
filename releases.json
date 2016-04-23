@@ -1,5 +1,16 @@
 [
 	{
+		"version": "0.5.1",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.5.1.zip",
+		"date": "2016-04-23T16:35:00+11:00",
+		"notes": [
+			"[Improved] Block tabs now respond to mobile devices",
+			"[Fixed] Fixed bug where reporting errors on new blocks were breaking many non-obvious things",
+			"[Fixed] Fixed bug where blocks of different levels could be group-dragged together",
+			"[Fixed] Fixed bug where child block checkboxes would be in the incorrect order if groups were present"
+		]
+	},
+	{
 		"version": "0.5.0",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.5.0.zip",
 		"date": "2016-04-09T13:45:00+11:00",

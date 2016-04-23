@@ -1,5 +1,11 @@
 ## Changelog
 
+#### v0.5.1
+- `Improved` Block tabs now respond to mobile devices
+- `Fixed` Fixed bug where reporting errors on new blocks were breaking many non-obvious things
+- `Fixed` Fixed bug where blocks of different levels could be group-dragged together
+- `Fixed` Fixed bug where child block checkboxes would be in the incorrect order if groups were present
+
 #### v0.5.0
 - `Added` Added support for the Relabel plugin
 
