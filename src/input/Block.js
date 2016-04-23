@@ -57,11 +57,13 @@ export default Garnish.Base.extend({
 		this.$childrenContainer = $neo.filter('[data-neo-b="container.children"]')
 		this.$blocksContainer = $neo.filter('[data-neo-b="container.blocks"]')
 		this.$buttonsContainer = $neo.filter('[data-neo-b="container.buttons"]')
+		this.$tabsContainer = $neo.filter('[data-neo-b="container.tabs"]')
 		this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]')
 		this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]')
 		this.$tabButton = $neo.filter('[data-neo-b="button.tab"]')
 		this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]')
 		this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
+		this.$tabsButton = $neo.filter('[data-neo-b="button.tabs"]')
 		this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
 		this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
 		this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
@@ -102,6 +104,9 @@ export default Garnish.Base.extend({
 			{
 				this._buttons.initUi()
 			}
+
+			this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
+			this.updateResponsiveness()
 
 			this._initReasonsPlugin()
 			this._initRelabelPlugin()
@@ -272,6 +277,19 @@ export default Garnish.Base.extend({
 			$tabButton: $tab.filter('[data-neo-b="button.tab"]'),
 			$tabContainer: $tab.filter('[data-neo-b="container.tab"]')
 		})
+	},
+
+	updateResponsiveness()
+	{
+		if(!this._tabsContainerWidth)
+		{
+			this._tabsContainerWidth = this.$tabsContainer.width()
+		}
+
+		const isMobile = (this.$tabsContainer.parent().width() < this._tabsContainerWidth)
+
+		this.$tabsContainer.toggleClass('hidden', isMobile)
+		this.$tabsButton.toggleClass('hidden', !isMobile)
 	},
 
 	_initReasonsPlugin()

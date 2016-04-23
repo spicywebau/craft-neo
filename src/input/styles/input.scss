@@ -70,10 +70,27 @@
 					.tabs_inner {
 						position: absolute;
 						top: 0;
+						padding-right: 8px;
 						white-space: nowrap;
 
-						body.ltr & { right: 8px; direction: ltr; }
-						body.rtl & { left:  8px; direction: rtl; }
+						body.ltr & { right: 0; direction: ltr; }
+						body.rtl & { left:  0; direction: rtl; }
+					}
+
+					.tabs_btn {
+						display: block;
+						cursor: pointer;
+						height: 30px;
+						padding: 0 9px;
+						border: 1px solid #e3e5e8;
+						border-top: 0;
+						border-bottom-color: #fafafa;
+						margin-bottom: -1px;
+						background-color: #fafafa;
+						color: #576575;
+
+						body.ltr & { float: right; }
+						body.rtl & { float: left;  }
 					}
 
 					.tab {
