@@ -10,20 +10,38 @@
 		<div class="ni_block_topbar_item clip-text" data-neo-b="button.toggler">
 			<span>{{ type.getName()|t }}</span>
 		</div>
-		<div class="ni_block_topbar_item size-full" data-neo-b="button.toggler">
-			<span data-neo-b="text.content"></span>
+		<div class="ni_block_topbar_item size-full tabs" data-neo-b="button.toggler">
+			{% if type.getTabs()|length > 1 %}
+				{% set hasErrors = false %}
+				<div class="tabs_inner" data-neo-b="container.tabs">
+					{%- for tab in type.getTabs() -%}
+						{%- set tabHasErrors = (tab.getErrors()|length > 0) -%}
+						<a class="tab {{ loop.first ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
+						   data-neo-b="button.tab"
+						   data-neo-b-info="{{ tab.name }}">
+							{{ tab.name|t }}
+						</a>
+						{%- set hasErrors = (hasErrors or tabHasErrors) -%}
+					{%- endfor -%}
+				</div>
+				<div class="tabs_btn menubtn hidden {{ hasErrors ? ' has-errors' : '' }}" data-neo-b="button.tabs">
+					{{ (type.getTabs()|first).name|t }}
+				</div>
+				<div class="neo_block_tabs-menu menu">
+					<ul>
+						{% for tab in type.getTabs() %}
+							<li>
+								<a class="{{ loop.first ? ' is-selected' : '' }} {{ tab.getErrors()|length > 0 ? ' has-errors' : '' }}"
+								   data-neo-b="button.tab"
+								   data-neo-b-info="{{ tab.name }}">
+									{{ tab.name|t }}
+								</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			{% endif %}
 		</div>
-		{% if type.getTabs()|length > 1 %}
-			<div class="ni_block_topbar_item tabs">
-				{% for tab in type.getTabs() %}
-					<a class="tab {{ loop.first ? 'is-selected' : '' }} {{ tab.getErrors()|length > 0 ? 'has-errors' : '' }}"
-					   data-neo-b="button.tab"
-					   data-neo-b-info="{{ tab.name }}">
-						{{ tab.name|t }}
-					</a>
-				{% endfor %}
-			</div>
-		{% endif %}
 		<div class="ni_block_topbar_item hidden" data-neo-b="status">
 			<div class="status off" title="{{ "Disabled"|t }}"></div>
 		</div>

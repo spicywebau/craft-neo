@@ -84,7 +84,9 @@ export default Garnish.Base.extend({
 				// Only return all the selected items if the target item is selected
 				if(this._blockSort.$targetItem.hasClass('is-selected'))
 				{
-					return this._blockSelect.getSelectedItems()
+					// Also only use selected items that are on the same level as the target one
+					const $parent = this._blockSort.$targetItem.parent()
+					return this._blockSelect.getSelectedItems().filter((i, el) => $(el).parent().is($parent))
 				}
 				else
 				{
@@ -124,6 +126,11 @@ export default Garnish.Base.extend({
 				items: blockType.getChildBlockItems(this.getItems()),
 				maxBlocks: this.getMaxBlocks()
 			})
+
+			if(isNaN(parseInt(bInfo.id)))
+			{
+				bInfo.id = Block.getNewId()
+			}
 
 			let block = new Block(bInfo)
 			this.addBlock(block, -1, bInfo.level|0, false)

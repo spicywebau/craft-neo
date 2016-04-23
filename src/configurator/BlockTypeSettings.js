@@ -263,8 +263,6 @@ export default Settings.extend({
 
 	'@onChildBlockTypeChange'(e, blockType, $checkbox)
 	{
-		const settings = blockType.getSettings()
-
 		const $neo = $checkbox.find('[data-neo-btsc]')
 		const $input = $neo.filter('[data-neo-btsc="input"]')
 		const $labelText = $neo.filter('[data-neo-btsc="text.label"]')
@@ -277,17 +275,12 @@ export default Settings.extend({
 
 			case 'handle':
 				$input.val(e.newValue)
-				break;
+				break
 
 			case 'sortOrder':
-				const oldIndex = this._childBlockTypes.indexOf(blockType)
-				const newIndex = settings.getSortOrder() - 1
-
-				this._childBlockTypes.splice(oldIndex, 1)
-				this._childBlockTypes.splice(newIndex, 0, blockType)
-
-				$checkbox.insertAt(newIndex, this.$childBlocksContainer)
-
+				this._childBlockTypes = this._childBlockTypes.sort((a, b) => a.getSettings().getSortOrder() - b.getSettings().getSortOrder())
+				const index = this._childBlockTypes.indexOf(blockType)
+				$checkbox.insertAt(index + 1, this.$childBlocksContainer)
 				break
 		}
 	}

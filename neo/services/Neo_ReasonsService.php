@@ -9,18 +9,18 @@ class Neo_ReasonsService extends BaseApplicationComponent
 		{
 			if(craft()->request->isAjaxRequest())
 			{
-
+				// TODO
 			}
 			else
 			{
-				$data = array(
+				$data = [
 					'conditionals' => $this->getConditionals(),
-				);
+				];
 
 				craft()->templates->includeJs('if(window.Craft && Craft.ReasonsPlugin) Craft.ReasonsPlugin.Neo = ' . JsonHelper::encode($data));
 			}
 
-			craft()->on('fields.saveFieldLayout', array($this, 'onSaveFieldLayout'));
+			craft()->on('fields.saveFieldLayout', [$this, 'onSaveFieldLayout']);
 		}
 	}
 
@@ -36,8 +36,8 @@ class Neo_ReasonsService extends BaseApplicationComponent
 
 		// TODO Reduce database impact
 
-		$blockTypeConditionals = array();
-		$sources = array();
+		$blockTypeConditionals = [];
+		$sources = [];
 
 		$neoBlockTypeRecords = Neo_BlockTypeRecord::model()->findAll();
 		if($neoBlockTypeRecords)
@@ -49,7 +49,7 @@ class Neo_ReasonsService extends BaseApplicationComponent
 			}
 		}
 
-		$conditionals = array();
+		$conditionals = [];
 		$conditionalsRecords = Reasons_ConditionalsRecord::model()->findAll();
 		if($conditionalsRecords)
 		{
