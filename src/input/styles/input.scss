@@ -66,6 +66,7 @@
 
 				&.tabs {
 					position: relative;
+					transition: opacity 0.3s;
 
 					.tabs_inner {
 						position: absolute;
@@ -186,8 +187,13 @@
 
 			> .ni_block_topbar {
 
-				.ni_block_topbar_item.tabs .tabs_inner {
-					display: none;
+				.ni_block_topbar_item.tabs {
+					opacity: 0;
+
+					.tabs_inner,
+					.tabs_btn {
+						pointer-events: none;
+					}
 				}
 			}
 		}
