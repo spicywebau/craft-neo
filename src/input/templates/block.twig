@@ -24,10 +24,10 @@
 						{%- set hasErrors = (hasErrors or tabHasErrors) -%}
 					{%- endfor -%}
 				</div>
-				<div class="tabs_btn menubtn hidden" data-neo-b="button.tabs">
+				<div class="tabs_btn menubtn hidden {{ hasErrors ? ' has-errors' : '' }}" data-neo-b="button.tabs">
 					{{ (type.getTabs()|first).name|t }}
 				</div>
-				<div class="menu {{ hasErrors ? ' has-errors' : '' }}">
+				<div class="neo_block_tabs-menu menu">
 					<ul>
 						{% for tab in type.getTabs() %}
 							<li>

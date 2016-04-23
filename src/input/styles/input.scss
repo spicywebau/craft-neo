@@ -91,6 +91,10 @@
 
 						body.ltr & { float: right; }
 						body.rtl & { float: left;  }
+
+						&.has-errors {
+							color: #da5a47;
+						}
 					}
 
 					.tab {
@@ -202,5 +206,12 @@
 				}
 			}
 		}
+	}
+}
+
+.neo_block_tabs-menu {
+
+	a.has-errors {
+		color: #da5a47;
 	}
 }
