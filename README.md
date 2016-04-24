@@ -27,7 +27,7 @@ During the release of `0.x` versions, breaking changes are to be expected withou
 - [x] ~~Block hierarchy~~
 - [x] ~~Reasons support~~
 - [x] ~~Relabel support~~
-- [ ] Quick Field support
+- [x] ~~Quick Field support~~
 
 ### Version `1.0` ETA
 
