@@ -89,6 +89,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			'fieldLayoutHtml' => $fieldLayoutHtml,
 		];
 
+
+		craft()->templates->includeJsFile('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.7.4/polyfill.min.js');
 		craft()->templates->includeJsResource('neo/main.js');
 		craft()->templates->includeJs('new Neo.Configurator(' . JsonHelper::encode($jsSettings) . ')');
 
@@ -342,6 +344,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			'blocks' => $blockInfo,
 		];
 
+		craft()->templates->includeJsFile('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.7.4/polyfill.min.js');
 		craft()->templates->includeJsResource('neo/main.js');
 		craft()->templates->includeJs('new Neo.Input(' . JsonHelper::encode($jsSettings) . ')');
 
