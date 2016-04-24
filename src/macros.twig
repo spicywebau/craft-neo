@@ -68,3 +68,28 @@
 
 	{{ field(settings|merge({input: input})) }}
 {% endmacro %}
+
+{% macro lightswitch(settings) %}
+	{% from _self import field %}
+	{% set settings = settings|default({}) %}
+
+	{% set attributes = settings.attributes|default({}) %}
+	{% set name = settings.name|default('') %}
+	{% set checked = settings.checked|default(false) %}
+
+	{% set input %}
+		<div class="lightswitch {{ checked ? 'on' : '' }}" tabindex="0"
+		     {% for attrName, attrValue in attributes %}
+		         {{ attrName }}="{{ attrValue }}"
+		     {% endfor %}>
+			<div class="lightswitch-container">
+				<div class="label on"></div>
+				<div class="handle"></div>
+				<div class="label off"></div>
+			</div>
+			<input type="hidden" name="{{ name }}" value="{{ checked ? '1' : '' }}">
+		</div>
+	{% endset %}
+
+	{{ field(settings|merge({input: input})) }}
+{% endmacro %}

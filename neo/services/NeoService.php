@@ -24,7 +24,7 @@ class NeoService extends BaseApplicationComponent
 			$this->_blockTypesByFieldId[$fieldId] = [];
 
 			$results = $this->_createBlockTypeQuery()
-				->where('fieldId = :fieldId', array(':fieldId' => $fieldId))
+				->where('fieldId = :fieldId', [':fieldId' => $fieldId])
 				->queryAll();
 
 			foreach($results as $result)
@@ -59,7 +59,7 @@ class NeoService extends BaseApplicationComponent
 			$this->_groupsByFieldId[$fieldId] = [];
 
 			$results = $this->_createGroupQuery()
-				->where('fieldId = :fieldId', array(':fieldId' => $fieldId))
+				->where('fieldId = :fieldId', [':fieldId' => $fieldId])
 				->queryAll();
 
 			foreach($results as $result)
@@ -92,7 +92,7 @@ class NeoService extends BaseApplicationComponent
 		if(!isset($this->_blockTypesById) || !array_key_exists($blockTypeId, $this->_blockTypesById))
 		{
 			$result = $this->_createBlockTypeQuery()
-				->where('id = :id', array(':id' => $blockTypeId))
+				->where('id = :id', [':id' => $blockTypeId])
 				->queryRow();
 
 			if($result)
@@ -173,6 +173,7 @@ class NeoService extends BaseApplicationComponent
 				$blockTypeRecord->sortOrder   = $blockType->sortOrder;
 				$blockTypeRecord->maxBlocks   = $blockType->maxBlocks;
 				$blockTypeRecord->childBlocks = $blockType->childBlocks;
+				$blockTypeRecord->topLevel    = $blockType->topLevel;
 
 				// Save it, minus the field layout for now
 				$blockTypeRecord->save(false);
@@ -252,7 +253,7 @@ class NeoService extends BaseApplicationComponent
 			$blockIds = craft()->db->createCommand()
 				->select('id')
 				->from('neoblocks')
-				->where(array('typeId' => $blockType->id))
+				->where(['typeId' => $blockType->id])
 				->queryColumn();
 
 			$this->deleteBlockById($blockIds);
@@ -261,7 +262,7 @@ class NeoService extends BaseApplicationComponent
 			craft()->fields->deleteLayoutById($blockType->fieldLayoutId);
 
 			// Finally delete the actual block type
-			$affectedRows = craft()->db->createCommand()->delete('neoblocktypes', array('id' => $blockType->id));
+			$affectedRows = craft()->db->createCommand()->delete('neoblocktypes', ['id' => $blockType->id]);
 
 			if($transaction !== null)
 			{
@@ -287,7 +288,7 @@ class NeoService extends BaseApplicationComponent
 		try
 		{
 			$affectedRows = craft()->db->createCommand()
-				->delete('neogroups', array('fieldId' => $fieldId));
+				->delete('neogroups', ['fieldId' => $fieldId]);
 
 			if($transaction !== null)
 			{
@@ -313,7 +314,7 @@ class NeoService extends BaseApplicationComponent
 
 		$this->_uniqueBlockTypeAndFieldHandles = [];
 
-		$uniqueAttributes = array('name', 'handle');
+		$uniqueAttributes = ['name', 'handle'];
 		$uniqueAttributeValues = [];
 
 		foreach($settings->getBlockTypes() as $blockType)
@@ -337,10 +338,10 @@ class NeoService extends BaseApplicationComponent
 				}
 				else
 				{
-					$blockType->addError($attribute, Craft::t('{attribute} "{value}" has already been taken.', array(
+					$blockType->addError($attribute, Craft::t('{attribute} "{value}" has already been taken.', [
 						'attribute' => $blockType->getAttributeLabel($attribute),
 						'value'     => HtmlHelper::encode($value)
-					)));
+					]));
 
 					$validates = false;
 				}
@@ -552,9 +553,9 @@ class NeoService extends BaseApplicationComponent
 
 		craft()->db->createCommand()->update(
 			$tableName,
-			array('collapsed' => $block->collapsed ? 1 : 0),
+			['collapsed' => $block->collapsed ? 1 : 0],
 			'id = :id',
-			array(':id' => $block->id)
+			[':id' => $block->id]
 		);
 
 		return true;
@@ -569,7 +570,7 @@ class NeoService extends BaseApplicationComponent
 
 		if(!is_array($blockIds))
 		{
-			$blockIds = array($blockIds);
+			$blockIds = [$blockIds];
 		}
 
 		// Pass this along to ElementsService for the heavy lifting
@@ -612,16 +613,16 @@ class NeoService extends BaseApplicationComponent
 			}
 
 			// Get the IDs of blocks that are row deleted
-			$deletedBlockConditions = array('and',
+			$deletedBlockConditions = ['and',
 				'ownerId = :ownerId',
 				'fieldId = :fieldId',
-				array('not in', 'id', $blockIds)
-			);
+				['not in', 'id', $blockIds]
+			];
 
-			$deletedBlockParams = array(
+			$deletedBlockParams = [
 				':ownerId' => $owner->id,
 				':fieldId' => $field->id
-			);
+			];
 
 			if($field->translatable)
 			{
@@ -665,7 +666,7 @@ class NeoService extends BaseApplicationComponent
 				->from('fields fields')
 				->join('neoblocktypes blocktypes', 'blocktypes.fieldId = fields.id')
 				->join('fieldlayoutfields fieldlayoutfields', 'fieldlayoutfields.layoutId = blocktypes.fieldLayoutId')
-				->where('fieldlayoutfields.fieldId = :neoFieldId', array(':neoFieldId' => $neoField->id))
+				->where('fieldlayoutfields.fieldId = :neoFieldId', [':neoFieldId' => $neoField->id])
 				->queryScalar();
 
 			if($parentNeoFieldId)
@@ -685,9 +686,9 @@ class NeoService extends BaseApplicationComponent
 	{
 		if(!craft()->plugins->getPlugin($plugin))
 		{
-			$message = Craft::t("The plugin \"{plugin}\" is required for Neo to use this functionality.", array(
+			$message = Craft::t("The plugin \"{plugin}\" is required for Neo to use this functionality.", [
 				'plugin' => $plugin
-			));
+			]);
 
 			throw new Exception($message);
 		}
@@ -696,7 +697,7 @@ class NeoService extends BaseApplicationComponent
 	private function _createBlockTypeQuery()
 	{
 		return craft()->db->createCommand()
-			->select('id, fieldId, fieldLayoutId, name, handle, maxBlocks, childBlocks, sortOrder')
+			->select('id, fieldId, fieldLayoutId, name, handle, maxBlocks, childBlocks, topLevel, sortOrder')
 			->from('neoblocktypes')
 			->order('sortOrder');
 	}
@@ -721,7 +722,7 @@ class NeoService extends BaseApplicationComponent
 
 				if(!$this->_blockTypeRecordsById[$blockTypeId])
 				{
-					throw new Exception(Craft::t('No block type exists with the ID “{id}”.', array('id' => $blockTypeId)));
+					throw new Exception(Craft::t('No block type exists with the ID “{id}”.', ['id' => $blockTypeId]));
 				}
 			}
 
@@ -745,7 +746,7 @@ class NeoService extends BaseApplicationComponent
 
 				if(!$this->_blockRecordsById[$blockId])
 				{
-					throw new Exception(Craft::t('No block exists with the ID “{id}”.', array('id' => $blockId)));
+					throw new Exception(Craft::t('No block exists with the ID “{id}”.', ['id' => $blockId]));
 				}
 			}
 
@@ -841,7 +842,7 @@ class NeoService extends BaseApplicationComponent
 					$relations = craft()->db->createCommand()
 						->select('fieldId, sourceId, sourceLocale, targetId, sortOrder')
 						->from('relations')
-						->where(array('in', 'sourceId', array_keys($newBlockIds)))
+						->where(['in', 'sourceId', array_keys($newBlockIds)])
 						->queryAll();
 
 					if($relations)
@@ -858,12 +859,12 @@ class NeoService extends BaseApplicationComponent
 							{
 								foreach($newBlockIds[$originalBlockId] as $localeId => $newBlockId)
 								{
-									$rows[] = array($relation['fieldId'], $newBlockId, $relation['sourceLocale'], $relation['targetId'], $relation['sortOrder']);
+									$rows[] = [$relation['fieldId'], $newBlockId, $relation['sourceLocale'], $relation['targetId'], $relation['sortOrder']];
 								}
 							}
 						}
 
-						craft()->db->createCommand()->insertAll('relations', array('fieldId', 'sourceId', 'sourceLocale', 'targetId', 'sortOrder'), $rows);
+						craft()->db->createCommand()->insertAll('relations', ['fieldId', 'sourceId', 'sourceLocale', 'targetId', 'sortOrder'], $rows);
 					}
 				}
 				else

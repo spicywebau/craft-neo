@@ -6,6 +6,7 @@ import Craft from 'craft'
 import NS from '../namespace'
 
 import ReasonsEditor from '../plugins/reasons/Editor'
+import QuickField from '../plugins/quickfield/QuickField'
 
 const _defaults = {
 	namespace: [],
@@ -61,6 +62,7 @@ export default Garnish.Base.extend({
 		this._updateInstructions()
 		this._initReasonsPlugin()
 		this._initRelabelPlugin()
+		this._initQuickFieldPlugin()
 	},
 
 	getId()
@@ -221,6 +223,31 @@ export default Garnish.Base.extend({
 			relabel.applyLabels(this.getId())
 
 			this._relabel = relabel
+		}
+	},
+
+	_initQuickFieldPlugin()
+	{
+		if(QuickField)
+		{
+			const quickField = new QuickField(this._fld)
+
+			const newGroups = QuickField.getNewGroups()
+			const newFields = QuickField.getNewFields()
+
+			for(let id of Object.keys(newGroups))
+			{
+				let group = newGroups[id]
+				quickField.addGroup(id, group.name)
+			}
+
+			for(let id of Object.keys(newFields))
+			{
+				let field = newFields[id]
+				quickField.addField(id, field.name, field.groupName)
+			}
+
+			this._quickField = quickField
 		}
 	}
 })

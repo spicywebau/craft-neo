@@ -76,9 +76,22 @@ export default Garnish.Base.extend({
 			this.$buttonsContainer.append(this._buttons.$container)
 		}
 
+		let hasErrors = false
+		if(this._blockType)
+		{
+			for(let tab of this._blockType.getTabs())
+			{
+				if(tab.getErrors().length > 0)
+				{
+					hasErrors = true
+					break
+				}
+			}
+		}
+
 		this.setLevel(settings.level)
 		this.toggleEnabled(settings.enabled)
-		this.toggleExpansion(!settings.collapsed, false, false)
+		this.toggleExpansion(hasErrors ? true : !settings.collapsed, false, false)
 
 		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')
@@ -205,16 +218,26 @@ export default Garnish.Base.extend({
 				opacity: 0,
 				height: 0
 			}
+			const clearCss = {
+				opacity: '',
+				height: ''
+			}
 
 			if(animate)
 			{
 				this.$bodyContainer
 					.css(this._expanded ? collapsedCss : expandedCss)
-					.velocity(this._expanded ? expandedCss : collapsedCss, 'fast')
+					.velocity(this._expanded ? expandedCss : collapsedCss, 'fast', e =>
+					{
+						if(this._expanded)
+						{
+							this.$bodyContainer.css(clearCss)
+						}
+					})
 			}
 			else
 			{
-				this.$bodyContainer.css(this._expanded ? expandedCss : collapsedCss)
+				this.$bodyContainer.css(this._expanded ? clearCss : collapsedCss)
 			}
 
 			this.$collapsedInput.val(this._expanded ? 0 : 1)
@@ -368,7 +391,8 @@ export default Garnish.Base.extend({
 			case 'expand':   this.expand()   ; break
 			case 'disable':  this.disable()
 			                 this.collapse() ; break
-			case 'enable':   this.enable()   ; break
+			case 'enable':   this.enable()
+			                 this.expand()   ; break
 			case 'delete':   this.destroy()  ; break
 
 			case 'add':

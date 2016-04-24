@@ -57,6 +57,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'handle' => $blockType->handle,
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
+				'topLevel' => (bool) $blockType->topLevel,
 				'errors' => $blockType->getErrors(),
 				'fieldLayout' => $jsFieldLayout,
 				'fieldLayoutId' => $fieldLayout->id,
@@ -92,6 +93,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		craft()->templates->includeJs('new Neo.Configurator(' . JsonHelper::encode($jsSettings) . ')');
 
 		craft()->templates->includeTranslations(
+			"Block Types",
 			"Block type",
 			"Group",
 			"Settings",
@@ -106,6 +108,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			"All",
 			"Child Blocks",
 			"Which block types do you want to allow as children?",
+			"Top Level",
+			"Will this block type be allowed at the top level?",
 			"Delete block type",
 			"This can be left blank if you just want an unlabeled separator.",
 			"Delete group"
@@ -139,6 +143,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				$blockType->maxBlocks = $blockTypeSettings['maxBlocks'];
 				$blockType->sortOrder = $blockTypeSettings['sortOrder'];
 				$blockType->childBlocks = $blockTypeSettings['childBlocks'];
+				$blockType->topLevel = (bool) $blockTypeSettings['topLevel'];
 
 				if(!empty($blockTypeSettings['fieldLayout']))
 				{
@@ -300,6 +305,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'name' => Craft::t($blockType->name),
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
+				'topLevel' => (bool) $blockType->topLevel,
 				'tabs' => $this->_getBlockTypeHtml($blockType, null, $name),
 			];
 		}
@@ -351,6 +357,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			"Disable",
 			"Disabled",
 			"Delete",
+			"Are you sure you want to delete the selected blocks?",
 			"Reorder"
 		);
 

@@ -26,10 +26,11 @@
 	}
 
 	&_block {
+		overflow: hidden;
 		margin-bottom: 10px;
 		border-radius: 3px;
 		border: 1px solid #e3e5e8;
-		overflow: hidden;
+		background-color: #eef0f1;
 
 		&:focus {
 			outline: 0;
@@ -66,6 +67,7 @@
 
 				&.tabs {
 					position: relative;
+					transition: opacity 0.3s;
 
 					.tabs_inner {
 						position: absolute;
@@ -177,7 +179,7 @@
 		&.is-level-odd {
 
 			> .ni_block_topbar,
-			> .ni_block_children {
+			> .ni_block_body > .ni_block_children {
 				background-color: white;
 			}
 		}
@@ -186,8 +188,13 @@
 
 			> .ni_block_topbar {
 
-				.ni_block_topbar_item.tabs .tabs_inner {
-					display: none;
+				.ni_block_topbar_item.tabs {
+					opacity: 0;
+
+					.tabs_inner,
+					.tabs_btn {
+						pointer-events: none;
+					}
 				}
 			}
 		}

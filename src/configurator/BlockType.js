@@ -48,6 +48,8 @@ export default Item.extend({
 		{
 			settingsObj.on('change', () => this._updateTemplate())
 			settingsObj.on('destroy', () => this.trigger('destroy'))
+
+			this._updateTemplate()
 		}
 
 		this.deselect()
@@ -87,6 +89,7 @@ export default Item.extend({
 		if(settings)
 		{
 			this.$nameText.text(settings.getName())
+			this.$container.toggleClass('is-child', !settings.getTopLevel())
 
 			if(fieldLayout)
 			{

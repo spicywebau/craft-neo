@@ -79,6 +79,7 @@ export default Garnish.Base.extend({
 				name: btInfo.name,
 				handle: btInfo.handle,
 				maxBlocks: btInfo.maxBlocks,
+				topLevel: btInfo.topLevel,
 				errors: btInfo.errors,
 				childBlockTypes: existingItems.filter(item => item instanceof BlockType)
 			})
