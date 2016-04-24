@@ -1,5 +1,21 @@
 [
 	{
+		"version": "1.0.0",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.0.0.zip",
+		"date": "2016-04-24T22:46:00+11:00",
+		"notes": [
+			"[Added] Added support for the Quick Field plugin",
+			"[Added] Added \"Top Level\" block type setting for hiding blocks from the main button row",
+			"[Improved] Added support for Internet Explorer 10+",
+			"[Improved] Blocks now force-expanded if they have errors",
+			"[Improved] Expanding and collapsing a block is now animated",
+			"[Improved] Delete confirmation box shows when deleting multiple blocks",
+			"[Fixed] The \"Add block above\" feature now works correctly for child blocks",
+			"[Fixed] Fixed issue with child block checkbox ordering",
+			"[Fixed] Miscellaneous layout issues and minor bugs"
+		]
+	},
+	{
 		"version": "0.5.1",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/0.5.1.zip",
 		"date": "2016-04-23T16:35:00+11:00",
