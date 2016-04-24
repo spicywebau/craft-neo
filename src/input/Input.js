@@ -418,6 +418,32 @@ export default Garnish.Base.extend({
 		return childBlocks
 	},
 
+	_findParentBlock(index)
+	{
+		const blocks = this._blocks
+		const block = blocks[index]
+
+		if(block)
+		{
+			const level = block.getLevel()
+
+			if(level > 0)
+			{
+				let i = index
+				let currentBlock = block
+
+				while(currentBlock && currentBlock.getLevel() >= level)
+				{
+					currentBlock = blocks[--i]
+				}
+
+				return currentBlock
+			}
+		}
+
+		return null
+	},
+
 	'@newBlock'(e)
 	{
 		const blockId = Block.getNewId()
@@ -439,12 +465,28 @@ export default Garnish.Base.extend({
 		this._destroyTempButtons()
 
 		const block = e.block
-		const buttons = new Buttons({
-			blockTypes: this.getBlockTypes(true),
-			groups: this.getGroups(),
-			maxBlocks: this.getMaxBlocks(),
-			blocks: this.getBlocks()
-		})
+		const index = this._blocks.indexOf(block)
+		const parent = this._findParentBlock(index)
+		let buttons
+
+		if(parent)
+		{
+			const parentType = parent.getBlockType()
+			buttons = new Buttons({
+				items: parentType.getChildBlockItems(this.getItems()),
+				maxBlocks: this.getMaxBlocks(),
+				blocks: this.getBlocks()
+			})
+		}
+		else
+		{
+			buttons = new Buttons({
+				blockTypes: this.getBlockTypes(true),
+				groups: this.getGroups(),
+				maxBlocks: this.getMaxBlocks(),
+				blocks: this.getBlocks()
+			})
+		}
 
 		block.$container.before(buttons.$container)
 
