@@ -38,6 +38,20 @@
 				padding: 10px 14px 10px 40px;
 				border: 1px solid #ebebeb;
 				background-color: #fcfcfc;
+				transition: margin-left 0.15s;
+
+				&::before {
+					content: '';
+					display: block;
+					position: absolute;
+					top: -1px; bottom: -1px;
+					left: 0;
+					width: 0;
+					border-top: 1px solid #ebebeb;
+					border-bottom: 1px solid #ebebeb;
+					background-color: #fafafa;
+					transition: left 0.15s, width 0.15s;
+				}
 
 				> .label {
 					color: #29323d;
@@ -65,6 +79,15 @@
 					z-index: 1;
 					border-color: #dedede;
 					background-color: #ececec;
+				}
+
+				&.is-child {
+					margin-left: 10px;
+
+					&::before {
+						left: -10px;
+						width: 9px;
+					}
 				}
 
 				&.has-errors {
