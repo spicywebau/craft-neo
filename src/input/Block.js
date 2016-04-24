@@ -391,7 +391,8 @@ export default Garnish.Base.extend({
 			case 'expand':   this.expand()   ; break
 			case 'disable':  this.disable()
 			                 this.collapse() ; break
-			case 'enable':   this.enable()   ; break
+			case 'enable':   this.enable()
+			                 this.expand()   ; break
 			case 'delete':   this.destroy()  ; break
 
 			case 'add':
