@@ -356,6 +356,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			"Disable",
 			"Disabled",
 			"Delete",
+			"Are you sure you want to delete the selected blocks?",
 			"Reorder"
 		);
 

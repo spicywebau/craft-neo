@@ -177,7 +177,20 @@ export default Garnish.Base.extend({
 		this._blockSelect.addItems(block.$container)
 
 		block.initUi()
-		block.on('destroy.input',         e => this._blockBatch(block, b => this.removeBlock(b)))
+		block.on('destroy.input', e =>
+		{
+			if(this.getSelectedBlocks().length > 1)
+			{
+				if(confirm(Craft.t("Are you sure you want to delete the selected blocks?")))
+				{
+					this._blockBatch(block, b => this.removeBlock(b))
+				}
+			}
+			else
+			{
+				this.removeBlock(block)
+			}
+		})
 		block.on('toggleEnabled.input',   e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
 		block.on('newBlock.input',        e =>
