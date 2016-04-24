@@ -35,6 +35,7 @@ export default Garnish.Base.extend({
 
 		this.$container = $(settings.html)
 		this.$container.removeAttr('id')
+		this.$container.addClass('quick-field')
 
 		NS.enter(this._templateNs)
 
