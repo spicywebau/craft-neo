@@ -26,10 +26,11 @@
 	}
 
 	&_block {
+		overflow: hidden;
 		margin-bottom: 10px;
 		border-radius: 3px;
 		border: 1px solid #e3e5e8;
-		overflow: hidden;
+		background-color: #eef0f1;
 
 		&:focus {
 			outline: 0;
