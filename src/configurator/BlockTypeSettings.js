@@ -288,6 +288,23 @@ export default Settings.extend({
 		}
 	},
 
+	_refreshChildBlocks()
+	{
+		const blockTypes = Array.from(this._childBlockTypes)
+		const $options = this.$childBlocksContainer.children()
+
+		const getOption = blockType => $options.get(blockTypes.indexOf(blockType))
+
+		this._childBlockTypes = this._childBlockTypes.sort((a, b) => a.getSettings().getSortOrder() - b.getSettings().getSortOrder())
+		$options.remove()
+
+		for(let blockType of this._childBlockTypes)
+		{
+			let $option = getOption(blockType)
+			this.$childBlocksContainer.append($option)
+		}
+	},
+
 	'@onChildBlockTypeChange'(e, blockType, $checkbox)
 	{
 		const $neo = $checkbox.find('[data-neo-btsc]')
@@ -305,9 +322,7 @@ export default Settings.extend({
 				break
 
 			case 'sortOrder':
-				this._childBlockTypes = this._childBlockTypes.sort((a, b) => a.getSettings().getSortOrder() - b.getSettings().getSortOrder())
-				const index = this._childBlockTypes.indexOf(blockType)
-				$checkbox.insertAt(index + 1, this.$childBlocksContainer)
+				this._refreshChildBlocks()
 				break
 		}
 	}
