@@ -93,6 +93,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		craft()->templates->includeJs('new Neo.Configurator(' . JsonHelper::encode($jsSettings) . ')');
 
 		craft()->templates->includeTranslations(
+			"Block Types",
 			"Block type",
 			"Group",
 			"Settings",
