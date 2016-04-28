@@ -16,4 +16,4 @@ Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the conce
 
 ## Release
 
-Version `1.0.0` is out baby! [Grab your copy today](https://github.com/benjamminf/craft-neo/archive/1.0.0.zip). Will update this README in the coming days with a complete presentation of the plugin.
+Version `1.0` is out baby! [Grab your copy today](https://github.com/benjamminf/craft-neo/archive/1.0.1.zip). Will update this README in the coming days with a complete presentation of the plugin.
