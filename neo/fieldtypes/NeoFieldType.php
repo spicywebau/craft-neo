@@ -330,7 +330,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'sortOrder' => $block->sortOrder,
 				'collapsed' => (bool) $block->collapsed,
 				'enabled' => (bool) $block->enabled,
-				'level' => $block->level,
+				'level' => intval($block->level) - 1,
 				'tabs' => $this->_getBlockHtml($block, $name),
 			];
 		}
@@ -442,7 +442,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$block->setOwner($this->element);
 			$block->enabled = (isset($blockData['enabled']) ? (bool) $blockData['enabled'] : true);
 			$block->collapsed = (isset($blockData['collapsed']) ? (bool) $blockData['collapsed'] : false);
-			$block->level = (isset($blockData['level']) ? intval($blockData['level']) : 0);
+			$block->level = (isset($blockData['level']) ? intval($blockData['level']) + 1 : 1);
 
 			$ownerContentPostLocation = $this->element->getContentPostLocation();
 
