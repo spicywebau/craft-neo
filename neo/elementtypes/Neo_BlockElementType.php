@@ -68,6 +68,11 @@ class Neo_BlockElementType extends BaseElementType
 			$query->join('neoblocktypes neoblocktypes', 'neoblocktypes.id = neoblocks.typeId');
 			$query->andWhere(DbHelper::parseParam('neoblocktypes.handle', $criteria->type, $query->params));
 		}
+
+		if($criteria->level && $criteria->level !== 'neoblocks.level')
+		{
+			$query->andWhere(DbHelper::parseParam('neoblocks.level', $criteria->level, $query->params));
+		}
 	}
 
 	public function populateElementModel($row)
