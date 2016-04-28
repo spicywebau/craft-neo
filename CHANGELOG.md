@@ -1,5 +1,18 @@
 ## Changelog
 
+#### v1.0.0
+- `Added` Added support for the Quick Field plugin
+- `Added` Added "Top Level" block type setting for hiding blocks from the main button row
+- `Improved` Added support for Internet Explorer 10+
+- `Improved` Blocks now force-expanded if they have errors
+- `Improved` Expanding and collapsing a block is now animated
+- `Improved` Delete confirmation box shows when deleting multiple blocks
+- `Fixed` The "Add block above" feature now works correctly for child blocks
+- `Fixed` Fixed issue with child block checkbox ordering
+- `Fixed` Miscellaneous layout issues and minor bugs
+
+--
+
 #### v0.5.1
 - `Improved` Block tabs now respond to mobile devices
 - `Fixed` Fixed bug where reporting errors on new blocks were breaking many non-obvious things

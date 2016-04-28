@@ -16,19 +16,4 @@ Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the conce
 
 ## Release
 
-During the release of `0.x` versions, breaking changes are to be expected without migration. Do not use in production until version `1.0` is released.
-
-### Feature checklist
-
-- [x] ~~Using existing fields~~
-- [x] ~~Tabbed field sections~~
-- [x] ~~Block type groups~~
-- [x] ~~Block type max count~~
-- [x] ~~Block hierarchy~~
-- [x] ~~Reasons support~~
-- [x] ~~Relabel support~~
-- [x] ~~Quick Field support~~
-
-### Version `1.0` ETA
-
-Version `1.0` will release with all features around the end of April 2016. In the meantime, `0.x` versions will be released with partial feature support.
+Version `1.0.0` is out baby! [Grab your copy today](https://github.com/benjamminf/craft-neo/archive/1.0.0.zip). Will update this README in the coming days with a complete presentation of the plugin.
