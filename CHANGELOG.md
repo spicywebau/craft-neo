@@ -1,5 +1,8 @@
 ## Changelog
 
+#### v1.0.1
+- `Added` Added ability to query against block level in templates, like with categories and structure sections
+
 #### v1.0.0
 - `Added` Added support for the Quick Field plugin
 - `Added` Added "Top Level" block type setting for hiding blocks from the main button row
