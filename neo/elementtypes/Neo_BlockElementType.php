@@ -46,6 +46,18 @@ class Neo_BlockElementType extends BaseElementType
 			->join(
 				'neoblocks neoblocks',
 				'neoblocks.id = elements.id'
+			)
+			->leftJoin(
+				'structures structures',
+				'structures.id = neoblocks.structureId'
+			)
+			->leftJoin(
+				'structureelements structureelements',
+				[
+					'and',
+					'structureelements.structureId = structures.id',
+					'structureelements.elementId = neoblocks.id',
+				]
 			);
 
 		if($criteria->fieldId)
@@ -67,11 +79,6 @@ class Neo_BlockElementType extends BaseElementType
 		{
 			$query->join('neoblocktypes neoblocktypes', 'neoblocktypes.id = neoblocks.typeId');
 			$query->andWhere(DbHelper::parseParam('neoblocktypes.handle', $criteria->type, $query->params));
-		}
-
-		if($criteria->level && $criteria->level !== 'neoblocks.level')
-		{
-			$query->andWhere(DbHelper::parseParam('neoblocks.level', $criteria->level, $query->params));
 		}
 	}
 
