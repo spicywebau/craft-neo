@@ -22,9 +22,8 @@ class Neo_BlockElementType extends BaseElementType
 	{
 		return [
 			'fieldId'     => AttributeType::Number,
-			'order'       => [AttributeType::String, 'default' => 'neoblocks.sortOrder'],
+			'structureId' => AttributeType::Number,
 			'collapsed'   => [AttributeType::String, 'default' => 'neoblocks.collapsed'],
-			'level'       => [AttributeType::String, 'default' => 'neoblocks.level'],
 			'ownerId'     => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
 			'type'        => AttributeType::Mixed,
@@ -39,9 +38,7 @@ class Neo_BlockElementType extends BaseElementType
 				neoblocks.ownerId,
 				neoblocks.ownerLocale,
 				neoblocks.typeId,
-				neoblocks.sortOrder,
-				neoblocks.collapsed,
-				neoblocks.level
+				neoblocks.collapsed
 			')
 			->join(
 				'neoblocks neoblocks',

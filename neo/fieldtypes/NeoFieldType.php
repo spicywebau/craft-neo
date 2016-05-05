@@ -322,15 +322,16 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		}
 
 		$blockInfo = [];
+		$sortOrder = 0;
 		foreach($value as $block)
 		{
 			$blockInfo[] = [
 				'id' => $block->id,
 				'blockType' => $block->getType()->handle,
-				'sortOrder' => $block->sortOrder,
+				'sortOrder' => $sortOrder++,
 				'collapsed' => (bool) $block->collapsed,
 				'enabled' => (bool) $block->enabled,
-				'level' => intval($block->level) - 1,
+				'level' => intval($block->level),
 				'tabs' => $this->_getBlockHtml($block, $name),
 			];
 		}
@@ -415,7 +416,6 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		}
 
 		$blocks = [];
-		$sortOrder = 0;
 
 		foreach($data as $blockId => $blockData)
 		{
@@ -442,7 +442,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$block->setOwner($this->element);
 			$block->enabled = (isset($blockData['enabled']) ? (bool) $blockData['enabled'] : true);
 			$block->collapsed = (isset($blockData['collapsed']) ? (bool) $blockData['collapsed'] : false);
-			$block->level = (isset($blockData['level']) ? intval($blockData['level']) + 1 : 1);
+			$block->level = (isset($blockData['level']) ? intval($blockData['level']) : 0);
 
 			$ownerContentPostLocation = $this->element->getContentPostLocation();
 
@@ -455,9 +455,6 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			{
 				$block->setContentFromPost($blockData['fields']);
 			}
-
-			$sortOrder++;
-			$block->sortOrder = $sortOrder;
 
 			$blocks[] = $block;
 		}

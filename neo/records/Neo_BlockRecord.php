@@ -31,7 +31,6 @@ class Neo_BlockRecord extends BaseRecord
 				'onDelete' => static::CASCADE
 			],
 			'structure' => [static::BELONGS_TO, 'StructureRecord',
-				'required' => true,
 				'onDelete' => static::CASCADE
 			],
 		];
@@ -51,7 +50,7 @@ class Neo_BlockRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'collapsed' => AttributeType::Bool,
+			'collapsed' => [AttributeType::Bool, 'default' => false],
 			'ownerLocale' => AttributeType::Locale,
 		];
 	}

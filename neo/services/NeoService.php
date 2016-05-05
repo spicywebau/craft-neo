@@ -484,7 +484,6 @@ class NeoService extends BaseApplicationComponent
 		$blockRecord->fieldId   = $block->fieldId;
 		$blockRecord->ownerId   = $block->ownerId;
 		$blockRecord->typeId    = $block->typeId;
-		$blockRecord->sortOrder = $block->sortOrder;
 		$blockRecord->collapsed = $block->collapsed;
 
 		$blockRecord->validate();
@@ -509,9 +508,7 @@ class NeoService extends BaseApplicationComponent
 			$blockRecord->ownerId     = $block->ownerId;
 			$blockRecord->ownerLocale = $block->ownerLocale;
 			$blockRecord->typeId      = $block->typeId;
-			$blockRecord->sortOrder   = $block->sortOrder;
 			$blockRecord->collapsed   = $block->collapsed;
-			$blockRecord->level       = $block->level;
 
 			$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 			try
@@ -588,6 +585,16 @@ class NeoService extends BaseApplicationComponent
 			return true;
 		}
 
+		// Remove old structure if one exists
+		//if(!empty($blocks))
+		//{
+		//	$block = current($blocks);
+		//	craft()->structures->deleteStructureById($block->structureId);
+		//}
+
+		$structure = new StructureModel();
+		// $structure->maxLevels = ...->maxLevels;
+
 		if(!is_array($blocks))
 		{
 			$blocks = [];
@@ -600,14 +607,41 @@ class NeoService extends BaseApplicationComponent
 			// setting
 			$this->_applyFieldTranslationSetting($owner, $field, $blocks);
 
+			// Only save the structure if there are blocks to save.
+			// If we save it without any blocks, then there will not exist any references to the structure, making it
+			// impossible to delete.
+			if(!empty($blocks))
+			{
+				craft()->structures->saveStructure($structure);
+			}
+
 			$blockIds = [];
+			$parentStack = [];
 
 			foreach($blocks as $block)
 			{
 				$block->ownerId = $owner->id;
 				$block->ownerLocale = ($field->translatable ? $owner->locale : null);
+				$block->structureId = $structure->id;
+
+				while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
+				{
+					array_pop($parentStack);
+				}
 
 				$this->saveBlock($block, false);
+
+				if(empty($parentStack))
+				{
+					craft()->structures->appendToRoot($structure->id, $block);
+				}
+				else
+				{
+					$parentBlock = $parentStack[count($parentStack) - 1];
+					craft()->structures->append($structure->id, $block, $parentBlock);
+				}
+
+				array_push($parentStack, $block);
 
 				$blockIds[] = $block->id;
 			}
