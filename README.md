@@ -16,4 +16,35 @@ Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the conce
 
 ## Release
 
-Version `1.0` is out baby! [Grab your copy today](https://github.com/benjamminf/craft-neo/archive/1.0.1.zip). Will update this README in the coming days with a complete presentation of the plugin.
+Version `1.0` is out baby! [Grab your copy today](https://github.com/benjamminf/craft-neo/archive/1.0.2.zip). Will update this README in the coming days with a complete presentation of the plugin.
+
+## Template usage
+
+```twig
+<ol>
+    {% for block in entry.neoField.level(1) %}
+        <li>{{ block.type }}
+            {% if craft.neo.hasChildren(block) %}
+                <ol>
+                    {% for childBlock in craft.neo.children(block) %}
+                        <li>{{ childBlock.type }}</li>
+                    {% endfor %}
+                </ol>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ol>
+```
+
+Or use the `{% nav %}` tag to recursively generate a Neo field structure:
+```twig
+<ol>
+	{% nav block in entry.neoField %}
+		<li>{{ block.type }}
+			{% ifchildren %}
+				<ol>{% children %}</ol>
+			{% endifchildren %}
+		</li>
+	{% endnav %}
+</ol>
+```

@@ -1,5 +1,8 @@
 ## Changelog
 
+#### v1.0.2
+- `Added` Added ability to get child blocks in the template. This implementation will be deprecated soon in a later release but will remain supported throughout all 1.x versions.
+
 #### v1.0.1
 - `Added` Added ability to query against block level in templates, like with categories and structure sections
 
