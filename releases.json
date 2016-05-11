@@ -1,5 +1,13 @@
 [
 	{
+		"version": "1.0.2",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.0.2.zip",
+		"date": "2016-05-11T15:10:00+11:00",
+		"notes": [
+			"[Added] Added ability to get child blocks in the template. This implementation will be deprecated soon in a later release but will remain supported throughout all 1.x versions."
+		]
+	},
+	{
 		"version": "1.0.1",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.0.1.zip",
 		"date": "2016-04-28T20:56:00+11:00",
