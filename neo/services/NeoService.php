@@ -583,13 +583,13 @@ class NeoService extends BaseApplicationComponent
 		$result = craft()->db->createCommand()
 			->select('structureId')
 			->from('neoblockstructures')
-			->where('ownerId = :id', [':id' => $owner->id])
-			->andWhere('fieldId = :id', [':id' => $field->id])
+			->where('ownerId = :ownerId', [':ownerId' => $owner->id])
+			->andWhere('fieldId = :fieldId', [':fieldId' => $field->id])
 			->queryRow();
 
 		if($result)
 		{
-			return craft()->structures->getStructureById($result->structureId);
+			return craft()->structures->getStructureById($result['structureId']);
 		}
 
 		return false;
