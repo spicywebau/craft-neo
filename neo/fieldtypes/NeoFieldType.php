@@ -323,6 +323,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		$blockInfo = [];
 		$sortOrder = 0;
+
 		foreach($value as $block)
 		{
 			$blockInfo[] = [
@@ -331,7 +332,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'sortOrder' => $sortOrder++,
 				'collapsed' => (bool) $block->collapsed,
 				'enabled' => (bool) $block->enabled,
-				'level' => intval($block->level),
+				'level' => intval($block->level) - 1,
 				'tabs' => $this->_getBlockHtml($block, $name),
 			];
 		}
