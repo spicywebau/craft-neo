@@ -507,6 +507,7 @@ class NeoService extends BaseApplicationComponent
 
 			$blockRecord->fieldId     = $block->fieldId;
 			$blockRecord->ownerId     = $block->ownerId;
+			$blockRecord->structureId = $block->structureId;
 			$blockRecord->ownerLocale = $block->ownerLocale;
 			$blockRecord->typeId      = $block->typeId;
 			$blockRecord->collapsed   = $block->collapsed;
