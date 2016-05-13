@@ -195,8 +195,11 @@ export default Garnish.Base.extend({
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
 		block.on('newBlock.input',        e =>
 		{
-			const nextBlock = this.getBlockByElement(block.$container.next())
-			const index = (nextBlock ? this._blocks.indexOf(nextBlock) : -1)
+			const blockIndex = this._blocks.indexOf(block)
+			const descendants = this._findChildBlocks(blockIndex, true)
+			const lastDescendant = descendants[descendants.length - 1]
+			const index = (lastDescendant ? this._blocks.indexOf(lastDescendant) : blockIndex) + 1
+
 			this['@newBlock'](Object.assign(e, {index: index}))
 		})
 		block.on('addBlockAbove.input',   e => this['@addBlockAbove'](e))
@@ -406,8 +409,10 @@ export default Garnish.Base.extend({
 		return false
 	},
 
-	_findChildBlocks(index)
+	_findChildBlocks(index, descendants = null)
 	{
+		descendants = (typeof descendants === 'boolean' ? descendants : false)
+
 		const blocks = this._blocks
 		const block = blocks[index]
 		const childBlocks = []
@@ -419,7 +424,9 @@ export default Garnish.Base.extend({
 			let currentBlock = blocks[++index]
 			while(currentBlock && currentBlock.getLevel() > level)
 			{
-				if(currentBlock.getLevel() === level + 1)
+				let currentLevel = currentBlock.getLevel()
+
+				if(descendants ? currentLevel > level : currentLevel === level + 1)
 				{
 					childBlocks.push(currentBlock)
 				}
