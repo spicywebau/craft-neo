@@ -12,7 +12,8 @@
 		<div class="ni_block_topbar_item clip-text" {% if hasTabs or isParent %}data-neo-b="button.toggler"{% endif %}>
 			<span>{{ type.getName() }}</span>
 		</div>
-		<div class="ni_block_topbar_item size-full tabs" {% if hasTabs or isParent %}data-neo-b="button.toggler"{% endif %}>
+		<div class="ni_block_topbar_item size-full tabs">
+			<div class="tabs_trigger" {% if hasTabs or isParent %}data-neo-b="button.toggler"{% endif %}></div>
 			{% if type.getTabs()|length > 1 %}
 				{% set hasErrors = false %}
 				<div class="tabs_inner" data-neo-b="container.tabs">
