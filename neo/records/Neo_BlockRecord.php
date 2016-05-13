@@ -30,9 +30,6 @@ class Neo_BlockRecord extends BaseRecord
 			'type' => [static::BELONGS_TO, 'Neo_BlockTypeRecord',
 				'onDelete' => static::CASCADE
 			],
-			'structure' => [static::BELONGS_TO, 'StructureRecord',
-				'onDelete' => static::CASCADE
-			],
 		];
 	}
 
@@ -42,7 +39,6 @@ class Neo_BlockRecord extends BaseRecord
 			['columns' => ['ownerId']],
 			['columns' => ['fieldId']],
 			['columns' => ['typeId']],
-			['columns' => ['structureId']],
 			['columns' => ['collapsed']],
 		];
 	}

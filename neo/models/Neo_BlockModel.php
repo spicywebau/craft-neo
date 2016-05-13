@@ -76,7 +76,6 @@ class Neo_BlockModel extends BaseElementModel
 			'ownerId' => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
 			'typeId' => AttributeType::Number,
-			'structureId' => AttributeType::Number,
 			'collapsed' => AttributeType::Bool,
 		]);
 	}

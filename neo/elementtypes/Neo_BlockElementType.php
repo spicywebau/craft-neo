@@ -22,7 +22,6 @@ class Neo_BlockElementType extends BaseElementType
 	{
 		return [
 			'fieldId'     => AttributeType::Number,
-			'structureId' => AttributeType::Number,
 			'collapsed'   => [AttributeType::String, 'default' => 'neoblocks.collapsed'],
 			'ownerId'     => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
@@ -46,14 +45,18 @@ class Neo_BlockElementType extends BaseElementType
 				'neoblocks.id = elements.id'
 			)
 			->leftJoin(
-				'structures structures',
-				'structures.id = neoblocks.structureId'
+				'neoblockstructures neoblockstructures',
+				[
+					'and',
+					'neoblockstructures.ownerId = neoblocks.ownerId',
+					'neoblockstructures.fieldId = neoblocks.fieldId',
+				]
 			)
 			->leftJoin(
 				'structureelements structureelements',
 				[
 					'and',
-					'structureelements.structureId = structures.id',
+					'structureelements.structureId = neoblockstructures.structureId',
 					'structureelements.elementId = neoblocks.id',
 				]
 			);

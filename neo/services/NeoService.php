@@ -507,7 +507,6 @@ class NeoService extends BaseApplicationComponent
 
 			$blockRecord->fieldId     = $block->fieldId;
 			$blockRecord->ownerId     = $block->ownerId;
-			$blockRecord->structureId = $block->structureId;
 			$blockRecord->ownerLocale = $block->ownerLocale;
 			$blockRecord->typeId      = $block->typeId;
 			$blockRecord->collapsed   = $block->collapsed;
@@ -576,6 +575,92 @@ class NeoService extends BaseApplicationComponent
 		return craft()->elements->deleteElementById($blockIds);
 	}
 
+	public function getStructure(NeoFieldType $fieldType)
+	{
+		$owner = $fieldType->element;
+		$field = $fieldType->model;
+
+		$result = craft()->db->createCommand()
+			->select('structureId')
+			->from('neoblockstructures')
+			->where('ownerId = :id', [':id' => $owner->id])
+			->andWhere('fieldId = :id', [':id' => $field->id])
+			->queryRow();
+
+		if($result)
+		{
+			return craft()->structures->getStructureById($result->structureId);
+		}
+
+		return false;
+	}
+
+	public function saveStructure(StructureModel $structure, NeoFieldType $fieldType)
+	{
+		$owner = $fieldType->element;
+		$field = $fieldType->model;
+
+		$blockStructure = new Neo_BlockStructureRecord();
+
+		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		try
+		{
+			$this->deleteStructure($fieldType);
+
+			craft()->structures->saveStructure($structure);
+
+			$blockStructure->structureId = $structure->id;
+			$blockStructure->ownerId = $owner->id;
+			$blockStructure->fieldId = $field->id;
+			$blockStructure->save(false);
+		}
+		catch(\Exception $e)
+		{
+			if($transaction !== null)
+			{
+				$transaction->rollback();
+			}
+
+			throw $e;
+		}
+
+		return true;
+	}
+
+	public function deleteStructure(NeoFieldType $fieldType)
+	{
+		$owner = $fieldType->element;
+		$field = $fieldType->model;
+
+		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		try
+		{
+			$blockStructure = $this->getStructure($fieldType);
+
+			if($blockStructure)
+			{
+				craft()->structures->deleteStructureById($blockStructure->id);
+			}
+
+			craft()->db->createCommand()
+				->delete('neoblockstructures', [
+					'ownerId' => $owner->id,
+					'fieldId' => $field->id,
+				]);
+		}
+		catch(\Exception $e)
+		{
+			if($transaction !== null)
+			{
+				$transaction->rollback();
+			}
+
+			throw $e;
+		}
+
+		return true;
+	}
+
 	public function saveField(NeoFieldType $fieldType)
 	{
 		$owner = $fieldType->element;
@@ -586,13 +671,6 @@ class NeoService extends BaseApplicationComponent
 		{
 			return true;
 		}
-
-		// Remove old structure if one exists
-		//if(!empty($blocks))
-		//{
-		//	$block = current($blocks);
-		//	craft()->structures->deleteStructureById($block->structureId);
-		//}
 
 		$structure = new StructureModel();
 		// $structure->maxLevels = ...->maxLevels;
@@ -609,13 +687,7 @@ class NeoService extends BaseApplicationComponent
 			// setting
 			$this->_applyFieldTranslationSetting($owner, $field, $blocks);
 
-			// Only save the structure if there are blocks to save.
-			// If we save it without any blocks, then there will not exist any references to the structure, making it
-			// impossible to delete.
-			if(!empty($blocks))
-			{
-				craft()->structures->saveStructure($structure);
-			}
+			$this->saveStructure($structure, $fieldType);
 
 			$blockIds = [];
 			$parentStack = [];
@@ -624,7 +696,6 @@ class NeoService extends BaseApplicationComponent
 			{
 				$block->ownerId = $owner->id;
 				$block->ownerLocale = ($field->translatable ? $owner->locale : null);
-				$block->structureId = $structure->id;
 
 				while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
 				{
