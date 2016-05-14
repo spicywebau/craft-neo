@@ -56,7 +56,4 @@ Supports the ability to relabel fields on block types.
 
 --
 
-
-## Documentation
-
-[Refer to the Wiki](https://github.com/benjamminf/craft-neo/wiki) for information on how to use Neo.
+### [Refer to the Wiki](https://github.com/benjamminf/craft-neo/wiki) for documentation on how to use Neo.
