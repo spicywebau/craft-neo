@@ -52,7 +52,7 @@ class NeoPlugin extends BasePlugin
 
 	public function getDocumentationUrl()
 	{
-		return 'https://github.com/benjamminf/craft-neo';
+		return 'https://github.com/benjamminf/craft-neo/wiki';
 	}
 
 	public function getReleaseFeedUrl()
