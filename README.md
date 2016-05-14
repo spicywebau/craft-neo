@@ -1,50 +1,38 @@
 # Neo
-#### Exit the Matrix with the one true Craft field type
+#### A Matrix-like field type that uses existing fields
 
-Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the concept of the [Matrix field type](https://craftcms.com/features/matrix) with a bunch of cool new features. Neo is built from the ground up, and in the classic style of Craft, so as to feel like it's native to the core product.
+Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the concept of the [Matrix field type](https://craftcms.com/features/matrix) with a number of very useful features. Neo has been carefully crafted (pun intended) to ensure it matches the look and feel of Craft.
 
-![Configurator screenshot](demo/configurator-screenshot.png)
+### Use existing fields
+<img src="demo/feature1-1.png" width="790">
 
-## Features
+### Organise blocks with tabs
+<img src="demo/feature2-1.png" width="622">
+<img src="demo/feature2-2.png" width="622">
 
-- **Use existing fields for your block types**
-- Add tabbed field sections on your block types
-- Create block type groups for a cleaner UI
-- Set a maximum count for individual block types
-- **Create heirarchy by allowing blocks types to nest other specific block types**
-- **Full support for [Reasons](https://github.com/mmikkel/Reasons-Craft), [Relabel](https://github.com/benjamminf/craft-relabel) and [Quick Field](https://github.com/benjamminf/craft-quick-field) plugins**
+### Group block buttons
+<img src="demo/feature3-1.png" width="790">
+<img src="demo/feature3-2.png" width="622">
 
-## Release
+### Set maximum blocks by type
+<img src="demo/feature4-1.png" width="622">
 
-Version `1.0` is out baby! [Grab your copy today](https://github.com/benjamminf/craft-neo/archive/1.0.2.zip). Will update this README in the coming days with a complete presentation of the plugin.
+### Allow blocks to contain children
+<img src="demo/feature5-1.png" width="790">
+<img src="demo/feature5-2.png" width="622">
 
-## Template usage
+### Supports the following plugins
 
-```twig
-<ol>
-    {% for block in entry.neoField.level(1) %}
-        <li>{{ block.type }}
-            {% if craft.neo.hasChildren(block) %}
-                <ol>
-                    {% for childBlock in craft.neo.children(block) %}
-                        <li>{{ childBlock.type }}</li>
-                    {% endfor %}
-                </ol>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ol>
-```
+#### [Quick Field](https://github.com/benjamminf/craft-quick-field)
+Supports the ability to create fields when building field layouts for block types.
 
-Or use the `{% nav %}` tag to recursively generate a Neo field structure:
-```twig
-<ol>
-	{% nav block in entry.neoField %}
-		<li>{{ block.type }}
-			{% ifchildren %}
-				<ol>{% children %}</ol>
-			{% endifchildren %}
-		</li>
-	{% endnav %}
-</ol>
-```
+#### [Reasons](https://github.com/mmikkel/Reasons-Craft)
+Supports the ability to set field conditionals on block types.
+
+#### [Relabel](https://github.com/benjamminf/craft-relabel)
+Supports the ability to relabel fields on block types.
+
+
+## Documentation
+
+[Refer to the Wiki](https://github.com/benjamminf/craft-neo/wiki) for information on how to use Neo.
