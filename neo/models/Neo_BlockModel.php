@@ -7,6 +7,11 @@ class Neo_BlockModel extends BaseElementModel
 
 	private $_owner;
 
+	public function getField()
+	{
+		return craft()->fields->getFieldById($this->fieldId);
+	}
+
 	public function getFieldLayout()
 	{
 		$blockType = $this->getType();
@@ -78,10 +83,5 @@ class Neo_BlockModel extends BaseElementModel
 			'typeId' => AttributeType::Number,
 			'collapsed' => AttributeType::Bool,
 		]);
-	}
-
-	private function _getField()
-	{
-		return craft()->fields->getFieldById($this->fieldId);
 	}
 }
