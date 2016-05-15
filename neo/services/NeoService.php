@@ -14,7 +14,6 @@ class NeoService extends BaseApplicationComponent
 	private $_blockRecordsById;
 	private $_uniqueBlockTypeAndFieldHandles;
 	private $_parentNeoFields;
-	private $_blocks = [];
 
 	public $currentSavingBlockType;
 
@@ -789,40 +788,6 @@ class NeoService extends BaseApplicationComponent
 		return $this->_parentNeoFields[$neoField->id];
 	}
 
-	public function getChildBlocks(Neo_BlockModel $block)
-	{
-		$owner = $block->getOwner();
-		$type = $block->getType();
-		$field = craft()->fields->getFieldById($type->fieldId);
-
-		$blocks = $this->_getBlocksByOwnerAndField($owner, $field);
-
-		$childLevel = ((int) $block->level) + 1;
-		$children = array();
-		$foundBlock = false;
-
-		foreach($blocks as $testBlock)
-		{
-			if($foundBlock)
-			{
-				if($testBlock->level == $childLevel)
-				{
-					$children[] = $testBlock;
-				}
-				else if($testBlock->level < $childLevel)
-				{
-					break;
-				}
-			}
-			if($testBlock->id == $block->id)
-			{
-				$foundBlock = true;
-			}
-		}
-
-		return $children;
-	}
-
 	public function requirePlugin($plugin)
 	{
 		if(!craft()->plugins->getPlugin($plugin))
@@ -1025,29 +990,5 @@ class NeoService extends BaseApplicationComponent
 				}
 			}
 		}
-	}
-
-	private function _getBlocksByOwnerAndField(BaseElementModel $owner, FieldModel $field)
-	{
-		$key = $owner->id . ':' . $field->id;
-
-		if(!isset($this->_blocks[$key]))
-		{
-			$result = Neo_BlockRecord::model()->findAllByAttributes([
-				'ownerId' => $owner->id,
-				'fieldId' => $field->id,
-			]);
-
-			$models = Neo_BlockModel::populateModels($result);
-
-			usort($models, function(Neo_BlockModel $a, Neo_BlockModel $b)
-			{
-				return $a->sortOrder - $b->sortOrder;
-			});
-
-			$this->_blocks[$key] = $models;
-		}
-
-		return $this->_blocks[$key];
 	}
 }
