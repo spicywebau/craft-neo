@@ -46,7 +46,7 @@ class Neo_BlockRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'collapsed' => [AttributeType::Bool, 'default' => false],
+			'collapsed' => AttributeType::Bool,
 			'ownerLocale' => AttributeType::Locale,
 		];
 	}
