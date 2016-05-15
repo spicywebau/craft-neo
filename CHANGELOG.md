@@ -1,5 +1,13 @@
 ## Changelog
 
+#### v1.1.0
+- `Added` Blocks now support structure property querying (children, descendants, etc)
+- `Improved` Clicking on block tabs no longer toggles the checkbox
+- `Improved` Now checks for compatible PHP version on install
+- `Fixed` Fixed issue where child blocks weren't being added to the correct block
+- `Fixed` Block tab dropdown (when in mobile view) now works on new blocks
+- `Fixed` The "+" icon on block buttons is now correctly added to the first button
+
 #### v1.0.2
 - `Added` Added ability to get child blocks in the template. This implementation will be deprecated soon in a later release but will remain supported throughout all 1.x versions.
 
