@@ -11,6 +11,8 @@ class NeoVariable
 	 */
 	public function children(Neo_BlockModel $block)
 	{
+		craft()->deprecator->log('NeoVariable::children()', "<code>craft.neo.children(block)</code> has been deprecated. Use <code>block.children</code> instead.");
+
 		$owner = $block->getOwner();
 		$type = $block->getType();
 		$field = craft()->fields->getFieldById($type->fieldId);
@@ -34,6 +36,8 @@ class NeoVariable
 	 */
 	public function hasChildren(Neo_BlockModel $block)
 	{
+		craft()->deprecator->log('NeoVariable::hasChildren()', "<code>craft.neo.hasChildren(block)</code> has been deprecated. Use <code>block.children.total > 0</code> instead.");
+
 		$criteria = $this->children($block);
 
 		return (bool) $criteria->first();
