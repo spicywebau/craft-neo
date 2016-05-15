@@ -101,7 +101,6 @@ class Neo_BlockModel_1_0_2 extends BaseElementModel
 			'fieldId' => AttributeType::Number,
 			'ownerId' => AttributeType::Number,
 			'typeId' => AttributeType::Number,
-			'level' => AttributeType::Number,
 		]);
 	}
 }
