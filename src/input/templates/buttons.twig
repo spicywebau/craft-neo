@@ -2,6 +2,7 @@
 	<div class="btngroup"
 	     data-neo-bn="container.buttons">
 		{% set currentGroup = false %}
+		{% set firstButton = true %}
 		{% for item in items %}
 			{% set type = item.getType() %}
 			{% if type == 'blockType' %}
@@ -13,11 +14,12 @@
 						</a>
 					</li>
 				{% else %}
-					<div class="btn{% if loop.first %} add icon{% endif %}"
+					<div class="btn{% if firstButton %} add icon{% endif %}"
 						 data-neo-bn="button.addBlock"
 						 data-neo-bn-info="{{ item.getHandle() }}">
 						{{ item.getName() }}
 					</div>
+					{% set firstButton = false %}
 				{% endif %}
 			{% elseif type == 'group' %}
 				{% if currentGroup %}
@@ -25,11 +27,12 @@
 				{% endif %}
 				{% set currentGroup = item.isBlank() ? false : item %}
 				{% if currentGroup %}
-					<div class="btn{% if loop.first %} add icon{% endif %} menubtn"
+					<div class="btn{% if firstButton %} add icon{% endif %} menubtn"
 						 data-neo-bn="button.group">
 						{{ item.getName() }}
 					</div>
 					{{ '<div class="menu"><ul>' }}
+					{% set firstButton = false %}
 				{% endif %}
 			{% endif %}
 		{% endfor %}

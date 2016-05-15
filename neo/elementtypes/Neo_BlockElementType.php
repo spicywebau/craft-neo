@@ -22,12 +22,11 @@ class Neo_BlockElementType extends BaseElementType
 	{
 		return [
 			'fieldId'     => AttributeType::Number,
-			'order'       => [AttributeType::String, 'default' => 'neoblocks.sortOrder'],
 			'collapsed'   => [AttributeType::String, 'default' => 'neoblocks.collapsed'],
-			'level'       => [AttributeType::String, 'default' => 'neoblocks.level'],
 			'ownerId'     => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
 			'type'        => AttributeType::Mixed,
+			'order'       => array(AttributeType::String, 'default' => 'lft'),
 		];
 	}
 
@@ -39,13 +38,27 @@ class Neo_BlockElementType extends BaseElementType
 				neoblocks.ownerId,
 				neoblocks.ownerLocale,
 				neoblocks.typeId,
-				neoblocks.sortOrder,
-				neoblocks.collapsed,
-				neoblocks.level
+				neoblocks.collapsed
 			')
 			->join(
 				'neoblocks neoblocks',
 				'neoblocks.id = elements.id'
+			)
+			->leftJoin(
+				'neoblockstructures neoblockstructures',
+				[
+					'and',
+					'neoblockstructures.ownerId = neoblocks.ownerId',
+					'neoblockstructures.fieldId = neoblocks.fieldId',
+				]
+			)
+			->leftJoin(
+				'structureelements structureelements',
+				[
+					'and',
+					'structureelements.structureId = neoblockstructures.structureId',
+					'structureelements.elementId = neoblocks.id',
+				]
 			);
 
 		if($criteria->fieldId)
@@ -67,11 +80,6 @@ class Neo_BlockElementType extends BaseElementType
 		{
 			$query->join('neoblocktypes neoblocktypes', 'neoblocktypes.id = neoblocks.typeId');
 			$query->andWhere(DbHelper::parseParam('neoblocktypes.handle', $criteria->type, $query->params));
-		}
-
-		if($criteria->level && $criteria->level !== 'neoblocks.level')
-		{
-			$query->andWhere(DbHelper::parseParam('neoblocks.level', $criteria->level, $query->params));
 		}
 	}
 

@@ -108,6 +108,7 @@ export default Garnish.Base.extend({
 
 			Garnish.$bod.append(this.$foot)
 			Craft.initUiElements(this.$contentContainer)
+			this.$tabsButton.menubtn()
 
 			this._settingsMenu = new Garnish.MenuBtn(this.$settingsButton);
 			this._settingsMenu.on('optionSelect', e => this['@settingSelect'](e))

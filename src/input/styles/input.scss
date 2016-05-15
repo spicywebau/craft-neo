@@ -69,6 +69,12 @@
 					position: relative;
 					transition: opacity 0.3s;
 
+					.tabs_trigger {
+						position: absolute;
+						top: 0; bottom: 0;
+						left: 0; right: 0;
+					}
+
 					.tabs_inner {
 						position: absolute;
 						top: 0;
@@ -80,6 +86,7 @@
 					}
 
 					.tabs_btn {
+						position: relative; // Put it over the top of trigger element
 						display: block;
 						cursor: pointer;
 						height: 30px;

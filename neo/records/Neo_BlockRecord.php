@@ -39,18 +39,14 @@ class Neo_BlockRecord extends BaseRecord
 			['columns' => ['ownerId']],
 			['columns' => ['fieldId']],
 			['columns' => ['typeId']],
-			['columns' => ['sortOrder']],
 			['columns' => ['collapsed']],
-			['columns' => ['level']],
 		];
 	}
 
 	protected function defineAttributes()
 	{
 		return [
-			'sortOrder' => AttributeType::SortOrder,
 			'collapsed' => AttributeType::Bool,
-			'level' => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
 		];
 	}

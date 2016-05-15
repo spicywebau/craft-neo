@@ -14,7 +14,6 @@ class NeoService extends BaseApplicationComponent
 	private $_blockRecordsById;
 	private $_uniqueBlockTypeAndFieldHandles;
 	private $_parentNeoFields;
-	private $_blocks = [];
 
 	public $currentSavingBlockType;
 
@@ -485,7 +484,6 @@ class NeoService extends BaseApplicationComponent
 		$blockRecord->fieldId   = $block->fieldId;
 		$blockRecord->ownerId   = $block->ownerId;
 		$blockRecord->typeId    = $block->typeId;
-		$blockRecord->sortOrder = $block->sortOrder;
 		$blockRecord->collapsed = $block->collapsed;
 
 		$blockRecord->validate();
@@ -510,9 +508,7 @@ class NeoService extends BaseApplicationComponent
 			$blockRecord->ownerId     = $block->ownerId;
 			$blockRecord->ownerLocale = $block->ownerLocale;
 			$blockRecord->typeId      = $block->typeId;
-			$blockRecord->sortOrder   = $block->sortOrder;
 			$blockRecord->collapsed   = $block->collapsed;
-			$blockRecord->level       = $block->level;
 
 			$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 			try
@@ -578,6 +574,92 @@ class NeoService extends BaseApplicationComponent
 		return craft()->elements->deleteElementById($blockIds);
 	}
 
+	public function getStructure(NeoFieldType $fieldType)
+	{
+		$owner = $fieldType->element;
+		$field = $fieldType->model;
+
+		$result = craft()->db->createCommand()
+			->select('structureId')
+			->from('neoblockstructures')
+			->where('ownerId = :ownerId', [':ownerId' => $owner->id])
+			->andWhere('fieldId = :fieldId', [':fieldId' => $field->id])
+			->queryRow();
+
+		if($result)
+		{
+			return craft()->structures->getStructureById($result['structureId']);
+		}
+
+		return false;
+	}
+
+	public function saveStructure(StructureModel $structure, NeoFieldType $fieldType)
+	{
+		$owner = $fieldType->element;
+		$field = $fieldType->model;
+
+		$blockStructure = new Neo_BlockStructureRecord();
+
+		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		try
+		{
+			$this->deleteStructure($fieldType);
+
+			craft()->structures->saveStructure($structure);
+
+			$blockStructure->structureId = $structure->id;
+			$blockStructure->ownerId = $owner->id;
+			$blockStructure->fieldId = $field->id;
+			$blockStructure->save(false);
+		}
+		catch(\Exception $e)
+		{
+			if($transaction !== null)
+			{
+				$transaction->rollback();
+			}
+
+			throw $e;
+		}
+
+		return true;
+	}
+
+	public function deleteStructure(NeoFieldType $fieldType)
+	{
+		$owner = $fieldType->element;
+		$field = $fieldType->model;
+
+		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		try
+		{
+			$blockStructure = $this->getStructure($fieldType);
+
+			if($blockStructure)
+			{
+				craft()->structures->deleteStructureById($blockStructure->id);
+			}
+
+			craft()->db->createCommand()
+				->delete('neoblockstructures', [
+					'ownerId' => $owner->id,
+					'fieldId' => $field->id,
+				]);
+		}
+		catch(\Exception $e)
+		{
+			if($transaction !== null)
+			{
+				$transaction->rollback();
+			}
+
+			throw $e;
+		}
+
+		return true;
+	}
+
 	public function saveField(NeoFieldType $fieldType)
 	{
 		$owner = $fieldType->element;
@@ -588,6 +670,9 @@ class NeoService extends BaseApplicationComponent
 		{
 			return true;
 		}
+
+		$structure = new StructureModel();
+		// $structure->maxLevels = ...->maxLevels;
 
 		if(!is_array($blocks))
 		{
@@ -601,14 +686,34 @@ class NeoService extends BaseApplicationComponent
 			// setting
 			$this->_applyFieldTranslationSetting($owner, $field, $blocks);
 
+			$this->saveStructure($structure, $fieldType);
+
 			$blockIds = [];
+			$parentStack = [];
 
 			foreach($blocks as $block)
 			{
 				$block->ownerId = $owner->id;
 				$block->ownerLocale = ($field->translatable ? $owner->locale : null);
 
+				while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
+				{
+					array_pop($parentStack);
+				}
+
 				$this->saveBlock($block, false);
+
+				if(empty($parentStack))
+				{
+					craft()->structures->appendToRoot($structure->id, $block);
+				}
+				else
+				{
+					$parentBlock = $parentStack[count($parentStack) - 1];
+					craft()->structures->append($structure->id, $block, $parentBlock);
+				}
+
+				array_push($parentStack, $block);
 
 				$blockIds[] = $block->id;
 			}
@@ -681,40 +786,6 @@ class NeoService extends BaseApplicationComponent
 		}
 
 		return $this->_parentNeoFields[$neoField->id];
-	}
-
-	public function getChildBlocks(Neo_BlockModel $block)
-	{
-		$owner = $block->getOwner();
-		$type = $block->getType();
-		$field = craft()->fields->getFieldById($type->fieldId);
-
-		$blocks = $this->_getBlocksByOwnerAndField($owner, $field);
-
-		$childLevel = ((int) $block->level) + 1;
-		$children = array();
-		$foundBlock = false;
-
-		foreach($blocks as $testBlock)
-		{
-			if($foundBlock)
-			{
-				if($testBlock->level == $childLevel)
-				{
-					$children[] = $testBlock;
-				}
-				else if($testBlock->level < $childLevel)
-				{
-					break;
-				}
-			}
-			if($testBlock->id == $block->id)
-			{
-				$foundBlock = true;
-			}
-		}
-
-		return $children;
 	}
 
 	public function requirePlugin($plugin)
@@ -919,29 +990,5 @@ class NeoService extends BaseApplicationComponent
 				}
 			}
 		}
-	}
-
-	private function _getBlocksByOwnerAndField(BaseElementModel $owner, FieldModel $field)
-	{
-		$key = $owner->id . ':' . $field->id;
-
-		if(!isset($this->_blocks[$key]))
-		{
-			$result = Neo_BlockRecord::model()->findAllByAttributes([
-				'ownerId' => $owner->id,
-				'fieldId' => $field->id,
-			]);
-
-			$models = Neo_BlockModel::populateModels($result);
-
-			usort($models, function(Neo_BlockModel $a, Neo_BlockModel $b)
-			{
-				return $a->sortOrder - $b->sortOrder;
-			});
-
-			$this->_blocks[$key] = $models;
-		}
-
-		return $this->_blocks[$key];
 	}
 }

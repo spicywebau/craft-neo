@@ -30,6 +30,11 @@ class NeoPlugin extends BasePlugin
 		return '2.6';
 	}
 
+	public function getPHPMinimumVersion()
+	{
+		return '5.4';
+	}
+
 	public function getSchemaVersion()
 	{
 		return '1.0.1';
@@ -47,7 +52,7 @@ class NeoPlugin extends BasePlugin
 
 	public function getDocumentationUrl()
 	{
-		return 'https://github.com/benjamminf/craft-neo';
+		return 'https://github.com/benjamminf/craft-neo/wiki';
 	}
 
 	public function getReleaseFeedUrl()
@@ -55,9 +60,19 @@ class NeoPlugin extends BasePlugin
 		return 'https://raw.githubusercontent.com/benjamminf/craft-neo/master/releases.json';
 	}
 
+	public function isCompatible()
+	{
+		return $this->isCraftRequiredVersion() && $this->isPHPRequiredVersion();
+	}
+
 	public function isCraftRequiredVersion()
 	{
 		return version_compare(craft()->getVersion(), $this->getCraftMinimumVersion(), '>=');
+	}
+
+	public function isPHPRequiredVersion()
+	{
+		return version_compare(PHP_VERSION, $this->getPHPMinimumVersion(), '>=');
 	}
 
 	public function init()
@@ -70,6 +85,6 @@ class NeoPlugin extends BasePlugin
 
 	public function onBeforeInstall()
 	{
-		return $this->isCraftRequiredVersion();
+		return $this->isCompatible();
 	}
 }
