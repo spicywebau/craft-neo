@@ -10,7 +10,6 @@ class NeoService extends BaseApplicationComponent
 	private $_fetchedAllBlockTypesForFieldId;
 	private $_fetchedAllGroupsForFieldId;
 	private $_blockTypeRecordsById;
-	private $_groupRecordsById;
 	private $_blockRecordsById;
 	private $_uniqueBlockTypeAndFieldHandles;
 	private $_parentNeoFields;
@@ -760,32 +759,6 @@ class NeoService extends BaseApplicationComponent
 		}
 
 		return true;
-	}
-
-	public function getParentNeoField(FieldModel $neoField)
-	{
-		if(!isset($this->_parentNeoFields) || !array_key_exists($neoField->id, $this->_parentNeoFields))
-		{
-			// Does this Neo field belong to another one?
-			$parentNeoFieldId = craft()->db->createCommand()
-				->select('fields.id')
-				->from('fields fields')
-				->join('neoblocktypes blocktypes', 'blocktypes.fieldId = fields.id')
-				->join('fieldlayoutfields fieldlayoutfields', 'fieldlayoutfields.layoutId = blocktypes.fieldLayoutId')
-				->where('fieldlayoutfields.fieldId = :neoFieldId', [':neoFieldId' => $neoField->id])
-				->queryScalar();
-
-			if($parentNeoFieldId)
-			{
-				$this->_parentNeoFields[$neoField->id] = craft()->fields->getFieldById($parentNeoFieldId);
-			}
-			else
-			{
-				$this->_parentNeoFields[$neoField->id] = null;
-			}
-		}
-
-		return $this->_parentNeoFields[$neoField->id];
 	}
 
 	public function requirePlugin($plugin)
