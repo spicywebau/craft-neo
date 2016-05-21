@@ -103,7 +103,7 @@ export default Garnish.Base.extend({
 		this._blockSelect = new Garnish.Select(this.$blocksContainer, null, {
 			multi: true,
 			vertical: true,
-			handle: '[data-neo-b="select"], [data-neo-b="button.toggler"]',
+			handle: '[data-neo-b="select"]',
 			checkboxMode: true,
 			selectedClass: 'is-selected sel'
 		});

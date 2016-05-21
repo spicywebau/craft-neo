@@ -9,11 +9,13 @@
 		<div class="ni_block_topbar_item" data-neo-b="select">
 			<div class="checkbox" title="{{ "Select"|t }}"></div>
 		</div>
-		<div class="ni_block_topbar_item clip-text" data-neo-b="{{ hasTabs or isParent ? 'button.toggler' : 'select' }}">
+		<div class="ni_block_topbar_item clip-text" data-neo-b="select">
 			<span>{{ type.getName() }}</span>
 		</div>
 		<div class="ni_block_topbar_item size-full tabs">
-			<div class="tabs_trigger" data-neo-b="{{ hasTabs or isParent ? 'button.toggler' : 'select' }}"></div>
+			{% if hasTabs or isParent %}
+				<div class="tabs_trigger" data-neo-b="button.toggler"></div>
+			{% endif %}
 			{% if type.getTabs()|length > 1 %}
 				{% set hasErrors = false %}
 				<div class="tabs_inner" data-neo-b="container.tabs">
