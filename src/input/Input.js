@@ -112,6 +112,11 @@ export default Garnish.Base.extend({
 		{
 			let blockType = this._blockTypes[bInfo.blockType]
 
+			if(isNaN(parseInt(bInfo.id)))
+			{
+				bInfo.id = Block.getNewId()
+			}
+
 			bInfo.namespace = [...this._templateNs, bInfo.id]
 			bInfo.blockType = new BlockType({
 				id: blockType.getId(),
@@ -127,11 +132,6 @@ export default Garnish.Base.extend({
 				items: blockType.getChildBlockItems(this.getItems()),
 				maxBlocks: this.getMaxBlocks()
 			})
-
-			if(isNaN(parseInt(bInfo.id)))
-			{
-				bInfo.id = Block.getNewId()
-			}
 
 			let block = new Block(bInfo)
 			this.addBlock(block, -1, bInfo.level|0, false)
