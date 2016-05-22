@@ -582,6 +582,7 @@ class NeoService extends BaseApplicationComponent
 			->select('structureId')
 			->from('neoblockstructures')
 			->where('ownerId = :ownerId', [':ownerId' => $owner->id])
+			->andWhere('ownerLocale = :ownerLocale', [':ownerLocale' => $owner->locale])
 			->andWhere('fieldId = :fieldId', [':fieldId' => $field->id])
 			->queryRow();
 
@@ -609,6 +610,7 @@ class NeoService extends BaseApplicationComponent
 
 			$blockStructure->structureId = $structure->id;
 			$blockStructure->ownerId = $owner->id;
+			$blockStructure->ownerLocale = $owner->locale;
 			$blockStructure->fieldId = $field->id;
 			$blockStructure->save(false);
 		}
@@ -643,6 +645,7 @@ class NeoService extends BaseApplicationComponent
 			craft()->db->createCommand()
 				->delete('neoblockstructures', [
 					'ownerId' => $owner->id,
+					'ownerLocale' => $owner->locale,
 					'fieldId' => $field->id,
 				]);
 		}

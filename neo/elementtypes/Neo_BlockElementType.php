@@ -49,6 +49,7 @@ class Neo_BlockElementType extends BaseElementType
 				[
 					'and',
 					'neoblockstructures.ownerId = neoblocks.ownerId',
+					'neoblockstructures.ownerLocale = neoblocks.ownerLocale',
 					'neoblockstructures.fieldId = neoblocks.fieldId',
 				]
 			)
