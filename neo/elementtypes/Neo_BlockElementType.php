@@ -26,7 +26,7 @@ class Neo_BlockElementType extends BaseElementType
 			'ownerId'     => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
 			'type'        => AttributeType::Mixed,
-			'order'       => array(AttributeType::String, 'default' => 'lft'),
+			'order'       => [AttributeType::String, 'default' => 'lft'],
 		];
 	}
 
