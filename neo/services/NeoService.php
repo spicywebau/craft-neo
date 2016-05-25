@@ -12,7 +12,6 @@ class NeoService extends BaseApplicationComponent
 	private $_blockTypeRecordsById;
 	private $_blockRecordsById;
 	private $_uniqueBlockTypeAndFieldHandles;
-	private $_parentNeoFields;
 
 	public $currentSavingBlockType;
 
