@@ -199,7 +199,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 	public function prepValue($value)
 	{
-		$criteria = craft()->elements->getCriteria(Neo_ElementType::NeoBlock);
+		$criteria = craft()->neo->getCriteria();
 
 		if(!empty($this->element->id))
 		{
@@ -235,6 +235,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				}
 
 				$criteria->setMatchedElements($value);
+				$criteria->setAllElements($value);
 			}
 			else if($value === '')
 			{

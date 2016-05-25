@@ -16,6 +16,11 @@ class NeoService extends BaseApplicationComponent
 
 	public $currentSavingBlockType;
 
+	public function getCriteria($attributes = null)
+	{
+		return new Neo_CriteriaModel($attributes);
+	}
+
 	public function getBlockTypesByFieldId($fieldId, $indexBy = null)
 	{
 		if(empty($this->_fetchedAllBlockTypesForFieldId[$fieldId]))
