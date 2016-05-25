@@ -6,6 +6,8 @@ class Neo_BlockModel extends BaseElementModel
 	protected $elementType = Neo_ElementType::NeoBlock;
 
 	private $_owner;
+	private $_allElements;
+	private $_criteria = [];
 
 	public function getField()
 	{
@@ -72,6 +74,35 @@ class Neo_BlockModel extends BaseElementModel
 	public function setOwner(BaseElementModel $owner)
 	{
 		$this->_owner = $owner;
+	}
+
+	public function setAllElements($elements)
+	{
+		$this->_allElements = $elements;
+
+		foreach($this->_criteria as $name => $criteria)
+		{
+			$criteria->setAllElements($this->_allElements);
+		}
+	}
+
+	public function getDescendants($dist = null)
+	{
+		if(!isset($this->_criteria['descendants']))
+		{
+			$ecm = parent::getDescendants($dist);
+			$criteria = Neo_CriteriaModel::convert($ecm);
+			$criteria->setAllElements($this->_allElements);
+
+			$this->_criteria['descendants'] = $criteria;
+		}
+
+		if($dist)
+		{
+			$this->_criteria['descendants']->descendantDist($dist);
+		}
+
+		return $this->_criteria['descendants'];
 	}
 
 	protected function defineAttributes()

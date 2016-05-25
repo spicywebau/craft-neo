@@ -81,4 +81,19 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	{
 		return $element->level == $value;
 	}
+
+	private function _filterDescendantOf($element, $value)
+	{
+		return true; // TODO
+	}
+
+	private function _filterDescendantDist($element, $value)
+	{
+		return true; // TODO
+	}
+
+	private function _filterLocale($element, $value)
+	{
+		return true; // TODO
+	}
 }
