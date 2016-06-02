@@ -6,6 +6,11 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	private $_allElements;
 	private $_currentFilters = [];
 
+	public static function convert(ElementCriteriaModel $ecm)
+	{
+		return new Neo_CriteriaModel($ecm->getAttributes());
+	}
+
 	public function __construct($attributes, $_ = null)
 	{
 		$elementType = craft()->elements->getElementType(Neo_ElementType::NeoBlock);
