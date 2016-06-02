@@ -8,7 +8,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	public static function convert(ElementCriteriaModel $ecm)
 	{
-		return new Neo_CriteriaModel($ecm->getAttributes());
+		$attributes = array_filter($ecm->getAttributes(), function($value)
+		{
+			return (bool) $value;
+		});
+
+		return new Neo_CriteriaModel($attributes);
 	}
 
 	public function __construct($attributes, $_ = null)
@@ -89,7 +94,34 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	private function _filterDescendantOf($element, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return true;
+		}
+
+		$elements = $this->_allElements;
+		$found = false;
+
+		foreach($elements as $searchElement)
+		{
+			if($searchElement->id == $value->id)
+			{
+				$found = true;
+			}
+			else if($found && $value->level > $searchElement->level)
+			{
+				if($searchElement->id == $element->id)
+				{
+					return true;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		return false;
 	}
 
 	private function _filterDescendantDist($element, $value)
@@ -97,7 +129,32 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return true; // TODO
 	}
 
+	private function _filterLimit($element, $value)
+	{
+		return true; // TODO
+	}
+
 	private function _filterLocale($element, $value)
+	{
+		return true; // TODO
+	}
+
+	private function _filterLocaleEnabled($element, $value)
+	{
+		return true; // TODO
+	}
+
+	private function _filterOrder($element, $value)
+	{
+		return true; // TODO
+	}
+
+	private function _filterStatus($element, $value)
+	{
+		return true; // TODO
+	}
+
+	private function _filterCollapsed($element, $value)
 	{
 		return true; // TODO
 	}
