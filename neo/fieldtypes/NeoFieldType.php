@@ -432,9 +432,9 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			{
 				$block = new Neo_BlockModel();
 				$block->fieldId = $this->model->id;
-				$block->typeId  = $blockType->id;
+				$block->typeId = $blockType->id;
 				$block->ownerId = $ownerId;
-				$block->locale  = $this->element->locale;
+				$block->ownerLocale = $this->element->locale;
 			}
 			else
 			{
