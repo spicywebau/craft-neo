@@ -232,6 +232,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 					}
 
 					$prevElement = $element;
+
+					$element->setAllElements($value);
 				}
 
 				$criteria->setMatchedElements($value);
