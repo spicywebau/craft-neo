@@ -92,8 +92,10 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return $element->level == $value;
 	}
 
+	private $_descendant = null;
 	private function _filterDescendantOf($element, $value)
 	{
+		$this->_descendant = $value;
 		if(!$value)
 		{
 			return true;
@@ -108,16 +110,19 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 			{
 				$found = true;
 			}
-			else if($found && $value->level > $searchElement->level)
+			else if($found)
 			{
-				if($searchElement->id == $element->id)
+				if($searchElement->level > $value->level)
 				{
-					return true;
+					if($searchElement->id == $element->id)
+					{
+						return true;
+					}
 				}
-			}
-			else
-			{
-				break;
+				else
+				{
+					break;
+				}
 			}
 		}
 
@@ -126,7 +131,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	private function _filterDescendantDist($element, $value)
 	{
-		return true; // TODO
+		if(!$value || !$this->_descendant)
+		{
+			return true;
+		}
+
+		return $element->level <= $this->_descendant->level + $value;
 	}
 
 	private function _filterLimit($element, $value)
