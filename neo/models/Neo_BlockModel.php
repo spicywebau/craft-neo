@@ -116,7 +116,7 @@ class Neo_BlockModel extends BaseElementModel
 		{
 			if(!isset($this->_liveCriteria['parent']))
 			{
-				$this->_liveCriteria['parent'] = $this->getAncestors(1)->status(null)->localeEnabled(null)->first();
+				$this->_liveCriteria['parent'] = $this->getAncestors(1)->status(null)->first();
 			}
 
 			return $this->_liveCriteria['parent'];
