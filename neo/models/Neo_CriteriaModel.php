@@ -9,22 +9,13 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	private $_ancestor = null;
 	private $_descendant = null;
 
-	// (*) Unsure what these filters are or how they work
 	protected $filterOrder = [
 		'id',
 		'fieldId',
 		'status',
-		'with', // *
-
 		'collapsed',
 		'level',
-		'depth',
 		'type',
-
-		'parentOf', // *
-		'parentField', // *
-		'childOf', // *
-		'childField', // *
 
 		'ancestorOf',
 		'ancestorDist',
@@ -36,10 +27,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		'nextSiblingOf',
 		'siblingOf',
 
-		'dateCreated',
-		'dateUpdated',
-
-		'ref', // *
 		'relatedTo',
 		'search',
 
@@ -47,12 +34,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		'limit',
 	];
 
-	protected $outputOrder = [
-		'order',
-		'fixedOrder', // *
-		'indexBy', // *
-	];
-	
 	public function __construct($attributes)
 	{
 		$elementType = craft()->elements->getElementType(Neo_ElementType::NeoBlock);
@@ -197,26 +178,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return $newElements;
 	}
 
-	protected function __childField($elements, $value)
-	{
-		if(!$value)
-		{
-			return $elements;
-		}
-		
-		return []; // TODO
-	}
-
-	protected function __childOf($elements, $value)
-	{
-		if(!$value)
-		{
-			return $elements;
-		}
-		
-		return []; // TODO
-	}
-
 	protected function __collapsed($elements, $value)
 	{
 		if(!is_bool($value))
@@ -228,36 +189,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		{
 			return $element->collapsed == $value;
 		});
-	}
-
-	protected function __dateCreated($elements, $value)
-	{
-		if(!$value)
-		{
-			return $elements;
-		}
-		
-		return []; // TODO
-	}
-
-	protected function __dateUpdated($elements, $value)
-	{
-		if(!$value)
-		{
-			return $elements;
-		}
-		
-		return []; // TODO
-	}
-
-	protected function __depth($elements, $value)
-	{
-		if(!$value)
-		{
-			return $elements;
-		}
-		
-		return []; // TODO
 	}
 
 	protected function __descendantDist($elements, $value)
@@ -320,11 +251,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		});
 	}
 
-	protected function __fixedOrder()
-	{
-		// TODO
-	}
-
 	protected function __id($elements, $value)
 	{
 		if(!$value)
@@ -336,11 +262,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		{
 			return $element->id == $value;
 		});
-	}
-
-	protected function __indexBy()
-	{
-		// TODO
 	}
 
 	protected function __level($elements, $value)
@@ -386,31 +307,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return array_slice($elements, $value);
 	}
 
-	protected function __order()
-	{
-		// TODO
-	}
-
-	protected function __parentField($elements, $value)
-	{
-		if(!$value)
-		{
-			return $elements;
-		}
-
-		return []; // TODO
-	}
-
-	protected function __parentOf($elements, $value)
-	{
-		if(!$value)
-		{
-			return $elements;
-		}
-		
-		return []; // TODO
-	}
-
 	protected function __positionedAfter($elements, $value)
 	{
 		if(!$value)
@@ -442,16 +338,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	}
 
 	protected function __relatedTo($elements, $value)
-	{
-		if(!$value)
-		{
-			return $elements;
-		}
-
-		return []; // TODO
-	}
-
-	protected function __ref($elements, $value)
 	{
 		if(!$value)
 		{
@@ -529,15 +415,5 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		{
 			return $element->typeId == $value;
 		});
-	}
-
-	protected function __with($elements, $value)
-	{
-		if(!$value)
-		{
-			return $elements;
-		}
-
-		return []; // TODO
 	}
 }
