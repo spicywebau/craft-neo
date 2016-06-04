@@ -95,7 +95,6 @@ class Neo_BlockModel extends BaseElementModel
 				$criteria = craft()->neo->getCriteria();
 				$criteria->setAllElements($this->_allElements);
 				$criteria->descendantOf = $this;
-				//$criteria->locale = $this->locale;
 
 				$this->_liveCriteria['descendants'] = $criteria;
 			}

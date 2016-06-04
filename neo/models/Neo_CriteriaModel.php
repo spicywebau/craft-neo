@@ -5,7 +5,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 {
 	private $_allElements;
 	private $_currentFilters = [];
-	
+
 	private $_descendant = null;
 
 	public static function convert(ElementCriteriaModel $ecm)
@@ -41,7 +41,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	{
 		if(parent::setAttribute($name, $value))
 		{
-			$method = '_filter' . ucfirst($name);
+			$method = '__' . $name;
 
 			if(craft()->request->isLivePreview() && method_exists($this, $method))
 			{
@@ -89,17 +89,56 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return true;
 	}
 
-	private function _filterLevel($element, $value)
-	{
-		if(!$value)
-		{
-			return true;
-		}
+	/*
+	 * Filtering methods
+	 */
 
-		return $element->level == $value;
+	protected function __ancestorDist($element, $value)
+	{
+		return true; // TODO
 	}
 
-	private function _filterDescendantOf($element, $value)
+	protected function __ancestorOf($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __archived($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __childField($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __childOf($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __collapsed($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __dateCreated($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __dateUpdated($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __depth($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __descendantOf($element, $value)
 	{
 		$this->_descendant = $value;
 
@@ -136,7 +175,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return false;
 	}
 
-	private function _filterDescendantDist($element, $value)
+	protected function __descendantDist($element, $value)
 	{
 		if(!$value || !$this->_descendant)
 		{
@@ -146,32 +185,147 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return $element->level <= $this->_descendant->level + $value;
 	}
 
-	private function _filterLimit($element, $value)
+	protected function __fieldId($element, $value)
 	{
 		return true; // TODO
 	}
 
-	private function _filterLocale($element, $value)
+	protected function __fixedOrder($element, $value)
 	{
 		return true; // TODO
 	}
 
-	private function _filterLocaleEnabled($element, $value)
+	protected function __id($element, $value)
 	{
 		return true; // TODO
 	}
 
-	private function _filterOrder($element, $value)
+	protected function __indexBy($element, $value)
 	{
 		return true; // TODO
 	}
 
-	private function _filterStatus($element, $value)
+	protected function __level($element, $value)
+	{
+		if(!$value)
+		{
+			return true;
+		}
+
+		return $element->level == $value;
+	}
+
+	protected function __limit($element, $value)
 	{
 		return true; // TODO
 	}
 
-	private function _filterCollapsed($element, $value)
+	protected function __locale($element, $value)
+	{
+		return true; // Just return true because the blocks will already be locale filtered
+	}
+
+	protected function __localeEnabled($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __nextSiblingOf($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __offset($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __order($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __ownerId($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __ownerLocale($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __parentField($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __parentOf($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __positionedAfter($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __positionedBefore($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __prevSiblingOf($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __relatedTo($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __ref($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __search($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __siblingOf($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __slug($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __status($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __title($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __type($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __uri($element, $value)
+	{
+		return true; // TODO
+	}
+
+	protected function __with($element, $value)
 	{
 		return true; // TODO
 	}
