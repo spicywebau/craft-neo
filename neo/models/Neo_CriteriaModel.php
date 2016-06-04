@@ -45,7 +45,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 			if(craft()->request->isLivePreview() && method_exists($this, $method))
 			{
-				$this->_currentFilters[$method] = $value;
+				$this->_currentFilters[$name] = $value;
 
 				$this->_runFilters();
 			}
@@ -78,11 +78,17 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	private function _elementFilters($element)
 	{
-		foreach($this->_currentFilters as $method => $value)
+		foreach($this->filterOrder as $filter)
 		{
-			if(!$this->$method($element, $value))
+			if(isset($this->_currentFilters[$filter]))
 			{
-				return false;
+				$value = $this->_currentFilters[$filter];
+				$method = '__' . $filter;
+
+				if(!$this->$method($element, $value))
+				{
+					return false;
+				}
 			}
 		}
 
@@ -92,6 +98,55 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	/*
 	 * Filtering methods
 	 */
+
+	// (*) Unsure what these filters are or how they work
+	protected $filterOrder = [
+		'id',
+		'fieldId',
+		'locale',
+		'ownerId',
+		'ownerLocale',
+		'slug',
+		'status',
+		'title',
+		'uri',
+		'with', // *
+
+		'archived',
+		'collapsed',
+		'level',
+		'depth',
+		'type',
+
+		'parentOf', // *
+		'parentField', // *
+		'childOf', // *
+		'childField', // *
+
+		'ancestorOf',
+		'ancestorDist',
+		'descendantOf',
+		'descendantDist',
+		'positionedAfter',
+		'positionedBefore',
+		'prevSiblingOf',
+		'nextSiblingOf',
+		'siblingOf',
+
+		'dateCreated',
+		'dateUpdated',
+
+		'ref', // *
+		'relatedTo',
+		'search',
+
+		'offset',
+		'limit',
+
+		'order', // *
+		'fixedOrder', // *
+		'indexBy', // *
+	];
 
 	protected function __ancestorDist($element, $value)
 	{
@@ -247,12 +302,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __ownerId($element, $value)
 	{
-		return true; // TODO
+		return true; // Just return true because the blocks will already be owner ID filtered
 	}
 
 	protected function __ownerLocale($element, $value)
 	{
-		return true; // TODO
+		return true; // Just return true because the blocks will already be locale filtered
 	}
 
 	protected function __parentField($element, $value)
