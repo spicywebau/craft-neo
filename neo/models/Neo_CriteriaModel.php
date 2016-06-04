@@ -6,8 +6,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	private $_allElements;
 	private $_currentFilters = [];
 
-	private $_descendant = null;
-
 	public static function convert(ElementCriteriaModel $ecm)
 	{
 		$attributes = array_filter($ecm->getAttributes(), function($value)
@@ -67,16 +65,16 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	{
 		if(!empty($this->_allElements))
 		{
-			$elements = array_filter($this->_allElements, function($element)
+			$elements = array_filter($this->_allElements, function($element, $index)
 			{
-				return $this->_elementFilters($element);
+				return $this->_elementFilters($element, $index);
 			});
 
 			$this->setMatchedElements($elements);
 		}
 	}
 
-	private function _elementFilters($element)
+	private function _elementFilters($element, $index)
 	{
 		foreach($this->filterOrder as $filter)
 		{
@@ -85,7 +83,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 				$value = $this->_currentFilters[$filter];
 				$method = '__' . $filter;
 
-				if(!$this->$method($element, $value))
+				if(!$this->$method($element, $value, $index))
 				{
 					return false;
 				}
@@ -98,6 +96,9 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	/*
 	 * Filtering methods
 	 */
+
+	private $_ancestor = null;
+	private $_descendant = null;
 
 	// (*) Unsure what these filters are or how they work
 	protected $filterOrder = [
@@ -160,7 +161,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __archived($element, $value)
 	{
-		return true; // TODO
+		return true; // Not applicable to Neo blocks
 	}
 
 	protected function __childField($element, $value)
@@ -175,7 +176,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __collapsed($element, $value)
 	{
-		return true; // TODO
+		if($value == null)
+		{
+			return true;
+		}
+
+		return $element->collapsed == $value;
 	}
 
 	protected function __dateCreated($element, $value)
@@ -242,7 +248,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __fieldId($element, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return true;
+		}
+
+		return $element->fieldId == $value;
 	}
 
 	protected function __fixedOrder($element, $value)
@@ -252,7 +263,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __id($element, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return true;
+		}
+
+		return $element->id == $value;
 	}
 
 	protected function __indexBy($element, $value)
@@ -267,12 +283,17 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 			return true;
 		}
 
-		return $element->level == $value;
+		return $element->level == $value; // TODO Support comparison operators `>=4` etc
 	}
 
-	protected function __limit($element, $value)
+	protected function __limit($element, $value, $index)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return true;
+		}
+
+		return $index >= $value;
 	}
 
 	protected function __locale($element, $value)
@@ -282,7 +303,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __localeEnabled($element, $value)
 	{
-		return true; // TODO
+		return true; // Just return true because the blocks will already be locale filtered
 	}
 
 	protected function __nextSiblingOf($element, $value)
@@ -357,27 +378,45 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __slug($element, $value)
 	{
-		return true; // TODO
+		return true; // Not applicable to Neo blocks
 	}
 
 	protected function __status($element, $value)
 	{
-		return true; // TODO
+		return true; // Not applicable to Neo blocks
 	}
 
 	protected function __title($element, $value)
 	{
-		return true; // TODO
+		return true; // Not applicable to Neo blocks
 	}
 
 	protected function __type($element, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return true;
+		}
+
+		$types = craft()->neo->getBlockTypesByFieldId($element->fieldId, 'handle');
+		$type = isset($types[$value]) ? $types[$value] : false;
+
+		return $type && $element->typeId == $type->id;
+	}
+
+	protected function __typeId($element, $value)
+	{
+		if(!$value)
+		{
+			return true;
+		}
+
+		return $element->typeId == $value;
 	}
 
 	protected function __uri($element, $value)
 	{
-		return true; // TODO
+		return true; // Not applicable to Neo blocks
 	}
 
 	protected function __with($element, $value)
