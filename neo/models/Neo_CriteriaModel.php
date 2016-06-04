@@ -60,11 +60,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		'indexBy', // *
 	];
 
-	public static function convert(ElementCriteriaModel $ecm)
-	{
-		return new Neo_CriteriaModel($ecm->getAttributes());
-	}
-
 	public function __construct($attributes, $_ = null)
 	{
 		$elementType = craft()->elements->getElementType(Neo_ElementType::NeoBlock);
@@ -75,9 +70,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	public function copy()
 	{
 		$copy = parent::copy();
-
-		$copy->setState($this->getState());
-		$copy->setAllElements($this->_allElements);
+		$copy->setState($this);
 
 		return $copy;
 	}
@@ -101,27 +94,35 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return false;
 	}
 
-	public function getState()
+	public function setAllElements($elements)
+	{
+		$this->_allElements = $elements;
+
+		$this->_runCriteria();
+	}
+
+	protected function getState()
 	{
 		return [
+			'elements' => $this->_allElements,
 			'filters' => $this->_currentFilters,
 			'ancestorOf' => $this->_ancestor,
 			'descendantOf' => $this->_descendant,
 		];
 	}
 
-	public function setState($state)
+	protected function setState($state)
 	{
+		if($state instanceof self)
+		{
+			$state = $state->getState();
+		}
+
 		$this->_currentFilters = $state['filters'];
 		$this->_ancestor = $state['ancestorOf'];
 		$this->_descendant = $state['descendantOf'];
-	}
 
-	public function setAllElements($elements)
-	{
-		$this->_allElements = $elements;
-
-		$this->_runCriteria();
+		$this->setAllElements($state['elements']);
 	}
 
 	private function _runCriteria()
