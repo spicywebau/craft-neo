@@ -65,9 +65,10 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	{
 		if(!empty($this->_allElements))
 		{
-			$elements = array_filter($this->_allElements, function($element, $index)
+			$index = 0;
+			$elements = array_filter($this->_allElements, function($element) use(&$index)
 			{
-				return $this->_elementFilters($element, $index);
+				return $this->_elementFilters($element, $index++);
 			});
 
 			$this->setMatchedElements($elements);
@@ -176,7 +177,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __collapsed($element, $value)
 	{
-		if($value == null)
+		if(!is_bool($value))
 		{
 			return true;
 		}
@@ -293,7 +294,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 			return true;
 		}
 
-		return $index >= $value;
+		return $index < $value;
 	}
 
 	protected function __locale($element, $value)
@@ -383,7 +384,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __status($element, $value)
 	{
-		return true; // Not applicable to Neo blocks
+		if(!$value)
+		{
+			return true;
+		}
+
+		return $element->status == $value;
 	}
 
 	protected function __title($element, $value)
