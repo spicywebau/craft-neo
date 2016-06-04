@@ -13,16 +13,9 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	protected $filterOrder = [
 		'id',
 		'fieldId',
-		'locale',
-		'ownerId',
-		'ownerLocale',
-		'slug',
 		'status',
-		'title',
-		'uri',
 		'with', // *
 
-		'archived',
 		'collapsed',
 		'level',
 		'depth',
@@ -204,11 +197,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return $newElements;
 	}
 
-	protected function __archived($elements, $value)
-	{
-		return $elements; // Not applicable to Neo blocks
-	}
-
 	protected function __childField($elements, $value)
 	{
 		if(!$value)
@@ -378,16 +366,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return array_slice($elements, 0, $value);
 	}
 
-	protected function __locale($elements, $value)
-	{
-		return $elements; // Just return true because the blocks will already be locale filtered
-	}
-
-	protected function __localeEnabled($elements, $value)
-	{
-		return $elements; // Just return true because the blocks will already be locale filtered
-	}
-
 	protected function __nextSiblingOf($elements, $value)
 	{
 		if(!$value)
@@ -411,16 +389,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	protected function __order()
 	{
 		// TODO
-	}
-
-	protected function __ownerId($elements, $value)
-	{
-		return $elements; // Just return true because the blocks will already be owner ID filtered
-	}
-
-	protected function __ownerLocale($elements, $value)
-	{
-		return $elements; // Just return true because the blocks will already be locale filtered
 	}
 
 	protected function __parentField($elements, $value)
@@ -513,11 +481,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return []; // TODO
 	}
 
-	protected function __slug($elements, $value)
-	{
-		return $elements; // Not applicable to Neo blocks
-	}
-
 	protected function __status($elements, $value)
 	{
 		if(!$value)
@@ -529,11 +492,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		{
 			return $element->status == $value;
 		});
-	}
-
-	protected function __title($elements, $value)
-	{
-		return $elements; // Not applicable to Neo blocks
 	}
 
 	protected function __type($elements, $value)
@@ -571,11 +529,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		{
 			return $element->typeId == $value;
 		});
-	}
-
-	protected function __uri($elements, $value)
-	{
-		return $elements; // Not applicable to Neo blocks
 	}
 
 	protected function __with($elements, $value)
