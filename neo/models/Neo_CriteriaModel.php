@@ -6,98 +6,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	private $_allElements;
 	private $_currentFilters = [];
 
-	public static function convert(ElementCriteriaModel $ecm)
-	{
-		$attributes = array_filter($ecm->getAttributes(), function($value)
-		{
-			return (bool) $value;
-		});
-
-		return new Neo_CriteriaModel($attributes);
-	}
-
-	public function __construct($attributes, $_ = null)
-	{
-		$elementType = craft()->elements->getElementType(Neo_ElementType::NeoBlock);
-
-		parent::__construct($attributes, $elementType);
-	}
-
-	public function copy()
-	{
-		$copy = parent::copy();
-
-		if(!empty($this->_allElements))
-		{
-			$copy->setAllElements($this->_allElements);
-		}
-
-		return $copy;
-	}
-
-	public function setAttribute($name, $value)
-	{
-		if(parent::setAttribute($name, $value))
-		{
-			$method = '__' . $name;
-
-			if(craft()->request->isLivePreview() && method_exists($this, $method))
-			{
-				$this->_currentFilters[$name] = $value;
-
-				$this->_runFilters();
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public function setAllElements($elements)
-	{
-		$this->_allElements = $elements;
-
-		$this->_runFilters();
-	}
-
-	private function _runFilters()
-	{
-		if(!empty($this->_allElements))
-		{
-			$index = 0;
-			$elements = array_filter($this->_allElements, function($element) use(&$index)
-			{
-				return $this->_elementFilters($element, $index++);
-			});
-
-			$this->setMatchedElements($elements);
-		}
-	}
-
-	private function _elementFilters($element, $index)
-	{
-		foreach($this->filterOrder as $filter)
-		{
-			if(isset($this->_currentFilters[$filter]))
-			{
-				$value = $this->_currentFilters[$filter];
-				$method = '__' . $filter;
-
-				if(!$this->$method($element, $value, $index))
-				{
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	/*
-	 * Filtering methods
-	 */
-
 	private $_ancestor = null;
 	private $_descendant = null;
 
@@ -144,143 +52,261 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 		'offset',
 		'limit',
+	];
 
-		'order', // *
+	protected $outputOrder = [
+		'order',
 		'fixedOrder', // *
 		'indexBy', // *
 	];
 
-	protected function __ancestorDist($element, $value)
+	public static function convert(ElementCriteriaModel $ecm)
 	{
-		if(!$value || !$this->_ancestor)
+		return new Neo_CriteriaModel($ecm->getAttributes());
+	}
+
+	public function __construct($attributes, $_ = null)
+	{
+		$elementType = craft()->elements->getElementType(Neo_ElementType::NeoBlock);
+
+		parent::__construct($attributes, $elementType);
+	}
+
+	public function copy()
+	{
+		$copy = parent::copy();
+
+		$copy->setState($this->getState());
+		$copy->setAllElements($this->_allElements);
+
+		return $copy;
+	}
+
+	public function setAttribute($name, $value)
+	{
+		if(parent::setAttribute($name, $value))
 		{
+			$method = '__' . $name;
+
+			if(craft()->request->isLivePreview() && method_exists($this, $method))
+			{
+				$this->_currentFilters[$name] = $value;
+
+				$this->_runCriteria();
+			}
+
 			return true;
 		}
 
-		return $element->level >= $this->_ancestor->level - $value;
+		return false;
 	}
 
-	protected function __ancestorOf($element, $value)
+	public function getState()
+	{
+		return [
+			'filters' => $this->_currentFilters,
+			'ancestorOf' => $this->_ancestor,
+			'descendantOf' => $this->_descendant,
+		];
+	}
+
+	public function setState($state)
+	{
+		$this->_currentFilters = $state['filters'];
+		$this->_ancestor = $state['ancestorOf'];
+		$this->_descendant = $state['descendantOf'];
+	}
+
+	public function setAllElements($elements)
+	{
+		$this->_allElements = $elements;
+
+		$this->_runCriteria();
+	}
+
+	private function _runCriteria()
+	{
+		if(!empty($this->_allElements))
+		{
+			$elements = $this->_allElements;
+
+			foreach($this->filterOrder as $filter)
+			{
+				if(isset($this->_currentFilters[$filter]))
+				{
+					$value = $this->_currentFilters[$filter];
+					$method = '__' . $filter;
+
+					$elements = $this->$method($elements, $value);
+				}
+
+				if(empty($elements))
+				{
+					break;
+				}
+			}
+
+			$this->setMatchedElements($elements);
+		}
+	}
+
+	/*
+	 * Criteria methods
+	 */
+
+	protected function __ancestorDist($elements, $value)
+	{
+		if(!$value || !$this->_ancestor)
+		{
+			return $elements;
+		}
+
+		return array_filter($elements, function($element) use($value)
+		{
+			return $element->level >= $this->_ancestor->level - $value;
+		});
+	}
+
+	protected function __ancestorOf($elements, $value)
 	{
 		$this->_ancestor = $value;
 
 		if(!$value)
 		{
-			return true;
+			return $elements;
 		}
 
-		if($element->level >= $value->level)
-		{
-			return false;
-		}
-
-		$elements = array_reverse($this->_allElements);
+		$newElements = [];
 		$found = false;
 		$level = $value->level - 1;
 
-		foreach($elements as $searchElement)
+		foreach(array_reverse($elements) as $element)
 		{
 			if($level < 1)
 			{
 				break;
 			}
-			else if($searchElement === $value)
+			else if($element === $value)
 			{
 				$found = true;
 			}
 			else if($found)
 			{
-				if($searchElement === $element)
+				if($element->level == $level)
 				{
-					break;
-				}
-
-				if($searchElement->level == $level)
-				{
+					$newElements[] = $element;
 					$level--;
 				}
 			}
 		}
 
-		return $element->level == $level;
+		return $newElements;
 	}
 
-	protected function __archived($element, $value)
+	protected function __archived($elements, $value)
 	{
-		return true; // Not applicable to Neo blocks
+		return $elements; // Not applicable to Neo blocks
 	}
 
-	protected function __childField($element, $value)
+	protected function __childField($elements, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return $elements;
+		}
+		
+		return []; // TODO
 	}
 
-	protected function __childOf($element, $value)
+	protected function __childOf($elements, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return $elements;
+		}
+		
+		return []; // TODO
 	}
 
-	protected function __collapsed($element, $value)
+	protected function __collapsed($elements, $value)
 	{
 		if(!is_bool($value))
 		{
-			return true;
+			return $elements;
 		}
 
-		return $element->collapsed == $value;
+		return array_filter($elements, function($element) use($value)
+		{
+			return $element->collapsed == $value;
+		});
 	}
 
-	protected function __dateCreated($element, $value)
+	protected function __dateCreated($elements, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return $elements;
+		}
+		
+		return []; // TODO
 	}
 
-	protected function __dateUpdated($element, $value)
+	protected function __dateUpdated($elements, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return $elements;
+		}
+		
+		return []; // TODO
 	}
 
-	protected function __depth($element, $value)
+	protected function __depth($elements, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return $elements;
+		}
+		
+		return []; // TODO
 	}
 
-	protected function __descendantDist($element, $value)
+	protected function __descendantDist($elements, $value)
 	{
 		if(!$value || !$this->_descendant)
 		{
-			return true;
+			return $elements;
 		}
 
-		return $element->level <= $this->_descendant->level + $value;
+		return array_filter($elements, function($element) use($value)
+		{
+			return $element->level <= $this->_descendant->level + $value;
+		});
 	}
 
-	protected function __descendantOf($element, $value)
+	protected function __descendantOf($elements, $value)
 	{
 		$this->_descendant = $value;
 
 		if(!$value)
 		{
-			return true;
+			return $elements;
 		}
 
-		$elements = $this->_allElements;
+		$newElements = [];
 		$found = false;
 
-		foreach($elements as $searchElement)
+		foreach($elements as $element)
 		{
-			if($searchElement === $value)
+			if($element === $value)
 			{
 				$found = true;
 			}
 			else if($found)
 			{
-				if($searchElement->level > $value->level)
+				if($element->level > $value->level)
 				{
-					if($searchElement === $element)
-					{
-						return true;
-					}
+					$newElements[] = $element;
 				}
 				else
 				{
@@ -289,189 +315,275 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 			}
 		}
 
-		return false;
+		return $newElements;
 	}
 
-	protected function __fieldId($element, $value)
+	protected function __fieldId($elements, $value)
 	{
 		if(!$value)
 		{
-			return true;
+			return $elements;
 		}
 
-		return $element->fieldId == $value;
+		return array_filter($elements, function($element) use($value)
+		{
+			return $element->fieldId == $value;
+		});
 	}
 
-	protected function __fixedOrder($element, $value)
+	protected function __fixedOrder()
 	{
-		return true; // TODO
+		// TODO
 	}
 
-	protected function __id($element, $value)
+	protected function __id($elements, $value)
 	{
 		if(!$value)
 		{
-			return true;
+			return $elements;
 		}
 
-		return $element->id == $value;
+		return array_filter($elements, function($element) use($value)
+		{
+			return $element->id == $value;
+		});
 	}
 
-	protected function __indexBy($element, $value)
+	protected function __indexBy()
 	{
-		return true; // TODO
+		// TODO
 	}
 
-	protected function __level($element, $value)
+	protected function __level($elements, $value)
 	{
 		if(!$value)
 		{
-			return true;
+			return $elements;
 		}
 
-		return $element->level == $value; // TODO Support comparison operators `>=4` etc
+		return array_filter($elements, function($element) use($value)
+		{
+			return $element->level == $value; // TODO Support comparison operators `>=4` etc
+		});
 	}
 
-	protected function __limit($element, $value, $index)
+	protected function __limit($elements, $value)
 	{
 		if(!$value)
 		{
-			return true;
+			return $elements;
 		}
 
-		return $index < $value;
+		return array_slice($elements, 0, $value);
 	}
 
-	protected function __locale($element, $value)
+	protected function __locale($elements, $value)
 	{
-		return true; // Just return true because the blocks will already be locale filtered
+		return $elements; // Just return true because the blocks will already be locale filtered
 	}
 
-	protected function __localeEnabled($element, $value)
+	protected function __localeEnabled($elements, $value)
 	{
-		return true; // Just return true because the blocks will already be locale filtered
+		return $elements; // Just return true because the blocks will already be locale filtered
 	}
 
-	protected function __nextSiblingOf($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __offset($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __order($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __ownerId($element, $value)
-	{
-		return true; // Just return true because the blocks will already be owner ID filtered
-	}
-
-	protected function __ownerLocale($element, $value)
-	{
-		return true; // Just return true because the blocks will already be locale filtered
-	}
-
-	protected function __parentField($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __parentOf($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __positionedAfter($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __positionedBefore($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __prevSiblingOf($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __relatedTo($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __ref($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __search($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __siblingOf($element, $value)
-	{
-		return true; // TODO
-	}
-
-	protected function __slug($element, $value)
-	{
-		return true; // Not applicable to Neo blocks
-	}
-
-	protected function __status($element, $value)
+	protected function __nextSiblingOf($elements, $value)
 	{
 		if(!$value)
 		{
-			return true;
+			return $elements;
 		}
 
-		return $element->status == $value;
+		return []; // TODO
 	}
 
-	protected function __title($element, $value)
-	{
-		return true; // Not applicable to Neo blocks
-	}
-
-	protected function __type($element, $value)
+	protected function __offset($elements, $value)
 	{
 		if(!$value)
 		{
-			return true;
+			return $elements;
 		}
 
-		$types = craft()->neo->getBlockTypesByFieldId($element->fieldId, 'handle');
-		$type = isset($types[$value]) ? $types[$value] : false;
-
-		return $type && $element->typeId == $type->id;
+		return array_slice($elements, $value);
 	}
 
-	protected function __typeId($element, $value)
+	protected function __order()
+	{
+		// TODO
+	}
+
+	protected function __ownerId($elements, $value)
+	{
+		return $elements; // Just return true because the blocks will already be owner ID filtered
+	}
+
+	protected function __ownerLocale($elements, $value)
+	{
+		return $elements; // Just return true because the blocks will already be locale filtered
+	}
+
+	protected function __parentField($elements, $value)
 	{
 		if(!$value)
 		{
-			return true;
+			return $elements;
 		}
 
-		return $element->typeId == $value;
+		return []; // TODO
 	}
 
-	protected function __uri($element, $value)
+	protected function __parentOf($elements, $value)
 	{
-		return true; // Not applicable to Neo blocks
+		if(!$value)
+		{
+			return $elements;
+		}
+		
+		return []; // TODO
 	}
 
-	protected function __with($element, $value)
+	protected function __positionedAfter($elements, $value)
 	{
-		return true; // TODO
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return []; // TODO
+	}
+
+	protected function __positionedBefore($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return []; // TODO
+	}
+
+	protected function __prevSiblingOf($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return []; // TODO
+	}
+
+	protected function __relatedTo($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return []; // TODO
+	}
+
+	protected function __ref($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return []; // TODO
+	}
+
+	protected function __search($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return []; // TODO
+	}
+
+	protected function __siblingOf($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return []; // TODO
+	}
+
+	protected function __slug($elements, $value)
+	{
+		return $elements; // Not applicable to Neo blocks
+	}
+
+	protected function __status($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return array_filter($elements, function($element) use($value)
+		{
+			return $element->status == $value;
+		});
+	}
+
+	protected function __title($elements, $value)
+	{
+		return $elements; // Not applicable to Neo blocks
+	}
+
+	protected function __type($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		if(!empty($elements))
+		{
+			$types = craft()->neo->getBlockTypesByFieldId($elements[0]->fieldId, 'handle');
+			$type = isset($types[$value]) ? $types[$value] : false;
+
+			if($type)
+			{
+				return array_filter($elements, function($element) use($type)
+				{
+					return $element->typeId == $type->id;
+				});
+			}
+		}
+
+		return [];
+	}
+
+	protected function __typeId($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return array_filter($elements, function($element) use($value)
+		{
+			return $element->typeId == $value;
+		});
+	}
+
+	protected function __uri($elements, $value)
+	{
+		return $elements; // Not applicable to Neo blocks
+	}
+
+	protected function __with($elements, $value)
+	{
+		if(!$value)
+		{
+			return $elements;
+		}
+
+		return []; // TODO
 	}
 }
