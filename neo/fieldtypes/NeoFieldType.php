@@ -232,7 +232,10 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 					}
 
 					$prevElement = $element;
+				}
 
+				foreach($value as $element)
+				{
 					$element->setAllElements($value);
 				}
 

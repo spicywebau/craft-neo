@@ -5,6 +5,8 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 {
 	private $_allElements;
 	private $_currentFilters = [];
+	
+	private $_descendant = null;
 
 	public static function convert(ElementCriteriaModel $ecm)
 	{
@@ -89,13 +91,18 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	private function _filterLevel($element, $value)
 	{
+		if(!$value)
+		{
+			return true;
+		}
+
 		return $element->level == $value;
 	}
 
-	private $_descendant = null;
 	private function _filterDescendantOf($element, $value)
 	{
 		$this->_descendant = $value;
+
 		if(!$value)
 		{
 			return true;
@@ -106,7 +113,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 		foreach($elements as $searchElement)
 		{
-			if($searchElement->id == $value->id)
+			if($searchElement === $value)
 			{
 				$found = true;
 			}
@@ -114,7 +121,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 			{
 				if($searchElement->level > $value->level)
 				{
-					if($searchElement->id == $element->id)
+					if($searchElement === $element)
 					{
 						return true;
 					}

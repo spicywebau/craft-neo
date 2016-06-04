@@ -7,7 +7,7 @@ class Neo_BlockModel extends BaseElementModel
 
 	private $_owner;
 	private $_allElements;
-	private $_criteria = [];
+	private $_liveCriteria = [];
 
 	public function getField()
 	{
@@ -80,7 +80,7 @@ class Neo_BlockModel extends BaseElementModel
 	{
 		$this->_allElements = $elements;
 
-		foreach($this->_criteria as $name => $criteria)
+		foreach($this->_liveCriteria as $name => $criteria)
 		{
 			$criteria->setAllElements($this->_allElements);
 		}
@@ -88,21 +88,42 @@ class Neo_BlockModel extends BaseElementModel
 
 	public function getDescendants($dist = null)
 	{
-		if(!isset($this->_criteria['descendants']))
+		if(craft()->request->isLivePreview())
 		{
-			$ecm = parent::getDescendants($dist);
-			$criteria = Neo_CriteriaModel::convert($ecm);
-			$criteria->setAllElements($this->_allElements);
+			if(!isset($this->_liveCriteria['descendants']))
+			{
+				$criteria = craft()->neo->getCriteria();
+				$criteria->setAllElements($this->_allElements);
+				$criteria->descendantOf = $this;
+				//$criteria->locale = $this->locale;
 
-			$this->_criteria['descendants'] = $criteria;
+				$this->_liveCriteria['descendants'] = $criteria;
+			}
+
+			if($dist)
+			{
+				return $this->_liveCriteria['descendants']->descendantDist($dist);
+			}
+
+			return $this->_liveCriteria['descendants'];
 		}
 
-		if($dist)
+		return parent::getDescendants($dist);
+	}
+
+	public function getChildren($field = null)
+	{
+		if(craft()->request->isLivePreview())
 		{
-			$this->_criteria['descendants']->descendantDist($dist);
+			if(!isset($this->_liveCriteria['children']))
+			{
+				$this->_liveCriteria['children'] = $this->getDescendants(1);
+			}
+
+			return $this->_liveCriteria['children'];
 		}
 
-		return $this->_criteria['descendants'];
+		return parent::getChildren($field);
 	}
 
 	protected function defineAttributes()
