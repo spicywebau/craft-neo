@@ -52,8 +52,8 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		'fixedOrder', // *
 		'indexBy', // *
 	];
-
-	public function __construct($attributes, $_ = null)
+	
+	public function __construct($attributes)
 	{
 		$elementType = craft()->elements->getElementType(Neo_ElementType::NeoBlock);
 
