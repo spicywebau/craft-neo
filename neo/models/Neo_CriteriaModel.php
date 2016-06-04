@@ -152,12 +152,57 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __ancestorDist($element, $value)
 	{
-		return true; // TODO
+		if(!$value || !$this->_ancestor)
+		{
+			return true;
+		}
+
+		return $element->level >= $this->_ancestor->level - $value;
 	}
 
 	protected function __ancestorOf($element, $value)
 	{
-		return true; // TODO
+		$this->_ancestor = $value;
+
+		if(!$value)
+		{
+			return true;
+		}
+
+		if($element->level >= $value->level)
+		{
+			return false;
+		}
+
+		$elements = array_reverse($this->_allElements);
+		$found = false;
+		$level = $value->level - 1;
+
+		foreach($elements as $searchElement)
+		{
+			if($level < 1)
+			{
+				break;
+			}
+			else if($searchElement === $value)
+			{
+				$found = true;
+			}
+			else if($found)
+			{
+				if($searchElement === $element)
+				{
+					break;
+				}
+
+				if($searchElement->level == $level)
+				{
+					$level--;
+				}
+			}
+		}
+
+		return $element->level == $level;
 	}
 
 	protected function __archived($element, $value)
@@ -200,6 +245,16 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return true; // TODO
 	}
 
+	protected function __descendantDist($element, $value)
+	{
+		if(!$value || !$this->_descendant)
+		{
+			return true;
+		}
+
+		return $element->level <= $this->_descendant->level + $value;
+	}
+
 	protected function __descendantOf($element, $value)
 	{
 		$this->_descendant = $value;
@@ -235,16 +290,6 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		}
 
 		return false;
-	}
-
-	protected function __descendantDist($element, $value)
-	{
-		if(!$value || !$this->_descendant)
-		{
-			return true;
-		}
-
-		return $element->level <= $this->_descendant->level + $value;
 	}
 
 	protected function __fieldId($element, $value)

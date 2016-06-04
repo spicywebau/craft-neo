@@ -86,6 +86,45 @@ class Neo_BlockModel extends BaseElementModel
 		}
 	}
 
+	public function getAncestors($dist = null)
+	{
+		if(craft()->request->isLivePreview())
+		{
+			if(!isset($this->_liveCriteria['ancestors']))
+			{
+				$criteria = craft()->neo->getCriteria();
+				$criteria->setAllElements($this->_allElements);
+				$criteria->ancestorOf = $this;
+
+				$this->_liveCriteria['ancestors'] = $criteria;
+			}
+
+			if($dist)
+			{
+				return $this->_liveCriteria['ancestors']->ancestorDist($dist);
+			}
+
+			return $this->_liveCriteria['ancestors'];
+		}
+
+		return parent::getAncestors($dist);
+	}
+
+	public function getParent()
+	{
+		if(craft()->request->isLivePreview())
+		{
+			if(!isset($this->_liveCriteria['parent']))
+			{
+				$this->_liveCriteria['parent'] = $this->getAncestors(1)->status(null)->localeEnabled(null)->first();
+			}
+
+			return $this->_liveCriteria['parent'];
+		}
+
+		return parent::getParent();
+	}
+
 	public function getDescendants($dist = null)
 	{
 		if(craft()->request->isLivePreview())
