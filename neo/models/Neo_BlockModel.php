@@ -164,6 +164,65 @@ class Neo_BlockModel extends BaseElementModel
 		return parent::getChildren($field);
 	}
 
+	public function getSiblings()
+	{
+		if(craft()->request->isLivePreview())
+		{
+			if(!isset($this->_liveCriteria['siblings']))
+			{
+				$criteria = craft()->neo->getCriteria();
+				$criteria->setAllElements($this->_allElements);
+				$criteria->siblingOf = $this;
+
+				$this->_liveCriteria['siblings'] = $criteria;
+			}
+
+			return $this->_liveCriteria['siblings'];
+		}
+
+		return parent::getSiblings();
+	}
+
+	public function getPrevSibling()
+	{
+		if(craft()->request->isLivePreview())
+		{
+			if(!isset($this->_liveCriteria['prevSibling']))
+			{
+				$criteria = craft()->neo->getCriteria();
+				$criteria->setAllElements($this->_allElements);
+				$criteria->prevSiblingOf = $this;
+				$criteria->status = null;
+
+				$this->_liveCriteria['prevSibling'] = $criteria->first();
+			}
+
+			return $this->_liveCriteria['prevSibling'];
+		}
+
+		return parent::getPrevSibling();
+	}
+
+	public function getNextSibling()
+	{
+		if(craft()->request->isLivePreview())
+		{
+			if(!isset($this->_liveCriteria['nextSibling']))
+			{
+				$criteria = craft()->neo->getCriteria();
+				$criteria->setAllElements($this->_allElements);
+				$criteria->nextSiblingOf = $this;
+				$criteria->status = null;
+
+				$this->_liveCriteria['nextSibling'] = $criteria->first();
+			}
+
+			return $this->_liveCriteria['nextSibling'];
+		}
+
+		return parent::getNextSibling();
+	}
+
 	protected function defineAttributes()
 	{
 		return array_merge(parent::defineAttributes(), [
