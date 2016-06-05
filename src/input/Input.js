@@ -21,7 +21,8 @@ const _defaults = {
 	groups: [],
 	blocks: [],
 	inputId: null,
-	maxBlocks: 0
+	maxBlocks: 0,
+	'static': false
 }
 
 export default Garnish.Base.extend({
@@ -37,11 +38,13 @@ export default Garnish.Base.extend({
 		this._groups = []
 		this._blocks = []
 		this._maxBlocks = settings.maxBlocks
+		this._static = settings['static']
 
 		NS.enter(this._templateNs)
 
 		this.$container = $('#' + settings.inputId).append(renderTemplate({
-			blockTypes: settings.blockTypes
+			blockTypes: settings.blockTypes,
+			'static': this._static
 		}))
 
 		NS.leave()

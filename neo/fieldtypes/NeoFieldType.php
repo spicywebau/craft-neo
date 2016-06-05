@@ -492,7 +492,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'static' => true,
 			]);
 
-			$this->_prepareInputHtml($id, $id, $settings, $value);
+			$this->_prepareInputHtml($id, $id, $settings, $value, true);
 
 			return $html;
 		}
@@ -541,7 +541,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return preg_match_all('/\\bfields\\b/', $namespace);
 	}
 
-	private function _prepareInputHtml($id, $name, $settings, $value)
+	private function _prepareInputHtml($id, $name, $settings, $value, $static = false)
 	{
 		$blockTypeInfo = [];
 		foreach($settings->getBlockTypes() as $blockType)
@@ -556,7 +556,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
 				'topLevel' => (bool) $blockType->topLevel,
-				'tabs' => $this->_getBlockTypeHtml($blockType, null, $name),
+				'tabs' => $this->_getBlockTypeHtml($blockType, null, $name, $static),
 			];
 		}
 
@@ -581,7 +581,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'collapsed' => (bool) $block->collapsed,
 				'enabled' => (bool) $block->enabled,
 				'level' => intval($block->level) - 1,
-				'tabs' => $this->_getBlockHtml($block, $name),
+				'tabs' => $this->_getBlockHtml($block, $name, $static),
 			];
 		}
 
@@ -592,6 +592,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			'inputId' => craft()->templates->namespaceInputId($id),
 			'maxBlocks' => $settings->maxBlocks,
 			'blocks' => $blockInfo,
+			'static' => $static,
 		];
 
 		craft()->templates->includeJsFile('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.7.4/polyfill.min.js');
@@ -615,7 +616,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		);
 	}
 
-	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null)
+	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null, $static = false)
 	{
 		$oldNamespace = craft()->templates->getNamespace();
 		$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
@@ -665,6 +666,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'namespace' => null,
 				'element' => $block,
 				'fields' => $fieldLayoutFields,
+				'static' => $static,
 			]));
 
 			foreach($fieldLayoutFields as $fieldLayoutField)
@@ -687,8 +689,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return $tabsHtml;
 	}
 
-	private function _getBlockHtml(Neo_BlockModel $block, $namespace = null)
+	private function _getBlockHtml(Neo_BlockModel $block, $namespace = null, $static = false)
 	{
-		return $this->_getBlockTypeHtml($block->getType(), $block, $namespace);
+		return $this->_getBlockTypeHtml($block->getType(), $block, $namespace, $static);
 	}
 }

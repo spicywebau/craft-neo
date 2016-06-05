@@ -1,5 +1,18 @@
 .neo-input {
 
+	&.is-static {
+
+		.ni_block .block-checkbox,
+		.ni_block .block-settings,
+		.ni_block .block-reorder,
+		.ni_buttons {
+			display: none;
+		}
+
+		.ni_block:last-child {
+			margin-bottom: 0;
+		}
+	}
 }
 
 .ni {
