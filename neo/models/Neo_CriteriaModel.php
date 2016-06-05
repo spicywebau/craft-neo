@@ -399,6 +399,11 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		$mid = $this->_indexOfBlock($elements, $value);
 		$total = count($elements);
 
+		if($mid < 0)
+		{
+			return [];
+		}
+
 		// Previous siblings
 		for($i = $mid - 1; $i >= 0; $i--)
 		{
