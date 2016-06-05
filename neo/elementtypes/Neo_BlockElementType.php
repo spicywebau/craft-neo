@@ -26,7 +26,7 @@ class Neo_BlockElementType extends BaseElementType
 			'ownerId'     => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
 			'type'        => AttributeType::Mixed,
-			'order'       => array(AttributeType::String, 'default' => 'lft'),
+			'order'       => [AttributeType::String, 'default' => 'lft'],
 		];
 	}
 
@@ -50,6 +50,15 @@ class Neo_BlockElementType extends BaseElementType
 					'and',
 					'neoblockstructures.ownerId = neoblocks.ownerId',
 					'neoblockstructures.fieldId = neoblocks.fieldId',
+					[
+						'or',
+						'neoblockstructures.ownerLocale = neoblocks.ownerLocale',
+						[
+							'and',
+							'neoblockstructures.ownerLocale is null',
+							'neoblocks.ownerLocale is null',
+						],
+					],
 				]
 			)
 			->leftJoin(

@@ -12,9 +12,13 @@ class NeoService extends BaseApplicationComponent
 	private $_blockTypeRecordsById;
 	private $_blockRecordsById;
 	private $_uniqueBlockTypeAndFieldHandles;
-	private $_parentNeoFields;
 
 	public $currentSavingBlockType;
+
+	public function getCriteria($attributes = null)
+	{
+		return new Neo_CriteriaModel($attributes);
+	}
 
 	public function getBlockTypesByFieldId($fieldId, $indexBy = null)
 	{
@@ -577,13 +581,24 @@ class NeoService extends BaseApplicationComponent
 	{
 		$owner = $fieldType->element;
 		$field = $fieldType->model;
+		$locale = $this->_getFieldLocale($fieldType);
 
 		$result = craft()->db->createCommand()
 			->select('structureId')
 			->from('neoblockstructures')
 			->where('ownerId = :ownerId', [':ownerId' => $owner->id])
-			->andWhere('fieldId = :fieldId', [':fieldId' => $field->id])
-			->queryRow();
+			->andWhere('fieldId = :fieldId', [':fieldId' => $field->id]);
+
+		if($locale)
+		{
+			$result = $result->andWhere('ownerLocale = :ownerLocale', [':ownerLocale' => $locale]);
+		}
+		else
+		{
+			$result = $result->andWhere('ownerLocale IS NULL');
+		}
+
+		$result = $result->queryRow();
 
 		if($result)
 		{
@@ -597,6 +612,7 @@ class NeoService extends BaseApplicationComponent
 	{
 		$owner = $fieldType->element;
 		$field = $fieldType->model;
+		$locale = $this->_getFieldLocale($fieldType);
 
 		$blockStructure = new Neo_BlockStructureRecord();
 
@@ -609,6 +625,7 @@ class NeoService extends BaseApplicationComponent
 
 			$blockStructure->structureId = $structure->id;
 			$blockStructure->ownerId = $owner->id;
+			$blockStructure->ownerLocale = $locale;
 			$blockStructure->fieldId = $field->id;
 			$blockStructure->save(false);
 		}
@@ -629,6 +646,7 @@ class NeoService extends BaseApplicationComponent
 	{
 		$owner = $fieldType->element;
 		$field = $fieldType->model;
+		$locale = $this->_getFieldLocale($fieldType);
 
 		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 		try
@@ -640,11 +658,23 @@ class NeoService extends BaseApplicationComponent
 				craft()->structures->deleteStructureById($blockStructure->id);
 			}
 
-			craft()->db->createCommand()
-				->delete('neoblockstructures', [
-					'ownerId' => $owner->id,
-					'fieldId' => $field->id,
-				]);
+			if($locale)
+			{
+				craft()->db->createCommand()
+					->delete('neoblockstructures', [
+						'ownerLocale' => $locale,
+						'ownerId' => $owner->id,
+						'fieldId' => $field->id,
+					]);
+			}
+			else
+			{
+				craft()->db->createCommand()
+					->delete('neoblockstructures', 'ownerLocale IS NULL', [
+						'ownerId' => $owner->id,
+						'fieldId' => $field->id,
+					]);
+			}
 		}
 		catch(\Exception $e)
 		{
@@ -693,7 +723,7 @@ class NeoService extends BaseApplicationComponent
 			foreach($blocks as $block)
 			{
 				$block->ownerId = $owner->id;
-				$block->ownerLocale = ($field->translatable ? $owner->locale : null);
+				$block->ownerLocale = $this->_getFieldLocale($fieldType);
 
 				while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
 				{
@@ -787,6 +817,14 @@ class NeoService extends BaseApplicationComponent
 			->select('id, fieldId, name, sortOrder')
 			->from('neogroups')
 			->order('sortOrder');
+	}
+
+	private function _getFieldLocale(NeoFieldType $fieldType)
+	{
+		$owner = $fieldType->element;
+		$field = $fieldType->model;
+
+		return $field->translatable ? $owner->locale : null;
 	}
 
 	private function _getBlockTypeRecord(Neo_BlockTypeModel $blockType)

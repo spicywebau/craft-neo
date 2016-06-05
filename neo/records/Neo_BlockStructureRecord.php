@@ -19,6 +19,10 @@ class Neo_BlockStructureRecord extends BaseRecord
 				'required' => true,
 				'onDelete' => static::CASCADE,
 			],
+			'ownerLocale' => [static::BELONGS_TO, 'LocaleRecord', 'ownerLocale',
+				'onDelete' => static::CASCADE,
+				'onUpdate' => static::CASCADE,
+			],
 			'field' => [static::BELONGS_TO, 'FieldRecord',
 				'required' => true,
 				'onDelete' => static::CASCADE,
@@ -32,6 +36,13 @@ class Neo_BlockStructureRecord extends BaseRecord
 			['columns' => ['structureId']],
 			['columns' => ['ownerId']],
 			['columns' => ['fieldId']],
+		];
+	}
+
+	protected function defineAttributes()
+	{
+		return [
+			'ownerLocale' => AttributeType::Locale,
 		];
 	}
 }

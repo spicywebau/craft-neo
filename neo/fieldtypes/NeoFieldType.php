@@ -199,7 +199,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 	public function prepValue($value)
 	{
-		$criteria = craft()->elements->getCriteria(Neo_ElementType::NeoBlock);
+		$criteria = craft()->neo->getCriteria();
 
 		if(!empty($this->element->id))
 		{
@@ -234,7 +234,13 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 					$prevElement = $element;
 				}
 
+				foreach($value as $element)
+				{
+					$element->setAllElements($value);
+				}
+
 				$criteria->setMatchedElements($value);
+				$criteria->setAllElements($value);
 			}
 			else if($value === '')
 			{
@@ -295,76 +301,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			'static' => false
 		]);
 
-		$blockTypeInfo = [];
-		foreach($settings->getBlockTypes() as $blockType)
-		{
-			$fieldLayout = $blockType->getFieldLayout();
-			$blockTypeInfo[] = [
-				'id' => $blockType->id,
-				'fieldLayoutId' => $fieldLayout->id,
-				'sortOrder' => $blockType->sortOrder,
-				'handle' => $blockType->handle,
-				'name' => Craft::t($blockType->name),
-				'maxBlocks' => $blockType->maxBlocks,
-				'childBlocks' => $blockType->childBlocks,
-				'topLevel' => (bool) $blockType->topLevel,
-				'tabs' => $this->_getBlockTypeHtml($blockType, null, $name),
-			];
-		}
-
-		$groupInfo = [];
-		foreach($settings->getGroups() as $group)
-		{
-			$groupInfo[] = [
-				'sortOrder' => $group->sortOrder,
-				'name' => $group->name,
-			];
-		}
-
-		$blockInfo = [];
-		$sortOrder = 0;
-
-		foreach($value as $block)
-		{
-			$blockInfo[] = [
-				'id' => $block->id,
-				'blockType' => $block->getType()->handle,
-				'sortOrder' => $sortOrder++,
-				'collapsed' => (bool) $block->collapsed,
-				'enabled' => (bool) $block->enabled,
-				'level' => intval($block->level) - 1,
-				'tabs' => $this->_getBlockHtml($block, $name),
-			];
-		}
-
-		$jsSettings = [
-			'namespace' => craft()->templates->namespaceInputName($name),
-			'blockTypes' => $blockTypeInfo,
-			'groups' => $groupInfo,
-			'inputId' => craft()->templates->namespaceInputId($id),
-			'maxBlocks' => $settings->maxBlocks,
-			'blocks' => $blockInfo,
-		];
-
-		craft()->templates->includeJsFile('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.7.4/polyfill.min.js');
-		craft()->templates->includeJsResource('neo/main.js');
-		craft()->templates->includeJs('new Neo.Input(' . JsonHelper::encode($jsSettings) . ')');
-
-		craft()->templates->includeTranslations(
-			"Select",
-			"Actions",
-			"Add a block",
-			"Add block above",
-			"Are you sure you want to delete the selected blocks?",
-			"Expand",
-			"Collapse",
-			"Enable",
-			"Disable",
-			"Disabled",
-			"Delete",
-			"Are you sure you want to delete the selected blocks?",
-			"Reorder"
-		);
+		$this->_prepareInputHtml($id, $name, $settings, $value);
 
 		return $html;
 	}
@@ -431,9 +368,9 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			{
 				$block = new Neo_BlockModel();
 				$block->fieldId = $this->model->id;
-				$block->typeId  = $blockType->id;
+				$block->typeId = $blockType->id;
 				$block->ownerId = $ownerId;
-				$block->locale  = $this->element->locale;
+				$block->ownerLocale = $this->element->locale;
 			}
 			else
 			{
@@ -547,13 +484,17 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$settings = $this->getSettings();
 			$id = StringHelper::randomString();
 
-			return craft()->templates->render('neo/_fieldtype/input', [
+			$html = craft()->templates->render('neo/_fieldtype/input', [
 				'id' => $id,
 				'name' => $id,
 				'blockTypes' => $settings->getBlockTypes(),
 				'blocks' => $value,
 				'static' => true,
 			]);
+
+			$this->_prepareInputHtml($id, $id, $settings, $value, true);
+
+			return $html;
 		}
 		else
 		{
@@ -573,12 +514,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		// Return any relation data on these elements, defined with this field
 		$map = craft()->db->createCommand()
 			->select('ownerId as source, id as target')
-			->from('neo_blocks')
+			->from('neoblocks')
 			->where(
 				['and', 'fieldId=:fieldId', ['in', 'ownerId', $sourceElementIds]],
 				[':fieldId' => $this->model->id]
 			)
-			->order('sortOrder')
+			// ->order('sortOrder') // TODO Need to join the structure elements table to get `lft` for ordering
 			->queryAll();
 
 		return [
@@ -600,7 +541,82 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return preg_match_all('/\\bfields\\b/', $namespace);
 	}
 
-	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null)
+	private function _prepareInputHtml($id, $name, $settings, $value, $static = false)
+	{
+		$blockTypeInfo = [];
+		foreach($settings->getBlockTypes() as $blockType)
+		{
+			$fieldLayout = $blockType->getFieldLayout();
+			$blockTypeInfo[] = [
+				'id' => $blockType->id,
+				'fieldLayoutId' => $fieldLayout->id,
+				'sortOrder' => $blockType->sortOrder,
+				'handle' => $blockType->handle,
+				'name' => Craft::t($blockType->name),
+				'maxBlocks' => $blockType->maxBlocks,
+				'childBlocks' => $blockType->childBlocks,
+				'topLevel' => (bool) $blockType->topLevel,
+				'tabs' => $this->_getBlockTypeHtml($blockType, null, $name, $static),
+			];
+		}
+
+		$groupInfo = [];
+		foreach($settings->getGroups() as $group)
+		{
+			$groupInfo[] = [
+				'sortOrder' => $group->sortOrder,
+				'name' => $group->name,
+			];
+		}
+
+		$blockInfo = [];
+		$sortOrder = 0;
+
+		foreach($value as $block)
+		{
+			$blockInfo[] = [
+				'id' => $block->id,
+				'blockType' => $block->getType()->handle,
+				'sortOrder' => $sortOrder++,
+				'collapsed' => (bool) $block->collapsed,
+				'enabled' => (bool) $block->enabled,
+				'level' => intval($block->level) - 1,
+				'tabs' => $this->_getBlockHtml($block, $name, $static),
+			];
+		}
+
+		$jsSettings = [
+			'namespace' => craft()->templates->namespaceInputName($name),
+			'blockTypes' => $blockTypeInfo,
+			'groups' => $groupInfo,
+			'inputId' => craft()->templates->namespaceInputId($id),
+			'maxBlocks' => $settings->maxBlocks,
+			'blocks' => $blockInfo,
+			'static' => $static,
+		];
+
+		craft()->templates->includeJsFile('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.7.4/polyfill.min.js');
+		craft()->templates->includeJsResource('neo/main.js');
+		craft()->templates->includeJs('new Neo.Input(' . JsonHelper::encode($jsSettings) . ')');
+
+		craft()->templates->includeTranslations(
+			"Select",
+			"Actions",
+			"Add a block",
+			"Add block above",
+			"Are you sure you want to delete the selected blocks?",
+			"Expand",
+			"Collapse",
+			"Enable",
+			"Disable",
+			"Disabled",
+			"Delete",
+			"Are you sure you want to delete the selected blocks?",
+			"Reorder"
+		);
+	}
+
+	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null, $static = false)
 	{
 		$oldNamespace = craft()->templates->getNamespace();
 		$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
@@ -650,6 +666,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'namespace' => null,
 				'element' => $block,
 				'fields' => $fieldLayoutFields,
+				'static' => $static,
 			]));
 
 			foreach($fieldLayoutFields as $fieldLayoutField)
@@ -672,8 +689,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return $tabsHtml;
 	}
 
-	private function _getBlockHtml(Neo_BlockModel $block, $namespace = null)
+	private function _getBlockHtml(Neo_BlockModel $block, $namespace = null, $static = false)
 	{
-		return $this->_getBlockTypeHtml($block->getType(), $block, $namespace);
+		return $this->_getBlockTypeHtml($block->getType(), $block, $namespace, $static);
 	}
 }
