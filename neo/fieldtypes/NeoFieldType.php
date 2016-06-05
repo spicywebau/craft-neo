@@ -514,12 +514,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		// Return any relation data on these elements, defined with this field
 		$map = craft()->db->createCommand()
 			->select('ownerId as source, id as target')
-			->from('neo_blocks')
+			->from('neoblocks')
 			->where(
 				['and', 'fieldId=:fieldId', ['in', 'ownerId', $sourceElementIds]],
 				[':fieldId' => $this->model->id]
 			)
-			->order('sortOrder')
+			// ->order('sortOrder') // TODO Need to join the structure elements table to get `lft` for ordering
 			->queryAll();
 
 		return [
