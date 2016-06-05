@@ -125,6 +125,34 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		}
 	}
 
+	private function _getBlock($block)
+	{
+		if(is_int($block))
+		{
+			$block = craft()->neo->getBlockById($block);
+		}
+
+		if($block instanceof Neo_BlockModel)
+		{
+			return $block;
+		}
+
+		return false;
+	}
+
+	private function _indexOfBlock($elements, Neo_BlockModel $block)
+	{
+		foreach($elements as $i => $element)
+		{
+			if($element->id === $block->id)
+			{
+				return $i;
+			}
+		}
+
+		return -1;
+	}
+
 	/*
 	 * Criteria methods
 	 */
@@ -307,6 +335,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return array_slice($elements, $value);
 	}
 
+	// Finds all blocks after the root node of the tree
 	protected function __positionedAfter($elements, $value)
 	{
 		if(!$value)
@@ -359,12 +388,50 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __siblingOf($elements, $value)
 	{
+		$value = $this->_getBlock($value);
+
 		if(!$value)
 		{
 			return $elements;
 		}
 
-		return []; // TODO
+		$newElements = [];
+		$mid = $this->_indexOfBlock($elements, $value);
+		$total = count($elements);
+
+		// Previous siblings
+		for($i = $mid - 1; $i >= 0; $i--)
+		{
+			$element = $elements[$i];
+
+			if($element->level < $value->level)
+			{
+				break;
+			}
+
+			if($element->level == $value->level)
+			{
+				array_unshift($newElements, $element);
+			}
+		}
+
+		// Next siblings
+		for($i = $mid + 1; $i < $total; $i++)
+		{
+			$element = $elements[$i];
+
+			if($element->level < $value->level)
+			{
+				break;
+			}
+
+			if($element->level == $value->level)
+			{
+				$newElements[] = $element;
+			}
+		}
+
+		return $newElements;
 	}
 
 	protected function __status($elements, $value)
