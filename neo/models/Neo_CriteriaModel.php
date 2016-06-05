@@ -317,12 +317,32 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __nextSiblingOf($elements, $value)
 	{
+		$value = $this->_getBlock($value);
+
 		if(!$value)
 		{
 			return $elements;
 		}
 
-		return []; // TODO
+		$index = $this->_indexOfBlock($elements, $value);
+		$total = count($elements);
+
+		for($i = $index + 1; $i < $total; $i++)
+		{
+			$element = $elements[$i];
+
+			if($element->level < $value->level)
+			{
+				break;
+			}
+
+			if($element->level == $value->level)
+			{
+				return [$element];
+			}
+		}
+
+		return [];
 	}
 
 	protected function __offset($elements, $value)
@@ -358,12 +378,31 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	protected function __prevSiblingOf($elements, $value)
 	{
+		$value = $this->_getBlock($value);
+
 		if(!$value)
 		{
 			return $elements;
 		}
 
-		return []; // TODO
+		$index = $this->_indexOfBlock($elements, $value);
+
+		for($i = $index - 1; $i >= 0; $i--)
+		{
+			$element = $elements[$i];
+
+			if($element->level < $value->level)
+			{
+				break;
+			}
+
+			if($element->level == $value->level)
+			{
+				return [$element];
+			}
+		}
+
+		return [];
 	}
 
 	protected function __relatedTo($elements, $value)
