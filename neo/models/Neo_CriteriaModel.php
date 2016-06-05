@@ -153,6 +153,28 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return -1;
 	}
 
+	private function _indexOfRootBlock($elements, Neo_BlockModel $block)
+	{
+		$index = $this->_indexOfBlock($elements, $block);
+
+		if($block->level == 1)
+		{
+			return $index;
+		}
+
+		for($i = $index - 1; $i >= 0; $i--)
+		{
+			$element = $elements[$i];
+
+			if($element->level == 1)
+			{
+				return $i;
+			}
+		}
+
+		return -1;
+	}
+
 	/*
 	 * Criteria methods
 	 */
@@ -355,25 +377,52 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return array_slice($elements, $value);
 	}
 
-	// Finds all blocks after the root node of the tree
 	protected function __positionedAfter($elements, $value)
 	{
+		$value = $this->_getBlock($value);
+
 		if(!$value)
 		{
 			return $elements;
 		}
 
-		return []; // TODO
+		$index = $this->_indexOfRootBlock($elements, $value);
+
+		if($index < 0)
+		{
+			return [];
+		}
+
+		$root = $elements[$index];
+		$nextRoot = $this->__nextSiblingOf($elements, $root);
+
+		if(empty($nextRoot))
+		{
+			return [];
+		}
+
+		$nextIndex = $this->_indexOfBlock($elements, $nextRoot[0]);
+
+		return array_slice($elements, $nextIndex);
 	}
 
 	protected function __positionedBefore($elements, $value)
 	{
+		$value = $this->_getBlock($value);
+
 		if(!$value)
 		{
 			return $elements;
 		}
 
-		return []; // TODO
+		$index = $this->_indexOfRootBlock($elements, $value);
+
+		if($index <= 0)
+		{
+			return [];
+		}
+
+		return array_slice($elements, 0, $index);
 	}
 
 	protected function __prevSiblingOf($elements, $value)
