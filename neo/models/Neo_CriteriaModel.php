@@ -55,7 +55,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		{
 			$method = '__' . $name;
 
-			if(craft()->request->isLivePreview() && method_exists($this, $method))
+			if(method_exists($this, $method))
 			{
 				$this->_currentFilters[$name] = $value;
 
@@ -101,7 +101,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 	private function _runCriteria()
 	{
-		if(!empty($this->_allElements))
+		if(craft()->request->isLivePreview() && !empty($this->_allElements))
 		{
 			$elements = $this->_allElements;
 
