@@ -658,23 +658,12 @@ class NeoService extends BaseApplicationComponent
 				craft()->structures->deleteStructureById($blockStructure->id);
 			}
 
-			if($locale)
-			{
-				craft()->db->createCommand()
-					->delete('neoblockstructures', [
-						'ownerLocale' => $locale,
-						'ownerId' => $owner->id,
-						'fieldId' => $field->id,
-					]);
-			}
-			else
-			{
-				craft()->db->createCommand()
-					->delete('neoblockstructures', 'ownerLocale IS NULL', [
-						'ownerId' => $owner->id,
-						'fieldId' => $field->id,
-					]);
-			}
+			craft()->db->createCommand()
+				->delete('neoblockstructures', [
+					'ownerLocale' => $locale ? $locale : null,
+					'ownerId' => $owner->id,
+					'fieldId' => $field->id,
+				]);
 		}
 		catch(\Exception $e)
 		{
