@@ -7,6 +7,7 @@
 - `Fixed` Fixed bug with Neo field block structures when localised
 - `Fixed` Blocks now show when previewing older versions of entries (thanks @christianruhstaller)
 - `Fixed` Fixed bug where elements could not be saved after reporting an error with a Neo field
+- `Fixed` Fixed bug where you couldn't select text inside input fields in the configurator using keyboard shortcuts
 
 #### v1.1.0
 - `Added` Blocks now support structure property querying (children, descendants, etc)
