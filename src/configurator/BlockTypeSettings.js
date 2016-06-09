@@ -125,65 +125,89 @@ export default Settings.extend({
 	getName() { return this._name },
 	setName(name)
 	{
-		const oldName = this._name
-		this._name = name
+		if(name !== this._name)
+		{
+			const oldName = this._name
+			this._name = name
 
-		this.$nameInput.val(this._name)
+			this.$nameInput.val(this._name)
 
-		this.trigger('change', {
-			property: 'name',
-			oldValue: oldName,
-			newValue: this._name
-		})
+			this.trigger('change', {
+				property: 'name',
+				oldValue: oldName,
+				newValue: this._name
+			})
+		}
 	},
 
 	getHandle() { return this._handle },
 	setHandle(handle)
 	{
-		const oldHandle = this._handle
-		this._handle = handle
+		if(handle !== this._handle)
+		{
+			const oldHandle = this._handle
+			this._handle = handle
 
-		this.$handleInput.val(this._handle)
+			this.$handleInput.val(this._handle)
 
-		this.trigger('change', {
-			property: 'handle',
-			oldValue: oldHandle,
-			newValue: this._handle
-		})
+			this.trigger('change', {
+				property: 'handle',
+				oldValue: oldHandle,
+				newValue: this._handle
+			})
+		}
 	},
 
 	getMaxBlocks() { return this._maxBlocks },
 	setMaxBlocks(maxBlocks)
 	{
 		const oldMaxBlocks = this._maxBlocks
-		this._maxBlocks = Math.max(0, maxBlocks|0)
+		const newMaxBlocks = Math.max(0, maxBlocks|0)
 
-		this.$maxBlocksInput.val(this._maxBlocks > 0 ? this._maxBlocks : null)
+		if(newMaxBlocks === 0)
+		{
+			this.$maxBlocksInput.val(null)
+		}
 
-		this.trigger('change', {
-			property: 'maxBlocks',
-			oldValue: oldMaxBlocks,
-			newValue: this._maxBlocks
-		})
+		if(oldMaxBlocks !== newMaxBlocks)
+		{
+			this._maxBlocks = newMaxBlocks
+
+			if(this._maxBlocks > 0)
+			{
+				this.$maxBlocksInput.val(this._maxBlocks)
+			}
+
+			this.trigger('change', {
+				property: 'maxBlocks',
+				oldValue: oldMaxBlocks,
+				newValue: this._maxBlocks
+			})
+		}
 	},
 
 	getTopLevel() { return this._topLevel },
 	setTopLevel(topLevel)
 	{
 		const oldTopLevel = this._topLevel
-		this._topLevel = !!topLevel
+		const newTopLevel = !!topLevel
 
-		if(this._topLevelLightswitch && this._topLevelLightswitch.on !== this._topLevel)
+		if(oldTopLevel !== newTopLevel)
 		{
-			this._topLevelLightswitch.on = this._topLevel
-			this._topLevelLightswitch.toggle()
-		}
+			this._topLevel = newTopLevel
 
-		this.trigger('change', {
-			property: 'topLevel',
-			oldValue: oldTopLevel,
-			newValue: this._topLevel
-		})
+			if(this._topLevelLightswitch && this._topLevelLightswitch.on !== this._topLevel)
+			{
+				this._topLevelLightswitch.on = this._topLevel
+				this._topLevelLightswitch.toggle()
+			}
+
+			this.trigger('change', {
+				property: 'topLevel',
+				oldValue: oldTopLevel,
+				newValue: this._topLevel
+			})
+		}
 	},
 
 	getChildBlocks()

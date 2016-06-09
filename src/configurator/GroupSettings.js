@@ -67,15 +67,18 @@ export default Settings.extend({
 	getName() { return this._name },
 	setName(name)
 	{
-		const oldName = this._name
-		this._name = name
+		if(name !== this._name)
+		{
+			const oldName = this._name
+			this._name = name
 
-		this.$nameInput.val(this._name)
+			this.$nameInput.val(this._name)
 
-		this.trigger('change', {
-			property: 'name',
-			oldValue: oldName,
-			newValue: this._name
-		})
+			this.trigger('change', {
+				property: 'name',
+				oldValue: oldName,
+				newValue: this._name
+			})
+		}
 	}
 })
