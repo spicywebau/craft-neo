@@ -242,6 +242,11 @@ export default Garnish.Base.extend({
 		return this._items.find(item => item.$container.is($element))
 	},
 
+	getSelectedItem()
+	{
+		return this._items.find(item => item.isSelected())
+	},
+
 	selectItem(item, focusInput)
 	{
 		focusInput = (typeof focusInput === 'boolean' ? focusInput : true)
@@ -322,7 +327,10 @@ export default Garnish.Base.extend({
 			fieldLayout: fieldLayout
 		})
 
-		this.addItem(blockType)
+		const selected = this.getSelectedItem()
+		const index = selected ? selected.getSettings().getSortOrder() : -1
+
+		this.addItem(blockType, index)
 		this.selectItem(blockType)
 	},
 
@@ -340,7 +348,10 @@ export default Garnish.Base.extend({
 			settings: settings
 		})
 
-		this.addItem(group)
+		const selected = this.getSelectedItem()
+		const index = selected ? selected.getSettings().getSortOrder() : -1
+
+		this.addItem(group, index)
 		this.selectItem(group)
 	},
 
