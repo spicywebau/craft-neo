@@ -83,6 +83,13 @@ class NeoPlugin extends BasePlugin
 		craft()->neo_relabel->pluginInit();
 	}
 
+	public function addTwigExtension()
+	{
+		Craft::import('plugins.neo.twigextensions.NeoTwigExtension');
+
+		return new NeoTwigExtension();
+	}
+
 	public function onBeforeInstall()
 	{
 		return $this->isCompatible();
