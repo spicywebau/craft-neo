@@ -1,5 +1,10 @@
 ## Changelog
 
+#### v1.2.1
+- `Improved` When editing Neo fields, block types and groups are now inserted after the currently selected item
+- `Fixed` Added support for Reasons v1.0.4
+- `Fixed` Implemented a way of using Twig variables in Asset (and potentially other) field settings for Neo blocks
+
 #### v1.2.0
 - `Improved` Block type buttons will now not be grouped if there is only one inside a group
 - `Improved` Checkboxes on blocks are now only checked when clicking on them, or the block type label

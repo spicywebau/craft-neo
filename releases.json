@@ -1,5 +1,15 @@
 [
 	{
+		"version": "1.2.1",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.2.1.zip",
+		"date": "2016-06-10T19:42:00+10:00",
+		"notes": [
+			"[Improved] When editing Neo fields, block types and groups are now inserted after the currently selected item",
+			"[Fixed] Added support for Reasons v1.0.4",
+			"[Fixed] Implemented a way of using Twig variables in Asset (and potentially other) field settings for Neo blocks"
+		]
+	},
+	{
 		"version": "1.2.0",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.2.0.zip",
 		"date": "2016-06-10T10:45:00+10:00",
