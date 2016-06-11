@@ -30,6 +30,7 @@ class Neo_BlockElementType extends BaseElementType
 			'collapsed'   => [AttributeType::String, 'default' => 'neoblocks.collapsed'],
 			'ownerId'     => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
+			'typeId'      => AttributeType::Number,
 			'type'        => AttributeType::Mixed,
 			'order'       => [AttributeType::String, 'default' => 'lft'],
 		];
