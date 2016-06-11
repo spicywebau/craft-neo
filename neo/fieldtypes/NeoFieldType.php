@@ -195,7 +195,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 	public function onBeforeDelete()
 	{
-		craft()->neo->deleteNeoField($this->model);
+		craft()->neo->deleteField($this->model);
 	}
 
 	public function prepValue($value)
@@ -475,7 +475,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 	public function onAfterElementSave()
 	{
-		craft()->neo->saveField($this);
+		craft()->neo->saveFieldValue($this);
 	}
 
 	public function getStaticHtml($value)
