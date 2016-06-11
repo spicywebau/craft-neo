@@ -34,7 +34,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		'limit',
 	];
 
-	public function __construct($attributes)
+	public function __construct($attributes = null)
 	{
 		$elementType = craft()->elements->getElementType(Neo_ElementType::NeoBlock);
 
