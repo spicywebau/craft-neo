@@ -1,6 +1,11 @@
 <?php
 namespace Craft;
 
+/**
+ * Class Neo_BlockStructureRecord
+ *
+ * @package Craft
+ */
 class Neo_BlockStructureRecord extends BaseRecord
 {
 	public function getTableName()

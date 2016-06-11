@@ -125,13 +125,11 @@ class NeoService extends BaseApplicationComponent
 
 		$blockTypeRecord->validateUniques = $validateUniques;
 
-		if(!$blockTypeRecord->validate())
+		if(!$blockTypeRecord->validateUniques($validateUniques))
 		{
 			$validates = false;
 			$blockType->addErrors($blockTypeRecord->getErrors());
 		}
-
-		$blockTypeRecord->validateUniques = true;
 
 		return $validates;
 	}

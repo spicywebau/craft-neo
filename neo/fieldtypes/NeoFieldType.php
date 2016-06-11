@@ -129,7 +129,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			return $settings;
 		}
 
-		$neoSettings = new Neo_SettingsModel($this->model);
+		$neoSettings = new Neo_SettingsModel();
+		$neoSettings->setField($this->model);
 		$blockTypes = [];
 		$groups = [];
 
@@ -525,13 +526,16 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return [
 			'elementType' => Neo_ElementType::NeoBlock,
 			'map' => $map,
-			'criteria' => array('fieldId' => $this->model->id),
+			'criteria' => ['fieldId' => $this->model->id],
 		];
 	}
 
 	protected function getSettingsModel()
 	{
-		return new Neo_SettingsModel($this->model);
+		$settings = new Neo_SettingsModel($this->model);
+		$settings->setField($this->model);
+
+		return $settings;
 	}
 
 	private function _getNamespaceDepth()
