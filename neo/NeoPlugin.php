@@ -109,14 +109,18 @@ class NeoPlugin extends BasePlugin
 
 		if(!$craftCompatible)
 		{
-			self::log(Craft::t("Neo is not compatible with Craft {version} - requires Craft 2.6 or greater",
-				['version' => craft()->getVersion()]), LogLevel::Error, true);
+			self::log(Craft::t("Neo is not compatible with Craft {version} - requires Craft {required} or greater", [
+				'version' => craft()->getVersion(),
+				'required' => $this->getCraftMinimumVersion(),
+			]), LogLevel::Error, true);
 		}
 
 		if(!$phpCompatible)
 		{
-			self::log(Craft::t("Neo is not compatible with PHP {version} - requires PHP 5.4 or greater",
-				['version' => PHP_VERSION]), LogLevel::Error, true);
+			self::log(Craft::t("Neo is not compatible with PHP {version} - requires PHP {required} or greater", [
+				'version' => PHP_VERSION,
+				'required' => $this->getPHPMinimumVersion(),
+			]), LogLevel::Error, true);
 		}
 
 		return $craftCompatible && $phpCompatible;
