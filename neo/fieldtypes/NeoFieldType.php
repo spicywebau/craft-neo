@@ -649,7 +649,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	private function _includeResources($class, $settings = [])
 	{
-		craft()->templates->includeJsFile('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.7.4/polyfill.min.js');
+		craft()->templates->includeJsResource('neo/polyfill.js');
 		craft()->templates->includeJsResource('neo/main.js');
 		craft()->templates->includeJs('new Neo.' . ucfirst($class) . '(' . JsonHelper::encode($settings) . ')');
 	}
