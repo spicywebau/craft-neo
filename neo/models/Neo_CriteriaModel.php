@@ -262,6 +262,44 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return -1;
 	}
 
+	/**
+	 * Compares an integer against a criteria model integer comparison string, or integer.
+	 * Takes in comparison inputs such as `1`, `'>=23'`, and `'< 4'`.
+	 *
+	 * @param int $value
+	 * @param int,string $comparison
+	 * @return bool
+	 */
+	private function _compareInt($value, $comparison)
+	{
+		if(is_int($comparison))
+		{
+			return $value == $comparison;
+		}
+
+		if(is_string($comparison))
+		{
+			$matches = [];
+			preg_match('/([><]=?)\\s*([0-9]+)/', $comparison, $matches);
+
+			if(count($matches) == 3)
+			{
+				$comparator = $matches[1];
+				$comparison = (int) $matches[2];
+
+				switch($comparator)
+				{
+					case '>': return $value > $comparison;
+					case '<': return $value < $comparison;
+					case '>=': return $value >= $comparison;
+					case '<=': return $value <= $comparison;
+				}
+			}
+		}
+
+		return false;
+	}
+
 
 	// Live Preview methods
 	// These methods must be prefixed with two underscores. They will automatically be detected and used when filtering.
@@ -458,7 +496,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 		return array_filter($elements, function($element) use($value)
 		{
-			return $element->level == $value; // TODO Support comparison operators `>=4` etc
+			return $this->_compareInt($element->level, $value);
 		});
 	}
 
