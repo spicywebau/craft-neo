@@ -702,7 +702,7 @@ class NeoService extends BaseApplicationComponent
 	 */
 	public function saveBlock(Neo_BlockModel $block, $validate = true)
 	{
-		if(!$validate || $this->validateBlock($block))
+		if($block->modified && (!$validate || $this->validateBlock($block)))
 		{
 			$blockRecord = $this->_getBlockRecord($block);
 			$isNewBlock = $blockRecord->isNewRecord();

@@ -233,6 +233,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			else
 			{
 				$block = $oldBlocksById[$blockId];
+				$block->modified = (isset($blockData['modified']) ? (bool) $blockData['modified'] : true);
 			}
 
 			$block->setOwner($this->element);

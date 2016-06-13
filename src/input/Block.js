@@ -20,7 +20,8 @@ const _defaults = {
 	level: 0,
 	buttons: null,
 	enabled: true,
-	collapsed: false
+	collapsed: false,
+	modified: true
 }
 
 export default Garnish.Base.extend({
@@ -30,6 +31,8 @@ export default Garnish.Base.extend({
 	_initialised: false,
 	_expanded: true,
 	_enabled: true,
+	_modified: true,
+	_initialPostData: null,
 
 	init(settings = {})
 	{
@@ -39,6 +42,7 @@ export default Garnish.Base.extend({
 		this._blockType = settings.blockType
 		this._id = settings.id
 		this._buttons = settings.buttons
+		this._modified = settings.modified
 
 		NS.enter(this._templateNs)
 
@@ -47,7 +51,8 @@ export default Garnish.Base.extend({
 			id: this._id,
 			enabled: !!settings.enabled,
 			collapsed: !!settings.collapsed,
-			level: settings.level
+			level: settings.level,
+			modified: settings.modified
 		}))
 
 		NS.leave()
@@ -68,6 +73,7 @@ export default Garnish.Base.extend({
 		this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
 		this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
 		this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
+		this.$modifiedInput = $neo.filter('[data-neo-b="input.modified"]')
 		this.$status = $neo.filter('[data-neo-b="status"]')
 
 		if(this._buttons)
@@ -95,6 +101,12 @@ export default Garnish.Base.extend({
 
 		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')
+
+		if(!this.isNew())
+		{
+			this._initialPostData = Garnish.getPostData(this.$contentContainer)
+			this._detectChangeInterval = setInterval(() => this._detectChange(), 500)
+		}
 	},
 
 	initUi()
@@ -379,6 +391,18 @@ export default Garnish.Base.extend({
 			Relabel.applyLabels(this.$contentContainer, blockType.getFieldLayoutId(), NS.value())
 
 			NS.leave()
+		}
+	},
+
+	_detectChange()
+	{
+		const postData = Garnish.getPostData(this.$contentContainer)
+		const modified = !Craft.compare(postData, this._initialPostData)
+
+		if(modified !== this._modified)
+		{
+			this.$modifiedInput.val(modified ? 1 : 0)
+			this._modified = modified
 		}
 	},
 

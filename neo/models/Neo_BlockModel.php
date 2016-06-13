@@ -8,6 +8,16 @@ namespace Craft;
  */
 class Neo_BlockModel extends BaseElementModel
 {
+	// Public properties
+
+	/**
+	 * Used to indicate whether this block needs to be saved to the database.
+	 *
+	 * @var bool
+	 */
+	public $modified = true;
+
+
 	// Protected properties
 
 	protected $elementType = Neo_ElementType::NeoBlock;
