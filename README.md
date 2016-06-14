@@ -21,7 +21,7 @@ Sometimes block types require having a lot of fields. Using the field layout des
 --
 
 ### Group block buttons
-And sometimes you end up with many block types. Adding groups allows you to organse your block types into drop down menus.
+And sometimes you end up with many block types. Adding groups allows you to organise your block types into drop down menus.
 
 <img src="demo/feature3-1.png" width="790">
 <img src="demo/feature3-2.png" width="622">
