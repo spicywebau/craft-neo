@@ -742,81 +742,99 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 *
 	 * @param Neo_BlockTypeModel $blockType
 	 * @param Neo_BlockModel|null $block
-	 * @param null $namespace
+	 * @param string $namespace
 	 * @param bool|false $static
 	 * @return array
 	 */
-	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null, $static = false)
+	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
 	{
-		$oldNamespace = craft()->templates->getNamespace();
-		$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
-		craft()->templates->setNamespace($newNamespace);
+		$cacheKey = implode(':', ['neoblock',
+			$blockType->id,
+			$block ? $block->id : '',
+			$namespace,
+			$static ? 's' : '',
+		]);
 
-		$tabsHtml = [];
+		// TODO Some fields include extra JS and CSS resources, need a way of caching them as well
+		// TODO Need to clear this cache when blockType changes
+		// TODO Need to clear this cache when block changes (if set)
+		$cache = craft()->cache->get($cacheKey);
 
-		$fieldLayout = $blockType->getFieldLayout();
-		$fieldLayoutTabs = $fieldLayout->getTabs();
-
-		foreach($fieldLayoutTabs as $fieldLayoutTab)
+		if(!$cache)
 		{
-			$tabHtml = [
-				'name' => Craft::t($fieldLayoutTab->name),
-				'bodyHtml' => '',
-				'footHtml' => '',
-				'errors' => [],
-			];
+			$oldNamespace = craft()->templates->getNamespace();
+			$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
+			craft()->templates->setNamespace($newNamespace);
 
-			$fieldLayoutFields = $fieldLayoutTab->getFields();
+			$tabsHtml = [];
 
-			foreach($fieldLayoutFields as $fieldLayoutField)
+			$fieldLayout = $blockType->getFieldLayout();
+			$fieldLayoutTabs = $fieldLayout->getTabs();
+
+			foreach($fieldLayoutTabs as $fieldLayoutTab)
 			{
-				$field = $fieldLayoutField->getField();
-				$fieldType = $field->getFieldType();
+				$tabHtml = [
+					'name' => Craft::t($fieldLayoutTab->name),
+					'bodyHtml' => '',
+					'footHtml' => '',
+					'errors' => [],
+				];
 
-				if($fieldType)
+				$fieldLayoutFields = $fieldLayoutTab->getFields();
+
+				foreach($fieldLayoutFields as $fieldLayoutField)
 				{
-					$fieldType->element = $block;
-					$fieldType->setIsFresh($block == null);
+					$field = $fieldLayoutField->getField();
+					$fieldType = $field->getFieldType();
 
-					if($block)
+					if($fieldType)
 					{
-						$fieldErrors = $block->getErrors($field->handle);
+						$fieldType->element = $block;
+						$fieldType->setIsFresh($block == null);
 
-						if(!empty($fieldErrors))
+						if($block)
 						{
-							$tabHtml['errors'] = array_merge($tabHtml['errors'], $fieldErrors);
+							$fieldErrors = $block->getErrors($field->handle);
+
+							if(!empty($fieldErrors))
+							{
+								$tabHtml['errors'] = array_merge($tabHtml['errors'], $fieldErrors);
+							}
 						}
 					}
 				}
-			}
 
-			craft()->templates->startJsBuffer();
+				craft()->templates->startJsBuffer();
 
-			$tabHtml['bodyHtml'] = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', [
-				'namespace' => null,
-				'element' => $block,
-				'fields' => $fieldLayoutFields,
-				'static' => $static,
-			]));
+				$tabHtml['bodyHtml'] = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', [
+					'namespace' => null,
+					'element' => $block,
+					'fields' => $fieldLayoutFields,
+					'static' => $static,
+				]));
 
-			foreach($fieldLayoutFields as $fieldLayoutField)
-			{
-				$fieldType = $fieldLayoutField->getField()->getFieldType();
-
-				if($fieldType)
+				foreach($fieldLayoutFields as $fieldLayoutField)
 				{
-					$fieldType->setIsFresh(null);
+					$fieldType = $fieldLayoutField->getField()->getFieldType();
+
+					if($fieldType)
+					{
+						$fieldType->setIsFresh(null);
+					}
 				}
+
+				$tabHtml['footHtml'] = craft()->templates->clearJsBuffer();
+
+				$tabsHtml[] = $tabHtml;
 			}
 
-			$tabHtml['footHtml'] = craft()->templates->clearJsBuffer();
+			craft()->templates->setNamespace($oldNamespace);
 
-			$tabsHtml[] = $tabHtml;
+			craft()->cache->set($cacheKey, $tabsHtml);
+			$cache = $tabsHtml;
 		}
 
-		craft()->templates->setNamespace($oldNamespace);
-
-		return $tabsHtml;
+		return $cache;
 	}
 
 	/**
