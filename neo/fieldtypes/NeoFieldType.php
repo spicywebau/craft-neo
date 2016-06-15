@@ -666,6 +666,9 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	private function _prepareInputHtml($id, $name, $settings, $value, $static = false)
 	{
+		$headHtml = craft()->templates->getHeadHtml();
+		$footHtml = craft()->templates->getFootHtml();
+
 		$blockTypeInfo = [];
 		foreach($settings->getBlockTypes() as $blockType)
 		{
@@ -708,6 +711,9 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			];
 		}
 
+		craft()->templates->includeHeadHtml($headHtml);
+		craft()->templates->includeFootHtml($footHtml);
+
 		$this->_includeResources('input', [
 			'namespace' => craft()->templates->namespaceInputName($name),
 			'blockTypes' => $blockTypeInfo,
@@ -740,6 +746,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 * If you don't pass in a block along with the type, then it'll render a base template to build real blocks from.
 	 * If you do pass in a block, then it's current field values will be rendered as well.
 	 *
+	 * @precondition The template head and foot buffers must be empty
 	 * @param Neo_BlockTypeModel $blockType
 	 * @param Neo_BlockModel|null $block
 	 * @param string $namespace
@@ -775,6 +782,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			{
 				$tabHtml = [
 					'name' => Craft::t($fieldLayoutTab->name),
+					'headHtml' => '',
 					'bodyHtml' => '',
 					'footHtml' => '',
 					'errors' => [],
@@ -804,8 +812,6 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 					}
 				}
 
-				craft()->templates->startJsBuffer();
-
 				$tabHtml['bodyHtml'] = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', [
 					'namespace' => null,
 					'element' => $block,
@@ -823,7 +829,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 					}
 				}
 
-				$tabHtml['footHtml'] = craft()->templates->clearJsBuffer();
+				$tabHtml['headHtml'] = craft()->templates->getHeadHtml();
+				$tabHtml['footHtml'] = craft()->templates->getFootHtml();
 
 				$tabsHtml[] = $tabHtml;
 			}

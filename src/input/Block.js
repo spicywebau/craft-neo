@@ -121,9 +121,12 @@ export default Garnish.Base.extend({
 		{
 			const tabs = this._blockType.getTabs()
 
+			let headList = tabs.map(tab => tab.getHeadHtml(this._id))
 			let footList = tabs.map(tab => tab.getFootHtml(this._id))
+			this.$head = $(headList.join(''))
 			this.$foot = $(footList.join(''))
 
+			Garnish.$bod.siblings('head').append(this.$head)
 			Garnish.$bod.append(this.$foot)
 			Craft.initUiElements(this.$contentContainer)
 			this.$tabsButton.menubtn()
@@ -152,6 +155,7 @@ export default Garnish.Base.extend({
 	{
 		if(this._initialised)
 		{
+			this.$head.remove()
 			this.$foot.remove()
 
 			this._destroyReasonsPlugin()
