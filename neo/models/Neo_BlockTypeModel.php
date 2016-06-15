@@ -44,6 +44,8 @@ class Neo_BlockTypeModel extends BaseModel
 	{
 		return [
 			'id' => AttributeType::Number,
+			'dateCreated' => AttributeType::DateTime,
+			'dateUpdated' => AttributeType::DateTime,
 			'fieldId' => AttributeType::Number,
 			'fieldLayoutId' => AttributeType::String,
 			'name' => AttributeType::String,

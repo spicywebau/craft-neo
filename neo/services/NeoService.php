@@ -977,7 +977,7 @@ class NeoService extends BaseApplicationComponent
 	private function _createBlockTypeQuery()
 	{
 		return craft()->db->createCommand()
-			->select('id, fieldId, fieldLayoutId, name, handle, maxBlocks, childBlocks, topLevel, sortOrder')
+			->select('id, dateCreated, dateUpdated, fieldId, fieldLayoutId, name, handle, maxBlocks, childBlocks, topLevel, sortOrder')
 			->from('neoblocktypes')
 			->order('sortOrder');
 	}

@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+require CRAFT_PLUGINS_PATH . '/neo/etc/Neo_BlockCacheDependency.php';
+
 /**
  * Class NeoFieldType
  *
@@ -56,7 +58,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				$blockType->maxBlocks = $blockTypeSettings['maxBlocks'];
 				$blockType->sortOrder = $blockTypeSettings['sortOrder'];
 				$blockType->childBlocks = $blockTypeSettings['childBlocks'];
-				$blockType->topLevel = (bool) $blockTypeSettings['topLevel'];
+				$blockType->topLevel = (bool)$blockTypeSettings['topLevel'];
 
 				if(!empty($blockTypeSettings['fieldLayout']))
 				{
@@ -111,8 +113,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		if(!empty($this->element->id))
 		{
 			$criteria->ownerId = $this->element->id;
-		}
-		else
+		} else
 		{
 			$criteria->id = false;
 		}
@@ -148,8 +149,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 				$criteria->setMatchedElements($value);
 				$criteria->setAllElements($value);
-			}
-			else if($value === '')
+			} else if($value === '')
 			{
 				$criteria->setMatchedElements([]);
 			}
@@ -205,8 +205,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 					$oldBlocksById[$oldBlock->id] = $oldBlock;
 				}
 			}
-		}
-		else
+		} else
 		{
 			$ownerId = null;
 		}
@@ -229,16 +228,15 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				$block->typeId = $blockType->id;
 				$block->ownerId = $ownerId;
 				$block->ownerLocale = $this->element->locale;
-			}
-			else
+			} else
 			{
 				$block = $oldBlocksById[$blockId];
-				$block->modified = (isset($blockData['modified']) ? (bool) $blockData['modified'] : true);
+				$block->modified = (isset($blockData['modified']) ? (bool)$blockData['modified'] : true);
 			}
 
 			$block->setOwner($this->element);
-			$block->enabled = (isset($blockData['enabled']) ? (bool) $blockData['enabled'] : true);
-			$block->collapsed = (isset($blockData['collapsed']) ? (bool) $blockData['collapsed'] : false);
+			$block->enabled = (isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true);
+			$block->collapsed = (isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false);
 			$block->level = (isset($blockData['level']) ? intval($blockData['level']) : 0) + 1;
 
 			$ownerContentPostLocation = $this->element->getContentPostLocation();
@@ -272,7 +270,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		foreach($blocks as $block)
 		{
-			if (!craft()->neo->validateBlock($block))
+			if(!craft()->neo->validateBlock($block))
 			{
 				$blocksValidate = false;
 			}
@@ -290,8 +288,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			if($maxBlocks == 1)
 			{
 				$errors[] = Craft::t("There can’t be more than one block.");
-			}
-			else
+			} else
 			{
 				$errors[] = Craft::t("There can’t be more than {max} blocks.", ['max' => $maxBlocks]);
 			}
@@ -352,7 +349,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'handle' => $blockType->handle,
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
-				'topLevel' => (bool) $blockType->topLevel,
+				'topLevel' => (bool)$blockType->topLevel,
 				'errors' => $blockType->getErrors(),
 				'fieldLayout' => $jsFieldLayout,
 				'fieldLayoutId' => $fieldLayout->id,
@@ -436,8 +433,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$value->limit = null;
 			$value->status = null;
 			$value->localeEnabled = null;
-		}
-		else if(!$value)
+		} else if(!$value)
 		{
 			$value = [];
 		}
@@ -479,8 +475,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$this->_prepareInputHtml($id, $id, $settings, $value, true);
 
 			return $html;
-		}
-		else
+		} else
 		{
 			return '<p class="light">' . Craft::t("No blocks.") . '</p>';
 		}
@@ -681,7 +676,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'name' => Craft::t($blockType->name),
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
-				'topLevel' => (bool) $blockType->topLevel,
+				'topLevel' => (bool)$blockType->topLevel,
 				'tabs' => $this->_getBlockTypeHtml($blockType, null, $name, $static),
 			];
 		}
@@ -704,8 +699,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'id' => $block->id,
 				'blockType' => $block->getType()->handle,
 				'sortOrder' => $sortOrder++,
-				'collapsed' => (bool) $block->collapsed,
-				'enabled' => (bool) $block->enabled,
+				'collapsed' => (bool)$block->collapsed,
+				'enabled' => (bool)$block->enabled,
 				'level' => intval($block->level) - 1,
 				'tabs' => $this->_getBlockHtml($block, $name, $static),
 			];
@@ -762,9 +757,6 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$static ? 's' : '',
 		]);
 
-		// TODO Some fields include extra JS and CSS resources, need a way of caching them as well
-		// TODO Need to clear this cache when blockType changes
-		// TODO Need to clear this cache when block changes (if set)
 		$cache = craft()->cache->get($cacheKey);
 
 		if(!$cache)
@@ -837,7 +829,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 			craft()->templates->setNamespace($oldNamespace);
 
-			craft()->cache->set($cacheKey, $tabsHtml);
+			$cacheDependency = new Neo_BlockCacheDependency($blockType, $block);
+			craft()->cache->set($cacheKey, $tabsHtml, null, $cacheDependency);
 			$cache = $tabsHtml;
 		}
 
