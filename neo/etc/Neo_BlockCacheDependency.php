@@ -21,12 +21,12 @@ class Neo_BlockCacheDependency implements \ICacheDependency
 	public function __construct(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null)
 	{
 		$this->_blockTypeId = $blockType->id;
-		$this->_blockTypeDate = (string) $blockType->dateUpdated;
+		$this->_blockTypeDate = $blockType->dateUpdated->getTimestamp();
 
 		if($block)
 		{
 			$this->_blockId = $block->id;
-			$this->_blockDate = (string) $block->dateUpdated;
+			$this->_blockDate = $block->dateUpdated->getTimestamp();
 		}
 	}
 
@@ -46,7 +46,7 @@ class Neo_BlockCacheDependency implements \ICacheDependency
 		$blockType = craft()->neo->getBlockTypeById($this->_blockTypeId);
 
 		// TODO Need to check for changes in any fields associated with the block type
-		if($this->_blockTypeDate != ((string) $blockType->dateUpdated))
+		if($this->_blockTypeDate != $blockType->dateUpdated->getTimestamp())
 		{
 			return true;
 		}
@@ -55,7 +55,7 @@ class Neo_BlockCacheDependency implements \ICacheDependency
 		{
 			$block = craft()->neo->getBlockById($this->_blockId);
 
-			if($this->_blockDate != ((string) $block->dateUpdated))
+			if($this->_blockDate != $block->dateUpdated->getTimestamp())
 			{
 				return true;
 			}
