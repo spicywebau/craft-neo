@@ -32,7 +32,7 @@ export default Garnish.Base.extend({
 	_expanded: true,
 	_enabled: true,
 	_modified: true,
-	_initialPostData: null,
+	_initialState: null,
 
 	init(settings = {})
 	{
@@ -104,7 +104,13 @@ export default Garnish.Base.extend({
 
 		if(!this.isNew())
 		{
-			this._initialPostData = Garnish.getPostData(this.$contentContainer)
+			this._initialState = {
+				enabled: this._enabled,
+				level: this._level,
+				content: Garnish.getPostData(this.$contentContainer)
+			}
+
+			// TODO use mutation observer instead of interval
 			this._detectChangeInterval = setInterval(() => this._detectChange(), 500)
 		}
 	},
@@ -396,8 +402,12 @@ export default Garnish.Base.extend({
 
 	_detectChange()
 	{
-		const postData = Garnish.getPostData(this.$contentContainer)
-		const modified = !Craft.compare(postData, this._initialPostData)
+		const initial = this._initialState
+		const content = Garnish.getPostData(this.$contentContainer)
+
+		const modified = !Craft.compare(content, initial.content) ||
+			initial.enabled !== this._enabled ||
+			initial.level !== this._level
 
 		if(modified !== this._modified)
 		{
