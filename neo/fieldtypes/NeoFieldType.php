@@ -522,37 +522,13 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	public function getSearchKeywords($value)
 	{
-		$keywords = [];
-		$contentService = craft()->content;
+		craft()->tasks->createTask('Neo_GetSearchKeywords', null, [
+			'fieldId' => $this->model->id,
+			'ownerId' => $this->element->id,
+			'locale' => $this->element->locale,
+		]);
 
-		foreach($value as $block)
-		{
-			$originalContentTable = $contentService->contentTable;
-			$originalFieldColumnPrefix = $contentService->fieldColumnPrefix;
-			$originalFieldContext = $contentService->fieldContext;
-
-			$contentService->contentTable = $block->getContentTable();
-			$contentService->fieldColumnPrefix = $block->getFieldColumnPrefix();
-			$contentService->fieldContext = $block->getFieldContext();
-
-			foreach(craft()->fields->getAllFields() as $field)
-			{
-				$fieldType = $field->getFieldType();
-
-				if($fieldType)
-				{
-					$fieldType->element = $block;
-					$handle = $field->handle;
-					$keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
-				}
-			}
-
-			$contentService->contentTable = $originalContentTable;
-			$contentService->fieldColumnPrefix = $originalFieldColumnPrefix;
-			$contentService->fieldContext = $originalFieldContext;
-		}
-
-		return parent::getSearchKeywords($keywords);
+		return ''; // TODO return current keywords instead
 	}
 
 	/**

@@ -651,6 +651,26 @@ class NeoService extends BaseApplicationComponent
 	// -- Blocks
 
 	/**
+	 * @param int $fieldId
+	 * @param int $ownerId
+	 * @param string|null $locale
+	 * @return array
+	 */
+	public function getBlocks($fieldId, $ownerId, $locale = null)
+	{
+		$criteria = $this->getCriteria();
+
+		$criteria->fieldId = $this->model->id;
+		$criteria->ownerId = $ownerId;
+		$criteria->locale = $locale;
+		$criteria->status = null;
+		$criteria->localeEnabled = null;
+		$criteria->limit = null;
+
+		return $criteria->find();
+	}
+
+	/**
 	 * Returns a block given it's ID.
 	 *
 	 * @param int $blockId
