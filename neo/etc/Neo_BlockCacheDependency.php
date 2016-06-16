@@ -32,7 +32,8 @@ class Neo_BlockCacheDependency implements \ICacheDependency
 
 	/**
 	 * Evaluates the dependency by generating and saving the data related with dependency.
-	 * This method is invoked by cache before writing data into it.
+	 * This method doesn't need to do anything in this instance as all the data needed is provided in the constructor.
+	 * It still must be implemented though as the `ICacheDependency` interface requires it.
 	 */
 	public function evaluateDependency() {}
 
