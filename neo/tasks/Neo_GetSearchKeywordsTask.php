@@ -34,7 +34,7 @@ class Neo_GetSearchKeywordsTask extends BaseTask
 		}
 		else
 		{
-			$block = $this->_blocks[$step - 1];
+			$block = $this->_blocks[$step];
 
 			craft()->content->contentTable = $block->getContentTable();
 			craft()->content->fieldColumnPrefix = $block->getFieldColumnPrefix();
