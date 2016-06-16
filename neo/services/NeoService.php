@@ -660,7 +660,7 @@ class NeoService extends BaseApplicationComponent
 	{
 		$criteria = $this->getCriteria();
 
-		$criteria->fieldId = $this->model->id;
+		$criteria->fieldId = $fieldId;
 		$criteria->ownerId = $ownerId;
 		$criteria->locale = $locale;
 		$criteria->status = null;
