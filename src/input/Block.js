@@ -24,6 +24,27 @@ const _defaults = {
 	modified: true
 }
 
+const _resources = {}
+
+function _resourceFilter()
+{
+	let url = this.href || this.src
+
+	if(url)
+	{
+		const paramIndex = url.indexOf('?')
+
+		url = (paramIndex < 0 ? url : url.substr(0, paramIndex))
+
+		const isNew = !_resources.hasOwnProperty(url)
+		_resources[url] = 1
+
+		return isNew
+	}
+
+	return true
+}
+
 export default Garnish.Base.extend({
 
 	_templateNs: [],
@@ -123,8 +144,8 @@ export default Garnish.Base.extend({
 
 			let headList = tabs.map(tab => tab.getHeadHtml(this._id))
 			let footList = tabs.map(tab => tab.getFootHtml(this._id))
-			this.$head = $(headList.join(''))
-			this.$foot = $(footList.join(''))
+			this.$head = $(headList.join('')).filter(_resourceFilter)
+			this.$foot = $(footList.join('')).filter(_resourceFilter)
 
 			Garnish.$bod.siblings('head').append(this.$head)
 			Garnish.$bod.append(this.$foot)
