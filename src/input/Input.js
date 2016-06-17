@@ -21,7 +21,8 @@ const _defaults = {
 	groups: [],
 	blocks: [],
 	inputId: null,
-	maxBlocks: 0
+	maxBlocks: 0,
+	'static': false
 }
 
 export default Garnish.Base.extend({
@@ -37,11 +38,13 @@ export default Garnish.Base.extend({
 		this._groups = []
 		this._blocks = []
 		this._maxBlocks = settings.maxBlocks
+		this._static = settings['static']
 
 		NS.enter(this._templateNs)
 
 		this.$container = $('#' + settings.inputId).append(renderTemplate({
-			blockTypes: settings.blockTypes
+			blockTypes: settings.blockTypes,
+			'static': this._static
 		}))
 
 		NS.leave()
@@ -103,7 +106,7 @@ export default Garnish.Base.extend({
 		this._blockSelect = new Garnish.Select(this.$blocksContainer, null, {
 			multi: true,
 			vertical: true,
-			handle: '[data-neo-b="select"], [data-neo-b="button.toggler"]',
+			handle: '[data-neo-b="select"]',
 			checkboxMode: true,
 			selectedClass: 'is-selected sel'
 		});
@@ -111,6 +114,11 @@ export default Garnish.Base.extend({
 		for(let bInfo of settings.blocks)
 		{
 			let blockType = this._blockTypes[bInfo.blockType]
+
+			if(isNaN(parseInt(bInfo.id)))
+			{
+				bInfo.id = Block.getNewId()
+			}
 
 			bInfo.namespace = [...this._templateNs, bInfo.id]
 			bInfo.blockType = new BlockType({
@@ -127,11 +135,6 @@ export default Garnish.Base.extend({
 				items: blockType.getChildBlockItems(this.getItems()),
 				maxBlocks: this.getMaxBlocks()
 			})
-
-			if(isNaN(parseInt(bInfo.id)))
-			{
-				bInfo.id = Block.getNewId()
-			}
 
 			let block = new Block(bInfo)
 			this.addBlock(block, -1, bInfo.level|0, false)

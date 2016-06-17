@@ -25,7 +25,12 @@
 				{% if currentGroup %}
 					{{ '</ul></div>' }}
 				{% endif %}
-				{% set currentGroup = item.isBlank() ? false : item %}
+				{% set currentGroup =
+					(item.isBlank()) or
+					((loop.index + 2) > (items|length)) or
+					(items[loop.index + 1].getType() == 'group') ?
+						false :
+						item  %}
 				{% if currentGroup %}
 					<div class="btn{% if firstButton %} add icon{% endif %} menubtn"
 						 data-neo-bn="button.group">

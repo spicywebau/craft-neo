@@ -1,5 +1,19 @@
 ## Changelog
 
+#### v1.2.1
+- `Improved` When editing Neo fields, block types and groups are now inserted after the currently selected item
+- `Fixed` Added support for Reasons v1.0.4
+- `Fixed` Implemented a way of using Twig variables in Asset (and potentially other) field settings for Neo blocks
+
+#### v1.2.0
+- `Improved` Block type buttons will now not be grouped if there is only one inside a group
+- `Improved` Checkboxes on blocks are now only checked when clicking on them, or the block type label
+- `Fixed` Neo fields now work properly in live preview mode
+- `Fixed` Fixed bug with Neo field block structures when localised
+- `Fixed` Blocks now show when previewing older versions of entries (thanks @christianruhstaller)
+- `Fixed` Fixed bug where elements could not be saved after reporting an error with a Neo field
+- `Fixed` Fixed bug where you couldn't select text inside input fields in the configurator using keyboard shortcuts
+
 #### v1.1.0
 - `Added` Blocks now support structure property querying (children, descendants, etc)
 - `Improved` Clicking on block tabs no longer toggles the checkbox

@@ -1,8 +1,15 @@
 <?php
 namespace Craft;
 
+/**
+ * Class NeoService
+ *
+ * @package Craft
+ */
 class NeoService extends BaseApplicationComponent
 {
+	// Private properties
+
 	private $_blockTypesById;
 	private $_groupsById;
 	private $_blockTypesByFieldId;
@@ -12,301 +19,199 @@ class NeoService extends BaseApplicationComponent
 	private $_blockTypeRecordsById;
 	private $_blockRecordsById;
 	private $_uniqueBlockTypeAndFieldHandles;
-	private $_parentNeoFields;
 
+
+	// Public properties
+
+	/**
+	 * @var Neo_BlockTypeModel|null
+	 */
 	public $currentSavingBlockType;
 
-	public function getBlockTypesByFieldId($fieldId, $indexBy = null)
+
+	// Public methods
+
+	/**
+	 * Creates a Neo-specific element criteria model.
+	 *
+	 * @param mixed|null $attributes
+	 * @return Neo_CriteriaModel
+	 */
+	public function getCriteria($attributes = null)
 	{
-		if(empty($this->_fetchedAllBlockTypesForFieldId[$fieldId]))
+		if($attributes instanceof ElementCriteriaModel)
 		{
-			$this->_blockTypesByFieldId[$fieldId] = [];
-
-			$results = $this->_createBlockTypeQuery()
-				->where('fieldId = :fieldId', [':fieldId' => $fieldId])
-				->queryAll();
-
-			foreach($results as $result)
-			{
-				$blockType = new Neo_BlockTypeModel($result);
-				$this->_blockTypesById[$blockType->id] = $blockType;
-				$this->_blockTypesByFieldId[$fieldId][] = $blockType;
-			}
-
-			$this->_fetchedAllBlockTypesForFieldId[$fieldId] = true;
+			$attributes = $attributes->getAttributes();
 		}
 
-		if($indexBy)
-		{
-			$blockTypes = [];
-
-			foreach($this->_blockTypesByFieldId[$fieldId] as $blockType)
-			{
-				$blockTypes[$blockType->$indexBy] = $blockType;
-			}
-
-			return $blockTypes;
-		}
-
-		return $this->_blockTypesByFieldId[$fieldId];
+		return new Neo_CriteriaModel($attributes);
 	}
 
-	public function getGroupsByFieldId($fieldId, $indexBy = null)
+	/**
+	 * Forces a plugin to exist by throwing an error if it doesn't.
+	 * Used when supporting other plugins, such as Relabel and Reasons.
+	 *
+	 * @param $plugin
+	 * @throws Exception
+	 */
+	public function requirePlugin($plugin)
 	{
-		if(empty($this->_fetchedAllGroupsForFieldId[$fieldId]))
+		if(!craft()->plugins->getPlugin($plugin))
 		{
-			$this->_groupsByFieldId[$fieldId] = [];
+			$message = Craft::t("The plugin \"{plugin}\" is required for Neo to use this functionality.", [
+				'plugin' => $plugin,
+			]);
 
-			$results = $this->_createGroupQuery()
-				->where('fieldId = :fieldId', [':fieldId' => $fieldId])
-				->queryAll();
-
-			foreach($results as $result)
-			{
-				$group = new Neo_GroupModel($result);
-				$this->_groupsById[$group->id] = $group;
-				$this->_groupsByFieldId[$fieldId][] = $group;
-			}
-
-			$this->_fetchedAllGroupsForFieldId[$fieldId] = true;
-		}
-
-		if($indexBy)
-		{
-			$groups = [];
-
-			foreach($this->_groupsByFieldId[$fieldId] as $group)
-			{
-				$groups[$group->$indexBy] = $group;
-			}
-
-			return $groups;
-		}
-
-		return $this->_groupsByFieldId[$fieldId];
-	}
-
-	public function getBlockTypeById($blockTypeId)
-	{
-		if(!isset($this->_blockTypesById) || !array_key_exists($blockTypeId, $this->_blockTypesById))
-		{
-			$result = $this->_createBlockTypeQuery()
-				->where('id = :id', [':id' => $blockTypeId])
-				->queryRow();
-
-			if($result)
-			{
-				$blockType = new Neo_BlockTypeModel($result);
-			}
-			else
-			{
-				$blockType = null;
-			}
-
-			$this->_blockTypesById[$blockTypeId] = $blockType;
-		}
-
-		return $this->_blockTypesById[$blockTypeId];
-	}
-
-	public function validateBlockType(Neo_BlockTypeModel $blockType, $validateUniques = true)
-	{
-		$validates = true;
-
-		$blockTypeRecord = $this->_getBlockTypeRecord($blockType);
-
-		$blockTypeRecord->fieldId = $blockType->fieldId;
-		$blockTypeRecord->name    = $blockType->name;
-		$blockTypeRecord->handle  = $blockType->handle;
-
-		$blockTypeRecord->validateUniques = $validateUniques;
-
-		if(!$blockTypeRecord->validate())
-		{
-			$validates = false;
-			$blockType->addErrors($blockTypeRecord->getErrors());
-		}
-
-		$blockTypeRecord->validateUniques = true;
-
-		return $validates;
-	}
-
-	public function saveBlockType(Neo_BlockTypeModel $blockType, $validate = true)
-	{
-		if(!$validate || $this->validateBlockType($blockType))
-		{
-			$this->currentSavingBlockType = $blockType;
-
-			$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
-			try
-			{
-				// Get the block type record
-				$blockTypeRecord = $this->_getBlockTypeRecord($blockType);
-				$isNewBlockType = $blockType->isNew();
-				$oldBlockType = $isNewBlockType ? null : Neo_BlockTypeModel::populateModel($blockTypeRecord);
-
-				// Is there a new field layout?
-				$fieldLayout = $blockType->getFieldLayout();
-
-				if(!$fieldLayout->id)
-				{
-					// Delete the old one
-					if(!$isNewBlockType && $oldBlockType->fieldLayoutId)
-					{
-						craft()->fields->deleteLayoutById($oldBlockType->fieldLayoutId);
-					}
-
-					// Save the new one
-					craft()->fields->saveLayout($fieldLayout);
-
-					// Update the entry type record/model with the new layout ID
-					$blockType->fieldLayoutId = $fieldLayout->id;
-					$blockTypeRecord->fieldLayoutId = $fieldLayout->id;
-				}
-
-				// Set the basic info on the new block type record
-				$blockTypeRecord->fieldId     = $blockType->fieldId;
-				$blockTypeRecord->name        = $blockType->name;
-				$blockTypeRecord->handle      = $blockType->handle;
-				$blockTypeRecord->sortOrder   = $blockType->sortOrder;
-				$blockTypeRecord->maxBlocks   = $blockType->maxBlocks;
-				$blockTypeRecord->childBlocks = $blockType->childBlocks;
-				$blockTypeRecord->topLevel    = $blockType->topLevel;
-
-				// Save it, minus the field layout for now
-				$blockTypeRecord->save(false);
-
-				if($isNewBlockType)
-				{
-					// Set the new ID on the model
-					$blockType->id = $blockTypeRecord->id;
-				}
-
-				// Update the block type with the field layout ID
-				$blockTypeRecord->save(false);
-
-				if($transaction !== null)
-				{
-					$transaction->commit();
-				}
-			}
-			catch(\Exception $e)
-			{
-				if($transaction !== null)
-				{
-					$transaction->rollback();
-				}
-
-				throw $e;
-			}
-
-			$this->currentSavingBlockType = null;
-
-			return true;
-		}
-		else
-		{
-			return false;
+			throw new Exception($message);
 		}
 	}
 
-	public function saveGroup(Neo_GroupModel $group)
+
+	// -- Fields
+
+	/**
+	 * Saves a Neo field's value to the database.
+	 *
+	 * @param NeoFieldType $fieldType
+	 * @throws \Exception
+	 */
+	public function saveFieldValue(NeoFieldType $fieldType)
 	{
-		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		$owner = $fieldType->element;
+		$field = $fieldType->model;
+		$blocks = $owner->getContent()->getAttribute($field->handle);
+
+		if($blocks === null)
+		{
+			return;
+		}
+
+		$structure = new StructureModel();
+		// $structure->maxLevels = ...->maxLevels; // This might be useful somebody. Keeping it around as a reminder.
+
+		if(!is_array($blocks))
+		{
+			$blocks = [];
+		}
+
+		$transaction = $this->beginTransaction();
 		try
 		{
-			$groupRecord = new Neo_GroupRecord();
-			$groupRecord->fieldId   = $group->fieldId;
-			$groupRecord->name      = $group->name;
-			$groupRecord->sortOrder = $group->sortOrder;
+			// Make sure that the blocks for this field/owner respect the field's translation setting
+			$this->_applyFieldTranslationSetting($owner, $field, $blocks);
 
-			$groupRecord->save(false);
+			$this->saveStructure($structure, $fieldType);
 
-			$group->id = $groupRecord->id;
+			// Build the block structure by mapping block sort orders and levels to parent/child relationships
+			$blockIds = [];
+			$parentStack = [];
 
-			if($transaction !== null)
+			foreach($blocks as $block)
 			{
-				$transaction->commit();
+				$block->ownerId = $owner->id;
+				$block->ownerLocale = $this->_getFieldLocale($fieldType);
+
+				// Remove parent blocks until either empty or a parent block is only one level below this one (meaning
+				// it'll be the parent of this block)
+				while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
+				{
+					array_pop($parentStack);
+				}
+
+				$this->saveBlock($block, false);
+
+				// If there are no blocks in our stack, it must be a root level block
+				if(empty($parentStack))
+				{
+					craft()->structures->appendToRoot($structure->id, $block);
+				}
+				// Otherwise, the block at the top of the stack will be the parent
+				else
+				{
+					$parentBlock = $parentStack[count($parentStack) - 1];
+					craft()->structures->append($structure->id, $block, $parentBlock);
+				}
+
+				// The current block may potentially be a parent block as well, so save it to the stack
+				array_push($parentStack, $block);
+
+				$blockIds[] = $block->id;
 			}
-		}
-		catch(\Exception $e)
-		{
-			if($transaction !== null)
+
+			// Get the IDs of blocks that are row deleted
+			$deletedBlockConditions = ['and',
+				'ownerId = :ownerId',
+				'fieldId = :fieldId',
+				['not in', 'id', $blockIds]
+			];
+
+			$deletedBlockParams = [
+				':ownerId' => $owner->id,
+				':fieldId' => $field->id
+			];
+
+			if($field->translatable)
 			{
-				$transaction->rollback();
+				$deletedBlockConditions[] = 'ownerLocale  = :ownerLocale';
+				$deletedBlockParams[':ownerLocale'] = $owner->locale;
 			}
 
-			throw $e;
-		}
-
-		return true;
-	}
-
-	public function deleteBlockType(Neo_BlockTypeModel $blockType)
-	{
-		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
-		try
-		{
-			// First delete the blocks of this type
-			$blockIds = craft()->db->createCommand()
+			$deletedBlockIds = craft()->db->createCommand()
 				->select('id')
 				->from('neoblocks')
-				->where(['typeId' => $blockType->id])
+				->where($deletedBlockConditions, $deletedBlockParams)
 				->queryColumn();
 
-			$this->deleteBlockById($blockIds);
+			$this->deleteBlockById($deletedBlockIds);
 
-			// Delete the field layout
-			craft()->fields->deleteLayoutById($blockType->fieldLayoutId);
-
-			// Finally delete the actual block type
-			$affectedRows = craft()->db->createCommand()->delete('neoblocktypes', ['id' => $blockType->id]);
-
-			if($transaction !== null)
-			{
-				$transaction->commit();
-			}
-
-			return (bool) $affectedRows;
+			$this->commitTransaction($transaction);
 		}
 		catch(\Exception $e)
 		{
-			if($transaction !== null)
-			{
-				$transaction->rollback();
-			}
+			$this->rollbackTransaction($transaction);
 
 			throw $e;
 		}
 	}
 
-	public function deleteGroupsByFieldId($fieldId)
+	/**
+	 * Deletes a Neo field from the database.
+	 *
+	 * @param FieldModel $neoField
+	 * @throws \Exception
+	 */
+	public function deleteField(FieldModel $neoField)
 	{
-		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		$transaction = $this->beginTransaction();
 		try
 		{
-			$affectedRows = craft()->db->createCommand()
-				->delete('neogroups', ['fieldId' => $fieldId]);
+			// Delete the block types
+			$blockTypes = $this->getBlockTypesByFieldId($neoField->id);
 
-			if($transaction !== null)
+			foreach($blockTypes as $blockType)
 			{
-				$transaction->commit();
+				$this->deleteBlockType($blockType);
 			}
 
-			return (bool) $affectedRows;
+			$this->commitTransaction($transaction);
 		}
 		catch(\Exception $e)
 		{
-			if($transaction !== null)
-			{
-				$transaction->rollback();
-			}
+			$this->rollbackTransaction($transaction);
 
 			throw $e;
 		}
 	}
 
+
+	// ---- Field settings
+
+	/**
+	 * Validates a field's settings, loading the settings and block type models with any error messages.
+	 *
+	 * @param Neo_SettingsModel $settings
+	 * @return bool
+	 */
 	public function validateFieldSettings(Neo_SettingsModel $settings)
 	{
 		$validates = true;
@@ -339,7 +244,7 @@ class NeoService extends BaseApplicationComponent
 				{
 					$blockType->addError($attribute, Craft::t('{attribute} "{value}" has already been taken.', [
 						'attribute' => $blockType->getAttributeLabel($attribute),
-						'value'     => HtmlHelper::encode($value)
+						'value' => HtmlHelper::encode($value)
 					]));
 
 					$validates = false;
@@ -350,14 +255,24 @@ class NeoService extends BaseApplicationComponent
 		return $validates;
 	}
 
+	/**
+	 * Saves a field's settings to the database.
+	 *
+	 * @param Neo_SettingsModel $settings
+	 * @param bool|true $validate
+	 * @return bool
+	 * @throws \Exception
+	 */
 	public function saveSettings(Neo_SettingsModel $settings, $validate = true)
 	{
 		if(!$validate || $this->validateFieldSettings($settings))
 		{
-			$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+			$transaction = $this->beginTransaction();
 			try
 			{
 				$neoField = $settings->getField();
+
+				// Delete the old block types and groups
 
 				// Delete the old block types first, in case there's a handle conflict with one of the new ones
 				$oldBlockTypes = $this->getBlockTypesByFieldId($neoField->id);
@@ -383,97 +298,397 @@ class NeoService extends BaseApplicationComponent
 
 				$this->deleteGroupsByFieldId($neoField->id);
 
-				// Save the new ones
-				$sortOrder = 0;
+				// Save the new block types and groups
 
 				foreach($settings->getBlockTypes() as $blockType)
 				{
-					$sortOrder++;
 					$blockType->fieldId = $neoField->id;
-
-					if(!$blockType->sortOrder)
-					{
-						$blockType->sortOrder = $sortOrder;
-					}
-
 					$this->saveBlockType($blockType, false);
 				}
 
 				foreach($settings->getGroups() as $group)
 				{
-					$sortOrder++;
 					$group->fieldId = $neoField->id;
-
-					if(!$group->sortOrder)
-					{
-						$group->sortOrder = $sortOrder;
-					}
-
 					$this->saveGroup($group);
 				}
 
-				if($transaction !== null)
-				{
-					$transaction->commit();
-				}
+				$this->commitTransaction($transaction);
 
-				// Update our cache of this field's block types
-				$this->_blockTypesByFieldId[$settings->getField()->id] = $settings->getBlockTypes();
+				// Update our cache of this field's block types and groups
+				$fieldId = $settings->getField()->id;
+				$this->_blockTypesByFieldId[$fieldId] = $settings->getBlockTypes();
+				$this->_groupsByFieldId[$fieldId] = $settings->getGroups();
 
 				return true;
 			}
 			catch(\Exception $e)
 			{
-				if($transaction !== null)
-				{
-					$transaction->rollback();
-				}
+				$this->rollbackTransaction($transaction);
 
 				throw $e;
 			}
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
-	public function deleteNeoField(FieldModel $neoField)
+
+	// -- Block Types
+
+	/**
+	 * Returns a list of block types associated with a field.
+	 *
+	 * @param $fieldId
+	 * @param string|null $indexBy
+	 * @return array
+	 */
+	public function getBlockTypesByFieldId($fieldId, $indexBy = null)
 	{
-		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
-		try
+		if(empty($this->_fetchedAllBlockTypesForFieldId[$fieldId]))
 		{
-			// Delete the block types
-			$blockTypes = $this->getBlockTypesByFieldId($neoField->id);
+			$this->_blockTypesByFieldId[$fieldId] = [];
 
-			foreach($blockTypes as $blockType)
+			$results = $this->_createBlockTypeQuery()
+				->where('fieldId = :fieldId', [':fieldId' => $fieldId])
+				->queryAll();
+
+			foreach($results as $result)
 			{
-				$this->deleteBlockType($blockType);
+				$blockType = new Neo_BlockTypeModel($result);
+				$this->_blockTypesById[$blockType->id] = $blockType;
+				$this->_blockTypesByFieldId[$fieldId][] = $blockType;
 			}
 
-			if($transaction !== null)
+			$this->_fetchedAllBlockTypesForFieldId[$fieldId] = true;
+		}
+
+		if($indexBy)
+		{
+			return $this->_indexBy($this->_blockTypesByFieldId[$fieldId], $indexBy);
+		}
+
+		return $this->_blockTypesByFieldId[$fieldId];
+	}
+
+	/**
+	 * Finds a block type by it's ID.
+	 *
+	 * @param $blockTypeId
+	 * @return Neo_BlockTypeModel
+	 */
+	public function getBlockTypeById($blockTypeId)
+	{
+		if(!isset($this->_blockTypesById) || !array_key_exists($blockTypeId, $this->_blockTypesById))
+		{
+			$result = $this->_createBlockTypeQuery()
+				->where('id = :id', [':id' => $blockTypeId])
+				->queryRow();
+
+			if($result)
 			{
-				$transaction->commit();
+				$blockType = new Neo_BlockTypeModel($result);
 			}
+			else
+			{
+				$blockType = null;
+			}
+
+			$this->_blockTypesById[$blockTypeId] = $blockType;
+		}
+
+		return $this->_blockTypesById[$blockTypeId];
+	}
+
+	/**
+	 * Runs validation on a block type, and saves any errors to the block type.
+	 *
+	 * @param Neo_BlockTypeModel $blockType
+	 * @param bool|true $validateUniques
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function validateBlockType(Neo_BlockTypeModel $blockType, $validateUniques = true)
+	{
+		$validates = true;
+
+		$blockTypeRecord = $this->_getBlockTypeRecord($blockType);
+
+		$blockTypeRecord->fieldId = $blockType->fieldId;
+		$blockTypeRecord->name = $blockType->name;
+		$blockTypeRecord->handle = $blockType->handle;
+
+		$blockTypeRecord->validateUniques = $validateUniques;
+
+		if(!$blockTypeRecord->validateUniques($validateUniques))
+		{
+			$validates = false;
+			$blockType->addErrors($blockTypeRecord->getErrors());
+		}
+
+		return $validates;
+	}
+
+	/**
+	 * Saves a block type to the database.
+	 *
+	 * @param Neo_BlockTypeModel $blockType
+	 * @param bool|true $validate
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function saveBlockType(Neo_BlockTypeModel $blockType, $validate = true)
+	{
+		if(!$validate || $this->validateBlockType($blockType))
+		{
+			// Save this for use by plugins (eg. Reasons)
+			$this->currentSavingBlockType = $blockType;
+
+			$transaction = $this->beginTransaction();
+			try
+			{
+				// Get the block type record
+				$blockTypeRecord = $this->_getBlockTypeRecord($blockType);
+				$isNewBlockType = $blockType->isNew();
+				$oldBlockType = $isNewBlockType ? null : Neo_BlockTypeModel::populateModel($blockTypeRecord);
+
+				// Is there a new field layout?
+				$fieldLayout = $blockType->getFieldLayout();
+
+				if(!$fieldLayout->id)
+				{
+					// Delete the old one
+					if(!$isNewBlockType && $oldBlockType->fieldLayoutId)
+					{
+						craft()->fields->deleteLayoutById($oldBlockType->fieldLayoutId);
+					}
+
+					// Save the new one
+					craft()->fields->saveLayout($fieldLayout);
+
+					// Update the entry type record/model with the new layout ID
+					$blockType->fieldLayoutId = $fieldLayout->id;
+					$blockTypeRecord->fieldLayoutId = $fieldLayout->id;
+				}
+
+				// Set the basic info on the new block type record
+				$blockTypeRecord->fieldId = $blockType->fieldId;
+				$blockTypeRecord->name = $blockType->name;
+				$blockTypeRecord->handle = $blockType->handle;
+				$blockTypeRecord->sortOrder = $blockType->sortOrder;
+				$blockTypeRecord->maxBlocks = $blockType->maxBlocks;
+				$blockTypeRecord->childBlocks = $blockType->childBlocks;
+				$blockTypeRecord->topLevel = $blockType->topLevel;
+
+				// Save it, minus the field layout for now
+				$blockTypeRecord->save(false);
+
+				if($isNewBlockType)
+				{
+					// Set the new ID on the model
+					$blockType->id = $blockTypeRecord->id;
+				}
+
+				// Update the block type with the field layout ID
+				$blockTypeRecord->save(false);
+
+				$this->commitTransaction($transaction);
+			}
+			catch(\Exception $e)
+			{
+				$this->rollbackTransaction($transaction);
+
+				throw $e;
+			}
+
+			// Dereference the block type just for good measure
+			$this->currentSavingBlockType = null;
 
 			return true;
 		}
+
+		return false;
+	}
+
+	/**
+	 * Deletes a block type from the database.
+	 *
+	 * @param Neo_BlockTypeModel $blockType
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function deleteBlockType(Neo_BlockTypeModel $blockType)
+	{
+		$transaction = $this->beginTransaction();
+		try
+		{
+			// First delete the blocks of this type
+			$blockIds = craft()->db->createCommand()
+				->select('id')
+				->from('neoblocks')
+				->where(['typeId' => $blockType->id])
+				->queryColumn();
+
+			$this->deleteBlockById($blockIds);
+
+			// Delete the field layout
+			craft()->fields->deleteLayoutById($blockType->fieldLayoutId);
+
+			// Finally delete the actual block type
+			$affectedRows = craft()->db->createCommand()
+				->delete('neoblocktypes', ['id' => $blockType->id]);
+
+			$this->commitTransaction($transaction);
+
+			return (bool) $affectedRows;
+		}
 		catch(\Exception $e)
 		{
-			if($transaction !== null)
-			{
-				$transaction->rollback();
-			}
+			$this->rollbackTransaction($transaction);
 
 			throw $e;
 		}
 	}
 
+
+	// -- Groups
+
+	/**
+	 * Returns a list of groups associated with a field.
+	 *
+	 * @param $fieldId
+	 * @param string|null $indexBy
+	 * @return array
+	 */
+	public function getGroupsByFieldId($fieldId, $indexBy = null)
+	{
+		if(empty($this->_fetchedAllGroupsForFieldId[$fieldId]))
+		{
+			$this->_groupsByFieldId[$fieldId] = [];
+
+			$results = $this->_createGroupQuery()
+				->where('fieldId = :fieldId', [':fieldId' => $fieldId])
+				->queryAll();
+
+			foreach($results as $result)
+			{
+				$group = new Neo_GroupModel($result);
+				$this->_groupsById[$group->id] = $group;
+				$this->_groupsByFieldId[$fieldId][] = $group;
+			}
+
+			$this->_fetchedAllGroupsForFieldId[$fieldId] = true;
+		}
+
+		if($indexBy)
+		{
+			return $this->_indexBy($this->_groupsByFieldId[$fieldId], $indexBy);
+		}
+
+		return $this->_groupsByFieldId[$fieldId];
+	}
+
+	/**
+	 * Saves a group to the database.
+	 *
+	 * @param Neo_GroupModel $group
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function saveGroup(Neo_GroupModel $group)
+	{
+		$transaction = $this->beginTransaction();
+		try
+		{
+			$groupRecord = new Neo_GroupRecord();
+			$groupRecord->fieldId = $group->fieldId;
+			$groupRecord->name = $group->name;
+			$groupRecord->sortOrder = $group->sortOrder;
+
+			$groupRecord->save(false);
+
+			$group->id = $groupRecord->id;
+
+			$this->commitTransaction($transaction);
+		}
+		catch(\Exception $e)
+		{
+			$this->rollbackTransaction($transaction);
+
+			throw $e;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Deletes all groups associated with a field from the database.
+	 *
+	 * @param $fieldId
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function deleteGroupsByFieldId($fieldId)
+	{
+		$transaction = $this->beginTransaction();
+		try
+		{
+			$affectedRows = craft()->db->createCommand()
+				->delete('neogroups', ['fieldId' => $fieldId]);
+
+			$this->commitTransaction($transaction);
+
+			return (bool) $affectedRows;
+		}
+		catch(\Exception $e)
+		{
+			$this->rollbackTransaction($transaction);
+
+			throw $e;
+		}
+	}
+
+
+	// -- Blocks
+
+	/**
+	 * @param int $fieldId
+	 * @param int $ownerId
+	 * @param string|null $locale
+	 * @return array
+	 */
+	public function getBlocks($fieldId, $ownerId, $locale = null)
+	{
+		$criteria = $this->getCriteria();
+
+		$criteria->fieldId = $fieldId;
+		$criteria->ownerId = $ownerId;
+		$criteria->locale = $locale;
+		$criteria->status = null;
+		$criteria->localeEnabled = null;
+		$criteria->limit = null;
+
+		return $criteria->find();
+	}
+
+	/**
+	 * Returns a block given it's ID.
+	 *
+	 * @param int $blockId
+	 * @param int|null $localeId
+	 * @return Neo_BlockModel
+	 */
 	public function getBlockById($blockId, $localeId = null)
 	{
 		return craft()->elements->getElementById($blockId, Neo_ElementType::NeoBlock, $localeId);
 	}
 
+	/**
+	 * Runs validation on a block, and saves any errors to the block.
+	 *
+	 * @param Neo_BlockModel $block
+	 * @return bool
+	 * @throws Exception
+	 */
 	public function validateBlock(Neo_BlockModel $block)
 	{
 		$block->clearErrors();
@@ -496,9 +711,18 @@ class NeoService extends BaseApplicationComponent
 		return !$block->hasErrors();
 	}
 
+	/**
+	 * Saves a block to the database.
+	 *
+	 * @param Neo_BlockModel $block
+	 * @param bool|true $validate
+	 * @return bool
+	 * @throws Exception
+	 * @throws \Exception
+	 */
 	public function saveBlock(Neo_BlockModel $block, $validate = true)
 	{
-		if(!$validate || $this->validateBlock($block))
+		if($block->modified && (!$validate || $this->validateBlock($block)))
 		{
 			$blockRecord = $this->_getBlockRecord($block);
 			$isNewBlock = $blockRecord->isNewRecord();
@@ -509,7 +733,7 @@ class NeoService extends BaseApplicationComponent
 			$blockRecord->typeId      = $block->typeId;
 			$blockRecord->collapsed   = $block->collapsed;
 
-			$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+			$transaction = $this->beginTransaction();
 			try
 			{
 				if(craft()->elements->saveElement($block, false))
@@ -521,20 +745,14 @@ class NeoService extends BaseApplicationComponent
 
 					$blockRecord->save(false);
 
-					if($transaction !== null)
-					{
-						$transaction->commit();
-					}
+					$this->commitTransaction($transaction);
 
 					return true;
 				}
 			}
 			catch(\Exception $e)
 			{
-				if($transaction !== null)
-				{
-					$transaction->rollback();
-				}
+				$this->rollbackTransaction($transaction);
 
 				throw $e;
 			}
@@ -543,6 +761,14 @@ class NeoService extends BaseApplicationComponent
 		return false;
 	}
 
+	/**
+	 * Saves a block's expansion state to the database.
+	 * It bypasses the elements system and performs a direct database query. This is so it doesn't cause caches to be
+	 * regenerated. It's also more performant, which comes in handy when this is called in AJAX requests.
+	 *
+	 * @param Neo_BlockModel $block
+	 * @return bool
+	 */
 	public function saveBlockCollapse(Neo_BlockModel $block)
 	{
 		$tableName = (new Neo_BlockRecord())->getTableName();
@@ -557,6 +783,12 @@ class NeoService extends BaseApplicationComponent
 		return true;
 	}
 
+	/**
+	 * Deletes a block (or series of blocks) by it's ID from the database.
+	 *
+	 * @param int,array $blockIds
+	 * @return bool
+	 */
 	public function deleteBlockById($blockIds)
 	{
 		if(!$blockIds)
@@ -573,17 +805,37 @@ class NeoService extends BaseApplicationComponent
 		return craft()->elements->deleteElementById($blockIds);
 	}
 
+
+	// ---- Block structures
+
+	/**
+	 * Returns the structure for a field.
+	 *
+	 * @param NeoFieldType $fieldType
+	 * @return StructureModel|bool
+	 */
 	public function getStructure(NeoFieldType $fieldType)
 	{
 		$owner = $fieldType->element;
 		$field = $fieldType->model;
+		$locale = $this->_getFieldLocale($fieldType);
 
 		$result = craft()->db->createCommand()
 			->select('structureId')
 			->from('neoblockstructures')
 			->where('ownerId = :ownerId', [':ownerId' => $owner->id])
-			->andWhere('fieldId = :fieldId', [':fieldId' => $field->id])
-			->queryRow();
+			->andWhere('fieldId = :fieldId', [':fieldId' => $field->id]);
+
+		if($locale)
+		{
+			$result = $result->andWhere('ownerLocale = :ownerLocale', [':ownerLocale' => $locale]);
+		}
+		else
+		{
+			$result = $result->andWhere('ownerLocale IS NULL');
+		}
+
+		$result = $result->queryRow();
 
 		if($result)
 		{
@@ -593,14 +845,23 @@ class NeoService extends BaseApplicationComponent
 		return false;
 	}
 
+	/**
+	 * Saves the structure for a field to the database.
+	 *
+	 * @param StructureModel $structure
+	 * @param NeoFieldType $fieldType
+	 * @return bool
+	 * @throws \Exception
+	 */
 	public function saveStructure(StructureModel $structure, NeoFieldType $fieldType)
 	{
 		$owner = $fieldType->element;
 		$field = $fieldType->model;
+		$locale = $this->_getFieldLocale($fieldType);
 
 		$blockStructure = new Neo_BlockStructureRecord();
 
-		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		$transaction = $this->beginTransaction();
 		try
 		{
 			$this->deleteStructure($fieldType);
@@ -609,15 +870,15 @@ class NeoService extends BaseApplicationComponent
 
 			$blockStructure->structureId = $structure->id;
 			$blockStructure->ownerId = $owner->id;
+			$blockStructure->ownerLocale = $locale;
 			$blockStructure->fieldId = $field->id;
 			$blockStructure->save(false);
+
+			$this->commitTransaction($transaction);
 		}
 		catch(\Exception $e)
 		{
-			if($transaction !== null)
-			{
-				$transaction->rollback();
-			}
+			$this->rollbackTransaction($transaction);
 
 			throw $e;
 		}
@@ -625,12 +886,20 @@ class NeoService extends BaseApplicationComponent
 		return true;
 	}
 
+	/**
+	 * Deletes the structure for a field from the database.
+	 *
+	 * @param NeoFieldType $fieldType
+	 * @return bool
+	 * @throws \Exception
+	 */
 	public function deleteStructure(NeoFieldType $fieldType)
 	{
 		$owner = $fieldType->element;
 		$field = $fieldType->model;
+		$locale = $this->_getFieldLocale($fieldType);
 
-		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+		$transaction = $this->beginTransaction();
 		try
 		{
 			$blockStructure = $this->getStructure($fieldType);
@@ -642,16 +911,16 @@ class NeoService extends BaseApplicationComponent
 
 			craft()->db->createCommand()
 				->delete('neoblockstructures', [
+					'ownerLocale' => $locale ? $locale : null,
 					'ownerId' => $owner->id,
 					'fieldId' => $field->id,
 				]);
+
+			$this->commitTransaction($transaction);
 		}
 		catch(\Exception $e)
 		{
-			if($transaction !== null)
-			{
-				$transaction->rollback();
-			}
+			$this->rollbackTransaction($transaction);
 
 			throw $e;
 		}
@@ -659,128 +928,85 @@ class NeoService extends BaseApplicationComponent
 		return true;
 	}
 
-	public function saveField(NeoFieldType $fieldType)
+	
+	// Protected methods
+
+	/**
+	 * Returns a new database transaction if one hasn't already been created.
+	 *
+	 * @return \CDbTransaction|null
+	 */
+	protected function beginTransaction()
 	{
-		$owner = $fieldType->element;
-		$field = $fieldType->model;
-		$blocks = $owner->getContent()->getAttribute($field->handle);
-
-		if($blocks === null)
-		{
-			return true;
-		}
-
-		$structure = new StructureModel();
-		// $structure->maxLevels = ...->maxLevels;
-
-		if(!is_array($blocks))
-		{
-			$blocks = [];
-		}
-
-		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
-		try
-		{
-			// First thing's first. Let's make sure that the blocks for this field/owner respect the field's translation
-			// setting
-			$this->_applyFieldTranslationSetting($owner, $field, $blocks);
-
-			$this->saveStructure($structure, $fieldType);
-
-			$blockIds = [];
-			$parentStack = [];
-
-			foreach($blocks as $block)
-			{
-				$block->ownerId = $owner->id;
-				$block->ownerLocale = ($field->translatable ? $owner->locale : null);
-
-				while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
-				{
-					array_pop($parentStack);
-				}
-
-				$this->saveBlock($block, false);
-
-				if(empty($parentStack))
-				{
-					craft()->structures->appendToRoot($structure->id, $block);
-				}
-				else
-				{
-					$parentBlock = $parentStack[count($parentStack) - 1];
-					craft()->structures->append($structure->id, $block, $parentBlock);
-				}
-
-				array_push($parentStack, $block);
-
-				$blockIds[] = $block->id;
-			}
-
-			// Get the IDs of blocks that are row deleted
-			$deletedBlockConditions = ['and',
-				'ownerId = :ownerId',
-				'fieldId = :fieldId',
-				['not in', 'id', $blockIds]
-			];
-
-			$deletedBlockParams = [
-				':ownerId' => $owner->id,
-				':fieldId' => $field->id
-			];
-
-			if($field->translatable)
-			{
-				$deletedBlockConditions[] = 'ownerLocale  = :ownerLocale';
-				$deletedBlockParams[':ownerLocale'] = $owner->locale;
-			}
-
-			$deletedBlockIds = craft()->db->createCommand()
-				->select('id')
-				->from('neoblocks')
-				->where($deletedBlockConditions, $deletedBlockParams)
-				->queryColumn();
-
-			$this->deleteBlockById($deletedBlockIds);
-
-			if($transaction !== null)
-			{
-				$transaction->commit();
-			}
-		}
-		catch(\Exception $e)
-		{
-			if($transaction !== null)
-			{
-				$transaction->rollback();
-			}
-
-			throw $e;
-		}
-
-		return true;
+		return craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 	}
 
-	public function requirePlugin($plugin)
+	/**
+	 * Commits a database transaction if transaction is not `null`.
+	 *
+	 * @param \CDbTransaction $transaction
+	 */
+	protected function commitTransaction($transaction)
 	{
-		if(!craft()->plugins->getPlugin($plugin))
+		if($transaction)
 		{
-			$message = Craft::t("The plugin \"{plugin}\" is required for Neo to use this functionality.", [
-				'plugin' => $plugin
-			]);
-
-			throw new Exception($message);
+			$transaction->commit();
 		}
 	}
 
+	/**
+	 * Rolls back a database transaction if transaction is not `null`.
+	 *
+	 * @param \CDbTransaction $transaction
+	 */
+	protected function rollbackTransaction($transaction)
+	{
+		if($transaction)
+		{
+			$transaction->rollback();
+		}
+	}
+	
+
+	// Private methods
+
+	/**
+	 * Changes how an array is indexed based on it's containing objects properties.
+	 * 
+	 * @param $list
+	 * @param $property
+	 * @return array
+	 */
+	private function _indexBy($list, $property)
+	{
+		$newList = [];
+
+		foreach($list as $item)
+		{
+			$newList[$item->$property] = $item;
+		}
+
+		return $newList;
+	}
+
+	/**
+	 * Creates a base database query for all block types.
+	 *
+	 * @return mixed
+	 */
 	private function _createBlockTypeQuery()
 	{
 		return craft()->db->createCommand()
-			->select('id, fieldId, fieldLayoutId, name, handle, maxBlocks, childBlocks, topLevel, sortOrder')
+			->select('id, dateCreated, dateUpdated, fieldId, fieldLayoutId, name, handle, maxBlocks, childBlocks, topLevel, sortOrder')
 			->from('neoblocktypes')
 			->order('sortOrder');
 	}
 
+	/**
+	 * Creates a base database query for all groups.
+	 *
+	 * @return mixed
+	 */
 	private function _createGroupQuery()
 	{
 		return craft()->db->createCommand()
@@ -789,6 +1015,28 @@ class NeoService extends BaseApplicationComponent
 			->order('sortOrder');
 	}
 
+	/**
+	 * Returns the locale for a given field if it's set to be translatable, otherwise returns null.
+	 *
+	 * @param NeoFieldType $fieldType
+	 * @return string|null
+	 */
+	private function _getFieldLocale(NeoFieldType $fieldType)
+	{
+		$owner = $fieldType->element;
+		$field = $fieldType->model;
+
+		return $field->translatable ? $owner->locale : null;
+	}
+
+	/**
+	 * Finds and returns the block type record from a block type model.
+	 * If the block type is just newly created, a fresh record will be returned.
+	 *
+	 * @param Neo_BlockTypeModel $blockType
+	 * @return Neo_BlockTypeRecord
+	 * @throws Exception
+	 */
 	private function _getBlockTypeRecord(Neo_BlockTypeModel $blockType)
 	{
 		if(!$blockType->isNew())
@@ -807,12 +1055,18 @@ class NeoService extends BaseApplicationComponent
 
 			return $this->_blockTypeRecordsById[$blockTypeId];
 		}
-		else
-		{
-			return new Neo_BlockTypeRecord();
-		}
+
+		return new Neo_BlockTypeRecord();
 	}
 
+	/**
+	 * Finds and returns the block record from a block model.
+	 * If the block is just newly created, a fresh record will be returned.
+	 *
+	 * @param Neo_BlockModel $block
+	 * @return Neo_BlockRecord
+	 * @throws Exception
+	 */
 	private function _getBlockRecord(Neo_BlockModel $block)
 	{
 		$blockId = $block->id;
@@ -831,12 +1085,20 @@ class NeoService extends BaseApplicationComponent
 
 			return $this->_blockRecordsById[$blockId];
 		}
-		else
-		{
-			return new Neo_BlockRecord();
-		}
+
+		return new Neo_BlockRecord();
 	}
-	
+
+	/**
+	 * Applies a field's translation setting to any existing values of the field.
+	 * Manages migrating a field's values to/from a locale if required. Looks through all blocks associated with the
+	 * field, and modifies their locale status appropriately.
+	 *
+	 * @param $owner
+	 * @param $field
+	 * @param $blocks
+	 * @throws \Exception
+	 */
 	private function _applyFieldTranslationSetting($owner, $field, $blocks)
 	{
 		// Does it look like any work is needed here?

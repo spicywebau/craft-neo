@@ -1,8 +1,18 @@
 <?php
 namespace Craft;
 
+/**
+ * Class Neo_RelabelService
+ * Implements support for the Relabel plugin.
+ *
+ * @see https://github.com/benjamminf/craft-relabel
+ * @package Craft
+ */
 class Neo_RelabelService extends BaseApplicationComponent
 {
+	/**
+	 * Separate initialisation function to be called inside the NeoPlugin init method.
+	 */
 	public function pluginInit()
 	{
 		if(craft()->plugins->getPlugin('relabel') && craft()->request->isCpRequest() && !craft()->isConsole())
@@ -11,12 +21,23 @@ class Neo_RelabelService extends BaseApplicationComponent
 		}
 	}
 
+	/**
+	 * Saves the relabels for a field.
+	 * Serves as a wrapper for `RelabelService::saveLabel`, which requires Relabel to exist first.
+	 *
+	 * @param RelabelModel $label
+	 */
 	public function saveLabel(/*RelabelModel*/ $label)
 	{
 		craft()->neo->requirePlugin('relabel');
 		craft()->relabel->saveLabel($label);
 	}
 
+	/**
+	 * Saves Neo block type relabels from it's post data.
+	 *
+	 * @param Event $e
+	 */
 	public function onSaveFieldLayout(Event $e)
 	{
 		$fieldLayout = $e->params['layout'];

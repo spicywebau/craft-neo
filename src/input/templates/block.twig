@@ -1,19 +1,22 @@
 {% set hasTabs = (type.getTabs() is not empty) %}
 {% set isParent = type.isParent() %}
 <div class="ni_block">
+	<input type="hidden" name="{{ 'modified'|ns }}" value="{{ modified ? 1 : 0 }}" data-neo-b="input.modified">
 	<input type="hidden" name="{{ 'type'|ns }}" value="{{ type.getHandle() }}">
 	<input type="hidden" name="{{ 'enabled'|ns }}" value="{{ enabled ? 1 : 0 }}" data-neo-b="input.enabled">
 	<input type="hidden" name="{{ 'collapsed'|ns }}" value="{{ collapsed ? 1 : 0 }}" data-neo-b="input.collapsed">
 	<input type="hidden" name="{{ 'level'|ns }}" value="{{ level }}" data-neo-b="input.level">
 	<div class="ni_block_topbar">
 		<div class="ni_block_topbar_item" data-neo-b="select">
-			<div class="checkbox" title="{{ "Select"|t }}"></div>
+			<div class="checkbox block-checkbox" title="{{ "Select"|t }}"></div>
 		</div>
-		<div class="ni_block_topbar_item clip-text" data-neo-b="{{ hasTabs or isParent ? 'button.toggler' : 'select' }}">
+		<div class="ni_block_topbar_item clip-text" data-neo-b="select">
 			<span>{{ type.getName() }}</span>
 		</div>
 		<div class="ni_block_topbar_item size-full tabs">
-			<div class="tabs_trigger" data-neo-b="{{ hasTabs or isParent ? 'button.toggler' : 'select' }}"></div>
+			{% if hasTabs or isParent %}
+				<div class="tabs_trigger" data-neo-b="button.toggler"></div>
+			{% endif %}
 			{% if type.getTabs()|length > 1 %}
 				{% set hasErrors = false %}
 				<div class="tabs_inner" data-neo-b="container.tabs">
@@ -48,7 +51,7 @@
 		<div class="ni_block_topbar_item hidden" data-neo-b="status">
 			<div class="status off" title="{{ "Disabled"|t }}"></div>
 		</div>
-		<div class="ni_block_topbar_item">
+		<div class="ni_block_topbar_item block-settings">
 			<a class="settings icon menubtn" title="{{ "Actions"|t }}" role="button" data-neo-b="button.actions"></a>
 			<div class="menu" data-neo-b="container.menu">
 				<ul class="padded">
@@ -69,7 +72,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="ni_block_topbar_item">
+		<div class="ni_block_topbar_item block-reorder">
 			<a class="move icon" title="{{ "Reorder"|t }}" role="button" data-neo-b="button.move"></a>
 		</div>
 	</div>

@@ -1,6 +1,11 @@
 <?php
 namespace Craft;
 
+/**
+ * Class Neo_GroupRecord
+ *
+ * @package Craft
+ */
 class Neo_GroupRecord extends BaseRecord
 {
 	public function getTableName()
@@ -13,7 +18,7 @@ class Neo_GroupRecord extends BaseRecord
 		return [
 			'field' => [static::BELONGS_TO, 'FieldRecord',
 				'required' => true,
-				'onDelete' => static::CASCADE
+				'onDelete' => static::CASCADE,
 			],
 		];
 	}
