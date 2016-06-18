@@ -726,6 +726,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
 	{
+		$hasErrors = $block ? !empty($block->getAllErrors()) : false;
+
 		$cacheKey = implode(':', ['neoblock',
 			$blockType->id,
 			$block ? $block->id : '',
@@ -733,7 +735,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$static ? 's' : '',
 		]);
 
-		$cache = craft()->cache->get($cacheKey);
+		$cache = $hasErrors ? false : craft()->cache->get($cacheKey);
 
 		if(!$cache)
 		{
@@ -805,8 +807,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 			craft()->templates->setNamespace($oldNamespace);
 
-			$cacheDependency = new Neo_BlockCacheDependency($blockType, $block);
-			craft()->cache->set($cacheKey, $tabsHtml, null, $cacheDependency);
+			if(!$hasErrors)
+			{
+				$cacheDependency = new Neo_BlockCacheDependency($blockType, $block);
+				craft()->cache->set($cacheKey, $tabsHtml, null, $cacheDependency);
+			}
+
 			$cache = $tabsHtml;
 		}
 
