@@ -32,7 +32,7 @@ class Neo_SettingsModel extends BaseModel
 	 *
 	 * @param FieldModel $field
 	 */
-	public function setField(FieldModel $field)
+	public function setField(FieldModel $field = null)
 	{
 		$this->_neoField = $field;
 	}
