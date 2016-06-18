@@ -735,7 +735,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		$cache = craft()->cache->get($cacheKey);
 
-		if($cache === null)
+		if(!$cache)
 		{
 			$oldNamespace = craft()->templates->getNamespace();
 			$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
