@@ -206,6 +206,7 @@ export default Garnish.Base.extend({
 			this['@newBlock'](Object.assign(e, {index: index}))
 		})
 		block.on('addBlockAbove.input',   e => this['@addBlockAbove'](e))
+		block.on('duplicateBlock.input',   e => this['@duplicateBlock'](e))
 
 		this._destroyTempButtons()
 		this._updateButtons()
@@ -538,5 +539,15 @@ export default Garnish.Base.extend({
 		}
 
 		this._tempButtons = buttons
+	},
+
+	'@duplicateBlock'(e)
+	{
+		const block = e.block
+		const index = this._blocks.indexOf(block)
+
+		const newBlock = block.duplicate()
+
+		this.addBlock(newBlock, index + 1, block.getLevel())
 	}
 })

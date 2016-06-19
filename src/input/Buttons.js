@@ -68,6 +68,21 @@ export default Garnish.Base.extend({
 		this.updateResponsiveness()
 	},
 
+	getBlockTypes()
+	{
+		return Array.from(this._blockTypes)
+	},
+
+	getGroups()
+	{
+		return Array.from(this._groups)
+	},
+
+	getMaxBlocks()
+	{
+		return this._maxBlocks
+	},
+
 	updateButtonStates(blocks = [])
 	{
 		const that = this
