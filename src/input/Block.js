@@ -461,6 +461,12 @@ export default Garnish.Base.extend({
 					block: this
 				})
 				break
+
+			case 'duplicate':
+				this.trigger('duplicateBlock', {
+					block: this
+				})
+				break
 		}
 	},
 
