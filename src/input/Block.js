@@ -131,8 +131,7 @@ export default Garnish.Base.extend({
 				content: Garnish.getPostData(this.$contentContainer)
 			}
 
-			// TODO use mutation observer instead of interval
-			this._detectChangeInterval = setInterval(() => this._detectChange(), 500)
+			this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
 		}
 	},
 
@@ -178,6 +177,8 @@ export default Garnish.Base.extend({
 		{
 			this.$head.remove()
 			this.$foot.remove()
+
+			clearInterval(this._detectChangeInterval)
 
 			this._destroyReasonsPlugin()
 
