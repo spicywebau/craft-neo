@@ -417,8 +417,6 @@ class NeoService extends BaseApplicationComponent
 		$blockTypeRecord->name = $blockType->name;
 		$blockTypeRecord->handle = $blockType->handle;
 
-		$blockTypeRecord->validateUniques = $validateUniques;
-
 		if(!$blockTypeRecord->validateUniques($validateUniques))
 		{
 			$validates = false;
