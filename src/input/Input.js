@@ -557,6 +557,20 @@ export default Garnish.Base.extend({
 
 		NS.leave()
 
+		const $spinner = $('<div class="ni_spinner"><div class="spinner"></div></div>')
+
+		block.$container.after($spinner)
+
+		$spinner
+			.css({
+				opacity: 0,
+				marginBottom: -($spinner.outerHeight())
+			})
+			.velocity({
+				opacity: 1,
+				marginBottom: 10
+			}, 'fast')
+
 		Craft.postActionRequest('neo/renderBlock', data, e =>
 		{
 			if(e.success)
@@ -594,6 +608,16 @@ export default Garnish.Base.extend({
 				const level = block.getLevel()
 
 				this.addBlock(newBlock, index, level)
+
+				$spinner
+					.css({
+						opacity: 1,
+						marginBottom: 10
+					})
+					.velocity({
+						opacity: 0,
+						marginBottom: -($spinner.outerHeight())
+					}, 'fast', e => $spinner.remove())
 			}
 		})
 	}
