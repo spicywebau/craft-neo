@@ -803,6 +803,96 @@ class NeoService extends BaseApplicationComponent
 		return craft()->elements->deleteElementById($blockIds);
 	}
 
+	/**
+	 * Builds the HTML for an individual block type.
+	 * If you don't pass in a block along with the type, then it'll render a base template to build real blocks from.
+	 * If you do pass in a block, then it's current field values will be rendered as well.
+	 *
+	 * @param Neo_BlockTypeModel $blockType
+	 * @param Neo_BlockModel|null $block
+	 * @param string $namespace
+	 * @param bool|false $static
+	 * @return array
+	 */
+	public function renderBlockTabs(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
+	{
+		$headHtml = craft()->templates->getHeadHtml();
+		$footHtml = craft()->templates->getFootHtml();
+
+		$oldNamespace = craft()->templates->getNamespace();
+		$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
+		craft()->templates->setNamespace($newNamespace);
+
+		$tabsHtml = [];
+
+		$fieldLayout = $blockType->getFieldLayout();
+		$fieldLayoutTabs = $fieldLayout->getTabs();
+
+		foreach($fieldLayoutTabs as $fieldLayoutTab)
+		{
+			$tabHtml = [
+				'name' => Craft::t($fieldLayoutTab->name),
+				'headHtml' => '',
+				'bodyHtml' => '',
+				'footHtml' => '',
+				'errors' => [],
+			];
+
+			$fieldLayoutFields = $fieldLayoutTab->getFields();
+
+			foreach($fieldLayoutFields as $fieldLayoutField)
+			{
+				$field = $fieldLayoutField->getField();
+				$fieldType = $field->getFieldType();
+
+				if($fieldType)
+				{
+					$fieldType->element = $block;
+					$fieldType->setIsFresh($block == null);
+
+					if($block)
+					{
+						$fieldErrors = $block->getErrors($field->handle);
+
+						if(!empty($fieldErrors))
+						{
+							$tabHtml['errors'] = array_merge($tabHtml['errors'], $fieldErrors);
+						}
+					}
+				}
+			}
+
+			$tabHtml['bodyHtml'] = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', [
+				'namespace' => null,
+				'element' => $block,
+				'fields' => $fieldLayoutFields,
+				'static' => $static,
+			]));
+
+			foreach($fieldLayoutFields as $fieldLayoutField)
+			{
+				$fieldType = $fieldLayoutField->getField()->getFieldType();
+
+				if($fieldType)
+				{
+					$fieldType->setIsFresh(null);
+				}
+			}
+
+			$tabHtml['headHtml'] = craft()->templates->getHeadHtml();
+			$tabHtml['footHtml'] = craft()->templates->getFootHtml();
+
+			$tabsHtml[] = $tabHtml;
+		}
+
+		craft()->templates->setNamespace($oldNamespace);
+
+		craft()->templates->includeHeadHtml($headHtml);
+		craft()->templates->includeFootHtml($footHtml);
+
+		return $tabsHtml;
+	}
+
 
 	// ---- Block structures
 

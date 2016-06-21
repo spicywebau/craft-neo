@@ -544,10 +544,57 @@ export default Garnish.Base.extend({
 	'@duplicateBlock'(e)
 	{
 		const block = e.block
-		const index = this._blocks.indexOf(block)
+		const blockType = block.getBlockType()
+		const buttons = block.getButtons()
 
-		const newBlock = block.duplicate()
+		NS.enter(this._templateNs)
 
-		this.addBlock(newBlock, index + 1, block.getLevel())
+		const data = {
+			blockType: blockType.getId(),
+			namespace: NS.toFieldName(),
+			content: block.getContent()
+		}
+
+		NS.leave()
+
+		Craft.postActionRequest('neo/renderBlock', data, e =>
+		{
+			if(e.success)
+			{
+				const newId = Block.getNewId()
+
+				const newBlockType = new BlockType({
+					id: blockType.getId(),
+					fieldLayoutId: blockType.getFieldLayoutId(),
+					name: blockType.getName(),
+					handle: blockType.getHandle(),
+					maxBlocks: blockType.getMaxBlocks(),
+					childBlocks: blockType.getChildBlocks(),
+					topLevel: blockType.getTopLevel(),
+					tabs: e.tabs
+				})
+
+				const newButtons = new Buttons({
+					blockTypes: buttons.getBlockTypes(),
+					groups: buttons.getGroups(),
+					maxBlocks: buttons.getMaxBlocks()
+				})
+
+				const newBlock = new Block({
+					namespace: [...this._templateNs, newId],
+					blockType: newBlockType,
+					id: newId,
+					level: block.getLevel(),
+					buttons: newButtons,
+					enabled: block.isEnabled(),
+					collapsed: !block.isExpanded()
+				})
+
+				const index = this._blocks.indexOf(block) + 1
+				const level = block.getLevel()
+
+				this.addBlock(newBlock, index, level)
+			}
+		})
 	}
 })

@@ -6,10 +6,6 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
-import BlockType from './BlockType'
-import BlockTypeTab from './BlockTypeTab'
-import Buttons from './Buttons'
-
 import ReasonsRenderer from '../plugins/reasons/Renderer'
 
 import renderTemplate from './templates/block.twig'
@@ -217,6 +213,43 @@ export default Garnish.Base.extend({
 		return this._buttons
 	},
 
+	getContent()
+	{
+		const rawContent = Garnish.getPostData(this.$contentContainer)
+		const content = {}
+
+		const setValue = (keys, value) =>
+		{
+			let currentSet = content
+
+			for(let i = 0; i < keys.length - 1; i++)
+			{
+				let key = keys[i]
+
+				if(!$.isPlainObject(content[key]) && !$.isArray(content[key]))
+				{
+					currentSet[key] = {}
+				}
+
+				currentSet = currentSet[key]
+			}
+
+			let key = keys[keys.length - 1]
+			currentSet[key] = value
+		}
+
+		for(let rawName of Object.keys(rawContent))
+		{
+			let fullName = NS.parse(rawName)
+			let name = fullName.slice(this._templateNs.length + 1) // Adding 1 because content is NS'd under [fields]
+			let value = rawContent[rawName]
+
+			setValue(name, value)
+		}
+
+		return content
+	},
+
 	isNew()
 	{
 		return /^new/.test(this.getId())
@@ -387,67 +420,6 @@ export default Garnish.Base.extend({
 
 		this.$tabsContainer.toggleClass('hidden', isMobile)
 		this.$tabsButton.toggleClass('hidden', !isMobile)
-	},
-
-	duplicate()
-	{
-		const Block = this.constructor
-
-		const id = this.getId()
-		const blockType = this.getBlockType()
-		const tabs = blockType.getTabs()
-		const buttons = this.getButtons()
-
-		const newId = Block.getNewId()
-
-		const newTabs = tabs.map(tab =>
-		{
-			const $tab = this.$tabContainer.filter(`[data-neo-b-info="${tab.getName()}"]`)
-			let newBodyHtml = $tab.html()
-
-			const namePattern = new RegExp(`(<[^\\s]+[^>]*name="[^">]*\\[neo]\\[)(${id})(][^">]*"[^>]*>)`, 'ig')
-			const idPattern = new RegExp(`(<[^\s]+[^>]*(id|for)="[^">]*neo-)(${id})([^">]*"[^>]*>)`, 'ig')
-
-			newBodyHtml = newBodyHtml.replace(namePattern, `$1${newId}$3`)
-			newBodyHtml = newBodyHtml.replace(idPattern, `$1${newId}$4`)
-
-			return new BlockTypeTab({
-				name: tab.getName(),
-				headHtml: tab.getHeadHtml(),
-				bodyHtml: newBodyHtml,
-				footHtml: tab.getFootHtml()
-			})
-		})
-
-		const newBlockType = new BlockType({
-			id: blockType.getId(),
-			fieldLayoutId: blockType.getFieldLayoutId(),
-			name: blockType.getName(),
-			handle: blockType.getHandle(),
-			maxBlocks: blockType.getMaxBlocks(),
-			childBlocks: blockType.getChildBlocks(),
-			topLevel: blockType.getTopLevel(),
-			tabs: newTabs
-		})
-
-		const newButtons = new Buttons({
-			blockTypes: buttons.getBlockTypes(),
-			groups: buttons.getGroups(),
-			maxBlocks: buttons.getMaxBlocks()
-		})
-
-		const newNamespace = Array.from(this._templateNs)
-		newNamespace[newNamespace.length - 1] = newId
-
-		return new Block({
-			namespace: newNamespace,
-			blockType: newBlockType,
-			id: newId,
-			level: this.getLevel(),
-			buttons: newButtons,
-			enabled: this.isEnabled(),
-			collapsed: !this.isExpanded()
-		})
 	},
 
 	_initReasonsPlugin()

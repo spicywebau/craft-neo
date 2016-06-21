@@ -113,7 +113,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		if(!empty($this->element->id))
 		{
 			$criteria->ownerId = $this->element->id;
-		} else
+		}
+		else
 		{
 			$criteria->id = false;
 		}
@@ -149,7 +150,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 				$criteria->setMatchedElements($value);
 				$criteria->setAllElements($value);
-			} else if($value === '')
+			}
+			else if($value === '')
 			{
 				$criteria->setMatchedElements([]);
 			}
@@ -205,7 +207,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 					$oldBlocksById[$oldBlock->id] = $oldBlock;
 				}
 			}
-		} else
+		}
+		else
 		{
 			$ownerId = null;
 		}
@@ -228,7 +231,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				$block->typeId = $blockType->id;
 				$block->ownerId = $ownerId;
 				$block->ownerLocale = $this->element->locale;
-			} else
+			}
+			else
 			{
 				$block = $oldBlocksById[$blockId];
 				$block->modified = (isset($blockData['modified']) ? (bool)$blockData['modified'] : true);
@@ -288,7 +292,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			if($maxBlocks == 1)
 			{
 				$errors[] = Craft::t("There can’t be more than one block.");
-			} else
+			}
+			else
 			{
 				$errors[] = Craft::t("There can’t be more than {max} blocks.", ['max' => $maxBlocks]);
 			}
@@ -433,7 +438,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$value->limit = null;
 			$value->status = null;
 			$value->localeEnabled = null;
-		} else if(!$value)
+		}
+		else if(!$value)
 		{
 			$value = [];
 		}
@@ -475,7 +481,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$this->_prepareInputHtml($id, $id, $settings, $value, true);
 
 			return $html;
-		} else
+		}
+		else
 		{
 			return '<p class="light">' . Craft::t("No blocks.") . '</p>';
 		}
@@ -637,9 +644,6 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	private function _prepareInputHtml($id, $name, $settings, $value, $static = false)
 	{
-		$headHtml = craft()->templates->getHeadHtml();
-		$footHtml = craft()->templates->getFootHtml();
-
 		$blockTypeInfo = [];
 		foreach($settings->getBlockTypes() as $blockType)
 		{
@@ -653,7 +657,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
 				'topLevel' => (bool)$blockType->topLevel,
-				'tabs' => $this->_getBlockTypeHtml($blockType, null, $name, $static),
+				'tabs' => $this->_getBlockHtml($blockType, null, $name, $static),
 			];
 		}
 
@@ -671,19 +675,17 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		foreach($value as $block)
 		{
+			$blockType = $block->getType();
 			$blockInfo[] = [
 				'id' => $block->id,
-				'blockType' => $block->getType()->handle,
+				'blockType' => $blockType->handle,
 				'sortOrder' => $sortOrder++,
 				'collapsed' => (bool)$block->collapsed,
 				'enabled' => (bool)$block->enabled,
 				'level' => intval($block->level) - 1,
-				'tabs' => $this->_getBlockHtml($block, $name, $static),
+				'tabs' => $this->_getBlockHtml($blockType, $block, $name, $static),
 			];
 		}
-
-		craft()->templates->includeHeadHtml($headHtml);
-		craft()->templates->includeFootHtml($footHtml);
 
 		$this->_includeResources('input', [
 			'namespace' => craft()->templates->namespaceInputName($name),
@@ -717,14 +719,13 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 * If you don't pass in a block along with the type, then it'll render a base template to build real blocks from.
 	 * If you do pass in a block, then it's current field values will be rendered as well.
 	 *
-	 * @precondition The template head and foot buffers must be empty
 	 * @param Neo_BlockTypeModel $blockType
 	 * @param Neo_BlockModel|null $block
 	 * @param string $namespace
 	 * @param bool|false $static
 	 * @return array
 	 */
-	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
+	private function _getBlockHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
 	{
 		$hasErrors = $block ? !empty($block->getAllErrors()) : false;
 
@@ -735,101 +736,19 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$static ? 's' : '',
 		]);
 
-		$cache = $hasErrors ? false : craft()->cache->get($cacheKey);
+		$tabsHtml = $hasErrors ? false : craft()->cache->get($cacheKey);
 
-		if(!$cache)
+		if(!$tabsHtml)
 		{
-			$oldNamespace = craft()->templates->getNamespace();
-			$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
-			craft()->templates->setNamespace($newNamespace);
-
-			$tabsHtml = [];
-
-			$fieldLayout = $blockType->getFieldLayout();
-			$fieldLayoutTabs = $fieldLayout->getTabs();
-
-			foreach($fieldLayoutTabs as $fieldLayoutTab)
-			{
-				$tabHtml = [
-					'name' => Craft::t($fieldLayoutTab->name),
-					'headHtml' => '',
-					'bodyHtml' => '',
-					'footHtml' => '',
-					'errors' => [],
-				];
-
-				$fieldLayoutFields = $fieldLayoutTab->getFields();
-
-				foreach($fieldLayoutFields as $fieldLayoutField)
-				{
-					$field = $fieldLayoutField->getField();
-					$fieldType = $field->getFieldType();
-
-					if($fieldType)
-					{
-						$fieldType->element = $block;
-						$fieldType->setIsFresh($block == null);
-
-						if($block)
-						{
-							$fieldErrors = $block->getErrors($field->handle);
-
-							if(!empty($fieldErrors))
-							{
-								$tabHtml['errors'] = array_merge($tabHtml['errors'], $fieldErrors);
-							}
-						}
-					}
-				}
-
-				$tabHtml['bodyHtml'] = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', [
-					'namespace' => null,
-					'element' => $block,
-					'fields' => $fieldLayoutFields,
-					'static' => $static,
-				]));
-
-				foreach($fieldLayoutFields as $fieldLayoutField)
-				{
-					$fieldType = $fieldLayoutField->getField()->getFieldType();
-
-					if($fieldType)
-					{
-						$fieldType->setIsFresh(null);
-					}
-				}
-
-				$tabHtml['headHtml'] = craft()->templates->getHeadHtml();
-				$tabHtml['footHtml'] = craft()->templates->getFootHtml();
-
-				$tabsHtml[] = $tabHtml;
-			}
-
-			craft()->templates->setNamespace($oldNamespace);
+			$tabsHtml = craft()->neo->renderBlockTabs($blockType, $block, $namespace, $static);
 
 			if(!$hasErrors)
 			{
 				$cacheDependency = new Neo_BlockCacheDependency($blockType, $block);
 				craft()->cache->set($cacheKey, $tabsHtml, null, $cacheDependency);
 			}
-
-			$cache = $tabsHtml;
 		}
 
-		return $cache;
-	}
-
-	/**
-	 * Builds the HTML for an individual block.
-	 * Just a wrapper for the above `_getBlockTypeHtml` method.
-	 *
-	 * @param Neo_BlockModel $block
-	 * @param null $namespace
-	 * @param bool|false $static
-	 * @return array
-	 */
-	private function _getBlockHtml(Neo_BlockModel $block, $namespace = null, $static = false)
-	{
-		return $this->_getBlockTypeHtml($block->getType(), $block, $namespace, $static);
+		return $tabsHtml;
 	}
 }
