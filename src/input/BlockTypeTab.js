@@ -2,6 +2,7 @@ import Garnish from 'garnish'
 
 const _defaults = {
 	name: '',
+	headHtml: '',
 	bodyHtml: '',
 	footHtml: '',
 	errors: []

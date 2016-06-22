@@ -6,8 +6,6 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
-import Buttons from './Buttons'
-
 import ReasonsRenderer from '../plugins/reasons/Renderer'
 
 import renderTemplate from './templates/block.twig'
@@ -213,6 +211,43 @@ export default Garnish.Base.extend({
 	getButtons()
 	{
 		return this._buttons
+	},
+
+	getContent()
+	{
+		const rawContent = Garnish.getPostData(this.$contentContainer)
+		const content = {}
+
+		const setValue = (keys, value) =>
+		{
+			let currentSet = content
+
+			for(let i = 0; i < keys.length - 1; i++)
+			{
+				let key = keys[i]
+
+				if(!$.isPlainObject(content[key]) && !$.isArray(content[key]))
+				{
+					currentSet[key] = {}
+				}
+
+				currentSet = currentSet[key]
+			}
+
+			let key = keys[keys.length - 1]
+			currentSet[key] = value
+		}
+
+		for(let rawName of Object.keys(rawContent))
+		{
+			let fullName = NS.parse(rawName)
+			let name = fullName.slice(this._templateNs.length + 1) // Adding 1 because content is NS'd under [fields]
+			let value = rawContent[rawName]
+
+			setValue(name, value)
+		}
+
+		return content
 	},
 
 	isNew()
@@ -458,6 +493,12 @@ export default Garnish.Base.extend({
 
 			case 'add':
 				this.trigger('addBlockAbove', {
+					block: this
+				})
+				break
+
+			case 'duplicate':
+				this.trigger('duplicateBlock', {
 					block: this
 				})
 				break

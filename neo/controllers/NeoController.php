@@ -29,4 +29,47 @@ class NeoController extends BaseController
 			'success' => $success,
 		]);
 	}
+
+	/**
+	 *
+	 */
+	public function actionRenderBlocks()
+	{
+		$this->requireAjaxRequest();
+		$this->requirePostRequest();
+
+		$blocks = craft()->request->getPost('blocks');
+		$namespace = craft()->request->getPost('namespace');
+
+		$renderedBlocks = [];
+
+		foreach($blocks as $rawBlock)
+		{
+			$type = craft()->neo->getBlockTypeById($rawBlock['type']);
+
+			$block = new Neo_BlockModel();
+			$block->typeId = $rawBlock['type'];
+			$block->level = $rawBlock['level'];
+			$block->enabled = isset($rawBlock['enabled']);
+			$block->collapsed = isset($rawBlock['collapsed']);
+
+			if(!empty($rawBlock['content']))
+			{
+				$block->setContentFromPost($rawBlock['content']);
+			}
+
+			$renderedBlocks[] = [
+				'type' => $type->id,
+				'level' => $block->level,
+				'enabled' => $block->enabled,
+				'collapsed' => $block->collapsed,
+				'tabs' => craft()->neo->renderBlockTabs($type, $block, $namespace),
+			];
+		}
+
+		$this->returnJson([
+			'success' => true,
+			'blocks' => $renderedBlocks,
+		]);
+	}
 }
