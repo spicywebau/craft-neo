@@ -561,6 +561,9 @@ export default Garnish.Base.extend({
 
 		block.$container.after($spinner)
 
+		let spinnerComplete = false
+		let spinnerCallback = function() {}
+
 		$spinner
 			.css({
 				opacity: 0,
@@ -569,7 +572,11 @@ export default Garnish.Base.extend({
 			.velocity({
 				opacity: 1,
 				marginBottom: 10
-			}, 'fast')
+			}, 'fast', () =>
+			{
+				spinnerComplete = true
+				spinnerCallback()
+			})
 
 		Craft.postActionRequest('neo/renderBlock', data, e =>
 		{
@@ -610,17 +617,27 @@ export default Garnish.Base.extend({
 				const index = (lastDescendant ? this._blocks.indexOf(lastDescendant) : blockIndex) + 1
 				const level = block.getLevel()
 
-				this.addBlock(newBlock, index, level)
+				spinnerCallback = () =>
+				{
+					this.addBlock(newBlock, index, level, false)
 
-				$spinner
-					.css({
-						opacity: 1,
-						marginBottom: 10
-					})
-					.velocity({
-						opacity: 0,
-						marginBottom: -($spinner.outerHeight())
-					}, 'fast', e => $spinner.remove())
+					newBlock.$container
+						.css({
+							opacity: 0,
+							marginBottom: $spinner.outerHeight() - newBlock.$container.outerHeight() + 10
+						})
+						.velocity({
+							opacity: 1,
+							marginBottom: 10
+						}, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(newBlock.$container)))
+
+					$spinner.remove()
+				}
+
+				if(spinnerComplete)
+				{
+					spinnerCallback()
+				}
 			}
 		})
 	}
