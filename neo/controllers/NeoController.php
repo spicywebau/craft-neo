@@ -33,26 +33,43 @@ class NeoController extends BaseController
 	/**
 	 *
 	 */
-	public function actionRenderBlock()
+	public function actionRenderBlocks()
 	{
 		$this->requireAjaxRequest();
 		$this->requirePostRequest();
 
-		$blockTypeId = craft()->request->getPost('blockType');
-		$content = craft()->request->getPost('content');
+		$blocks = craft()->request->getPost('blocks');
 		$namespace = craft()->request->getPost('namespace');
 
-		$blockType = craft()->neo->getBlockTypeById($blockTypeId);
+		$renderedBlocks = [];
 
-		$block = new Neo_BlockModel();
-		$block->typeId = $blockTypeId;
-		$block->setContentFromPost($content);
+		foreach($blocks as $rawBlock)
+		{
+			$type = craft()->neo->getBlockTypeById($rawBlock['type']);
 
-		$tabsHtml = craft()->neo->renderBlockTabs($blockType, $block, $namespace);
+			$block = new Neo_BlockModel();
+			$block->typeId = $rawBlock['type'];
+			$block->level = $rawBlock['level'];
+			$block->enabled = isset($rawBlock['enabled']);
+			$block->collapsed = isset($rawBlock['collapsed']);
+
+			if(!empty($rawBlock['content']))
+			{
+				$block->setContentFromPost($rawBlock['content']);
+			}
+
+			$renderedBlocks[] = [
+				'type' => $type->id,
+				'level' => $block->level,
+				'enabled' => $block->enabled,
+				'collapsed' => $block->collapsed,
+				'tabs' => craft()->neo->renderBlockTabs($type, $block, $namespace),
+			];
+		}
 
 		$this->returnJson([
 			'success' => true,
-			'tabs' => $tabsHtml,
+			'blocks' => $renderedBlocks,
 		]);
 	}
 }

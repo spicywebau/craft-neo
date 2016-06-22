@@ -194,19 +194,11 @@ export default Garnish.Base.extend({
 				this.removeBlock(block)
 			}
 		})
-		block.on('toggleEnabled.input',   e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
+		block.on('toggleEnabled.input', e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
-		block.on('newBlock.input',        e =>
-		{
-			const blockIndex = this._blocks.indexOf(block)
-			const descendants = this._findChildBlocks(blockIndex, true)
-			const lastDescendant = descendants[descendants.length - 1]
-			const index = (lastDescendant ? this._blocks.indexOf(lastDescendant) : blockIndex) + 1
-
-			this['@newBlock'](Object.assign(e, {index: index}))
-		})
-		block.on('addBlockAbove.input',   e => this['@addBlockAbove'](e))
-		block.on('duplicateBlock.input',   e => this['@duplicateBlock'](e))
+		block.on('newBlock.input', e => this['@newBlock'](Object.assign(e, {index: this._getNextBlockIndex(block)})))
+		block.on('addBlockAbove.input', e => this['@addBlockAbove'](e))
+		block.on('duplicateBlock.input', e => this['@duplicateBlock'](e))
 
 		this._destroyTempButtons()
 		this._updateButtons()
@@ -281,6 +273,11 @@ export default Garnish.Base.extend({
 	getBlocks()
 	{
 		return Array.from(this._blocks)
+	},
+
+	getBlockTypeById(id)
+	{
+		return this._blockTypes.find(bt => bt.getId() == id)
 	},
 
 	getBlockTypes(topLevelOnly)
@@ -388,6 +385,11 @@ export default Garnish.Base.extend({
 
 	_findPrevBlockOnLevel(index, level)
 	{
+		if(index instanceof Block)
+		{
+			index = this._blocks.indexOf(index)
+		}
+
 		const blocks = this._blocks
 
 		let block = blocks[--index]
@@ -415,6 +417,11 @@ export default Garnish.Base.extend({
 
 	_findChildBlocks(index, descendants = null)
 	{
+		if(index instanceof Block)
+		{
+			index = this._blocks.indexOf(index)
+		}
+
 		descendants = (typeof descendants === 'boolean' ? descendants : false)
 
 		const blocks = this._blocks
@@ -444,6 +451,11 @@ export default Garnish.Base.extend({
 
 	_findParentBlock(index)
 	{
+		if(index instanceof Block)
+		{
+			index = this._blocks.indexOf(index)
+		}
+
 		const blocks = this._blocks
 		const block = blocks[index]
 
@@ -466,6 +478,19 @@ export default Garnish.Base.extend({
 		}
 
 		return null
+	},
+
+	_getNextBlockIndex(index)
+	{
+		if(index instanceof Block)
+		{
+			index = this._blocks.indexOf(index)
+		}
+
+		const descendants = this._findChildBlocks(index, true)
+		const lastDescendant = descendants[descendants.length - 1]
+
+		return (lastDescendant ? this._blocks.indexOf(lastDescendant) : index) + 1
 	},
 
 	'@newBlock'(e)
@@ -544,18 +569,56 @@ export default Garnish.Base.extend({
 	'@duplicateBlock'(e)
 	{
 		const block = e.block
-		const blockType = block.getBlockType()
-		const buttons = block.getButtons()
+		const blockIndex = this._blocks.indexOf(block)
+		const subBlocks = this._findChildBlocks(blockIndex, true)
 
 		NS.enter(this._templateNs)
 
 		const data = {
-			blockType: blockType.getId(),
 			namespace: NS.toFieldName(),
-			content: block.getContent()
+			blocks: []
 		}
 
 		NS.leave()
+
+		let blockData = {
+			type: block.getBlockType().getId(),
+			level: block.getLevel(),
+			content: block.getContent()
+		}
+
+		if(block.isEnabled())
+		{
+			blockData.enabled = 1
+		}
+
+		if(!block.isExpanded())
+		{
+			blockData.collapsed = 1
+		}
+
+		data.blocks.push(blockData)
+
+		for(let subBlock of subBlocks)
+		{
+			blockData = {
+				type: subBlock.getBlockType().getId(),
+				level: subBlock.getLevel(),
+				content: subBlock.getContent()
+			}
+
+			if(subBlock.isEnabled())
+			{
+				blockData.enabled = 1
+			}
+
+			if(!subBlock.isExpanded())
+			{
+				blockData.collapsed = 1
+			}
+
+			data.blocks.push(blockData)
+		}
 
 		const $spinner = $('<div class="ni_spinner"><div class="spinner"></div></div>')
 
@@ -578,58 +641,66 @@ export default Garnish.Base.extend({
 				spinnerCallback()
 			})
 
-		Craft.postActionRequest('neo/renderBlock', data, e =>
+		Craft.postActionRequest('neo/renderBlocks', data, e =>
 		{
-			if(e.success)
+			if(e.success && e.blocks.length > 0)
 			{
-				const newId = Block.getNewId()
+				const newBlocks = []
 
-				const newBlockType = new BlockType({
-					id: blockType.getId(),
-					fieldLayoutId: blockType.getFieldLayoutId(),
-					name: blockType.getName(),
-					handle: blockType.getHandle(),
-					maxBlocks: blockType.getMaxBlocks(),
-					childBlocks: blockType.getChildBlocks(),
-					topLevel: blockType.getTopLevel(),
-					tabs: e.tabs
-				})
+				for(let renderedBlock of e.blocks)
+				{
+					const newId = Block.getNewId()
 
-				const newButtons = new Buttons({
-					blockTypes: buttons.getBlockTypes(),
-					groups: buttons.getGroups(),
-					maxBlocks: buttons.getMaxBlocks()
-				})
+					const blockType = this.getBlockTypeById(renderedBlock.type)
+					const newBlockType = new BlockType({
+						id: blockType.getId(),
+						fieldLayoutId: blockType.getFieldLayoutId(),
+						name: blockType.getName(),
+						handle: blockType.getHandle(),
+						maxBlocks: blockType.getMaxBlocks(),
+						childBlocks: blockType.getChildBlocks(),
+						topLevel: blockType.getTopLevel(),
+						tabs: renderedBlock.tabs
+					})
 
-				const newBlock = new Block({
-					namespace: [...this._templateNs, newId],
-					blockType: newBlockType,
-					id: newId,
-					level: block.getLevel(),
-					buttons: newButtons,
-					enabled: block.isEnabled(),
-					collapsed: !block.isExpanded()
-				})
+					const newButtons = new Buttons({
+						items: newBlockType.getChildBlockItems(this.getItems()),
+						maxBlocks: this.getMaxBlocks()
+					})
 
-				const blockIndex = this._blocks.indexOf(block)
-				const descendants = this._findChildBlocks(blockIndex, true)
-				const lastDescendant = descendants[descendants.length - 1]
-				const index = (lastDescendant ? this._blocks.indexOf(lastDescendant) : blockIndex) + 1
-				const level = block.getLevel()
+					const newBlock = new Block({
+						namespace: [...this._templateNs, newId],
+						blockType: newBlockType,
+						id: newId,
+						level: renderedBlock.level|0,
+						buttons: newButtons,
+						enabled: !!renderedBlock.enabled,
+						collapsed: !!renderedBlock.collapsed
+					})
+
+					newBlocks.push(newBlock)
+				}
 
 				spinnerCallback = () =>
 				{
-					this.addBlock(newBlock, index, level, false)
+					let newIndex = this._getNextBlockIndex(block)
 
-					newBlock.$container
+					for(let newBlock of newBlocks)
+					{
+						this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
+					}
+
+					const firstBlock = newBlocks[0]
+
+					firstBlock.$container
 						.css({
 							opacity: 0,
-							marginBottom: $spinner.outerHeight() - newBlock.$container.outerHeight() + 10
+							marginBottom: $spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
 						})
 						.velocity({
 							opacity: 1,
 							marginBottom: 10
-						}, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(newBlock.$container)))
+						}, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
 
 					$spinner.remove()
 				}
