@@ -413,33 +413,6 @@ export default Garnish.Base.extend({
 		return false
 	},
 
-	_findNextBlockOnLevel(index, level)
-	{
-		const blocks = this._blocks
-
-		let block = blocks[++index]
-		let lowestLevel = Number.MAX_VALUE
-
-		while(block)
-		{
-			let blockLevel = block.getLevel()
-
-			if(blockLevel < lowestLevel)
-			{
-				if(blockLevel === level)
-				{
-					return block
-				}
-
-				lowestLevel = blockLevel
-			}
-
-			block = this._blocks[++index]
-		}
-
-		return false
-	},
-
 	_findChildBlocks(index, descendants = null)
 	{
 		descendants = (typeof descendants === 'boolean' ? descendants : false)
@@ -631,9 +604,10 @@ export default Garnish.Base.extend({
 					collapsed: !block.isExpanded()
 				})
 
-				const prevIndex = this._blocks.indexOf(block)
-				const nextBlock = this._findNextBlockOnLevel(prevIndex, block.getLevel())
-				const index = nextBlock ? this._blocks.indexOf(nextBlock) : -1
+				const blockIndex = this._blocks.indexOf(block)
+				const descendants = this._findChildBlocks(blockIndex, true)
+				const lastDescendant = descendants[descendants.length - 1]
+				const index = (lastDescendant ? this._blocks.indexOf(lastDescendant) : blockIndex) + 1
 				const level = block.getLevel()
 
 				this.addBlock(newBlock, index, level)
