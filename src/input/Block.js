@@ -226,7 +226,7 @@ export default Garnish.Base.extend({
 			{
 				let key = keys[i]
 
-				if(!$.isPlainObject(content[key]) && !$.isArray(content[key]))
+				if(!$.isPlainObject(currentSet[key]) && !$.isArray(currentSet[key]))
 				{
 					currentSet[key] = {}
 				}
