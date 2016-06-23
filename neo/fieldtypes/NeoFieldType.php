@@ -65,6 +65,15 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 					$fieldLayoutPost = $blockTypeSettings['fieldLayout'];
 					$requiredFieldPost = empty($blockTypeSettings['requiredFields']) ? [] : $blockTypeSettings['requiredFields'];
 
+					// Add support for blank tabs
+					foreach($fieldLayoutPost as $tabName => $fieldIds)
+					{
+						if(!is_array($fieldIds))
+						{
+							$fieldLayoutPost[$tabName] = [];
+						}
+					}
+
 					$fieldLayout = craft()->fields->assembleLayout($fieldLayoutPost, $requiredFieldPost);
 					$fieldLayout->type = Neo_ElementType::NeoBlock;
 					$blockType->setFieldLayout($fieldLayout);

@@ -59,7 +59,9 @@ export default Garnish.Base.extend({
 			}
 		}
 
+		this._patchFLD()
 		this._updateInstructions()
+		this._setupBlankTabs()
 		this._initReasonsPlugin()
 		this._initRelabelPlugin()
 		this._initQuickFieldPlugin()
@@ -124,6 +126,8 @@ export default Garnish.Base.extend({
 			$containerParent.append(this.$container)
 		}
 
+		this._setupBlankTab($tab)
+
 		return $tab
 	},
 
@@ -181,6 +185,23 @@ export default Garnish.Base.extend({
 		}
 	},
 
+	_patchFLD()
+	{
+		const patch = (method, callback) =>
+		{
+			const superMethod = this._fld[method]
+			this._fld[method] = function()
+			{
+				const returnValue = superMethod.apply(this, arguments)
+				callback.apply(this, arguments)
+				return returnValue
+			}
+		}
+
+		patch('initTab', $tab => this._setupBlankTab($tab))
+		patch('renameTab', $tab => this._setupBlankTab($tab))
+	},
+
 	_updateInstructions()
 	{
 		if(this.$instructions)
@@ -210,6 +231,29 @@ export default Garnish.Base.extend({
 		{
 			this._reasons.destroy()
 		}
+	},
+
+	_setupBlankTab($tab)
+	{
+		$tab = $($tab)
+		$tab.children('.nc_blanktab').remove()
+
+		const tabName = $tab.find('.tab > span').text()
+		let inputName = this._fld.getFieldInputName(tabName)
+		inputName = inputName.substr(0, inputName.length - 2) // Remove the "[]" array part
+
+		$tab.prepend(`<input type="hidden" class="nc_blanktab" name="${inputName}">`)
+	},
+
+	_setupBlankTabs()
+	{
+		const $tabs = this._fld.$tabContainer.children('.fld-tab')
+		const that = this
+
+		$tabs.each(function()
+		{
+			that._setupBlankTab(this)
+		})
 	},
 
 	_initRelabelPlugin()
