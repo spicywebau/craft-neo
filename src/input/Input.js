@@ -335,6 +335,8 @@ export default Garnish.Base.extend({
 
 		for(let block of blocks)
 		{
+			block.updateMenuStates(blocks, this.getMaxBlocks())
+
 			let buttons = block.getButtons()
 			if(buttons)
 			{

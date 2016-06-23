@@ -422,6 +422,20 @@ export default Garnish.Base.extend({
 		this.$tabsButton.toggleClass('hidden', !isMobile)
 	},
 
+	updateMenuStates(blocks = [], maxBlocks = 0)
+	{
+		const blockType = this.getBlockType()
+		const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
+		const maxBlockTypes = blockType.getMaxBlocks()
+
+		const allDisabled = (maxBlocks > 0 && blocks.length >= maxBlocks)
+		const typeDisabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
+
+		const disabled = allDisabled || typeDisabled
+
+		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
+	},
+
 	_initReasonsPlugin()
 	{
 		const Reasons = Craft.ReasonsPlugin
@@ -481,27 +495,30 @@ export default Garnish.Base.extend({
 	{
 		const $option = $(e.option)
 
-		switch($option.attr('data-action'))
+		if(!$option.hasClass('disabled'))
 		{
-			case 'collapse': this.collapse() ; break
-			case 'expand':   this.expand()   ; break
-			case 'disable':  this.disable()
-			                 this.collapse() ; break
-			case 'enable':   this.enable()
-			                 this.expand()   ; break
-			case 'delete':   this.destroy()  ; break
+			switch($option.attr('data-action'))
+			{
+				case 'collapse': this.collapse() ; break
+				case 'expand':   this.expand()   ; break
+				case 'disable':  this.disable()
+								 this.collapse() ; break
+				case 'enable':   this.enable()
+								 this.expand()   ; break
+				case 'delete':   this.destroy()  ; break
 
-			case 'add':
-				this.trigger('addBlockAbove', {
-					block: this
-				})
-				break
+				case 'add':
+					this.trigger('addBlockAbove', {
+						block: this
+					})
+					break
 
-			case 'duplicate':
-				this.trigger('duplicateBlock', {
-					block: this
-				})
-				break
+				case 'duplicate':
+					this.trigger('duplicateBlock', {
+						block: this
+					})
+					break
+			}
 		}
 	},
 
