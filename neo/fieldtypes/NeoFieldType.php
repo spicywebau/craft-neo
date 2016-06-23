@@ -538,6 +538,40 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	public function getSearchKeywords($value)
 	{
+		if(craft()->request->isAjaxRequest())
+		{
+			$keywords = [];
+
+			foreach($value as $block)
+			{
+				$originalContentTable = craft()->content->contentTable;
+				$originalFieldColumnPrefix = craft()->content->fieldColumnPrefix;
+				$originalFieldContext = craft()->content->fieldContext;
+
+				craft()->content->contentTable = $block->getContentTable();
+				craft()->content->fieldColumnPrefix = $block->getFieldColumnPrefix();
+				craft()->content->fieldContext = $block->getFieldContext();
+
+				foreach(craft()->fields->getAllFields() as $field)
+				{
+					$fieldType = $field->getFieldType();
+
+					if($fieldType)
+					{
+						$fieldType->element = $block;
+						$handle = $field->handle;
+						$keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
+					}
+				}
+
+				craft()->content->contentTable = $originalContentTable;
+				craft()->content->fieldColumnPrefix = $originalFieldColumnPrefix;
+				craft()->content->fieldContext = $originalFieldContext;
+			}
+
+			return parent::getSearchKeywords($keywords);
+		}
+
 		craft()->tasks->createTask('Neo_GetSearchKeywords', null, [
 			'fieldId' => $this->model->id,
 			'ownerId' => $this->element->id,
