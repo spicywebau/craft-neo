@@ -143,6 +143,11 @@
 							margin-bottom: -1px;
 							background-color: #fafafa;
 							color: #576575;
+
+							&.is-blank {
+								border-bottom-color: #eef0f1;
+								background-color: transparent;
+							}
 						}
 
 						&.has-errors {
@@ -174,9 +179,6 @@
 		}
 
 		&_content {
-			padding: 14px;
-			border-top: 1px solid #e3e5e8;
-			background-color: #fafafa;
 
 			&:empty {
 				display: none;
@@ -184,6 +186,14 @@
 
 			&_tab {
 				display: none;
+				padding: 14px;
+				border-top: 1px solid #e3e5e8;
+				background-color: #fafafa;
+
+				&.is-blank {
+					padding: 0;
+					border-top: 0;
+				}
 
 				&.is-selected {
 					display: block;

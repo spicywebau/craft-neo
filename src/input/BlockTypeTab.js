@@ -40,6 +40,11 @@ export default Garnish.Base.extend({
 		return this._getHtml(this._footHtml, blockId)
 	},
 
+	isBlank()
+	{
+		return !this._bodyHtml.trim()
+	},
+
 	_getHtml(html, blockId = null)
 	{
 		if(blockId !== null)

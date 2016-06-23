@@ -22,7 +22,7 @@
 				<div class="tabs_inner" data-neo-b="container.tabs">
 					{%- for tab in type.getTabs() -%}
 						{%- set tabHasErrors = (tab.getErrors()|length > 0) -%}
-						<a class="tab {{ loop.first ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
+						<a class="tab {{ tab.isBlank() ? ' is-blank' : '' }} {{ loop.first ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
 						   data-neo-b="button.tab"
 						   data-neo-b-info="{{ tab.name }}">
 							{{ tab.name }}
@@ -81,7 +81,7 @@
 		{% if hasTabs %}
 			<div class="ni_block_content" data-neo-b="container.content">{%
 				for tab in type.getTabs() %}
-					<div class="ni_block_content_tab {{ loop.first ? 'is-selected' : '' }}"
+					<div class="ni_block_content_tab {{ tab.isBlank() ? ' is-blank' : '' }} {{ loop.first ? ' is-selected' : '' }}"
 						 data-neo-b="container.tab"
 						 data-neo-b-info="{{ tab.name }}">
 						{{ tab.getBodyHtml(id) }}
