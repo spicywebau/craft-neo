@@ -1,5 +1,15 @@
 ## Changelog
 
+#### v1.3.0
+- `Added` Added ability to duplicate blocks
+- `Added` Added ability to have blank tabs in block type field layouts
+- `Improved` Generating search keywords for Neo fields are now offloaded to a task, dramatically reducing saving time
+- `Improved` Blocks now only save if their content has been modified, reducing saving time
+- `Improved` Block field templates are now cached for improved rendering performance
+- `Improved` Javascript (Babel) polyfills now only load if necessary
+- `Fixed` Can now use comparison querying (eg. `'>=3'`) on level property in live preview
+- `Fixed` Filtering Neo blocks by `typeId` now works correctly
+
 #### v1.2.1
 - `Improved` When editing Neo fields, block types and groups are now inserted after the currently selected item
 - `Fixed` Added support for Reasons v1.0.4
