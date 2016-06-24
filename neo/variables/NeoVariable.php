@@ -1,6 +1,11 @@
 <?php
 namespace Craft;
 
+/**
+ * Class NeoVariable
+ *
+ * @package Craft
+ */
 class NeoVariable
 {
 	/**

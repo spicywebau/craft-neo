@@ -1,6 +1,11 @@
 <?php
 namespace Craft;
 
+/**
+ * Class Neo_BlockElementType
+ *
+ * @package Craft
+ */
 class Neo_BlockElementType extends BaseElementType
 {
 	public function getName()
@@ -25,6 +30,7 @@ class Neo_BlockElementType extends BaseElementType
 			'collapsed'   => [AttributeType::String, 'default' => 'neoblocks.collapsed'],
 			'ownerId'     => AttributeType::Number,
 			'ownerLocale' => AttributeType::Locale,
+			'typeId'      => AttributeType::Number,
 			'type'        => AttributeType::Mixed,
 			'order'       => [AttributeType::String, 'default' => 'lft'],
 		];
@@ -44,6 +50,7 @@ class Neo_BlockElementType extends BaseElementType
 				'neoblocks neoblocks',
 				'neoblocks.id = elements.id'
 			)
+			// Join structural information, such as level and order properties, to blocks
 			->leftJoin(
 				'neoblockstructures neoblockstructures',
 				[
@@ -53,6 +60,10 @@ class Neo_BlockElementType extends BaseElementType
 					[
 						'or',
 						'neoblockstructures.ownerLocale = neoblocks.ownerLocale',
+
+						// If there is no locale set (in other words, `ownerLocale` is `null`), then the above
+						// comparison will not be true for some reason. So if it's not evaluated to true, then check
+						// to see if both `ownerLocale` properties are `null`.
 						[
 							'and',
 							'neoblockstructures.ownerLocale is null',
@@ -85,7 +96,11 @@ class Neo_BlockElementType extends BaseElementType
 			$query->andWhere(DbHelper::parseParam('neoblocks.ownerLocale', $criteria->ownerLocale, $query->params));
 		}
 
-		if($criteria->type)
+		if($criteria->typeId)
+		{
+			$query->andWhere(DbHelper::parseParam('neoblocks.typeId', $criteria->typeId, $query->params));
+		}
+		else if($criteria->type)
 		{
 			$query->join('neoblocktypes neoblocktypes', 'neoblocktypes.id = neoblocks.typeId');
 			$query->andWhere(DbHelper::parseParam('neoblocktypes.handle', $criteria->type, $query->params));

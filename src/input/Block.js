@@ -6,8 +6,6 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
-import Buttons from './Buttons'
-
 import ReasonsRenderer from '../plugins/reasons/Renderer'
 
 import renderTemplate from './templates/block.twig'
@@ -20,7 +18,29 @@ const _defaults = {
 	level: 0,
 	buttons: null,
 	enabled: true,
-	collapsed: false
+	collapsed: false,
+	modified: true
+}
+
+const _resources = {}
+
+function _resourceFilter()
+{
+	let url = this.href || this.src
+
+	if(url)
+	{
+		const paramIndex = url.indexOf('?')
+
+		url = (paramIndex < 0 ? url : url.substr(0, paramIndex))
+
+		const isNew = !_resources.hasOwnProperty(url)
+		_resources[url] = 1
+
+		return isNew
+	}
+
+	return true
 }
 
 export default Garnish.Base.extend({
@@ -30,6 +50,8 @@ export default Garnish.Base.extend({
 	_initialised: false,
 	_expanded: true,
 	_enabled: true,
+	_modified: true,
+	_initialState: null,
 
 	init(settings = {})
 	{
@@ -39,6 +61,7 @@ export default Garnish.Base.extend({
 		this._blockType = settings.blockType
 		this._id = settings.id
 		this._buttons = settings.buttons
+		this._modified = settings.modified
 
 		NS.enter(this._templateNs)
 
@@ -47,7 +70,8 @@ export default Garnish.Base.extend({
 			id: this._id,
 			enabled: !!settings.enabled,
 			collapsed: !!settings.collapsed,
-			level: settings.level
+			level: settings.level,
+			modified: settings.modified
 		}))
 
 		NS.leave()
@@ -68,6 +92,7 @@ export default Garnish.Base.extend({
 		this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
 		this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
 		this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
+		this.$modifiedInput = $neo.filter('[data-neo-b="input.modified"]')
 		this.$status = $neo.filter('[data-neo-b="status"]')
 
 		if(this._buttons)
@@ -95,6 +120,17 @@ export default Garnish.Base.extend({
 
 		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')
+
+		if(!this.isNew())
+		{
+			this._initialState = {
+				enabled: this._enabled,
+				level: this._level,
+				content: Garnish.getPostData(this.$contentContainer)
+			}
+
+			this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
+		}
 	},
 
 	initUi()
@@ -103,9 +139,12 @@ export default Garnish.Base.extend({
 		{
 			const tabs = this._blockType.getTabs()
 
+			let headList = tabs.map(tab => tab.getHeadHtml(this._id))
 			let footList = tabs.map(tab => tab.getFootHtml(this._id))
-			this.$foot = $(footList.join(''))
+			this.$head = $(headList.join('')).filter(_resourceFilter)
+			this.$foot = $(footList.join('')).filter(_resourceFilter)
 
+			Garnish.$bod.siblings('head').append(this.$head)
 			Garnish.$bod.append(this.$foot)
 			Craft.initUiElements(this.$contentContainer)
 			this.$tabsButton.menubtn()
@@ -134,7 +173,10 @@ export default Garnish.Base.extend({
 	{
 		if(this._initialised)
 		{
+			this.$head.remove()
 			this.$foot.remove()
+
+			clearInterval(this._detectChangeInterval)
 
 			this._destroyReasonsPlugin()
 
@@ -169,6 +211,43 @@ export default Garnish.Base.extend({
 	getButtons()
 	{
 		return this._buttons
+	},
+
+	getContent()
+	{
+		const rawContent = Garnish.getPostData(this.$contentContainer)
+		const content = {}
+
+		const setValue = (keys, value) =>
+		{
+			let currentSet = content
+
+			for(let i = 0; i < keys.length - 1; i++)
+			{
+				let key = keys[i]
+
+				if(!$.isPlainObject(currentSet[key]) && !$.isArray(currentSet[key]))
+				{
+					currentSet[key] = {}
+				}
+
+				currentSet = currentSet[key]
+			}
+
+			let key = keys[keys.length - 1]
+			currentSet[key] = value
+		}
+
+		for(let rawName of Object.keys(rawContent))
+		{
+			let fullName = NS.parse(rawName)
+			let name = fullName.slice(this._templateNs.length + 1) // Adding 1 because content is NS'd under [fields]
+			let value = rawContent[rawName]
+
+			setValue(name, value)
+		}
+
+		return content
 	},
 
 	isNew()
@@ -343,6 +422,20 @@ export default Garnish.Base.extend({
 		this.$tabsButton.toggleClass('hidden', !isMobile)
 	},
 
+	updateMenuStates(blocks = [], maxBlocks = 0)
+	{
+		const blockType = this.getBlockType()
+		const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
+		const maxBlockTypes = blockType.getMaxBlocks()
+
+		const allDisabled = (maxBlocks > 0 && blocks.length >= maxBlocks)
+		const typeDisabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
+
+		const disabled = allDisabled || typeDisabled
+
+		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
+	},
+
 	_initReasonsPlugin()
 	{
 		const Reasons = Craft.ReasonsPlugin
@@ -382,25 +475,50 @@ export default Garnish.Base.extend({
 		}
 	},
 
+	_detectChange()
+	{
+		const initial = this._initialState
+		const content = Garnish.getPostData(this.$contentContainer)
+
+		const modified = !Craft.compare(content, initial.content) ||
+			initial.enabled !== this._enabled ||
+			initial.level !== this._level
+
+		if(modified !== this._modified)
+		{
+			this.$modifiedInput.val(modified ? 1 : 0)
+			this._modified = modified
+		}
+	},
+
 	'@settingSelect'(e)
 	{
 		const $option = $(e.option)
 
-		switch($option.attr('data-action'))
+		if(!$option.hasClass('disabled'))
 		{
-			case 'collapse': this.collapse() ; break
-			case 'expand':   this.expand()   ; break
-			case 'disable':  this.disable()
-			                 this.collapse() ; break
-			case 'enable':   this.enable()
-			                 this.expand()   ; break
-			case 'delete':   this.destroy()  ; break
+			switch($option.attr('data-action'))
+			{
+				case 'collapse': this.collapse() ; break
+				case 'expand':   this.expand()   ; break
+				case 'disable':  this.disable()
+								 this.collapse() ; break
+				case 'enable':   this.enable()
+								 this.expand()   ; break
+				case 'delete':   this.destroy()  ; break
 
-			case 'add':
-				this.trigger('addBlockAbove', {
-					block: this
-				})
-				break
+				case 'add':
+					this.trigger('addBlockAbove', {
+						block: this
+					})
+					break
+
+				case 'duplicate':
+					this.trigger('duplicateBlock', {
+						block: this
+					})
+					break
+			}
 		}
 	},
 

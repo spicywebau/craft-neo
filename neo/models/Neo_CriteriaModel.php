@@ -1,14 +1,31 @@
 <?php
 namespace Craft;
 
+/**
+ * Class Neo_CriteriaModel
+ * An extension to the ElementCriteriaModel that supports querying in Live Preview mode.
+ *
+ * @package Craft
+ */
 class Neo_CriteriaModel extends ElementCriteriaModel
 {
+	// Private properties
+
 	private $_allElements;
 	private $_currentFilters = [];
-
 	private $_ancestor = null;
 	private $_descendant = null;
 
+
+	// Protected properties
+
+	/**
+	 * Defines the order in which Live Preview filters are run.
+	 * This is important as changing the order can affect the results of certain filters, such as limit and offset. It
+	 * also allows increased performance by allowing filters with high filtering potential to be run earlier.
+	 *
+	 * @var array
+	 */
 	protected $filterOrder = [
 		'id',
 		'fieldId',
@@ -34,13 +51,26 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		'limit',
 	];
 
-	public function __construct($attributes)
+
+	// Public methods
+
+	/**
+	 * Initialises the criteria model, forcing the element type to be a Neo block.
+	 *
+	 * @param array|null $attributes
+	 */
+	public function __construct($attributes = null)
 	{
 		$elementType = craft()->elements->getElementType(Neo_ElementType::NeoBlock);
 
 		parent::__construct($attributes, $elementType);
 	}
 
+	/**
+	 * Returns a clone of the criteria model.
+	 *
+	 * @return Neo_CriteriaModel
+	 */
 	public function copy()
 	{
 		$copy = parent::copy();
@@ -49,12 +79,20 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return $copy;
 	}
 
+	/**
+	 * Sets a filter value for the criteria model, then reruns Live Preview filtering.
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 * @return bool
+	 */
 	public function setAttribute($name, $value)
 	{
 		if(parent::setAttribute($name, $value))
 		{
 			$method = '__' . $name;
 
+			// Only bother setting and rerunning the filter if there exists a filtering method for it.
 			if(method_exists($this, $method))
 			{
 				$this->_currentFilters[$name] = $value;
@@ -68,6 +106,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return false;
 	}
 
+	/**
+	 * Sets all the elements (blocks) to be filtered against in Live Preview mode.
+	 * This becomes the main data source for Live Preview, instead of the database.
+	 *
+	 * @param array $elements
+	 */
 	public function setAllElements($elements)
 	{
 		$this->_allElements = $elements;
@@ -75,6 +119,14 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		$this->_runCriteria();
 	}
 
+
+	// Protected methods
+
+	/**
+	 * Returns all saved, private settings for the criteria model, to be used when copying.
+	 *
+	 * @return array
+	 */
 	protected function getState()
 	{
 		return [
@@ -85,6 +137,11 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		];
 	}
 
+	/**
+	 * Sets all saved, private settings to the criteria model, to be used when copying.
+	 *
+	 * @param Neo_CriteriaModel,array $state
+	 */
 	protected function setState($state)
 	{
 		if($state instanceof self)
@@ -99,6 +156,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		$this->setAllElements($state['elements']);
 	}
 
+
+	// Private methods
+
+	/**
+	 * Runs Live Preview filtering and saves it's output to the criteria model.
+	 */
 	private function _runCriteria()
 	{
 		if(craft()->request->isLivePreview() && !empty($this->_allElements))
@@ -125,6 +188,13 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		}
 	}
 
+	/**
+	 * Returns a block model given an ID, or an actual block model.
+	 * Saves having to check if some value is an integer or a block model instance.
+	 *
+	 * @param Neo_BlockModel,int $block
+	 * @return Neo_BlockModel,bool
+	 */
 	private function _getBlock($block)
 	{
 		if(is_int($block))
@@ -140,6 +210,15 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return false;
 	}
 
+	/**
+	 * Finds the position of a block inside a list of blocks.
+	 * It checks using the block's ID, so the passed block doesn't have to be strictly the same instance it matches to.
+	 * If no match is found, `-1` is returned.
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel $block
+	 * @return int
+	 */
 	private function _indexOfBlock($elements, Neo_BlockModel $block)
 	{
 		foreach($elements as $i => $element)
@@ -153,6 +232,14 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return -1;
 	}
 
+	/**
+	 * Finds the position of the block who is it's furthest ancestor to the passed block.
+	 * If no match is found, `-1` is returned.
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel $block
+	 * @return int
+	 */
 	private function _indexOfRootBlock($elements, Neo_BlockModel $block)
 	{
 		$index = $this->_indexOfBlock($elements, $block);
@@ -175,10 +262,54 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return -1;
 	}
 
-	/*
-	 * Criteria methods
+	/**
+	 * Compares an integer against a criteria model integer comparison string, or integer.
+	 * Takes in comparison inputs such as `1`, `'>=23'`, and `'< 4'`.
+	 *
+	 * @param int $value
+	 * @param int,string $comparison
+	 * @return bool
 	 */
+	private function _compareInt($value, $comparison)
+	{
+		if(is_int($comparison))
+		{
+			return $value == $comparison;
+		}
 
+		if(is_string($comparison))
+		{
+			$matches = [];
+			preg_match('/([><]=?)\\s*([0-9]+)/', $comparison, $matches);
+
+			if(count($matches) == 3)
+			{
+				$comparator = $matches[1];
+				$comparison = (int) $matches[2];
+
+				switch($comparator)
+				{
+					case '>': return $value > $comparison;
+					case '<': return $value < $comparison;
+					case '>=': return $value >= $comparison;
+					case '<=': return $value <= $comparison;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	// Live Preview methods
+	// These methods must be prefixed with two underscores. They will automatically be detected and used when filtering.
+
+	/**
+	 *
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
 	protected function __ancestorDist($elements, $value)
 	{
 		if(!$value || !$this->_ancestor)
@@ -192,6 +323,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		});
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel $value
+	 * @return array
+	 */
 	protected function __ancestorOf($elements, $value)
 	{
 		$this->_ancestor = $value;
@@ -228,6 +365,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return $newElements;
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel $value
+	 * @return array
+	 */
 	protected function __collapsed($elements, $value)
 	{
 		if(!is_bool($value))
@@ -241,6 +384,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		});
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
 	protected function __descendantDist($elements, $value)
 	{
 		if(!$value || !$this->_descendant)
@@ -254,6 +403,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		});
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel $value
+	 * @return array
+	 */
 	protected function __descendantOf($elements, $value)
 	{
 		$this->_descendant = $value;
@@ -288,6 +443,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return $newElements;
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
 	protected function __fieldId($elements, $value)
 	{
 		if(!$value)
@@ -301,6 +462,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		});
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
 	protected function __id($elements, $value)
 	{
 		if(!$value)
@@ -314,6 +481,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		});
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
 	protected function __level($elements, $value)
 	{
 		if(!$value)
@@ -323,10 +496,16 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 
 		return array_filter($elements, function($element) use($value)
 		{
-			return $element->level == $value; // TODO Support comparison operators `>=4` etc
+			return $this->_compareInt($element->level, $value);
 		});
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
 	protected function __limit($elements, $value)
 	{
 		if(!$value)
@@ -337,6 +516,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return array_slice($elements, 0, $value);
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel,int $value
+	 * @return array
+	 */
 	protected function __nextSiblingOf($elements, $value)
 	{
 		$value = $this->_getBlock($value);
@@ -367,6 +552,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return [];
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
 	protected function __offset($elements, $value)
 	{
 		if(!$value)
@@ -377,6 +568,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return array_slice($elements, $value);
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel,int $value
+	 * @return array
+	 */
 	protected function __positionedAfter($elements, $value)
 	{
 		$value = $this->_getBlock($value);
@@ -406,6 +603,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return array_slice($elements, $nextIndex);
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel,int $value
+	 * @return array
+	 */
 	protected function __positionedBefore($elements, $value)
 	{
 		$value = $this->_getBlock($value);
@@ -425,6 +628,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return array_slice($elements, 0, $index);
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel,int $value
+	 * @return array
+	 */
 	protected function __prevSiblingOf($elements, $value)
 	{
 		$value = $this->_getBlock($value);
@@ -454,6 +663,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return [];
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param $value
+	 * @return array
+	 */
 	protected function __relatedTo($elements, $value)
 	{
 		if(!$value)
@@ -464,6 +679,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return []; // TODO
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param $value
+	 * @return array
+	 */
 	protected function __search($elements, $value)
 	{
 		if(!$value)
@@ -474,6 +695,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return []; // TODO
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel,int $value
+	 * @return array
+	 */
 	protected function __siblingOf($elements, $value)
 	{
 		$value = $this->_getBlock($value);
@@ -527,6 +754,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return $newElements;
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param Neo_BlockModel $value
+	 * @return array
+	 */
 	protected function __status($elements, $value)
 	{
 		if(!$value)
@@ -540,6 +773,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		});
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param string $value
+	 * @return array
+	 */
 	protected function __type($elements, $value)
 	{
 		if(!$value)
@@ -564,6 +803,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		return [];
 	}
 
+	/**
+	 *
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
 	protected function __typeId($elements, $value)
 	{
 		if(!$value)

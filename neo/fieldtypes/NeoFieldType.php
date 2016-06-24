@@ -1,127 +1,39 @@
 <?php
 namespace Craft;
 
+require CRAFT_PLUGINS_PATH . '/neo/etc/Neo_BlockCacheDependency.php';
+
+/**
+ * Class NeoFieldType
+ *
+ * @package Craft
+ */
 class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 {
+	// Public methods
+
 	public function getName()
 	{
 		return "Neo";
 	}
 
+	/**
+	 * Disables using the built-in content column for storing values. We will manage field values ourselves.
+	 *
+	 * @return bool
+	 */
 	public function defineContentAttribute()
 	{
 		return false;
 	}
 
-	public function getSettingsHtml()
-	{
-		if($this->_getNamespaceDepth() > 2)
-		{
-			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
-		}
-
-		$settings = $this->getSettings();
-		$jsBlockTypes = [];
-		$jsGroups = [];
-
-		foreach($settings->getBlockTypes() as $blockType)
-		{
-			$fieldLayout = $blockType->getFieldLayout();
-			$fieldLayoutTabs = $fieldLayout->getTabs();
-
-			$jsFieldLayout = [];
-
-			foreach($fieldLayoutTabs as $tab)
-			{
-				$tabFields = $tab->getFields();
-				$jsTabFields = [];
-
-				foreach($tabFields as $field)
-				{
-					$jsTabFields[] = [
-						'id' => $field->fieldId,
-						'required' => $field->required,
-					];
-				}
-
-				$jsFieldLayout[] = [
-					'name' => $tab->name,
-					'fields' => $jsTabFields,
-				];
-			}
-
-			$jsBlockTypes[] = [
-				'id' => $blockType->id,
-				'sortOrder' => $blockType->sortOrder,
-				'name' => $blockType->name,
-				'handle' => $blockType->handle,
-				'maxBlocks' => $blockType->maxBlocks,
-				'childBlocks' => $blockType->childBlocks,
-				'topLevel' => (bool) $blockType->topLevel,
-				'errors' => $blockType->getErrors(),
-				'fieldLayout' => $jsFieldLayout,
-				'fieldLayoutId' => $fieldLayout->id,
-			];
-		}
-
-		foreach($settings->getGroups() as $group)
-		{
-			$jsGroups[] = [
-				'id' => $group->id,
-				'sortOrder' => $group->sortOrder,
-				'name' => $group->name,
-			];
-		}
-
-		craft()->templates->startJsBuffer();
-
-		$fieldLayoutHtml = craft()->templates->render('_includes/fieldlayoutdesigner', [
-			'fieldLayout' => false,
-			'instructions' => '',
-		]);
-
-		craft()->templates->clearJsBuffer();
-
-		$jsSettings = [
-			'namespace' => craft()->templates->getNamespace(),
-			'blockTypes' => $jsBlockTypes,
-			'groups' => $jsGroups,
-			'fieldLayoutHtml' => $fieldLayoutHtml,
-		];
-
-
-		craft()->templates->includeJsFile('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.7.4/polyfill.min.js');
-		craft()->templates->includeJsResource('neo/main.js');
-		craft()->templates->includeJs('new Neo.Configurator(' . JsonHelper::encode($jsSettings) . ')');
-
-		craft()->templates->includeTranslations(
-			"Block Types",
-			"Block type",
-			"Group",
-			"Settings",
-			"Field Layout",
-			"Reorder",
-			"Name",
-			"What this block type will be called in the CP.",
-			"Handle",
-			"How you'll refer to this block type in the templates.",
-			"Max Blocks",
-			"The maximum number of blocks of this type the field is allowed to have.",
-			"All",
-			"Child Blocks",
-			"Which block types do you want to allow as children?",
-			"Top Level",
-			"Will this block type be allowed at the top level?",
-			"Delete block type",
-			"This can be left blank if you just want an unlabeled separator.",
-			"Delete group"
-		);
-
-		return craft()->templates->render('neo/_fieldtype/settings', [
-			'settings' => $this->getSettings(),
-		]);
-	}
-
+	/**
+	 * Prepares the Neo field settings before they're saved to the database.
+	 * Handles preparing block types, field layouts and groups.
+	 *
+	 * @param array $settings
+	 * @return Neo_SettingsModel
+	 */
 	public function prepSettings($settings)
 	{
 		if($settings instanceof Neo_SettingsModel)
@@ -129,7 +41,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			return $settings;
 		}
 
-		$neoSettings = new Neo_SettingsModel($this->model);
+		$neoSettings = new Neo_SettingsModel();
+		$neoSettings->setField($this->model);
 		$blockTypes = [];
 		$groups = [];
 
@@ -145,12 +58,21 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				$blockType->maxBlocks = $blockTypeSettings['maxBlocks'];
 				$blockType->sortOrder = $blockTypeSettings['sortOrder'];
 				$blockType->childBlocks = $blockTypeSettings['childBlocks'];
-				$blockType->topLevel = (bool) $blockTypeSettings['topLevel'];
+				$blockType->topLevel = (bool)$blockTypeSettings['topLevel'];
 
 				if(!empty($blockTypeSettings['fieldLayout']))
 				{
 					$fieldLayoutPost = $blockTypeSettings['fieldLayout'];
 					$requiredFieldPost = empty($blockTypeSettings['requiredFields']) ? [] : $blockTypeSettings['requiredFields'];
+
+					// Add support for blank tabs
+					foreach($fieldLayoutPost as $tabName => $fieldIds)
+					{
+						if(!is_array($fieldIds))
+						{
+							$fieldLayoutPost[$tabName] = [];
+						}
+					}
 
 					$fieldLayout = craft()->fields->assembleLayout($fieldLayoutPost, $requiredFieldPost);
 					$fieldLayout->type = Neo_ElementType::NeoBlock;
@@ -187,16 +109,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return $neoSettings;
 	}
 
-	public function onAfterSave()
-	{
-		craft()->neo->saveSettings($this->getSettings(), false);
-	}
-
-	public function onBeforeDelete()
-	{
-		craft()->neo->deleteNeoField($this->model);
-	}
-
+	/**
+	 * Prepares the field's value for use in templates.
+	 *
+	 * @param array $value
+	 * @return Neo_CriteriaModel
+	 */
 	public function prepValue($value)
 	{
 		$criteria = craft()->neo->getCriteria();
@@ -251,61 +169,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return $criteria;
 	}
 
-	public function modifyElementsQuery(DbCommand $query, $value)
-	{
-		if($value == 'not :empty:')
-		{
-			$value = ':notempty:';
-		}
-
-		if($value == ':notempty:' || $value == ':empty:')
-		{
-			$alias = 'neoblocks_' . $this->model->handle;
-			$operator = ($value == ':notempty:' ? '!=' : '=');
-
-			$query->andWhere(
-				"(select count({$alias}.id) from {{neoblocks}} {$alias} where {$alias}.ownerId = elements.id and {$alias}.fieldId = :fieldId) {$operator} 0",
-				[':fieldId' => $this->model->id]
-			);
-		}
-
-		return $value !== null ? false : null;
-	}
-
-	public function getInputHtml($name, $value)
-	{
-		if($this->_getNamespaceDepth() > 1)
-		{
-			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
-		}
-
-		$id = craft()->templates->formatInputId($name);
-		$settings = $this->getSettings();
-
-		if($value instanceof ElementCriteriaModel)
-		{
-			$value->limit = null;
-			$value->status = null;
-			$value->localeEnabled = null;
-		}
-		else if(!$value)
-		{
-			$value = [];
-		}
-
-		$html = craft()->templates->render('neo/_fieldtype/input', [
-			'id' => $id,
-			'name' => $name,
-			'blockTypes' => $settings->getBlockTypes(),
-			'blocks' => $value,
-			'static' => false
-		]);
-
-		$this->_prepareInputHtml($id, $name, $settings, $value);
-
-		return $html;
-	}
-
+	/**
+	 * Converts the field's input value from post data to what it should be stored as in the database.
+	 *
+	 * @param array $data
+	 * @return array
+	 */
 	public function prepValueFromPost($data)
 	{
 		$blockTypes = craft()->neo->getBlockTypesByFieldId($this->model->id, 'handle');
@@ -375,11 +244,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			else
 			{
 				$block = $oldBlocksById[$blockId];
+				$block->modified = (isset($blockData['modified']) ? (bool)$blockData['modified'] : true);
 			}
 
 			$block->setOwner($this->element);
-			$block->enabled = (isset($blockData['enabled']) ? (bool) $blockData['enabled'] : true);
-			$block->collapsed = (isset($blockData['collapsed']) ? (bool) $blockData['collapsed'] : false);
+			$block->enabled = (isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true);
+			$block->collapsed = (isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false);
 			$block->level = (isset($blockData['level']) ? intval($blockData['level']) : 0) + 1;
 
 			$ownerContentPostLocation = $this->element->getContentPostLocation();
@@ -400,6 +270,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return $blocks;
 	}
 
+	/**
+	 * Validates the field's value (blocks).
+	 *
+	 * @param array $blocks
+	 * @return array|bool
+	 */
 	public function validate($blocks)
 	{
 		$errors = [];
@@ -407,7 +283,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		foreach($blocks as $block)
 		{
-			if (!craft()->neo->validateBlock($block))
+			if(!craft()->neo->validateBlock($block))
 			{
 				$blocksValidate = false;
 			}
@@ -437,46 +313,165 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return $errors ? $errors : true;
 	}
 
-	public function getSearchKeywords($value)
+	/**
+	 * Builds the HTML for the configurator.
+	 *
+	 * @return string
+	 */
+	public function getSettingsHtml()
 	{
-		$keywords = [];
-		$contentService = craft()->content;
-
-		foreach($value as $block)
+		// Disable creating Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
+		if($this->_getNamespaceDepth() > 2)
 		{
-			$originalContentTable = $contentService->contentTable;
-			$originalFieldColumnPrefix = $contentService->fieldColumnPrefix;
-			$originalFieldContext = $contentService->fieldContext;
-
-			$contentService->contentTable = $block->getContentTable();
-			$contentService->fieldColumnPrefix = $block->getFieldColumnPrefix();
-			$contentService->fieldContext = $block->getFieldContext();
-
-			foreach(craft()->fields->getAllFields() as $field)
-			{
-				$fieldType = $field->getFieldType();
-
-				if($fieldType)
-				{
-					$fieldType->element = $block;
-					$handle = $field->handle;
-					$keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
-				}
-			}
-
-			$contentService->contentTable = $originalContentTable;
-			$contentService->fieldColumnPrefix = $originalFieldColumnPrefix;
-			$contentService->fieldContext = $originalFieldContext;
+			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
 		}
 
-		return parent::getSearchKeywords($keywords);
+		$settings = $this->getSettings();
+		$jsBlockTypes = [];
+		$jsGroups = [];
+
+		foreach($settings->getBlockTypes() as $blockType)
+		{
+			$fieldLayout = $blockType->getFieldLayout();
+			$fieldLayoutTabs = $fieldLayout->getTabs();
+
+			$jsFieldLayout = [];
+
+			foreach($fieldLayoutTabs as $tab)
+			{
+				$tabFields = $tab->getFields();
+				$jsTabFields = [];
+
+				foreach($tabFields as $field)
+				{
+					$jsTabFields[] = [
+						'id' => $field->fieldId,
+						'required' => $field->required,
+					];
+				}
+
+				$jsFieldLayout[] = [
+					'name' => $tab->name,
+					'fields' => $jsTabFields,
+				];
+			}
+
+			$jsBlockTypes[] = [
+				'id' => $blockType->id,
+				'sortOrder' => $blockType->sortOrder,
+				'name' => $blockType->name,
+				'handle' => $blockType->handle,
+				'maxBlocks' => $blockType->maxBlocks,
+				'childBlocks' => $blockType->childBlocks,
+				'topLevel' => (bool)$blockType->topLevel,
+				'errors' => $blockType->getErrors(),
+				'fieldLayout' => $jsFieldLayout,
+				'fieldLayoutId' => $fieldLayout->id,
+			];
+		}
+
+		foreach($settings->getGroups() as $group)
+		{
+			$jsGroups[] = [
+				'id' => $group->id,
+				'sortOrder' => $group->sortOrder,
+				'name' => $group->name,
+			];
+		}
+
+		// Render the field layout designer HTML, but disregard any Javascript it outputs, as that'll be handled by Neo.
+
+		craft()->templates->startJsBuffer();
+
+		$fieldLayoutHtml = craft()->templates->render('_includes/fieldlayoutdesigner', [
+			'fieldLayout' => false,
+			'instructions' => '',
+		]);
+
+		craft()->templates->clearJsBuffer();
+
+		$this->_includeResources('configurator', [
+			'namespace' => craft()->templates->getNamespace(),
+			'blockTypes' => $jsBlockTypes,
+			'groups' => $jsGroups,
+			'fieldLayoutHtml' => $fieldLayoutHtml,
+		]);
+
+		craft()->templates->includeTranslations(
+			"Block Types",
+			"Block type",
+			"Group",
+			"Settings",
+			"Field Layout",
+			"Reorder",
+			"Name",
+			"What this block type will be called in the CP.",
+			"Handle",
+			"How you'll refer to this block type in the templates.",
+			"Max Blocks",
+			"The maximum number of blocks of this type the field is allowed to have.",
+			"All",
+			"Child Blocks",
+			"Which block types do you want to allow as children?",
+			"Top Level",
+			"Will this block type be allowed at the top level?",
+			"Delete block type",
+			"This can be left blank if you just want an unlabeled separator.",
+			"Delete group"
+		);
+
+		return craft()->templates->render('neo/_fieldtype/settings', [
+			'settings' => $this->getSettings(),
+		]);
 	}
 
-	public function onAfterElementSave()
+	/**
+	 * Builds the HTML for the input field.
+	 *
+	 * @param string $name
+	 * @param array $value
+	 * @return string
+	 */
+	public function getInputHtml($name, $value)
 	{
-		craft()->neo->saveField($this);
+		if($this->_getNamespaceDepth() > 1)
+		{
+			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
+		}
+
+		$id = craft()->templates->formatInputId($name);
+		$settings = $this->getSettings();
+
+		if($value instanceof ElementCriteriaModel)
+		{
+			$value->limit = null;
+			$value->status = null;
+			$value->localeEnabled = null;
+		}
+		else if(!$value)
+		{
+			$value = [];
+		}
+
+		$html = craft()->templates->render('neo/_fieldtype/input', [
+			'id' => $id,
+			'name' => $name,
+			'blockTypes' => $settings->getBlockTypes(),
+			'blocks' => $value,
+			'static' => false
+		]);
+
+		$this->_prepareInputHtml($id, $name, $settings, $value);
+
+		return $html;
 	}
 
+	/**
+	 * Builds the HTML for the non-editable input field.
+	 *
+	 * @param array $value
+	 * @return string
+	 */
 	public function getStaticHtml($value)
 	{
 		if($value)
@@ -502,6 +497,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		}
 	}
 
+	/**
+	 * Returns an array that maps source-to-target element IDs based on this custom field.
+	 *
+	 * @param BaseElementModel[] $sourceElements
+	 * @return array
+	 */
 	public function getEagerLoadingMap($sourceElements)
 	{
 		$sourceElementIds = [];
@@ -525,15 +526,102 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return [
 			'elementType' => Neo_ElementType::NeoBlock,
 			'map' => $map,
-			'criteria' => array('fieldId' => $this->model->id),
+			'criteria' => ['fieldId' => $this->model->id],
 		];
 	}
 
-	protected function getSettingsModel()
+	/**
+	 * Returns the search keywords that should be associated with this field.
+	 *
+	 * @param array $value
+	 * @return string
+	 */
+	public function getSearchKeywords($value)
 	{
-		return new Neo_SettingsModel($this->model);
+		craft()->tasks->createTask('Neo_GetSearchKeywords', null, [
+			'fieldId' => $this->model->id,
+			'ownerId' => $this->element->id,
+			'locale' => $this->element->locale,
+		]);
+
+		return ''; // TODO return current keywords instead
 	}
 
+	/**
+	 * Modifies the element query.
+	 *
+	 * @param DbCommand $query
+	 * @param mixed $value
+	 * @return bool|null
+	 */
+	public function modifyElementsQuery(DbCommand $query, $value)
+	{
+		if($value == 'not :empty:')
+		{
+			$value = ':notempty:';
+		}
+
+		if($value == ':notempty:' || $value == ':empty:')
+		{
+			$alias = 'neoblocks_' . $this->model->handle;
+			$operator = ($value == ':notempty:' ? '!=' : '=');
+
+			$query->andWhere(
+				"(select count({$alias}.id) from {{neoblocks}} {$alias} where {$alias}.ownerId = elements.id and {$alias}.fieldId = :fieldId) {$operator} 0",
+				[':fieldId' => $this->model->id]
+			);
+		}
+
+		return $value !== null ? false : null;
+	}
+
+
+	// Events
+
+	/**
+	 * Saves the actual field type settings after the field type is saved.
+	 */
+	public function onAfterSave()
+	{
+		craft()->neo->saveSettings($this->getSettings(), false);
+	}
+
+	/**
+	 * Cleans up the field and all it's settings after it gets deleted.
+	 */
+	public function onBeforeDelete()
+	{
+		craft()->neo->deleteField($this->model);
+	}
+
+	/**
+	 *
+	 */
+	public function onAfterElementSave()
+	{
+		craft()->neo->saveFieldValue($this);
+	}
+
+
+	// Protected methods
+
+	protected function getSettingsModel()
+	{
+		$settings = new Neo_SettingsModel($this->model);
+		$settings->setField($this->model);
+
+		return $settings;
+	}
+
+
+	// Private methods
+
+	/**
+	 * Returns what current depth the field is nested.
+	 * For example, if a Neo field was being rendered inside a Matrix block, it's depth will be 2.
+	 *
+	 * @return int
+	 */
 	private function _getNamespaceDepth()
 	{
 		$namespace = craft()->templates->getNamespace();
@@ -541,6 +629,28 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		return preg_match_all('/\\bfields\\b/', $namespace);
 	}
 
+	/**
+	 * Includes the resource (Javascript) files for when outputting the settings or input HTML.
+	 *
+	 * @param string $class - Either "configurator" or "input"
+	 * @param array $settings - Settings to be JSON encoded and passed to the Javascript
+	 */
+	private function _includeResources($class, $settings = [])
+	{
+		craft()->templates->includeJsResource('neo/polyfill.js');
+		craft()->templates->includeJsResource('neo/main.js');
+		craft()->templates->includeJs('new Neo.' . ucfirst($class) . '(' . JsonHelper::encode($settings) . ')');
+	}
+
+	/**
+	 * Actually builds the HTML for the input field. The other one just calls this method.
+	 *
+	 * @param int $id
+	 * @param string $name
+	 * @param array $settings
+	 * @param array $value
+	 * @param bool|false $static
+	 */
 	private function _prepareInputHtml($id, $name, $settings, $value, $static = false)
 	{
 		$blockTypeInfo = [];
@@ -555,8 +665,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'name' => Craft::t($blockType->name),
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
-				'topLevel' => (bool) $blockType->topLevel,
-				'tabs' => $this->_getBlockTypeHtml($blockType, null, $name, $static),
+				'topLevel' => (bool)$blockType->topLevel,
+				'tabs' => $this->_getBlockHtml($blockType, null, $name, $static),
 			];
 		}
 
@@ -574,18 +684,19 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		foreach($value as $block)
 		{
+			$blockType = $block->getType();
 			$blockInfo[] = [
 				'id' => $block->id,
-				'blockType' => $block->getType()->handle,
+				'blockType' => $blockType->handle,
 				'sortOrder' => $sortOrder++,
-				'collapsed' => (bool) $block->collapsed,
-				'enabled' => (bool) $block->enabled,
+				'collapsed' => (bool)$block->collapsed,
+				'enabled' => (bool)$block->enabled,
 				'level' => intval($block->level) - 1,
-				'tabs' => $this->_getBlockHtml($block, $name, $static),
+				'tabs' => $this->_getBlockHtml($blockType, $block, $name, $static),
 			];
 		}
 
-		$jsSettings = [
+		$this->_includeResources('input', [
 			'namespace' => craft()->templates->namespaceInputName($name),
 			'blockTypes' => $blockTypeInfo,
 			'groups' => $groupInfo,
@@ -593,11 +704,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			'maxBlocks' => $settings->maxBlocks,
 			'blocks' => $blockInfo,
 			'static' => $static,
-		];
-
-		craft()->templates->includeJsFile('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.7.4/polyfill.min.js');
-		craft()->templates->includeJsResource('neo/main.js');
-		craft()->templates->includeJs('new Neo.Input(' . JsonHelper::encode($jsSettings) . ')');
+		]);
 
 		craft()->templates->includeTranslations(
 			"Select",
@@ -616,81 +723,42 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		);
 	}
 
-	private function _getBlockTypeHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = null, $static = false)
+	/**
+	 * Builds the HTML for an individual block type.
+	 * If you don't pass in a block along with the type, then it'll render a base template to build real blocks from.
+	 * If you do pass in a block, then it's current field values will be rendered as well.
+	 *
+	 * @param Neo_BlockTypeModel $blockType
+	 * @param Neo_BlockModel|null $block
+	 * @param string $namespace
+	 * @param bool|false $static
+	 * @return array
+	 */
+	private function _getBlockHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
 	{
-		$oldNamespace = craft()->templates->getNamespace();
-		$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
-		craft()->templates->setNamespace($newNamespace);
+		$hasErrors = $block ? !empty($block->getAllErrors()) : false;
+		$fullNamespace = craft()->templates->namespaceInputName($namespace, craft()->templates->getNamespace());
 
-		$tabsHtml = [];
+		$cacheKey = implode(':', ['neoblock',
+			$blockType->id,
+			$block ? $block->id : '',
+			$fullNamespace,
+			$static ? 's' : '',
+		]);
 
-		$fieldLayout = $blockType->getFieldLayout();
-		$fieldLayoutTabs = $fieldLayout->getTabs();
+		$tabsHtml = $hasErrors ? false : craft()->cache->get($cacheKey);
 
-		foreach($fieldLayoutTabs as $fieldLayoutTab)
+		if(!$tabsHtml)
 		{
-			$tabHtml = [
-				'name' => Craft::t($fieldLayoutTab->name),
-				'bodyHtml' => '',
-				'footHtml' => '',
-				'errors' => [],
-			];
+			$tabsHtml = craft()->neo->renderBlockTabs($blockType, $block, $namespace, $static);
 
-			$fieldLayoutFields = $fieldLayoutTab->getFields();
-
-			foreach($fieldLayoutFields as $fieldLayoutField)
+			if(!$hasErrors)
 			{
-				$field = $fieldLayoutField->getField();
-				$fieldType = $field->getFieldType();
-
-				if($fieldType)
-				{
-					$fieldType->element = $block;
-					$fieldType->setIsFresh($block == null);
-
-					if($block)
-					{
-						$fieldErrors = $block->getErrors($field->handle);
-
-						if(!empty($fieldErrors))
-						{
-							$tabHtml['errors'] = array_merge($tabHtml['errors'], $fieldErrors);
-						}
-					}
-				}
+				$cacheDependency = new Neo_BlockCacheDependency($blockType, $block);
+				craft()->cache->set($cacheKey, $tabsHtml, null, $cacheDependency);
 			}
-
-			craft()->templates->startJsBuffer();
-
-			$tabHtml['bodyHtml'] = craft()->templates->namespaceInputs(craft()->templates->render('_includes/fields', [
-				'namespace' => null,
-				'element' => $block,
-				'fields' => $fieldLayoutFields,
-				'static' => $static,
-			]));
-
-			foreach($fieldLayoutFields as $fieldLayoutField)
-			{
-				$fieldType = $fieldLayoutField->getField()->getFieldType();
-
-				if($fieldType)
-				{
-					$fieldType->setIsFresh(null);
-				}
-			}
-
-			$tabHtml['footHtml'] = craft()->templates->clearJsBuffer();
-
-			$tabsHtml[] = $tabHtml;
 		}
 
-		craft()->templates->setNamespace($oldNamespace);
-
 		return $tabsHtml;
-	}
-
-	private function _getBlockHtml(Neo_BlockModel $block, $namespace = null, $static = false)
-	{
-		return $this->_getBlockTypeHtml($block->getType(), $block, $namespace, $static);
 	}
 }

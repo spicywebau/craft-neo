@@ -60,11 +60,6 @@ class NeoPlugin extends BasePlugin
 		return 'https://raw.githubusercontent.com/benjamminf/craft-neo/master/releases.json';
 	}
 
-	public function isCompatible()
-	{
-		return $this->isCraftRequiredVersion() && $this->isPHPRequiredVersion();
-	}
-
 	public function isCraftRequiredVersion()
 	{
 		return version_compare(craft()->getVersion(), $this->getCraftMinimumVersion(), '>=');
@@ -75,6 +70,9 @@ class NeoPlugin extends BasePlugin
 		return version_compare(PHP_VERSION, $this->getPHPMinimumVersion(), '>=');
 	}
 
+	/**
+	 * Initialises the plugin, as well as it's support for other plugins.
+	 */
 	public function init()
 	{
 		parent::init();
@@ -83,6 +81,15 @@ class NeoPlugin extends BasePlugin
 		craft()->neo_relabel->pluginInit();
 	}
 
+	/**
+	 * Adds custom Neo Twig extensions.
+	 * It adds a way to test if some value is an instance of Neo_BlockModel in your templates.
+	 * This is useful when using Twig variables in field settings.
+	 *
+	 * @see https://github.com/benjamminf/craft-neo/wiki/6.-FAQ#why-do-asset-fields-with-slug-as-an-upload-location-break-on-neo-blocks
+	 * @return NeoTwigExtension
+	 * @throws \Exception
+	 */
 	public function addTwigExtension()
 	{
 		Craft::import('plugins.neo.twigextensions.NeoTwigExtension');
@@ -90,8 +97,32 @@ class NeoPlugin extends BasePlugin
 		return new NeoTwigExtension();
 	}
 
+	/**
+	 * Checks for environment compatibility when installing.
+	 *
+	 * @return bool
+	 */
 	public function onBeforeInstall()
 	{
-		return $this->isCompatible();
+		$craftCompatible = $this->isCraftRequiredVersion();
+		$phpCompatible = $this->isPHPRequiredVersion();
+
+		if(!$craftCompatible)
+		{
+			self::log(Craft::t("Neo is not compatible with Craft {version} - requires Craft {required} or greater", [
+				'version' => craft()->getVersion(),
+				'required' => $this->getCraftMinimumVersion(),
+			]), LogLevel::Error, true);
+		}
+
+		if(!$phpCompatible)
+		{
+			self::log(Craft::t("Neo is not compatible with PHP {version} - requires PHP {required} or greater", [
+				'version' => PHP_VERSION,
+				'required' => $this->getPHPMinimumVersion(),
+			]), LogLevel::Error, true);
+		}
+
+		return $craftCompatible && $phpCompatible;
 	}
 }

@@ -28,7 +28,7 @@ export default Garnish.Base.extend({
 		this._maxBlocks = settings.maxBlocks|0
 		this._childBlocks = settings.childBlocks
 		this._topLevel = settings.topLevel
-		this._tabs = settings.tabs.map(tab => new Tab(tab))
+		this._tabs = settings.tabs.map(tab => tab instanceof Tab ? tab : new Tab(tab))
 	},
 
 	getType() { return 'blockType' },

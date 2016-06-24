@@ -1,9 +1,19 @@
 <?php
 namespace Craft;
 
+/**
+ * Class Neo_BlockTypeRecord
+ *
+ * @package Craft
+ */
 class Neo_BlockTypeRecord extends BaseRecord
 {
-	public $validateUniques = true;
+	// Private properties
+
+	private $_validateUniques = true;
+
+
+	// Public methods
 
 	public function getTableName()
 	{
@@ -31,23 +41,48 @@ class Neo_BlockTypeRecord extends BaseRecord
 		];
 	}
 
+	/**
+	 * Returns the validation rules for the record.
+	 * Excludes unique validators if flag is set (@link validateUniques).
+	 *
+	 * @return array
+	 */
 	public function rules()
 	{
 		$rules = parent::rules();
 
-		if(!$this->validateUniques)
+		if(!$this->_validateUniques)
 		{
-			foreach($rules as $i => $rule)
+			// Remove unique validators from the rule set
+			return array_filter($rules, function($rule)
 			{
-				if($rule[1] == 'Craft\CompositeUniqueValidator')
-				{
-					unset($rules[$i]);
-				}
-			}
+				return $rule[1] != 'Craft\CompositeUniqueValidator';
+			});
 		}
 
 		return $rules;
 	}
+
+	/**
+	 * Determines if the values on the record are valid.
+	 * Allows option to include or exclude validating unique values.
+	 *
+	 * @param bool|true $includeUniques
+	 * @param array|null $attributes
+	 * @param bool|true $clearErrors
+	 * @return bool
+	 */
+	public function validateUniques($includeUniques = true, $attributes = null, $clearErrors = true)
+	{
+		$this->_validateUniques = $includeUniques;
+		$isValid = $this->validate($attributes, $clearErrors);
+		$this->_validateUniques = true;
+
+		return $isValid;
+	}
+
+
+	// Protected methods
 
 	protected function defineAttributes()
 	{
