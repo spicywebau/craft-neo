@@ -217,6 +217,10 @@
 			> .ni_block_body > .ni_block_children {
 				background-color: white;
 			}
+
+			> .ni_block_topbar > .ni_block_topbar_item.tabs .tab.is-selected.is-blank {
+				border-bottom-color: white;
+			}
 		}
 
 		&.is-contracted {
