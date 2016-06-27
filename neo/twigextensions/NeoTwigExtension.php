@@ -16,7 +16,7 @@ class NeoTwigExtension extends \Twig_Extension
 	public function getTests()
 	{
 		return [
-			'neoblock' => new \Twig_Test_Method($this, 'isNeoBlock'),
+			new \Twig_SimpleTest('neoblock', [$this, 'isNeoBlock']),
 		];
 	}
 
