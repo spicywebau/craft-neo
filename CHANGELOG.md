@@ -1,5 +1,10 @@
 ## Changelog
 
+#### v1.3.1
+- `Fixed` Fixed incompatibility with PHP 5.5 and below introduced in `1.3.0`
+- `Fixed` Fixed bug where leaving editing an element would always show the confirm dialog, regardless if anything changed
+- `Fixed` Minor UI fix with field-less tabs on child blocks having incorrect background color
+
 #### v1.3.0
 - `Added` Added ability to duplicate blocks
 - `Added` Added ability to have blank tabs in block type field layouts
