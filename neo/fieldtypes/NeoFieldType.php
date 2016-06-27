@@ -736,7 +736,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	private function _getBlockHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
 	{
-		$hasErrors = $block ? !empty($block->getAllErrors()) : false;
+		$errors = $block ? $block->getAllErrors() : [];
+		$hasErrors = !empty($errors);
 		$fullNamespace = craft()->templates->namespaceInputName($namespace, craft()->templates->getNamespace());
 
 		$cacheKey = implode(':', ['neoblock',
