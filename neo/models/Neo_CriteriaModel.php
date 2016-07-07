@@ -80,6 +80,23 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	}
 
 	/**
+	 * Returns the total number of elements matched by this criteria.
+	 * Fixes live preview mode which broke in Craft 2.6.2793 due to this method. If live preview mode is detected, it
+	 * uses the old method which worked in live preview mode.
+	 *
+	 * @return int
+	 */
+	public function count()
+	{
+		if(craft()->request->isLivePreview())
+		{
+			return count($this->find());
+		}
+
+		return parent::count();
+	}
+
+	/**
 	 * Sets a filter value for the criteria model, then reruns Live Preview filtering.
 	 *
 	 * @param string $name
