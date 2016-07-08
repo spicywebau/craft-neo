@@ -1,5 +1,10 @@
 ## Changelog
 
+#### v1.3.2
+- `Fixed` Fixed bug with live preview mode breaking for Neo fields in Craft 2.6.2793
+- `Fixed` Fixed bug with entry drafts not updating their Neo block field values after saving
+- `Fixed` Fixed bug where Neo blocks would share caches across differing host names
+
 #### v1.3.1
 - `Fixed` Fixed incompatibility with PHP 5.5 and below introduced in `1.3.0`
 - `Fixed` Fixed bug where leaving editing an element would always show the confirm dialog, regardless if anything changed

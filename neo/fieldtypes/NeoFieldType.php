@@ -739,12 +739,16 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		$errors = $block ? $block->getAllErrors() : [];
 		$hasErrors = !empty($errors);
 		$fullNamespace = craft()->templates->namespaceInputName($namespace, craft()->templates->getNamespace());
+		$owner = $block ? $block->getOwner() : null;
 
-		$cacheKey = implode(':', ['neoblock',
+		$cacheKey = implode('|', ['neoblock',
 			$blockType->id,
 			$block ? $block->id : '',
+			$owner ? $owner->dateUpdated->getTimestamp() : '',
 			$fullNamespace,
-			$static ? 's' : '',
+			$static ? '1' : '0',
+			craft()->request->isSecureConnection() ? '1': '0',
+			craft()->request->getHostName(),
 		]);
 
 		$tabsHtml = $hasErrors ? false : craft()->cache->get($cacheKey);
