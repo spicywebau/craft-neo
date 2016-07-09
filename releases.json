@@ -1,5 +1,13 @@
 [
 	{
+		"version": "1.3.3",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.3.3.zip",
+		"date": "2016-07-09T11:09:00+10:00",
+		"notes": [
+			"[Fixed] Removed block caching as it was breaking entry drafts, and potentially other areas of the control panel"
+		]
+	},
+	{
 		"version": "1.3.2",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.3.2.zip",
 		"date": "2016-07-08T10:36:00+10:00",
