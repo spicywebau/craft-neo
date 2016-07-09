@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-require CRAFT_PLUGINS_PATH . '/neo/etc/Neo_BlockCacheDependency.php';
-
 /**
  * Class NeoFieldType
  *
