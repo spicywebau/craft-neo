@@ -1,5 +1,8 @@
 ## Changelog
 
+#### v1.3.3
+- `Fixed` Removed block caching as it was breaking entry drafts, and potentially other areas of the control panel
+
 #### v1.3.2
 - `Fixed` Fixed bug with live preview mode breaking for Neo fields in Craft 2.6.2793
 - `Fixed` Fixed bug with entry drafts not updating their Neo block field values after saving
