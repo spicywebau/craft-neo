@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-require CRAFT_PLUGINS_PATH . '/neo/etc/Neo_BlockCacheDependency.php';
-
 /**
  * Class NeoFieldType
  *
@@ -666,7 +664,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
 				'topLevel' => (bool)$blockType->topLevel,
-				'tabs' => $this->_getBlockHtml($blockType, null, $name, $static),
+				'tabs' => craft()->neo->renderBlockTabs($blockType, null, $name, $static),
 			];
 		}
 
@@ -692,7 +690,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'collapsed' => (bool)$block->collapsed,
 				'enabled' => (bool)$block->enabled,
 				'level' => intval($block->level) - 1,
-				'tabs' => $this->_getBlockHtml($blockType, $block, $name, $static),
+				'tabs' => craft()->neo->renderBlockTabs($blockType, $block, $name, $static),
 			];
 		}
 
@@ -721,49 +719,5 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			"Are you sure you want to delete the selected blocks?",
 			"Reorder"
 		);
-	}
-
-	/**
-	 * Builds the HTML for an individual block type.
-	 * If you don't pass in a block along with the type, then it'll render a base template to build real blocks from.
-	 * If you do pass in a block, then it's current field values will be rendered as well.
-	 *
-	 * @param Neo_BlockTypeModel $blockType
-	 * @param Neo_BlockModel|null $block
-	 * @param string $namespace
-	 * @param bool|false $static
-	 * @return array
-	 */
-	private function _getBlockHtml(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
-	{
-		$errors = $block ? $block->getAllErrors() : [];
-		$hasErrors = !empty($errors);
-		$fullNamespace = craft()->templates->namespaceInputName($namespace, craft()->templates->getNamespace());
-		$owner = $block ? $block->getOwner() : null;
-
-		$cacheKey = implode('|', ['neoblock',
-			$blockType->id,
-			$block ? $block->id : '',
-			$owner ? $owner->dateUpdated->getTimestamp() : '',
-			$fullNamespace,
-			$static ? '1' : '0',
-			craft()->request->isSecureConnection() ? '1': '0',
-			craft()->request->getHostName(),
-		]);
-
-		$tabsHtml = $hasErrors ? false : craft()->cache->get($cacheKey);
-
-		if(!$tabsHtml)
-		{
-			$tabsHtml = craft()->neo->renderBlockTabs($blockType, $block, $namespace, $static);
-
-			if(!$hasErrors)
-			{
-				$cacheDependency = new Neo_BlockCacheDependency($blockType, $block);
-				craft()->cache->set($cacheKey, $tabsHtml, null, $cacheDependency);
-			}
-		}
-
-		return $tabsHtml;
 	}
 }
