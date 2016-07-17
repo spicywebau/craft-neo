@@ -536,12 +536,6 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	public function getSearchKeywords($value)
 	{
-		craft()->tasks->createTask('Neo_GetSearchKeywords', null, [
-			'fieldId' => $this->model->id,
-			'ownerId' => $this->element->id,
-			'locale' => $this->element->locale,
-		]);
-
 		return ''; // TODO return current keywords instead
 	}
 
@@ -598,6 +592,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	public function onAfterElementSave()
 	{
 		craft()->neo->saveFieldValue($this);
+
+		craft()->tasks->createTask('Neo_GetSearchKeywords', null, [
+			'fieldId' => $this->model->id,
+			'ownerId' => $this->element->id,
+			'locale' => $this->element->locale,
+		]);
 	}
 
 
