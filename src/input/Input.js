@@ -120,7 +120,7 @@ export default Garnish.Base.extend({
 				bInfo.id = Block.getNewId()
 			}
 
-			bInfo.modified = false
+			bInfo.modified = !!bInfo.modified
 			bInfo.namespace = [...this._templateNs, bInfo.id]
 			bInfo.blockType = new BlockType({
 				id: blockType.getId(),

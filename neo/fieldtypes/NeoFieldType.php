@@ -234,6 +234,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			if(strncmp($blockId, 'new', 3) === 0 || !isset($oldBlocksById[$blockId]))
 			{
 				$block = new Neo_BlockModel();
+				$block->modified = true;
 				$block->fieldId = $this->model->id;
 				$block->typeId = $blockType->id;
 				$block->ownerId = $ownerId;
@@ -683,9 +684,11 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		foreach($value as $block)
 		{
 			$blockType = $block->getType();
+
 			$blockInfo[] = [
 				'id' => $block->id,
 				'blockType' => $blockType->handle,
+				'modified' => $block->modified,
 				'sortOrder' => $sortOrder++,
 				'collapsed' => (bool)$block->collapsed,
 				'enabled' => (bool)$block->enabled,

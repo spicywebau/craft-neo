@@ -121,7 +121,7 @@ export default Garnish.Base.extend({
 		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')
 
-		if(!this.isNew())
+		if(!this.isNew() && !settings.modified)
 		{
 			this._initialState = {
 				enabled: this._enabled,
