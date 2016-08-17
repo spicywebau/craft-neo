@@ -816,9 +816,6 @@ class NeoService extends BaseApplicationComponent
 	 */
 	public function renderBlockTabs(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
 	{
-		$headHtml = craft()->templates->getHeadHtml();
-		$footHtml = craft()->templates->getFootHtml();
-
 		$oldNamespace = craft()->templates->getNamespace();
 		$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
 		craft()->templates->setNamespace($newNamespace);
@@ -830,6 +827,8 @@ class NeoService extends BaseApplicationComponent
 
 		foreach($fieldLayoutTabs as $fieldLayoutTab)
 		{
+			craft()->templates->startJsBuffer();
+
 			$tabHtml = [
 				'name' => Craft::t($fieldLayoutTab->name),
 				'headHtml' => '',
@@ -879,16 +878,11 @@ class NeoService extends BaseApplicationComponent
 				}
 			}
 
-			$tabHtml['headHtml'] = craft()->templates->getHeadHtml();
-			$tabHtml['footHtml'] = craft()->templates->getFootHtml();
-
+			$tabHtml['footHtml'] = craft()->templates->clearJsBuffer();
 			$tabsHtml[] = $tabHtml;
 		}
 
 		craft()->templates->setNamespace($oldNamespace);
-
-		craft()->templates->includeHeadHtml($headHtml);
-		craft()->templates->includeFootHtml($footHtml);
 
 		return $tabsHtml;
 	}
