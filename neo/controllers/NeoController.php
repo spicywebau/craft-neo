@@ -48,6 +48,7 @@ class NeoController extends BaseController
 			$type = craft()->neo->getBlockTypeById($rawBlock['type']);
 
 			$block = new Neo_BlockModel();
+			$block->modified = true;
 			$block->typeId = $rawBlock['type'];
 			$block->level = $rawBlock['level'];
 			$block->enabled = isset($rawBlock['enabled']);

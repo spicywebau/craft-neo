@@ -1,5 +1,12 @@
 ## Changelog
 
+#### v1.3.4
+- `Improved` Updated Javascript dependencies
+- `Fixed` Fixed issues with Neo fields not updating correctly when publishing entry drafts
+- `Fixed` Neo fields are now able to be used in widgets
+- `Fixed` Fixed bug where the ordering of child block checkboxes in the configurator would sometimes be inconsistent
+- `Fixed` Moved where the generating search keywords task is triggered to avoid potential side-effects
+
 #### v1.3.3
 - `Fixed` Removed block caching as it was breaking entry drafts, and potentially other areas of the control panel
 

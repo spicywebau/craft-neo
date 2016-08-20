@@ -234,6 +234,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			if(strncmp($blockId, 'new', 3) === 0 || !isset($oldBlocksById[$blockId]))
 			{
 				$block = new Neo_BlockModel();
+				$block->modified = true;
 				$block->fieldId = $this->model->id;
 				$block->typeId = $blockType->id;
 				$block->ownerId = $ownerId;
@@ -536,12 +537,6 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	public function getSearchKeywords($value)
 	{
-		craft()->tasks->createTask('Neo_GetSearchKeywords', null, [
-			'fieldId' => $this->model->id,
-			'ownerId' => $this->element->id,
-			'locale' => $this->element->locale,
-		]);
-
 		return ''; // TODO return current keywords instead
 	}
 
@@ -598,6 +593,12 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	public function onAfterElementSave()
 	{
 		craft()->neo->saveFieldValue($this);
+
+		craft()->tasks->createTask('Neo_GetSearchKeywords', null, [
+			'fieldId' => $this->model->id,
+			'ownerId' => $this->element->id,
+			'locale' => $this->element->locale,
+		]);
 	}
 
 
@@ -683,9 +684,11 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		foreach($value as $block)
 		{
 			$blockType = $block->getType();
+
 			$blockInfo[] = [
 				'id' => $block->id,
 				'blockType' => $blockType->handle,
+				'modified' => $block->modified,
 				'sortOrder' => $sortOrder++,
 				'collapsed' => (bool)$block->collapsed,
 				'enabled' => (bool)$block->enabled,
