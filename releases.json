@@ -1,5 +1,17 @@
 [
 	{
+		"version": "1.3.4",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.3.4.zip",
+		"date": "2016-08-20T10:15:00+10:00",
+		"notes": [
+			"[Improved] Updated Javascript dependencies",
+			"[Fixed] Fixed issues with Neo fields not updating correctly when publishing entry drafts",
+			"[Fixed] Neo fields are now able to be used in widgets",
+			"[Fixed] Fixed bug where the ordering of child block checkboxes in the configurator would sometimes be inconsistent",
+			"[Fixed] Moved where the generating search keywords task is triggered to avoid potential side-effects"
+		]
+	},
+	{
 		"version": "1.3.3",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.3.3.zip",
 		"date": "2016-07-09T11:09:00+10:00",
