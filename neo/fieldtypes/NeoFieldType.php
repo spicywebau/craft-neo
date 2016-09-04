@@ -712,6 +712,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			"Actions",
 			"Add a block",
 			"Add block above",
+			"Duplicate block",
 			"Are you sure you want to delete the selected blocks?",
 			"Expand",
 			"Collapse",
