@@ -254,7 +254,7 @@ export default Settings.extend({
 		}
 	},
 
-	addChildBlockType(blockType, index = -1)
+	addChildBlockType(blockType)
 	{
 		if(!this._childBlockTypes.includes(blockType))
 		{
@@ -269,17 +269,11 @@ export default Settings.extend({
 			}))
 
 			NS.leave()
+			
+			this._childBlockTypes.push(blockType)
+			this.$childBlocksContainer.append($checkbox)
 
-			if(index < 0 || index >= this._childBlockTypes.length)
-			{
-				this._childBlockTypes.push(blockType)
-				this.$childBlocksContainer.append($checkbox)
-			}
-			else
-			{
-				this._childBlockTypes.splice(index, 0, blockType)
-				$checkbox.insertAt(index, this.$childBlocksContainer)
-			}
+			this._refreshChildBlocks()
 
 			const select = this._childBlocksSelect
 			const allChecked = select.$all.prop('checked')
@@ -309,6 +303,8 @@ export default Settings.extend({
 
 			const eventNs = '.childBlock' + this.getId()
 			settings.off(eventNs)
+
+			this._refreshChildBlocks()
 		}
 	},
 

@@ -171,13 +171,10 @@ export default Garnish.Base.extend({
 
 		if(item instanceof BlockType)
 		{
-			const blockTypes = this.getBlockTypes()
-			for(let blockType of blockTypes)
+			for(let blockType of this.getBlockTypes())
 			{
-				let btSettings = blockType.getSettings()
-				let btIndex = blockTypes.indexOf(blockType)
-
-				if(btSettings) btSettings.addChildBlockType(item, btIndex)
+				const btSettings = blockType.getSettings()
+				if(btSettings) btSettings.addChildBlockType(item)
 			}
 		}
 
