@@ -440,6 +440,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		$id = craft()->templates->formatInputId($name);
 		$settings = $this->getSettings();
+		$field = $settings->getField();
+		$translatable = $field ? (bool) $field->translatable : false;
 
 		if($value instanceof ElementCriteriaModel)
 		{
@@ -457,7 +459,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			'name' => $name,
 			'blockTypes' => $settings->getBlockTypes(),
 			'blocks' => $value,
-			'static' => false
+			'static' => false,
+			'translatable' => $translatable,
 		]);
 
 		$this->_prepareInputHtml($id, $name, $settings, $value);
@@ -476,6 +479,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		if($value)
 		{
 			$settings = $this->getSettings();
+			$field = $settings->getField();
+			$translatable = $field ? (bool) $field->translatable : false;
 			$id = StringHelper::randomString();
 
 			$html = craft()->templates->render('neo/_fieldtype/input', [
@@ -484,6 +489,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'blockTypes' => $settings->getBlockTypes(),
 				'blocks' => $value,
 				'static' => true,
+				'translatable' => $translatable,
 			]);
 
 			$this->_prepareInputHtml($id, $id, $settings, $value, true);
