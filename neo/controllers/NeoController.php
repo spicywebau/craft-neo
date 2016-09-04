@@ -40,6 +40,7 @@ class NeoController extends BaseController
 
 		$blocks = craft()->request->getPost('blocks');
 		$namespace = craft()->request->getPost('namespace');
+		$locale = craft()->request->getPost('locale');
 
 		$renderedBlocks = [];
 

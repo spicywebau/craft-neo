@@ -28,6 +28,7 @@ const _defaults = {
 export default Garnish.Base.extend({
 
 	_templateNs: [],
+	_locale: null,
 
 	init(settings = {})
 	{
@@ -63,6 +64,9 @@ export default Garnish.Base.extend({
 
 			this._groups.push(group)
 		}
+
+		const $form = this.$container.closest('form')
+		this._locale = $form.find('input[name="locale"]').val()
 
 		const $neo = this.$container.find('[data-neo]')
 		this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]')
@@ -579,6 +583,7 @@ export default Garnish.Base.extend({
 
 		const data = {
 			namespace: NS.toFieldName(),
+			locale: this._locale,
 			blocks: []
 		}
 
