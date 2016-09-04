@@ -54,6 +54,7 @@ class NeoController extends BaseController
 			$block->level = $rawBlock['level'];
 			$block->enabled = isset($rawBlock['enabled']);
 			$block->collapsed = isset($rawBlock['collapsed']);
+			$block->locale = $locale;
 
 			if(!empty($rawBlock['content']))
 			{
