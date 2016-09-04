@@ -812,9 +812,10 @@ class NeoService extends BaseApplicationComponent
 	 * @param Neo_BlockModel|null $block
 	 * @param string $namespace
 	 * @param bool|false $static
+	 * @param $locale
 	 * @return array
 	 */
-	public function renderBlockTabs(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false)
+	public function renderBlockTabs(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false, $locale = null)
 	{
 		$oldNamespace = craft()->templates->getNamespace();
 		$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
@@ -824,6 +825,22 @@ class NeoService extends BaseApplicationComponent
 
 		$fieldLayout = $blockType->getFieldLayout();
 		$fieldLayoutTabs = $fieldLayout->getTabs();
+
+		if(!$block)
+		{
+			// Trick Craft into rendering fields of a block type with the correct locale (see below)
+			$block = new Neo_BlockModel();
+		}
+
+		if($locale)
+		{
+			// Rendering the `_includes/fields` template doesn't take a `locale` parameter, even though individual
+			// field templates do. If no locale is passed when rendering a field (which there won't be when using the
+			// `fields` template) it defaults to the passed element's locale. The following takes advantage of this
+			// by setting the locale on the block itself. In the event that only a block type is being rendered, the
+			// above creates a dummy block to so the locale can be passed.
+			$block->locale = $locale;
+		}
 
 		foreach($fieldLayoutTabs as $fieldLayoutTab)
 		{
