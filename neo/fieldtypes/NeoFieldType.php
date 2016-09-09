@@ -457,6 +457,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		$html = craft()->templates->render('neo/_fieldtype/input', [
 			'id' => $id,
 			'name' => $name,
+			'field' => $field,
 			'blockTypes' => $settings->getBlockTypes(),
 			'blocks' => $value,
 			'static' => false,
@@ -486,6 +487,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			$html = craft()->templates->render('neo/_fieldtype/input', [
 				'id' => $id,
 				'name' => $id,
+				'field' => $field,
 				'blockTypes' => $settings->getBlockTypes(),
 				'blocks' => $value,
 				'static' => true,
