@@ -1027,6 +1027,38 @@ class NeoService extends BaseApplicationComponent
 		return true;
 	}
 
+
+	// ---- Helpers
+
+	/**
+	 * Checks the current route/environment to see if database calls for Neo blocks should be avoided.
+	 * This is so that live preview and entry drafts can use their data instead.
+	 *
+	 * @return bool
+	 */
+	public function isPreviewMode()
+	{
+		if(craft()->request->isLivePreview())
+		{
+			return true;
+		}
+
+		$token = craft()->request->getParam('token');
+
+		if($token)
+		{
+			$route = craft()->tokens->getTokenRoute($token);
+
+			// If an entry draft is being previewed, use the content stored in the draft
+			if($route && $route['action'] == 'entries/viewSharedEntry')
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	
 	// Protected methods
 

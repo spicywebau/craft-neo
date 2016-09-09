@@ -88,7 +88,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	 */
 	public function count()
 	{
-		if($this->_bypassDatabase())
+		if(craft()->neo->isPreviewMode())
 		{
 			return count($this->find());
 		}
@@ -177,40 +177,11 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	// Private methods
 
 	/**
-	 * Checks the current route/environment to see if database calls for Neo blocks should be avoided.
-	 * This is so that live preview and entry drafts can use their data instead.
-	 *
-	 * @return bool
-	 */
-	private function _bypassDatabase()
-	{
-		if(craft()->request->isLivePreview())
-		{
-			return true;
-		}
-
-		$token = craft()->request->getParam('token');
-
-		if($token)
-		{
-			$route = craft()->tokens->getTokenRoute($token);
-
-			// If an entry draft is being previewed, use the content stored in the draft
-			if($route && $route['action'] == 'entries/viewSharedEntry')
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * Runs Live Preview filtering and saves it's output to the criteria model.
 	 */
 	private function _runCriteria()
 	{
-		if($this->_bypassDatabase() && !empty($this->_allElements))
+		if(craft()->neo->isPreviewMode() && !empty($this->_allElements))
 		{
 			$elements = $this->_allElements;
 
