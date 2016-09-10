@@ -40,6 +40,7 @@ class NeoController extends BaseController
 
 		$blocks = craft()->request->getPost('blocks');
 		$namespace = craft()->request->getPost('namespace');
+		$locale = craft()->request->getPost('locale');
 
 		$renderedBlocks = [];
 
@@ -53,6 +54,7 @@ class NeoController extends BaseController
 			$block->level = $rawBlock['level'];
 			$block->enabled = isset($rawBlock['enabled']);
 			$block->collapsed = isset($rawBlock['collapsed']);
+			$block->locale = $locale;
 
 			if(!empty($rawBlock['content']))
 			{

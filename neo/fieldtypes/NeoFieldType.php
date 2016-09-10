@@ -406,7 +406,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			"Name",
 			"What this block type will be called in the CP.",
 			"Handle",
-			"How you'll refer to this block type in the templates.",
+			"How you’ll refer to this block type in the templates.",
 			"Max Blocks",
 			"The maximum number of blocks of this type the field is allowed to have.",
 			"All",
@@ -440,6 +440,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		$id = craft()->templates->formatInputId($name);
 		$settings = $this->getSettings();
+		$field = $settings->getField();
+		$translatable = $field ? (bool) $field->translatable : false;
 
 		if($value instanceof ElementCriteriaModel)
 		{
@@ -455,9 +457,11 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		$html = craft()->templates->render('neo/_fieldtype/input', [
 			'id' => $id,
 			'name' => $name,
+			'field' => $field,
 			'blockTypes' => $settings->getBlockTypes(),
 			'blocks' => $value,
-			'static' => false
+			'static' => false,
+			'translatable' => $translatable,
 		]);
 
 		$this->_prepareInputHtml($id, $name, $settings, $value);
@@ -476,14 +480,18 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		if($value)
 		{
 			$settings = $this->getSettings();
+			$field = $settings->getField();
+			$translatable = $field ? (bool) $field->translatable : false;
 			$id = StringHelper::randomString();
 
 			$html = craft()->templates->render('neo/_fieldtype/input', [
 				'id' => $id,
 				'name' => $id,
+				'field' => $field,
 				'blockTypes' => $settings->getBlockTypes(),
 				'blocks' => $value,
 				'static' => true,
+				'translatable' => $translatable,
 			]);
 
 			$this->_prepareInputHtml($id, $id, $settings, $value, true);
@@ -652,6 +660,8 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	private function _prepareInputHtml($id, $name, $settings, $value, $static = false)
 	{
+		$locale = $this->element->locale;
+
 		$blockTypeInfo = [];
 		foreach($settings->getBlockTypes() as $blockType)
 		{
@@ -665,7 +675,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'maxBlocks' => $blockType->maxBlocks,
 				'childBlocks' => $blockType->childBlocks,
 				'topLevel' => (bool)$blockType->topLevel,
-				'tabs' => craft()->neo->renderBlockTabs($blockType, null, $name, $static),
+				'tabs' => craft()->neo->renderBlockTabs($blockType, null, $name, $static, $locale),
 			];
 		}
 
@@ -712,6 +722,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 			"Actions",
 			"Add a block",
 			"Add block above",
+			"Duplicate block",
 			"Are you sure you want to delete the selected blocks?",
 			"Expand",
 			"Collapse",

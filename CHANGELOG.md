@@ -1,5 +1,13 @@
 ## Changelog
 
+#### v1.3.5
+- `Improved` Added German translations
+- `Improved` Localised Neo fields can now contain fields that are also localised
+- `Fixed` Entry draft preview links now work correctly with Neo fields
+- `Fixed` Neo fields with Redactor (rich text) fields no longer always trigger "Do you like to leave?" prompt
+- `Fixed` Duplicating a block now duplicates into the correct locale
+- `Fixed` Fixed ordering of child block checkboxes (hopefully for the last time)
+
 #### v1.3.4
 - `Improved` Updated Javascript dependencies
 - `Fixed` Fixed issues with Neo fields not updating correctly when publishing entry drafts

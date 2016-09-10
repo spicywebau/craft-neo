@@ -161,7 +161,7 @@ class Neo_BlockModel extends BaseElementModel
 	public function getAncestors($dist = null)
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->request->isLivePreview())
+		if(craft()->neo->isPreviewMode())
 		{
 			if(!isset($this->_liveCriteria['ancestors']))
 			{
@@ -191,7 +191,7 @@ class Neo_BlockModel extends BaseElementModel
 	public function getParent()
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->request->isLivePreview())
+		if(craft()->neo->isPreviewMode())
 		{
 			if(!isset($this->_liveCriteria['parent']))
 			{
@@ -213,7 +213,7 @@ class Neo_BlockModel extends BaseElementModel
 	public function getDescendants($dist = null)
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->request->isLivePreview())
+		if(craft()->neo->isPreviewMode())
 		{
 			if(!isset($this->_liveCriteria['descendants']))
 			{
@@ -244,7 +244,7 @@ class Neo_BlockModel extends BaseElementModel
 	public function getChildren($field = null)
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->request->isLivePreview())
+		if(craft()->neo->isPreviewMode())
 		{
 			if(!isset($this->_liveCriteria['children']))
 			{
@@ -265,7 +265,7 @@ class Neo_BlockModel extends BaseElementModel
 	public function getSiblings()
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->request->isLivePreview())
+		if(craft()->neo->isPreviewMode())
 		{
 			if(!isset($this->_liveCriteria['siblings']))
 			{
@@ -290,7 +290,7 @@ class Neo_BlockModel extends BaseElementModel
 	public function getPrevSibling()
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->request->isLivePreview())
+		if(craft()->neo->isPreviewMode())
 		{
 			if(!isset($this->_liveCriteria['prevSibling']))
 			{
@@ -316,7 +316,7 @@ class Neo_BlockModel extends BaseElementModel
 	public function getNextSibling()
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->request->isLivePreview())
+		if(craft()->neo->isPreviewMode())
 		{
 			if(!isset($this->_liveCriteria['nextSibling']))
 			{

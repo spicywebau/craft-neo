@@ -88,7 +88,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	 */
 	public function count()
 	{
-		if(craft()->request->isLivePreview())
+		if(craft()->neo->isPreviewMode())
 		{
 			return count($this->find());
 		}
@@ -181,7 +181,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	 */
 	private function _runCriteria()
 	{
-		if(craft()->request->isLivePreview() && !empty($this->_allElements))
+		if(craft()->neo->isPreviewMode() && !empty($this->_allElements))
 		{
 			$elements = $this->_allElements;
 

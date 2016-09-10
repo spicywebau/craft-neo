@@ -3,9 +3,16 @@ import Craft from 'craft'
 
 import NS from './namespace'
 
+const decoderElement = document.createElement('div')
+function decodeEntities(str)
+{
+	decoderElement.innerHTML = str
+	return decoderElement.textContent
+}
+
 Twig.extendFilter('t', function(label, placeholders)
 {
-	return Craft.t(label, placeholders)
+	return Craft.t(decodeEntities(label), placeholders)
 })
 
 Twig.extendFilter('ns', function(value, type = 'field')
