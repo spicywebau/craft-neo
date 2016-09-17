@@ -1,5 +1,18 @@
 [
 	{
+		"version": "1.3.5",
+		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.3.5.zip",
+		"date": "2016-09-10T16:52:00+10:00",
+		"notes": [
+			"[Improved] Added German translations",
+			"[Improved] Localised Neo fields can now contain fields that are also localised",
+			"[Fixed] Entry draft preview links now work correctly with Neo fields",
+			"[Fixed] Neo fields with Redactor (rich text) fields no longer always trigger \"Do you like to leave?\" prompt",
+			"[Fixed] Duplicating a block now duplicates into the correct locale",
+			"[Fixed] Fixed ordering of child block checkboxes (hopefully for the last time)"
+		]
+	},
+	{
 		"version": "1.3.4",
 		"downloadUrl": "https://github.com/benjamminf/craft-neo/archive/1.3.4.zip",
 		"date": "2016-08-20T10:15:00+10:00",
