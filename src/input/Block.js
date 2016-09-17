@@ -85,6 +85,7 @@ export default Garnish.Base.extend({
 		this.$tabsContainer = $neo.filter('[data-neo-b="container.tabs"]')
 		this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]')
 		this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]')
+		this.$previewContainer = $neo.filter('[data-neo-b="container.preview"]')
 		this.$tabButton = $neo.filter('[data-neo-b="button.tab"]')
 		this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]')
 		this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
@@ -250,6 +251,122 @@ export default Garnish.Base.extend({
 		return content
 	},
 
+	updatePreview()
+	{
+		const $fields = this.$contentContainer.find('.field')
+		const blockType = this.getBlockType()
+		const fieldTypes = blockType.getFieldTypes()
+		const previewText = []
+
+		$fields.each(function()
+		{
+			const $field = $(this)
+			const $input = $field.children('.input')
+			const id = $field.prop('id')
+			const handle = id.match(/-([a-z0-9_]+)-field$/i)[1]
+			const fieldType = fieldTypes[handle]
+			let value = false
+
+			switch(fieldType)
+			{
+				case 'Assets':
+				{
+
+				}
+				break
+				case 'Categories':
+				case 'Entries':
+				case 'Users':
+				{
+
+				}
+				break
+				case 'Checkboxes':
+				{
+
+				}
+				break
+				case 'Color':
+				{
+
+				}
+				break
+				case 'Date/Time':
+				{
+
+				}
+				break
+				case 'Drop Down':
+				{
+
+				}
+				break
+				case 'Lightswitch':
+				{
+
+				}
+				break
+				case 'Matrix':
+				{
+
+				}
+				break
+				case 'Multi-select':
+				{
+
+				}
+				break
+				case 'Number':
+				case 'Plain Text':
+				{
+					value = $input.children('input').val()
+				}
+				break
+				case 'Position Select':
+				{
+
+				}
+				break
+				case 'Radio Buttons':
+				{
+
+				}
+				break
+				case 'Rich Text':
+				{
+					value = $input.find('textarea').val()
+				}
+				break
+				case 'Table':
+				{
+
+				}
+				break
+				case 'Tags':
+				{
+
+				}
+				break
+				default:
+				{
+					const values = $input.find('input').map(function()
+					{
+						return $(this).val()
+					})
+
+					value = values.join(', ')
+				}
+			}
+
+			if(value)
+			{
+				previewText.push(value)
+			}
+		})
+
+		this.$previewContainer.html(previewText.join(' &bull; '))
+	},
+
 	isNew()
 	{
 		return /^new/.test(this.getId())
@@ -289,6 +406,11 @@ export default Garnish.Base.extend({
 
 			expandContainer.toggleClass('hidden', this._expanded)
 			collapseContainer.toggleClass('hidden', !this._expanded)
+
+			if(!this._expanded)
+			{
+				this.updatePreview()
+			}
 
 			const expandedCss = {
 				opacity: 1,

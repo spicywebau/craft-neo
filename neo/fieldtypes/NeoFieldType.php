@@ -666,9 +666,21 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		foreach($settings->getBlockTypes() as $blockType)
 		{
 			$fieldLayout = $blockType->getFieldLayout();
+			$fieldLayoutFields = $fieldLayout->getFields();
+
+			$fieldTypes = [];
+			foreach($fieldLayoutFields as $fieldLayoutField)
+			{
+				$field = $fieldLayoutField->getField();
+				$type = $field->getFieldType();
+
+				$fieldTypes[$field->handle] = $type->getName();
+			}
+
 			$blockTypeInfo[] = [
 				'id' => $blockType->id,
 				'fieldLayoutId' => $fieldLayout->id,
+				'fieldTypes' => $fieldTypes,
 				'sortOrder' => $blockType->sortOrder,
 				'handle' => $blockType->handle,
 				'name' => Craft::t($blockType->name),

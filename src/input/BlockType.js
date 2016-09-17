@@ -5,6 +5,7 @@ import Tab from './BlockTypeTab'
 const _defaults = {
 	id: -1,
 	fieldLayoutId: -1,
+	fieldTypes: {},
 	sortOrder: 0,
 	name: '',
 	handle: '',
@@ -22,6 +23,7 @@ export default Garnish.Base.extend({
 
 		this._id = settings.id|0
 		this._fieldLayoutId = settings.fieldLayoutId|0
+		this._fieldTypes = settings.fieldTypes
 		this._sortOrder = settings.sortOrder|0
 		this._name = settings.name
 		this._handle = settings.handle
@@ -34,6 +36,7 @@ export default Garnish.Base.extend({
 	getType() { return 'blockType' },
 	getId() { return this._id },
 	getFieldLayoutId() { return this._fieldLayoutId },
+	getFieldTypes() { return this._fieldTypes },
 	getSortOrder() { return this._sortOrder },
 	getName() { return this._name },
 	getHandle() { return this._handle },
@@ -41,6 +44,11 @@ export default Garnish.Base.extend({
 	getChildBlocks() { return this._childBlocks },
 	getTopLevel() { return this._topLevel },
 	getTabs() { return Array.from(this._tabs) },
+
+	getFieldType(handle)
+	{
+		return this._fieldTypes[handle]
+	},
 
 	getChildBlockItems(items)
 	{

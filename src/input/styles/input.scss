@@ -81,6 +81,11 @@
 					padding-left: 0;
 				}
 
+				&.preview {
+					color: #b9bfc6;
+					transition: opacity 0.3s;
+				}
+
 				&.size-full {
 					flex-grow: 1;
 				}
@@ -227,6 +232,16 @@
 
 			> .ni_block_topbar > .ni_block_topbar_item.tabs .tab.is-selected.is-blank {
 				border-bottom-color: white;
+			}
+		}
+
+		&.is-expanded {
+
+			> .ni_block_topbar {
+
+				.ni_block_topbar_item.preview {
+					opacity: 0;
+				}
 			}
 		}
 

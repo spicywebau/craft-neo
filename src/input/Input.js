@@ -129,6 +129,7 @@ export default Garnish.Base.extend({
 			bInfo.blockType = new BlockType({
 				id: blockType.getId(),
 				fieldLayoutId: blockType.getFieldLayoutId(),
+				fieldTypes: blockType.getFieldTypes(),
 				name: blockType.getName(),
 				handle: blockType.getHandle(),
 				maxBlocks: blockType.getMaxBlocks(),
@@ -663,6 +664,7 @@ export default Garnish.Base.extend({
 					const newBlockType = new BlockType({
 						id: blockType.getId(),
 						fieldLayoutId: blockType.getFieldLayoutId(),
+						fieldTypes: blockType.getFieldTypes(),
 						name: blockType.getName(),
 						handle: blockType.getHandle(),
 						maxBlocks: blockType.getMaxBlocks(),
