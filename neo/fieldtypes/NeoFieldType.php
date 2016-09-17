@@ -674,7 +674,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				$field = $fieldLayoutField->getField();
 				$type = $field->getFieldType();
 
-				$fieldTypes[$field->handle] = $type->getName();
+				$fieldTypes[$field->handle] = $type->classHandle;
 			}
 
 			$blockTypeInfo[] = [

@@ -291,12 +291,12 @@ export default Garnish.Base.extend({
 
 				}
 				break
-				case 'Date/Time':
+				case 'DateTime':
 				{
 
 				}
 				break
-				case 'Drop Down':
+				case 'Dropdown':
 				{
 
 				}
@@ -311,28 +311,28 @@ export default Garnish.Base.extend({
 
 				}
 				break
-				case 'Multi-select':
+				case 'MultiSelect':
 				{
 
 				}
 				break
 				case 'Number':
-				case 'Plain Text':
+				case 'PlainText':
 				{
 					value = $input.children('input').val()
 				}
 				break
-				case 'Position Select':
+				case 'PositionSelect':
 				{
 
 				}
 				break
-				case 'Radio Buttons':
+				case 'RadioButtons':
 				{
 
 				}
 				break
-				case 'Rich Text':
+				case 'RichText':
 				{
 					value = $input.find('textarea').val()
 				}
@@ -349,9 +349,16 @@ export default Garnish.Base.extend({
 				break
 				default:
 				{
-					const values = $input.find('input').map(function()
+					const values = []
+
+					$input.find('input').each(function()
 					{
-						return $(this).val()
+						const val = $(this).val()
+
+						if(val)
+						{
+							values.push(val)
+						}
 					})
 
 					value = values.join(', ')
