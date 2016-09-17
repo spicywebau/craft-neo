@@ -1,6 +1,11 @@
 import Garnish from 'garnish'
 
-let counter = 0
+let editors = []
+
+function refresh()
+{
+	editors.forEach(editor => editor.refresh())
+}
 
 export default Editor => class extends Editor
 {
@@ -16,33 +21,29 @@ export default Editor => class extends Editor
 
 	patchInit()
 	{
-		if(counter === 0)
-		{
-			Garnish.$doc.on('click.neoReasons', '.menu a', e => this.patchOnFieldSettingsMenuItemClick(e))
-		}
-
+		const onFSMIClick = this.onFieldSettingsMenuItemClick
 		this.onFieldSettingsMenuItemClick = function() {}
+
+		if(editors.length === 0)
+		{
+			Garnish.$doc.on('click.ncr', '.menu a', e => onFSMIClick.call({refresh, templates: this.templates}, e))
+		}
 
 		super.init()
 
 		this.$conditionalsInput.prop('name', `neo[reasons][${this._blockId}]`)
 		this.$conditionalsIdInput.prop('name', `neo[reasonsId][${this._blockId}]`)
 
-		counter++
+		editors.push(this)
 	}
 
 	destroy()
 	{
-		counter = Math.max(counter - 1, 0)
+		editors = editors.filter(editor => editor !== this)
 
-		if(counter === 0)
+		if(editors.length === 0)
 		{
-			Garnish.$doc.off('.neoReasons')
+			Garnish.$doc.off('.ncr')
 		}
-	}
-
-	patchOnFieldSettingsMenuItemClick(e)
-	{
-		super.onFieldSettingsMenuItemClick(e)
 	}
 }
