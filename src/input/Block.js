@@ -120,6 +120,7 @@ export default Garnish.Base.extend({
 		this.toggleExpansion(hasErrors ? true : !settings.collapsed, false, false)
 
 		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
+		this.addListener(this.$previewContainer, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')
 	},
 
@@ -266,6 +267,8 @@ export default Garnish.Base.extend({
 			const handle = id.match(/-([a-z0-9_]+)-field$/i)[1]
 			const fieldType = fieldTypes[handle]
 			let value = false
+
+
 
 			switch(fieldType)
 			{
