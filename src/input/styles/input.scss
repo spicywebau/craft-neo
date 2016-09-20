@@ -92,12 +92,12 @@
 
 				&.title {
 
-					> .blocktype {
+					.blocktype {
 						// Add vertical padding so there's more hit area for the checkbox
 						padding: 8px 0;
 					}
 
-					> .preview {
+					.preview {
 						margin-left: 8px;
 						color: #b9bfc6;
 						transition: opacity 0.3s;
@@ -107,8 +107,13 @@
 							display: none;
 						}
 
+						&_section {
+							padding: 8px;
+							border-left: 1px solid #e3e5e8;
+						}
+
 						img,
-						.preview_color {
+						&_color {
 							position: relative;
 							top: 50%;
 							vertical-align: top;
@@ -117,13 +122,13 @@
 
 						img {
 							max-width: 30px;
-							max-height: 26px;
+							max-height: 30px;
 						}
 
-						.preview_color {
+						&_color {
 							display: inline-block;
-							width: 20px;
-							height: 20px;
+							width: 16px;
+							height: 16px;
 							border-radius: 50%;
 						}
 					}

@@ -354,7 +354,15 @@ export default Garnish.Base.extend({
 				break
 				case 'MultiSelect':
 				{
+					const values = []
+					const $selected = $input.find('select').children(':selected')
 
+					$selected.each(function()
+					{
+						values.push($(this).text())
+					})
+
+					value = values.join(', ')
 				}
 				break
 				case 'Number':
@@ -365,12 +373,16 @@ export default Garnish.Base.extend({
 				break
 				case 'PositionSelect':
 				{
+					const $selected = $input.find('.btn.active')
 
+					value = $selected.prop('title')
 				}
 				break
 				case 'RadioButtons':
 				{
+					const $checked = $input.find('input[type="g"]:checked')
 
+					value = $checked.val()
 				}
 				break
 				case 'RichText':
@@ -408,11 +420,11 @@ export default Garnish.Base.extend({
 
 			if(value)
 			{
-				previewText.push(value)
+				previewText.push('<span class="preview_section">', value, '</span>')
 			}
 		})
 
-		this.$previewContainer.html(previewText.join(' &bull; '))
+		this.$previewContainer.html(previewText.join(''))
 	},
 
 	isNew()
