@@ -305,7 +305,23 @@ export default Garnish.Base.extend({
 				break
 				case 'Checkboxes':
 				{
+					const values = []
+					const $checkboxes = $input.find('input[type="checkbox"]')
 
+					$checkboxes.each(function()
+					{
+						if(this.checked)
+						{
+							const $checkbox = $(this)
+							const id = $checkbox.prop('id')
+							const $label = $input.find(`label[for="${id}"]`)
+							const label = $label.text()
+
+							values.push(label)
+						}
+					})
+
+					value = values.join(', ')
 				}
 				break
 				case 'Color':
