@@ -291,7 +291,7 @@ export default Garnish.Base.extend({
 				case 'Assets':
 				{
 					const values = []
-					const $assets = $input.find('.elementselect > .elements > .element')
+					const $assets = $input.find('.element')
 
 					$assets.each(function()
 					{
@@ -314,9 +314,21 @@ export default Garnish.Base.extend({
 				break
 				case 'Categories':
 				case 'Entries':
+				case 'Tags':
 				case 'Users':
 				{
+					const values = []
+					const $elements = $input.find('.element')
 
+					$elements.each(function()
+					{
+						const $element = $(this)
+						const title = $element.find('.title').text()
+
+						values.push(_escapeHTML(title))
+					})
+
+					value = values.join(', ')
 				}
 				break
 				case 'Checkboxes':
@@ -369,11 +381,6 @@ export default Garnish.Base.extend({
 					value = `<span class="status${enabled ? ' live' : ''}"></span>` + _escapeHTML(label)
 				}
 				break
-				case 'Matrix':
-				{
-
-				}
-				break
 				case 'MultiSelect':
 				{
 					const values = []
@@ -410,16 +417,6 @@ export default Garnish.Base.extend({
 				case 'RichText':
 				{
 					value = _stripHTML($input.find('textarea').val())
-				}
-				break
-				case 'Table':
-				{
-
-				}
-				break
-				case 'Tags':
-				{
-
 				}
 				break
 			}
