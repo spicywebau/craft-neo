@@ -10,10 +10,10 @@
 		<div class="ni_block_topbar_item" data-neo-b="select">
 			<div class="checkbox block-checkbox" title="{{ "Select"|t }}"></div>
 		</div>
-		<div class="ni_block_topbar_item clip-text" data-neo-b="select">
-			<span>{{ type.getName() }}</span>
+		<div class="ni_block_topbar_item title clip-text">
+			<span class="blocktype" data-neo-b="select">{{ type.getName() }}</span>
+			<span class="preview" data-neo-b="container.preview"></span>
 		</div>
-		<div class="ni_block_topbar_item clip-text preview" data-neo-b="container.preview"></div>
 		<div class="ni_block_topbar_item size-full tabs">
 			{% if hasTabs or isParent %}
 				<div class="tabs_trigger" data-neo-b="button.toggler"></div>

@@ -81,20 +81,6 @@
 					padding-left: 0;
 				}
 
-				&.preview {
-					color: #b9bfc6;
-					transition: opacity 0.3s;
-
-					> img {
-						position: relative;
-						top: 50%;
-						max-width: 30px;
-						max-height: 26px;
-						vertical-align: top;
-						transform: translateY(-50%);
-					}
-				}
-
 				&.size-full {
 					flex-grow: 1;
 				}
@@ -102,6 +88,34 @@
 				&.clip-text {
 					overflow: hidden;
 					text-overflow: ellipsis;
+				}
+
+				&.title {
+
+					> .blocktype {
+						// Add vertical padding so there's more hit area for the checkbox
+						padding: 8px 0;
+					}
+
+					> .preview {
+						margin-left: 8px;
+						color: #b9bfc6;
+						transition: opacity 0.3s;
+
+						&:empty {
+							// Fixes bug where the blocktype can get clipped prematurely
+							display: none;
+						}
+
+						> img {
+							position: relative;
+							top: 50%;
+							max-width: 30px;
+							max-height: 26px;
+							vertical-align: top;
+							transform: translateY(-50%);
+						}
+					}
 				}
 
 				&.tabs {
@@ -248,7 +262,7 @@
 
 			> .ni_block_topbar {
 
-				.ni_block_topbar_item.preview {
+				.title > .preview {
 					opacity: 0;
 				}
 			}
