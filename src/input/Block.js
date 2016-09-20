@@ -336,7 +336,7 @@ export default Garnish.Base.extend({
 				break
 				case 'Dropdown':
 				{
-
+					value = $input.find('select').children(':selected').text()
 				}
 				break
 				case 'Lightswitch':
