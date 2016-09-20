@@ -84,6 +84,15 @@
 				&.preview {
 					color: #b9bfc6;
 					transition: opacity 0.3s;
+
+					> img {
+						position: relative;
+						top: 50%;
+						max-width: 30px;
+						max-height: 26px;
+						vertical-align: top;
+						transform: translateY(-50%);
+					}
 				}
 
 				&.size-full {

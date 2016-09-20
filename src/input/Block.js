@@ -274,7 +274,26 @@ export default Garnish.Base.extend({
 			{
 				case 'Assets':
 				{
+					const values = []
+					const $assets = $input.find('.elementselect > .elements > .element')
 
+					$assets.each(function()
+					{
+						const $asset = $(this)
+						const $thumb = $asset.find('.elementthumb > img')
+						const srcset = $thumb.prop('srcset')
+
+						values.push(`<img sizes="30px" srcset="${srcset}">`)
+
+						if($assets.length === 1)
+						{
+							const title = $asset.find('.title').text()
+
+							values.push(title)
+						}
+					})
+
+					value = values.join(' ')
 				}
 				break
 				case 'Categories':
