@@ -422,22 +422,6 @@ export default Garnish.Base.extend({
 
 				}
 				break
-				default:
-				{
-					const values = []
-
-					$input.find('input').each(function()
-					{
-						const val = $(this).val()
-
-						if(val)
-						{
-							values.push(val)
-						}
-					})
-
-					value = _escapeHTML(values.join(', '))
-				}
 			}
 
 			if(value)
