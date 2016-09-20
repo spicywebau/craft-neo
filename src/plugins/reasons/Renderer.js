@@ -37,10 +37,14 @@ export default Renderer => class extends Renderer
 		this.$el.find('[data-nir-elementselect]').each(function()
 		{
 			const $this = $(this)
-			const elementSelect = $this.elementSelect
+			const elementSelect = $this.data('elementSelect')
 
 			$this.removeAttr('data-nir-elementselect')
-			elementSelect.off('.nir')
+
+			if(elementSelect)
+			{
+				elementSelect.off('.nir')
+			}
 		})
 	}
 
