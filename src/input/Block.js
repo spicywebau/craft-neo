@@ -268,8 +268,6 @@ export default Garnish.Base.extend({
 			const fieldType = fieldTypes[handle]
 			let value = false
 
-
-
 			switch(fieldType)
 			{
 				case 'Assets':
@@ -331,9 +329,12 @@ export default Garnish.Base.extend({
 					value = `<div class="preview_color" style="background-color: ${color}"></div>`
 				}
 				break
-				case 'DateTime':
+				case 'Date':
 				{
+					const date = $input.find('.datewrapper input').val()
+					const time = $input.find('.timewrapper input').val()
 
+					value = date && time ? (date + ' ' + time) : (date || time)
 				}
 				break
 				case 'Dropdown':
