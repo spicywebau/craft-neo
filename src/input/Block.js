@@ -326,7 +326,9 @@ export default Garnish.Base.extend({
 				break
 				case 'Color':
 				{
+					const color = $input.find('input[type="color"]').val()
 
+					value = `<div class="preview_color" style="background-color: ${color}"></div>`
 				}
 				break
 				case 'DateTime':
