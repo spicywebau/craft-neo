@@ -43,6 +43,23 @@ function _resourceFilter()
 	return true
 }
 
+function _stripHTML(str)
+{
+	return str ? str.replace(/<(?:.|\n)*?>/gm, '') : ''
+}
+
+function _escapeHTML(str)
+{
+	return str ? str.replace(/[&<>"'\/]/g, s => ({
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+		'/': '&#x2F;'
+	})[s]) : ''
+}
+
 export default Garnish.Base.extend({
 
 	_templateNs: [],
@@ -264,6 +281,7 @@ export default Garnish.Base.extend({
 			const $field = $(this)
 			const $input = $field.children('.input')
 			const id = $field.prop('id')
+			const label = $field.children('.heading').children('label').text()
 			const handle = id.match(/-([a-z0-9_]+)-field$/i)[1]
 			const fieldType = fieldTypes[handle]
 			let value = false
@@ -287,7 +305,7 @@ export default Garnish.Base.extend({
 						{
 							const title = $asset.find('.title').text()
 
-							values.push(title)
+							values.push(_escapeHTML(title))
 						}
 					})
 
@@ -315,7 +333,7 @@ export default Garnish.Base.extend({
 							const $label = $input.find(`label[for="${id}"]`)
 							const label = $label.text()
 
-							values.push(label)
+							values.push(_escapeHTML(label))
 						}
 					})
 
@@ -331,20 +349,24 @@ export default Garnish.Base.extend({
 				break
 				case 'Date':
 				{
-					const date = $input.find('.datewrapper input').val()
-					const time = $input.find('.timewrapper input').val()
+					const date = _escapeHTML($input.find('.datewrapper input').val())
+					const time = _escapeHTML($input.find('.timewrapper input').val())
 
 					value = date && time ? (date + ' ' + time) : (date || time)
 				}
 				break
 				case 'Dropdown':
 				{
-					value = $input.find('select').children(':selected').text()
+					const $selected = $input.find('select').children(':selected')
+
+					value = _escapeHTML($selected.text())
 				}
 				break
 				case 'Lightswitch':
 				{
+					const enabled = !!$input.find('input').val()
 
+					value = `<span class="status${enabled ? ' live' : ''}"></span>` + _escapeHTML(label)
 				}
 				break
 				case 'Matrix':
@@ -362,32 +384,32 @@ export default Garnish.Base.extend({
 						values.push($(this).text())
 					})
 
-					value = values.join(', ')
+					value = _escapeHTML(values.join(', '))
 				}
 				break
 				case 'Number':
 				case 'PlainText':
 				{
-					value = $input.children('input').val()
+					value = _escapeHTML($input.children('input').val())
 				}
 				break
 				case 'PositionSelect':
 				{
 					const $selected = $input.find('.btn.active')
 
-					value = $selected.prop('title')
+					value = _escapeHTML($selected.prop('title'))
 				}
 				break
 				case 'RadioButtons':
 				{
 					const $checked = $input.find('input[type="g"]:checked')
 
-					value = $checked.val()
+					value = _escapeHTML($checked.val())
 				}
 				break
 				case 'RichText':
 				{
-					value = $input.find('textarea').val()
+					value = _stripHTML($input.find('textarea').val())
 				}
 				break
 				case 'Table':
@@ -414,7 +436,7 @@ export default Garnish.Base.extend({
 						}
 					})
 
-					value = values.join(', ')
+					value = _escapeHTML(values.join(', '))
 				}
 			}
 
