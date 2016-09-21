@@ -660,7 +660,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	private function _prepareInputHtml($id, $name, $settings, $value, $static = false)
 	{
-		$locale = $this->element->locale;
+		$locale = isset($this->element) ? $this->element->locale : null;
 
 		$blockTypeInfo = [];
 		foreach($settings->getBlockTypes() as $blockType)
