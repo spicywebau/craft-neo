@@ -323,7 +323,7 @@ export default Garnish.Base.extend({
 					$elements.each(function()
 					{
 						const $element = $(this)
-						const title = $element.find('.title').text()
+						const title = $element.find('.title, .label').text()
 
 						values.push(_escapeHTML(title))
 					})
