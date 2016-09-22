@@ -337,10 +337,10 @@
 .neo-matrixblock {
 	border-color: #ccc;
 	background-color: white;
-	box-shadow: 0 1px 5px -1px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 1px 5px -1px rgba(black, 0.1);
 
 	> .titlebar {
-		border-bottom-color: #eeeeee;
+		border-bottom-color: #eee;
 		background-color: #fafafa;
 	}
 }
