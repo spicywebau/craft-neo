@@ -257,18 +257,6 @@
 				> .field {
 					margin: 15px 0 0 0;
 				}
-
-				// Tweak the styles of nested Matrix fields so it doesn't look so confusing
-				.matrixblock {
-					// border-color: #ccc;
-					background-color: white;
-					box-shadow: 0 1px 5px -1px rgba(0, 0, 0, 0.1);
-
-					> .titlebar {
-						border-bottom-color: #eeeeee;
-						background-color: #fafafa;
-					}
-				}
 			}
 		}
 
@@ -341,5 +329,18 @@
 
 	a.has-errors {
 		color: #da5a47;
+	}
+}
+
+// Tweak the styles of nested Matrix fields so it doesn't look so confusing
+.ni_block .matrixblock,
+.neo-matrixblock {
+	border-color: #ccc;
+	background-color: white;
+	box-shadow: 0 1px 5px -1px rgba(0, 0, 0, 0.1);
+
+	> .titlebar {
+		border-bottom-color: #eeeeee;
+		background-color: #fafafa;
 	}
 }

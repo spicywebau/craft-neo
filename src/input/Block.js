@@ -184,6 +184,16 @@ export default Garnish.Base.extend({
 				this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
 			}
 
+			// For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
+			// Neo applies it's own styles to Matrix blocks in an effort to improve the visibility of them, however
+			// when dragging a Matrix block these styles get lost (since a dragged Matrix block loses it's context of
+			// being inside a Neo block). Adding this class name to blocks before they are dragged means that the
+			// dragged Matrix block can still have the Neo-specific styles.
+			this.$container.on('mousedown', '.matrixblock', function(e)
+			{
+				$(this).addClass('neo-matrixblock')
+			})
+
 			this.trigger('initUi')
 		}
 	},
