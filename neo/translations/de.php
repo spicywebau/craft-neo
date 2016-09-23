@@ -3,7 +3,7 @@
 return [
 	"Add block above" => "Block oberhalb hinzuf\xC3\xBCgen",
 	"Block type" => "Block-Art",
-	"The maximum number of blocks of this type the field is allowed to have." => "Die maximale Anzahl an Bl\xC3\xB6cke dieser Art, die dieses Feld besitzen darf.",
+	"The maximum number of blocks of this type the field is allowed to have." => "Die maximale Anzahl an Bl\xC3\xB6cken dieser Art, die das Feld haben darf.",
 	"Child Blocks" => "Kind-Bl\xC3\xB6cke",
 	"Which block types do you want to allow as children?" => "Welche Block-Arten m\xC3\xB6chtest Du als Kinder erlauben?",
 	"Delete block type" => "Block-Art l\xC3\xB6schen",
