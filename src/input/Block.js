@@ -99,6 +99,9 @@ export default Garnish.Base.extend({
 		this.$childrenContainer = $neo.filter('[data-neo-b="container.children"]')
 		this.$blocksContainer = $neo.filter('[data-neo-b="container.blocks"]')
 		this.$buttonsContainer = $neo.filter('[data-neo-b="container.buttons"]')
+		this.$topbarContainer = $neo.filter('[data-neo-b="container.topbar"]')
+		this.$topbarLeftContainer = $neo.filter('[data-neo-b="container.topbarLeft"]')
+		this.$topbarRightContainer = $neo.filter('[data-neo-b="container.topbarRight"]')
 		this.$tabsContainer = $neo.filter('[data-neo-b="container.tabs"]')
 		this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]')
 		this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]')
@@ -136,8 +139,7 @@ export default Garnish.Base.extend({
 		this.toggleEnabled(settings.enabled)
 		this.toggleExpansion(hasErrors ? true : !settings.collapsed, false, false)
 
-		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
-		this.addListener(this.$previewContainer, 'dblclick', '@doubleClickTitle')
+		this.addListener(this.$topbarContainer, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')
 	},
 
@@ -606,15 +608,13 @@ export default Garnish.Base.extend({
 
 	updateResponsiveness()
 	{
-		if(!this._tabsContainerWidth)
-		{
-			this._tabsContainerWidth = this.$tabsContainer.width()
-		}
+		this._topbarLeftWidth = this._topbarLeftWidth || this.$topbarLeftContainer.width()
+		this._topbarRightWidth = this._topbarRightWidth || this.$topbarRightContainer.width()
 
-		const isMobile = (this.$tabsContainer.parent().width() < this._tabsContainerWidth)
+		const isMobile = (this.$topbarContainer.width() < this._topbarLeftWidth + this._topbarRightWidth)
 
-		this.$tabsContainer.toggleClass('hidden', isMobile)
-		this.$tabsButton.toggleClass('hidden', !isMobile)
+		this.$tabsContainer.toggleClass('invisible', isMobile)
+		this.$tabsButton.toggleClass('invisible', !isMobile)
 	},
 
 	updateMenuStates(blocks = [], maxBlocks = 0)
@@ -697,9 +697,9 @@ export default Garnish.Base.extend({
 				case 'collapse': this.collapse() ; break
 				case 'expand':   this.expand()   ; break
 				case 'disable':  this.disable()
-								 this.collapse() ; break
+				                 this.collapse() ; break
 				case 'enable':   this.enable()
-								 this.expand()   ; break
+				                 this.expand()   ; break
 				case 'delete':   this.destroy()  ; break
 
 				case 'add':
@@ -721,7 +721,15 @@ export default Garnish.Base.extend({
 	{
 		e.preventDefault()
 
-		this.toggleExpansion()
+		const $target = $(e.target)
+		const $checkFrom = $target.parent()
+		const isLeft = ($checkFrom.closest(this.$topbarLeftContainer).length > 0)
+		const isRight = ($checkFrom.closest(this.$topbarRightContainer).length > 0)
+
+		if(!isLeft && !isRight)
+		{
+			this.toggleExpansion()
+		}
 	},
 
 	'@setTab'(e)

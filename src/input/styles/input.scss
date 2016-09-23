@@ -62,11 +62,29 @@
 		}
 
 		&_topbar {
-			display: flex;
+			position: relative;
 			height: 30px;
 			line-height: 30px;
 			background-color: #eef0f1;
 			color: #8f98a3;
+
+			&_left,
+			&_right {
+				display: flex;
+				position: absolute;
+				top: 0; bottom: 0;
+			}
+
+			&_left {
+				left: 0;
+			}
+
+			&_right {
+				z-index: 1;
+				right: 0;
+				min-width: 100px;
+				background-image: linear-gradient(to left, #eef0f1 72px, transparent 100px);
+			}
 
 			&_item {
 				cursor: default;
@@ -98,6 +116,8 @@
 					}
 
 					.preview {
+						position: absolute;
+						height: 30px;
 						margin-left: 8px;
 						color: #b9bfc6;
 						transition: opacity 0.3s;
@@ -142,16 +162,7 @@
 					position: relative;
 					transition: opacity 0.3s;
 
-					.tabs_trigger {
-						position: absolute;
-						top: 0; bottom: 0;
-						left: 0; right: 0;
-					}
-
 					.tabs_inner {
-						position: absolute;
-						top: 0;
-						padding-right: 8px;
 						white-space: nowrap;
 
 						body.ltr & { right: 0; direction: ltr; }
@@ -159,7 +170,8 @@
 					}
 
 					.tabs_btn {
-						position: relative; // Put it over the top of trigger element
+						position: absolute;
+						top: 0;
 						display: block;
 						cursor: pointer;
 						height: 30px;
@@ -171,8 +183,8 @@
 						background-color: #fafafa;
 						color: #576575;
 
-						body.ltr & { float: right; }
-						body.rtl & { float: left;  }
+						body.ltr & { right: 8px; }
+						body.rtl & { left:  8px;  }
 
 						&.has-errors {
 							color: #da5a47;
@@ -209,6 +221,11 @@
 							color: #da5a47;
 						}
 					}
+				}
+
+				.invisible {
+					visibility: hidden;
+					pointer-events: none;
 				}
 
 				> .checkbox {
@@ -292,12 +309,15 @@
 
 			> .ni_block_topbar {
 
-				.ni_block_topbar_item.tabs {
-					opacity: 0;
+				.ni_block_topbar_right {
+					pointer-events: none;
 
-					.tabs_inner,
-					.tabs_btn {
-						pointer-events: none;
+					> .tabs {
+						opacity: 0;
+					}
+
+					> :not(.tabs) {
+						pointer-events: auto;
 					}
 				}
 			}
@@ -305,9 +325,16 @@
 
 		&.is-disabled {
 
-			> .ni_block_content {
+			.ni_block_topbar_item {
 
-				.ni_block_content_tab {
+				&.title .preview {
+					opacity: 0;
+				}
+			}
+
+			.ni_block_content_tab {
+
+				.field {
 					pointer-events: none;
 					opacity: 0.5;
 					-webkit-user-select: none;
