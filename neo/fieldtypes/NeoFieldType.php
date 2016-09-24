@@ -320,7 +320,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	public function getSettingsHtml()
 	{
 		// Disable creating Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
-		if($this->_getNamespaceDepth() > 2)
+		if($this->_getNamespaceDepth() >= 1)
 		{
 			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
 		}
