@@ -1059,6 +1059,14 @@ class NeoService extends BaseApplicationComponent
 		return false;
 	}
 
+	/**
+	 * Converts a Neo field into a Matrix one.
+	 * WARNING: This function will replace the Neo field with a Matrix one, so use with caution. Performing this
+	 * conversion cannot be undone.
+	 *
+	 * @param FieldModel $neoField
+	 * @return bool
+	 */
 	public function convertFieldToMatrix(FieldModel $neoField)
 	{
 		$neoFieldType = $neoField->getFieldType();
@@ -1068,12 +1076,23 @@ class NeoService extends BaseApplicationComponent
 			$neoSettings = $neoFieldType->getSettings();
 			$matrixSettings = $this->convertSettingsToMatrix($neoSettings, $neoField);
 
-			return craft()->matrix->saveSettings($matrixSettings, false);
+			$matrixField = $neoField->copy();
+			$matrixField->type = 'Matrix';
+			$matrixField->settings = $matrixSettings;
+
+			return craft()->fields->saveField($matrixField, false);
 		}
 
 		return false;
 	}
 
+	/**
+	 * Converts a Neo settings model to a Matrix settings model.
+	 *
+	 * @param Neo_SettingsModel $neoSettings
+	 * @param FieldModel|null $field
+	 * @return MatrixSettingsModel
+	 */
 	public function convertSettingsToMatrix(Neo_SettingsModel $neoSettings, FieldModel $field = null)
 	{
 		$matrixSettings = new MatrixSettingsModel($field);
@@ -1094,6 +1113,12 @@ class NeoService extends BaseApplicationComponent
 		return $matrixSettings;
 	}
 
+	/**
+	 * Converts a Neo block type model to a Matrix block type model.
+	 *
+	 * @param Neo_BlockTypeModel $neoBlockType
+	 * @return MatrixBlockTypeModel
+	 */
 	public function convertBlockTypeToMatrix(Neo_BlockTypeModel $neoBlockType)
 	{
 		$matrixBlockType = new MatrixBlockTypeModel();
