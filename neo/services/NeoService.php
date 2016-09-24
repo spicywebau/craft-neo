@@ -1061,7 +1061,7 @@ class NeoService extends BaseApplicationComponent
 
 	/**
 	 * Converts a Neo field into a Matrix one.
-	 * WARNING: This function will replace the Neo field with a Matrix one, so use with caution. Performing this
+	 * WARNING: Calling this will replace the Neo field with a Matrix one, so use with caution. Performing this
 	 * conversion cannot be undone.
 	 *
 	 * @param FieldModel $neoField
@@ -1073,14 +1073,77 @@ class NeoService extends BaseApplicationComponent
 
 		if($neoFieldType instanceof NeoFieldType)
 		{
-			$neoSettings = $neoFieldType->getSettings();
-			$matrixSettings = $this->convertSettingsToMatrix($neoSettings, $neoField);
+			$transaction = $this->beginTransaction();
+			try
+			{
+				$neoSettings = $neoFieldType->getSettings();
+				$matrixSettings = $this->convertSettingsToMatrix($neoSettings, $neoField);
 
-			$matrixField = $neoField->copy();
-			$matrixField->type = 'Matrix';
-			$matrixField->settings = $matrixSettings;
+				// Save a mapping of block type handles to their Neo ID for use later on when migrating content
+				$neoBlockTypeIds = [];
+				foreach($neoSettings->getBlockTypes() as $neoBlockType)
+				{
+					$neoBlockTypeIds[$neoBlockType->handle] = $neoBlockType->id;
+				}
 
-			return craft()->fields->saveField($matrixField, false);
+				$matrixField = $neoField->copy();
+				$matrixField->type = 'Matrix';
+				$matrixField->settings = $matrixSettings;
+
+				$neoBlocks = $this->getBlocks($neoField->id, null);
+				$matrixBlocks = [];
+
+				foreach($neoBlocks as $neoBlock)
+				{
+					$matrixBlock = $this->convertBlockToMatrix($neoBlock);
+
+					// This ID will be replaced with the Matrix block type ID after the field is saved. The Neo's block type
+					// id is added here so it can be grabbed when looping over these Matrix blocks later on.
+					$matrixBlock->typeId = $neoBlock->typeId;
+
+					$matrixBlocks[] = $matrixBlock;
+				}
+
+				$success = craft()->fields->saveField($matrixField, false);
+
+				if(!$success)
+				{
+					throw new \Exception("Unable to save Matrix field");
+				}
+
+				// Create a mapping of Neo block type ID's to Matrix block type ID's. This is used below to set the
+				// correct block type to a converted Matrix block.
+				$matrixToNeoBlockTypeIds = [];
+				foreach($matrixSettings->getBlockTypes() as $matrixBlockType)
+				{
+					$neoBlockTypeId = $neoBlockTypeIds[$matrixBlockType->handle];
+					$matrixToNeoBlockTypeIds[$neoBlockTypeId] = $matrixBlockType->id;
+				}
+
+				foreach($matrixBlocks as $matrixBlock)
+				{
+					// Assign the correct block type ID now that it exists (from saving the field above).
+					$neoBlockTypeId = $matrixBlock->typeId;
+					$matrixBlock->typeId = $matrixToNeoBlockTypeIds[$neoBlockTypeId];
+
+					$success = craft()->matrix->saveBlock($matrixBlock, false);
+
+					if(!$success)
+					{
+						throw new \Exception("Unable to save Matrix block");
+					}
+				}
+
+				$this->commitTransaction($transaction);
+
+				return true;
+			}
+			catch(\Exception $e)
+			{
+				$this->rollbackTransaction($transaction);
+
+				NeoPlugin::log("Couldn't convert Neo field '{$neoField->handle}' to Matrix: " . $e->getMessage(), LogLevel::Error);
+			}
 		}
 
 		return false;
@@ -1122,7 +1185,6 @@ class NeoService extends BaseApplicationComponent
 	public function convertBlockTypeToMatrix(Neo_BlockTypeModel $neoBlockType)
 	{
 		$matrixBlockType = new MatrixBlockTypeModel();
-		$matrixBlockType->id = 'new' . $neoBlockType->id;
 		$matrixBlockType->fieldId = $neoBlockType->fieldId;
 		$matrixBlockType->name = $neoBlockType->name;
 		$matrixBlockType->handle = $neoBlockType->handle;
@@ -1140,6 +1202,7 @@ class NeoService extends BaseApplicationComponent
 			{
 				$matrixField = $neoField->copy();
 				$matrixField->id = 'new' . ($ids++);
+				$matrixField->groupId = null;
 				$matrixField->required = $neoField->required;
 
 				$matrixFields[] = $matrixField;
@@ -1151,9 +1214,32 @@ class NeoService extends BaseApplicationComponent
 		return $matrixBlockType;
 	}
 
-	public function convertBlockToMatrix(Neo_BlockModel $neoBlock)
+	/**
+	 * Converts a Neo block model to a Matrix block model, retaining all content.
+	 *
+	 * @param Neo_BlockModel $neoBlock
+	 * @param MatrixBlockTypeModel|null $matrixBlockType
+	 * @return MatrixBlockModel
+	 */
+	public function convertBlockToMatrix(Neo_BlockModel $neoBlock, MatrixBlockTypeModel $matrixBlockType = null)
 	{
+		$blockContent = $neoBlock->getContent();
 
+		$matrixBlock = new MatrixBlockModel();
+		$matrixBlock->setContent($blockContent);
+
+		$matrixBlock->ownerId = $neoBlock->ownerId;
+		$matrixBlock->fieldId = $neoBlock->fieldId;
+		$matrixBlock->ownerLocale = $neoBlock->ownerLocale;
+		$matrixBlock->sortOrder = $neoBlock->lft;
+		$matrixBlock->collapsed = $neoBlock->collapsed;
+
+		if($matrixBlockType)
+		{
+			$matrixBlock->typeId = $matrixBlockType->id;
+		}
+
+		return $matrixBlock;
 	}
 
 	
