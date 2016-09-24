@@ -1059,6 +1059,78 @@ class NeoService extends BaseApplicationComponent
 		return false;
 	}
 
+	public function convertFieldToMatrix(FieldModel $neoField)
+	{
+		$neoFieldType = $neoField->getFieldType();
+
+		if($neoFieldType instanceof NeoFieldType)
+		{
+			$neoSettings = $neoFieldType->getSettings();
+			$matrixSettings = $this->convertSettingsToMatrix($neoSettings, $neoField);
+
+			return craft()->matrix->saveSettings($matrixSettings, false);
+		}
+
+		return false;
+	}
+
+	public function convertSettingsToMatrix(Neo_SettingsModel $neoSettings, FieldModel $field = null)
+	{
+		$matrixSettings = new MatrixSettingsModel($field);
+		$matrixBlockTypes = [];
+
+		$ids = 1;
+		foreach($neoSettings->getBlockTypes() as $neoBlockType)
+		{
+			$matrixBlockType = $this->convertBlockTypeToMatrix($neoBlockType);
+			$matrixBlockType->id = 'new' . ($ids++);
+
+			$matrixBlockTypes[] = $matrixBlockType;
+		}
+
+		$matrixSettings->setBlockTypes($matrixBlockTypes);
+		$matrixSettings->maxBlocks = $neoSettings->maxBlocks;
+
+		return $matrixSettings;
+	}
+
+	public function convertBlockTypeToMatrix(Neo_BlockTypeModel $neoBlockType)
+	{
+		$matrixBlockType = new MatrixBlockTypeModel();
+		$matrixBlockType->id = 'new' . $neoBlockType->id;
+		$matrixBlockType->fieldId = $neoBlockType->fieldId;
+		$matrixBlockType->name = $neoBlockType->name;
+		$matrixBlockType->handle = $neoBlockType->handle;
+
+		$neoFieldLayout = $neoBlockType->getFieldLayout();
+		$neoFields = $neoFieldLayout->getFields();
+		$matrixFields = [];
+
+		$ids = 1;
+		foreach($neoFields as $neoFieldLayoutField)
+		{
+			$neoField = $neoFieldLayoutField->getField();
+
+			if(!in_array($neoField->type, ['Matrix', 'Neo']))
+			{
+				$matrixField = $neoField->copy();
+				$matrixField->id = 'new' . ($ids++);
+				$matrixField->required = $neoField->required;
+
+				$matrixFields[] = $matrixField;
+			}
+		}
+
+		$matrixBlockType->setFields($matrixFields);
+
+		return $matrixBlockType;
+	}
+
+	public function convertBlockToMatrix(Neo_BlockModel $neoBlock)
+	{
+
+	}
+
 	
 	// Protected methods
 
