@@ -1178,7 +1178,7 @@ class NeoService extends BaseApplicationComponent
 		$ids = 1;
 		foreach($neoSettings->getBlockTypes() as $neoBlockType)
 		{
-			$matrixBlockType = $this->convertBlockTypeToMatrix($neoBlockType);
+			$matrixBlockType = $this->convertBlockTypeToMatrix($neoBlockType, $field);
 			$matrixBlockType->id = 'new' . ($ids++);
 
 			$matrixBlockTypes[] = $matrixBlockType;
@@ -1194,12 +1194,13 @@ class NeoService extends BaseApplicationComponent
 	 * Converts a Neo block type model to a Matrix block type model.
 	 *
 	 * @param Neo_BlockTypeModel $neoBlockType
+	 * @param FieldModel|null $field
 	 * @return MatrixBlockTypeModel
 	 */
-	public function convertBlockTypeToMatrix(Neo_BlockTypeModel $neoBlockType)
+	public function convertBlockTypeToMatrix(Neo_BlockTypeModel $neoBlockType, FieldModel $field = null)
 	{
 		$matrixBlockType = new MatrixBlockTypeModel();
-		$matrixBlockType->fieldId = $neoBlockType->fieldId;
+		$matrixBlockType->fieldId = $field ? $field->id : $neoBlockType->fieldId;
 		$matrixBlockType->name = $neoBlockType->name;
 		$matrixBlockType->handle = $neoBlockType->handle;
 
@@ -1231,6 +1232,12 @@ class NeoService extends BaseApplicationComponent
 				$matrixField->id = 'new' . ($ids++);
 				$matrixField->groupId = null;
 				$matrixField->required = (bool) $neoFieldLayoutField->required;
+
+				// Force disable translation on fields if the Neo field was also translatable
+				if($field && $field->translatable)
+				{
+					$matrixField->translatable = false;
+				}
 
 				// Use the relabel name and instructions if they are set for this field
 				if(array_key_exists($neoField->id, $relabels))
