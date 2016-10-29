@@ -661,6 +661,7 @@ class NeoService extends BaseApplicationComponent
 		$criteria->fieldId = $fieldId;
 		$criteria->ownerId = $ownerId;
 		$criteria->locale = $locale;
+		$criteria->ownerLocale = $locale;
 		$criteria->status = null;
 		$criteria->localeEnabled = null;
 		$criteria->limit = null;
@@ -1092,9 +1093,17 @@ class NeoService extends BaseApplicationComponent
 				$matrixField->type = 'Matrix';
 				$matrixField->settings = $matrixSettings;
 
-				$neoBlocks = $this->getBlocks($neoField->id, null);
+				$neoBlocks = [];
 				$matrixBlocks = [];
-				$matrixBlockLocaleContents = [];
+
+				// Make sure all localised blocks are retrieved as well
+				foreach(craft()->i18n->getSiteLocales() as $locale)
+				{
+					foreach($this->getBlocks($neoField->id, null, $locale->id) as $neoBlock)
+					{
+						$neoBlocks[] = $neoBlock;
+					}
+				}
 
 				foreach($neoBlocks as $neoBlock)
 				{
@@ -1105,29 +1114,6 @@ class NeoService extends BaseApplicationComponent
 					$matrixBlock->typeId = $neoBlock->typeId;
 
 					$matrixBlocks[] = $matrixBlock;
-
-					$locales = $neoBlock->getLocales();
-					$defaultLocale = $neoBlock->locale;
-					$content = [];
-
-					foreach($locales as $localeId => $localeInfo)
-					{
-						if(is_numeric($localeId) && is_string($localeInfo))
-						{
-							$localeId = $localeInfo;
-						}
-
-						if($localeId != $defaultLocale)
-						{
-							$neoBlock->locale = $localeId;
-							$matrixBlockContent = $neoBlock->getContent()->copy();
-							$matrixBlockContent->id = null;
-
-							$content[$localeId] = $matrixBlockContent;
-						}
-					}
-
-					$matrixBlockLocaleContents[] = $content;
 				}
 
 				$success = craft()->fields->saveField($matrixField, false);
@@ -1157,21 +1143,6 @@ class NeoService extends BaseApplicationComponent
 					if(!$success)
 					{
 						throw new \Exception("Unable to save Matrix block");
-					}
-
-					$localeContents = $matrixBlockLocaleContents[$i];
-
-					foreach($localeContents as $localeId => $content)
-					{
-						$matrixBlock->locale = $localeId;
-						$matrixBlock->setContent($content);
-
-						$success = craft()->content->saveContent($matrixBlock, false, false);
-
-						if(!$success)
-						{
-							throw new \Exception("Unable to save Matrix block content in locale '{$localeId}'");
-						}
 					}
 				}
 
