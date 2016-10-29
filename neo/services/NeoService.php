@@ -1207,6 +1207,19 @@ class NeoService extends BaseApplicationComponent
 		$neoFields = $neoFieldLayout->getFields();
 		$matrixFields = [];
 
+		// Find all relabels for this block type to use when converting
+		$relabels = [];
+		if(craft()->plugins->getPlugin('relabel'))
+		{
+			foreach(craft()->relabel->getLabels($neoFieldLayout->id) as $relabel)
+			{
+				$relabels[$relabel->fieldId] = [
+					'name' => $relabel->name,
+					'instructions' => $relabel->instructions,
+				];
+			}
+		}
+
 		$ids = 1;
 		foreach($neoFields as $neoFieldLayoutField)
 		{
@@ -1218,6 +1231,18 @@ class NeoService extends BaseApplicationComponent
 				$matrixField->id = 'new' . ($ids++);
 				$matrixField->groupId = null;
 				$matrixField->required = (bool) $neoFieldLayoutField->required;
+
+				// Use the relabel name and instructions if they are set for this field
+				if(array_key_exists($neoField->id, $relabels))
+				{
+					foreach($relabels[$neoField->id] as $property => $value)
+					{
+						if($value)
+						{
+							$matrixField->$property = $value;
+						}
+					}
+				}
 
 				$matrixFields[] = $matrixField;
 			}
