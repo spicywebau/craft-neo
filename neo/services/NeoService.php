@@ -1217,7 +1217,7 @@ class NeoService extends BaseApplicationComponent
 				$matrixField = $neoField->copy();
 				$matrixField->id = 'new' . ($ids++);
 				$matrixField->groupId = null;
-				$matrixField->required = $neoField->required;
+				$matrixField->required = (bool) $neoFieldLayoutField->required;
 
 				$matrixFields[] = $matrixField;
 			}
