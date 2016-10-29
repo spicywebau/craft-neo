@@ -3,10 +3,14 @@ const path = require('path')
 
 module.exports = {
 	devtool: 'source-map',
-	entry: './src/main.js',
+	entry: {
+		main: './src/main.js',
+		converter: './src/converter.js',
+		polyfill: './src/polyfill.js'
+	},
 	output: {
 		path: './neo/resources/',
-		filename: 'main.js'
+		filename: '[name].js'
 	},
 	externals: {
 		jquery: 'jQuery',
