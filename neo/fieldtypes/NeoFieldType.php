@@ -54,6 +54,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				$blockType->name = $blockTypeSettings['name'];
 				$blockType->handle = $blockTypeSettings['handle'];
 				$blockType->maxBlocks = $blockTypeSettings['maxBlocks'];
+				$blockType->maxChildBlocks = $blockTypeSettings['maxChildBlocks'];
 				$blockType->sortOrder = $blockTypeSettings['sortOrder'];
 				$blockType->childBlocks = $blockTypeSettings['childBlocks'];
 				$blockType->topLevel = (bool)$blockTypeSettings['topLevel'];
@@ -361,6 +362,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'name' => $blockType->name,
 				'handle' => $blockType->handle,
 				'maxBlocks' => $blockType->maxBlocks,
+				'maxChildBlocks' => $blockType->maxChildBlocks,
 				'childBlocks' => $blockType->childBlocks,
 				'topLevel' => (bool)$blockType->topLevel,
 				'errors' => $blockType->getErrors(),
@@ -685,6 +687,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'handle' => $blockType->handle,
 				'name' => Craft::t($blockType->name),
 				'maxBlocks' => $blockType->maxBlocks,
+				'maxChildBlocks' => $blockType->maxChildBlocks,
 				'childBlocks' => $blockType->childBlocks,
 				'topLevel' => (bool)$blockType->topLevel,
 				'tabs' => craft()->neo->renderBlockTabs($blockType, null, $name, $static, $locale),

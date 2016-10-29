@@ -90,6 +90,7 @@ class Neo_BlockTypeRecord extends BaseRecord
 			'name' => [AttributeType::Name, 'required' => true],
 			'handle' => [AttributeType::Handle, 'required' => true],
 			'maxBlocks' => [AttributeType::Number, 'default' => 0],
+			'maxChildBlocks' => [AttributeType::Number, 'default' => 0],
 			'childBlocks' => AttributeType::Mixed,
 			'topLevel' => [AttributeType::Bool, 'default' => true],
 			'sortOrder' => AttributeType::SortOrder,

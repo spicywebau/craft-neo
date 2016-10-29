@@ -474,6 +474,7 @@ class NeoService extends BaseApplicationComponent
 				$blockTypeRecord->handle = $blockType->handle;
 				$blockTypeRecord->sortOrder = $blockType->sortOrder;
 				$blockTypeRecord->maxBlocks = $blockType->maxBlocks;
+				$blockTypeRecord->maxChildBlocks = $blockType->maxChildBlocks;
 				$blockTypeRecord->childBlocks = $blockType->childBlocks;
 				$blockTypeRecord->topLevel = $blockType->topLevel;
 
@@ -1359,7 +1360,7 @@ class NeoService extends BaseApplicationComponent
 	private function _createBlockTypeQuery()
 	{
 		return craft()->db->createCommand()
-			->select('id, dateCreated, dateUpdated, fieldId, fieldLayoutId, name, handle, maxBlocks, childBlocks, topLevel, sortOrder')
+			->select('id, dateCreated, dateUpdated, fieldId, fieldLayoutId, name, handle, maxBlocks, maxChildBlocks, childBlocks, topLevel, sortOrder')
 			->from('neoblocktypes')
 			->order('sortOrder');
 	}

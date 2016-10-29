@@ -51,6 +51,7 @@ class Neo_BlockTypeModel extends BaseModel
 			'name' => AttributeType::String,
 			'handle' => AttributeType::String,
 			'maxBlocks' => AttributeType::Number,
+			'maxChildBlocks' => AttributeType::Number,
 			'childBlocks' => AttributeType::Mixed,
 			'topLevel' => AttributeType::Bool,
 			'sortOrder' => AttributeType::Number,
