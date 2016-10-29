@@ -11,6 +11,8 @@ class NeoController extends BaseController
 	/**
 	 * Saves the block's collapsed or expanded state from an AJAX request.
 	 * This is used when toggling a block on the front-end.
+	 *
+	 * @throws HttpException
 	 */
 	public function actionSaveExpansion()
 	{
@@ -32,7 +34,10 @@ class NeoController extends BaseController
 	}
 
 	/**
+	 * Renders the HTML, CSS and JS for a Neo block.
+	 * This is used when duplicating a block.
 	 *
+	 * @throws HttpException
 	 */
 	public function actionRenderBlocks()
 	{
@@ -78,15 +83,30 @@ class NeoController extends BaseController
 		]);
 	}
 
+	/**
+	 * Converts a Neo field
+	 * @throws HttpException
+	 */
 	public function actionConvertToMatrix()
 	{
 		$this->requireAdmin();
+		$this->requireAjaxRequest();
 
 		$fieldId = craft()->request->getParam('fieldId');
 		$neoField = craft()->fields->getFieldById($fieldId);
 
-		$this->returnJson([
-			'success' => craft()->neo->convertFieldToMatrix($neoField)
-		]);
+		$return = [];
+
+		try
+		{
+			$return['success'] = craft()->neo->convertFieldToMatrix($neoField);
+		}
+		catch(\Exception $e)
+		{
+			$return['success'] = false;
+			$return['errors'] = [$e->getMessage()];
+		}
+
+		$this->returnJson($return);
 	}
 }
