@@ -132,6 +132,22 @@ class NeoPlugin extends BasePlugin
 	}
 
 	/**
+	 * Converts all Neo fields to Matrix on uninstall
+	 */
+	public function onBeforeUninstall()
+	{
+		$fields = craft()->fields->getAllFields();
+
+		foreach($fields as $field)
+		{
+			if($field->getFieldType() instanceof NeoFieldType)
+			{
+				craft()->neo->convertFieldToMatrix($field);
+			}
+		}
+	}
+
+	/**
 	 * Includes additional CSS and JS resources in the control panel
 	 */
 	protected function includeResources()
