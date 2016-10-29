@@ -617,17 +617,20 @@ export default Garnish.Base.extend({
 		this.$tabsButton.toggleClass('invisible', !isMobile)
 	},
 
-	updateMenuStates(blocks = [], maxBlocks = 0)
+	updateMenuStates(blocks = [], maxBlocks = 0, additionalCheck = null)
 	{
+		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
+
 		const blockType = this.getBlockType()
 		const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
 		const maxBlockTypes = blockType.getMaxBlocks()
 
-		const allDisabled = (maxBlocks > 0 && blocks.length >= maxBlocks)
+		const allDisabled = (maxBlocks > 0 && blocks.length >= maxBlocks) || !additionalCheck
 		const typeDisabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
 
 		const disabled = allDisabled || typeDisabled
 
+		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
 		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
 	},
 

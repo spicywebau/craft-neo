@@ -208,8 +208,8 @@ export default Garnish.Base.extend({
 		block.on('duplicateBlock.input', e => this['@duplicateBlock'](e))
 
 		this._destroyTempButtons()
-		this._updateButtons()
 		this._updateBlockOrder()
+		this._updateButtons()
 
 		if(animate)
 		{
@@ -330,6 +330,26 @@ export default Garnish.Base.extend({
 		this._blocks = blocks
 	},
 
+	_checkMaxChildren(block)
+	{
+		if(!block)
+		{
+			return true
+		}
+
+		const blockType = block.getBlockType()
+		const maxChildren = blockType.getMaxChildBlocks()
+
+		if(maxChildren > 0)
+		{
+			const children = this._findChildBlocks(block)
+
+			return children.length < maxChildren
+		}
+
+		return true
+	},
+
 	_updateButtons()
 	{
 		const blocks = this.getBlocks()
@@ -337,17 +357,19 @@ export default Garnish.Base.extend({
 
 		if(this._tempButtons)
 		{
-			this._tempButtons.updateButtonStates(blocks)
+			this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
 		}
 
 		for(let block of blocks)
 		{
-			block.updateMenuStates(blocks, this.getMaxBlocks())
+			const parentBlock = this._findParentBlock(block)
+			const buttons = block.getButtons()
 
-			let buttons = block.getButtons()
+			block.updateMenuStates(blocks, this.getMaxBlocks(), this._checkMaxChildren(parentBlock))
+
 			if(buttons)
 			{
-				buttons.updateButtonStates(blocks)
+				buttons.updateButtonStates(blocks, this._checkMaxChildren(block))
 			}
 		}
 	},
@@ -389,6 +411,7 @@ export default Garnish.Base.extend({
 			}
 
 			this._tempButtons = null
+			this._tempButtonsBlock = null
 		}
 	},
 
@@ -525,6 +548,7 @@ export default Garnish.Base.extend({
 		const block = e.block
 		const index = this._blocks.indexOf(block)
 		const parent = this._findParentBlock(index)
+		const blocks = this.getBlocks()
 		let buttons
 
 		if(parent)
@@ -533,7 +557,7 @@ export default Garnish.Base.extend({
 			buttons = new Buttons({
 				items: parentType.getChildBlockItems(this.getItems()),
 				maxBlocks: this.getMaxBlocks(),
-				blocks: this.getBlocks()
+				blocks: blocks
 			})
 		}
 		else
@@ -542,7 +566,7 @@ export default Garnish.Base.extend({
 				blockTypes: this.getBlockTypes(true),
 				groups: this.getGroups(),
 				maxBlocks: this.getMaxBlocks(),
-				blocks: this.getBlocks()
+				blocks: blocks
 			})
 		}
 
@@ -573,6 +597,9 @@ export default Garnish.Base.extend({
 		}
 
 		this._tempButtons = buttons
+		this._tempButtonsBlock = this._findParentBlock(block)
+
+		this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
 	},
 
 	'@duplicateBlock'(e)

@@ -83,10 +83,12 @@ export default Garnish.Base.extend({
 		return this._maxBlocks
 	},
 
-	updateButtonStates(blocks = [])
+	updateButtonStates(blocks = [], additionalCheck = null)
 	{
+		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
+
 		const that = this
-		const allDisabled = (this._maxBlocks > 0 && blocks.length >= this._maxBlocks)
+		const allDisabled = (this._maxBlocks > 0 && blocks.length >= this._maxBlocks) || !additionalCheck
 
 		this.$blockButtons.each(function()
 		{
