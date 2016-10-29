@@ -14,6 +14,7 @@ class NeoController extends BaseController
 	 */
 	public function actionSaveExpansion()
 	{
+		$this->requireAdmin();
 		$this->requireAjaxRequest();
 		$this->requirePostRequest();
 
@@ -35,6 +36,7 @@ class NeoController extends BaseController
 	 */
 	public function actionRenderBlocks()
 	{
+		$this->requireAdmin();
 		$this->requireAjaxRequest();
 		$this->requirePostRequest();
 
@@ -73,6 +75,18 @@ class NeoController extends BaseController
 		$this->returnJson([
 			'success' => true,
 			'blocks' => $renderedBlocks,
+		]);
+	}
+
+	public function actionConvertToMatrix()
+	{
+		$this->requireAdmin();
+
+		$fieldId = craft()->request->getParam('fieldId');
+		$neoField = craft()->fields->getFieldById($fieldId);
+
+		$this->returnJson([
+			'success' => craft()->neo->convertFieldToMatrix($neoField)
 		]);
 	}
 }
