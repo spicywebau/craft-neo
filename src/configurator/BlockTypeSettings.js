@@ -130,7 +130,10 @@ export default Settings.extend({
 			const oldName = this._name
 			this._name = name
 
-			this.$nameInput.val(this._name)
+			if(this.$nameInput.val() != this._name)
+			{
+				this.$nameInput.val(this._name)
+			}
 
 			this.trigger('change', {
 				property: 'name',
@@ -148,7 +151,10 @@ export default Settings.extend({
 			const oldHandle = this._handle
 			this._handle = handle
 
-			this.$handleInput.val(this._handle)
+			if(this.$handleInput.val() != this._handle)
+			{
+				this.$handleInput.val(this._handle)
+			}
 
 			this.trigger('change', {
 				property: 'handle',
@@ -173,7 +179,7 @@ export default Settings.extend({
 		{
 			this._maxBlocks = newMaxBlocks
 
-			if(this._maxBlocks > 0)
+			if(this._maxBlocks > 0 && this.$maxBlocksInput.val() != this._maxBlocks)
 			{
 				this.$maxBlocksInput.val(this._maxBlocks)
 			}
