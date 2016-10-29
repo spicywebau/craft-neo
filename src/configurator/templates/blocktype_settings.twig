@@ -68,16 +68,36 @@
 			input: childBlocksInput
 		}) }}
 
-		{{ macros.lightswitch({
-			id: 'topLevel'|ns('id'),
-			name: 'topLevel'|ns,
-			label: "Top Level"|t,
-			instructions: "Will this block type be allowed at the top level?"|t,
-			checked: topLevel,
-			attributes: {
-				'data-neo-bts': 'input.topLevel'
-			}
-		}) }}
+		<div data-neo-bts="container.maxChildBlocks">
+			{{ macros.input({
+				type: 'number',
+				id: 'maxChildBlocks'|ns('id'),
+				name: 'maxChildBlocks'|ns,
+				label: "Max Child Blocks"|t,
+				instructions: "The maximum number of child blocks this block type is allowed to have."|t,
+				fullWidth: false,
+				value: maxChildBlocks > 0 ? maxChildBlocks : null,
+				errors: errors.maxChildBlocks,
+				attributes: {
+					min: 0,
+					style: 'width: 80px;',
+					'data-neo-bts': 'input.maxChildBlocks'
+				}
+			}) }}
+		</div>
+
+		<div data-neo-bts="container.topLevel">
+			{{ macros.lightswitch({
+				id: 'topLevel'|ns('id'),
+				name: 'topLevel'|ns,
+				label: "Top Level"|t,
+				instructions: "Will this block type be allowed at the top level?"|t,
+				checked: topLevel,
+				attributes: {
+					'data-neo-bts': 'input.topLevel'
+				}
+			}) }}
+		</div>
 	</div>
 
 	<hr>
