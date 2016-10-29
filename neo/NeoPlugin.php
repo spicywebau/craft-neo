@@ -79,6 +79,11 @@ class NeoPlugin extends BasePlugin
 
 		craft()->neo_reasons->pluginInit();
 		craft()->neo_relabel->pluginInit();
+
+		if(craft()->request->isCpRequest() && !craft()->request->isAjaxRequest())
+		{
+			$this->includeResources();
+		}
 	}
 
 	/**
@@ -124,5 +129,45 @@ class NeoPlugin extends BasePlugin
 		}
 
 		return $craftCompatible && $phpCompatible;
+	}
+
+	/**
+	 * Includes additional CSS and JS resources in the control panel
+	 */
+	protected function includeResources()
+	{
+		if($this->_matchUriSegments(['settings', 'fields', 'edit', '*']))
+		{
+			craft()->templates->includeJsResource('neo/converter.js');
+		}
+	}
+
+	/**
+	 * Helper function for matching against the URI.
+	 * Useful for including resources on specific pages.
+	 *
+	 * @param $matchSegments
+	 * @return bool
+	 */
+	private function _matchUriSegments($matchSegments)
+	{
+		$segments = craft()->request->getSegments();
+
+		if(count($segments) != count($matchSegments))
+		{
+			return false;
+		}
+
+		foreach($segments as $i => $segment)
+		{
+			$matchSegment = $matchSegments[$i];
+
+			if($matchSegment != '*' && $segment != $matchSegment)
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
