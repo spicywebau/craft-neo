@@ -99,6 +99,7 @@ export default Settings.extend({
 		this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
 		this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
 		this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
+		this.addListener(this.$maxChildBlocksInput, 'keyup change', () => this.setMaxChildBlocks(this.$maxChildBlocksInput.val()))
 		this.addListener(this.$deleteButton, 'click', () => this.destroy())
 
 		this.$childBlocksInput.on('change', 'input', () => this._refreshMaxChildBlocks())

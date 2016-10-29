@@ -10,6 +10,7 @@ const _defaults = {
 	name: '',
 	handle: '',
 	maxBlocks: 0,
+	maxChildBlocks: 0,
 	childBlocks: false,
 	topLevel: true,
 	tabs: []
@@ -28,6 +29,7 @@ export default Garnish.Base.extend({
 		this._name = settings.name
 		this._handle = settings.handle
 		this._maxBlocks = settings.maxBlocks|0
+		this._maxChildBlocks = settings.maxChildBlocks|0
 		this._childBlocks = settings.childBlocks
 		this._topLevel = settings.topLevel
 		this._tabs = settings.tabs.map(tab => tab instanceof Tab ? tab : new Tab(tab))
@@ -41,6 +43,7 @@ export default Garnish.Base.extend({
 	getName() { return this._name },
 	getHandle() { return this._handle },
 	getMaxBlocks() { return this._maxBlocks },
+	getMaxChildBlocks() { return this._maxChildBlocks },
 	getChildBlocks() { return this._childBlocks },
 	getTopLevel() { return this._topLevel },
 	getTabs() { return Array.from(this._tabs) },
