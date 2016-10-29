@@ -825,6 +825,7 @@ class NeoService extends BaseApplicationComponent
 
 		$fieldLayout = $blockType->getFieldLayout();
 		$fieldLayoutTabs = $fieldLayout->getTabs();
+		$isFresh = !isset($block);
 
 		if(!$block)
 		{
@@ -864,7 +865,7 @@ class NeoService extends BaseApplicationComponent
 				if($fieldType)
 				{
 					$fieldType->element = $block;
-					$fieldType->setIsFresh($block == null);
+					$fieldType->setIsFresh($isFresh);
 
 					if($block)
 					{
@@ -1066,6 +1067,7 @@ class NeoService extends BaseApplicationComponent
 	 *
 	 * @param FieldModel $neoField
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public function convertFieldToMatrix(FieldModel $neoField)
 	{
@@ -1092,6 +1094,7 @@ class NeoService extends BaseApplicationComponent
 
 				$neoBlocks = $this->getBlocks($neoField->id, null);
 				$matrixBlocks = [];
+				$matrixBlockLocaleContents = [];
 
 				foreach($neoBlocks as $neoBlock)
 				{
@@ -1102,6 +1105,29 @@ class NeoService extends BaseApplicationComponent
 					$matrixBlock->typeId = $neoBlock->typeId;
 
 					$matrixBlocks[] = $matrixBlock;
+
+					$locales = $neoBlock->getLocales();
+					$defaultLocale = $neoBlock->locale;
+					$content = [];
+
+					foreach($locales as $localeId => $localeInfo)
+					{
+						if(is_numeric($localeId) && is_string($localeInfo))
+						{
+							$localeId = $localeInfo;
+						}
+
+						if($localeId != $defaultLocale)
+						{
+							$neoBlock->locale = $localeId;
+							$matrixBlockContent = $neoBlock->getContent()->copy();
+							$matrixBlockContent->id = null;
+
+							$content[$localeId] = $matrixBlockContent;
+						}
+					}
+
+					$matrixBlockLocaleContents[] = $content;
 				}
 
 				$success = craft()->fields->saveField($matrixField, false);
@@ -1120,7 +1146,7 @@ class NeoService extends BaseApplicationComponent
 					$matrixToNeoBlockTypeIds[$neoBlockTypeId] = $matrixBlockType->id;
 				}
 
-				foreach($matrixBlocks as $matrixBlock)
+				foreach($matrixBlocks as $i => $matrixBlock)
 				{
 					// Assign the correct block type ID now that it exists (from saving the field above).
 					$neoBlockTypeId = $matrixBlock->typeId;
@@ -1131,6 +1157,21 @@ class NeoService extends BaseApplicationComponent
 					if(!$success)
 					{
 						throw new \Exception("Unable to save Matrix block");
+					}
+
+					$localeContents = $matrixBlockLocaleContents[$i];
+
+					foreach($localeContents as $localeId => $content)
+					{
+						$matrixBlock->locale = $localeId;
+						$matrixBlock->setContent($content);
+
+						$success = craft()->content->saveContent($matrixBlock, false, false);
+
+						if(!$success)
+						{
+							throw new \Exception("Unable to save Matrix block content in locale '{$localeId}'");
+						}
 					}
 				}
 
@@ -1143,6 +1184,8 @@ class NeoService extends BaseApplicationComponent
 				$this->rollbackTransaction($transaction);
 
 				NeoPlugin::log("Couldn't convert Neo field '{$neoField->handle}' to Matrix: " . $e->getMessage(), LogLevel::Error);
+
+				throw $e;
 			}
 		}
 
@@ -1223,13 +1266,15 @@ class NeoService extends BaseApplicationComponent
 	 */
 	public function convertBlockToMatrix(Neo_BlockModel $neoBlock, MatrixBlockTypeModel $matrixBlockType = null)
 	{
-		$blockContent = $neoBlock->getContent();
+		$blockContent = $neoBlock->getContent()->copy();
+		$blockContent->id = null;
 
 		$matrixBlock = new MatrixBlockModel();
 		$matrixBlock->setContent($blockContent);
 
 		$matrixBlock->ownerId = $neoBlock->ownerId;
 		$matrixBlock->fieldId = $neoBlock->fieldId;
+		$matrixBlock->locale = $neoBlock->locale;
 		$matrixBlock->ownerLocale = $neoBlock->ownerLocale;
 		$matrixBlock->sortOrder = $neoBlock->lft;
 		$matrixBlock->collapsed = $neoBlock->collapsed;
