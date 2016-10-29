@@ -76,14 +76,24 @@
 			}
 
 			&_left {
-				left: 0;
+
+				body.ltr & { left:  0; }
+				body.rtl & { right: 0; }
 			}
 
 			&_right {
 				z-index: 1;
-				right: 0;
 				min-width: 100px;
-				background-image: linear-gradient(to left, #eef0f1 72px, transparent 100px);
+
+				body.ltr & {
+					right: 0;
+					background-image: linear-gradient(to left, #eef0f1 72px, transparent 100px);
+				}
+
+				body.rtl & {
+					left:  0;
+					background-image: linear-gradient(to right, #eef0f1 72px, transparent 100px);
+				}
 			}
 
 			&_item {
@@ -116,11 +126,14 @@
 					}
 
 					.preview {
+						pointer-events: none; // Allow the double-click expand/collapse work it's magic
 						position: absolute;
 						height: 30px;
-						margin-left: 8px;
 						color: #b9bfc6;
 						transition: opacity 0.3s;
+
+						body.ltr & { margin-left:  8px; }
+						body.rtl & { margin-right: 8px; }
 
 						&:empty {
 							// Fixes bug where the blocktype can get clipped prematurely
@@ -128,15 +141,19 @@
 						}
 
 						&_section {
-							padding: 8px;
-							border-left: 1px solid #e3e5e8;
+							display: inline-block;
+							padding: 0 8px;
+							height: 30px;
+							line-height: 30px;
+
+							body.ltr & { border-left:  1px solid #e3e5e8; }
+							body.rtl & { border-right: 1px solid #e3e5e8; }
 						}
 
 						img,
 						&_color {
-							position: relative;
-							top: 50%;
 							vertical-align: top;
+							margin-top: 15px;
 							transform: translateY(-50%);
 						}
 
@@ -153,7 +170,9 @@
 						}
 
 						.status {
-							margin-right: 6px;
+
+							body.ltr & { margin-right: 6px; }
+							body.rtl & { margin-left:  6px; }
 						}
 					}
 				}
@@ -292,6 +311,12 @@
 
 			> .ni_block_topbar > .ni_block_topbar_item.tabs .tab.is-selected.is-blank {
 				border-bottom-color: white;
+			}
+
+			> .ni_block_topbar > .ni_block_topbar_right {
+
+				body.ltr & { background-image: linear-gradient(to left,  white 72px, transparent 100px); }
+				body.rtl & { background-image: linear-gradient(to right, white 72px, transparent 100px); }
 			}
 		}
 
