@@ -8,10 +8,12 @@
 - `Improved` Neo fields and their content now automatically convert to Matrix when uninstalling the plugin
 - `Improved` Matrix fields inside Neo blocks are now styled differently, so they stand out more visually (inspired by [SuperTable](https://github.com/engram-design/SuperTable))
 - `Improved` German translations have been grammatically improved
+- `Improved` Field-less blocks now have their heights padded to improve visibility
 - `Fixed` Fixed partially broken support for [Reasons](https://github.com/mmikkel/Reasons-Craft)
 - `Fixed` Fixed PHP error when using Neo in widget
 - `Fixed` Fixed bug where Neo could be created inside Matrix
 - `Fixed` Fixed bug where default values for lightswitch fields were not used in new Neo blocks
+- `Fixed` Various minor bug and behavioural fixes to the configurator and input blocks
 
 #### v1.3.5
 - `Improved` Added German translations
