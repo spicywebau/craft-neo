@@ -15,6 +15,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	private $_currentFilters = [];
 	private $_ancestor = null;
 	private $_descendant = null;
+	private $_useMemoized = false;
 
 
 	// Protected properties
@@ -88,7 +89,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	 */
 	public function count()
 	{
-		if(craft()->neo->isPreviewMode())
+		if(craft()->neo->isPreviewMode() || $this->isUsingMemoized())
 		{
 			return count($this->find());
 		}
@@ -136,6 +137,32 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		$this->_runCriteria();
 	}
 
+	/**
+	 * Whether the criteria model is operating on a memoized data set.
+	 *
+	 * @return bool
+	 */
+	public function isUsingMemoized()
+	{
+		return $this->_useMemoized;
+	}
+
+	/**
+	 * Sets whether the criteria model operates on a memoized data set.
+	 *
+	 * @param bool|true $use - Either a boolean to enable/disable, or a dataset to use (which results in enabling)
+	 */
+	public function useMemoized($use = true)
+	{
+		if(is_array($use))
+		{
+			$this->setAllElements($use);
+			$use = true;
+		}
+
+		$this->_useMemoized = $use;
+	}
+
 
 	// Protected methods
 
@@ -181,7 +208,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	 */
 	private function _runCriteria()
 	{
-		if(craft()->neo->isPreviewMode() && !empty($this->_allElements))
+		if((craft()->neo->isPreviewMode() || $this->isUsingMemoized()) && !empty($this->_allElements))
 		{
 			$elements = $this->_allElements;
 

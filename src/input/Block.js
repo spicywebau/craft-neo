@@ -43,6 +43,23 @@ function _resourceFilter()
 	return true
 }
 
+function _stripHTML(str)
+{
+	return str ? str.replace(/<(?:.|\n)*?>/gm, '') : ''
+}
+
+function _escapeHTML(str)
+{
+	return str ? str.replace(/[&<>"'\/]/g, s => ({
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+		'/': '&#x2F;'
+	})[s]) : ''
+}
+
 export default Garnish.Base.extend({
 
 	_templateNs: [],
@@ -80,11 +97,16 @@ export default Garnish.Base.extend({
 		this.$bodyContainer = $neo.filter('[data-neo-b="container.body"]')
 		this.$contentContainer = $neo.filter('[data-neo-b="container.content"]')
 		this.$childrenContainer = $neo.filter('[data-neo-b="container.children"]')
+		this.$collapsedChildrenContainer = $neo.filter('[data-neo-b="container.collapsedChildren"]')
 		this.$blocksContainer = $neo.filter('[data-neo-b="container.blocks"]')
 		this.$buttonsContainer = $neo.filter('[data-neo-b="container.buttons"]')
+		this.$topbarContainer = $neo.filter('[data-neo-b="container.topbar"]')
+		this.$topbarLeftContainer = $neo.filter('[data-neo-b="container.topbarLeft"]')
+		this.$topbarRightContainer = $neo.filter('[data-neo-b="container.topbarRight"]')
 		this.$tabsContainer = $neo.filter('[data-neo-b="container.tabs"]')
 		this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]')
 		this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]')
+		this.$previewContainer = $neo.filter('[data-neo-b="container.preview"]')
 		this.$tabButton = $neo.filter('[data-neo-b="button.tab"]')
 		this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]')
 		this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
@@ -118,7 +140,7 @@ export default Garnish.Base.extend({
 		this.toggleEnabled(settings.enabled)
 		this.toggleExpansion(hasErrors ? true : !settings.collapsed, false, false)
 
-		this.addListener(this.$togglerButton, 'dblclick', '@doubleClickTitle')
+		this.addListener(this.$topbarContainer, 'dblclick', '@doubleClickTitle')
 		this.addListener(this.$tabButton, 'click', '@setTab')
 	},
 
@@ -164,6 +186,16 @@ export default Garnish.Base.extend({
 
 				this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
 			}
+
+			// For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
+			// Neo applies it's own styles to Matrix blocks in an effort to improve the visibility of them, however
+			// when dragging a Matrix block these styles get lost (since a dragged Matrix block loses it's context of
+			// being inside a Neo block). Adding this class name to blocks before they are dragged means that the
+			// dragged Matrix block can still have the Neo-specific styles.
+			this.$container.on('mousedown', '.matrixblock', function(e)
+			{
+				$(this).addClass('neo-matrixblock')
+			})
 
 			this.trigger('initUi')
 		}
@@ -250,6 +282,167 @@ export default Garnish.Base.extend({
 		return content
 	},
 
+	updatePreview()
+	{
+		const $fields = this.$contentContainer.find('.field')
+		const blockType = this.getBlockType()
+		const fieldTypes = blockType.getFieldTypes()
+		const previewText = []
+
+		$fields.each(function()
+		{
+			const $field = $(this)
+			const $input = $field.children('.input')
+			const id = $field.prop('id')
+			const label = $field.children('.heading').children('label').text()
+			const handle = id.match(/-([a-z0-9_]+)-field$/i)[1]
+			const fieldType = fieldTypes[handle]
+			let value = false
+
+			switch(fieldType)
+			{
+				case 'Assets':
+				{
+					const values = []
+					const $assets = $input.find('.element')
+
+					$assets.each(function()
+					{
+						const $asset = $(this)
+						const $thumb = $asset.find('.elementthumb > img')
+						const srcset = $thumb.prop('srcset')
+
+						values.push(`<img sizes="30px" srcset="${srcset}">`)
+
+						if($assets.length === 1)
+						{
+							const title = $asset.find('.title').text()
+
+							values.push(_escapeHTML(title))
+						}
+					})
+
+					value = values.join(' ')
+				}
+				break
+				case 'Categories':
+				case 'Entries':
+				case 'Tags':
+				case 'Users':
+				{
+					const values = []
+					const $elements = $input.find('.element')
+
+					$elements.each(function()
+					{
+						const $element = $(this)
+						const title = $element.find('.title, .label').eq(0).text()
+
+						values.push(_escapeHTML(title))
+					})
+
+					value = values.join(', ')
+				}
+				break
+				case 'Checkboxes':
+				{
+					const values = []
+					const $checkboxes = $input.find('input[type="checkbox"]')
+
+					$checkboxes.each(function()
+					{
+						if(this.checked)
+						{
+							const $checkbox = $(this)
+							const id = $checkbox.prop('id')
+							const $label = $input.find(`label[for="${id}"]`)
+							const label = $label.text()
+
+							values.push(_escapeHTML(label))
+						}
+					})
+
+					value = values.join(', ')
+				}
+				break
+				case 'Color':
+				{
+					const color = $input.find('input[type="color"]').val()
+
+					value = `<div class="preview_color" style="background-color: ${color}"></div>`
+				}
+				break
+				case 'Date':
+				{
+					const date = _escapeHTML($input.find('.datewrapper input').val())
+					const time = _escapeHTML($input.find('.timewrapper input').val())
+
+					value = date && time ? (date + ' ' + time) : (date || time)
+				}
+				break
+				case 'Dropdown':
+				{
+					const $selected = $input.find('select').children(':selected')
+
+					value = _escapeHTML($selected.text())
+				}
+				break
+				case 'Lightswitch':
+				{
+					const enabled = !!$input.find('input').val()
+
+					value = `<span class="status${enabled ? ' live' : ''}"></span>` + _escapeHTML(label)
+				}
+				break
+				case 'MultiSelect':
+				{
+					const values = []
+					const $selected = $input.find('select').children(':selected')
+
+					$selected.each(function()
+					{
+						values.push($(this).text())
+					})
+
+					value = _escapeHTML(values.join(', '))
+				}
+				break
+				case 'Number':
+				case 'PlainText':
+				{
+					value = _escapeHTML($input.children('input').val())
+				}
+				break
+				case 'PositionSelect':
+				{
+					const $selected = $input.find('.btn.active')
+
+					value = _escapeHTML($selected.prop('title'))
+				}
+				break
+				case 'RadioButtons':
+				{
+					const $checked = $input.find('input[type="g"]:checked')
+
+					value = _escapeHTML($checked.val())
+				}
+				break
+				case 'RichText':
+				{
+					value = _stripHTML($input.find('textarea').val())
+				}
+				break
+			}
+
+			if(value)
+			{
+				previewText.push('<span class="preview_section">', value, '</span>')
+			}
+		})
+
+		this.$previewContainer.html(previewText.join(''))
+	},
+
 	isNew()
 	{
 		return /^new/.test(this.getId())
@@ -289,6 +482,11 @@ export default Garnish.Base.extend({
 
 			expandContainer.toggleClass('hidden', this._expanded)
 			collapseContainer.toggleClass('hidden', !this._expanded)
+
+			if(!this._expanded)
+			{
+				this.updatePreview()
+			}
 
 			const expandedCss = {
 				opacity: 1,
@@ -411,28 +609,29 @@ export default Garnish.Base.extend({
 
 	updateResponsiveness()
 	{
-		if(!this._tabsContainerWidth)
-		{
-			this._tabsContainerWidth = this.$tabsContainer.width()
-		}
+		this._topbarLeftWidth = this._topbarLeftWidth || this.$topbarLeftContainer.width()
+		this._topbarRightWidth = this._topbarRightWidth || this.$topbarRightContainer.width()
 
-		const isMobile = (this.$tabsContainer.parent().width() < this._tabsContainerWidth)
+		const isMobile = (this.$topbarContainer.width() < this._topbarLeftWidth + this._topbarRightWidth)
 
-		this.$tabsContainer.toggleClass('hidden', isMobile)
-		this.$tabsButton.toggleClass('hidden', !isMobile)
+		this.$tabsContainer.toggleClass('invisible', isMobile)
+		this.$tabsButton.toggleClass('invisible', !isMobile)
 	},
 
-	updateMenuStates(blocks = [], maxBlocks = 0)
+	updateMenuStates(blocks = [], maxBlocks = 0, additionalCheck = null)
 	{
+		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
+
 		const blockType = this.getBlockType()
 		const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
 		const maxBlockTypes = blockType.getMaxBlocks()
 
-		const allDisabled = (maxBlocks > 0 && blocks.length >= maxBlocks)
+		const allDisabled = (maxBlocks > 0 && blocks.length >= maxBlocks) || !additionalCheck
 		const typeDisabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
 
 		const disabled = allDisabled || typeDisabled
 
+		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
 		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
 	},
 
@@ -502,9 +701,9 @@ export default Garnish.Base.extend({
 				case 'collapse': this.collapse() ; break
 				case 'expand':   this.expand()   ; break
 				case 'disable':  this.disable()
-								 this.collapse() ; break
+				                 this.collapse() ; break
 				case 'enable':   this.enable()
-								 this.expand()   ; break
+				                 this.expand()   ; break
 				case 'delete':   this.destroy()  ; break
 
 				case 'add':
@@ -526,7 +725,15 @@ export default Garnish.Base.extend({
 	{
 		e.preventDefault()
 
-		this.toggleExpansion()
+		const $target = $(e.target)
+		const $checkFrom = $target.parent()
+		const isLeft = ($checkFrom.closest(this.$topbarLeftContainer).length > 0)
+		const isRight = ($checkFrom.closest(this.$topbarRightContainer).length > 0)
+
+		if(!isLeft && !isRight)
+		{
+			this.toggleExpansion()
+		}
 	},
 
 	'@setTab'(e)

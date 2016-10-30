@@ -54,6 +54,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				$blockType->name = $blockTypeSettings['name'];
 				$blockType->handle = $blockTypeSettings['handle'];
 				$blockType->maxBlocks = $blockTypeSettings['maxBlocks'];
+				$blockType->maxChildBlocks = $blockTypeSettings['maxChildBlocks'];
 				$blockType->sortOrder = $blockTypeSettings['sortOrder'];
 				$blockType->childBlocks = $blockTypeSettings['childBlocks'];
 				$blockType->topLevel = (bool)$blockTypeSettings['topLevel'];
@@ -320,7 +321,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	public function getSettingsHtml()
 	{
 		// Disable creating Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
-		if($this->_getNamespaceDepth() > 2)
+		if($this->_getNamespaceDepth() >= 1)
 		{
 			return '<span class="error">' . Craft::t("Unable to nest Neo fields.") . '</span>';
 		}
@@ -361,6 +362,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'name' => $blockType->name,
 				'handle' => $blockType->handle,
 				'maxBlocks' => $blockType->maxBlocks,
+				'maxChildBlocks' => $blockType->maxChildBlocks,
 				'childBlocks' => $blockType->childBlocks,
 				'topLevel' => (bool)$blockType->topLevel,
 				'errors' => $blockType->getErrors(),
@@ -521,13 +523,43 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		// Return any relation data on these elements, defined with this field
 		$map = craft()->db->createCommand()
-			->select('ownerId as source, id as target')
-			->from('neoblocks')
+			->select('neoblocks.ownerId as source, neoblocks.id as target')
+			->from('neoblocks neoblocks')
 			->where(
-				['and', 'fieldId=:fieldId', ['in', 'ownerId', $sourceElementIds]],
+				['and', 'neoblocks.fieldId=:fieldId', ['in', 'neoblocks.ownerId', $sourceElementIds]],
 				[':fieldId' => $this->model->id]
 			)
-			// ->order('sortOrder') // TODO Need to join the structure elements table to get `lft` for ordering
+			// Join structural information to get the ordering of the blocks
+			->leftJoin(
+				'neoblockstructures neoblockstructures',
+				[
+					'and',
+					'neoblockstructures.ownerId = neoblocks.ownerId',
+					'neoblockstructures.fieldId = neoblocks.fieldId',
+					[
+						'or',
+						'neoblockstructures.ownerLocale = neoblocks.ownerLocale',
+
+						// If there is no locale set (in other words, `ownerLocale` is `null`), then the above
+						// comparison will not be true for some reason. So if it's not evaluated to true, then check
+						// to see if both `ownerLocale` properties are `null`.
+						[
+							'and',
+							'neoblockstructures.ownerLocale is null',
+							'neoblocks.ownerLocale is null',
+						],
+					],
+				]
+			)
+			->leftJoin(
+				'structureelements structureelements',
+				[
+					'and',
+					'structureelements.structureId = neoblockstructures.structureId',
+					'structureelements.elementId = neoblocks.id',
+				]
+			)
+			->order('structureelements.lft')
 			->queryAll();
 
 		return [
@@ -660,19 +692,32 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	private function _prepareInputHtml($id, $name, $settings, $value, $static = false)
 	{
-		$locale = $this->element->locale;
+		$locale = isset($this->element) ? $this->element->locale : null;
 
 		$blockTypeInfo = [];
 		foreach($settings->getBlockTypes() as $blockType)
 		{
 			$fieldLayout = $blockType->getFieldLayout();
+			$fieldLayoutFields = $fieldLayout->getFields();
+
+			$fieldTypes = [];
+			foreach($fieldLayoutFields as $fieldLayoutField)
+			{
+				$field = $fieldLayoutField->getField();
+				$type = $field->getFieldType();
+
+				$fieldTypes[$field->handle] = $type->classHandle;
+			}
+
 			$blockTypeInfo[] = [
 				'id' => $blockType->id,
 				'fieldLayoutId' => $fieldLayout->id,
+				'fieldTypes' => $fieldTypes,
 				'sortOrder' => $blockType->sortOrder,
 				'handle' => $blockType->handle,
 				'name' => Craft::t($blockType->name),
 				'maxBlocks' => $blockType->maxBlocks,
+				'maxChildBlocks' => $blockType->maxChildBlocks,
 				'childBlocks' => $blockType->childBlocks,
 				'topLevel' => (bool)$blockType->topLevel,
 				'tabs' => craft()->neo->renderBlockTabs($blockType, null, $name, $static, $locale),

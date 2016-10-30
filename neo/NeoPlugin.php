@@ -22,7 +22,7 @@ class NeoPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return '1.3.5';
+		return '1.4.0';
 	}
 
 	public function getCraftMinimumVersion()
@@ -37,7 +37,7 @@ class NeoPlugin extends BasePlugin
 
 	public function getSchemaVersion()
 	{
-		return '1.3.5';
+		return '1.4.0';
 	}
 
 	public function getDeveloper()
@@ -79,6 +79,11 @@ class NeoPlugin extends BasePlugin
 
 		craft()->neo_reasons->pluginInit();
 		craft()->neo_relabel->pluginInit();
+
+		if(craft()->request->isCpRequest() && !craft()->request->isAjaxRequest())
+		{
+			$this->includeResources();
+		}
 	}
 
 	/**
@@ -124,5 +129,61 @@ class NeoPlugin extends BasePlugin
 		}
 
 		return $craftCompatible && $phpCompatible;
+	}
+
+	/**
+	 * Converts all Neo fields to Matrix on uninstall
+	 */
+	public function onBeforeUninstall()
+	{
+		$fields = craft()->fields->getAllFields();
+
+		foreach($fields as $field)
+		{
+			if($field->getFieldType() instanceof NeoFieldType)
+			{
+				craft()->neo->convertFieldToMatrix($field);
+			}
+		}
+	}
+
+	/**
+	 * Includes additional CSS and JS resources in the control panel
+	 */
+	protected function includeResources()
+	{
+		if($this->_matchUriSegments(['settings', 'fields', 'edit', '*']))
+		{
+			craft()->templates->includeJsResource('neo/converter.js');
+		}
+	}
+
+	/**
+	 * Helper function for matching against the URI.
+	 * Useful for including resources on specific pages.
+	 *
+	 * @param $matchSegments
+	 * @return bool
+	 */
+	private function _matchUriSegments($matchSegments)
+	{
+		$segments = craft()->request->getSegments();
+
+		if(count($segments) != count($matchSegments))
+		{
+			return false;
+		}
+
+		foreach($segments as $i => $segment)
+		{
+			$matchSegment = $matchSegments[$i];
+
+			if($matchSegment != '*' && $segment != $matchSegment)
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

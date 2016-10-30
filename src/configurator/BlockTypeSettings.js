@@ -18,6 +18,7 @@ const _defaults = {
 	name: '',
 	handle: '',
 	maxBlocks: 0,
+	maxChildBlocks: 0,
 	topLevel: true,
 	childBlocks: null,
 	childBlockTypes: [],
@@ -33,6 +34,7 @@ export default Settings.extend({
 	$nameInput: new $,
 	$handleInput: new $,
 	$maxBlocksInput: new $,
+	$maxChildBlocksInput: new $,
 
 	init(settings = {})
 	{
@@ -47,18 +49,20 @@ export default Settings.extend({
 		this.setName(settings.name)
 		this.setHandle(settings.handle)
 		this.setMaxBlocks(settings.maxBlocks)
+		this.setMaxChildBlocks(settings.maxChildBlocks)
 		this.setTopLevel(settings.topLevel)
 
 		NS.enter(this._templateNs)
 
 		this.$container = $(renderTemplate({
-			id:        this.getId(),
+			id: this.getId(),
 			sortOrder: this.getSortOrder(),
-			name:      this.getName(),
-			handle:    this.getHandle(),
+			name: this.getName(),
+			handle: this.getHandle(),
 			maxBlocks: this.getMaxBlocks(),
-			topLevel:  this.getTopLevel(),
-			errors:    this.getErrors()
+			maxChildBlocks: this.getMaxChildBlocks(),
+			topLevel: this.getTopLevel(),
+			errors: this.getErrors()
 		}))
 
 		NS.leave()
@@ -68,7 +72,10 @@ export default Settings.extend({
 		this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
 		this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
 		this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
+		this.$maxChildBlocksInput = $neo.filter('[data-neo-bts="input.maxChildBlocks"]')
+		this.$maxChildBlocksContainer = $neo.filter('[data-neo-bts="container.maxChildBlocks"]')
 		this.$topLevelInput = $neo.filter('[data-neo-bts="input.topLevel"]')
+		this.$topLevelContainer = $neo.filter('[data-neo-bts="container.topLevel"]')
 		this.$childBlocksInput = $neo.filter('[data-neo-bts="input.childBlocks"]')
 		this.$childBlocksContainer = $neo.filter('[data-neo-bts="container.childBlocks"]')
 		this.$deleteButton = $neo.filter('[data-neo-bts="button.delete"]')
@@ -92,7 +99,10 @@ export default Settings.extend({
 		this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
 		this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
 		this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
+		this.addListener(this.$maxChildBlocksInput, 'keyup change', () => this.setMaxChildBlocks(this.$maxChildBlocksInput.val()))
 		this.addListener(this.$deleteButton, 'click', () => this.destroy())
+
+		this.$childBlocksInput.on('change', 'input', () => this._refreshMaxChildBlocks())
 	},
 
 	getFocusInput()
@@ -130,7 +140,10 @@ export default Settings.extend({
 			const oldName = this._name
 			this._name = name
 
-			this.$nameInput.val(this._name)
+			if(this.$nameInput.val() != this._name)
+			{
+				this.$nameInput.val(this._name)
+			}
 
 			this.trigger('change', {
 				property: 'name',
@@ -148,7 +161,10 @@ export default Settings.extend({
 			const oldHandle = this._handle
 			this._handle = handle
 
-			this.$handleInput.val(this._handle)
+			if(this.$handleInput.val() != this._handle)
+			{
+				this.$handleInput.val(this._handle)
+			}
 
 			this.trigger('change', {
 				property: 'handle',
@@ -173,7 +189,7 @@ export default Settings.extend({
 		{
 			this._maxBlocks = newMaxBlocks
 
-			if(this._maxBlocks > 0)
+			if(this._maxBlocks > 0 && this.$maxBlocksInput.val() != this._maxBlocks)
 			{
 				this.$maxBlocksInput.val(this._maxBlocks)
 			}
@@ -182,6 +198,34 @@ export default Settings.extend({
 				property: 'maxBlocks',
 				oldValue: oldMaxBlocks,
 				newValue: this._maxBlocks
+			})
+		}
+	},
+
+	getMaxChildBlocks() { return this._maxChildBlocks },
+	setMaxChildBlocks(maxChildBlocks)
+	{
+		const oldMaxChildBlocks = this._maxChildBlocks
+		const newMaxChildBlocks = Math.max(0, maxChildBlocks|0)
+
+		if(newMaxChildBlocks === 0)
+		{
+			this.$maxChildBlocksInput.val(null)
+		}
+
+		if(oldMaxChildBlocks !== newMaxChildBlocks)
+		{
+			this._maxChildBlocks = newMaxChildBlocks
+
+			if(this._maxChildBlocks > 0 && this.$maxChildBlocksInput.val() != this._maxChildBlocks)
+			{
+				this.$maxChildBlocksInput.val(this._maxChildBlocks)
+			}
+
+			this.trigger('change', {
+				property: 'maxChildBlocks',
+				oldValue: oldMaxChildBlocks,
+				newValue: this._maxChildBlocks
 			})
 		}
 	},
@@ -223,10 +267,14 @@ export default Settings.extend({
 		select.$options.each(function(index)
 		{
 			const $option = $(this)
-			childBlocks.push($option.prop('checked'))
+
+			if($option.prop('checked'))
+			{
+				childBlocks.push($option.val())
+			}
 		})
 
-		return childBlocks
+		return childBlocks.length > 0 ? childBlocks : false
 	},
 
 	setChildBlocks(childBlocks)
@@ -252,6 +300,8 @@ export default Settings.extend({
 			select.$all.prop('checked', false)
 			select.$options.prop('checked', false)
 		}
+
+		this._refreshMaxChildBlocks(false)
 	},
 
 	addChildBlockType(blockType)
@@ -322,6 +372,57 @@ export default Settings.extend({
 		{
 			let $option = getOption(blockType)
 			this.$childBlocksContainer.append($option)
+		}
+	},
+
+	_refreshMaxChildBlocks(animate)
+	{
+		animate = (typeof animate === 'boolean') ? animate : true
+
+		const showSetting = !!this.getChildBlocks()
+
+		if(animate)
+		{
+			if(showSetting)
+			{
+				if(this.$maxChildBlocksContainer.hasClass('hidden'))
+				{
+					this.$maxChildBlocksContainer
+						.removeClass('hidden')
+						.css({
+							opacity: 0,
+							marginBottom: -(this.$maxChildBlocksContainer.outerHeight())
+						})
+						.velocity({
+							opacity: 1,
+							marginBottom: 24
+						}, 'fast')
+				}
+			}
+			else
+			{
+				if(!this.$maxChildBlocksContainer.hasClass('hidden'))
+				{
+					this.$maxChildBlocksContainer
+						.css({
+							opacity: 1,
+							marginBottom: 24
+						})
+						.velocity({
+							opacity: 0,
+							marginBottom: -(this.$maxChildBlocksContainer.outerHeight())
+						}, 'fast', () =>
+						{
+							this.$maxChildBlocksContainer.addClass('hidden')
+						})
+				}
+			}
+		}
+		else
+		{
+			this.$maxChildBlocksContainer
+				.toggleClass('hidden', !showSetting)
+				.css('margin-bottom', showSetting ? 24 : '')
 		}
 	},
 

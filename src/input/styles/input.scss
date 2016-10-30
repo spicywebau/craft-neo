@@ -62,11 +62,39 @@
 		}
 
 		&_topbar {
-			display: flex;
+			position: relative;
 			height: 30px;
 			line-height: 30px;
 			background-color: #eef0f1;
 			color: #8f98a3;
+
+			&_left,
+			&_right {
+				display: flex;
+				position: absolute;
+				top: 0; bottom: 0;
+			}
+
+			&_left {
+
+				body.ltr & { left:  0; }
+				body.rtl & { right: 0; }
+			}
+
+			&_right {
+				z-index: 1;
+				min-width: 100px;
+
+				body.ltr & {
+					right: 0;
+					background-image: linear-gradient(to left, #eef0f1 72px, transparent 100px);
+				}
+
+				body.rtl & {
+					left:  0;
+					background-image: linear-gradient(to right, #eef0f1 72px, transparent 100px);
+				}
+			}
 
 			&_item {
 				cursor: default;
@@ -90,20 +118,70 @@
 					text-overflow: ellipsis;
 				}
 
-				&.tabs {
-					position: relative;
-					transition: opacity 0.3s;
+				&.title {
 
-					.tabs_trigger {
-						position: absolute;
-						top: 0; bottom: 0;
-						left: 0; right: 0;
+					.blocktype {
+						// Add vertical padding so there's more hit area for the checkbox
+						padding: 8px 0;
 					}
 
-					.tabs_inner {
+					.preview {
+						pointer-events: none; // Allow the double-click expand/collapse work it's magic
 						position: absolute;
-						top: 0;
-						padding-right: 8px;
+						height: 30px;
+						color: #b9bfc6;
+						transition: opacity 0.2s;
+
+						body.ltr & { margin-left:  8px; }
+						body.rtl & { margin-right: 8px; }
+
+						&:empty {
+							// Fixes bug where the blocktype can get clipped prematurely
+							display: none;
+						}
+
+						&_section {
+							display: inline-block;
+							padding: 0 8px;
+							height: 30px;
+							line-height: 30px;
+
+							body.ltr & { border-left:  1px solid #e3e5e8; }
+							body.rtl & { border-right: 1px solid #e3e5e8; }
+						}
+
+						img,
+						&_color {
+							vertical-align: top;
+							margin-top: 15px;
+							transform: translateY(-50%);
+						}
+
+						img {
+							max-width: 30px;
+							max-height: 30px;
+						}
+
+						&_color {
+							display: inline-block;
+							width: 16px;
+							height: 16px;
+							border-radius: 50%;
+						}
+
+						.status {
+
+							body.ltr & { margin-right: 6px; }
+							body.rtl & { margin-left:  6px; }
+						}
+					}
+				}
+
+				&.tabs {
+					position: relative;
+					transition: opacity 0.2s;
+
+					.tabs_inner {
 						white-space: nowrap;
 
 						body.ltr & { right: 0; direction: ltr; }
@@ -111,7 +189,8 @@
 					}
 
 					.tabs_btn {
-						position: relative; // Put it over the top of trigger element
+						position: absolute;
+						top: 0;
 						display: block;
 						cursor: pointer;
 						height: 30px;
@@ -123,8 +202,8 @@
 						background-color: #fafafa;
 						color: #576575;
 
-						body.ltr & { float: right; }
-						body.rtl & { float: left;  }
+						body.ltr & { right: 8px; }
+						body.rtl & { left:  8px;  }
 
 						&.has-errors {
 							color: #da5a47;
@@ -161,6 +240,11 @@
 							color: #da5a47;
 						}
 					}
+				}
+
+				.invisible {
+					visibility: hidden;
+					pointer-events: none;
 				}
 
 				> .checkbox {
@@ -218,6 +302,18 @@
 			background-color: #eef0f1;
 		}
 
+		&_collapsed-children {
+			overflow: hidden;
+
+			&_child {
+				height: 2px;
+				border-top: 1px solid #e3e5e8;
+				background-color: #fafafa;
+				margin-top: -3px;
+				transition: margin-top 0.2s; // 200ms to match jQuery transition duration
+			}
+		}
+
 		&.is-level-odd {
 
 			> .ni_block_topbar,
@@ -228,34 +324,75 @@
 			> .ni_block_topbar > .ni_block_topbar_item.tabs .tab.is-selected.is-blank {
 				border-bottom-color: white;
 			}
+
+			> .ni_block_topbar > .ni_block_topbar_right {
+
+				body.ltr & { background-image: linear-gradient(to left,  white 72px, transparent 100px); }
+				body.rtl & { background-image: linear-gradient(to right, white 72px, transparent 100px); }
+			}
+		}
+
+		&.is-expanded {
+
+			> .ni_block_topbar {
+
+				.title > .preview {
+					opacity: 0;
+				}
+			}
 		}
 
 		&.is-contracted {
 
 			> .ni_block_topbar {
 
-				.ni_block_topbar_item.tabs {
-					opacity: 0;
+				.ni_block_topbar_right {
+					pointer-events: none;
 
-					.tabs_inner,
-					.tabs_btn {
-						pointer-events: none;
+					> .tabs {
+						opacity: 0;
 					}
+
+					> :not(.tabs) {
+						pointer-events: auto;
+					}
+				}
+			}
+
+			> .ni_block_collapsed-children {
+
+				.ni_block_collapsed-children_child {
+					margin-top: 0;
 				}
 			}
 		}
 
 		&.is-disabled {
 
-			> .ni_block_content {
+			.ni_block_topbar_item {
 
-				.ni_block_content_tab {
+				&.title .preview {
+					opacity: 0;
+				}
+			}
+
+			.ni_block_content_tab {
+
+				.field {
 					pointer-events: none;
 					opacity: 0.5;
 					-webkit-user-select: none;
 					-moz-user-select: none;
 					user-select: none;
 				}
+			}
+		}
+
+		&.is-empty {
+			padding: 6px 0; // Add some vertical size to blocks without fields or children so they stand out more
+
+			&.is-level-odd {
+				background-color: white;
 			}
 		}
 	}
@@ -271,5 +408,18 @@
 
 	a.has-errors {
 		color: #da5a47;
+	}
+}
+
+// Tweak the styles of nested Matrix fields so it doesn't look so confusing
+.ni_block .matrixblock,
+.neo-matrixblock {
+	border-color: #ccc;
+	background-color: white;
+	box-shadow: 0 1px 5px -1px rgba(black, 0.1);
+
+	> .titlebar {
+		border-bottom-color: #eee;
+		background-color: #fafafa;
 	}
 }

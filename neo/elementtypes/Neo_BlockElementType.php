@@ -111,4 +111,36 @@ class Neo_BlockElementType extends BaseElementType
 	{
 		return Neo_BlockModel::populateModel($row);
 	}
+
+	/**
+	 * @inheritDoc IElementType::getEagerLoadingMap()
+	 *
+	 * @param BaseElementModel[] $sourceElements
+	 * @param string $handle
+	 * @return array|false
+	 */
+	public function getEagerLoadingMap($sourceElements, $handle)
+	{
+		// $handle *must* be set as "blockTypeHandle:fieldHandle" so we know _which_ myRelationalField to resolve to
+		$handleParts = explode(':', $handle);
+
+		if(count($handleParts) != 2)
+		{
+			return false;
+		}
+
+		list($blockTypeHandle, $fieldHandle) = $handleParts;
+
+		// Get the block type
+		$neoFieldId = $sourceElements[0]->fieldId;
+		$blockTypes = craft()->neo->getBlockTypesByFieldId($neoFieldId, 'handle');
+
+		if(!isset($blockTypes[$blockTypeHandle]))
+		{
+			// Not a valid block type handle (assuming all $sourceElements are blocks from the same Neo field)
+			return false;
+		}
+
+		return parent::getEagerLoadingMap($sourceElements, $fieldHandle);
+	}
 }

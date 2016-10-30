@@ -129,9 +129,11 @@ export default Garnish.Base.extend({
 			bInfo.blockType = new BlockType({
 				id: blockType.getId(),
 				fieldLayoutId: blockType.getFieldLayoutId(),
+				fieldTypes: blockType.getFieldTypes(),
 				name: blockType.getName(),
 				handle: blockType.getHandle(),
 				maxBlocks: blockType.getMaxBlocks(),
+				maxChildBlocks: blockType.getMaxChildBlocks(),
 				childBlocks: blockType.getChildBlocks(),
 				topLevel: blockType.getTopLevel(),
 				tabs: bInfo.tabs
@@ -206,8 +208,9 @@ export default Garnish.Base.extend({
 		block.on('duplicateBlock.input', e => this['@duplicateBlock'](e))
 
 		this._destroyTempButtons()
-		this._updateButtons()
 		this._updateBlockOrder()
+		this._updateBlockChildren()
+		this._updateButtons()
 
 		if(animate)
 		{
@@ -246,6 +249,7 @@ export default Garnish.Base.extend({
 		this._blockSelect.removeItems(block.$container)
 
 		this._destroyTempButtons()
+		this._updateBlockChildren()
 		this._updateButtons()
 
 		if(animate)
@@ -328,6 +332,43 @@ export default Garnish.Base.extend({
 		this._blocks = blocks
 	},
 
+	_updateBlockChildren()
+	{
+		for(let block of this._blocks)
+		{
+			const children = block.$blocksContainer.children('.ni_block')
+			const collapsedCount = Math.min(children.length, 8) // Any more than 8 and it's a little too big
+			const collapsedChildren = []
+
+			for(let i = 0; i < collapsedCount; i++)
+			{
+				collapsedChildren.push('<div class="ni_block_collapsed-children_child"></div>')
+			}
+
+			block.$collapsedChildrenContainer.html(collapsedChildren.join(''))
+		}
+	},
+
+	_checkMaxChildren(block)
+	{
+		if(!block)
+		{
+			return true
+		}
+
+		const blockType = block.getBlockType()
+		const maxChildren = blockType.getMaxChildBlocks()
+
+		if(maxChildren > 0)
+		{
+			const children = this._findChildBlocks(block)
+
+			return children.length < maxChildren
+		}
+
+		return true
+	},
+
 	_updateButtons()
 	{
 		const blocks = this.getBlocks()
@@ -335,17 +376,19 @@ export default Garnish.Base.extend({
 
 		if(this._tempButtons)
 		{
-			this._tempButtons.updateButtonStates(blocks)
+			this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
 		}
 
 		for(let block of blocks)
 		{
-			block.updateMenuStates(blocks, this.getMaxBlocks())
+			const parentBlock = this._findParentBlock(block)
+			const buttons = block.getButtons()
 
-			let buttons = block.getButtons()
+			block.updateMenuStates(blocks, this.getMaxBlocks(), this._checkMaxChildren(parentBlock))
+
 			if(buttons)
 			{
-				buttons.updateButtonStates(blocks)
+				buttons.updateButtonStates(blocks, this._checkMaxChildren(block))
 			}
 		}
 	},
@@ -387,6 +430,7 @@ export default Garnish.Base.extend({
 			}
 
 			this._tempButtons = null
+			this._tempButtonsBlock = null
 		}
 	},
 
@@ -523,6 +567,7 @@ export default Garnish.Base.extend({
 		const block = e.block
 		const index = this._blocks.indexOf(block)
 		const parent = this._findParentBlock(index)
+		const blocks = this.getBlocks()
 		let buttons
 
 		if(parent)
@@ -531,7 +576,7 @@ export default Garnish.Base.extend({
 			buttons = new Buttons({
 				items: parentType.getChildBlockItems(this.getItems()),
 				maxBlocks: this.getMaxBlocks(),
-				blocks: this.getBlocks()
+				blocks: blocks
 			})
 		}
 		else
@@ -540,7 +585,7 @@ export default Garnish.Base.extend({
 				blockTypes: this.getBlockTypes(true),
 				groups: this.getGroups(),
 				maxBlocks: this.getMaxBlocks(),
-				blocks: this.getBlocks()
+				blocks: blocks
 			})
 		}
 
@@ -571,6 +616,9 @@ export default Garnish.Base.extend({
 		}
 
 		this._tempButtons = buttons
+		this._tempButtonsBlock = this._findParentBlock(block)
+
+		this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
 	},
 
 	'@duplicateBlock'(e)
@@ -663,9 +711,11 @@ export default Garnish.Base.extend({
 					const newBlockType = new BlockType({
 						id: blockType.getId(),
 						fieldLayoutId: blockType.getFieldLayoutId(),
+						fieldTypes: blockType.getFieldTypes(),
 						name: blockType.getName(),
 						handle: blockType.getHandle(),
 						maxBlocks: blockType.getMaxBlocks(),
+						maxChildBlocks: blockType.getMaxChildBlocks(),
 						childBlocks: blockType.getChildBlocks(),
 						topLevel: blockType.getTopLevel(),
 						tabs: renderedBlock.tabs
