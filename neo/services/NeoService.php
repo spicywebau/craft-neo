@@ -652,17 +652,18 @@ class NeoService extends BaseApplicationComponent
 	/**
 	 * @param int $fieldId
 	 * @param int $ownerId
+	 * @param int $ownerLocale
 	 * @param string|null $locale
 	 * @return array
 	 */
-	public function getBlocks($fieldId, $ownerId, $locale = null)
+	public function getBlocks($fieldId, $ownerId, $ownerLocale = null, $locale = null)
 	{
 		$criteria = $this->getCriteria();
 
 		$criteria->fieldId = $fieldId;
 		$criteria->ownerId = $ownerId;
 		$criteria->locale = $locale;
-		$criteria->ownerLocale = $locale;
+		$criteria->ownerLocale = $ownerLocale;
 		$criteria->status = null;
 		$criteria->localeEnabled = null;
 		$criteria->limit = null;
@@ -1096,10 +1097,18 @@ class NeoService extends BaseApplicationComponent
 
 				$neoBlocks = [];
 				$matrixBlocks = [];
+				$neoToMatrixBlockTypeIds = [];
+				$neoToMatrixBlockIds = [];
 
-				// Make sure all localised blocks are retrieved as well
 				foreach(craft()->i18n->getSiteLocales() as $locale)
 				{
+					// Get all locale content variations of each block
+					foreach($this->getBlocks($neoField->id, null, null, $locale->id) as $neoBlock)
+					{
+						$neoBlocks[] = $neoBlock;
+					}
+
+					// Make sure all owner localised blocks are retrieved as well
 					foreach($this->getBlocks($neoField->id, null, $locale->id) as $neoBlock)
 					{
 						$neoBlocks[] = $neoBlock;
@@ -1110,8 +1119,9 @@ class NeoService extends BaseApplicationComponent
 				{
 					$matrixBlock = $this->convertBlockToMatrix($neoBlock);
 
-					// This ID will be replaced with the Matrix block type ID after the field is saved. The Neo's block type
-					// id is added here so it can be grabbed when looping over these Matrix blocks later on.
+					// This ID will be replaced with the Matrix block type ID after the field is saved. The Neo's block
+					// type id is added here so it can be grabbed when looping over these Matrix blocks later on.
+					$matrixBlock->id = $neoBlock->id;
 					$matrixBlock->typeId = $neoBlock->typeId;
 
 					$matrixBlocks[] = $matrixBlock;
@@ -1126,18 +1136,43 @@ class NeoService extends BaseApplicationComponent
 
 				// Create a mapping of Neo block type ID's to Matrix block type ID's. This is used below to set the
 				// correct block type to a converted Matrix block.
-				$matrixToNeoBlockTypeIds = [];
 				foreach($matrixSettings->getBlockTypes() as $matrixBlockType)
 				{
 					$neoBlockTypeId = $neoBlockTypeIds[$matrixBlockType->handle];
-					$matrixToNeoBlockTypeIds[$neoBlockTypeId] = $matrixBlockType->id;
+					$neoToMatrixBlockTypeIds[$neoBlockTypeId] = $matrixBlockType->id;
 				}
 
-				foreach($matrixBlocks as $i => $matrixBlock)
+				foreach($matrixBlocks as $matrixBlock)
 				{
+					$neoBlockId = $matrixBlock->id;
+
 					// Assign the correct block type ID now that it exists (from saving the field above).
 					$neoBlockTypeId = $matrixBlock->typeId;
-					$matrixBlock->typeId = $matrixToNeoBlockTypeIds[$neoBlockTypeId];
+					$matrixBlock->typeId = $neoToMatrixBlockTypeIds[$neoBlockTypeId];
+
+					// Has this block already been saved before? (Happens when saving a block in multiple locales)
+					if(array_key_exists($neoBlockId, $neoToMatrixBlockIds))
+					{
+						$matrixBlockContent = $matrixBlock->getContent();
+
+						// Assign the new ID of the Matrix block as it has been saved before (for a different locale)
+						$matrixBlock->id = $neoToMatrixBlockIds[$neoBlockId];
+						$matrixBlockContent->elementId = $neoToMatrixBlockIds[$neoBlockId];
+
+						// Saving the Matrix block for the first time causes it to copy it's content into all other
+						// locales, meaning there should already exist a record for this block's content. In that case,
+						// it's record ID needs to be retrieved so it can be updated correctly.
+						$existingContent = craft()->content->getContent($matrixBlock);
+						if($existingContent)
+						{
+							$matrixBlockContent->id = $existingContent->id;
+						}
+					}
+					else
+					{
+						// Saving this block for the first time, so make sure it doesn't have an id
+						$matrixBlock->id = null;
+					}
 
 					$success = craft()->matrix->saveBlock($matrixBlock, false);
 
@@ -1145,6 +1180,9 @@ class NeoService extends BaseApplicationComponent
 					{
 						throw new \Exception("Unable to save Matrix block");
 					}
+
+					// Save the new Matrix block ID in case it has different content locales to save
+					$neoToMatrixBlockIds[$neoBlockId] = $matrixBlock->id;
 				}
 
 				$this->commitTransaction($transaction);
@@ -1272,6 +1310,7 @@ class NeoService extends BaseApplicationComponent
 	{
 		$blockContent = $neoBlock->getContent()->copy();
 		$blockContent->id = null;
+		$blockContent->elementId = null;
 
 		$matrixBlock = new MatrixBlockModel();
 		$matrixBlock->setContent($blockContent);
