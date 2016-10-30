@@ -523,13 +523,43 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 
 		// Return any relation data on these elements, defined with this field
 		$map = craft()->db->createCommand()
-			->select('ownerId as source, id as target')
-			->from('neoblocks')
+			->select('neoblocks.ownerId as source, neoblocks.id as target')
+			->from('neoblocks neoblocks')
 			->where(
-				['and', 'fieldId=:fieldId', ['in', 'ownerId', $sourceElementIds]],
+				['and', 'neoblocks.fieldId=:fieldId', ['in', 'neoblocks.ownerId', $sourceElementIds]],
 				[':fieldId' => $this->model->id]
 			)
-			// ->order('sortOrder') // TODO Need to join the structure elements table to get `lft` for ordering
+			// Join structural information to get the ordering of the blocks
+			->leftJoin(
+				'neoblockstructures neoblockstructures',
+				[
+					'and',
+					'neoblockstructures.ownerId = neoblocks.ownerId',
+					'neoblockstructures.fieldId = neoblocks.fieldId',
+					[
+						'or',
+						'neoblockstructures.ownerLocale = neoblocks.ownerLocale',
+
+						// If there is no locale set (in other words, `ownerLocale` is `null`), then the above
+						// comparison will not be true for some reason. So if it's not evaluated to true, then check
+						// to see if both `ownerLocale` properties are `null`.
+						[
+							'and',
+							'neoblockstructures.ownerLocale is null',
+							'neoblocks.ownerLocale is null',
+						],
+					],
+				]
+			)
+			->leftJoin(
+				'structureelements structureelements',
+				[
+					'and',
+					'structureelements.structureId = neoblockstructures.structureId',
+					'structureelements.elementId = neoblocks.id',
+				]
+			)
+			->order('structureelements.lft')
 			->queryAll();
 
 		return [
