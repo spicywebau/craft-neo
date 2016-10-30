@@ -249,7 +249,6 @@ export default Garnish.Base.extend({
 		this._blockSelect.removeItems(block.$container)
 
 		this._destroyTempButtons()
-		this._updateBlockChildren()
 		this._updateButtons()
 
 		if(animate)
@@ -262,11 +261,18 @@ export default Garnish.Base.extend({
 				.velocity({
 					opacity: 0,
 					marginBottom: _delayAnimate ? 10 : -(block.$container.outerHeight())
-				}, 'fast', e => block.$container.remove())
+				}, 'fast', e =>
+				{
+					block.$container.remove()
+
+					this._updateBlockChildren()
+				})
 		}
 		else
 		{
 			block.$container.remove()
+
+			this._updateBlockChildren()
 		}
 
 		this.trigger('removeBlock', {
