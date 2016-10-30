@@ -1,6 +1,6 @@
 {% set hasTabs = (type.getTabs() is not empty) %}
 {% set isParent = type.isParent() %}
-<div class="ni_block ni_block--{{ type.getHandle() }} {{ collapsed ? 'is-collapsed' : 'is-expanded' }}">
+<div class="ni_block ni_block--{{ type.getHandle() }} {{ collapsed ? 'is-collapsed' : 'is-expanded' }} {{ not hasTabs and not isParent ? 'is-empty' : '' }}">
 	<input type="hidden" name="{{ 'modified'|ns }}" value="{{ modified ? 1 : 0 }}" data-neo-b="input.modified">
 	<input type="hidden" name="{{ 'type'|ns }}" value="{{ type.getHandle() }}">
 	<input type="hidden" name="{{ 'enabled'|ns }}" value="{{ enabled ? 1 : 0 }}" data-neo-b="input.enabled">
@@ -82,23 +82,25 @@
 			</div>
 		</div>
 	</div>
-	<div class="ni_block_body" data-neo-b="container.body">
-		{% if hasTabs %}
-			<div class="ni_block_content" data-neo-b="container.content">{%
-				for tab in type.getTabs() %}
-					<div class="ni_block_content_tab {{ tab.isBlank() ? ' is-blank' : '' }} {{ loop.first ? ' is-selected' : '' }}"
-						 data-neo-b="container.tab"
-						 data-neo-b-info="{{ tab.name }}">
-						{{ tab.getBodyHtml(id) }}
-					</div>
-				{% endfor
-			%}</div>
-		{% endif %}
-		{% if isParent %}
-			<div class="ni_block_children" data-neo-b="container.children">
-				<div class="ni_blocks" data-neo-b="container.blocks"></div>
-				<div data-neo-b="container.buttons"></div>
-			</div>
-		{% endif %}
-	</div>
+	{% if hasTabs or isParent %}
+		<div class="ni_block_body" data-neo-b="container.body">
+			{% if hasTabs %}
+				<div class="ni_block_content" data-neo-b="container.content">{%
+					for tab in type.getTabs() %}
+						<div class="ni_block_content_tab {{ tab.isBlank() ? ' is-blank' : '' }} {{ loop.first ? ' is-selected' : '' }}"
+							 data-neo-b="container.tab"
+							 data-neo-b-info="{{ tab.name }}">
+							{{ tab.getBodyHtml(id) }}
+						</div>
+					{% endfor
+				%}</div>
+			{% endif %}
+			{% if isParent %}
+				<div class="ni_block_children" data-neo-b="container.children">
+					<div class="ni_blocks" data-neo-b="container.blocks"></div>
+					<div data-neo-b="container.buttons"></div>
+				</div>
+			{% endif %}
+		</div>
+	{% endif %}
 </div>

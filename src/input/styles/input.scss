@@ -368,6 +368,14 @@
 				}
 			}
 		}
+
+		&.is-empty {
+			padding: 6px 0; // Add some vertical size to blocks without fields or children so they stand out more
+
+			&.is-level-odd {
+				background-color: white;
+			}
+		}
 	}
 }
 
