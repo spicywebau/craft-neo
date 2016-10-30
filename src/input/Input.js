@@ -209,6 +209,7 @@ export default Garnish.Base.extend({
 
 		this._destroyTempButtons()
 		this._updateBlockOrder()
+		this._updateBlockChildren()
 		this._updateButtons()
 
 		if(animate)
@@ -248,6 +249,7 @@ export default Garnish.Base.extend({
 		this._blockSelect.removeItems(block.$container)
 
 		this._destroyTempButtons()
+		this._updateBlockChildren()
 		this._updateButtons()
 
 		if(animate)
@@ -328,6 +330,23 @@ export default Garnish.Base.extend({
 		})
 
 		this._blocks = blocks
+	},
+
+	_updateBlockChildren()
+	{
+		for(let block of this._blocks)
+		{
+			const children = block.$blocksContainer.children('.ni_block')
+			const collapsedCount = Math.min(children.length, 8) // Any more than 8 and it's a little too big
+			const collapsedChildren = []
+
+			for(let i = 0; i < collapsedCount; i++)
+			{
+				collapsedChildren.push('<div class="ni_block_collapsed-children_child"></div>')
+			}
+
+			block.$collapsedChildrenContainer.html(collapsedChildren.join(''))
+		}
 	},
 
 	_checkMaxChildren(block)

@@ -130,7 +130,7 @@
 						position: absolute;
 						height: 30px;
 						color: #b9bfc6;
-						transition: opacity 0.3s;
+						transition: opacity 0.2s;
 
 						body.ltr & { margin-left:  8px; }
 						body.rtl & { margin-right: 8px; }
@@ -179,7 +179,7 @@
 
 				&.tabs {
 					position: relative;
-					transition: opacity 0.3s;
+					transition: opacity 0.2s;
 
 					.tabs_inner {
 						white-space: nowrap;
@@ -302,6 +302,18 @@
 			background-color: #eef0f1;
 		}
 
+		&_collapsed-children {
+			overflow: hidden;
+
+			&_child {
+				height: 2px;
+				border-top: 1px solid #e3e5e8;
+				background-color: #fafafa;
+				margin-top: -3px;
+				transition: margin-top 0.2s; // 200ms to match jQuery transition duration
+			}
+		}
+
 		&.is-level-odd {
 
 			> .ni_block_topbar,
@@ -344,6 +356,13 @@
 					> :not(.tabs) {
 						pointer-events: auto;
 					}
+				}
+			}
+
+			> .ni_block_collapsed-children {
+
+				.ni_block_collapsed-children_child {
+					margin-top: 0;
 				}
 			}
 		}
