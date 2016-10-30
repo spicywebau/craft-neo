@@ -28,6 +28,7 @@ class Neo_BlockModel extends BaseElementModel
 	private $_owner;
 	private $_allElements;
 	private $_liveCriteria = [];
+	private $_useMemoized = false;
 
 
 	// Public methods
@@ -148,8 +149,35 @@ class Neo_BlockModel extends BaseElementModel
 		// Update the elements across any memoized criteria models
 		foreach($this->_liveCriteria as $name => $criteria)
 		{
+			$criteria->useMemoized($this->isUsingMemoized());
 			$criteria->setAllElements($this->_allElements);
 		}
+	}
+
+	/**
+	 * Whether the criteria model is operating on a memoized data set.
+	 *
+	 * @return bool
+	 */
+	public function isUsingMemoized()
+	{
+		return $this->_useMemoized;
+	}
+
+	/**
+	 * Sets whether the criteria model operates on a memoized data set.
+	 *
+	 * @param bool|true $use - Either a boolean to enable/disable, or a dataset to use (which results in enabling)
+	 */
+	public function useMemoized($use = true)
+	{
+		if(is_array($use))
+		{
+			$this->setAllElements($use);
+			$use = true;
+		}
+
+		$this->_useMemoized = $use;
 	}
 
 	/**
@@ -161,11 +189,12 @@ class Neo_BlockModel extends BaseElementModel
 	public function getAncestors($dist = null)
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->neo->isPreviewMode())
+		if(craft()->neo->isPreviewMode() || $this->isUsingMemoized())
 		{
 			if(!isset($this->_liveCriteria['ancestors']))
 			{
 				$criteria = craft()->neo->getCriteria();
+				$criteria->useMemoized($this->isUsingMemoized());
 				$criteria->setAllElements($this->_allElements);
 				$criteria->ancestorOf = $this;
 
@@ -174,7 +203,10 @@ class Neo_BlockModel extends BaseElementModel
 
 			if($dist)
 			{
-				return $this->_liveCriteria['ancestors']->ancestorDist($dist);
+				$criteria = $this->_liveCriteria['ancestors']->ancestorDist($dist);
+				$criteria->useMemoized($this->isUsingMemoized());
+
+				return $criteria;
 			}
 
 			return $this->_liveCriteria['ancestors'];
@@ -191,7 +223,7 @@ class Neo_BlockModel extends BaseElementModel
 	public function getParent()
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->neo->isPreviewMode())
+		if(craft()->neo->isPreviewMode() || $this->isUsingMemoized())
 		{
 			if(!isset($this->_liveCriteria['parent']))
 			{
@@ -213,11 +245,12 @@ class Neo_BlockModel extends BaseElementModel
 	public function getDescendants($dist = null)
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->neo->isPreviewMode())
+		if(craft()->neo->isPreviewMode() || $this->isUsingMemoized())
 		{
 			if(!isset($this->_liveCriteria['descendants']))
 			{
 				$criteria = craft()->neo->getCriteria();
+				$criteria->useMemoized($this->isUsingMemoized());
 				$criteria->setAllElements($this->_allElements);
 				$criteria->descendantOf = $this;
 
@@ -226,7 +259,10 @@ class Neo_BlockModel extends BaseElementModel
 
 			if($dist)
 			{
-				return $this->_liveCriteria['descendants']->descendantDist($dist);
+				$criteria = $this->_liveCriteria['descendants']->descendantDist($dist);
+				$criteria->useMemoized($this->isUsingMemoized());
+
+				return $criteria;
 			}
 
 			return $this->_liveCriteria['descendants'];
@@ -244,7 +280,7 @@ class Neo_BlockModel extends BaseElementModel
 	public function getChildren($field = null)
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->neo->isPreviewMode())
+		if(craft()->neo->isPreviewMode() || $this->isUsingMemoized())
 		{
 			if(!isset($this->_liveCriteria['children']))
 			{
@@ -265,11 +301,12 @@ class Neo_BlockModel extends BaseElementModel
 	public function getSiblings()
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->neo->isPreviewMode())
+		if(craft()->neo->isPreviewMode() || $this->isUsingMemoized())
 		{
 			if(!isset($this->_liveCriteria['siblings']))
 			{
 				$criteria = craft()->neo->getCriteria();
+				$criteria->useMemoized($this->isUsingMemoized());
 				$criteria->setAllElements($this->_allElements);
 				$criteria->siblingOf = $this;
 
@@ -290,11 +327,12 @@ class Neo_BlockModel extends BaseElementModel
 	public function getPrevSibling()
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->neo->isPreviewMode())
+		if(craft()->neo->isPreviewMode() || $this->isUsingMemoized())
 		{
 			if(!isset($this->_liveCriteria['prevSibling']))
 			{
 				$criteria = craft()->neo->getCriteria();
+				$criteria->useMemoized($this->isUsingMemoized());
 				$criteria->setAllElements($this->_allElements);
 				$criteria->prevSiblingOf = $this;
 				$criteria->status = null;
@@ -316,11 +354,12 @@ class Neo_BlockModel extends BaseElementModel
 	public function getNextSibling()
 	{
 		// If the request is in Live Preview mode, use the Neo-extended criteria model, which supports Live Preview mode
-		if(craft()->neo->isPreviewMode())
+		if(craft()->neo->isPreviewMode() || $this->isUsingMemoized())
 		{
 			if(!isset($this->_liveCriteria['nextSibling']))
 			{
 				$criteria = craft()->neo->getCriteria();
+				$criteria->useMemoized($this->isUsingMemoized());
 				$criteria->setAllElements($this->_allElements);
 				$criteria->nextSiblingOf = $this;
 				$criteria->status = null;
