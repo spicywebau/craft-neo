@@ -29,6 +29,7 @@ class Neo_BlockModel extends BaseElementModel
 	private $_allElements;
 	private $_liveCriteria = [];
 	private $_useMemoized = false;
+	private $_eagerLoadedBlockTypeElements;
 
 
 	// Public methods
@@ -181,6 +182,87 @@ class Neo_BlockModel extends BaseElementModel
 	}
 
 	/**
+	 * @inheritDoc BaseElementModel::hasEagerLoadedElements()
+	 *
+	 * @param string $handle
+	 * @return bool
+	 */
+	public function hasEagerLoadedElements($handle)
+	{
+		if($this->getType())
+		{
+			// See if we have this stored with a block type-specific handle
+			$blockTypeHandle = $this->getType()->handle . ':' . $handle;
+
+			if(isset($this->_eagerLoadedBlockTypeElements[$blockTypeHandle]))
+			{
+				return true;
+			}
+		}
+
+		return parent::hasEagerLoadedElements($handle);
+	}
+
+	/**
+	 * @inheritDoc BaseElementModel::getEagerLoadedElements()
+	 *
+	 * @param string $handle
+	 * @return BaseElementModel[]|null
+	 */
+	public function getEagerLoadedElements($handle)
+	{
+		if($this->getType())
+		{
+			// See if we have this stored with a block type-specific handle
+			$blockTypeHandle = $this->getType()->handle . ':' . $handle;
+
+			if(isset($this->_eagerLoadedBlockTypeElements[$blockTypeHandle]))
+			{
+				return $this->_eagerLoadedBlockTypeElements[$blockTypeHandle];
+			}
+		}
+
+		return parent::getEagerLoadedElements($handle);
+	}
+
+	/**
+	 * @inheritDoc BaseElementModel::setEagerLoadedElements()
+	 *
+	 * @param string $handle
+	 * @param BaseElementModel[] $elements
+	 */
+	public function setEagerLoadedElements($handle, $elements)
+	{
+		if($this->getType())
+		{
+			// See if this was eager-loaded with a block type-specific handle
+			$blockTypeHandlePrefix = $this->getType()->handle . ':';
+
+			if(strncmp($handle, $blockTypeHandlePrefix, strlen($blockTypeHandlePrefix)) === 0)
+			{
+				$this->_eagerLoadedBlockTypeElements[$handle] = $elements;
+
+				return;
+			}
+		}
+
+		parent::setEagerLoadedElements($handle, $elements);
+	}
+
+	/**
+	 * @inheritDoc BaseElementModel::getHasFreshContent()
+	 *
+	 * @return bool
+	 */
+	public function getHasFreshContent()
+	{
+		// Defer to the owner element
+		$owner = $this->getOwner();
+
+		return $owner ? $owner->getHasFreshContent() : false;
+	}
+
+	/**
 	 * Returns the block's ancestors.
 	 *
 	 * @param int|null $dist
@@ -205,6 +287,7 @@ class Neo_BlockModel extends BaseElementModel
 			{
 				$criteria = $this->_liveCriteria['ancestors']->ancestorDist($dist);
 				$criteria->useMemoized($this->isUsingMemoized());
+				$criteria->setAllElements($this->_allElements);
 
 				return $criteria;
 			}
@@ -261,6 +344,7 @@ class Neo_BlockModel extends BaseElementModel
 			{
 				$criteria = $this->_liveCriteria['descendants']->descendantDist($dist);
 				$criteria->useMemoized($this->isUsingMemoized());
+				$criteria->setAllElements($this->_allElements);
 
 				return $criteria;
 			}
