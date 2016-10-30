@@ -1,5 +1,18 @@
 ## Changelog
 
+#### v1.4.0
+- `Added` Added "Max Child Blocks" setting to block types
+- `Added` Neo-to-Matrix conversion (with all it's content) now possible when changing an existing Neo field to Matrix
+- `Added` Collapsed Neo blocks now show a rich content summary in the title bar, similar to Matrix blocks
+- `Added` Eager-loading is now supported ([refer to documentation on how to eager-load Neo fields](https://github.com/benjamminf/craft-neo/wiki/5.-Eager-Loading))
+- `Improved` Neo fields and their content now automatically convert to Matrix when uninstalling the plugin
+- `Improved` Matrix fields inside Neo blocks are now styled differently, so they stand out more visually (inspired by [SuperTable](https://github.com/engram-design/SuperTable))
+- `Improved` German translations have been grammatically improved
+- `Fixed` Fixed partially broken support for [Reasons](https://github.com/mmikkel/Reasons-Craft)
+- `Fixed` Fixed PHP error when using Neo in widget
+- `Fixed` Fixed bug where Neo could be created inside Matrix
+- `Fixed` Fixed bug where default values for lightswitch fields were not used in new Neo blocks
+
 #### v1.3.5
 - `Improved` Added German translations
 - `Improved` Localised Neo fields can now contain fields that are also localised
