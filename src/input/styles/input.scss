@@ -321,14 +321,14 @@
 				background-color: white;
 			}
 
-			> .ni_block_topbar > .ni_block_topbar_item.tabs .tab.is-selected.is-blank {
-				border-bottom-color: white;
-			}
-
 			> .ni_block_topbar > .ni_block_topbar_right {
 
 				body.ltr & { background-image: linear-gradient(to left,  white 72px, transparent 100px); }
 				body.rtl & { background-image: linear-gradient(to right, white 72px, transparent 100px); }
+				
+				> .ni_block_topbar_item.tabs .tab.is-selected.is-blank {
+					border-bottom-color: white;
+				}
 			}
 		}
 
