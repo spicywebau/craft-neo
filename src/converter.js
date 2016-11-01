@@ -14,7 +14,7 @@ if($fieldType.val() === 'Neo' && $fieldId.length > 0)
 				<div class="instructions"><p>${ Craft.t("This field is currently of the Neo type. You may automatically convert it to Matrix along with all of it's content.") }</p></div>
 			</div>
 			<div class="input ltr">
-				<button id="Matrix-convert_button" type="button" class="btn submit">${ Craft.t("Convert") }</button>
+				<input id="Matrix-convert_button" type="button" class="btn submit" value="${ Craft.t("Convert") }">
 				<span id="Matrix-convert_spinner" class="spinner hidden"></span>
 			</div>
 			<p class="warning">${ Craft.t("By converting to Matrix, structural information will be lost.") }</p>
