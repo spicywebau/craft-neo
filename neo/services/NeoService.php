@@ -1572,6 +1572,7 @@ class NeoService extends BaseApplicationComponent
 							$originalBlockId = $blockInOtherLocale->id;
 
 							$blockInOtherLocale->id = null;
+							$blockInOtherLocale->modified = true;
 							$blockInOtherLocale->getContent()->id = null;
 							$blockInOtherLocale->ownerLocale = $localeId;
 							$this->saveBlock($blockInOtherLocale, false);
