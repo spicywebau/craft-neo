@@ -87,12 +87,12 @@
 
 				body.ltr & {
 					right: 0;
-					background-image: linear-gradient(to left, #eef0f1 72px, transparent 100px);
+					background-image: linear-gradient(to left, #eef0f1 72px, rgba(#eef0f1, 0) 100px);
 				}
 
 				body.rtl & {
 					left:  0;
-					background-image: linear-gradient(to right, #eef0f1 72px, transparent 100px);
+					background-image: linear-gradient(to right, #eef0f1 72px, rgba(#eef0f1, 0) 100px);
 				}
 			}
 
@@ -323,8 +323,8 @@
 
 			> .ni_block_topbar > .ni_block_topbar_right {
 
-				body.ltr & { background-image: linear-gradient(to left,  white 72px, transparent 100px); }
-				body.rtl & { background-image: linear-gradient(to right, white 72px, transparent 100px); }
+				body.ltr & { background-image: linear-gradient(to left,  white 72px, rgba(white, 0) 100px); }
+				body.rtl & { background-image: linear-gradient(to right, white 72px, rgba(white, 0) 100px); }
 				
 				> .ni_block_topbar_item.tabs .tab.is-selected.is-blank {
 					border-bottom-color: white;
