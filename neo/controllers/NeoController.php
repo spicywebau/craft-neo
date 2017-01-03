@@ -16,7 +16,6 @@ class NeoController extends BaseController
 	 */
 	public function actionSaveExpansion()
 	{
-		$this->requireAdmin();
 		$this->requireAjaxRequest();
 		$this->requirePostRequest();
 
@@ -41,7 +40,6 @@ class NeoController extends BaseController
 	 */
 	public function actionRenderBlocks()
 	{
-		$this->requireAdmin();
 		$this->requireAjaxRequest();
 		$this->requirePostRequest();
 
