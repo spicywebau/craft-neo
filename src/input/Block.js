@@ -11,6 +11,12 @@ import ReasonsRenderer from '../plugins/reasons/Renderer'
 import renderTemplate from './templates/block.twig'
 import '../twig-extensions'
 
+const MutationObserver = (
+	window.MutationObserver ||
+	window.WebKitMutationObserver ||
+	window.MozMutationObserver
+)
+
 const _defaults = {
 	namespace: [],
 	blockType: null,
@@ -184,7 +190,24 @@ export default Garnish.Base.extend({
 					content: Garnish.getPostData(this.$contentContainer)
 				}
 
-				this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
+				if(MutationObserver)
+				{
+					const observer = new MutationObserver(mutations => this._detectChange())
+
+					observer.observe(this.$contentContainer[0], {
+						attributes: true,
+						childList: true,
+						characterData: true,
+						subtree: true,
+						attributeFilter: ['name', 'value'],
+					})
+
+					this._detectChangeObserver = observer
+				}
+				else
+				{
+					this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
+				}
 			}
 
 			// For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
@@ -679,7 +702,7 @@ export default Garnish.Base.extend({
 		const initial = this._initialState
 		const content = Garnish.getPostData(this.$contentContainer)
 
-		const modified = !Craft.compare(content, initial.content) ||
+		const modified = !Craft.compare(content, initial.content, false) ||
 			initial.enabled !== this._enabled ||
 			initial.level !== this._level
 
