@@ -194,7 +194,7 @@ export default Garnish.Base.extend({
 				{
 					const observer = new MutationObserver(mutations => this._detectChange())
 
-					observer.observe(this.$contentContainer[0], {
+					observer.observe(this.$container[0], {
 						attributes: true,
 						childList: true,
 						characterData: true,
