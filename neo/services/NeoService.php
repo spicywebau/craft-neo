@@ -102,39 +102,17 @@ class NeoService extends BaseApplicationComponent
 
 			$this->saveStructure($structure, $fieldType);
 
-			// Build the block structure by mapping block sort orders and levels to parent/child relationships
-			$blockIds = [];
-			$parentStack = [];
-
 			foreach($blocks as $block)
 			{
 				$block->ownerId = $owner->id;
 				$block->ownerLocale = $this->_getFieldLocale($fieldType);
+			}
 
-				// Remove parent blocks until either empty or a parent block is only one level below this one (meaning
-				// it'll be the parent of this block)
-				while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
-				{
-					array_pop($parentStack);
-				}
+			$this->saveBlocks($blocks, $structure);
 
-				$this->saveBlock($block, false);
-
-				// If there are no blocks in our stack, it must be a root level block
-				if(empty($parentStack))
-				{
-					craft()->structures->appendToRoot($structure->id, $block);
-				}
-				// Otherwise, the block at the top of the stack will be the parent
-				else
-				{
-					$parentBlock = $parentStack[count($parentStack) - 1];
-					craft()->structures->append($structure->id, $block, $parentBlock);
-				}
-
-				// The current block may potentially be a parent block as well, so save it to the stack
-				array_push($parentStack, $block);
-
+			$blockIds = [];
+			foreach($blocks as $block)
+			{
 				$blockIds[] = $block->id;
 			}
 
@@ -710,6 +688,48 @@ class NeoService extends BaseApplicationComponent
 		}
 
 		return !$block->hasErrors();
+	}
+
+	/**
+	 * Saves a list of blocks to the database, and saves them to the structure.
+	 *
+	 * @param array $blocks
+	 * @param StructureModel $structure
+	 * @throws \Exception
+	 */
+	public function saveBlocks(array $blocks, StructureModel $structure)
+	{
+		// Build the block structure by mapping block sort orders and levels to parent/child relationships
+		$parentStack = [];
+
+		foreach($blocks as $block)
+		{
+			// Remove parent blocks until either empty or a parent block is only one level below this one (meaning
+			// it'll be the parent of this block)
+			while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
+			{
+				array_pop($parentStack);
+			}
+
+			$this->saveBlock($block, false);
+
+			// If there are no blocks in our stack, it must be a root level block
+			if(empty($parentStack))
+			{
+				craft()->structures->appendToRoot($structure->id, $block);
+			}
+			// Otherwise, the block at the top of the stack will be the parent
+			else
+			{
+				$parentBlock = $parentStack[count($parentStack) - 1];
+				craft()->structures->append($structure->id, $block, $parentBlock);
+			}
+
+			// The current block may potentially be a parent block as well, so save it to the stack
+			array_push($parentStack, $block);
+
+			$blockIds[] = $block->id;
+		}
 	}
 
 	/**
