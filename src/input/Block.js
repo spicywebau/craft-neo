@@ -25,7 +25,8 @@ const _defaults = {
 	buttons: null,
 	enabled: true,
 	collapsed: false,
-	modified: true
+	modified: true,
+	'static': false,
 }
 
 const _resources = {}
@@ -74,6 +75,7 @@ export default Garnish.Base.extend({
 	_expanded: true,
 	_enabled: true,
 	_modified: true,
+	_static: false,
 	_initialState: null,
 
 	init(settings = {})
@@ -84,7 +86,7 @@ export default Garnish.Base.extend({
 		this._blockType = settings.blockType
 		this._id = settings.id
 		this._buttons = settings.buttons
-		this._modified = settings.modified
+		this._modified = settings['static'] ? true : settings.modified
 
 		NS.enter(this._templateNs)
 
@@ -94,7 +96,7 @@ export default Garnish.Base.extend({
 			enabled: !!settings.enabled,
 			collapsed: !!settings.collapsed,
 			level: settings.level,
-			modified: settings.modified
+			modified: this._modified,
 		}))
 
 		NS.leave()
@@ -193,7 +195,7 @@ export default Garnish.Base.extend({
 			})
 
 			// Setting up field and block property watching
-			if(!this.isNew() && !this._modified)
+			if(!this._modified && !this.isNew())
 			{
 				this._initialState = {
 					enabled: this._enabled,
