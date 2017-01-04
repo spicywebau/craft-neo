@@ -67,6 +67,11 @@ function _escapeHTML(str)
 	})[s]) : ''
 }
 
+function _limit(s, l=40)
+{
+	return s.length > l ? s.slice(0, l - 3) + '...' : s
+}
+
 export default Garnish.Base.extend({
 
 	_templateNs: [],
@@ -239,6 +244,8 @@ export default Garnish.Base.extend({
 
 			clearInterval(this._detectChangeInterval)
 
+			// TODO this._detectChangeObserver.unobserve() ??
+
 			this._destroyReasonsPlugin()
 
 			this.trigger('destroy')
@@ -311,8 +318,10 @@ export default Garnish.Base.extend({
 		return content
 	},
 
-	updatePreview()
+	updatePreview(condensed=null)
 	{
+		condensed = typeof condensed === 'boolean' ? condensed : false
+
 		const $fields = this.$contentContainer.find('.field')
 		const blockType = this.getBlockType()
 		const fieldTypes = blockType.getFieldTypes()
@@ -343,11 +352,11 @@ export default Garnish.Base.extend({
 
 						values.push(`<img sizes="30px" srcset="${srcset}">`)
 
-						if($assets.length === 1)
+						if(!condensed && $assets.length === 1)
 						{
 							const title = $asset.find('.title').text()
 
-							values.push(_escapeHTML(title))
+							values.push(_escapeHTML(_limit(title)))
 						}
 					})
 
@@ -367,7 +376,7 @@ export default Garnish.Base.extend({
 						const $element = $(this)
 						const title = $element.find('.title, .label').eq(0).text()
 
-						values.push(_escapeHTML(title))
+						values.push(_escapeHTML(_limit(title)))
 					})
 
 					value = values.join(', ')
@@ -387,7 +396,7 @@ export default Garnish.Base.extend({
 							const $label = $input.find(`label[for="${id}"]`)
 							const label = $label.text()
 
-							values.push(_escapeHTML(label))
+							values.push(_escapeHTML(_limit(label)))
 						}
 					})
 
@@ -413,14 +422,14 @@ export default Garnish.Base.extend({
 				{
 					const $selected = $input.find('select').children(':selected')
 
-					value = _escapeHTML($selected.text())
+					value = _escapeHTML(_limit($selected.text()))
 				}
 				break
 				case 'Lightswitch':
 				{
 					const enabled = !!$input.find('input').val()
 
-					value = `<span class="status${enabled ? ' live' : ''}"></span>` + _escapeHTML(label)
+					value = `<span class="status${enabled ? ' live' : ''}"></span>` + _escapeHTML(_limit(label))
 				}
 				break
 				case 'MultiSelect':
@@ -433,13 +442,13 @@ export default Garnish.Base.extend({
 						values.push($(this).text())
 					})
 
-					value = _escapeHTML(values.join(', '))
+					value = _escapeHTML(_limit(values.join(', ')))
 				}
 				break
 				case 'Number':
 				case 'PlainText':
 				{
-					value = _escapeHTML($input.children('input').val())
+					value = _escapeHTML(_limit($input.children('input').val()))
 				}
 				break
 				case 'PositionSelect':
@@ -453,17 +462,17 @@ export default Garnish.Base.extend({
 				{
 					const $checked = $input.find('input[type="g"]:checked')
 
-					value = _escapeHTML($checked.val())
+					value = _escapeHTML(_limit($checked.val()))
 				}
 				break
 				case 'RichText':
 				{
-					value = _stripHTML($input.find('textarea').val())
+					value = _stripHTML(_limit($input.find('textarea').val()))
 				}
 				break
 			}
 
-			if(value)
+			if(value && previewText.length < 10)
 			{
 				previewText.push('<span class="preview_section">', value, '</span>')
 			}
