@@ -949,13 +949,18 @@ class NeoService extends BaseApplicationComponent
 	 * Returns the structure for a field.
 	 *
 	 * @param NeoFieldType $fieldType
+	 * @param $locale
 	 * @return StructureModel|bool
 	 */
-	public function getStructure(NeoFieldType $fieldType)
+	public function getStructure(NeoFieldType $fieldType, $locale = false)
 	{
 		$owner = $fieldType->element;
 		$field = $fieldType->model;
-		$locale = $this->_getFieldLocale($fieldType);
+
+		if($locale === false)
+		{
+			$locale = $this->_getFieldLocale($fieldType);
+		}
 
 		$result = craft()->db->createCommand()
 			->select('structureId')
@@ -1032,19 +1037,24 @@ class NeoService extends BaseApplicationComponent
 	 * Deletes the structure for a field from the database.
 	 *
 	 * @param NeoFieldType $fieldType
+	 * @param $locale
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function deleteStructure(NeoFieldType $fieldType)
+	public function deleteStructure(NeoFieldType $fieldType, $locale = false)
 	{
 		$owner = $fieldType->element;
 		$field = $fieldType->model;
-		$locale = $this->_getFieldLocale($fieldType);
+
+		if($locale === false)
+		{
+			$locale = $this->_getFieldLocale($fieldType);
+		}
 
 		$transaction = $this->beginTransaction();
 		try
 		{
-			$blockStructure = $this->getStructure($fieldType);
+			$blockStructure = $this->getStructure($fieldType, $locale);
 
 			if($blockStructure)
 			{
@@ -1561,6 +1571,9 @@ class NeoService extends BaseApplicationComponent
 
 		if($applyNewTranslationSetting)
 		{
+			// Clear the existing structure so it can be regenerated with correct locale settings
+			$this->deleteStructure($fieldType, $field->translatable ? null : $owner->locale);
+
 			foreach($blocks as $block)
 			{
 				$block->modified = true;
@@ -1679,6 +1692,8 @@ class NeoService extends BaseApplicationComponent
 					}
 
 					$this->deleteBlockById($blockIdsToDelete);
+
+					// TODO Delete other structures
 				}
 			}
 		}
