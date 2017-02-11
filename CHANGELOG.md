@@ -1,6 +1,6 @@
 ## Changelog
 
-#### v1.4.0
+### v1.4.0
 - `Added` Added "Max Child Blocks" setting to block types
 - `Added` Neo-to-Matrix conversion (with all it's content) now possible when changing an existing Neo field to Matrix
 - `Added` Collapsed Neo blocks now show a rich content summary in the title bar, similar to Matrix blocks
@@ -8,10 +8,12 @@
 - `Improved` Neo fields and their content now automatically convert to Matrix when uninstalling the plugin
 - `Improved` Matrix fields inside Neo blocks are now styled differently, so they stand out more visually (inspired by [SuperTable](https://github.com/engram-design/SuperTable))
 - `Improved` German translations have been grammatically improved
+- `Improved` Field-less blocks now have their heights padded to improve visibility
 - `Fixed` Fixed partially broken support for [Reasons](https://github.com/mmikkel/Reasons-Craft)
 - `Fixed` Fixed PHP error when using Neo in widget
 - `Fixed` Fixed bug where Neo could be created inside Matrix
 - `Fixed` Fixed bug where default values for lightswitch fields were not used in new Neo blocks
+- `Fixed` Various minor bug and behavioural fixes to the configurator and input blocks
 
 #### v1.3.5
 - `Improved` Added German translations
@@ -41,7 +43,7 @@
 - `Fixed` Fixed bug where leaving editing an element would always show the confirm dialog, regardless if anything changed
 - `Fixed` Minor UI fix with field-less tabs on child blocks having incorrect background color
 
-#### v1.3.0
+### v1.3.0
 - `Added` Added ability to duplicate blocks
 - `Added` Added ability to have blank tabs in block type field layouts
 - `Improved` Generating search keywords for Neo fields are now offloaded to a task, dramatically reducing saving time
@@ -56,7 +58,7 @@
 - `Fixed` Added support for Reasons v1.0.4
 - `Fixed` Implemented a way of using Twig variables in Asset (and potentially other) field settings for Neo blocks
 
-#### v1.2.0
+### v1.2.0
 - `Improved` Block type buttons will now not be grouped if there is only one inside a group
 - `Improved` Checkboxes on blocks are now only checked when clicking on them, or the block type label
 - `Fixed` Neo fields now work properly in live preview mode
@@ -79,7 +81,7 @@
 #### v1.0.1
 - `Added` Added ability to query against block level in templates, like with categories and structure sections
 
-#### v1.0.0
+### v1.0.0
 - `Added` Added support for the Quick Field plugin
 - `Added` Added "Top Level" block type setting for hiding blocks from the main button row
 - `Improved` Added support for Internet Explorer 10+

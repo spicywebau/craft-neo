@@ -102,39 +102,17 @@ class NeoService extends BaseApplicationComponent
 
 			$this->saveStructure($structure, $fieldType);
 
-			// Build the block structure by mapping block sort orders and levels to parent/child relationships
-			$blockIds = [];
-			$parentStack = [];
-
 			foreach($blocks as $block)
 			{
 				$block->ownerId = $owner->id;
 				$block->ownerLocale = $this->_getFieldLocale($fieldType);
+			}
 
-				// Remove parent blocks until either empty or a parent block is only one level below this one (meaning
-				// it'll be the parent of this block)
-				while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
-				{
-					array_pop($parentStack);
-				}
+			$this->saveBlocks($blocks, $structure);
 
-				$this->saveBlock($block, false);
-
-				// If there are no blocks in our stack, it must be a root level block
-				if(empty($parentStack))
-				{
-					craft()->structures->appendToRoot($structure->id, $block);
-				}
-				// Otherwise, the block at the top of the stack will be the parent
-				else
-				{
-					$parentBlock = $parentStack[count($parentStack) - 1];
-					craft()->structures->append($structure->id, $block, $parentBlock);
-				}
-
-				// The current block may potentially be a parent block as well, so save it to the stack
-				array_push($parentStack, $block);
-
+			$blockIds = [];
+			foreach($blocks as $block)
+			{
 				$blockIds[] = $block->id;
 			}
 
@@ -652,17 +630,18 @@ class NeoService extends BaseApplicationComponent
 	/**
 	 * @param int $fieldId
 	 * @param int $ownerId
+	 * @param int $ownerLocale
 	 * @param string|null $locale
 	 * @return array
 	 */
-	public function getBlocks($fieldId, $ownerId, $locale = null)
+	public function getBlocks($fieldId, $ownerId, $ownerLocale = null, $locale = null)
 	{
 		$criteria = $this->getCriteria();
 
 		$criteria->fieldId = $fieldId;
 		$criteria->ownerId = $ownerId;
 		$criteria->locale = $locale;
-		$criteria->ownerLocale = $locale;
+		$criteria->ownerLocale = $ownerLocale;
 		$criteria->status = null;
 		$criteria->localeEnabled = null;
 		$criteria->limit = null;
@@ -709,6 +688,48 @@ class NeoService extends BaseApplicationComponent
 		}
 
 		return !$block->hasErrors();
+	}
+
+	/**
+	 * Saves a list of blocks to the database, and saves them to the structure.
+	 *
+	 * @param array $blocks
+	 * @param StructureModel $structure
+	 * @throws \Exception
+	 */
+	public function saveBlocks(array $blocks, StructureModel $structure)
+	{
+		// Build the block structure by mapping block sort orders and levels to parent/child relationships
+		$parentStack = [];
+
+		foreach($blocks as $block)
+		{
+			// Remove parent blocks until either empty or a parent block is only one level below this one (meaning
+			// it'll be the parent of this block)
+			while(!empty($parentStack) && $block->level <= $parentStack[count($parentStack) - 1]->level)
+			{
+				array_pop($parentStack);
+			}
+
+			$this->saveBlock($block, false);
+
+			// If there are no blocks in our stack, it must be a root level block
+			if(empty($parentStack))
+			{
+				craft()->structures->appendToRoot($structure->id, $block);
+			}
+			// Otherwise, the block at the top of the stack will be the parent
+			else
+			{
+				$parentBlock = $parentStack[count($parentStack) - 1];
+				craft()->structures->append($structure->id, $block, $parentBlock);
+			}
+
+			// The current block may potentially be a parent block as well, so save it to the stack
+			array_push($parentStack, $block);
+
+			$blockIds[] = $block->id;
+		}
 	}
 
 	/**
@@ -1096,10 +1117,18 @@ class NeoService extends BaseApplicationComponent
 
 				$neoBlocks = [];
 				$matrixBlocks = [];
+				$neoToMatrixBlockTypeIds = [];
+				$neoToMatrixBlockIds = [];
 
-				// Make sure all localised blocks are retrieved as well
 				foreach(craft()->i18n->getSiteLocales() as $locale)
 				{
+					// Get all locale content variations of each block
+					foreach($this->getBlocks($neoField->id, null, null, $locale->id) as $neoBlock)
+					{
+						$neoBlocks[] = $neoBlock;
+					}
+
+					// Make sure all owner localised blocks are retrieved as well
 					foreach($this->getBlocks($neoField->id, null, $locale->id) as $neoBlock)
 					{
 						$neoBlocks[] = $neoBlock;
@@ -1110,8 +1139,9 @@ class NeoService extends BaseApplicationComponent
 				{
 					$matrixBlock = $this->convertBlockToMatrix($neoBlock);
 
-					// This ID will be replaced with the Matrix block type ID after the field is saved. The Neo's block type
-					// id is added here so it can be grabbed when looping over these Matrix blocks later on.
+					// This ID will be replaced with the Matrix block type ID after the field is saved. The Neo's block
+					// type id is added here so it can be grabbed when looping over these Matrix blocks later on.
+					$matrixBlock->id = $neoBlock->id;
 					$matrixBlock->typeId = $neoBlock->typeId;
 
 					$matrixBlocks[] = $matrixBlock;
@@ -1126,18 +1156,43 @@ class NeoService extends BaseApplicationComponent
 
 				// Create a mapping of Neo block type ID's to Matrix block type ID's. This is used below to set the
 				// correct block type to a converted Matrix block.
-				$matrixToNeoBlockTypeIds = [];
 				foreach($matrixSettings->getBlockTypes() as $matrixBlockType)
 				{
 					$neoBlockTypeId = $neoBlockTypeIds[$matrixBlockType->handle];
-					$matrixToNeoBlockTypeIds[$neoBlockTypeId] = $matrixBlockType->id;
+					$neoToMatrixBlockTypeIds[$neoBlockTypeId] = $matrixBlockType->id;
 				}
 
-				foreach($matrixBlocks as $i => $matrixBlock)
+				foreach($matrixBlocks as $matrixBlock)
 				{
+					$neoBlockId = $matrixBlock->id;
+
 					// Assign the correct block type ID now that it exists (from saving the field above).
 					$neoBlockTypeId = $matrixBlock->typeId;
-					$matrixBlock->typeId = $matrixToNeoBlockTypeIds[$neoBlockTypeId];
+					$matrixBlock->typeId = $neoToMatrixBlockTypeIds[$neoBlockTypeId];
+
+					// Has this block already been saved before? (Happens when saving a block in multiple locales)
+					if(array_key_exists($neoBlockId, $neoToMatrixBlockIds))
+					{
+						$matrixBlockContent = $matrixBlock->getContent();
+
+						// Assign the new ID of the Matrix block as it has been saved before (for a different locale)
+						$matrixBlock->id = $neoToMatrixBlockIds[$neoBlockId];
+						$matrixBlockContent->elementId = $neoToMatrixBlockIds[$neoBlockId];
+
+						// Saving the Matrix block for the first time causes it to copy it's content into all other
+						// locales, meaning there should already exist a record for this block's content. In that case,
+						// it's record ID needs to be retrieved so it can be updated correctly.
+						$existingContent = craft()->content->getContent($matrixBlock);
+						if($existingContent)
+						{
+							$matrixBlockContent->id = $existingContent->id;
+						}
+					}
+					else
+					{
+						// Saving this block for the first time, so make sure it doesn't have an id
+						$matrixBlock->id = null;
+					}
 
 					$success = craft()->matrix->saveBlock($matrixBlock, false);
 
@@ -1145,6 +1200,9 @@ class NeoService extends BaseApplicationComponent
 					{
 						throw new \Exception("Unable to save Matrix block");
 					}
+
+					// Save the new Matrix block ID in case it has different content locales to save
+					$neoToMatrixBlockIds[$neoBlockId] = $matrixBlock->id;
 				}
 
 				$this->commitTransaction($transaction);
@@ -1272,6 +1330,7 @@ class NeoService extends BaseApplicationComponent
 	{
 		$blockContent = $neoBlock->getContent()->copy();
 		$blockContent->id = null;
+		$blockContent->elementId = null;
 
 		$matrixBlock = new MatrixBlockModel();
 		$matrixBlock->setContent($blockContent);
@@ -1533,6 +1592,7 @@ class NeoService extends BaseApplicationComponent
 							$originalBlockId = $blockInOtherLocale->id;
 
 							$blockInOtherLocale->id = null;
+							$blockInOtherLocale->modified = true;
 							$blockInOtherLocale->getContent()->id = null;
 							$blockInOtherLocale->ownerLocale = $localeId;
 							$this->saveBlock($blockInOtherLocale, false);

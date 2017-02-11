@@ -11,6 +11,20 @@ import ReasonsRenderer from '../plugins/reasons/Renderer'
 import renderTemplate from './templates/block.twig'
 import '../twig-extensions'
 
+const requestAnimationFrame = (
+	window.requestAnimationFrame ||
+	window.webkitRequestAnimationFrame ||
+	window.mozRequestAnimationFrame ||
+	window.msRequestAnimationFrame ||
+	(fn => setTimeout(fn))
+)
+
+const MutationObserver = (
+	window.MutationObserver ||
+	window.WebKitMutationObserver ||
+	window.MozMutationObserver
+)
+
 const _defaults = {
 	namespace: [],
 	blockType: null,
@@ -19,7 +33,8 @@ const _defaults = {
 	buttons: null,
 	enabled: true,
 	collapsed: false,
-	modified: true
+	modified: true,
+	'static': false,
 }
 
 const _resources = {}
@@ -60,6 +75,11 @@ function _escapeHTML(str)
 	})[s]) : ''
 }
 
+function _limit(s, l=40)
+{
+	return s.length > l ? s.slice(0, l - 3) + '...' : s
+}
+
 export default Garnish.Base.extend({
 
 	_templateNs: [],
@@ -68,6 +88,7 @@ export default Garnish.Base.extend({
 	_expanded: true,
 	_enabled: true,
 	_modified: true,
+	_static: false,
 	_initialState: null,
 
 	init(settings = {})
@@ -78,7 +99,7 @@ export default Garnish.Base.extend({
 		this._blockType = settings.blockType
 		this._id = settings.id
 		this._buttons = settings.buttons
-		this._modified = settings.modified
+		this._modified = settings['static'] ? true : settings.modified
 
 		NS.enter(this._templateNs)
 
@@ -88,7 +109,7 @@ export default Garnish.Base.extend({
 			enabled: !!settings.enabled,
 			collapsed: !!settings.collapsed,
 			level: settings.level,
-			modified: settings.modified
+			modified: this._modified,
 		}))
 
 		NS.leave()
@@ -176,17 +197,6 @@ export default Garnish.Base.extend({
 			this._initReasonsPlugin()
 			this._initRelabelPlugin()
 
-			if(!this.isNew() && !this._modified)
-			{
-				this._initialState = {
-					enabled: this._enabled,
-					level: this._level,
-					content: Garnish.getPostData(this.$contentContainer)
-				}
-
-				this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
-			}
-
 			// For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
 			// Neo applies it's own styles to Matrix blocks in an effort to improve the visibility of them, however
 			// when dragging a Matrix block these styles get lost (since a dragged Matrix block loses it's context of
@@ -196,6 +206,40 @@ export default Garnish.Base.extend({
 			{
 				$(this).addClass('neo-matrixblock')
 			})
+
+			// Setting up field and block property watching
+			if(!this._modified && !this.isNew())
+			{
+				this._initialState = {
+					enabled: this._enabled,
+					level: this._level,
+					content: Garnish.getPostData(this.$contentContainer)
+				}
+
+				if(MutationObserver)
+				{
+					const detectChange = () => this._detectChange()
+					const detectChangeNextFrame = () => requestAnimationFrame(detectChange)
+					const observer = new MutationObserver(() => setTimeout(detectChange, 20))
+
+					observer.observe(this.$container[0], {
+						attributes: true,
+						childList: true,
+						characterData: true,
+						subtree: true,
+						attributeFilter: ['name', 'value'],
+					})
+
+					this.$contentContainer.on('propertychange change click', 'input, textarea, select', detectChangeNextFrame)
+					this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea', e => detectChangeNextFrame)
+
+					this._detectChangeObserver = observer
+				}
+				else
+				{
+					this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
+				}
+			}
 
 			this.trigger('initUi')
 		}
@@ -209,6 +253,8 @@ export default Garnish.Base.extend({
 			this.$foot.remove()
 
 			clearInterval(this._detectChangeInterval)
+
+			// TODO this._detectChangeObserver.unobserve() ??
 
 			this._destroyReasonsPlugin()
 
@@ -282,8 +328,10 @@ export default Garnish.Base.extend({
 		return content
 	},
 
-	updatePreview()
+	updatePreview(condensed=null)
 	{
+		condensed = typeof condensed === 'boolean' ? condensed : false
+
 		const $fields = this.$contentContainer.find('.field')
 		const blockType = this.getBlockType()
 		const fieldTypes = blockType.getFieldTypes()
@@ -314,11 +362,11 @@ export default Garnish.Base.extend({
 
 						values.push(`<img sizes="30px" srcset="${srcset}">`)
 
-						if($assets.length === 1)
+						if(!condensed && $assets.length === 1)
 						{
 							const title = $asset.find('.title').text()
 
-							values.push(_escapeHTML(title))
+							values.push(_escapeHTML(_limit(title)))
 						}
 					})
 
@@ -338,7 +386,7 @@ export default Garnish.Base.extend({
 						const $element = $(this)
 						const title = $element.find('.title, .label').eq(0).text()
 
-						values.push(_escapeHTML(title))
+						values.push(_escapeHTML(_limit(title)))
 					})
 
 					value = values.join(', ')
@@ -358,7 +406,7 @@ export default Garnish.Base.extend({
 							const $label = $input.find(`label[for="${id}"]`)
 							const label = $label.text()
 
-							values.push(_escapeHTML(label))
+							values.push(_escapeHTML(_limit(label)))
 						}
 					})
 
@@ -384,14 +432,14 @@ export default Garnish.Base.extend({
 				{
 					const $selected = $input.find('select').children(':selected')
 
-					value = _escapeHTML($selected.text())
+					value = _escapeHTML(_limit($selected.text()))
 				}
 				break
 				case 'Lightswitch':
 				{
 					const enabled = !!$input.find('input').val()
 
-					value = `<span class="status${enabled ? ' live' : ''}"></span>` + _escapeHTML(label)
+					value = `<span class="status${enabled ? ' live' : ''}"></span>` + _escapeHTML(_limit(label))
 				}
 				break
 				case 'MultiSelect':
@@ -404,13 +452,13 @@ export default Garnish.Base.extend({
 						values.push($(this).text())
 					})
 
-					value = _escapeHTML(values.join(', '))
+					value = _escapeHTML(_limit(values.join(', ')))
 				}
 				break
 				case 'Number':
 				case 'PlainText':
 				{
-					value = _escapeHTML($input.children('input').val())
+					value = _escapeHTML(_limit($input.children('input').val()))
 				}
 				break
 				case 'PositionSelect':
@@ -424,17 +472,17 @@ export default Garnish.Base.extend({
 				{
 					const $checked = $input.find('input[type="g"]:checked')
 
-					value = _escapeHTML($checked.val())
+					value = _escapeHTML(_limit($checked.val()))
 				}
 				break
 				case 'RichText':
 				{
-					value = _stripHTML($input.find('textarea').val())
+					value = _stripHTML(_limit($input.find('textarea').val()))
 				}
 				break
 			}
 
-			if(value)
+			if(value && previewText.length < 10)
 			{
 				previewText.push('<span class="preview_section">', value, '</span>')
 			}
@@ -679,7 +727,7 @@ export default Garnish.Base.extend({
 		const initial = this._initialState
 		const content = Garnish.getPostData(this.$contentContainer)
 
-		const modified = !Craft.compare(content, initial.content) ||
+		const modified = !Craft.compare(content, initial.content, false) ||
 			initial.enabled !== this._enabled ||
 			initial.level !== this._level
 

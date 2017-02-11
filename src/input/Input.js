@@ -125,6 +125,7 @@ export default Garnish.Base.extend({
 			}
 
 			bInfo.modified = !!bInfo.modified
+			bInfo['static'] = this._static
 			bInfo.namespace = [...this._templateNs, bInfo.id]
 			bInfo.blockType = new BlockType({
 				id: blockType.getId(),
@@ -136,7 +137,7 @@ export default Garnish.Base.extend({
 				maxChildBlocks: blockType.getMaxChildBlocks(),
 				childBlocks: blockType.getChildBlocks(),
 				topLevel: blockType.getTopLevel(),
-				tabs: bInfo.tabs
+				tabs: bInfo.tabs,
 			})
 			bInfo.buttons = new Buttons({
 				items: blockType.getChildBlockItems(this.getItems()),
@@ -249,7 +250,6 @@ export default Garnish.Base.extend({
 		this._blockSelect.removeItems(block.$container)
 
 		this._destroyTempButtons()
-		this._updateBlockChildren()
 		this._updateButtons()
 
 		if(animate)
@@ -262,11 +262,18 @@ export default Garnish.Base.extend({
 				.velocity({
 					opacity: 0,
 					marginBottom: _delayAnimate ? 10 : -(block.$container.outerHeight())
-				}, 'fast', e => block.$container.remove())
+				}, 'fast', e =>
+				{
+					block.$container.remove()
+
+					this._updateBlockChildren()
+				})
 		}
 		else
 		{
 			block.$container.remove()
+
+			this._updateBlockChildren()
 		}
 
 		this.trigger('removeBlock', {
@@ -549,6 +556,7 @@ export default Garnish.Base.extend({
 		const blockId = Block.getNewId()
 		const block = new Block({
 			namespace: [...this._templateNs, blockId],
+			'static': this._static,
 			blockType: e.blockType,
 			id: blockId,
 			buttons: new Buttons({
