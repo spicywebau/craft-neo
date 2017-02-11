@@ -21,8 +21,9 @@ class NeoController extends BaseController
 
 		$expanded = craft()->request->getPost('expanded');
 		$blockId = craft()->request->getPost('blockId');
+		$locale = craft()->request->getPost('locale');
 
-		$block = craft()->neo->getBlockById($blockId);
+		$block = craft()->neo->getBlockById($blockId, $locale);
 		$block->collapsed = ($expanded === 'false' ? true : !$expanded);
 
 		$success = craft()->neo->saveBlockCollapse($block);

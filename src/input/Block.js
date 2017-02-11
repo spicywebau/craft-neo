@@ -282,6 +282,19 @@ export default Garnish.Base.extend({
 		return this._buttons
 	},
 
+	getLocale()
+	{
+		if(!this._locale)
+		{
+			const $form = this.$container.closest('form')
+			const $locale = $form.find('input[name="locale"]')
+
+			this._locale = $locale.val()
+		}
+
+		return this._locale
+	},
+
 	getContent()
 	{
 		const rawContent = Garnish.getPostData(this.$contentContainer)
@@ -581,7 +594,8 @@ export default Garnish.Base.extend({
 		{
 			Craft.queueActionRequest('neo/saveExpansion', {
 				expanded: this.isExpanded(),
-				blockId: this.getId()
+				blockId: this.getId(),
+				locale: this.getLocale(),
 			})
 		}
 	},
