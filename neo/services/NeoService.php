@@ -1670,12 +1670,24 @@ class NeoService extends BaseApplicationComponent
 								foreach($newBlockIds[$originalBlockId] as $localeId => $newBlock)
 								{
 									$newBlockId = $newBlock->id;
-									$rows[] = [$relation['fieldId'], $newBlockId, $relation['sourceLocale'], $relation['targetId'], $relation['sortOrder']];
+									$rows[] = [
+										$relation['fieldId'],
+										$newBlockId,
+										$relation['sourceLocale'],
+										$relation['targetId'],
+										$relation['sortOrder'],
+									];
 								}
 							}
 						}
 
-						craft()->db->createCommand()->insertAll('relations', ['fieldId', 'sourceId', 'sourceLocale', 'targetId', 'sortOrder'], $rows);
+						craft()->db->createCommand()->insertAll('relations', [
+							'fieldId',
+							'sourceId',
+							'sourceLocale',
+							'targetId',
+							'sortOrder',
+						], $rows);
 					}
 				}
 				else
@@ -1689,11 +1701,11 @@ class NeoService extends BaseApplicationComponent
 						{
 							$blockIdsToDelete[] = $blockInOtherLocale->id;
 						}
+
+						$this->deleteStructure($fieldType, $localeId);
 					}
 
 					$this->deleteBlockById($blockIdsToDelete);
-
-					// TODO Delete other structures
 				}
 			}
 		}
