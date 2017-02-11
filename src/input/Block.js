@@ -11,14 +11,6 @@ import ReasonsRenderer from '../plugins/reasons/Renderer'
 import renderTemplate from './templates/block.twig'
 import '../twig-extensions'
 
-const requestAnimationFrame = (
-	window.requestAnimationFrame ||
-	window.webkitRequestAnimationFrame ||
-	window.mozRequestAnimationFrame ||
-	window.msRequestAnimationFrame ||
-	(fn => setTimeout(fn))
-)
-
 const MutationObserver = (
 	window.MutationObserver ||
 	window.WebKitMutationObserver ||
@@ -219,7 +211,6 @@ export default Garnish.Base.extend({
 				if(MutationObserver)
 				{
 					const detectChange = () => this._detectChange()
-					const detectChangeNextFrame = () => requestAnimationFrame(detectChange)
 					const observer = new MutationObserver(() => setTimeout(detectChange, 20))
 
 					observer.observe(this.$container[0], {
@@ -230,8 +221,8 @@ export default Garnish.Base.extend({
 						attributeFilter: ['name', 'value'],
 					})
 
-					this.$contentContainer.on('propertychange change click', 'input, textarea, select', detectChangeNextFrame)
-					this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea', e => detectChangeNextFrame)
+					this.$contentContainer.on('propertychange change click', 'input, textarea, select', detectChange)
+					this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea', detectChange)
 
 					this._detectChangeObserver = observer
 				}
