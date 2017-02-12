@@ -1124,6 +1124,7 @@ class NeoService extends BaseApplicationComponent
 	public function convertFieldToMatrix(FieldModel $neoField)
 	{
 		$neoFieldType = $neoField->getFieldType();
+		$globalFields = craft()->fields->getAllFields('id');
 
 		if($neoFieldType instanceof NeoFieldType)
 		{
@@ -1146,8 +1147,11 @@ class NeoService extends BaseApplicationComponent
 
 				$neoBlocks = [];
 				$matrixBlocks = [];
+				$matrixBlockTypeIdsByBlockId = [];
 				$neoToMatrixBlockTypeIds = [];
 				$neoToMatrixBlockIds = [];
+				$matrixBlockTypeFieldIds = [];
+				$newRelations = [];
 
 				foreach(craft()->i18n->getSiteLocales() as $locale)
 				{
@@ -1189,6 +1193,20 @@ class NeoService extends BaseApplicationComponent
 				{
 					$neoBlockTypeId = $neoBlockTypeIds[$matrixBlockType->handle];
 					$neoToMatrixBlockTypeIds[$neoBlockTypeId] = $matrixBlockType->id;
+
+					// Create mapping from newly saved block type field handles to their ID's
+					// This is so that relations can be updated later on with the new field ID
+					$matrixFieldLayout = $matrixBlockType->getFieldLayout();
+					$matrixFields = $matrixFieldLayout->getFields();
+
+					$fieldIds = [];
+					foreach($matrixFields as $matrixFieldLayoutField)
+					{
+						$matrixField = $matrixFieldLayoutField->getField();
+						$fieldIds[$matrixField->handle] = $matrixField->id;
+					}
+
+					$matrixBlockTypeFieldIds[$matrixBlockType->id] = $fieldIds;
 				}
 
 				foreach($matrixBlocks as $matrixBlock)
@@ -1232,7 +1250,46 @@ class NeoService extends BaseApplicationComponent
 
 					// Save the new Matrix block ID in case it has different content locales to save
 					$neoToMatrixBlockIds[$neoBlockId] = $matrixBlock->id;
+					$matrixBlockTypeIdsByBlockId[$matrixBlock->id] = $matrixBlock->typeId;
 				}
+
+				// Update the relations with the new Matrix block ID's (sourceId) and Matrix field ID's
+				$relations = craft()->db->createCommand()
+					->select('fieldId, sourceId, sourceLocale, targetId, sortOrder')
+					->from('relations')
+					->where(['in', 'sourceId', array_keys($neoToMatrixBlockIds)])
+					->queryAll();
+
+				if($relations)
+				{
+					foreach($relations as $relation)
+					{
+						$neoBlockId = $relation['sourceId'];
+						$matrixBlockId = $neoToMatrixBlockIds[$neoBlockId];
+						$matrixBlockTypeId = $matrixBlockTypeIdsByBlockId[$matrixBlockId];
+
+						$globalFieldId = $relation['fieldId'];
+						$globalField = $globalFields[$globalFieldId];
+						$matrixFieldIds = $matrixBlockTypeFieldIds[$matrixBlockTypeId];
+						$matrixFieldId = $matrixFieldIds[$globalField->handle];
+
+						$newRelations[] = [
+							$matrixFieldId,
+							$matrixBlockId,
+							$relation['sourceLocale'],
+							$relation['targetId'],
+							$relation['sortOrder'],
+						];
+					}
+				}
+
+				craft()->db->createCommand()->insertAll('relations', [
+					'fieldId',
+					'sourceId',
+					'sourceLocale',
+					'targetId',
+					'sortOrder',
+				], $newRelations);
 
 				$this->commitTransaction($transaction);
 
