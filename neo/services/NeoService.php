@@ -663,6 +663,44 @@ class NeoService extends BaseApplicationComponent
 	}
 
 	/**
+	 * Generates the search keywords from a block.
+	 *
+	 * @param Neo_BlockModel $block
+	 * @return string
+	 * @throws Exception
+	 */
+	public function getBlockKeywords(Neo_BlockModel $block)
+	{
+		$keywords = [];
+
+		$contentTable = craft()->content->contentTable;
+		$fieldColumnPrefix = craft()->content->fieldColumnPrefix;
+		$fieldContext = craft()->content->fieldContext;
+
+		craft()->content->contentTable = $block->getContentTable();
+		craft()->content->fieldColumnPrefix = $block->getFieldColumnPrefix();
+		craft()->content->fieldContext = $block->getFieldContext();
+
+		foreach(craft()->fields->getAllFields() as $field)
+		{
+			$fieldType = $field->getFieldType();
+
+			if($fieldType)
+			{
+				$fieldType->element = $block;
+				$handle = $field->handle;
+				$keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
+			}
+		}
+
+		craft()->content->contentTable = $contentTable;
+		craft()->content->fieldColumnPrefix = $fieldColumnPrefix;
+		craft()->content->fieldContext = $fieldContext;
+
+		return StringHelper::arrayToString($keywords, ' ');
+	}
+
+	/**
 	 * Runs validation on a block, and saves any errors to the block.
 	 *
 	 * @param Neo_BlockModel $block

@@ -32,18 +32,7 @@ class Neo_GetSearchKeywordsTask extends BaseTask
 		else
 		{
 			$block = $this->_blocks[$step];
-
-			foreach(craft()->fields->getAllFields() as $field)
-			{
-				$fieldType = $field->getFieldType();
-
-				if($fieldType)
-				{
-					$fieldType->element = $block;
-					$handle = $field->handle;
-					$this->_keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
-				}
-			}
+			$this->_keywords[] = craft()->neo->getBlockKeywords($block);
 		}
 
 		return true;
