@@ -1,7 +1,7 @@
 ## Changelog
 
 ### v1.4.1
-- `Added` Added configuration options to enable/disable certain optimisation
+- `Added` Added configuration options to enable/disable certain optimisations
 - `Improved` Content summaries now include Matrix and Super Table field values
 - `Improved` Big performance improvement with block modification detection
 - `Improved` Added limits to content summaries to improve UI performance
@@ -12,6 +12,7 @@
 - `Fixed` Fixed server error when non-admins expand/collapse Neo blocks
 - `Fixed` Fixed issue with Neo-to-Matrix conversion with localised content
 - `Fixed` Relations are now converted when converting Neo to Matrix
+- `Fixed` Search keywords for Neo fields now generate when rebuilding the search index
 - `Fixed` Removed graphical abnormality on blocks in Safari
 - `Fixed` Fixed issue with collapsed block children indicator being out of sync
 
