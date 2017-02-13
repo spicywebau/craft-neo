@@ -7,9 +7,6 @@ class Neo_GetSearchKeywordsTask extends BaseTask
 
 	private $_blocks;
 	private $_keywords;
-	private $_originalContentTable;
-	private $_originalFieldColumnPrefix;
-	private $_originalFieldContext;
 
 
 	// Public methods
@@ -35,22 +32,7 @@ class Neo_GetSearchKeywordsTask extends BaseTask
 		else
 		{
 			$block = $this->_blocks[$step];
-
-			craft()->content->contentTable = $block->getContentTable();
-			craft()->content->fieldColumnPrefix = $block->getFieldColumnPrefix();
-			craft()->content->fieldContext = $block->getFieldContext();
-
-			foreach(craft()->fields->getAllFields() as $field)
-			{
-				$fieldType = $field->getFieldType();
-
-				if($fieldType)
-				{
-					$fieldType->element = $block;
-					$handle = $field->handle;
-					$this->_keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
-				}
-			}
+			$this->_keywords[] = craft()->neo->getBlockKeywords($block);
 		}
 
 		return true;
@@ -77,20 +59,11 @@ class Neo_GetSearchKeywordsTask extends BaseTask
 
 		$this->_blocks = craft()->neo->getBlocks($settings->fieldId, $settings->ownerId, $settings->locale);
 		$this->_keywords = [];
-
-		$this->_originalContentTable = craft()->content->contentTable;
-		$this->_originalFieldColumnPrefix = craft()->content->fieldColumnPrefix;
-		$this->_originalFieldContext = craft()->content->fieldContext;
 	}
 
 	private function _end()
 	{
 		$settings = $this->getSettings();
-
-		craft()->content->contentTable = $this->_originalContentTable;
-		craft()->content->fieldColumnPrefix = $this->_originalFieldColumnPrefix;
-		craft()->content->fieldContext = $this->_originalFieldContext;
-
 		$keywords = StringHelper::arrayToString($this->_keywords, ' ');
 
 		craft()->search->indexElementFields($settings->ownerId, $settings->locale, [$settings->fieldId => $keywords]);

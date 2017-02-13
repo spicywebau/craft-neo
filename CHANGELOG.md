@@ -1,5 +1,20 @@
 ## Changelog
 
+### v1.4.1
+- `Added` Added configuration options to enable/disable certain optimisation
+- `Improved` Content summaries now include Matrix and Super Table field values
+- `Improved` Big performance improvement with block modification detection
+- `Improved` Added limits to content summaries to improve UI performance
+- `Fixed` Neo fields can now handle changes in translation settings
+- `Fixed` Fixed issue with Neo fields not reverting correctly when rolling back an entry's version
+- `Fixed` Fixed issue with nested Matrix and Super Table block rearrangements not saving
+- `Fixed` Non-admins are now able to duplicate blocks
+- `Fixed` Fixed server error when non-admins expand/collapse Neo blocks
+- `Fixed` Fixed issue with Neo-to-Matrix conversion with localised content
+- `Fixed` Relations are now converted when converting Neo to Matrix
+- `Fixed` Removed graphical abnormality on blocks in Safari
+- `Fixed` Fixed issue with collapsed block children indicator being out of sync
+
 ### v1.4.0
 - `Added` Added "Max Child Blocks" setting to block types
 - `Added` Neo-to-Matrix conversion (with all it's content) now possible when changing an existing Neo field to Matrix

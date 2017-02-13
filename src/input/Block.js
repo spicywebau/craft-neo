@@ -50,11 +50,6 @@ function _resourceFilter()
 	return true
 }
 
-function _stripHTML(str)
-{
-	return str ? str.replace(/<(?:.|\n)*?>/gm, '') : ''
-}
-
 function _escapeHTML(str)
 {
 	return str ? str.replace(/[&<>"'\/]/g, s => ({
@@ -481,9 +476,44 @@ export default Garnish.Base.extend({
 				break
 				case 'RichText':
 				{
-					value = _stripHTML(_limit($input.find('textarea').val()))
+					value = _escapeHTML(_limit(Craft.getText($input.find('textarea').val())))
 				}
 				break
+				case 'Matrix':
+				case 'SuperTable':
+				{
+					const $subFields = $field.find('.field');
+					const $subInputs = $subFields.find('input[type!="hidden"], select, textarea, .label')
+
+					let values = []
+
+					$subInputs.each(function()
+					{
+						const $subInput = $(this)
+						let subValue = null
+
+						if($subInput.is('input, textarea'))
+						{
+							subValue = Craft.getText(Garnish.getInputPostVal($subInput))
+						}
+						else if($subInput.is('select'))
+						{
+							subValue = $subInput.find('option:selected').text()
+						}
+						else if($subInput.hasClass('label'))
+						{
+							// TODO check for lightswitch maybe?
+							subValue = $subInput.text()
+						}
+
+						if(subValue)
+						{
+							values.push(_limit(subValue))
+						}
+					})
+
+					value = _escapeHTML(values.join(', '))
+				}
 			}
 
 			if(value && previewText.length < 10)
