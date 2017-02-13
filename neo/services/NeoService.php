@@ -1655,9 +1655,9 @@ class NeoService extends BaseApplicationComponent
 		foreach($blocks as $block)
 		{
 			if($block->id && (
-					($field->translatable && !$block->ownerLocale) ||
-					(!$field->translatable && $block->ownerLocale)
-				))
+				($field->translatable && !$block->ownerLocale) ||
+				(!$field->translatable && $block->ownerLocale)
+			))
 			{
 				$applyNewTranslationSetting = true;
 				break;
