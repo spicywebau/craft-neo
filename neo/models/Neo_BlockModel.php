@@ -15,7 +15,7 @@ class Neo_BlockModel extends BaseElementModel
 	 *
 	 * @var bool
 	 */
-	public $modified = false;
+	public $modified = true;
 
 
 	// Protected properties
