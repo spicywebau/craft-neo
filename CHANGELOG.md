@@ -15,7 +15,7 @@
 - `Fixed` Removed graphical abnormality on blocks in Safari
 - `Fixed` Fixed issue with collapsed block children indicator being out of sync
 
-### v1.4.0
+#### v1.4.0
 - `Added` Added "Max Child Blocks" setting to block types
 - `Added` Neo-to-Matrix conversion (with all it's content) now possible when changing an existing Neo field to Matrix
 - `Added` Collapsed Neo blocks now show a rich content summary in the title bar, similar to Matrix blocks
