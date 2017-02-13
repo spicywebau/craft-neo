@@ -602,7 +602,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		$this->_savingElement = null;
 
 		// If an element is being saved right now, then keywords can be skipped here, and later offloaded to a task
-		if($element === $this->element)
+		if($element === $this->element && craft()->config->get('generateKeywordsWithTask', 'neo'))
 		{
 			return ''; // TODO return current keywords instead
 		}
@@ -671,11 +671,14 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	{
 		craft()->neo->saveFieldValue($this);
 
-		craft()->tasks->createTask('Neo_GetSearchKeywords', null, [
-			'fieldId' => $this->model->id,
-			'ownerId' => $this->element->id,
-			'locale' => $this->element->locale,
-		]);
+		if(craft()->config->get('generateKeywordsWithTask', 'neo'))
+		{
+			craft()->tasks->createTask('Neo_GetSearchKeywords', null, [
+				'fieldId' => $this->model->id,
+				'ownerId' => $this->element->id,
+				'locale' => $this->element->locale,
+			]);
+		}
 	}
 
 

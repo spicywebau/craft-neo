@@ -795,7 +795,10 @@ class NeoService extends BaseApplicationComponent
 	 */
 	public function saveBlock(Neo_BlockModel $block, $validate = true)
 	{
-		if($block->modified && (!$validate || $this->validateBlock($block)))
+		$isModified = (craft()->config->get('saveModifiedBlocksOnly', 'neo') ? $block->modified : true);
+		$isValid = ($validate ? $this->validateBlock($block) : true);
+
+		if($isModified && $isValid)
 		{
 			$blockRecord = $this->_getBlockRecord($block);
 			$isNewBlock = $blockRecord->isNewRecord();
