@@ -64,6 +64,7 @@ function _escapeHTML(str)
 
 function _limit(s, l=40)
 {
+	s = s || ''
 	return s.length > l ? s.slice(0, l - 3) + '...' : s
 }
 
