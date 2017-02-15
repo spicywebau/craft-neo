@@ -782,25 +782,48 @@ export default Garnish.Base.extend({
 		{
 			switch($option.attr('data-action'))
 			{
-				case 'collapse': this.collapse() ; break
-				case 'expand':   this.expand()   ; break
-				case 'disable':  this.disable()
-				                 this.collapse() ; break
-				case 'enable':   this.enable()
-				                 this.expand()   ; break
-				case 'delete':   this.destroy()  ; break
-
+				case 'collapse':
+				{
+					this.collapse()
+				}
+				break
+				case 'expand':
+				{
+					this.expand()
+				}
+				break
+				case 'disable':
+				{
+					this.disable()
+					this.collapse()
+				}
+				break
+				case 'enable':
+				{
+					this.enable()
+					this.expand()
+				}
+				break
+				case 'delete':
+				{
+					this.destroy()
+				}
+				break
 				case 'add':
-					this.trigger('addBlockAbove', {
-						block: this
-					})
-					break
-
+				{
+					this.trigger('addBlockAbove', { block: this })
+				}
+				break
+				case 'copy':
+				{
+					this.trigger('copyBlock', { block: this })
+				}
+				break
 				case 'duplicate':
-					this.trigger('duplicateBlock', {
-						block: this
-					})
-					break
+				{
+					this.trigger('duplicateBlock', { block: this })
+				}
+				break
 			}
 		}
 	},

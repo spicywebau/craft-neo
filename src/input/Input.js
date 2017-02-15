@@ -206,6 +206,7 @@ export default Garnish.Base.extend({
 		block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
 		block.on('newBlock.input', e => this['@newBlock'](Object.assign(e, {index: this._getNextBlockIndex(block)})))
 		block.on('addBlockAbove.input', e => this['@addBlockAbove'](e))
+		block.on('copyBlock.input', e => this['@copyBlock'](e))
 		block.on('duplicateBlock.input', e => this['@duplicateBlock'](e))
 
 		this._destroyTempButtons()
@@ -627,6 +628,42 @@ export default Garnish.Base.extend({
 		this._tempButtonsBlock = this._findParentBlock(block)
 
 		this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
+	},
+
+	'@copyBlock'(e)
+	{
+		const blocks = this._findChildBlocks(e.block, true)
+		blocks.unshift(e.block)
+
+		const data = {
+			blocks: []
+		}
+
+		for(let block of blocks)
+		{
+			let blockData = {
+				type: block.getBlockType().getId(),
+				level: block.getLevel() - e.block.getLevel(),
+				content: block.getContent(),
+			}
+
+			if(block.isEnabled())
+			{
+				blockData.enabled = 1
+			}
+
+			if(!block.isExpanded())
+			{
+				blockData.collapsed = 1
+			}
+
+			data.blocks.push(blockData)
+		}
+
+		localStorage.setItem('neo:copy', data)
+
+		const notice = blocks.length == 1 ? "1 block copied" : "{n} blocks copied"
+		Craft.cp.displayNotice(Craft.t(notice, { n: blocks.length }))
 	},
 
 	'@duplicateBlock'(e)
