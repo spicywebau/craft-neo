@@ -806,6 +806,8 @@ class NeoService extends BaseApplicationComponent
 
 		if($isModified && $isValid)
 		{
+			$field = $block->getField();
+
 			$blockRecord = $this->_getBlockRecord($block);
 			$isNewBlock = $blockRecord->isNewRecord();
 
@@ -823,6 +825,17 @@ class NeoService extends BaseApplicationComponent
 					if($isNewBlock)
 					{
 						$blockRecord->id = $block->id;
+
+						// Correct locale settings for relations with nested translated fields
+						if($field->translatable)
+						{
+							craft()->db->createCommand()
+								->update('relations',
+									['sourceLocale' => $block->ownerLocale],
+									'sourceId = :id',
+									['id' => $block->id]
+								);
+						}
 					}
 
 					$blockRecord->save(false);
