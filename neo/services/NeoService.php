@@ -673,6 +673,9 @@ class NeoService extends BaseApplicationComponent
 	{
 		$keywords = [];
 
+		$fieldLayout = $block->getFieldLayout();
+		$fieldIds = $fieldLayout->getFieldIds();
+
 		$contentTable = craft()->content->contentTable;
 		$fieldColumnPrefix = craft()->content->fieldColumnPrefix;
 		$fieldContext = craft()->content->fieldContext;
@@ -683,13 +686,16 @@ class NeoService extends BaseApplicationComponent
 
 		foreach(craft()->fields->getAllFields() as $field)
 		{
-			$fieldType = $field->getFieldType();
-
-			if($fieldType)
+			if(in_array($field->id, $fieldIds))
 			{
-				$fieldType->element = $block;
-				$handle = $field->handle;
-				$keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
+				$fieldType = $field->getFieldType();
+
+				if($fieldType)
+				{
+					$fieldType->element = $block;
+					$handle = $field->handle;
+					$keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
+				}
 			}
 		}
 
