@@ -210,7 +210,7 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 	{
 		if((craft()->neo->isPreviewMode() || $this->isUsingMemoized()) && !empty($this->_allElements))
 		{
-			$elements = $this->_allElements;
+			$filteredElements = $this->_allElements;
 
 			foreach($this->filterOrder as $filter)
 			{
@@ -219,16 +219,16 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 					$value = $this->_currentFilters[$filter];
 					$method = '__' . $filter;
 
-					$elements = $this->$method($elements, $value);
-				}
+					$currentFiltered = $this->$method($this->_allElements, $value);
 
-				if(empty($elements))
-				{
-					break;
+					$filteredElements = array_uintersect($filteredElements, $currentFiltered, function($a, $b)
+					{
+						return $a === $b ? 0 : ($a > $b ? 1 : -1);
+					});
 				}
 			}
 
-			$this->setMatchedElements($elements);
+			$this->setMatchedElements($filteredElements);
 		}
 	}
 
