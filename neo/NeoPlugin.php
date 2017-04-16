@@ -80,6 +80,8 @@ class NeoPlugin extends BasePlugin
 		craft()->neo_reasons->pluginInit();
 		craft()->neo_relabel->pluginInit();
 
+		craft()->on('elements.onBeforeDeleteElements', [$this, 'onBeforeDeleteElements']);
+
 		if(craft()->request->isCpRequest() && !craft()->request->isAjaxRequest())
 		{
 			$this->includeResources();
@@ -144,6 +146,45 @@ class NeoPlugin extends BasePlugin
 			{
 				craft()->neo->convertFieldToMatrix($field);
 			}
+		}
+	}
+
+	/**
+	 * Cleans up Neo blocks when their parents get deleted.
+	 *
+	 * This typically happens automatically, but as a consequence of the database constraints. Explicitly calling to
+	 * delete the blocks invokes their lifecycle events, which other fields and plugins can hook into.
+	 *
+	 * This solves an issue with nested Matrix and SuperTable fields becoming orphaned if Neo's parent element is
+	 * deleted.
+	 *
+	 * (Stolen from SuperTable)
+	 * @see https://github.com/engram-design/SuperTable/commit/6bfb059d2cffe42753b4569444d00681b59a3e1d
+	 *
+	 * @param Event $event
+	 */
+	protected function onBeforeDeleteElements(Event $event)
+	{
+		$elementIds = $event->params['elementIds'];
+
+		if(count($elementIds) == 1)
+		{
+			$blockCondition = ['ownerId' => $elementIds[0]];
+		}
+		else
+		{
+			$blockCondition = ['in', 'ownerId', $elementIds];
+		}
+
+		$blockIds = craft()->db->createCommand()
+			->select('id')
+			->from('neoblocks')
+			->where($blockCondition)
+			->queryColumn();
+
+		if($blockIds)
+		{
+			craft()->neo->deleteBlockById($blockIds);
 		}
 	}
 
