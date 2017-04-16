@@ -59,7 +59,6 @@ export default Garnish.Base.extend({
 		}
 
 		this.addListener(this.$blockButtons, 'activate', '@newBlock')
-		this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
 	},
 
 	initUi()

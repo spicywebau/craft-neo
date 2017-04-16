@@ -147,6 +147,29 @@ export default Garnish.Base.extend({
 			let block = new Block(bInfo)
 			this.addBlock(block, -1, bInfo.level|0, false)
 		}
+
+		this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
+	},
+
+	updateResponsiveness()
+	{
+		for(let block of this._blocks)
+		{
+			block.updateResponsiveness()
+
+			const buttons = block.getButtons()
+			if(buttons)
+			{
+				buttons.updateResponsiveness()
+			}
+		}
+
+		this._buttons.updateResponsiveness()
+
+		if(this._tempButtons)
+		{
+			this._tempButtons.updateResponsiveness()
+		}
 	},
 
 	addBlock(block, index = -1, level = 0, animate = null)

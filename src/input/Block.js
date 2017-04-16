@@ -180,7 +180,6 @@ export default Garnish.Base.extend({
 				this._buttons.initUi()
 			}
 
-			this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
 			Garnish.requestAnimationFrame(() => this.updateResponsiveness())
 
 			this._initReasonsPlugin()
