@@ -7,6 +7,7 @@ import Craft from 'craft'
 import NS from '../namespace'
 
 import ReasonsRenderer from '../plugins/reasons/Renderer'
+import { addFieldLinks } from '../plugins/cpfieldlinks/main'
 
 import renderTemplate from './templates/block.twig'
 import '../twig-extensions'
@@ -227,6 +228,8 @@ export default Garnish.Base.extend({
 					this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
 				}
 			}
+
+			addFieldLinks(this.$contentContainer)
 
 			this.trigger('initUi')
 		}

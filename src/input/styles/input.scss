@@ -51,6 +51,8 @@
 	}
 
 	&_block {
+		box-sizing: border-box;
+		width: 100%;
 		overflow: hidden;
 		margin-bottom: 10px;
 		border-radius: 3px;
