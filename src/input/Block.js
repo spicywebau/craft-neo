@@ -167,7 +167,7 @@ export default Garnish.Base.extend({
 
 			Garnish.$bod.siblings('head').append(this.$head)
 			Garnish.$bod.append(this.$foot)
-			Craft.initUiElements(this.$contentContainer)
+			
 			this.$tabsButton.menubtn()
 
 			this._settingsMenu = new Garnish.MenuBtn(this.$settingsButton);
