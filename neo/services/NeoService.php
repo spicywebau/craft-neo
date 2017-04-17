@@ -840,6 +840,8 @@ class NeoService extends BaseApplicationComponent
 						$blockRecord->id = $block->id;
 
 						// Correct locale settings for relations with nested translated fields
+						// TODO This is a patch fix for this kind of arrangement – won't work with Matrix fields
+						// Hopefully Craft 3 makes this possible natively
 						if($field->translatable)
 						{
 							craft()->db->createCommand()
