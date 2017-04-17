@@ -81,6 +81,7 @@ class NeoPlugin extends BasePlugin
 		craft()->neo_relabel->pluginInit();
 
 		craft()->on('elements.onBeforeDeleteElements', [$this, 'onBeforeDeleteElements']);
+		craft()->on('i18n.onBeforeDeleteLocale', [$this, 'onBeforeDeleteLocale']);
 
 		if(craft()->request->isCpRequest() && !craft()->request->isAjaxRequest())
 		{
@@ -161,11 +162,11 @@ class NeoPlugin extends BasePlugin
 	 * (Stolen from SuperTable)
 	 * @see https://github.com/engram-design/SuperTable/commit/6bfb059d2cffe42753b4569444d00681b59a3e1d
 	 *
-	 * @param Event $event
+	 * @param Event $e
 	 */
-	protected function onBeforeDeleteElements(Event $event)
+	protected function onBeforeDeleteElements(Event $e)
 	{
-		$elementIds = $event->params['elementIds'];
+		$elementIds = $e->params['elementIds'];
 
 		if(count($elementIds) == 1)
 		{
@@ -185,6 +186,23 @@ class NeoPlugin extends BasePlugin
 		if($blockIds)
 		{
 			craft()->neo->deleteBlockById($blockIds);
+		}
+	}
+
+	/**
+	 * Transfers all Neo content from a deleted locale if needed.
+	 * TODO
+	 *
+	 * @param Event $e
+	 */
+	protected function onBeforeDeleteLocale(Event $e)
+	{
+		$oldLocale = $e->params['localeId'];
+		$newLocale = $e->params['transferContentTo'];
+
+		if($e->performAction && $newLocale)
+		{
+			// TODO don't understand how LocalizationService::deleteSiteLocale() works at all, need to investigate first
 		}
 	}
 
