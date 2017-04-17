@@ -73,22 +73,21 @@ class NeoService extends BaseApplicationComponent
 	 * Saves a Neo field's value to the database.
 	 *
 	 * @param NeoFieldType $fieldType
+	 * @param bool $isNewElement
 	 * @throws \Exception
 	 */
-	public function saveFieldValue(NeoFieldType $fieldType)
+	public function saveFieldValue(NeoFieldType $fieldType, $isNewElement=false)
 	{
 		$owner = $fieldType->element;
 		$field = $fieldType->model;
 		$blocks = $owner->getContent()->getAttribute($field->handle);
-		$locale = $this->_getFieldLocale($fieldType);
+		$locales = $this->_getSavingLocales($fieldType, $isNewElement);
+		//$locales = [ $this->_getFieldLocale($fieldType) ];
 
 		if($blocks === null)
 		{
 			return;
 		}
-
-		$structure = new StructureModel();
-		// $structure->maxLevels = ...->maxLevels; // This might be useful somebody. Keeping it around as a reminder.
 
 		if(!is_array($blocks))
 		{
@@ -101,47 +100,61 @@ class NeoService extends BaseApplicationComponent
 			// Make sure that the blocks for this field/owner respect the field's translation setting
 			$this->_applyFieldTranslationSetting($fieldType, $blocks);
 
-			$this->saveStructure($structure, $fieldType);
-
-			foreach($blocks as $block)
+			foreach($locales as $locale)
 			{
-				$block->ownerId = $owner->id;
-				$block->ownerLocale = $locale;
+				$structure = new StructureModel();
+				// $structure->maxLevels = ...->maxLevels; // This might be useful somebody. Keeping it around as a reminder.
+
+				$this->saveStructure($structure, $fieldType, $locale);
+
+				foreach($blocks as $block)
+				{
+					if($isNewElement)
+					{
+						$block->setAsNew();
+					}
+
+					$block->ownerId = $owner->id;
+					$block->ownerLocale = $locale;
+				}
+
+				$this->saveBlocks($blocks, $structure);
+
+				if(!$isNewElement)
+				{
+					$blockIds = [];
+					foreach($blocks as $block)
+					{
+						$blockIds[] = $block->id;
+					}
+
+					// Get the IDs of blocks that are row deleted
+					$deletedBlockConditions = ['and',
+						'ownerId = :ownerId',
+						'fieldId = :fieldId',
+						['not in', 'id', $blockIds]
+					];
+
+					$deletedBlockParams = [
+						':ownerId' => $owner->id,
+						':fieldId' => $field->id
+					];
+
+					if($field->translatable)
+					{
+						$deletedBlockConditions[] = 'ownerLocale  = :ownerLocale';
+						$deletedBlockParams[':ownerLocale'] = $locale;
+					}
+
+					$deletedBlockIds = craft()->db->createCommand()
+						->select('id')
+						->from('neoblocks')
+						->where($deletedBlockConditions, $deletedBlockParams)
+						->queryColumn();
+
+					$this->deleteBlockById($deletedBlockIds);
+				}
 			}
-
-			$this->saveBlocks($blocks, $structure);
-
-			$blockIds = [];
-			foreach($blocks as $block)
-			{
-				$blockIds[] = $block->id;
-			}
-
-			// Get the IDs of blocks that are row deleted
-			$deletedBlockConditions = ['and',
-				'ownerId = :ownerId',
-				'fieldId = :fieldId',
-				['not in', 'id', $blockIds]
-			];
-
-			$deletedBlockParams = [
-				':ownerId' => $owner->id,
-				':fieldId' => $field->id
-			];
-
-			if($field->translatable)
-			{
-				$deletedBlockConditions[] = 'ownerLocale  = :ownerLocale';
-				$deletedBlockParams[':ownerLocale'] = $owner->locale;
-			}
-
-			$deletedBlockIds = craft()->db->createCommand()
-				->select('id')
-				->from('neoblocks')
-				->where($deletedBlockConditions, $deletedBlockParams)
-				->queryColumn();
-
-			$this->deleteBlockById($deletedBlockIds);
 
 			$this->commitTransaction($transaction);
 		}
@@ -1071,7 +1084,7 @@ class NeoService extends BaseApplicationComponent
 		$transaction = $this->beginTransaction();
 		try
 		{
-			$this->deleteStructure($fieldType);
+			$this->deleteStructure($fieldType, $locale);
 
 			craft()->structures->saveStructure($structure);
 
@@ -1595,6 +1608,37 @@ class NeoService extends BaseApplicationComponent
 		$field = $fieldType->model;
 
 		return $field->translatable ? $owner->locale : null;
+	}
+
+	/**
+	 * Returns the array of locales to save the field value into.
+	 *
+	 * @param NeoFieldType $fieldType
+	 * @param bool $isNewElement
+	 * @return array
+	 */
+	private function _getSavingLocales(NeoFieldType $fieldType, $isNewElement=false)
+	{
+		$field = $fieldType->model;
+
+		if($field->translatable && $isNewElement)
+		{
+			$owner = $fieldType->element;
+			$tmpLocales = $owner->getLocales();
+			$locales = [];
+
+			foreach($tmpLocales as $key => $val)
+			{
+				// Entries do something funky and change the expected output of `getLocales()`, so need to check for
+				// locale ID's as keys to the array.
+				$locale = is_array($val) ? $key : $val;
+				$locales[] = $locale;
+			}
+
+			return $locales;
+		}
+
+		return [ $this->_getFieldLocale($fieldType) ];
 	}
 
 	/**

@@ -11,6 +11,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	// Properties
 
 	private  $_savingElement = null;
+	private  $_isNewElement = false;
 
 
 	// Public methods
@@ -43,6 +44,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		craft()->on('elements.onBeforeSaveElement', function($e)
 		{
 			$this->_savingElement = $e->params['element'];
+			$this->_isNewElement = !((bool) $this->_savingElement->id);
 		});
 	}
 
@@ -669,7 +671,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	public function onAfterElementSave()
 	{
-		craft()->neo->saveFieldValue($this);
+		craft()->neo->saveFieldValue($this, $this->_isNewElement);
 
 		if(craft()->config->get('generateKeywordsWithTask', 'neo'))
 		{

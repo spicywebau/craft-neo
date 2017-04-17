@@ -137,6 +137,18 @@ class Neo_BlockModel extends BaseElementModel
 	}
 
 	/**
+	 * Resets the ID's on the block so saving will create a new block record.
+	 */
+	public function setAsNew()
+	{
+		$this->id = null;
+
+		$content = $this->getContent();
+		$content->id = null;
+		$content->elementId = null;
+	}
+
+	/**
 	 * Allows memoizing all blocks (including this one) for a particular field.
 	 * This is used for Live Preview mode, where certain methods, like `getAncestors`, create element criteria models
 	 * which need a local set of blocks to query against.
