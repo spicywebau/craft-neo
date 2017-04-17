@@ -7,3 +7,4 @@ node_modules
 !/demo/
 !/neo/
 !/src/
+!/build/
