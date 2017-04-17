@@ -704,7 +704,7 @@ export default Garnish.Base.extend({
 		this.$tabsButton.toggleClass('invisible', !isMobile)
 	},
 
-	updateMenuStates(blocks = [], maxBlocks = 0, additionalCheck = null)
+	updateMenuStates(field, blocks = [], maxBlocks = 0, additionalCheck = null)
 	{
 		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
 
@@ -717,8 +717,13 @@ export default Garnish.Base.extend({
 
 		const disabled = allDisabled || typeDisabled
 
+		const pasteData = JSON.parse(localStorage.getItem('neo:copy') || '{}')
+		let pasteDisabled = (!pasteData.field || pasteData.field !== field)
+		// TODO
+
 		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
 		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
+		this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
 	},
 
 	_initReasonsPlugin()
@@ -819,6 +824,11 @@ export default Garnish.Base.extend({
 				case 'copy':
 				{
 					this.trigger('copyBlock', { block: this })
+				}
+				break
+				case 'paste':
+				{
+					this.trigger('pasteBlock', { block: this })
 				}
 				break
 				case 'duplicate':

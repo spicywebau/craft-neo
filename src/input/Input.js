@@ -16,6 +16,7 @@ import '../twig-extensions'
 import './styles/input.scss'
 
 const _defaults = {
+	name: null,
 	namespace: [],
 	blockTypes: [],
 	groups: [],
@@ -28,6 +29,7 @@ const _defaults = {
 export default Garnish.Base.extend({
 
 	_templateNs: [],
+	_name: null,
 	_locale: null,
 
 	init(settings = {})
@@ -38,6 +40,7 @@ export default Garnish.Base.extend({
 		this._blockTypes = []
 		this._groups = []
 		this._blocks = []
+		this._name = settings.name
 		this._maxBlocks = settings.maxBlocks
 		this._static = settings['static']
 
@@ -230,6 +233,7 @@ export default Garnish.Base.extend({
 		block.on('newBlock.input', e => this['@newBlock'](Object.assign(e, {index: this._getNextBlockIndex(block)})))
 		block.on('addBlockAbove.input', e => this['@addBlockAbove'](e))
 		block.on('copyBlock.input', e => this['@copyBlock'](e))
+		block.on('pasteBlock.input', e => this['@pasteBlock'](e))
 		block.on('duplicateBlock.input', e => this['@duplicateBlock'](e))
 
 		this._destroyTempButtons()
@@ -415,7 +419,7 @@ export default Garnish.Base.extend({
 			const parentBlock = this._findParentBlock(block)
 			const buttons = block.getButtons()
 
-			block.updateMenuStates(blocks, this.getMaxBlocks(), this._checkMaxChildren(parentBlock))
+			block.updateMenuStates(this._name, blocks, this.getMaxBlocks(), this._checkMaxChildren(parentBlock))
 
 			if(buttons)
 			{
@@ -659,6 +663,7 @@ export default Garnish.Base.extend({
 		blocks.unshift(e.block)
 
 		const data = {
+			field: this._name,
 			blocks: []
 		}
 
@@ -683,10 +688,133 @@ export default Garnish.Base.extend({
 			data.blocks.push(blockData)
 		}
 
-		localStorage.setItem('neo:copy', data)
+		localStorage.setItem('neo:copy', JSON.stringify(data))
+
+		this._updateButtons()
 
 		const notice = blocks.length == 1 ? "1 block copied" : "{n} blocks copied"
 		Craft.cp.displayNotice(Craft.t(notice, { n: blocks.length }))
+	},
+
+	'@pasteBlock'(e)
+	{
+		const block = e.block
+		const baseLevel = block.getLevel()
+		const copyData = localStorage.getItem('neo:copy')
+
+		if(copyData)
+		{
+			const { field, blocks } = JSON.parse(copyData)
+
+			for(let pasteBlock of blocks)
+			{
+				pasteBlock.level += baseLevel
+			}
+
+			NS.enter(this._templateNs)
+
+			const data = {
+				namespace: NS.toFieldName(),
+				locale: this._locale,
+				blocks,
+			}
+
+			NS.leave()
+
+			const $spinner = $('<div class="ni_spinner"><div class="spinner"></div></div>')
+
+			block.$container.after($spinner)
+
+			let spinnerComplete = false
+			let spinnerCallback = function() {}
+
+			$spinner
+				.css({
+					opacity: 0,
+					marginBottom: -($spinner.outerHeight())
+				})
+				.velocity({
+					opacity: 1,
+					marginBottom: 10
+				}, 'fast', () =>
+				{
+					spinnerComplete = true
+					spinnerCallback()
+				})
+
+			Craft.postActionRequest('neo/renderBlocks', data, e =>
+			{
+				if(e.success && e.blocks.length > 0)
+				{
+					const newBlocks = []
+
+					for(let renderedBlock of e.blocks)
+					{
+						const newId = Block.getNewId()
+
+						const blockType = this.getBlockTypeById(renderedBlock.type)
+						const newBlockType = new BlockType({
+							id: blockType.getId(),
+							fieldLayoutId: blockType.getFieldLayoutId(),
+							fieldTypes: blockType.getFieldTypes(),
+							name: blockType.getName(),
+							handle: blockType.getHandle(),
+							maxBlocks: blockType.getMaxBlocks(),
+							maxChildBlocks: blockType.getMaxChildBlocks(),
+							childBlocks: blockType.getChildBlocks(),
+							topLevel: blockType.getTopLevel(),
+							tabs: renderedBlock.tabs
+						})
+
+						const newButtons = new Buttons({
+							items: newBlockType.getChildBlockItems(this.getItems()),
+							maxBlocks: this.getMaxBlocks()
+						})
+
+						const newBlock = new Block({
+							namespace: [...this._templateNs, newId],
+							blockType: newBlockType,
+							id: newId,
+							level: renderedBlock.level|0,
+							buttons: newButtons,
+							enabled: !!renderedBlock.enabled,
+							collapsed: !!renderedBlock.collapsed
+						})
+
+						newBlocks.push(newBlock)
+					}
+
+					spinnerCallback = () =>
+					{
+						let newIndex = this._getNextBlockIndex(block)
+
+						for(let newBlock of newBlocks)
+						{
+							this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
+						}
+
+						const firstBlock = newBlocks[0]
+
+						firstBlock.$container
+							.css({
+								opacity: 0,
+								marginBottom: $spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
+							})
+							.velocity({
+								opacity: 1,
+								marginBottom: 10
+							}, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
+
+						$spinner.remove()
+					}
+
+					if(spinnerComplete)
+					{
+						spinnerCallback()
+					}
+				}
+			})
+		}
 	},
 
 	'@duplicateBlock'(e)

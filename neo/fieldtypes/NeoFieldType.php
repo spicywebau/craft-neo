@@ -795,6 +795,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		}
 
 		$this->_includeResources('input', [
+			'name' => $name,
 			'namespace' => craft()->templates->namespaceInputName($name),
 			'blockTypes' => $blockTypeInfo,
 			'groups' => $groupInfo,
