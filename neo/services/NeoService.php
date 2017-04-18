@@ -681,25 +681,24 @@ class NeoService extends BaseApplicationComponent
 		craft()->content->fieldColumnPrefix = $block->getFieldColumnPrefix();
 		craft()->content->fieldContext = $block->getFieldContext();
 
-        foreach ($block->getFieldLayout()->getFields() as $fieldLayoutField) //Only get keywords for the current block fields
-        {
-            $field = $fieldLayoutField->getField();
+		foreach ($block->getFieldLayout()->getFields() as $fieldLayoutField) //Only get keywords for the current block fields
+		{
+			$field = $fieldLayoutField->getField();
 
-            if ($field)
-            {
-                $fieldType = $field->getFieldType();
+			if ($field) {
+				$fieldType = $field->getFieldType();
 
-                if ($fieldType)
-                {
-                    $oldElement = $fieldType->element; //Fix for override if nested element save
-                    $fieldType->element = $block;
+				if ($fieldType) {
+					$oldElement = $fieldType->element; //Fix for override if nested element save
+					$fieldType->element = $block;
 
-                    $handle = $field->handle;
-                    $keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
-                    $fieldType->element = $oldElement; //Fix for override if nested element save
-                }
-            }
-        }
+					$handle = $field->handle;
+					$keywords[] = $fieldType->getSearchKeywords($block->getFieldValue($handle));
+
+					$fieldType->element = $oldElement; //Fix for override if nested element save
+				}
+			}
+		}
 
 		craft()->content->contentTable = $contentTable;
 		craft()->content->fieldColumnPrefix = $fieldColumnPrefix;
