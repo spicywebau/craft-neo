@@ -7,10 +7,12 @@
     "url": "git+https://github.com/benjamminf/craft-neo.git"
   },
   "keywords": [
-    "craft cms",
+    "cms",
+    "craftcms",
     "plugin",
+    "neo",
     "matrix",
-    "field type"
+    "field"
   ],
   "author": "Benjamin Fleming",
   "license": "MIT",

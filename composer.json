@@ -1,0 +1,48 @@
+{
+  "name": "benjamminf/craft-neo",
+  "description": "A Matrix-like field type that uses existing fields",
+  "version": "2.0.0",
+  "type": "craft-plugin",
+  "keywords": [
+    "cms",
+    "craftcms",
+    "plugin",
+    "neo",
+    "matrix",
+    "field"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Benjamin Fleming",
+      "homepage": "https://github.com/benjamminf"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/benjamminf/craft-neo/issues",
+    "source": "https://github.com/benjamminf/craft-neo",
+    "docs": "https://github.com/benjamminf/craft-neo/wiki",
+    "rss": "https://github.com/benjamminf/craft-neo/commits/master.atom"
+  },
+  "require": {
+    "craftcms/cms": "^3.0.0-alpha.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "benf\\neo\\": "src/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ],
+  "extra": {
+    "handle": "neo",
+    "name": "Neo",
+    "schemaVersion": "2.0.0",
+    "changelogUrl": "https://github.com/benjamminf/craft-neo/blob/master/CHANGELOG.md",
+    "downloadUrl": "https://github.com/benjamminf/craft-neo/archive/master.zip"
+  }
+}

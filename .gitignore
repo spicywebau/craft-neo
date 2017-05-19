@@ -1,10 +1,3 @@
-node_modules
-
-# Ignore any folders inside the root directory that aren't apart of this plugin
-# This is done so that when testing compatibility with other plugins (eg. Reasons) it's folder doesn't show up in git
-
-/*/
-!/demo/
-!/neo/
-!/src/
-!/build/
+.DS_Store
+/node_modules
+/vendor
