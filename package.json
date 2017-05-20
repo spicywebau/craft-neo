@@ -19,5 +19,9 @@
   "bugs": {
     "url": "https://github.com/benjamminf/craft-neo/issues"
   },
-  "homepage": "https://github.com/benjamminf/craft-neo#readme"
+  "homepage": "https://github.com/benjamminf/craft-neo#readme",
+  "devDependencies": {
+    "redux": "^3.6.0",
+    "reselect": "^3.0.1"
+  }
 }
