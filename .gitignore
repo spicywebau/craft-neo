@@ -1,3 +1,6 @@
 .DS_Store
+/.nyc_output
+/.tmp
 /node_modules
 /vendor
+/coverage

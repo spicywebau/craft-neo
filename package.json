@@ -20,8 +20,28 @@
     "url": "https://github.com/benjamminf/craft-neo/issues"
   },
   "homepage": "https://github.com/benjamminf/craft-neo#readme",
+  "scripts": {
+    "test": "NODE_ENV=test nyc mocha-webpack --webpack-config ./client/build/webpack.test.js \"client/test/main.js\"",
+    "build": "./node_modules/webpack/bin/webpack.js --config ./client/build/webpack.build.js"
+  },
   "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-istanbul": "^4.1.3",
+    "babel-preset-env": "^1.5.0",
+    "mocha": "^3.4.1",
+    "mocha-webpack": "^0.7.0",
+    "nyc": "^10.3.2",
     "redux": "^3.6.0",
-    "reselect": "^3.0.1"
+    "reselect": "^3.0.1",
+    "webpack": "^2.5.1"
+  },
+  "nyc": {
+    "extension": [
+      ".js"
+    ],
+    "include": [
+      "client/src"
+    ]
   }
 }
