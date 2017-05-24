@@ -7,24 +7,12 @@ export default function blockStructureReducer(state=[], action)
 	{
 		case ADD_BLOCK:
 		{
-			let { block, index } = action.payload
-			index = resolveIndex(Number.isInteger(index) ? index : -1, state.length + 1)
+			let { block, level } = action.payload
+			const item = { id: block.id, level }
 
-			if(!state.includes(block.id))
+			if(!state.find((item) => item.id === block.id))
 			{
-				if(index === state.length)
-				{
-					return [ ...state, block.id ]
-				}
-				else
-				{
-					return state.reduce((acc, val, i) =>
-					{
-						if(i === index) acc.push(block.id)
-						acc.push(val)
-						return acc
-					}, [])
-				} 
+				return [ ...state, item ]
 			}
 		}
 		break
@@ -32,27 +20,12 @@ export default function blockStructureReducer(state=[], action)
 		{
 			let { blockId } = action.payload
 
-			if(state.includes(blockId))
+			if(state.find((item) => item.id === block.id))
 			{
-				return state.filter((id) => id !== blockId)
+				return state.filter((item) => item.id !== blockId)
 			}
 		}
 		break
-		case REORDER_BLOCK:
-		{
-			let { blockId, index } = action.payload
-			index = resolveIndex(index, state.length)
-
-			if(state.includes(blockId))
-			{
-				return state.reduce((acc, val, i) =>
-				{
-					if(i === index) acc.push(block.id)
-					acc.push(val)
-					return acc
-				}, [])
-			}
-		}
 	}
 
 	return state

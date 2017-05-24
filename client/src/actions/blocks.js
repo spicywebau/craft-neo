@@ -1,13 +1,13 @@
 import { ADD_BLOCK, REMOVE_BLOCK, REORDER_BLOCK } from '../constants/actions'
 import { generateNewId } from '../utils/data'
 
-export function addBlock(block, index=-1)
+export function addBlock(block, level=1)
 {
 	block = Object.assign({ id: generateNewId() }, block)
 
 	return {
 		type: ADD_BLOCK,
-		payload: { block, index },
+		payload: { block, level },
 	}
 }
 
