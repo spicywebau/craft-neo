@@ -148,6 +148,16 @@ class NeoPlugin extends BasePlugin
 	}
 
 	/**
+	 * Registers a schematic field model.
+	 */
+	public function registerSchematicFieldModels()
+	{
+		return [
+			'Neo' => 'Craft\Neo_SchematicFieldModel',
+		];
+	}
+
+	/**
 	 * Includes additional CSS and JS resources in the control panel
 	 */
 	protected function includeResources()
