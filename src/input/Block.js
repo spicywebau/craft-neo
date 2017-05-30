@@ -704,7 +704,7 @@ export default Garnish.Base.extend({
 		this.$tabsButton.toggleClass('invisible', !isMobile)
 	},
 
-	updateMenuStates(field, blocks = [], maxBlocks = 0, additionalCheck = null)
+	updateMenuStates(field, blocks = [], maxBlocks = 0, additionalCheck = null, allowedBlockTypes = false)
 	{
 		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
 
@@ -718,12 +718,54 @@ export default Garnish.Base.extend({
 		const disabled = allDisabled || typeDisabled
 
 		const pasteData = JSON.parse(localStorage.getItem('neo:copy') || '{}')
-		let pasteDisabled = (!pasteData.field || pasteData.field !== field)
-		// TODO
+		const pasteHidden = (!pasteData.blocks || !pasteData.field || pasteData.field !== field)
+		let pasteDisabled = allDisabled
+
+		if(!pasteHidden)
+		{
+			const currentBlockTypesById = blocks.reduce((m, b) =>
+			{
+				const bt = b.getBlockType()
+				const id = bt.getId()
+				const v = m[id] || { blockType: bt, count: 0 }
+
+				v.count++
+				m[id] = v
+
+				return m
+			})
+
+			for(let pasteBlock of pasteData.blocks)
+			{
+				const pasteBlockTypeObj = currentBlockTypesById[pasteBlock.type]
+
+				// Test to see if any max block types properties will be violated
+				if(pasteBlockTypeObj)
+				{
+					const pasteBlockType = pasteBlockTypeObj.blockType
+					const currentBlocksOfTypeCount = pasteBlockTypeObj.count
+					const maxPasteBlockTypes = pasteBlockType.getMaxBlocks()
+					const pasteTypeDisabled = (maxPasteBlockTypes > 0 && currentBlocksOfTypeCount >= maxPasteBlockTypes)
+
+					pasteDisabled = pasteDisabled || pasteTypeDisabled
+				}
+
+				// Test to see if the top level paste blocks have a block type that is allowed to be pasted here
+				if(pasteBlock.level === 0)
+				{
+					const allowedBlockType = allowedBlockTypes.find(bt => bt.getId() == pasteBlock.type);
+
+					pasteDisabled = pasteDisabled || !allowedBlockType
+				}
+			}
+		}
 
 		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
 		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
-		this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
+
+		this.$menuContainer.find('[data-action="paste"]')
+			.toggleClass('hidden', pasteHidden)
+			.toggleClass('disabled', pasteDisabled)
 	},
 
 	_initReasonsPlugin()

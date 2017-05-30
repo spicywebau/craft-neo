@@ -324,6 +324,11 @@ export default Garnish.Base.extend({
 		return this._blockTypes.find(bt => bt.getId() == id)
 	},
 
+	getBlockTypeByHandle(handle)
+	{
+		return this._blockTypes.find(bt => bt.getHandle() == handle)
+	},
+
 	getBlockTypes(topLevelOnly)
 	{
 		topLevelOnly = (typeof topLevelOnly === 'boolean' ? topLevelOnly : false)
@@ -417,9 +422,21 @@ export default Garnish.Base.extend({
 		for(let block of blocks)
 		{
 			const parentBlock = this._findParentBlock(block)
+			const parentBlockType = parentBlock ? parentBlock.getBlockType() : null
 			const buttons = block.getButtons()
 
-			block.updateMenuStates(this._name, blocks, this.getMaxBlocks(), this._checkMaxChildren(parentBlock))
+			let allowedBlockTypes = parentBlockType ? parentBlockType.getChildBlocks() : this.getBlockTypes(true)
+
+			if(allowedBlockTypes === true || allowedBlockTypes === '*')
+			{
+				allowedBlockTypes = this.getBlockTypes(false)
+			}
+			else if(Array.isArray(allowedBlockTypes))
+			{
+				allowedBlockTypes = allowedBlockTypes.map(bt => typeof bt === 'string' ? this.getBlockTypeByHandle(bt) : bt)
+			}
+
+			block.updateMenuStates(this._name, blocks, this.getMaxBlocks(), this._checkMaxChildren(parentBlock), allowedBlockTypes)
 
 			if(buttons)
 			{
@@ -659,6 +676,18 @@ export default Garnish.Base.extend({
 
 	'@copyBlock'(e)
 	{
+		// TODO Allow copying of multiple blocks
+		// There are some issues with the pasting looking jittery, and the max child blocks check not functioning
+		// correctly. The following code supports copying of multiple blocks, just need to sort out these issues.
+		/* const blocks = []
+		this._blockBatch(e.block, (block) =>
+		{
+			if(block.getLevel() === e.block.getLevel())
+			{
+				blocks.push(block, ...this._findChildBlocks(block, true))
+			}
+		}) */
+
 		const blocks = this._findChildBlocks(e.block, true)
 		blocks.unshift(e.block)
 
