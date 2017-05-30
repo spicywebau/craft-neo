@@ -718,10 +718,9 @@ export default Garnish.Base.extend({
 		const disabled = allDisabled || typeDisabled
 
 		const pasteData = JSON.parse(localStorage.getItem('neo:copy') || '{}')
-		const pasteHidden = (!pasteData.blocks || !pasteData.field || pasteData.field !== field)
-		let pasteDisabled = allDisabled
+		let pasteDisabled = (!pasteData.blocks || !pasteData.field || pasteData.field !== field)
 
-		if(!pasteHidden)
+		if(!pasteDisabled)
 		{
 			const currentBlockTypesById = blocks.reduce((m, b) =>
 			{
@@ -762,10 +761,7 @@ export default Garnish.Base.extend({
 
 		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
 		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
-
-		this.$menuContainer.find('[data-action="paste"]')
-			.toggleClass('hidden', pasteHidden)
-			.toggleClass('disabled', pasteDisabled)
+		this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
 	},
 
 	_initReasonsPlugin()
