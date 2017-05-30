@@ -214,7 +214,7 @@ export default Garnish.Base.extend({
 		this._blockSelect.addItems(block.$container)
 
 		block.initUi()
-		block.on('destroy.input', e =>
+		block.on('removeBlock.input', e =>
 		{
 			if(this.getSelectedBlocks().length > 1)
 			{
@@ -234,7 +234,6 @@ export default Garnish.Base.extend({
 		block.on('addBlockAbove.input', e => this['@addBlockAbove'](e))
 		block.on('copyBlock.input', e => this['@copyBlock'](e))
 		block.on('pasteBlock.input', e => this['@pasteBlock'](e))
-		block.on('duplicateBlock.input', e => this['@duplicateBlock'](e))
 
 		this._destroyTempButtons()
 		this._updateBlockOrder()
@@ -303,6 +302,8 @@ export default Garnish.Base.extend({
 
 			this._updateBlockChildren()
 		}
+
+		block.destroy()
 
 		this.trigger('removeBlock', {
 			block: block
@@ -845,154 +846,4 @@ export default Garnish.Base.extend({
 			})
 		}
 	},
-
-	'@duplicateBlock'(e)
-	{
-		const block = e.block
-		const blockIndex = this._blocks.indexOf(block)
-		const subBlocks = this._findChildBlocks(blockIndex, true)
-
-		NS.enter(this._templateNs)
-
-		const data = {
-			namespace: NS.toFieldName(),
-			locale: this._locale,
-			blocks: []
-		}
-
-		NS.leave()
-
-		let blockData = {
-			type: block.getBlockType().getId(),
-			level: block.getLevel(),
-			content: block.getContent()
-		}
-
-		if(block.isEnabled())
-		{
-			blockData.enabled = 1
-		}
-
-		if(!block.isExpanded())
-		{
-			blockData.collapsed = 1
-		}
-
-		data.blocks.push(blockData)
-
-		for(let subBlock of subBlocks)
-		{
-			blockData = {
-				type: subBlock.getBlockType().getId(),
-				level: subBlock.getLevel(),
-				content: subBlock.getContent()
-			}
-
-			if(subBlock.isEnabled())
-			{
-				blockData.enabled = 1
-			}
-
-			if(!subBlock.isExpanded())
-			{
-				blockData.collapsed = 1
-			}
-
-			data.blocks.push(blockData)
-		}
-
-		const $spinner = $('<div class="ni_spinner"><div class="spinner"></div></div>')
-
-		block.$container.after($spinner)
-
-		let spinnerComplete = false
-		let spinnerCallback = function() {}
-
-		$spinner
-			.css({
-				opacity: 0,
-				marginBottom: -($spinner.outerHeight())
-			})
-			.velocity({
-				opacity: 1,
-				marginBottom: 10
-			}, 'fast', () =>
-			{
-				spinnerComplete = true
-				spinnerCallback()
-			})
-
-		Craft.postActionRequest('neo/renderBlocks', data, e =>
-		{
-			if(e.success && e.blocks.length > 0)
-			{
-				const newBlocks = []
-
-				for(let renderedBlock of e.blocks)
-				{
-					const newId = Block.getNewId()
-
-					const blockType = this.getBlockTypeById(renderedBlock.type)
-					const newBlockType = new BlockType({
-						id: blockType.getId(),
-						fieldLayoutId: blockType.getFieldLayoutId(),
-						fieldTypes: blockType.getFieldTypes(),
-						name: blockType.getName(),
-						handle: blockType.getHandle(),
-						maxBlocks: blockType.getMaxBlocks(),
-						maxChildBlocks: blockType.getMaxChildBlocks(),
-						childBlocks: blockType.getChildBlocks(),
-						topLevel: blockType.getTopLevel(),
-						tabs: renderedBlock.tabs
-					})
-
-					const newButtons = new Buttons({
-						items: newBlockType.getChildBlockItems(this.getItems()),
-						maxBlocks: this.getMaxBlocks()
-					})
-
-					const newBlock = new Block({
-						namespace: [...this._templateNs, newId],
-						blockType: newBlockType,
-						id: newId,
-						level: renderedBlock.level|0,
-						buttons: newButtons,
-						enabled: !!renderedBlock.enabled,
-						collapsed: !!renderedBlock.collapsed
-					})
-
-					newBlocks.push(newBlock)
-				}
-
-				spinnerCallback = () =>
-				{
-					let newIndex = this._getNextBlockIndex(block)
-
-					for(let newBlock of newBlocks)
-					{
-						this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
-					}
-
-					const firstBlock = newBlocks[0]
-
-					firstBlock.$container
-						.css({
-							opacity: 0,
-							marginBottom: $spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
-						})
-						.velocity({
-							opacity: 1,
-							marginBottom: 10
-						}, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
-
-					$spinner.remove()
-				}
-
-				if(spinnerComplete)
-				{
-					spinnerCallback()
-				}
-			}
-		})
-	}
 })

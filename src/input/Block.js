@@ -243,7 +243,10 @@ export default Garnish.Base.extend({
 
 			clearInterval(this._detectChangeInterval)
 
-			// TODO this._detectChangeObserver.unobserve() ??
+			if(this._detectChangeObserver)
+			{
+				this._detectChangeObserver.disconnect()
+			}
 
 			this._destroyReasonsPlugin()
 
@@ -708,14 +711,7 @@ export default Garnish.Base.extend({
 	{
 		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
 
-		const blockType = this.getBlockType()
-		const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
-		const maxBlockTypes = blockType.getMaxBlocks()
-
 		const allDisabled = (maxBlocks > 0 && blocks.length >= maxBlocks) || !additionalCheck
-		const typeDisabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
-
-		const disabled = allDisabled || typeDisabled
 
 		const pasteData = JSON.parse(localStorage.getItem('neo:copy') || '{}')
 		let pasteDisabled = (!pasteData.blocks || !pasteData.field || pasteData.field !== field)
@@ -760,7 +756,6 @@ export default Garnish.Base.extend({
 		}
 
 		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
-		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
 		this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
 	},
 
@@ -851,7 +846,7 @@ export default Garnish.Base.extend({
 				break
 				case 'delete':
 				{
-					this.destroy()
+					this.trigger('removeBlock', { block: this })
 				}
 				break
 				case 'add':
@@ -867,11 +862,6 @@ export default Garnish.Base.extend({
 				case 'paste':
 				{
 					this.trigger('pasteBlock', { block: this })
-				}
-				break
-				case 'duplicate':
-				{
-					this.trigger('duplicateBlock', { block: this })
 				}
 				break
 			}
