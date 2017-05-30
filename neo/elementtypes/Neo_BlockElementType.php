@@ -85,11 +85,6 @@ class Neo_BlockElementType extends BaseElementType
 		{
 			$query->andWhere(DbHelper::parseParam('neoblocks.fieldId', $criteria->fieldId, $query->params));
 		}
-		else if($criteria->field)
-		{
-			$query->join('fields fields', 'fields.id = neoblocks.fieldId');
-			$query->andWhere(DbHelper::parseParam('fields.handle', $criteria->field, $query->params));
-		}
 
 		if($criteria->ownerId)
 		{
