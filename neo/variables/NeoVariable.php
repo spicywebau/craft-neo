@@ -49,13 +49,16 @@ class NeoVariable
 	}
     
 	/**
-	 * @param array|null $criteria
+	 * Get Neo blocks on their own, without requiring an owner element.
+	 * If possible, avoid using this function. Neo blocks are supposed to be tied explicitly to elements, and the use of
+	 * this function ignores this relationship. Using this function can open you up to all kinds of performance and
+	 * unexpected behavioural issues if you're not careful.
 	 *
+	 * @param array|null $criteria
 	 * @return ElementCriteriaModel
 	 */
 	public function blocks($criteria = null)
 	{
-        return craft()->elements->getCriteria(Neo_ElementType::NeoBlock, $criteria);
+		return craft()->elements->getCriteria(Neo_ElementType::NeoBlock, $criteria);
 	}
-        
 }
