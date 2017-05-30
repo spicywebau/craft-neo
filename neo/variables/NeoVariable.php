@@ -47,4 +47,15 @@ class NeoVariable
 
 		return (bool) $criteria->first();
 	}
+    
+	/**
+	 * @param array|null $criteria
+	 *
+	 * @return ElementCriteriaModel
+	 */
+	public function blocks($criteria = null)
+	{
+        return craft()->elements->getCriteria(Neo_ElementType::NeoBlock, $criteria);
+	}
+        
 }
