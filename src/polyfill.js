@@ -7,5 +7,5 @@
 
 if(!Array.from || !Object.assign || typeof Symbol == 'undefined')
 {
-	document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.7.4/polyfill.min.js"><\/script>')
+	document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.9.1/polyfill.min.js"><\/script>')
 }
