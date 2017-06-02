@@ -18,9 +18,9 @@ export default function blocksReducer(state={}, action)
 				js: block.js || '',
 			}
 
-			if(!(block.id in state))
+			if(!(block.id in state.collection))
 			{
-				return Object.assign({ [block.id]: block }, state)
+				const newCollection = Object.assign({ [block.id]: block }, state)
 			}
 		}
 		break

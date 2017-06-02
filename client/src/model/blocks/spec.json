@@ -1,0 +1,23 @@
+{
+	"collection": {
+		"id": {
+			"blockType": "id",
+			"enabled": true,
+			"data": {
+				"fieldId": 123
+			},
+			"errors": [],
+			"template": {
+				"html": "",
+				"css": "",
+				"js": ""
+			}
+		}
+	},
+	"structure": [
+		{
+			"id": "id",
+			"level": 1
+		}
+	]
+}

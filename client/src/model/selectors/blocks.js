@@ -3,7 +3,7 @@ import { createSelector } from 'reselect'
 const getBlocks = (state) => state.blocks
 const getBlockStructure = (state) => state.blockStructure
 
-export const getBlocksAsTree = createSelector(
+export const getBlocksHierarchy = createSelector(
 	[ getBlocks, getBlockStructure ],
 	function(blocks, blockStructure)
 	{
