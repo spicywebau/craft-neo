@@ -4,7 +4,7 @@
 			"blockType": "id",
 			"enabled": true,
 			"data": {
-				"fieldId": 123
+				"fieldId": "Field Value"
 			},
 			"errors": [],
 			"template": {

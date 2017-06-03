@@ -21,7 +21,7 @@
 				"handle": "blockType",
 				"max": 10,
 				"top": true,
-				"children": [ "id" ],
+				"childrenIds": [ "id" ],
 				"maxChildren": 0,
 				"tabs": [
 					{
@@ -43,7 +43,7 @@
 	"blocks": {
 		"collection": {
 			"id": {
-				"blockType": "id",
+				"blockTypeId": "id",
 				"enabled": true,
 				"fields": {
 					
