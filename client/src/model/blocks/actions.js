@@ -3,6 +3,12 @@ import {
 	BLOCK_PARENT, BLOCK_PREV_SIBLING, BLOCK_NEXT_SIBLING,
 } from './constants'
 
+/**
+ * @param {Object} block
+ * @param {String} relatedBlockId
+ * @param {String} relatedBlockType
+ * @return {Object}
+ */
 export function addBlock(block, relatedBlockId=null, relatedBlockType=BLOCK_PARENT)
 {
 	return {
@@ -11,10 +17,40 @@ export function addBlock(block, relatedBlockId=null, relatedBlockType=BLOCK_PARE
 	}
 }
 
-export const addBlockTo = (block, parentBlockId) => addBlock(block, parentBlockId, BLOCK_PARENT)
-export const addBlockBefore = (block, nextBlockId) => addBlock(block, nextBlockId, BLOCK_NEXT_SIBLING)
-export const addBlockAfter = (block, prevBlockId) => addBlock(block, prevBlockId, BLOCK_PREV_SIBLING)
+/**
+ * @param {Object} block
+ * @param {String} parentBlockId
+ * @return {Object}
+ */
+export function addBlockTo(block, parentBlockId)
+{
+	return addBlock(block, parentBlockId, BLOCK_PARENT)
+}
 
+/**
+ * @param {Object} block
+ * @param {String} nextBlockId
+ * @return {Object}
+ */
+export function addBlockBefore(block, nextBlockId)
+{
+	return addBlock(block, nextBlockId, BLOCK_NEXT_SIBLING)
+}
+
+/**
+ * @param {Object} block
+ * @param {String} prevBlockId
+ * @return {Object}
+ */
+export function addBlockAfter(block, prevBlockId)
+{
+	return addBlock(block, prevBlockId, BLOCK_PREV_SIBLING)
+}
+
+/**
+ * @param {String} blockId
+ * @return {Object}
+ */
 export function removeBlock(blockId)
 {
 	return {
@@ -23,6 +59,12 @@ export function removeBlock(blockId)
 	}
 }
 
+/**
+ * @param {String} blockId
+ * @param {String} relatedBlockId
+ * @param {String} relatedBlockType
+ * @return {Object}
+ */
 export function moveBlock(blockId, relatedBlockId=null, relatedBlockType=BLOCK_PARENT)
 {
 	return {
@@ -31,6 +73,32 @@ export function moveBlock(blockId, relatedBlockId=null, relatedBlockType=BLOCK_P
 	}
 }
 
-export const moveBlockTo = (blockId, parentBlockId) => moveBlock(blockId, parentBlockId, BLOCK_PARENT)
-export const moveBlockBefore = (blockId, nextBlockId) => moveBlock(blockId, nextBlockId, BLOCK_NEXT_SIBLING)
-export const moveBlockAfter = (blockId, prevBlockId) => moveBlock(blockId, prevBlockId, BLOCK_PREV_SIBLING)
+/**
+ * @param {String} blockId
+ * @param {String} parentBlockId
+ * @return {Object}
+ */
+export function moveBlockTo(blockId, parentBlockId)
+{
+	return moveBlock(blockId, parentBlockId, BLOCK_PARENT)
+}
+
+/**
+ * @param {String} blockId
+ * @param {String} nextBlockId
+ * @return {Object}
+ */
+export function moveBlockBefore(blockId, nextBlockId)
+{
+	return moveBlock(blockId, nextBlockId, BLOCK_NEXT_SIBLING)
+}
+
+/**
+ * @param {String} blockId
+ * @param {String} prevBlockId
+ * @return {Object}
+ */
+export function moveBlockAfter(blockId, prevBlockId)
+{
+	return moveBlock(blockId, prevBlockId, BLOCK_PREV_SIBLING)
+}

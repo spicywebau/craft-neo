@@ -1,6 +1,17 @@
-import { ADD_BLOCK, REMOVE_BLOCK, MOVE_BLOCK } from './constants'
-import { getBlockDescendants } from './selectors'
+import {
+	ADD_BLOCK, REMOVE_BLOCK, MOVE_BLOCK,
+	BLOCK_PARENT, BLOCK_PREV_SIBLING, BLOCK_NEXT_SIBLING,
+} from './constants'
+import { getDescendants, getPrevSiblings, getNextSiblings } from './selectors/structure'
 import { generateNewId } from '../../utils/data'
+
+/*
+ * The initial state for the reducer.
+ */
+const initialState = {
+	collection: {},
+	structure: [],
+}
 
 /**
  * @param {Object} payload
@@ -9,20 +20,67 @@ import { generateNewId } from '../../utils/data'
 function formatBlock(payload)
 {
 	return {
-		id: payload.id || generateNewId(),
-		blockTypeId: payload.blockTypeId,
+		id: payload.id ? String(payload.id) : generateNewId(),
+		blockTypeId: payload.blockTypeId ? String(payload.blockTypeId) : null,
 		enabled: (typeof payload.enabled === 'boolean') ? payload.enabled : true,
 		data: (typeof payload.data === 'object') ? Object.assign({}, payload.data) : {},
-		errors: ((payload.errors instanceof Array) ? payload.errors : []).map((e) => ({
-			type: e.type || '',
-			message: e.message || '',
-		})),
+		errors: (payload.errors instanceof Array) ? payload.errors.map((e) => ({
+			type: e.type,
+			message: e.message,
+		})) : [],
 		template: (typeof payload.template === 'object') ? {
-			html: payload.template.html || '',
-			css: payload.template.css || '',
-			js: payload.template.js || '',
-		} : null,
+			html: payload.template.html,
+			css: payload.template.css,
+			js: payload.template.js,
+		} : {},
 	}
+}
+
+/**
+ * @param {Array} structure
+ * @param {String} relatedBlockId
+ * @param {String} relatedBlockType
+ * @return {Object}
+ */
+function getBlockInsertionData(structure, relatedBlockId, relatedBlockType)
+{
+	let index = structure.length
+	let level = 1
+
+	if(relatedBlockId)
+	{
+		const relatedItem = structure.find(({ id }) => id === relatedBlockId)
+
+		switch(relatedBlockType)
+		{
+			case BLOCK_PARENT:
+			{
+				const descendants = getDescendants(structure, relatedBlockId)
+				const lastDescendant = descendants[descendants.length - 1]
+
+				index = lastDescendant.index + 1
+				level = relatedItem.level + 1
+			}
+			break
+			case BLOCK_PREV_SIBLING:
+			{
+				const siblings = getNextSiblings(structure, relatedBlockId)
+				const firstSibling = siblings[0]
+
+				index = firstSiblings.index
+				level = relatedItem.level
+			}
+			break
+			case BLOCK_NEXT_SIBLING:
+			{
+				index = relatedItem.index
+				level = relatedItem.level
+			}
+			break
+		}
+	}
+
+	return { index, level }
 }
 
 /**
@@ -32,9 +90,12 @@ function formatBlock(payload)
  * @param {String} relatedBlockType
  * @return {Array}
  */
-function addToStructure(structure, blockId, relatedBlockId, relatedBlockType)
+function addToStructure(structure, blockId, relatedBlockId=null, relatedBlockType=null)
 {
-	
+	const { index, level } = getBlockInsertionData(structure, relatedBlockId, relatedBlockType)
+	const addItem = { id: blockId, level }
+
+	return [ ...structure.slice(0, index), addItem, ...structure.slice(index) ]
 }
 
 /**
@@ -44,7 +105,10 @@ function addToStructure(structure, blockId, relatedBlockId, relatedBlockType)
  */
 function removeFromStructure(structure, blockId)
 {
+	const descendants = getDescendants(structure, blockId)
+	const removedIdMap = descendants.reduce((map, { id }) => (map[id] = 1, map), { [blockId]: 1 })
 
+	return structure.filter(({ id }) => !(id in removedIdMap))
 }
 
 /**
@@ -56,7 +120,27 @@ function removeFromStructure(structure, blockId)
  */
 function moveInStructure(structure, blockId, relatedBlockId, relatedBlockType)
 {
+	const descendants = getDescendants(structure, blockId)
+	const item = structure.find(({ id }) => id === blockId)
+	
+	structure = removeFromStructure(structure, blockId)
 
+	const { index, level } = getBlockInsertionData(structure, relatedBlockId, relatedBlockType)
+	const newStructure = structure.slice(0, index)
+
+	newStructure.push({ id: blockId, level })
+	
+	for(let descendantItem of descendants)
+	{
+		newStructure.push({
+			id: descendantItem.id,
+			level: level + (descendantItem.level - item.level),
+		})
+	}
+
+	newStructure.push(...structure.slice(index))
+
+	return newStructure
 }
 
 /**
@@ -74,14 +158,6 @@ function alignCollectionWithStructure(collection, structure)
 	}
 
 	return newCollection
-}
-
-/*
- * The initial state for the reducer.
- */
-const initialState = {
-	collection: {},
-	structure: [],
 }
 
 /**
@@ -124,8 +200,8 @@ export default function blocksReducer(state=initialState, action)
 		{
 			const { blockId, relatedBlockId, relatedBlockType } = payload
 
-			const hasBlock = state.structure.find(({ id }) => id == blockId)
-			const hasRelatedBlock = state.structure.find(({ id }) => id == relatedBlockId)
+			const hasBlock = state.structure.find(({ id }) => id === blockId)
+			const hasRelatedBlock = state.structure.find(({ id }) => id === relatedBlockId)
 
 			if(hasBlock && hasRelatedBlock)
 			{
