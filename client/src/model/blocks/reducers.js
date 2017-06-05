@@ -49,7 +49,9 @@ function getBlockInsertionData(structure, relatedBlockId, relatedBlockType)
 
 	if(relatedBlockId)
 	{
-		const relatedItem = structure.find(({ id }) => id === relatedBlockId)
+		const findRelated = ({ id }) => (id === relatedBlockId)
+		const relatedItem = structure.find(findRelated)
+		const relatedIndex = structure.findIndex(findRelated)
 
 		switch(relatedBlockType)
 		{
@@ -58,22 +60,22 @@ function getBlockInsertionData(structure, relatedBlockId, relatedBlockType)
 				const descendants = getDescendants(structure, relatedBlockId)
 				const lastDescendant = descendants[descendants.length - 1]
 
-				index = lastDescendant.index + 1
+				index = lastDescendant ? (lastDescendant.index + 1) : (relatedIndex + 1)
 				level = relatedItem.level + 1
 			}
 			break
 			case BLOCK_PREV_SIBLING:
 			{
-				const siblings = getNextSiblings(structure, relatedBlockId)
-				const firstSibling = siblings[0]
+				const descendants = getDescendants(structure, relatedBlockId)
+				const lastDescendant = descendants[descendants.length - 1]
 
-				index = firstSiblings.index
+				index = lastDescendant ? (lastDescendant.index + 1) : (relatedIndex + 1)
 				level = relatedItem.level
 			}
 			break
 			case BLOCK_NEXT_SIBLING:
 			{
-				index = relatedItem.index
+				index = relatedIndex
 				level = relatedItem.level
 			}
 			break
@@ -171,8 +173,8 @@ export default function blocksReducer(state=initialState, action)
 	{
 		case ADD_BLOCK:
 		{
-			const block = formatBlock(payload.block)
-			const { relatedBlockId, relatedBlockType } = payload
+			const block = formatBlock(action.payload.block)
+			const { relatedBlockId, relatedBlockType } = action.payload
 
 			if(!(block.id in state.collection))
 			{
@@ -185,7 +187,7 @@ export default function blocksReducer(state=initialState, action)
 		break
 		case REMOVE_BLOCK:
 		{
-			const { blockId } = payload
+			const { blockId } = action.payload
 
 			if(blockId in state.collection)
 			{
@@ -198,7 +200,7 @@ export default function blocksReducer(state=initialState, action)
 		break
 		case MOVE_BLOCK:
 		{
-			const { blockId, relatedBlockId, relatedBlockType } = payload
+			const { blockId, relatedBlockId, relatedBlockType } = action.payload
 
 			const hasBlock = state.structure.find(({ id }) => id === blockId)
 			const hasRelatedBlock = state.structure.find(({ id }) => id === relatedBlockId)

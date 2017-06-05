@@ -87,7 +87,7 @@ export function getDescendants(structure, parentId=null, depth=null)
 export function getAncestors(structure, itemId, height=null)
 {
 	const ancestors = []
-	const foundItem = false
+	let foundItem = false
 	let itemLevel
 	let levelCount = 0
 
@@ -129,7 +129,7 @@ export function getAncestors(structure, itemId, height=null)
 function getSiblingsInDirection(structure, itemId, direction)
 {
 	const siblings = []
-	const foundItem = false
+	let foundItem = false
 	let itemLevel
 
 	for(let k = 0; k < structure.length; k++)

@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/benjamminf/craft-neo#readme",
   "scripts": {
-    "test": "NODE_ENV=test nyc mocha-webpack --webpack-config ./client/build/webpack.test.js \"client/test/main.js\"",
+    "test": "NODE_ENV=test nyc mocha-webpack --webpack-config ./client/build/webpack.test.js \"client/src/**/_test/index.js\"",
     "build": "./node_modules/webpack/bin/webpack.js --config ./client/build/webpack.build.js"
   },
   "devDependencies": {
@@ -42,6 +42,9 @@
     ],
     "include": [
       "client/src"
+    ],
+    "exclude": [
+      "**/_test"
     ]
   }
 }
