@@ -5,9 +5,15 @@
 			"blockType": "id",
 			"enabled": true,
 			"data": {
-				"fieldId": "Field Value"
+				"id": "Field Value"
 			},
-			"errors": [],
+			"errors": [
+				{
+					"type": "FIELD_ERROR",
+					"fieldId": "id",
+					"message": "Message"
+				}
+			],
 			"template": {
 				"html": "",
 				"css": "",
