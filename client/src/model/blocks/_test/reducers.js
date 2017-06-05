@@ -68,8 +68,14 @@ describe('Reducers', function()
 				}
 
 				const expectedState = {
-					collection: Object.assign({ '2': createDummyBlock('2') }, initialState.collection),
-					structure: [ ...initialState.structure, { id: '2', level: 2 } ],
+					collection: {
+						'1': createDummyBlock('1'),
+						'2': createDummyBlock('2'),
+					},
+					structure: [
+						{ id: '1', level: 1 },
+						{ id: '2', level: 2 },
+					],
 				}
 
 				assert.deepEqual(blocksReducer(initialState, action), expectedState)
@@ -98,8 +104,16 @@ describe('Reducers', function()
 				}
 
 				const expectedState = {
-					collection: Object.assign({ '3': createDummyBlock('3') }, initialState.collection),
-					structure: [ ...initialState.structure, { id: '3', level: 2 } ],
+					collection: {
+						'1': createDummyBlock('1'),
+						'2': createDummyBlock('2'),
+						'3': createDummyBlock('3'),
+					},
+					structure: [
+						{ id: '1', level: 1 },
+						{ id: '2', level: 2 },
+						{ id: '3', level: 2 },
+					],
 				}
 
 				assert.deepEqual(blocksReducer(initialState, action), expectedState)
@@ -130,7 +144,12 @@ describe('Reducers', function()
 				}
 
 				const expectedState = {
-					collection: Object.assign({ '4': createDummyBlock('4') }, initialState.collection),
+					collection: {
+						'1': createDummyBlock('1'),
+						'2': createDummyBlock('2'),
+						'3': createDummyBlock('3'),
+						'4': createDummyBlock('4'),
+					},
 					structure: [
 						{ id: '4', level: 1 },
 						{ id: '1', level: 1 },
@@ -167,7 +186,12 @@ describe('Reducers', function()
 				}
 
 				const expectedState = {
-					collection: Object.assign({ '4': createDummyBlock('4') }, initialState.collection),
+					collection: {
+						'1': createDummyBlock('1'),
+						'2': createDummyBlock('2'),
+						'3': createDummyBlock('3'),
+						'4': createDummyBlock('4'),
+					},
 					structure: [
 						{ id: '1', level: 1 },
 						{ id: '4', level: 2 },
@@ -200,7 +224,10 @@ describe('Reducers', function()
 				}
 
 				const expectedState = {
-					collection: Object.assign({ '2': createDummyBlock('2') }, initialState.collection),
+					collection: {
+						'1': createDummyBlock('1'),
+						'2': createDummyBlock('2'),
+					},
 					structure: [
 						{ id: '1', level: 1 },
 						{ id: '2', level: 1 },
@@ -235,7 +262,12 @@ describe('Reducers', function()
 				}
 
 				const expectedState = {
-					collection: Object.assign({ '4': createDummyBlock('4') }, initialState.collection),
+					collection: {
+						'1': createDummyBlock('1'),
+						'2': createDummyBlock('2'),
+						'3': createDummyBlock('3'),
+						'4': createDummyBlock('4'),
+					},
 					structure: [
 						{ id: '1', level: 1 },
 						{ id: '2', level: 2 },
