@@ -1,0 +1,36 @@
+{
+	"collection": {
+		"id": {
+			"id": "id",
+			"name": "Block Type",
+			"handle": "blockType",
+			"max": 10,
+			"top": true,
+			"childrenIds": [
+				"id"
+			],
+			"maxChildren": 0,
+			"tabs": [
+				{
+					"name": "Tab 1",
+					"fields": [ "id" ]
+				}
+			]
+		}
+	},
+	"groups": {
+		"id": {
+			"name": "Group"
+		}
+	},
+	"structure": [
+		{
+			"type": "BLOCK_TYPE",
+			"id": "id"
+		},
+		{
+			"type": "BLOCK_TYPE_GROUP",
+			"id": "id"
+		}
+	]
+}
