@@ -26,6 +26,7 @@ function formatBlock(payload)
 		data: (typeof payload.data === 'object') ? Object.assign({}, payload.data) : {},
 		errors: (payload.errors instanceof Array) ? payload.errors.map((e) => ({
 			type: e.type,
+			fieldId: e.fieldId,
 			message: e.message,
 		})) : [],
 		template: (typeof payload.template === 'object') ? {
@@ -208,7 +209,7 @@ export default function blocksReducer(state=initialState, action)
 			if(hasBlock && hasRelatedBlock)
 			{
 				const collection = state.collection
-				const structure = moveInStructure(blockId, relatedBlockId, relatedBlockType)
+				const structure = moveInStructure(state.structure, blockId, relatedBlockId, relatedBlockType)
 
 				return { collection, structure }
 			}
