@@ -1,4 +1,4 @@
-describe('Blocks', function()
+describe(`Blocks`, function()
 {
 	require('./actions')
 	require('./reducers')
