@@ -172,7 +172,7 @@ function getSiblingsInDirection(structure, itemId, direction)
  */
 export function getPrevSiblings(structure, itemId)
 {
-	return getSiblingsInDirection(structure, itemId, 1)
+	return getSiblingsInDirection(structure, itemId, -1)
 }
 
 /**
@@ -182,7 +182,7 @@ export function getPrevSiblings(structure, itemId)
  */
 export function getNextSiblings(structure, itemId)
 {
-	return getSiblingsInDirection(structure, itemId, -1)
+	return getSiblingsInDirection(structure, itemId, 1)
 }
 
 /**

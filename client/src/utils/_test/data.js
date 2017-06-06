@@ -5,6 +5,11 @@ describe(`Data`, function()
 {
 	describe(`generateNewId()`, function()
 	{
+		it(`should return a string`, function()
+		{
+			assert.equal(typeof generateNewId(), 'string')
+		})
+
 		it(`should generate all unique values among the functions range`, function()
 		{
 			let prevId

@@ -1,4 +1,4 @@
-describe('Utils', function()
+describe(`Utilities`, function()
 {
 	require('./data')
 })
