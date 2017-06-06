@@ -5,7 +5,7 @@
 			"name": "Block Type",
 			"handle": "blockType",
 			"max": 10,
-			"top": true,
+			"topLevel": true,
 			"childrenIds": [
 				"id"
 			],
@@ -13,13 +13,27 @@
 			"tabs": [
 				{
 					"name": "Tab 1",
-					"fields": [ "id" ]
+					"fieldIds": [
+						"id"
+					]
 				}
+			],
+			"errors": [
+				{
+					"type": "HANDLE_ERROR",
+					"message": "Message"
+				}
+			],
+			"template": [
+				"html": "",
+				"css": "",
+				"js": ""
 			]
 		}
 	},
 	"groups": {
 		"id": {
+			"id": "id",
 			"name": "Group"
 		}
 	},
