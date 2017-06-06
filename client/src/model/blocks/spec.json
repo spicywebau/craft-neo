@@ -2,7 +2,7 @@
 	"collection": {
 		"id": {
 			"id": "id",
-			"blockType": "id",
+			"blockTypeId": "id",
 			"enabled": true,
 			"data": {
 				"id": "Field Value"
