@@ -25,15 +25,15 @@ function formatBlock(payload)
 		enabled: (typeof payload.enabled === 'boolean') ? payload.enabled : true,
 		data: (typeof payload.data === 'object') ? Object.assign({}, payload.data) : {},
 		errors: (payload.errors instanceof Array) ? payload.errors.map((e) => ({
-			type: e.type,
-			fieldId: e.fieldId,
-			message: e.message,
+			type: String(e.type || ''),
+			fieldId: e.fieldId ? String(e.fieldId) : null,
+			message: String(e.message || ''),
 		})) : [],
 		template: (typeof payload.template === 'object') ? {
-			html: payload.template.html,
-			css: payload.template.css,
-			js: payload.template.js,
-		} : {},
+			html: String(payload.template.html || ''),
+			css: String(payload.template.css || ''),
+			js: String(payload.template.js || ''),
+		} : false,
 	}
 }
 
