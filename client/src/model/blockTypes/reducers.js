@@ -1,4 +1,5 @@
 import {
+	BLOCK_TYPE, BLOCK_TYPE_GROUP,
 	ADD_BLOCK_TYPE, REMOVE_BLOCK_TYPE, MOVE_BLOCK_TYPE,
 	ADD_BLOCK_TYPE_GROUP, REMOVE_BLOCK_TYPE_GROUP, MOVE_BLOCK_TYPE_GROUP,
 } from './constants'
@@ -44,6 +45,21 @@ function formatBlockType(payload)
 }
 
 /**
+ * @param {Array} structure
+ * @param {String} type
+ * @param {String} id
+ * @param {Number} index
+ * @return {Array}
+ */
+function addToStructure(structure, type, id, index=-1)
+{
+	index = resolveIndex(index, structure.length + 1)
+	const addItem = { type, id }
+	
+	return [ ...structure.slice(0, index), addItem, ...structure.slice(index) ]
+}
+
+/**
  * @param {Object} state
  * @param {Object} action
  * @return {Object}
@@ -54,7 +70,17 @@ export default function blockTypesReducer(state=initialState, action)
 	{
 		case ADD_BLOCK_TYPE:
 		{
+			const blockType = formatBlockType(action.payload.blockType)
+			const { index } = action.payload
 
+			if(!(blockType.id in state.collection))
+			{
+				const collection = Object.assign({ [blockType.id]: blockType }, state.collection)
+				const groups = state.groups
+				const structure = addToStructure(state.structure, BLOCK_TYPE, blockType.id, index)
+
+				return { collection, groups, structure }
+			}
 		}
 		break
 		case REMOVE_BLOCK_TYPE:
