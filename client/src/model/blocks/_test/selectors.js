@@ -221,8 +221,8 @@ describe(`Selectors`, function()
 				]
 
 				const expectedState = [
-					{ id: '1', level: 1, index: 0 },
 					{ id: '2', level: 1, index: 1 },
+					{ id: '1', level: 1, index: 0 },
 				]
 
 				assert.deepEqual(getPrevSiblings(initialState, '3'), expectedState)
@@ -243,8 +243,8 @@ describe(`Selectors`, function()
 				]
 
 				const expectedState = [
-					{ id: '6', level: 3, index: 5 },
 					{ id: '7', level: 3, index: 6 },
+					{ id: '6', level: 3, index: 5 },
 				]
 
 				assert.deepEqual(getPrevSiblings(initialState, '9'), expectedState)

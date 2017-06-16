@@ -157,11 +157,6 @@ function getSiblingsInDirection(structure, itemId, direction)
 		}
 	}
 
-	if(direction < 0)
-	{
-		siblings.reverse()
-	}
-
 	return siblings
 }
 
@@ -193,7 +188,7 @@ export function getNextSiblings(structure, itemId)
 export function getSiblings(structure, itemId)
 {
 	return [
-		...getPrevSiblings(structure, itemId),
+		...getPrevSiblings(structure, itemId).reverse(),
 		...getNextSiblings(structure, itemId),
 	]
 }
