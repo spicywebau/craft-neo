@@ -382,7 +382,7 @@ describe(`Reducers`, function()
 				assert.deepEqual(blocksReducer(initialState, action), expectedState)
 			})
 
-			it(`should change the state if the block ID doesn't exist in the store`, function()
+			it(`should not change the state if the block ID doesn't exist in the store`, function()
 			{
 				const action = {
 					type: REMOVE_BLOCK,
