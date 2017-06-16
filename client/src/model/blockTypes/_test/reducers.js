@@ -257,7 +257,117 @@ describe(`Reducers`, function()
 
 		describe('MOVE_BLOCK_TYPE', function()
 		{
+			it(`should not change the state if the block type ID doesn't exist in the store`, function()
+			{
+				const action = {
+					type: MOVE_BLOCK_TYPE,
+					payload: {
+						blockTypeId: '1',
+						index: 1,
+					},
+				}
 
+				const initialState = {
+					collection: { '2': createDummyBlockType('2') },
+					groups: {},
+					structure: [ { type: BLOCK_TYPE, id: '2' } ],
+				}
+
+				const expectedState = {
+					collection: { '2': createDummyBlockType('2') },
+					groups: {},
+					structure: [ { type: BLOCK_TYPE, id: '2' } ],
+				}
+
+				assert.deepEqual(blockTypesReducer(initialState, action), expectedState)
+				assert.strictEqual(blockTypesReducer(initialState, action), initialState)
+			})
+
+			it(`should move the block type to the requested index`, function()
+			{
+				const action = {
+					type: MOVE_BLOCK_TYPE,
+					payload: {
+						blockTypeId: '3',
+						index: 1,
+					},
+				}
+
+				const initialState = {
+					collection: {
+						'1': createDummyBlockType('1'),
+						'2': createDummyBlockType('2'),
+						'3': createDummyBlockType('3'),
+					},
+					groups: {},
+					structure: [
+						{ type: BLOCK_TYPE, id: '1' },
+						{ type: BLOCK_TYPE, id: '2' },
+						{ type: BLOCK_TYPE, id: '3' },
+					],
+				}
+
+				const expectedState = {
+					collection: {
+						'1': createDummyBlockType('1'),
+						'2': createDummyBlockType('2'),
+						'3': createDummyBlockType('3'),
+					},
+					groups: {},
+					structure: [
+						{ type: BLOCK_TYPE, id: '1' },
+						{ type: BLOCK_TYPE, id: '3' },
+						{ type: BLOCK_TYPE, id: '2' },
+					],
+				}
+
+				const actualState = blockTypesReducer(initialState, action)
+
+				assert.deepEqual(actualState, expectedState)
+			})
+
+			it(`should move the block type to the requested negative index`, function()
+			{
+				const action = {
+					type: MOVE_BLOCK_TYPE,
+					payload: {
+						blockTypeId: '1',
+						index: -1,
+					},
+				}
+
+				const initialState = {
+					collection: {
+						'1': createDummyBlockType('1'),
+						'2': createDummyBlockType('2'),
+						'3': createDummyBlockType('3'),
+					},
+					groups: {},
+					structure: [
+						{ type: BLOCK_TYPE, id: '1' },
+						{ type: BLOCK_TYPE, id: '2' },
+						{ type: BLOCK_TYPE, id: '3' },
+					],
+				}
+
+				const expectedState = {
+					collection: {
+						'1': createDummyBlockType('1'),
+						'2': createDummyBlockType('2'),
+						'3': createDummyBlockType('3'),
+					},
+					groups: {},
+					structure: [
+						{ type: BLOCK_TYPE, id: '2' },
+						{ type: BLOCK_TYPE, id: '3' },
+						{ type: BLOCK_TYPE, id: '1' },
+					],
+				}
+
+				const actualState = blockTypesReducer(initialState, action)
+
+				assert.deepEqual(actualState, expectedState)
+			})
 		})
 
 		describe('ADD_BLOCK_TYPE_GROUP', function()
