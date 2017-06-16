@@ -182,7 +182,7 @@ export default function blocksReducer(state=initialState, action)
 				const collection = Object.assign({ [block.id]: block }, state.collection)
 				const structure = addToStructure(state.structure, block.id, relatedBlockId, relatedBlockType)
 
-				return { collection, structure }
+				state = { collection, structure }
 			}
 		}
 		break
@@ -195,7 +195,7 @@ export default function blocksReducer(state=initialState, action)
 				const structure = removeFromStructure(state.structure, blockId)
 				const collection = alignCollectionWithStructure(state.collection, structure)
 
-				return { collection, structure }
+				state = { collection, structure }
 			}
 		}
 		break
@@ -211,7 +211,7 @@ export default function blocksReducer(state=initialState, action)
 				const collection = state.collection
 				const structure = moveInStructure(state.structure, blockId, relatedBlockId, relatedBlockType)
 
-				return { collection, structure }
+				state = { collection, structure }
 			}
 		}
 		break

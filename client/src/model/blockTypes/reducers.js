@@ -115,7 +115,7 @@ export default function blockTypesReducer(state=initialState, action)
 				const groups = state.groups
 				const structure = addToStructure(state.structure, BLOCK_TYPE, blockType.id, index)
 
-				return { collection, groups, structure }
+				state = { collection, groups, structure }
 			}
 		}
 		break
@@ -131,7 +131,7 @@ export default function blockTypesReducer(state=initialState, action)
 
 				delete collection[blockTypeId]
 
-				return { collection, groups, structure }
+				state = { collection, groups, structure }
 			}
 		}
 		break
@@ -144,7 +144,7 @@ export default function blockTypesReducer(state=initialState, action)
 			{
 				const structure = moveInStructure(state.structure, BLOCK_TYPE, blockTypeId, index)
 
-				return { collection, groups, structure }
+				state = { collection, groups, structure }
 			}
 		}
 		break
@@ -159,7 +159,7 @@ export default function blockTypesReducer(state=initialState, action)
 				const groups = Object.assign({ [blockTypeGroup.id]: blockTypeGroup }, state.groups)
 				const structure = addToStructure(state.structure, BLOCK_TYPE_GROUP, blockTypeGroup.id, index)
 
-				return { collection, groups, structure }
+				state = { collection, groups, structure }
 			}
 		}
 		break
@@ -175,7 +175,7 @@ export default function blockTypesReducer(state=initialState, action)
 
 				delete groups[blockTypeGroupId]
 
-				return { collection, groups, structure }
+				state = { collection, groups, structure }
 			}
 		}
 		break
@@ -188,7 +188,7 @@ export default function blockTypesReducer(state=initialState, action)
 			{
 				const structure = moveInStructure(state.structure, BLOCK_TYPE_GROUP, blockTypeGroupId, index)
 
-				return { collection, groups, structure }
+				state = { collection, groups, structure }
 			}
 		}
 		break
