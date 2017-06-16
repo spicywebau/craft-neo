@@ -44,6 +44,14 @@ function formatBlockType(payload)
 	}
 }
 
+function formatBlockTypeGroup(payload)
+{
+	return {
+		id: payload.id ? String(payload.id) : generateNewId(),
+		name: String(payload.name || ''),
+	}
+}
+
 /**
  * @param {Array} structure
  * @param {String} type
@@ -142,17 +150,46 @@ export default function blockTypesReducer(state=initialState, action)
 		break
 		case ADD_BLOCK_TYPE_GROUP:
 		{
+			const blockTypeGroup = formatBlockTypeGroup(action.payload.blockTypeGroup)
+			const { index } = action.payload
 
+			if(!(blockTypeGroup.id in state.groups))
+			{
+				const collection = state.collection
+				const groups = Object.assign({ [blockTypeGroup.id]: blockTypeGroup }, state.groups)
+				const structure = addToStructure(state.structure, BLOCK_TYPE_GROUP, blockTypeGroup.id, index)
+
+				return { collection, groups, structure }
+			}
 		}
 		break
 		case REMOVE_BLOCK_TYPE_GROUP:
 		{
+			const { blockTypeGroupId } = action.payload
 
+			if(blockTypeGroupId in state.groups)
+			{
+				const collection = state.collection
+				const groups = Object.assign({}, state.groups)
+				const structure = removeFromStructure(state.structure, BLOCK_TYPE_GROUP, blockTypeGroupId)
+
+				delete groups[blockTypeGroupId]
+
+				return { collection, groups, structure }
+			}
 		}
 		break
 		case MOVE_BLOCK_TYPE_GROUP:
 		{
+			const { blockTypeGroupId, index } = action.payload
+			const { collection, groups } = state
 
+			if(blockTypeGroupId in groups)
+			{
+				const structure = moveInStructure(state.structure, BLOCK_TYPE_GROUP, blockTypeGroupId, index)
+
+				return { collection, groups, structure }
+			}
 		}
 		break
 	}
