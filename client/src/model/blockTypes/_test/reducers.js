@@ -121,11 +121,138 @@ describe(`Reducers`, function()
 
 				assert.deepEqual(actualState, expectedState)
 			})
+
+			it(`should add a block type at the requested negative index`, function()
+			{
+				const action = {
+					type: ADD_BLOCK_TYPE,
+					payload: {
+						blockType: createDummyBlockType('4'),
+						index: -1,
+					},
+				}
+
+				const initialState = {
+					collection: {
+						'1': createDummyBlockType('1'),
+						'2': createDummyBlockType('2'),
+						'3': createDummyBlockType('3'),
+					},
+					groups: {},
+					structure: [
+						{ type: BLOCK_TYPE, id: '1' },
+						{ type: BLOCK_TYPE, id: '2' },
+						{ type: BLOCK_TYPE, id: '3' },
+					],
+				}
+
+				const expectedState = {
+					collection: {
+						'1': createDummyBlockType('1'),
+						'2': createDummyBlockType('2'),
+						'3': createDummyBlockType('3'),
+						'4': createDummyBlockType('4'),
+					},
+					groups: {},
+					structure: [
+						{ type: BLOCK_TYPE, id: '1' },
+						{ type: BLOCK_TYPE, id: '2' },
+						{ type: BLOCK_TYPE, id: '3' },
+						{ type: BLOCK_TYPE, id: '4' },
+					],
+				}
+
+				const actualState = blockTypesReducer(initialState, action)
+
+				assert.deepEqual(actualState, expectedState)
+			})
 		})
 
 		describe('REMOVE_BLOCK_TYPE', function()
 		{
+			it(`should remove a block type from the store`, function()
+			{
+				const action = {
+					type: REMOVE_BLOCK_TYPE,
+					payload: { blockTypeId: '1' },
+				}
 
+				const initialState = {
+					collection: { '1': createDummyBlockType('1') },
+					groups: {},
+					structure: [ { type: BLOCK_TYPE, id: '1' } ],
+				}
+
+				const expectedState = {
+					collection: {},
+					groups: {},
+					structure: [],
+				}
+
+				const actualState = blockTypesReducer(initialState, action)
+
+				assert.deepEqual(actualState, expectedState)
+				assert.strictEqual(actualState.groups, initialState.groups)
+			})
+
+			it(`should not change the state if the block type ID doesn't exist in the store`, function()
+			{
+				const action = {
+					type: REMOVE_BLOCK_TYPE,
+					payload: { blockTypeId: '1' },
+				}
+
+				const initialState = {
+					collection: {},
+					groups: {},
+					structure: [],
+				}
+
+				const expectedState = {
+					collection: {},
+					groups: {},
+					structure: [],
+				}
+
+				assert.deepEqual(blockTypesReducer(initialState, action), expectedState)
+				assert.strictEqual(blockTypesReducer(initialState, action), initialState)
+			})
+
+			it(`should remove a block type and leave the rest`, function()
+			{
+				const action = {
+					type: REMOVE_BLOCK_TYPE,
+					payload: { blockTypeId: '2' },
+				}
+
+				const initialState = {
+					collection: {
+						'1': createDummyBlockType('1'),
+						'2': createDummyBlockType('2'),
+						'3': createDummyBlockType('3'),
+					},
+					groups: {},
+					structure: [
+						{ type: BLOCK_TYPE, id: '1' },
+						{ type: BLOCK_TYPE, id: '2' },
+						{ type: BLOCK_TYPE, id: '3' },
+					],
+				}
+
+				const expectedState = {
+					collection: {
+						'1': createDummyBlockType('1'),
+						'3': createDummyBlockType('3'),
+					},
+					groups: {},
+					structure: [
+						{ type: BLOCK_TYPE, id: '1' },
+						{ type: BLOCK_TYPE, id: '3' },
+					],
+				}
+
+				assert.deepEqual(blockTypesReducer(initialState, action), expectedState)
+			})
 		})
 
 		describe('MOVE_BLOCK_TYPE', function()

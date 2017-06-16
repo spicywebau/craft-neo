@@ -60,6 +60,17 @@ function addToStructure(structure, type, id, index=-1)
 }
 
 /**
+ * @param {Array} structure
+ * @param {String} type
+ * @param {String} id
+ * @return {Array}
+ */
+function removeFromStructure(structure, type, id)
+{
+	return structure.filter((item) => item.type !== type || item.id !== id)
+}
+
+/**
  * @param {Object} state
  * @param {Object} action
  * @return {Object}
@@ -85,7 +96,18 @@ export default function blockTypesReducer(state=initialState, action)
 		break
 		case REMOVE_BLOCK_TYPE:
 		{
+			const { blockTypeId } = action.payload
 
+			if(blockTypeId in state.collection)
+			{
+				const collection = Object.assign({}, state.collection)
+				const groups = state.groups
+				const structure = removeFromStructure(state.structure, BLOCK_TYPE, blockTypeId)
+
+				delete collection[blockTypeId]
+
+				return { collection, groups, structure }
+			}
 		}
 		break
 		case MOVE_BLOCK_TYPE:
