@@ -12,12 +12,12 @@ describe(`Data`, function()
 
 		it(`should generate all unique values among the functions range`, function()
 		{
-			let prevId
-			for(let i = 0; i < 10**5; i++)
+			const ids = new Set()
+			for(let i = 0; i < 10**4; i++)
 			{
 				const newId = generateNewId()
-				assert.notEqual(prevId, newId)
-				prevId = newId
+				assert.ok(!ids.has(newId))
+				ids.add(newId)
 			}
 		})
 	})
