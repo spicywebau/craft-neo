@@ -27,10 +27,8 @@ export const getBlockDescendantsFactory = (blockId=null, depth=null) => createSe
 	{
 		const descendants = getDescendants(structure, blockId, depth)
 
-		for(let item of descendants)
-		{
-			item.block = collection[item.id]
-		}
+		// Join block models to structural items for convenient reference
+		descendants.forEach((item) => item.block = collection[item.id])
 
 		return descendants
 	}

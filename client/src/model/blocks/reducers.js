@@ -48,7 +48,7 @@ function getBlockInsertionData(structure, relatedBlockId, relatedBlockType)
 	let index = structure.length
 	let level = 1
 
-	if(relatedBlockId)
+	if (relatedBlockId)
 	{
 		const findRelated = ({ id }) => (id === relatedBlockId)
 		const relatedItem = structure.find(findRelated)
@@ -132,14 +132,11 @@ function moveInStructure(structure, blockId, relatedBlockId, relatedBlockType)
 	const newStructure = structure.slice(0, index)
 
 	newStructure.push({ id: blockId, level })
-	
-	for(let descendantItem of descendants)
-	{
-		newStructure.push({
-			id: descendantItem.id,
-			level: level + (descendantItem.level - item.level),
-		})
-	}
+
+	descendants.forEach((descendantItem) => newStructure.push({
+		id: descendantItem.id,
+		level: level + (descendantItem.level - item.level),
+	}))
 
 	newStructure.push(...structure.slice(index))
 
@@ -155,7 +152,7 @@ function alignCollectionWithStructure(collection, structure)
 {
 	const newCollection = {}
 
-	for(let { id } of structure)
+	for (let { id } of structure)
 	{
 		newCollection[id] = collection[id]
 	}
@@ -177,7 +174,7 @@ export default function blocksReducer(state=initialState, action)
 			const block = formatBlock(action.payload.block)
 			const { relatedBlockId, relatedBlockType } = action.payload
 
-			if(!(block.id in state.collection))
+			if (!(block.id in state.collection))
 			{
 				const collection = Object.assign({ [block.id]: block }, state.collection)
 				const structure = addToStructure(state.structure, block.id, relatedBlockId, relatedBlockType)
@@ -190,7 +187,7 @@ export default function blocksReducer(state=initialState, action)
 		{
 			const { blockId } = action.payload
 
-			if(blockId in state.collection)
+			if (blockId in state.collection)
 			{
 				const structure = removeFromStructure(state.structure, blockId)
 				const collection = alignCollectionWithStructure(state.collection, structure)
@@ -206,7 +203,7 @@ export default function blocksReducer(state=initialState, action)
 			const hasBlock = state.structure.find(({ id }) => id === blockId)
 			const hasRelatedBlock = state.structure.find(({ id }) => id === relatedBlockId)
 
-			if(hasBlock && hasRelatedBlock)
+			if (hasBlock && hasRelatedBlock)
 			{
 				const collection = state.collection
 				const structure = moveInStructure(state.structure, blockId, relatedBlockId, relatedBlockType)

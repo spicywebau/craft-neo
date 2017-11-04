@@ -109,7 +109,7 @@ export default function blockTypesReducer(state=initialState, action)
 			const blockType = formatBlockType(action.payload.blockType)
 			const { index } = action.payload
 
-			if(!(blockType.id in state.collection))
+			if (!(blockType.id in state.collection))
 			{
 				const collection = Object.assign({ [blockType.id]: blockType }, state.collection)
 				const groups = state.groups
@@ -123,7 +123,7 @@ export default function blockTypesReducer(state=initialState, action)
 		{
 			const { blockTypeId } = action.payload
 
-			if(blockTypeId in state.collection)
+			if (blockTypeId in state.collection)
 			{
 				const collection = Object.assign({}, state.collection)
 				const groups = state.groups
@@ -140,7 +140,7 @@ export default function blockTypesReducer(state=initialState, action)
 			const { blockTypeId, index } = action.payload
 			const { collection, groups } = state
 
-			if(blockTypeId in collection)
+			if (blockTypeId in collection)
 			{
 				const structure = moveInStructure(state.structure, BLOCK_TYPE, blockTypeId, index)
 
@@ -153,7 +153,7 @@ export default function blockTypesReducer(state=initialState, action)
 			const blockTypeGroup = formatBlockTypeGroup(action.payload.blockTypeGroup)
 			const { index } = action.payload
 
-			if(!(blockTypeGroup.id in state.groups))
+			if (!(blockTypeGroup.id in state.groups))
 			{
 				const collection = state.collection
 				const groups = Object.assign({ [blockTypeGroup.id]: blockTypeGroup }, state.groups)
@@ -167,7 +167,7 @@ export default function blockTypesReducer(state=initialState, action)
 		{
 			const { blockTypeGroupId } = action.payload
 
-			if(blockTypeGroupId in state.groups)
+			if (blockTypeGroupId in state.groups)
 			{
 				const collection = state.collection
 				const groups = Object.assign({}, state.groups)
@@ -184,7 +184,7 @@ export default function blockTypesReducer(state=initialState, action)
 			const { blockTypeGroupId, index } = action.payload
 			const { collection, groups } = state
 
-			if(blockTypeGroupId in groups)
+			if (blockTypeGroupId in groups)
 			{
 				const structure = moveInStructure(state.structure, BLOCK_TYPE_GROUP, blockTypeGroupId, index)
 
