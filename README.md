@@ -42,6 +42,9 @@ Let block types have the ability to contain child block types. You can filter wh
 
 ### Supports the following plugins
 
+#### [CpFieldLinks](https://github.com/mmikkel/CpFieldLinks-Craft)
+Supports the control panel sugar that this plugin adds in blocks.
+
 #### [Quick Field](https://github.com/benjamminf/craft-quick-field)
 Supports the ability to create fields when building field layouts for block types.
 
