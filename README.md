@@ -1,4 +1,6 @@
-# &nbsp;<img src="demo/icon.png" width="32"> Neo
+<img src="demo/icon.png" width="35">
+
+# Neo
 #### A Matrix-like field type that uses existing fields
 
 Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the concept of the [Matrix field type](https://craftcms.com/features/matrix) with a number of very useful features. Neo has been carefully crafted (pun intended) to ensure it matches the look and feel of Craft.
