@@ -734,6 +734,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 	 */
 	private function _prepareInputHtml($id, $name, $settings, $value, $static = false)
 	{
+	    $owner = isset($this->element) ? $this->element : null;
 		$locale = isset($this->element) ? $this->element->locale : null;
 
 		$blockTypeInfo = [];
@@ -762,7 +763,7 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				'maxChildBlocks' => $blockType->maxChildBlocks,
 				'childBlocks' => $blockType->childBlocks,
 				'topLevel' => (bool)$blockType->topLevel,
-				'tabs' => craft()->neo->renderBlockTabs($blockType, null, $name, $static, $locale),
+				'tabs' => craft()->neo->renderBlockTabs($blockType, null, $name, $static, $locale, $owner),
 			];
 		}
 

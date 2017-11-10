@@ -927,13 +927,13 @@ class NeoService extends BaseApplicationComponent
 	 * @param $locale
 	 * @return array
 	 */
-	public function renderBlockTabs(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false, $locale = null)
+	public function renderBlockTabs(Neo_BlockTypeModel $blockType, Neo_BlockModel $block = null, $namespace = '', $static = false, $locale = null, $owner = null)
 	{
 		$oldNamespace = craft()->templates->getNamespace();
 		$newNamespace = craft()->templates->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
 		craft()->templates->setNamespace($newNamespace);
-
 		$tabsHtml = [];
+
 
 		$fieldLayout = $blockType->getFieldLayout();
 		$fieldLayoutTabs = $fieldLayout->getTabs();
@@ -954,6 +954,10 @@ class NeoService extends BaseApplicationComponent
 			// above creates a dummy block to so the locale can be passed.
 			$block->locale = $locale;
 		}
+
+		if($owner) {
+            $block->owner = $owner;
+        }
 
 		foreach($fieldLayoutTabs as $fieldLayoutTab)
 		{
