@@ -1,4 +1,4 @@
-<img src="demo/icon.png" width="35">
+<img src="demo/icon.png" width="60">
 
 # Neo
 #### A Matrix-like field type that uses existing fields
