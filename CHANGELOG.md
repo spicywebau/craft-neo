@@ -1,6 +1,19 @@
 ## Changelog
 
-### v1.4.1
+### v1.5.0
+- `Added` New icon 😎
+- `Added` Copy and paste functionality for blocks (replaces the Duplicate block option)
+- `Added` The [CpFieldLinks](https://github.com/mmikkel/CpFieldLinks-Craft) plugin is now supported in blocks
+- `Added` Added `craft.neo.blocks()` template query function to query for site-wide Neo blocks, much like entries and other elements (thanks @intoeetive)
+- `Improved` Saving new entries will now copy Neo contents to all other locales
+- `Improved` Added owner property to neoblock to use with dynamic assets path
+- `Fixed` Generating keywords for blocks now only iterates the fields of that block, fixing issues with generating keywords on old fields and third-party plugin conflicts
+- `Fixed` Fixed issue where field types like Matrix used within blocks could not clean up properly if that block was deleted, leading to stranded Matrix blocks left in the database
+- `Fixed` Fixed issue with stacking block criteria model filters in Live Preview sometimes not showing the right results
+- `Fixed` Fixed issue with translated relational fields (eg. Asset field) inside translated Neo fields not saving properly on newly added blocks
+- `Fixed` Front-end Garnish library console warning no longer shows
+
+#### v1.4.1
 - `Added` Added configuration options to enable/disable certain optimisations
 - `Improved` Content summaries now include Matrix and Super Table field values
 - `Improved` Big performance improvement with block modification detection
