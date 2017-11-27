@@ -1,5 +1,5 @@
 import {
-	ADD_BLOCK, REMOVE_BLOCK, MOVE_BLOCK,
+	ADD_BLOCK, UPDATE_BLOCK, REMOVE_BLOCK, MOVE_BLOCK,
 	BLOCK_PARENT, BLOCK_PREV_SIBLING, BLOCK_NEXT_SIBLING,
 } from './constants'
 import { getDescendants, getPrevSiblings, getNextSiblings } from './selectors/structure'
@@ -19,6 +19,8 @@ const initialState = {
  */
 function formatBlock(payload)
 {
+	payload = typeof payload === 'object' ? payload : {}
+
 	return {
 		id: payload.id ? String(payload.id) : generateNewId(),
 		blockTypeId: payload.blockTypeId ? String(payload.blockTypeId) : null,
@@ -178,6 +180,23 @@ export default function blocksReducer(state=initialState, action)
 			{
 				const collection = Object.assign({ [block.id]: block }, state.collection)
 				const structure = addToStructure(state.structure, block.id, relatedBlockId, relatedBlockType)
+
+				state = { collection, structure }
+			}
+		}
+		break
+		case UPDATE_BLOCK:
+		{
+			const newBlock = action.payload.block || {}
+			const block = formatBlock(action.payload.block)
+
+			if (newBlock.id in state.collection)
+			{
+				const oldBlock = state.collection[newBlock.id]
+				const block = formatBlock(Object.assign({}, oldBlock, newBlock))
+				
+				const collection = Object.assign({}, state.collection, { [block.id]: block })
+				const structure = state.structure
 
 				state = { collection, structure }
 			}

@@ -48,6 +48,18 @@ export function addBlockAfter(block, prevBlockId)
 }
 
 /**
+ * @param {Object} block
+ * @return {Object}
+ */
+export function updateBlock(block)
+{
+	return {
+		type: UPDATE_BLOCK,
+		payload: { block },
+	}
+}
+
+/**
  * @param {String} blockId
  * @return {Object}
  */
