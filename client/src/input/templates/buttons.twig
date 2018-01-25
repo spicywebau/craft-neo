@@ -1,0 +1,77 @@
+<div class="ni_buttons">
+	<div class="btngroup"
+	     data-neo-bn="container.buttons">
+		{% set currentGroup = false %}
+		{% set firstButton = true %}
+		{% for item in items %}
+			{% set type = item.getType() %}
+			{% if type == 'blockType' %}
+				{% if currentGroup %}
+					<li>
+						<a data-neo-bn="button.addBlock"
+						   data-neo-bn-info="{{ item.getHandle() }}">
+							{{ item.getName() }}
+						</a>
+					</li>
+				{% else %}
+					<div class="btn{% if firstButton %} add icon{% endif %}"
+						 data-neo-bn="button.addBlock"
+						 data-neo-bn-info="{{ item.getHandle() }}">
+						{{ item.getName() }}
+					</div>
+					{% set firstButton = false %}
+				{% endif %}
+			{% elseif type == 'group' %}
+				{% if currentGroup %}
+					{{ '</ul></div>' }}
+				{% endif %}
+				{% set currentGroup =
+					(item.isBlank()) or
+					((loop.index + 2) > (items|length)) or
+					(items[loop.index + 1].getType() == 'group') ?
+						false :
+						item  %}
+				{% if currentGroup %}
+					<div class="btn{% if firstButton %} add icon{% endif %} menubtn"
+						 data-neo-bn="button.group">
+						{{ item.getName() }}
+					</div>
+					{{ '<div class="menu"><ul>' }}
+					{% set firstButton = false %}
+				{% endif %}
+			{% endif %}
+		{% endfor %}
+		{% if currentGroup %}
+			{{ '</ul></div>' }}
+		{% endif %}
+	</div>
+	<div class="btn add icon menubtn hidden"
+	     data-neo-bn="container.menu">
+		{{ "Add a block"|t }}
+	</div>
+	<div class="menu">
+		<ul>
+		{% set currentGroup = false %}
+		{% for item in items %}
+			{% set type = item.getType() %}
+			{% if type == 'blockType' %}
+				<li>
+					<a data-neo-bn="button.addBlock"
+					   data-neo-bn-info="{{ item.getHandle() }}">
+						{{ item.getName() }}
+					</a>
+				</li>
+			{% elseif type == 'group' %}
+				{{ '</ul>' }}
+				{% set currentGroup = item.isBlank() ? false : item %}
+				{% if currentGroup %}
+					<h6>{{ item.getName() }}</h6>
+					{{ '<ul class="padded">' }}
+				{% else %}
+					{{ '<ul>' }}
+				{% endif %}
+			{% endif %}
+		{% endfor %}
+		</ul>
+	</div>
+</div>

@@ -1,18 +1,20 @@
 {
   "name": "craft-neo",
-  "version": "2.0.0",
+  "version": "1.6.0",
   "description": "A Matrix-like field type that uses existing fields",
+  "main": "webpack.config.js",
+  "scripts": {
+    "build": "./node_modules/.bin/webpack --config ./client/build/webpack.config.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/benjamminf/craft-neo.git"
   },
   "keywords": [
-    "cms",
-    "craftcms",
+    "craft cms",
     "plugin",
-    "neo",
     "matrix",
-    "field"
+    "field type"
   ],
   "author": "Benjamin Fleming",
   "license": "MIT",
@@ -20,31 +22,16 @@
     "url": "https://github.com/benjamminf/craft-neo/issues"
   },
   "homepage": "https://github.com/benjamminf/craft-neo#readme",
-  "scripts": {
-    "test": "NODE_ENV=test nyc mocha-webpack --webpack-config ./client/build/webpack.test.js \"client/src/**/_test/index.js\"",
-    "build": "./node_modules/webpack/bin/webpack.js --config ./client/build/webpack.build.js"
-  },
   "devDependencies": {
-    "babel-core": "^6.24.1",
-    "babel-loader": "^7.0.0",
-    "babel-plugin-istanbul": "^4.1.3",
-    "babel-preset-env": "^1.5.0",
-    "mocha": "^3.4.1",
-    "mocha-webpack": "^0.7.0",
-    "nyc": "^10.3.2",
-    "redux": "^3.6.0",
-    "reselect": "^3.0.1",
-    "webpack": "^2.5.1"
-  },
-  "nyc": {
-    "extension": [
-      ".js"
-    ],
-    "include": [
-      "client/src"
-    ],
-    "exclude": [
-      "**/_test"
-    ]
+    "babel-core": "^6.10.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "css-loader": "^0.23.1",
+    "node-sass": "^3.8.0",
+    "sass-loader": "^4.0.0",
+    "style-loader": "^0.13.1",
+    "twig": "0.8.9",
+    "twig-loader": "0.2.1",
+    "webpack": "^1.13.1"
   }
 }

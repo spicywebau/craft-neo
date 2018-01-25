@@ -1,0 +1,106 @@
+{% import '../../macros.twig' as macros %}
+
+<div>
+	<input type="hidden" name="{{ 'sortOrder'|ns }}" value="{{ sortOrder }}" data-neo-bts="input.sortOrder">
+
+	<div>
+		{{ macros.input({
+			type: 'text',
+			id: 'name'|ns('id'),
+			name: 'name'|ns,
+			label: "Name"|t,
+			instructions: "What this block type will be called in the CP."|t,
+			required: true,
+			value: name,
+			errors: errors.name,
+			attributes: {
+				'data-neo-bts': 'input.name'
+			}
+		}) }}
+
+		{{ macros.input({
+			type: 'text',
+			id: 'handle'|ns('id'),
+			name: 'handle'|ns,
+			label: "Handle"|t,
+			instructions: "How you&#8217;ll refer to this block type in the templates."|t,
+			required: true,
+			class: 'code',
+			value: handle,
+			errors: errors.handle,
+			attributes: {
+				'data-neo-bts': 'input.handle'
+			}
+		}) }}
+
+		{{ macros.input({
+			type: 'number',
+			id: 'maxBlocks'|ns('id'),
+			name: 'maxBlocks'|ns,
+			label: "Max Blocks"|t,
+			instructions: "The maximum number of blocks of this type the field is allowed to have."|t,
+			fullWidth: false,
+			value: maxBlocks > 0 ? maxBlocks : null,
+			errors: errors.maxBlocks,
+			attributes: {
+				min: 0,
+				style: 'width: 80px;',
+				'data-neo-bts': 'input.maxBlocks'
+			}
+		}) }}
+
+		{% set childBlocksId = 'childBlocks'|ns('id') %}
+		{% set childBlocksName = 'childBlocks'|ns %}
+		{% set childBlocksInput %}
+			<div class="checkbox-select" data-neo-bts="input.childBlocks">
+				<div>
+					<input type="hidden" name="{{ childBlocksName }}">
+					<input type="checkbox" value="*" id="{{ childBlocksId }}" class="all checkbox" name="{{ childBlocksName }}">
+					<label for="{{ childBlocksId }}"><strong>{{ "All"|t }}</strong></label>
+				</div>
+				<div data-neo-bts="container.childBlocks"></div>
+			</div>
+		{% endset %}
+		{{ macros.field({
+			id: childBlocksId,
+			label: "Child Blocks"|t,
+			instructions: "Which block types do you want to allow as children?"|t,
+			input: childBlocksInput
+		}) }}
+
+		<div data-neo-bts="container.maxChildBlocks">
+			{{ macros.input({
+				type: 'number',
+				id: 'maxChildBlocks'|ns('id'),
+				name: 'maxChildBlocks'|ns,
+				label: "Max Child Blocks"|t,
+				instructions: "The maximum number of child blocks this block type is allowed to have."|t,
+				fullWidth: false,
+				value: maxChildBlocks > 0 ? maxChildBlocks : null,
+				errors: errors.maxChildBlocks,
+				attributes: {
+					min: 0,
+					style: 'width: 80px;',
+					'data-neo-bts': 'input.maxChildBlocks'
+				}
+			}) }}
+		</div>
+
+		<div data-neo-bts="container.topLevel">
+			{{ macros.lightswitch({
+				id: 'topLevel'|ns('id'),
+				name: 'topLevel'|ns,
+				label: "Top Level"|t,
+				instructions: "Will this block type be allowed at the top level?"|t,
+				checked: topLevel,
+				attributes: {
+					'data-neo-bts': 'input.topLevel'
+				}
+			}) }}
+		</div>
+	</div>
+
+	<hr>
+
+	<a class="error delete" data-neo-bts="button.delete">{{ "Delete block type"|t }}</a>
+</div>

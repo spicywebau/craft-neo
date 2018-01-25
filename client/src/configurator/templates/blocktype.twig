@@ -1,0 +1,8 @@
+{% set id = settings.getId() %}
+{% set name = settings.getName() %}
+{% set errors = settings.getErrors() %}
+
+<div class="nc_sidebar_list_item {{ errors is not empty ? 'has-errors' : '' }}">
+	<div class="label" data-neo-bt="text.name">{{ name }}</div>
+	<a class="move icon" title="{{ "Reorder"|t }}" role="button" data-neo-bt="button.move"></a>
+</div>
