@@ -297,6 +297,14 @@ class BlockTypes extends Component
 		return $success;
 	}
 
+	public function renderTabs(BlockType $blockType, bool $static = false, $namespace = null)
+	{
+		$block = new Block();
+		$block->typeId = $blockType->id;
+
+		return Neo::$plugin->blocks->renderTabs($block, $static, $namespace);
+	}
+
 	private function _createQuery(): Query
 	{
 		return (new Query())

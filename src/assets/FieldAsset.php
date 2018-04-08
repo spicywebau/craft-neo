@@ -6,6 +6,7 @@ use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\helpers\Json;
 
+use benf\neo\Plugin as Neo;
 use benf\neo\Field;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
@@ -68,7 +69,7 @@ class FieldAsset extends AssetBundle
 		$jsSettings = [
 			'name' => $name,
 			'namespace' => $viewService->namespaceInputName($name),
-			'blockTypes' => self::_getBlockTypesJsSettings($blockTypes),
+			'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, $static, true),
 			'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
 			'inputId' => $viewService->namespaceInputId($id),
 			'minBlocks' => $field->minBlocks,
@@ -89,7 +90,7 @@ class FieldAsset extends AssetBundle
 		return $jsBlocks;
 	}
 
-	private static function _getBlockTypesJsSettings(array $blockTypes): array
+	private static function _getBlockTypesJsSettings(array $blockTypes, bool $static, bool $renderTabs = false): array
 	{
 		$jsBlockTypes = [];
 
@@ -120,7 +121,7 @@ class FieldAsset extends AssetBundle
 					];
 				}
 
-				$jsBlockTypes[] = [
+				$jsBlockType = [
 					'id' => $blockType->id,
 					'sortOrder' => $blockType->sortOrder,
 					'name' => $blockType->name,
@@ -133,6 +134,13 @@ class FieldAsset extends AssetBundle
 					'fieldLayout' => $jsFieldLayout,
 					'fieldLayoutId' => $fieldLayout->id,
 				];
+
+				if ($renderTabs)
+				{
+					$jsBlockType['tabs'] = Neo::$plugin->blockTypes->renderTabs($blockType, $static);
+				}
+
+				$jsBlockTypes[] = $jsBlockType;
 			}
 			elseif (is_array($blockType))
 			{

@@ -8,6 +8,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ElementHelper;
 use craft\validators\SiteIdValidator;
 
+use benf\neo\Plugin as Neo;
 use benf\neo\elements\db\BlockQuery;
 
 class Block extends Element
@@ -107,7 +108,7 @@ class Block extends Element
 			throw new InvalidConfigException("Neo block is missing its type ID");
 		}
 
-		$blockType = Neo::$plugin->blockTypes->getBlockTypeById($this->typeId);
+		$blockType = Neo::$plugin->blockTypes->getById($this->typeId);
 
 		if (!$blockType)
 		{
