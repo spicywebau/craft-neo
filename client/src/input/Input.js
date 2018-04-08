@@ -218,7 +218,7 @@ export default Garnish.Base.extend({
 		{
 			if(this.getSelectedBlocks().length > 1)
 			{
-				if(confirm(Craft.t("Are you sure you want to delete the selected blocks?")))
+				if(confirm(Craft.t('neo', "Are you sure you want to delete the selected blocks?")))
 				{
 					this._blockBatch(block, b => this.removeBlock(b))
 				}
@@ -723,7 +723,7 @@ export default Garnish.Base.extend({
 		this._updateButtons()
 
 		const notice = blocks.length == 1 ? "1 block copied" : "{n} blocks copied"
-		Craft.cp.displayNotice(Craft.t(notice, { n: blocks.length }))
+		Craft.cp.displayNotice(Craft.t('neo', notice, { n: blocks.length }))
 	},
 
 	'@pasteBlock'(e)

@@ -10,14 +10,14 @@ if($fieldType.val() === 'Neo' && $fieldId.length > 0)
 		<hr>
 		<div class="field">
 			<div class="heading">
-				<label>${ Craft.t("Convert from Neo") }</label>
-				<div class="instructions"><p>${ Craft.t("This field is currently of the Neo type. You may automatically convert it to Matrix along with all of it's content.") }</p></div>
+				<label>${ Craft.t('neo', "Convert from Neo") }</label>
+				<div class="instructions"><p>${ Craft.t('neo', "This field is currently of the Neo type. You may automatically convert it to Matrix along with all of it's content.") }</p></div>
 			</div>
 			<div class="input ltr">
-				<input id="Matrix-convert_button" type="button" class="btn submit" value="${ Craft.t("Convert") }">
+				<input id="Matrix-convert_button" type="button" class="btn submit" value="${ Craft.t('neo', "Convert") }">
 				<span id="Matrix-convert_spinner" class="spinner hidden"></span>
 			</div>
-			<p class="warning">${ Craft.t("By converting to Matrix, structural information will be lost.") }</p>
+			<p class="warning">${ Craft.t('neo', "By converting to Matrix, structural information will be lost.") }</p>
 		</div>
 		<hr>
 	`)
@@ -64,7 +64,7 @@ if($fieldType.val() === 'Neo' && $fieldId.length > 0)
 			{
 				toggleState(true)
 
-				Craft.cp.displayError(Craft.t("Could not convert Neo field to Matrix"))
+				Craft.cp.displayError(Craft.t('neo', "Could not convert Neo field to Matrix"))
 
 				if(response.errors && response.errors.length > 0)
 				{
@@ -81,7 +81,7 @@ if($fieldType.val() === 'Neo' && $fieldId.length > 0)
 	{
 		e.preventDefault()
 
-		if(enabled && confirm(Craft.t("Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.")))
+		if(enabled && confirm(Craft.t('neo', "Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.")))
 		{
 			perform()
 		}

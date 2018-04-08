@@ -12,7 +12,7 @@ function decodeEntities(str)
 
 Twig.extendFilter('t', function(label, placeholders)
 {
-	return Craft.t(decodeEntities(label), placeholders)
+	return Craft.t('neo', decodeEntities(label), placeholders)
 })
 
 Twig.extendFilter('ns', function(value, type = 'field')

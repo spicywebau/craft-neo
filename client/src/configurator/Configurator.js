@@ -191,7 +191,7 @@ export default Garnish.Base.extend({
 
 		if(showConfirm)
 		{
-			const message = Craft.t('Are you sure you want to delete this {type}?', {type:
+			const message = Craft.t('neo', 'Are you sure you want to delete this {type}?', {type:
 				item instanceof BlockType ? 'block type' :
 				item instanceof Group ? 'group' :
 				'item'

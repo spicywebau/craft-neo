@@ -2,20 +2,40 @@
 namespace benf\neo;
 
 use yii\base\Event;
-use benf\neo\fields\Neo;
 
-class Plugin extends \craft\base\Plugin
+use craft\base\Plugin as BasePlugin;
+use craft\services\Fields;
+use craft\events\RegisterComponentTypesEvent;
+
+use benf\neo\Field;
+use benf\neo\services\Fields as FieldsService;
+use benf\neo\services\BlockTypes as BlockTypesService;
+use benf\neo\services\Blocks as BlocksService;
+use benf\neo\services\Conversion as ConversionService;
+
+class Plugin extends BasePlugin
 {
+	public static $plugin;
+
 	public function init()
 	{
 		parent::init();
+
+		self::$plugin = $this;
+
+		$this->setComponents([
+            'fields' => FieldsService::class,
+            'blockTypes' => BlockTypesService::class,
+            'blocks' => BlocksService::class,
+            'conversion' => ConversionService::class,
+        ]);
 
 		Event::on(
 			Fields::class,
 			Fields::EVENT_REGISTER_FIELD_TYPES,
 			function(RegisterComponentTypesEvent $event)
 			{
-	            $event->types[] = Neo::class;
+	            $event->types[] = Field::class;
 	        }
 	    );
 	}

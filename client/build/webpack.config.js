@@ -2,7 +2,6 @@ const webpack = require('webpack')
 const path = require('path')
 
 module.exports = {
-	devtool: 'source-map',
 	entry: {
 		main: path.resolve(__dirname, '../src/main.js'),
 		converter: path.resolve(__dirname, '../src/converter.js'),

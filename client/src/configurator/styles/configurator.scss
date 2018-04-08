@@ -10,15 +10,12 @@
 .nc {
 
 	&_sidebar {
-		width: 200px;
-		border-top-left-radius: 3px;
-		border-bottom-left-radius: 3px;
+		width: 202px;
 		border: 1px solid #ebebeb;
 		background-color: #fafafa;
 
 		&_title {
 			padding: 10px 24px;
-			border-top-left-radius: 3px;
 			border-bottom: 1px solid #ebebeb;
 			background-image: linear-gradient(#f7f7f8, #f4f5f6);
 			color: #8f98a3;
@@ -69,7 +66,7 @@
 				> .move {
 					display: block;
 					position: absolute;
-					top: 11px;
+					top: 10px;
 					left: 7px;
 					width: 24px;
 					text-align: center;
@@ -142,8 +139,6 @@
 	&_main {
 		flex-grow: 1;
 		flex-shrink: 9999; // Fixes weird layout bug when switching tabs
-		border-top-right-radius: 3px;
-		border-bottom-right-radius: 3px;
 		border: 1px solid #ebebeb;
 
 		body.ltr & { border-left:  0; }
@@ -151,7 +146,6 @@
 
 		&_tabs {
 			display: flex;
-			border-top-right-radius: 3px;
 			border-bottom: 1px solid #ebebeb;
 			background-image: linear-gradient(#f7f7f8, #f4f5f6);
 
@@ -184,23 +178,6 @@
 
 		&_content {
 			padding: 24px;
-
-			// Couldn't help myself, just had to fix some Craft styles that were bugging the hell out of me for so long
-			.fieldlayoutform {
-
-				.tab {
-					background: transparent;
-					box-shadow: none;
-				}
-
-				.fld-field {
-					margin-top: 7px;
-				}
-
-				.fld-tabcontent:not(:empty) {
-					padding-top: 13px - 7px;
-				}
-			}
 
 			.checkbox + label {
 				color: #576575;

@@ -96,7 +96,7 @@ export default Garnish.Base.extend({
 				<div class="tabs">
 					<div class="tab sel draggable">
 						<span>${name}</span>
-						<a class="settings icon" title="${Craft.t('Rename')}"></a>
+						<a class="settings icon" title="${Craft.t('neo', 'Rename')}"></a>
 					</div>
 				</div>
 				<div class="fld-tabcontent"></div>
@@ -160,7 +160,7 @@ export default Garnish.Base.extend({
 			$field.append($fieldInput)
 		}
 
-		$field.prepend(`<a class="settings icon" title="${Craft.t('Edit')}"></a>`);
+		$field.prepend(`<a class="settings icon" title="${Craft.t('neo', 'Edit')}"></a>`);
 		$fieldContainer.append($field)
 		this._fld.initField($field)
 		this._fld.fieldDrag.addItems($field)
@@ -206,7 +206,7 @@ export default Garnish.Base.extend({
 	{
 		if(this.$instructions)
 		{
-			this.$instructions.html(Craft.t("For block type {blockType}", {blockType: this.getBlockName() || '&hellip;'}))
+			this.$instructions.html(Craft.t('neo', "For block type {blockType}", {blockType: this.getBlockName() || '&hellip;'}))
 		}
 	},
 
