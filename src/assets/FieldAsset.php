@@ -69,7 +69,7 @@ class FieldAsset extends AssetBundle
 		$jsSettings = [
 			'name' => $name,
 			'namespace' => $viewService->namespaceInputName($name),
-			'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, $static, true),
+			'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static),
 			'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
 			'inputId' => $viewService->namespaceInputId($id),
 			'minBlocks' => $field->minBlocks,
@@ -78,7 +78,7 @@ class FieldAsset extends AssetBundle
 			'static' => $static,
 		];
 
-		$encodedJsSettings = Json::encode($jsSettings);
+		$encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);
 
 		return "Neo.createInput($encodedJsSettings)";
 	}
@@ -90,7 +90,7 @@ class FieldAsset extends AssetBundle
 		return $jsBlocks;
 	}
 
-	private static function _getBlockTypesJsSettings(array $blockTypes, bool $static, bool $renderTabs = false): array
+	private static function _getBlockTypesJsSettings(array $blockTypes, bool $renderTabs = false, bool $static = false): array
 	{
 		$jsBlockTypes = [];
 
@@ -128,7 +128,7 @@ class FieldAsset extends AssetBundle
 					'handle' => $blockType->handle,
 					'maxBlocks' => $blockType->maxBlocks,
 					'maxChildBlocks' => $blockType->maxChildBlocks,
-					'childBlocks' => Json::decodeIfJson($blockType->childBlocks),
+					'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
 					'topLevel' => (bool)$blockType->topLevel,
 					'errors' => $blockType->getErrors(),
 					'fieldLayout' => $jsFieldLayout,
@@ -137,7 +137,8 @@ class FieldAsset extends AssetBundle
 
 				if ($renderTabs)
 				{
-					$jsBlockType['tabs'] = Neo::$plugin->blockTypes->renderTabs($blockType, $static);
+					$tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static);
+					$jsBlockType['tabs'] = $tabsHtml;
 				}
 
 				$jsBlockTypes[] = $jsBlockType;

@@ -297,7 +297,7 @@ class BlockTypes extends Component
 		return $success;
 	}
 
-	public function renderTabs(BlockType $blockType, bool $static = false, $namespace = null)
+	public function renderTabs(BlockType $blockType, bool $static = false, $namespace = null): array
 	{
 		$block = new Block();
 		$block->typeId = $blockType->id;

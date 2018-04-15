@@ -95,7 +95,7 @@ class Install extends Migration
 
 		if (!$hasBlockTypesTable)
 		{
-			$this->createIndex(null, '{{%neoblocktypes}}', ['name', 'fieldId'], true);
+			$this->createIndex(null, '{{%neoblocktypes}}', ['name', 'fieldId'], false);
 			$this->createIndex(null, '{{%neoblocktypes}}', ['handle', 'fieldId'], true);
 			$this->createIndex(null, '{{%neoblocktypes}}', ['fieldId'], false);
 			$this->createIndex(null, '{{%neoblocktypes}}', ['fieldLayoutId'], false);
@@ -103,7 +103,7 @@ class Install extends Migration
 
 		if (!$hasBlockTypeGroupsTable)
 		{
-			$this->createIndex(null, '{{%neoblocktypegroups}}', ['name', 'fieldId'], true);
+			$this->createIndex(null, '{{%neoblocktypegroups}}', ['name', 'fieldId'], false);
 			$this->createIndex(null, '{{%neoblocktypegroups}}', ['fieldId'], false);
 		}
 

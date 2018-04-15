@@ -4,17 +4,40 @@ namespace benf\neo\services;
 use yii\base\Component;
 
 use Craft;
+use craft\helpers\StringHelper;
+
 use benf\neo\elements\Block;
 use benf\neo\models\BlockType;
 
 class Blocks extends Component
 {
-	public function getSearchKeywords(Block $block): string
+	public function getSearchKeywords(Block $block, ElementInterface $element = null): string
 	{
-		return '';	
+		$fieldsService = Craft::$app->getFields();
+
+		if ($element === null)
+		{
+			$element = $block;
+		}
+
+		$keywords = [];
+
+		$fieldLayout = $block->getFieldLayout();
+		$fieldIds = $fieldLayout->getFieldIds();
+
+		foreach ($fieldsService->getAllFields() as $field)
+		{
+			if (in_array($field->id, $fieldIds))
+			{
+				$fieldValue = $block->getFieldValue($field->handle);
+				$keywords[] = $field->getSearchKeywords($fieldValue, $element);
+			}
+		}
+
+		return StringHelper::toString($keywords, ' ');
 	}
 
-	public function renderTabs(Block $block, bool $static = false, $namespace = null): string
+	public function renderTabs(Block $block, bool $static = false, $namespace = null): array
 	{
 		$viewService = Craft::$app->getView();
 
@@ -28,51 +51,46 @@ class Blocks extends Component
 		$tabsHtml = [];
 
 		$fieldLayout = $blockType->getFieldLayout();
-		$fieldLayoutTabs = $fieldLayout->getTabs();
+		$tabs = $fieldLayout->getTabs();
 
-		foreach ($fieldLayoutTabs as $fieldLayoutTab)
+		foreach ($tabs as $tab)
 		{
 			$viewService->startJsBuffer();
 
 			$tabHtml = [
-				'name' => Craft::t('neo', $fieldLayoutTab->name),
+				'name' => Craft::t('neo', $tab->name),
 				'headHtml' => '',
 				'bodyHtml' => '',
 				'footHtml' => '',
 				'errors' => [],
 			];
 
-			$fieldLayoutFields = $fieldLayoutTab->getFields();
+			$fields = $tab->getFields();
 
-			foreach ($fieldLayoutFields as $fieldLayoutField)
+			if ($block)
 			{
-				$field = $fieldLayoutField->getField();
-				$fieldType = $field->getFieldType();
-
-				if ($fieldType)
+				foreach ($fields as $field)
 				{
-					$fieldType->element = $block;
-					
-					if ($block)
-					{
-						$fieldErrors = $block->getErrors($field->handle);
+					$fieldErrors = $block->getErrors($field->handle);
 
-						if (!empty($fieldErrors))
-						{
-							$tabHtml['errors'] = array_merge($tabHtml['errors'], $fieldErrors);
-						}
+					if (!empty($fieldErrors))
+					{
+						$tabHtml['errors'] = array_merge($tabHtml['errors'], $fieldErrors);
 					}
 				}
 			}
 
-			$tabHtml['bodyHtml'] = $viewService->namespaceInputs(craft()->templates->render('_includes/fields', [
+			$fieldsHtml = $viewService->renderTemplate('_includes/fields', [
 				'namespace' => null,
 				'element' => $block,
-				'fields' => $fieldLayoutFields,
+				'fields' => $fields,
 				'static' => $static,
-			]));
+			]);
 
-			$tabHtml['footHtml'] = $viewService->clearJsBuffer();
+			$fieldsJs = $viewService->clearJsBuffer();
+
+			$tabHtml['bodyHtml'] = $viewService->namespaceInputs($fieldsHtml);
+			$tabHtml['footHtml'] = $fieldsJs;
 
 			$tabsHtml[] = $tabHtml;
 		}

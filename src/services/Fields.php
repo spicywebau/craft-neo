@@ -28,7 +28,7 @@ class Fields extends Component
 			{
 				$blockType->addError('handle', Craft::t('neo', "{label} \"{value}\" has already been taken.", [
 					'label' => $blockType->getAttributeLabel('handle'),
-					'value' => Html::encoder($blockType->handle),
+					'value' => Html::encode($blockType->handle),
 				]));
 
 				$isValid = false;

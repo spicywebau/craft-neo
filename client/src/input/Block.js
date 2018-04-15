@@ -167,6 +167,8 @@ export default Garnish.Base.extend({
 
 			Garnish.$bod.siblings('head').append(this.$head)
 			Garnish.$bod.append(this.$foot)
+
+			Craft.initUiElements(this.$contentContainer)
 			
 			this.$tabsButton.menubtn()
 
@@ -576,17 +578,20 @@ export default Garnish.Base.extend({
 				this.updatePreview()
 			}
 
+			const contentHeight = this.$contentContainer.outerHeight()|0
+			const childrenHeight = this.$childrenContainer.outerHeight()|0
+
 			const expandedCss = {
 				opacity: 1,
-				height: this.$contentContainer.outerHeight() + this.$childrenContainer.outerHeight()
+				height: contentHeight + childrenHeight,
 			}
 			const collapsedCss = {
 				opacity: 0,
-				height: 0
+				height: 0,
 			}
 			const clearCss = {
 				opacity: '',
-				height: ''
+				height: '',
 			}
 
 			if(animate)
@@ -614,7 +619,7 @@ export default Garnish.Base.extend({
 			}
 
 			this.trigger('toggleExpansion', {
-				expanded: this._expanded
+				expanded: this._expanded,
 			})
 		}
 	},

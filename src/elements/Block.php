@@ -15,7 +15,7 @@ class Block extends Element
 {
 	public static function displayName(): string
 	{
-		return Craft::t('app', "Neo Block");
+		return Craft::t('neo', "Neo Block");
 	}
 
 	public static function refHandle(): string
