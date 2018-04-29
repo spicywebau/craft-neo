@@ -42,10 +42,11 @@ class Blocks extends Component
 		$viewService = Craft::$app->getView();
 
 		$blockType = $block->getType();
+		$field = $blockType->getField();
 
-		$namespace = $namespace ?? $viewService->namespaceInputName($blockType->handle);
+		$namespace = $namespace ?? $viewService->namespaceInputName($field->handle);
 		$oldNamespace = $viewService->getNamespace();
-		$newNamespace = $viewService->namespaceInputName($namespace . '[__NEOBLOCK__][fields]', $oldNamespace);
+		$newNamespace = $namespace . '[__NEOBLOCK__][fields]';
 		$viewService->setNamespace($newNamespace);
 
 		$tabsHtml = [];

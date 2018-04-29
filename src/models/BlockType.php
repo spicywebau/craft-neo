@@ -1,6 +1,7 @@
 <?php
 namespace benf\neo\models;
 
+use Craft;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
 
@@ -20,6 +21,8 @@ class BlockType extends Model
 	public $sortOrder;
 
 	public $hasFieldErrors = false;
+
+	private $_field;
 
 	public function behaviors()
 	{
@@ -47,5 +50,17 @@ class BlockType extends Model
 	public function getIsNew(): bool
 	{
 		return (!$this->id || strpos($this->id, 'new') === 0);
+	}
+
+	public function getField()
+	{
+		$fieldsService = Craft::$app->getFields();
+
+		if (!$this->_field && $this->fieldId)
+		{
+			$this->_field = $fieldsService->getFieldById($this->fieldId);
+		}
+
+		return $this->_field;
 	}
 }

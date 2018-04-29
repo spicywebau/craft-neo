@@ -10,6 +10,7 @@ use benf\neo\Plugin as Neo;
 use benf\neo\Field;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
+use benf\neo\elements\Block;
 
 class FieldAsset extends AssetBundle
 {
@@ -56,7 +57,7 @@ class FieldAsset extends AssetBundle
 		return "Neo.createConfigurator($encodedJsSettings)";
 	}
 
-	public static function createInputJs(Field $field, bool $static = false): string
+	public static function createInputJs(Field $field, $value, bool $static = false): string
 	{
 		$viewService = Craft::$app->getView();
 
@@ -64,7 +65,6 @@ class FieldAsset extends AssetBundle
 		$id = $viewService->formatInputId($name);
 		$blockTypes = $field->getBlockTypes();
 		$blockTypeGroups = $field->getGroups();
-		$blocks = [];
 
 		$jsSettings = [
 			'name' => $name,
@@ -74,7 +74,7 @@ class FieldAsset extends AssetBundle
 			'inputId' => $viewService->namespaceInputId($id),
 			'minBlocks' => $field->minBlocks,
 			'maxBlocks' => $field->maxBlocks,
-			'blocks' => self::_getBlocksJsSettings($blocks),
+			'blocks' => self::_getBlocksJsSettings($value, $static),
 			'static' => $static,
 		];
 
@@ -83,9 +83,33 @@ class FieldAsset extends AssetBundle
 		return "Neo.createInput($encodedJsSettings)";
 	}
 
-	private static function _getBlocksJsSettings(array $blocks): array
+	private static function _getBlocksJsSettings(array $blocks, bool $static = false): array
 	{
 		$jsBlocks = [];
+		$sortOrder = 0;
+
+		foreach ($blocks as $block)
+		{
+			if ($block instanceof Block)
+			{
+				$blockType = $block->getType();
+
+				$jsBlocks[] = [
+					'id' => $block->id,
+					'blockType' => $blockType->handle,
+					'modified' => false,
+					'sortOrder' => $sortOrder++,
+					'collapsed' => false,
+					'enabled' => (bool)$block->enabled,
+					'level' => max(0, intval($block->level) - 1),
+					'tabs' => Neo::$plugin->blocks->renderTabs($block, $static),
+				];
+			}
+			elseif (is_array($block))
+			{
+				$jsBlocks[] = $block;
+			}
+		}
 
 		return $jsBlocks;
 	}

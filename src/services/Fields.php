@@ -9,6 +9,7 @@ use craft\helpers\Html;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\Field;
+use benf\neo\elements\Block;
 use benf\neo\helpers\Memoize;
 
 class Fields extends Component
@@ -140,7 +141,106 @@ class Fields extends Component
 		return true;
 	}
 
-	public function saveValue(Field $field, ElementInterface $value, bool $isNew)
+	public function saveValue(Field $field, ElementInterface $owner, bool $isNew)
+	{
+		$dbService = Craft::$app->getDb();
+		$elementsService = Craft::$app->getElements();
+
+		$query = $owner->getFieldValue($field->handle);
+		$isSite = $query->siteId == $owner->siteId;
+		$isNewElement = !$query->ownerId;
+		$isDuplicatingElement = $query->ownerId && $query->ownerId != $owner->id;
+
+		if ($isSite)
+		{
+			$blocks = $query->getCachedResult();
+
+			if ($blocks === null)
+			{
+				$query = clone $query;
+				$query->status = null;
+				$query->enabledForSites = false;
+
+				$blocks = $query->all();
+			}
+
+			$transaction = $dbService->beginTransaction();
+			try
+			{
+				if (!$isNewElement)
+				{
+					$this->_applyFieldTranslationSettings($query->ownerId, $query->siteId, $field);
+				}
+
+				if ($isDuplicatingElement)
+				{
+					$blockCheckQuery = clone $query;
+					$blockCheckQuery->ownerId = $owner->id;
+
+					$hasBlocks = $blockCheckQuery->exists();
+
+					if (!$hasBlocks)
+					{
+						foreach ($blocks as $block)
+						{
+							$elementsService->duplicateElement($block, [
+								'ownerId' => $owner->id,
+								'ownerSiteId' => $field->localizeBlocks ? $owner->siteId : null,
+							]);
+						}
+					}
+				}
+				else
+				{
+					$blockIds = [];
+
+					foreach ($blocks as $block)
+					{
+						$block->ownerId = $owner->id;
+						$block->ownerSiteId = $field->localizeBlocks ? $ownerSiteId : null;
+						$block->propagating = $owner->propagating;
+
+						$elementsService->saveElement($block, false, !$owner->propagating);
+
+						$blockIds[] = $block->id;
+					}
+
+					$deleteQuery = Block::find()
+						->status(null)
+						->enabledForSite(false)
+						->ownerId($owner->id)
+						->fieldId($field->id)
+						->where(['not', ['elements.id' => $blockIds] ]);
+
+					if ($field->localizeBlocks)
+					{
+						$deleteQuery->ownerSiteId($owner->siteId);
+					}
+					else
+					{
+						$deleteQuery->siteId($owner->siteId);
+					}
+
+					$deleteBlocks = $deleteQuery->all();
+
+					foreach ($deleteBlocks as $deleteBlock)
+					{
+						$elementsService->deleteElement($deleteBlock);
+					}
+				}
+
+				$transaction->commit();
+			}
+			catch (\Throwable $e)
+			{
+				$transaction->rollBack();
+
+				throw $e;
+			}
+		}
+	}
+
+	private function _applyFieldTranslationSettings(int $ownerId, int $ownerSiteId, Field $field)
 	{
 
 	}

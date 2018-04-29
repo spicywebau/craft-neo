@@ -13,6 +13,7 @@ use benf\neo\Plugin as Neo;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\elements\Block;
+use benf\neo\elements\db\BlockQuery;
 use benf\neo\assets\FieldAsset;
 
 class Field extends BaseField
@@ -219,7 +220,7 @@ class Field extends BaseField
 				$query->status = null;
 				$query->enabledForSite = false;
 				$query->limit = null;
-				$query->setCachedResults($this->_createBlocksFromSerializedData($value, $element));
+				$query->setCachedResult($this->_createBlocksFromSerializedData($value, $element));
 			}
 		}
 
@@ -245,6 +246,20 @@ class Field extends BaseField
 	{
 		$viewService = Craft::$app->getView();
 
+		if ($element !== null && $element->hasEagerLoadedElements($this->handle))
+		{
+			$value = $element->getEagerLoadedElements($this->handle);
+		}
+
+		if ($value instanceof BlockQuery)
+		{
+			$value = $value
+				->limit(null)
+				->status(null)
+				->enabledForSite(false)
+				->all();
+		}
+
 		$html = '';
 
 		// Disable Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
@@ -255,7 +270,7 @@ class Field extends BaseField
 		else
 		{
 			$viewService->registerAssetBundle(FieldAsset::class);
-			$viewService->registerJs(FieldAsset::createInputJs($this));
+			$viewService->registerJs(FieldAsset::createInputJs($this, $value));
 
 			$html = $viewService->renderTemplate('neo/input', [
 				'neoField' => $this,
@@ -353,7 +368,26 @@ class Field extends BaseField
 
 	public function beforeElementDelete(ElementInterface $element): bool
 	{
+		$sitesService = Craft::$app->getSites();
+		$elementsService = Craft::$app->getElements();
 
+		foreach ($sitesService->getAllSiteIds() as $siteId)
+		{
+			$query = Block::find();
+			$query->status(null);
+			$query->enabledForSite(false);
+			$query->siteId($siteId);
+			$query->owner($element);
+
+			$blocks = $query->all();
+
+			foreach ($blocks as $block)
+			{
+				$elementsService->deleteElement($block);
+			}
+		}
+
+		return parent::beforeElementDelete($element);
 	}
 
 	/**
@@ -370,19 +404,93 @@ class Field extends BaseField
 
 	private function _createBlocksFromSerializedData($value, ElementInterface $element = null): array
 	{
+		$requestService = Craft::$app->getRequest();
+
 		$blocks = [];
 
 		if (is_array($value))
 		{
 			$oldBlocksById = [];
-			$blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getBlockTypesByFieldId($this->id), 'handle');
+			$blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getByFieldId($this->id), 'handle');
 			
 			if ($element && $element->id)
 			{
 				$ownerId = $element->id;
+				$blockIds = [];
 
+				foreach (array_keys($value) as $blockId)
+				{
+					if (is_numeric($blockId) && $blockId !== 0)
+					{
+						$blockIds[] = $blockId;
+					}
+				}
 
+				if (!empty($blockIds))
+				{
+					$oldBlocksQuery = Block::find();
+					$oldBlocksQuery->fieldId($this->id);
+					$oldBlocksQuery->ownerId($ownerId);
+					$oldBlocksQuery->id($blockIds);
+					$oldBlocksQuery->limit(null);
+					$oldBlocksQuery->status(null);
+					$oldBlocksQuery->enabledForSite(false);
+					$oldBlocksQuery->siteId($element->siteId);
+					$oldBlocksQuery->indexBy('id');
 
+					$oldBlocksById = $oldBlocksQuery->all();
+				}
+			}
+			else
+			{
+				$ownerId = null;
+			}
+
+			$isLivePreview = $requestService->getIsLivePreview();
+
+			foreach ($value as $blockId => $blockData)
+			{
+				$blockTypeHandle = isset($blockData['type']) ? $blockData['type'] : null;
+				$blockType = $blockTypeHandle && isset($blockTypes[$blockTypeHandle]) ? $blockTypes[$blockTypeHandle] : null;
+				$blockFields = isset($blockData['fields']) ? $blockData['fields'] : null;
+
+				$isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
+				$isNew = strpos($blockId, 'new') === 0;
+				$isDeleted = !isset($oldBlocksById[$blockId]);
+
+				if ($blockType && (!$isLivePreview || $isEnabled))
+				{
+					if ($isNew || $isDeleted)
+					{
+						$block = new Block();
+						$block->fieldId = $this->id;
+						$block->typeId = $blockType->id;
+						$block->ownerId = $ownerId;
+						$block->siteId = $element->siteId;
+					}
+					else
+					{
+						$block = $oldBlocksById[$blockId];
+					}
+
+					$block->setOwner($element);
+					$block->enabled = $isEnabled;
+
+					$fieldNamespace = $element->getFieldParamNamespace();
+
+					if ($fieldNamespace !== null)
+					{
+						$blockNamespace = ($fieldNamespace ? $fieldNamespace . '.' : '') . "$this->handle.$blockId.fields";
+						$block->setFieldParamNamespace($blockNamespace);
+					}
+
+					if ($blockFields)
+					{
+						$block->setFieldValues($blockFields);
+					}
+
+					$blocks[] = $block;
+				}
 			}
 		}
 

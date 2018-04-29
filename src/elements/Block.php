@@ -10,6 +10,7 @@ use craft\validators\SiteIdValidator;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\db\BlockQuery;
+use benf\neo\records\Block as BlockRecord;
 
 class Block extends Element
 {

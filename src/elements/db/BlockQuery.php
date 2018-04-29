@@ -3,8 +3,10 @@ namespace benf\neo\elements\db;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\models\Site;
+use craft\helpers\Db;
 
 class BlockQuery extends ElementQuery
 {
@@ -107,7 +109,77 @@ class BlockQuery extends ElementQuery
 	{
 		if ($value instanceof BlockType)
 		{
-			
+			$this->typeId = $value->id;
 		}
+		else if ($value !== null)
+		{
+			$this->typeId = (new Query())
+				->select(['id'])
+				->from(['{{%neoblocktypes}}'])
+				->where(Db::parseParam('handle', $value))
+				->column();
+		}
+		else
+		{
+			$this->typeId = null;
+		}
+
+		return $this;
+	}
+
+	public function typeId($value)
+	{
+		$this->typeId = $value;
+
+		return $this;
+	}
+
+	protected function beforePrepare(): bool
+	{
+		$this->joinElementTable('neoblocks');
+
+		if (!$this->fieldId && $this->id && is_numeric($this->id))
+		{
+			$this->fieldId = (new Query())
+				->select(['fieldId'])
+				->from(['{{%neoblocks}}'])
+				->where(['id' => $this->id])
+				->scalar();
+		}
+
+		$this->query->select([
+			'neoblocks.fieldId',
+			'neoblocks.ownerId',
+			'neoblocks.ownerSiteId',
+			'neoblocks.typeId',
+		]);
+
+		if ($this->fieldId)
+		{
+			$this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $this->fieldId));
+		}
+
+		if ($this->ownerId)
+		{
+			$this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $this->ownerId));
+		}
+
+		if ($this->ownerSiteId)
+		{
+			$this->subQuery->andWhere(Db::parseParam('neoblocks.ownerSiteId', $this->ownerSiteId));
+		}
+
+		if ($this->typeId !== null)
+		{
+			// If typeId is an empty array, it's because type() was called but no valid type handles were passed in
+			if (is_array($this->typeId) && empty($this->typeId))
+			{
+				return false;
+			}
+
+			$this->subQuery->andWhere(Db::parseParam('neoblocks.typeId', $this->typeId));
+		}
+
+		return parent::beforePrepare();
 	}
 }
