@@ -1,12 +1,17 @@
 <?php
 namespace benf\neo\elements\db;
 
+use yii\base\Exception;
+
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\models\Site;
 use craft\helpers\Db;
+
+use benf\neo\Plugin as Neo;
+use benf\neo\models\BlockType;
 
 class BlockQuery extends ElementQuery
 {
@@ -17,6 +22,8 @@ class BlockQuery extends ElementQuery
 
 	public function __set($name, $value)
 	{
+		$deprecatorService = Craft::$app->getDeprecator();
+
 		switch ($name)
 		{
 			case 'ownerSite':
@@ -31,7 +38,7 @@ class BlockQuery extends ElementQuery
 			break;
 			case 'ownerLocale':
 			{
-				Craft::$app->getDeprecator()->log("BlockQuery::ownerLocale()', 'The “ownerLocale” Neo block query param has been deprecated. Use “ownerSite” or “ownerSiteId” instead.");
+				$deprecatorService->log('BlockQuery::ownerLocale()', "The “ownerLocale” Neo block query param has been deprecated. Use “ownerSite” or “ownerSiteId” instead.");
 				$this->ownerSite($value);
 			}
 			break;
@@ -40,6 +47,13 @@ class BlockQuery extends ElementQuery
 				parent::__set($name, $value);
 			}
 		}
+	}
+
+	public function init()
+	{
+		$this->withStructure = true;
+
+		parent::init();
 	}
 
 	public function fieldId($value)
@@ -138,13 +152,27 @@ class BlockQuery extends ElementQuery
 	{
 		$this->joinElementTable('neoblocks');
 
-		if (!$this->fieldId && $this->id && is_numeric($this->id))
+		$isSaved = $this->id && is_numeric($this->id);
+
+		if ($isSaved)
 		{
-			$this->fieldId = (new Query())
-				->select(['fieldId'])
-				->from(['{{%neoblocks}}'])
-				->where(['id' => $this->id])
-				->scalar();
+			foreach (['fieldId', 'ownerId', 'ownerSiteId'] as $idProperty)
+			{
+				if (!$this->$idProperty)
+				{
+					$this->fieldId = (new Query())
+						->select([$idProperty])
+						->from(['{{%neoblocks}}'])
+						->where(['id' => $this->id])
+						->scalar();
+				}
+			}
+
+			if (!$this->structureId)
+			{
+				$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->ownerSiteId);
+				$this->structureId = $blockStructure->structureId;
+			}
 		}
 
 		$this->query->select([

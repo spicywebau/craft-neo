@@ -1,6 +1,7 @@
 <?php
 namespace benf\neo\services;
 
+use benf\neo\models\BlockStructure;
 use yii\base\Component;
 
 use Craft;
@@ -147,6 +148,8 @@ class Fields extends Component
 		$elementsService = Craft::$app->getElements();
 
 		$query = $owner->getFieldValue($field->handle);
+		$ownerSiteId = $field->localizeBlocks ? $owner->siteId : null;
+
 		$isSite = $query->siteId == $owner->siteId;
 		$isNewElement = !$query->ownerId;
 		$isDuplicatingElement = $query->ownerId && $query->ownerId != $owner->id;
@@ -185,7 +188,7 @@ class Fields extends Component
 						{
 							$elementsService->duplicateElement($block, [
 								'ownerId' => $owner->id,
-								'ownerSiteId' => $field->localizeBlocks ? $owner->siteId : null,
+								'ownerSiteId' => $ownerSiteId,
 							]);
 						}
 					}
@@ -197,7 +200,7 @@ class Fields extends Component
 					foreach ($blocks as $block)
 					{
 						$block->ownerId = $owner->id;
-						$block->ownerSiteId = $field->localizeBlocks ? $ownerSiteId : null;
+						$block->ownerSiteId = $ownerSiteId;
 						$block->propagating = $owner->propagating;
 
 						$elementsService->saveElement($block, false, !$owner->propagating);
@@ -227,6 +230,21 @@ class Fields extends Component
 					{
 						$elementsService->deleteElement($deleteBlock);
 					}
+
+					$blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $owner->siteId);
+
+					if ($blockStructure)
+					{
+						Neo::$plugin->blocks->deleteStructure($blockStructure);
+					}
+
+					$blockStructure = new BlockStructure();
+					$blockStructure->fieldId = $field->id;
+					$blockStructure->ownerId = $owner->id;
+					$blockStructure->ownerSiteId = $owner->siteId;
+
+					Neo::$plugin->blocks->saveStructure($blockStructure);
+					Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
 				}
 
 				$transaction->commit();

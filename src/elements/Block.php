@@ -1,6 +1,9 @@
 <?php
 namespace benf\neo\elements;
 
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
@@ -153,7 +156,7 @@ class Block extends Element
 
 	public function afterSave(bool $isNew)
 	{
-		$record;
+		$record = null;
 
 		if ($isNew)
 		{

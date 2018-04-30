@@ -1,4 +1,5 @@
 .DS_Store
+/.idea
 /.nyc_output
 /.tmp
 /node_modules

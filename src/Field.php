@@ -485,6 +485,7 @@ class Field extends BaseField
 
 					$block->setOwner($element);
 					$block->enabled = $isEnabled;
+					$block->level = ((int)$blockData['level']) + 1;
 
 					$fieldNamespace = $element->getFieldParamNamespace();
 
