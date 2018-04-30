@@ -772,7 +772,7 @@ export default Garnish.Base.extend({
 					spinnerCallback()
 				})
 
-			Craft.postActionRequest('neo/renderBlocks', data, e =>
+			Craft.postActionRequest('neo/input/render-blocks', data, e =>
 			{
 				if(e.success && e.blocks.length > 0)
 				{
