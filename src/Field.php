@@ -174,7 +174,7 @@ class Field extends BaseField
 		// Disable creating Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
 		if ($this->_getNamespaceDepth() >= 1)
 		{
-			$html = '<span class="error">' . Craft::t('neo', "Unable to nest Neo fields.") . '</span>';
+			$html = $this->_getNestingErrorHtml();
 		}
 		else
 		{
@@ -185,6 +185,16 @@ class Field extends BaseField
 		}
 
 		return $html;
+	}
+
+	public function getInputHtml($value, ElementInterface $element = null): string
+	{
+		return $this->_getInputHtml($value, $element);
+	}
+
+	public function getStaticHtml($value, ElementInterface $element): string
+	{
+		return $this->_getInputHtml($value, $element, true);
 	}
 
 	public function normalizeValue($value, ElementInterface $element = null)
@@ -242,48 +252,6 @@ class Field extends BaseField
 		return $this->localizeBlocks;
 	}
 
-	public function getInputHtml($value, ElementInterface $element = null): string
-	{
-		$viewService = Craft::$app->getView();
-
-		if ($element !== null && $element->hasEagerLoadedElements($this->handle))
-		{
-			$value = $element->getEagerLoadedElements($this->handle);
-		}
-
-		if ($value instanceof BlockQuery)
-		{
-			$value = $value
-				->limit(null)
-				->status(null)
-				->enabledForSite(false)
-				->all();
-		}
-
-		$html = '';
-
-		// Disable Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
-		if ($this->_getNamespaceDepth() > 1)
-		{
-			$html = '<span class="error">' . Craft::t('neo', "Unable to nest Neo fields.") . '</span>';
-		}
-		else
-		{
-			$viewService->registerAssetBundle(FieldAsset::class);
-			$viewService->registerJs(FieldAsset::createInputJs($this, $value));
-
-			$html = $viewService->renderTemplate('neo/input', [
-				'neoField' => $this,
-				'id' => $viewService->formatInputId($this->handle),
-				'name' => $this->handle,
-				'translatable' => $this->localizeBlocks,
-				'static' => false,
-			]);
-		}
-
-		return $html;
-	}
-
 	public function getElementValidationRules(): array
 	{
 		return [
@@ -333,11 +301,6 @@ class Field extends BaseField
 		}
 
 		return parent::getSearchKeywords($keywords, $element);
-	}
-
-	public function getStaticHtml($value, ElementInterface $element): string
-	{
-
 	}
 
 	public function getEagerLoadingMap(array $sourceElements)
@@ -400,6 +363,53 @@ class Field extends BaseField
 	{
 		$namespace = Craft::$app->getView()->getNamespace();
 		return preg_match_all('/\\bfields\\b/', $namespace);
+	}
+
+	private function _getNestingErrorHtml(): string
+	{
+		return '<span class="error">' . Craft::t('neo', "Unable to nest Neo fields.") . '</span>';
+	}
+
+	private function _getInputHtml($value, ElementInterface $element = null, bool $static = false): string
+	{
+		$viewService = Craft::$app->getView();
+
+		if ($element !== null && $element->hasEagerLoadedElements($this->handle))
+		{
+			$value = $element->getEagerLoadedElements($this->handle);
+		}
+
+		if ($value instanceof BlockQuery)
+		{
+			$value = $value
+				->limit(null)
+				->status(null)
+				->enabledForSite(false)
+				->all();
+		}
+
+		$html = '';
+
+		// Disable Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
+		if ($this->_getNamespaceDepth() > 1)
+		{
+			$html = $this->_getNestingErrorHtml();
+		}
+		else
+		{
+			$viewService->registerAssetBundle(FieldAsset::class);
+			$viewService->registerJs(FieldAsset::createInputJs($this, $value, $static));
+
+			$html = $viewService->renderTemplate('neo/input', [
+				'neoField' => $this,
+				'id' => $viewService->formatInputId($this->handle),
+				'name' => $this->handle,
+				'translatable' => $this->localizeBlocks,
+				'static' => $static,
+			]);
+		}
+
+		return $html;
 	}
 
 	private function _createBlocksFromSerializedData($value, ElementInterface $element = null): array
