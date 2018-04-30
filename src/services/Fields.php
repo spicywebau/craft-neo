@@ -162,7 +162,7 @@ class Fields extends Component
 			{
 				$query = clone $query;
 				$query->status = null;
-				$query->enabledForSites = false;
+				$query->enabledForSite = false;
 
 				$blocks = $query->all();
 			}
