@@ -145,7 +145,7 @@ class BlockTypes extends Component
 
 				if (!$fieldLayout->id)
 				{
-					if ($isNew)
+					if (!$isNew)
 					{
 						$result = $this->_createQuery()
 							->where(['id' => $blockType->id])
