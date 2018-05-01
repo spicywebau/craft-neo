@@ -160,7 +160,7 @@ class BlockQuery extends ElementQuery
 			{
 				if (!$this->$idProperty)
 				{
-					$this->fieldId = (new Query())
+					$this->$idProperty = (new Query())
 						->select([$idProperty])
 						->from(['{{%neoblocks}}'])
 						->where(['id' => $this->id])
@@ -168,10 +168,14 @@ class BlockQuery extends ElementQuery
 				}
 			}
 
-			if (!$this->structureId)
+			if (!$this->structureId && $this->fieldId && $this->ownerId && $this->ownerSiteId)
 			{
 				$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->ownerSiteId);
-				$this->structureId = $blockStructure->structureId;
+
+				if ($blockStructure)
+				{
+					$this->structureId = $blockStructure->structureId;
+				}
 			}
 		}
 

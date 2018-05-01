@@ -66,8 +66,8 @@ class Block extends Element
 	public function rules(): array
 	{
 		$rules = parent::rules();
-		$rules[] = [ ['fieldId', 'ownerId', 'typeId'], 'number', 'integerOnly' => true ];
-		$rules[] = [ ['ownerSiteId'], SiteIdValidator::class ];
+		$rules[] = [['fieldId', 'ownerId', 'typeId'], 'number', 'integerOnly' => true];
+		$rules[] = [['ownerSiteId'], SiteIdValidator::class];
 
 		return $rules;
 	}
@@ -132,10 +132,14 @@ class Block extends Element
 			{
 				$owner = null;
 			}
-			else
+		}
+		elseif ($this->ownerId !== null)
+		{
+			$owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId);
+
+			if ($owner === null)
 			{
-				$owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId);
-				$this->_owner = $owner ?? false;
+				$this->_owner = false;
 			}
 		}
 

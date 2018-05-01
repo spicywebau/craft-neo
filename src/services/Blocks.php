@@ -106,17 +106,22 @@ class Blocks extends Component
 		return $tabsHtml;
 	}
 
-	public function getStructure(int $fieldId, int $ownerId, int $ownerSiteId)
+	public function getStructure(int $fieldId, int $ownerId, $ownerSiteId = null)
 	{
 		$blockStructure = null;
 
-		$result = $this->_createStructureQuery()
+		$query = $this->_createStructureQuery()
 			->where([
 				'fieldId' => $fieldId,
 				'ownerId' => $ownerId,
-				'ownerSiteId' => $ownerSiteId,
-			])
-			->one();
+			]);
+
+		if ($ownerSiteId)
+		{
+			$query->andWhere(['ownerSiteId' => $ownerSiteId]);
+		}
+
+		$result = $query->one();
 
 		if ($result)
 		{

@@ -231,20 +231,23 @@ class Fields extends Component
 						$elementsService->deleteElement($deleteBlock);
 					}
 
-					$blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $owner->siteId);
+					$blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $ownerSiteId);
 
 					if ($blockStructure)
 					{
 						Neo::$plugin->blocks->deleteStructure($blockStructure);
 					}
 
-					$blockStructure = new BlockStructure();
-					$blockStructure->fieldId = $field->id;
-					$blockStructure->ownerId = $owner->id;
-					$blockStructure->ownerSiteId = $owner->siteId;
+					if (!empty($blocks))
+					{
+						$blockStructure = new BlockStructure();
+						$blockStructure->fieldId = $field->id;
+						$blockStructure->ownerId = $owner->id;
+						$blockStructure->ownerSiteId = $ownerSiteId;
 
-					Neo::$plugin->blocks->saveStructure($blockStructure);
-					Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+						Neo::$plugin->blocks->saveStructure($blockStructure);
+						Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+					}
 				}
 
 				$transaction->commit();
