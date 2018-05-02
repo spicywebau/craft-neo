@@ -42,7 +42,7 @@ class Fields extends Component
 		}
 
 		return $isValid;
-	}git
+	}
 
 	public function save(Field $field, bool $validate = true): bool
 	{
