@@ -31,7 +31,7 @@ class Input extends Controller
 			$block->typeId = $rawBlock['type'];
 			$block->level = $rawBlock['level'];
 			$block->enabled = isset($rawBlock['enabled']);
-			//$block->collapsed = isset($rawBlock['collapsed']);
+			$block->setCollapsed(isset($rawBlock['collapsed']));
 			$block->ownerSiteId = $locale;
 
 			if (!empty($rawBlock['content']))
@@ -43,7 +43,7 @@ class Input extends Controller
 				'type' => $type->id,
 				'level' => $block->level,
 				'enabled' => $block->enabled,
-				//'collapsed' => $block->collapsed,
+				'collapsed' => $block->getCollapsed(),
 				'tabs' => Neo::$plugin->blocks->renderTabs($block, false, $namespace),
 			];
 		}
@@ -52,5 +52,41 @@ class Input extends Controller
 			'success' => true,
 			'blocks' => $renderedBlocks,
 		]);
+	}
+
+	public function actionSaveExpansion(): Response
+	{
+		$this->requireAcceptsJson();
+		$this->requirePostRequest();
+
+		$requestService = Craft::$app->getRequest();
+		$elementsService = Craft::$app->getElements();
+
+		$expanded = $requestService->getRequiredParam('expanded');
+		$blockId = $requestService->getRequiredParam('blockId');
+		$locale = $requestService->getRequiredParam('locale');
+
+		$return = $this->asJson([
+			'success' => false,
+			'blockId' => $blockId,
+			'locale' => $locale,
+		]);
+
+		$block = $blockId ? $elementsService->getElementById($blockId, Block::class, $locale) : null;
+
+		if ($block)
+		{
+			$block->setCollapsed(!$expanded);
+			$block->cacheCollapsed();
+
+			$return = $this->asJson([
+				'success' => true,
+				'blockId' => $blockId,
+				'locale' => $locale,
+				'expanded' => !$block->getCollapsed(),
+			]);
+		}
+
+		return $return;
 	}
 }

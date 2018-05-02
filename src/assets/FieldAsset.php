@@ -99,7 +99,7 @@ class FieldAsset extends AssetBundle
 					'blockType' => $blockType->handle,
 					'modified' => false,
 					'sortOrder' => $sortOrder++,
-					'collapsed' => false,
+					'collapsed' => $block->getCollapsed(),
 					'enabled' => (bool)$block->enabled,
 					'level' => max(0, intval($block->level) - 1),
 					'tabs' => Neo::$plugin->blocks->renderTabs($block, $static),

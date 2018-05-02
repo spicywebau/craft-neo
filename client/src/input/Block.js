@@ -290,7 +290,7 @@ export default Garnish.Base.extend({
 		if(!this._locale)
 		{
 			const $form = this.$container.closest('form')
-			const $locale = $form.find('input[name="locale"]')
+			const $locale = $form.find('input[name="siteId"]')
 
 			this._locale = $locale.val()
 		}
@@ -633,8 +633,8 @@ export default Garnish.Base.extend({
 	{
 		if(!this.isNew())
 		{
-			Craft.queueActionRequest('neo/saveExpansion', {
-				expanded: this.isExpanded(),
+			Craft.queueActionRequest('neo/input/save-expansion', {
+				expanded: this.isExpanded() ? 1 : 0,
 				blockId: this.getId(),
 				locale: this.getLocale(),
 			})

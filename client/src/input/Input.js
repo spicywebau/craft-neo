@@ -69,7 +69,7 @@ export default Garnish.Base.extend({
 		}
 
 		const $form = this.$container.closest('form')
-		this._locale = $form.find('input[name="locale"]').val()
+		this._locale = $form.find('input[name="siteId"]').val()
 
 		const $neo = this.$container.find('[data-neo]')
 		this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]')

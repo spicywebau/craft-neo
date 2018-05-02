@@ -239,12 +239,47 @@ class Field extends BaseField
 
 	public function serializeValue($value, ElementInterface $element = null)
 	{
+		$serialized = [];
+		$new = 0;
 
+		foreach ($value->all() as $block)
+		{
+			$blockId = $block->id ?? 'new' . ++$new;
+			$serialized[$blockId] = [
+				'type' => $block->getType()->handle,
+				'enabled' => $block->enabled,
+				'collapsed' => $block->getCollapsed(),
+				'level' => $block->level,
+				'fields' => $block->getSerializedFieldValues(),
+			];
+		}
+
+		return $serialized;
 	}
 
 	public function modifyElementsQuery(ElementQueryInterface $query, $value)
 	{
+		if ($value === 'not :empty:')
+		{
+			$value = ':notempty:';
+		}
 
+		if ($value === ':notempty:' || $value === ':empty:')
+		{
+			$alias = 'neoblocks_' . $this->handle;
+			$operator = $value === ':notempty:' ? '!=' : '=';
+
+			$query->subQuery->andWhere(
+				"(select count([[{$alias}.id]]) from {{%neoblocks}} {{{$alias}}} where [[{$alias}.ownerId]] = [[elements.id]] and [[{$alias}.fieldId]] = :fieldId) {$operator} 0",
+				[':fieldId' => $this->id]
+			);
+		}
+		elseif ($value !== null)
+		{
+			return false;
+		}
+
+		return null;
 	}
 
 	public function getIsTranslatable(ElementInterface $element = null): bool
@@ -465,6 +500,7 @@ class Field extends BaseField
 				$blockFields = isset($blockData['fields']) ? $blockData['fields'] : null;
 
 				$isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
+				$isCollapsed = isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false;
 				$isNew = strpos($blockId, 'new') === 0;
 				$isDeleted = !isset($oldBlocksById[$blockId]);
 
@@ -484,6 +520,7 @@ class Field extends BaseField
 					}
 
 					$block->setOwner($element);
+					$block->setCollapsed($isCollapsed);
 					$block->enabled = $isEnabled;
 					$block->level = ((int)$blockData['level']) + 1;
 

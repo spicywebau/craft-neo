@@ -186,10 +186,13 @@ class Fields extends Component
 					{
 						foreach ($blocks as $block)
 						{
-							$elementsService->duplicateElement($block, [
+							$duplicatedBlock = $elementsService->duplicateElement($block, [
 								'ownerId' => $owner->id,
 								'ownerSiteId' => $ownerSiteId,
 							]);
+
+							$duplicatedBlock->setCollapsed($block->getCollapsed());
+							$duplicatedBlock->cacheCollapsed();
 						}
 					}
 				}
@@ -204,6 +207,7 @@ class Fields extends Component
 						$block->propagating = $owner->propagating;
 
 						$elementsService->saveElement($block, false, !$owner->propagating);
+						$block->cacheCollapsed();
 
 						$blockIds[] = $block->id;
 					}

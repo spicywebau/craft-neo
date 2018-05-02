@@ -53,6 +53,7 @@ class Block extends Element
 	public $typeId;
 
 	private $_owner;
+	public $_collapsed;
 
 	public function extraFields(): array
 	{
@@ -149,6 +150,53 @@ class Block extends Element
 	public function setOwner(ElementInterface $owner = null)
 	{
 		$this->_owner = $owner;
+	}
+
+	public function getCollapsed()
+	{
+		$cacheService = Craft::$app->getCache();
+
+		$collapsed = $this->_collapsed;
+
+		if (!is_bool($collapsed))
+		{
+			if ($this->id)
+			{
+				$cacheKey = "neoblock-$this->id-collapsed";
+				$collapsed = $cacheService->exists($cacheKey);
+				$this->_collapsed = $collapsed;
+			}
+			else
+			{
+				$collapsed = false;
+			}
+		}
+
+		return $collapsed;
+	}
+
+	public function setCollapsed(bool $value)
+	{
+		$this->_collapsed = $value;
+	}
+
+	public function cacheCollapsed()
+	{
+		$cacheService = Craft::$app->getCache();
+
+		if (is_bool($this->_collapsed) && $this->id)
+		{
+			$cacheKey = "neoblock-$this->id-collapsed";
+
+			if ($this->_collapsed)
+			{
+				$cacheService->add($cacheKey, 1);
+			}
+			else
+			{
+				$cacheService->delete($cacheKey);
+			}
+		}
 	}
 
 	public function getHasFreshContent(): bool
