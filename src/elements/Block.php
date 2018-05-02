@@ -199,6 +199,17 @@ class Block extends Element
 		}
 	}
 
+	public function forgetCollapsed()
+	{
+		$cacheService = Craft::$app->getCache();
+
+		if ($this->id)
+		{
+			$cacheKey = "neoblock-$this->id-collapsed";
+			$cacheService->delete($cacheKey);
+		}
+	}
+
 	public function getHasFreshContent(): bool
 	{
 		$owner = $this->getOwner();

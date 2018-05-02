@@ -227,6 +227,7 @@ class Fields extends Component
 
 					foreach ($deleteBlocks as $deleteBlock)
 					{
+						$deleteBlock->forgetCollapsed();
 						$elementsService->deleteElement($deleteBlock);
 					}
 
