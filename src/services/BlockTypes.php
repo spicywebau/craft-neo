@@ -17,12 +17,6 @@ use benf\neo\helpers\Memoize;
 
 class BlockTypes extends Component
 {
-	private $_recordsById = [];
-	private $_modelsById = [];
-	private $_modelsByFieldId = [];
-	private $_groupModelsById = [];
-	private $_groupModelsByFieldId = [];
-
 	public function getById($id)
 	{
 		$blockType = null;
