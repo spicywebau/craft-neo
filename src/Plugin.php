@@ -3,11 +3,11 @@ namespace benf\neo;
 
 use yii\base\Event;
 
+use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\services\Fields;
 use craft\events\RegisterComponentTypesEvent;
 
-use benf\neo\Field;
 use benf\neo\services\Fields as FieldsService;
 use benf\neo\services\BlockTypes as BlockTypesService;
 use benf\neo\services\Blocks as BlocksService;
@@ -34,6 +34,8 @@ class Plugin extends BasePlugin
             'blocks' => BlocksService::class,
             'conversion' => ConversionService::class,
         ]);
+
+		Craft::$app->view->registerTwigExtension(new TwigExtension());
 
 		Event::on(
 			Fields::class,
