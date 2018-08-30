@@ -5,12 +5,19 @@ This is the Craft 3 development branch. The plugin is currently under heavy deve
 
 
 ### State of the project
-##### 8th April 2018
+##### 30th August 2018
+Hello All,
 
-Many of you may have been wondering what has been happening with the development of Neo for Craft 3. I have missed the deadline I publicly set to have Neo ported to Craft 3, and I apologise if this has caused issues for you. That said,  expect to see the plugin ready within the week.
+Spicy Web has taken over ownership of the Neo plugin, Ben has moved on and wanted the plugin to be looked after, which we are honoured to do.
 
-After Neo is ported I plan to port all my other plugins, in the following order -- Embedded Assets, No-Cache, Relabel, Quickfield, and Coordinates. Each of these plugins are orders of magnitudes less in size/scope than Neo, so I expect to have them ready sometime in the following week.
+Spicy Web uses Neo in all our websites like many of you, so we just wanted to officially say the plugin will be supported and it will be updated to Craft 3 ASAP.
 
-Thank you for your patience so far!
+We have set ourselves a goal to have it Craft 3 ready by October 30.
 
-Ben.
+<br>
+
+Thank you
+
+Tony Sambell
+
+Spicy Web Director
