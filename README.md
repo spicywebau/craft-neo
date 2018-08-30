@@ -5,6 +5,23 @@
 
 Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the concept of the [Matrix field type](https://craftcms.com/features/matrix) with a number of very useful features. Neo has been carefully crafted (pun intended) to ensure it matches the look and feel of Craft.
 
+#### Update regarding support for Craft CMS 3
+Hello All,
+
+Spicy Web has taken over ownership of the Neo plugin, Ben has moved on and wanted the plugin to be looked after, which we are honoured to do.
+
+Spicy Web uses Neo in all our websites like many of you, so we just wanted to officially say the plugin will be supported and it will be updated to Craft 3 ASAP.
+
+We have set ourselves a goal to have it Craft 3 ready by October 30.
+
+<br>
+
+Thank you
+
+Tony Sambell
+
+Spicy Web Director
+
 <br>
 
 ### Use existing fields
