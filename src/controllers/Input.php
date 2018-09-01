@@ -61,10 +61,14 @@ class Input extends Controller
 
 		$requestService = Craft::$app->getRequest();
 		$elementsService = Craft::$app->getElements();
+		$sitesService = Craft::$app->getSites();
 
 		$expanded = $requestService->getRequiredParam('expanded');
 		$blockId = $requestService->getRequiredParam('blockId');
-		$locale = $requestService->getRequiredParam('locale');
+
+		// If the `locale` parameter wasn't passed, then this Craft installation has only one site, thus we can just
+		// grab the primary site ID.
+		$locale = $requestService->getParam('locale', $sitesService->getPrimarySite()->id);
 
 		$return = $this->asJson([
 			'success' => false,
