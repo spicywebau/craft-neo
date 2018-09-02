@@ -348,9 +348,17 @@ export default Garnish.Base.extend({
 		{
 			const $field = $(this)
 			const $input = $field.children('.input')
-			const id = $field.prop('id')
+			const fieldId = $field.prop('id')
 			const label = $field.children('.heading').children('label').text()
-			const handle = id.match(/-([a-z0-9_]+)-field$/i)[1]
+			const handleMatch = fieldId.match(/-([a-z0-9_]+)-field$/i)
+
+			// We rely on the field ID to tell us the field type, so if it doesn't tell us, we need to skip it.
+			if(handleMatch === null)
+			{
+				return
+			}
+
+			const handle = handleMatch[1]
 			const fieldType = fieldTypes[handle]
 			let value = false
 
