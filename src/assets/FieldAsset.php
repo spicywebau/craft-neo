@@ -125,6 +125,7 @@ class FieldAsset extends AssetBundle
 				$fieldLayout = $blockType->getFieldLayout();
 				$fieldLayoutTabs = $fieldLayout->getTabs();
 				$jsFieldLayout = [];
+				$fieldTypes = [];
 
 				foreach ($fieldLayoutTabs as $tab)
 				{
@@ -137,6 +138,9 @@ class FieldAsset extends AssetBundle
 							'id' => $field->id,
 							'required' => $field->required,
 						];
+
+						$fieldClassName = explode('\\', $field->className());
+						$fieldTypes[$field->handle] = end($fieldClassName);
 					}
 
 					$jsFieldLayout[] = [
@@ -157,6 +161,7 @@ class FieldAsset extends AssetBundle
 					'errors' => $blockType->getErrors(),
 					'fieldLayout' => $jsFieldLayout,
 					'fieldLayoutId' => $fieldLayout->id,
+					'fieldTypes' => $fieldTypes,
 				];
 
 				if ($renderTabs)
