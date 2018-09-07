@@ -530,6 +530,37 @@ export default Garnish.Base.extend({
 
 					value = _escapeHTML(values.join(', '))
 				}
+				break
+				case 'LinkField':
+				{
+					const values = []
+					const $selectedType = $input.find('select').children(':selected')
+					const $visibleOption = $input.find('.linkfield--typeOption:not(.hidden)')
+					const visibleInputVal = $visibleOption.find('input[type!="hidden"]').val()
+					const $visibleElement = $visibleOption.find('.element')
+					const customText = $input.find('.field[id*="customText"] input').val()
+
+					values.push(_limit($selectedType.text()))
+
+					if(visibleInputVal)
+					{
+						values.push(_limit(visibleInputVal))
+					}
+
+					if($visibleElement.length > 0)
+					{
+						const title = $visibleElement.find('.title, .label').eq(0).text()
+
+						values.push(_limit(title))
+					}
+
+					if(customText)
+					{
+						values.push(_limit(customText))
+					}
+
+					value = _escapeHTML(values.join(', '))
+				}
 			}
 
 			if(value && previewText.length < 10)
