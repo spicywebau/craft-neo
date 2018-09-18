@@ -57,7 +57,7 @@
 		margin-bottom: 10px;
 		border-radius: 4px;
 		border: 1px solid #e3e5e8;
-		background-color: #eef0f1;
+		background-color: #f1f5f8;
 
 		&:focus {
 			outline: 0;
@@ -67,7 +67,7 @@
 			position: relative;
 			height: 30px;
 			line-height: 30px;
-			background-color: #eef0f1;
+			background-color: #f1f5f8;
 			color: #8f98a3;
 
 			&_left,
@@ -89,12 +89,12 @@
 
 				body.ltr & {
 					right: 0;
-					background-image: linear-gradient(to left, #eef0f1 72px, rgba(#eef0f1, 0) 100px);
+					background-image: linear-gradient(to left, #f1f5f8 72px, rgba(#f1f5f8, 0) 100px);
 				}
 
 				body.rtl & {
 					left:  0;
-					background-image: linear-gradient(to right, #eef0f1 72px, rgba(#eef0f1, 0) 100px);
+					background-image: linear-gradient(to right, #f1f5f8 72px, rgba(#f1f5f8, 0) 100px);
 				}
 			}
 
@@ -199,9 +199,9 @@
 						padding: 0 9px;
 						border: 1px solid #e3e5e8;
 						border-top: 0;
-						border-bottom-color: #fafafa;
+						border-bottom-color: #fbfcfd;
 						margin-bottom: -1px;
-						background-color: #fafafa;
+						background-color: #fbfcfd;
 						color: #576575;
 
 						body.ltr & { right: 8px; }
@@ -227,13 +227,13 @@
 							padding: 0 9px;
 							border: 1px solid #e3e5e8;
 							border-top: 0;
-							border-bottom-color: #fafafa;
+							border-bottom-color: #fbfcfd;
 							margin-bottom: -1px;
-							background-color: #fafafa;
+							background-color: #fbfcfd;
 							color: #576575;
 
 							&.is-blank {
-								border-bottom-color: #eef0f1;
+								border-bottom-color: #f1f5f8;
 								background-color: transparent;
 							}
 						}
@@ -294,7 +294,7 @@
 				display: none;
 				padding: 14px;
 				border-top: 1px solid #e3e5e8;
-				background-color: #fafafa;
+				background-color: #fbfcfd;
 
 				&.is-blank {
 					padding: 0;
@@ -314,7 +314,7 @@
 		&_children {
 			padding: 14px;
 			border-top: 1px solid #e3e5e8;
-			background-color: #eef0f1;
+			background-color: #f1f5f8;
 		}
 
 		&_collapsed-children {
@@ -323,7 +323,7 @@
 			&_child {
 				height: 2px;
 				border-top: 1px solid #e3e5e8;
-				background-color: #fafafa;
+				background-color: #fbfcfd;
 				margin-top: -3px;
 				transition: margin-top 0.2s; // 200ms to match jQuery transition duration
 			}
@@ -435,6 +435,6 @@
 
 	> .titlebar {
 		border-bottom-color: #eee;
-		background-color: #fafafa;
+		background-color: #fbfcfd;
 	}
 }
