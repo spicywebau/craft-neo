@@ -54,6 +54,8 @@ class Blocks extends Component
 		$newNamespace = $namespace . '[__NEOBLOCK__][fields]';
 		$viewService->setNamespace($newNamespace);
 
+		$isNewBlock = $block->id === null;
+
 		$tabsHtml = [];
 
 		$fieldLayout = $blockType->getFieldLayout();
@@ -77,6 +79,11 @@ class Blocks extends Component
 			{
 				foreach ($fields as $field)
 				{
+					if ($isNewBlock)
+					{
+						$field->setIsFresh(true);
+					}
+
 					$fieldErrors = $block->getErrors($field->handle);
 
 					if (!empty($fieldErrors))
@@ -92,6 +99,15 @@ class Blocks extends Component
 				'fields' => $fields,
 				'static' => $static,
 			]);
+
+			if ($isNewBlock)
+			{
+				// Reset $_isFresh's
+				foreach ($fields as $field)
+				{
+					$field->setIsFresh(null);
+				}
+			}
 
 			$fieldsJs = $viewService->clearJsBuffer();
 
