@@ -172,6 +172,14 @@ class BlockQuery extends ElementQuery
 		return $this->_applyFilter('limit', $limit);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
+	public function offset($offset)
+	{
+		return $this->_applyFilter('offset', $offset);
+	}
+
 	protected function beforePrepare(): bool
 	{
 		$this->joinElementTable('neoblocks');
@@ -271,6 +279,11 @@ class BlockQuery extends ElementQuery
 				case 'limit':
 				{
 					$newResult = array_slice($oldResult, 0, $value);
+				}
+				break;
+				case 'offset':
+				{
+					$newResult = array_slice($oldResult, $value);
 				}
 			}
 
