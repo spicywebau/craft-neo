@@ -151,6 +151,14 @@ class BlockQuery extends ElementQuery
 	/**
 	 * @inheritdoc
 	 */
+	public function inReverse(bool $value = true)
+	{
+		return $this->_applyFilter('inReverse', $value);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function level($value = null)
 	{
 		return $this->_applyFilter('level', $value);
@@ -247,6 +255,11 @@ class BlockQuery extends ElementQuery
 
 			switch ($filter)
 			{
+				case 'inReverse':
+				{
+					$newResult = array_reverse($oldResult);
+				}
+				break;
 				case 'level':
 				{
 					$newResult = array_filter($oldResult, function($block) use($value)
