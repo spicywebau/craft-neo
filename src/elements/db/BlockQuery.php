@@ -148,6 +148,22 @@ class BlockQuery extends ElementQuery
 		return $this;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
+	public function level($value = null)
+	{
+		return $this->_applyFilter('level', $value);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function limit($limit)
+	{
+		return $this->_applyFilter('limit', $limit);
+	}
+
 	protected function beforePrepare(): bool
 	{
 		$this->joinElementTable('neoblocks');
@@ -213,5 +229,99 @@ class BlockQuery extends ElementQuery
 		}
 
 		return parent::beforePrepare();
+	}
+
+	private function _applyFilter($filter, $value)
+	{
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview)
+		{
+			if (!$value)
+			{
+				return $this;
+			}
+
+			$oldResult = $this->getCachedResult();
+			$newResult = [];
+
+			switch ($filter)
+			{
+				case 'level':
+				{
+					$newResult = array_filter($oldResult, function($block) use($value)
+					{
+						return $this->_compareInt($block->level, $value);
+					});
+				}
+				break;
+				case 'limit':
+				{
+					$newResult = array_slice($oldResult, 0, $value);
+				}
+			}
+
+			// The query filter property must be set after retrieving the cached result, or getCachedResult() will
+			// notice the criteria has changed and wipe the result.
+			$this->$filter = $value;
+
+			$this->setCachedResult($newResult);
+		}
+		else
+		{
+			$this->$filter = $value;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Compares an integer against a criteria model integer comparison string, or integer.
+	 * Takes in comparison inputs such as `1`, `'>=23'`, and `'< 4'`.
+	 *
+	 * @param int $value
+	 * @param int,string $comparison
+	 * @return bool
+	 */
+	private function _compareInt($value, $comparison)
+	{
+		if (is_int($comparison))
+		{
+			return $value === $comparison;
+		}
+
+		if (is_string($comparison))
+		{
+			$matches = [];
+			preg_match('/([><]=?)\\s*([0-9]+)/', $comparison, $matches);
+
+			if (count($matches) === 3)
+			{
+				$comparator = $matches[1];
+				$comparison = (int)$matches[2];
+
+				switch ($comparator)
+				{
+					case '>':
+					{
+						return $value > $comparison;
+					}
+					case '<':
+					{
+						return $value < $comparison;
+					}
+					case '>=':
+					{
+						return $value >= $comparison;
+					}
+					case '<=':
+					{
+						return $value <= $comparison;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 }
