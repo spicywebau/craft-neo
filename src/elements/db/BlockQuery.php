@@ -11,6 +11,7 @@ use craft\models\Site;
 use craft\helpers\Db;
 
 use benf\neo\Plugin as Neo;
+use benf\neo\elements\Block;
 use benf\neo\models\BlockType;
 
 class BlockQuery extends ElementQuery
@@ -180,6 +181,36 @@ class BlockQuery extends ElementQuery
 		return $this->_applyFilter('offset', $offset);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
+	public function nextSiblingOf($value)
+	{
+		$value = $this->_getBlock($value);
+
+		return $this->_applyFilter('nextSiblingOf', $value);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function prevSiblingOf($value)
+	{
+		$value = $this->_getBlock($value);
+
+		return $this->_applyFilter('prevSiblingOf', $value);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function siblingOf($value)
+	{
+		$value = $this->_getBlock($value);
+
+		return $this->_applyFilter('siblingOf', $value);
+	}
+
 	protected function beforePrepare(): bool
 	{
 		$this->joinElementTable('neoblocks');
@@ -285,6 +316,26 @@ class BlockQuery extends ElementQuery
 				{
 					$newResult = array_slice($oldResult, $value);
 				}
+				break;
+				case 'nextSiblingOf':
+				{
+					$nextSiblings = $this->_getNextSiblings($oldResult, $value);
+					$newResult = [$nextSiblings[0]];
+				}
+				break;
+				case 'prevSiblingOf':
+				{
+					$prevSiblings = $this->_getPrevSiblings($oldResult, $value);
+					$newResult = [end($prevSiblings)];
+				}
+				break;
+				case 'siblingOf':
+				{
+					$mid = $this->_indexOfBlock($oldResult, $value);
+					$prevSiblings = $this->_getPrevSiblings($oldResult, $value, $mid);
+					$nextSiblings = $this->_getNextSiblings($oldResult, $value, $mid);
+					$newResult = array_merge($prevSiblings, $nextSiblings);
+				}
 			}
 
 			// The query filter property must be set after retrieving the cached result, or getCachedResult() will
@@ -349,5 +400,113 @@ class BlockQuery extends ElementQuery
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns a block given an ID, or an actual block.
+	 * Saves having to check if some value is an integer or a block instance.
+	 *
+	 * @param Block|int $block
+	 * @return Block|null
+	 */
+	private function _getBlock($block)
+	{
+		if (is_int($block))
+		{
+			$block = Neo::$plugin->blocks->getBlockById($block);
+		}
+
+		if ($block instanceof Block)
+		{
+			return $block;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Finds the position of a block inside a list of blocks.
+	 * It checks using the block's ID, so the passed block doesn't have to be strictly the same instance it matches to.
+	 * If no match is found, `-1` is returned.
+	 *
+	 * @param array $elements
+	 * @param Block $block
+	 * @return int
+	 */
+	private function _indexOfBlock(array $elements, Block $block): int
+	{
+		foreach ($elements as $i => $element)
+		{
+			if ($element->id === $block->id)
+			{
+				return $i;
+			}
+		}
+
+		return -1;
+	}
+
+	private function _getPrevSiblings(array $elements, Block $block, int $index = null): array
+	{
+		if ($index === null)
+		{
+			$index = $this->_indexOfBlock($elements, $block);
+		}
+
+		if ($index < 0)
+		{
+			return [];
+		}
+
+		$prevSiblings = [];
+
+		for ($i = $index - 1; $i >= 0; $i--)
+		{
+			$element = $elements[$i];
+
+			if ($element->level < $block->level)
+			{
+				break;
+			}
+
+			if ($element->level == $block->level)
+			{
+				array_unshift($prevSiblings, $element);
+			}
+		}
+
+		return $prevSiblings;
+	}
+
+	private function _getNextSiblings(array $elements, Block $block, int $index = null): array
+	{
+		if ($index === null)
+		{
+			$index = $this->_indexOfBlock($elements, $block);
+		}
+
+		if ($index < 0)
+		{
+			return [];
+		}
+
+		$nextSiblings = [];
+
+		for ($i = $index + 1; $i < count($elements); $i++)
+		{
+			$element = $elements[$i];
+
+			if ($element->level < $block->level)
+			{
+				break;
+			}
+
+			if ($element->level == $block->level)
+			{
+				$nextSiblings[] = $element;
+			}
+		}
+
+		return $nextSiblings;
 	}
 }
