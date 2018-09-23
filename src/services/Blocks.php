@@ -16,6 +16,18 @@ use benf\neo\records\BlockStructure as BlockStructureRecord;
 
 class Blocks extends Component
 {
+	/**
+	 * Returns a block given its ID.
+	 *
+	 * @param int $blockId
+	 * @param int|null $siteId
+	 * @return Block|null
+	 */
+	public function getBlockById(int $blockId, int $siteId = null)
+	{
+		return Craft::$app->getElements()->getElementById($blockId, Block::class, $siteId);
+	}
+
 	public function getSearchKeywords(Block $block, ElementInterface $element = null): string
 	{
 		$fieldsService = Craft::$app->getFields();

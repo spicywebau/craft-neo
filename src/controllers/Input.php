@@ -60,7 +60,6 @@ class Input extends Controller
 		$this->requirePostRequest();
 
 		$requestService = Craft::$app->getRequest();
-		$elementsService = Craft::$app->getElements();
 		$sitesService = Craft::$app->getSites();
 
 		$expanded = $requestService->getRequiredParam('expanded');
@@ -76,7 +75,7 @@ class Input extends Controller
 			'locale' => $locale,
 		]);
 
-		$block = $blockId ? $elementsService->getElementById($blockId, Block::class, $locale) : null;
+		$block = $blockId ? Neo::$plugin->blocks->getBlockById($blockId, $locale) : null;
 
 		if ($block)
 		{
