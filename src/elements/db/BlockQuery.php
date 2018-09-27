@@ -2,6 +2,7 @@
 namespace benf\neo\elements\db;
 
 use yii\base\Exception;
+use yii\db\Connection;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -20,6 +21,9 @@ class BlockQuery extends ElementQuery
 	public $ownerId;
 	public $ownerSiteId;
 	public $typeId;
+
+	private $_allElements;
+	private $_currentFilters = [];
 
 	public function __set($name, $value)
 	{
@@ -152,63 +156,73 @@ class BlockQuery extends ElementQuery
 	/**
 	 * @inheritdoc
 	 */
-	public function inReverse(bool $value = true)
+	public function count($q = '*', $db = null)
 	{
-		return $this->_applyFilter('inReverse', $value);
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview && isset($this->_allElements))
+		{
+			$this->setCachedResult($this->_getFilteredResult());
+		}
+
+		return parent::count($q, $db);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function level($value = null)
+	public function all($db = null)
 	{
-		return $this->_applyFilter('level', $value);
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview && isset($this->_allElements))
+		{
+			$this->setCachedResult($this->_getFilteredResult());
+		}
+
+		return parent::all($db);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function limit($limit)
+	public function one($db = null)
 	{
-		return $this->_applyFilter('limit', $limit);
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview && isset($this->_allElements))
+		{
+			$this->setCachedResult($this->_getFilteredResult());
+		}
+
+		return parent::one($db);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function offset($offset)
+	public function nth(int $n, Connection $db = null)
 	{
-		return $this->_applyFilter('offset', $offset);
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview && isset($this->_allElements))
+		{
+			$this->setCachedResult($this->_getFilteredResult());
+		}
+
+		return parent::nth($n, $db);
 	}
 
-	/**
-	 * @inheritdoc
-	 */
-	public function nextSiblingOf($value)
+	public function setCachedResult(array $elements)
 	{
-		$value = $this->_getBlock($value);
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 
-		return $this->_applyFilter('nextSiblingOf', $value);
-	}
+		if ($isLivePreview && !isset($this->_allElements))
+		{
+			$this->_allElements = $elements;
+		}
 
-	/**
-	 * @inheritdoc
-	 */
-	public function prevSiblingOf($value)
-	{
-		$value = $this->_getBlock($value);
-
-		return $this->_applyFilter('prevSiblingOf', $value);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function siblingOf($value)
-	{
-		$value = $this->_getBlock($value);
-
-		return $this->_applyFilter('siblingOf', $value);
+		parent::setCachedResult($elements);
 	}
 
 	protected function beforePrepare(): bool
@@ -278,78 +292,33 @@ class BlockQuery extends ElementQuery
 		return parent::beforePrepare();
 	}
 
-	private function _applyFilter($filter, $value)
+
+	// Private methods
+
+	private function _getFilteredResult()
 	{
-		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$result = $this->_allElements ?? [];
+		$criteria = $this->getCriteria();
 
-		if ($isLivePreview)
+		foreach (['limit', 'offset'] as $limitParam)
 		{
-			if (!$value)
+			if ($this->$limitParam)
 			{
-				return $this;
+				$criteria[$limitParam] = $this->$limitParam;
 			}
-
-			$oldResult = $this->getCachedResult();
-			$newResult = [];
-
-			switch ($filter)
-			{
-				case 'inReverse':
-				{
-					$newResult = array_reverse($oldResult);
-				}
-				break;
-				case 'level':
-				{
-					$newResult = array_filter($oldResult, function($block) use($value)
-					{
-						return $this->_compareInt($block->level, $value);
-					});
-				}
-				break;
-				case 'limit':
-				{
-					$newResult = array_slice($oldResult, 0, $value);
-				}
-				break;
-				case 'offset':
-				{
-					$newResult = array_slice($oldResult, $value);
-				}
-				break;
-				case 'nextSiblingOf':
-				{
-					$nextSiblings = $this->_getNextSiblings($oldResult, $value);
-					$newResult = [$nextSiblings[0]];
-				}
-				break;
-				case 'prevSiblingOf':
-				{
-					$prevSiblings = $this->_getPrevSiblings($oldResult, $value);
-					$newResult = [end($prevSiblings)];
-				}
-				break;
-				case 'siblingOf':
-				{
-					$mid = $this->_indexOfBlock($oldResult, $value);
-					$prevSiblings = $this->_getPrevSiblings($oldResult, $value, $mid);
-					$nextSiblings = $this->_getNextSiblings($oldResult, $value, $mid);
-					$newResult = array_merge($prevSiblings, $nextSiblings);
-				}
-			}
-
-			// The query filter property must be set after retrieving the cached result, or getCachedResult() will
-			// notice the criteria has changed and wipe the result.
-			$this->$filter = $value;
-
-			$this->setCachedResult($newResult);
-		}
-		else
-		{
-			$this->$filter = $value;
 		}
 
-		return $this;
+		foreach ($criteria as $param => $value)
+		{
+			$method = '__' . $param;
+
+			if (method_exists($this, $method))
+			{
+				$result = $this->$method($result, $value);
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -508,5 +477,143 @@ class BlockQuery extends ElementQuery
 		}
 
 		return $nextSiblings;
+	}
+
+
+	// Live Preview methods
+	// These methods must be prefixed with two underscores. They will automatically be detected and used when filtering.
+
+	/**
+	 * @param array $elements
+	 * @param bool $value
+	 * @return array
+	 */
+	private function __inReverse(array $elements, bool $value = true): array
+	{
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		return array_reverse($elements);
+	}
+
+	/**
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
+	private function __level(array $elements, $value): array
+	{
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$newElements = array_filter($elements, function($block) use($value)
+		{
+			return $this->_compareInt($block->level, $value);
+		});
+
+		return array_values($newElements);
+	}
+
+	/**
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
+	private function __limit(array $elements, $value): array
+	{
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		return array_slice($elements, 0, $value);
+	}
+
+	/**
+	 * @param array $elements
+	 * @param Block|int $value
+	 * @return array
+	 */
+	private function __nextSiblingOf(array $elements, $value): array
+	{
+		$value = $this->_getBlock($value);
+
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$nextSiblings = $this->_getNextSiblings($elements, $value);
+
+		if (empty($nextSiblings))
+		{
+			return [];
+		}
+
+		return [$nextSiblings[0]];
+	}
+
+	/**
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
+	private function __offset(array $elements, $value): array
+	{
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		return array_slice($elements, $value);
+	}
+
+	/**
+	 * @param array $elements
+	 * @param Block|int $value
+	 * @return array
+	 */
+	private function __prevSiblingOf(array $elements, $value)
+	{
+		$value = $this->_getBlock($value);
+
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$prevSiblings = $this->_getPrevSiblings($elements, $value);
+
+		if (empty($prevSiblings))
+		{
+			return [];
+		}
+
+		return [end($prevSiblings)];
+	}
+
+	/**
+	 * @param array $elements
+	 * @param Block|int $value
+	 * @return array
+	 */
+	private function __siblingOf(array $elements, $value): array
+	{
+		$value = $this->_getBlock($value);
+
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$mid = $this->_indexOfBlock($elements, $value);
+		$prevSiblings = $this->_getPrevSiblings($elements, $value, $mid);
+		$nextSiblings = $this->_getNextSiblings($elements, $value, $mid);
+
+		return array_merge($prevSiblings, $nextSiblings);
 	}
 }
