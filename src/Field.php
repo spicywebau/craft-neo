@@ -491,8 +491,6 @@ class Field extends BaseField
 				$ownerId = null;
 			}
 
-			$isLivePreview = $requestService->getIsLivePreview();
-
 			foreach ($value as $blockId => $blockData)
 			{
 				$blockTypeHandle = isset($blockData['type']) ? $blockData['type'] : null;
@@ -504,7 +502,7 @@ class Field extends BaseField
 				$isNew = strpos($blockId, 'new') === 0;
 				$isDeleted = !isset($oldBlocksById[$blockId]);
 
-				if ($blockType && (!$isLivePreview || $isEnabled))
+				if ($blockType)
 				{
 					if ($isNew || $isDeleted)
 					{

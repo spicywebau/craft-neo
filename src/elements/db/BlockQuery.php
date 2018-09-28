@@ -5,6 +5,7 @@ use yii\base\Exception;
 use yii\db\Connection;
 
 use Craft;
+use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
@@ -751,5 +752,25 @@ class BlockQuery extends ElementQuery
 		$nextSiblings = $this->_getNextSiblings($elements, $value, $mid);
 
 		return array_merge($prevSiblings, $nextSiblings);
+	}
+
+	/**
+	 * @param array $elements
+	 * @param string $value
+	 * @return array
+	 */
+	private function __status(array $elements, $value): array
+	{
+		if (!$value)
+		{
+			$value = Element::STATUS_ENABLED;
+		}
+
+		$newElements = array_filter($elements, function($element) use($value)
+		{
+			return $element->status == $value;
+		});
+
+		return array_values($newElements);
 	}
 }
