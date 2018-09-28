@@ -485,6 +485,142 @@ class BlockQuery extends ElementQuery
 
 	/**
 	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
+	private function __ancestorDist($elements, $value): array
+	{
+		if (!$value || !$this->ancestorOf)
+		{
+			return $elements;
+		}
+
+		$ancestors = array_filter($elements, function($element) use($value)
+		{
+			return $element->level >= $this->ancestorOf->level - $value;
+		});
+
+		return array_values($ancestors);
+	}
+
+	/**
+	 * @param array $elements
+	 * @param Block $value
+	 * @return array
+	 */
+	private function __ancestorOf(array $elements, $value): array
+	{
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$ancestors = [];
+		$found = false;
+		$level = $value->level - 1;
+
+		foreach (array_reverse($elements) as $element)
+		{
+			if ($level < 1)
+			{
+				break;
+			}
+			else if ($element === $value)
+			{
+				$found = true;
+			}
+			else if ($found)
+			{
+				if ($element->level == $level)
+				{
+					$ancestors[] = $element;
+					$level--;
+				}
+			}
+		}
+
+		return $ancestors;
+	}
+
+	/**
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
+	private function __descendantDist($elements, $value)
+	{
+		if (!$value || !$this->descendantOf)
+		{
+			return $elements;
+		}
+
+		$descendants = array_filter($elements, function($element) use($value)
+		{
+			return $element->level <= $this->descendantOf->level + $value;
+		});
+
+		return array_values($descendants);
+	}
+
+	/**
+	 * @param array $elements
+	 * @param Block $value
+	 * @return array
+	 */
+	private function __descendantOf(array $elements, $value): array
+	{
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$descendants = [];
+		$found = false;
+
+		foreach ($elements as $element)
+		{
+			if ($element === $value)
+			{
+				$found = true;
+			}
+			else if ($found)
+			{
+				if ($element->level > $value->level)
+				{
+					$descendants[] = $element;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
+		return $descendants;
+	}
+
+	/**
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
+	private function __id(array $elements, $value): array
+	{
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$newElements = array_filter($elements, function($element) use($value)
+		{
+			return $element->id == $value;
+		});
+
+		return array_values($newElements);
+	}
+
+	/**
+	 * @param array $elements
 	 * @param bool $value
 	 * @return array
 	 */
