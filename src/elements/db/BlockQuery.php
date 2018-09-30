@@ -383,7 +383,14 @@ class BlockQuery extends ElementQuery
 	{
 		if (is_int($block))
 		{
-			$block = Neo::$plugin->blocks->getBlockById($block);
+			foreach ($this->_allElements as $element)
+			{
+				if ($element->id == $block)
+				{
+					$block = $element;
+					break;
+				}
+			}
 		}
 
 		if ($block instanceof Block)
