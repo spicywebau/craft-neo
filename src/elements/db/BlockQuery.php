@@ -721,6 +721,52 @@ class BlockQuery extends ElementQuery
 	 * @param Block|int $value
 	 * @return array
 	 */
+	private function __positionedAfter(array $elements, $value): array
+	{
+		$value = $this->_getBlock($value);
+
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$index = $this->_indexOfBlock($elements, $value);
+
+		return array_slice($elements, $index + 1);
+	}
+
+	/**
+	 * @param array $elements
+	 * @param Block|int $value
+	 * @return array
+	 */
+	private function __positionedBefore(array $elements, $value): array
+	{
+		$value = $this->_getBlock($value);
+
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$newElements = [];
+		$ancestors = $this->__ancestorOf($elements, $value);
+		$ancestors = array_merge([$value], $ancestors);
+
+		foreach (array_reverse($ancestors) as $ancestor)
+		{
+			$ancestorPrevSiblings = $this->_getPrevSiblings($elements, $ancestor);
+			$newElements = array_merge($newElements, $ancestorPrevSiblings);
+		}
+
+		return $newElements;
+	}
+
+	/**
+	 * @param array $elements
+	 * @param Block|int $value
+	 * @return array
+	 */
 	private function __prevSiblingOf(array $elements, $value)
 	{
 		$value = $this->_getBlock($value);
