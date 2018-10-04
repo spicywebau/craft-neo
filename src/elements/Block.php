@@ -17,6 +17,9 @@ use benf\neo\records\Block as BlockRecord;
 
 class Block extends Element
 {
+	private $_allElements;
+	private $_liveQueries = [];
+
 	public static function displayName(): string
 	{
 		return Craft::t('neo', "Neo Block");
@@ -243,5 +246,230 @@ class Block extends Element
 		$record->save(false);
 
 		parent::afterSave($isNew);
+	}
+
+	/**
+	 * Allows memoizing all blocks (including this one) for a particular field.
+	 * This is used for Live Preview mode, where certain methods, like `getAncestors`, create block queries which need
+	 * a local set of blocks to query against.
+	 *
+	 * @param array $elements
+	 */
+	public function setAllElements($elements)
+	{
+		$this->_allElements = $elements;
+
+		// Update the elements across any memoized block queries
+		foreach ($this->_liveQueries as $name => $query)
+		{
+			$query->setAllElements($this->_allElements);
+		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getAncestors(int $dist = null)
+	{
+		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview)
+		{
+			if (!isset($this->_liveQueries['ancestors']))
+			{
+				$query = $this->_getBaseRelativeQuery();
+				$query->ancestorOf = $this;
+				$query->setAllElements($this->_allElements);
+
+				$this->_liveQueries['ancestors'] = $query;
+			}
+
+			if ($dist)
+			{
+				$query = $this->_liveQueries['ancestors']->ancestorDist($dist);
+				$query->setAllElements($this->_allElements);
+
+				return $query;
+			}
+
+			return $this->_liveQueries['ancestors'];
+		}
+
+		return parent::getAncestors($dist);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getParent()
+	{
+		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview)
+		{
+			if (!isset($this->_liveQueries['parent']))
+			{
+				$query = $this->_getBaseRelativeQuery();
+				$query->ancestorOf = $this;
+				$query->ancestorDist = 1;
+				$query->setAllElements($this->_allElements);
+
+				$this->_liveQueries['parent'] = $query;
+			}
+
+			return $this->_liveQueries['parent']->one();
+		}
+
+		return parent::getParent();
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getDescendants(int $dist = null)
+	{
+		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview)
+		{
+			if (!isset($this->_liveQueries['descendants']))
+			{
+				$query = $this->_getBaseRelativeQuery();
+				$query->descendantOf = $this;
+				$query->setAllElements($this->_allElements);
+
+				$this->_liveQueries['descendants'] = $query;
+			}
+
+			if ($dist)
+			{
+				$query = $this->_liveQueries['descendants']->descendantDist($dist);
+				$query->setAllElements($this->_allElements);
+
+				return $query;
+			}
+
+			return $this->_liveQueries['descendants'];
+		}
+
+		return parent::getDescendants($dist);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getChildren()
+	{
+		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview)
+		{
+			if (!isset($this->_liveQueries['children']))
+			{
+				$query = $this->_getBaseRelativeQuery();
+				$query->descendantOf = $this;
+				$query->descendantDist = 1;
+				$query->setAllElements($this->_allElements);
+
+				$this->_liveQueries['children'] = $query;
+			}
+
+			return $this->_liveQueries['children'];
+		}
+
+		return parent::getChildren();
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getSiblings()
+	{
+		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview)
+		{
+			if (!isset($this->_liveQueries['siblings']))
+			{
+				$query = $this->_getBaseRelativeQuery();
+				$query->siblingOf = $this;
+				$query->setAllElements($this->_allElements);
+
+				$this->_liveQueries['siblings'] = $query;
+			}
+
+			return $this->_liveQueries['siblings'];
+		}
+
+		return parent::getSiblings();
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getPrevSibling()
+	{
+		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview)
+		{
+			if (!isset($this->_liveQueries['prevSibling']))
+			{
+				$query = $this->_getBaseRelativeQuery();
+				$query->prevSiblingOf = $this;
+				$query->setAllElements($this->_allElements);
+
+				$this->_liveQueries['prevSibling'] = $query;
+			}
+
+			return $this->_liveQueries['prevSibling']->one();
+		}
+
+		return parent::getPrevSibling();
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getNextSibling()
+	{
+		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
+		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+
+		if ($isLivePreview)
+		{
+			if (!isset($this->_liveQueries['nextSibling']))
+			{
+				$query = $this->_getBaseRelativeQuery();
+				$query->nextSiblingOf = $this;
+				$query->setAllElements($this->_allElements);
+
+				$this->_liveQueries['nextSibling'] = $query;
+			}
+
+			return $this->_liveQueries['nextSibling']->one();
+		}
+
+		return parent::getNextSibling();
+	}
+
+	private function _getBaseRelativeQuery()
+	{
+		$query = Block::find();
+		$query->fieldId($this->fieldId);
+		$query->ownerId($this->ownerId);
+		$query->siteId($this->siteId);
+		$query->limit(null);
+		$query->status(null);
+		$query->enabledForSite(false);
+		$query->indexBy('id');
+
+		return $query;
 	}
 }

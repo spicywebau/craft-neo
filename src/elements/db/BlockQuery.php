@@ -214,16 +214,15 @@ class BlockQuery extends ElementQuery
 		return parent::nth($n, $db);
 	}
 
-	public function setCachedResult(array $elements)
+	/**
+	 * Sets all the elements (blocks) to be filtered against in Live Preview mode.
+	 * This becomes the main data source for Live Preview, instead of the database.
+	 *
+	 * @param array $elements
+	 */
+	public function setAllElements(array $elements)
 	{
-		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
-
-		if ($isLivePreview && !isset($this->_allElements))
-		{
-			$this->_allElements = $elements;
-		}
-
-		parent::setCachedResult($elements);
+		$this->_allElements = $elements;
 	}
 
 	protected function beforePrepare(): bool
@@ -547,7 +546,7 @@ class BlockQuery extends ElementQuery
 			}
 		}
 
-		return $ancestors;
+		return array_reverse($ancestors);
 	}
 
 	/**

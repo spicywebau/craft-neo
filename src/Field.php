@@ -227,10 +227,13 @@ class Field extends BaseField
 			// error or we're loading an entry revision.
 			if (is_array($value) || $value === '')
 			{
+				$elements = $this->_createBlocksFromSerializedData($value, $element);
+
 				$query->status = null;
 				$query->enabledForSite = false;
 				$query->limit = null;
-				$query->setCachedResult($this->_createBlocksFromSerializedData($value, $element));
+				$query->setCachedResult($elements);
+				$query->setAllElements($elements);
 			}
 		}
 
@@ -457,6 +460,7 @@ class Field extends BaseField
 		{
 			$oldBlocksById = [];
 			$blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getByFieldId($this->id), 'handle');
+			$prevBlock = null;
 			
 			if ($element && $element->id)
 			{
@@ -535,8 +539,20 @@ class Field extends BaseField
 						$block->setFieldValues($blockFields);
 					}
 
+					if ($prevBlock)
+					{
+						$prevBlock->setNext($block);
+						$block->setPrev($prevBlock);
+					}
+
+					$prevBlock = $block;
 					$blocks[] = $block;
 				}
+			}
+
+			foreach ($blocks as $block)
+			{
+				$block->setAllElements($blocks);
 			}
 		}
 
