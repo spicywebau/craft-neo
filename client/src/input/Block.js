@@ -372,8 +372,14 @@ export default Garnish.Base.extend({
 					$assets.each(function()
 					{
 						const $asset = $(this)
-						const $thumb = $asset.find('.elementthumb > img')
-						const srcset = $thumb.prop('srcset')
+						const $thumbContainer = $asset.find('.elementthumb')
+						const $thumb = $thumbContainer.children('img')
+						let srcset = $thumb.prop('srcset')
+
+						if(!srcset)
+						{
+							srcset = $thumbContainer.data('srcset')
+						}
 
 						values.push(`<img sizes="30px" srcset="${srcset}">`)
 
@@ -430,7 +436,12 @@ export default Garnish.Base.extend({
 				break
 				case 'Color':
 				{
-					const color = $input.find('input[type="color"]').val()
+					let color = $input.find('input[type="color"]').val()
+
+					if(!color)
+					{
+						color = $input.find('input[type="text"]').val()
+					}
 
 					value = `<div class="preview_color" style="background-color: ${color}"></div>`
 				}
