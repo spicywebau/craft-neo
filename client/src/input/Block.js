@@ -461,6 +461,11 @@ export default Garnish.Base.extend({
 					value = _escapeHTML(_limit($selected.text()))
 				}
 				break
+				case 'Email':
+				{
+					value = _escapeHTML(_limit($input.children('input[type="email"]').val()))
+				}
+				break
 				case 'Lightswitch':
 				{
 					const enabled = !!$input.find('input').val()
@@ -484,7 +489,7 @@ export default Garnish.Base.extend({
 				case 'Number':
 				case 'PlainText':
 				{
-					value = _escapeHTML(_limit($input.children('input').val()))
+					value = _escapeHTML(_limit($input.children('input[type="text"]').val()))
 				}
 				break
 				case 'PositionSelect':
@@ -504,6 +509,11 @@ export default Garnish.Base.extend({
 				case 'RichText':
 				{
 					value = _escapeHTML(_limit(Craft.getText($input.find('textarea').val())))
+				}
+				break
+				case 'Url':
+				{
+					value = _escapeHTML(_limit($input.children('input[type="url"]').val()))
 				}
 				break
 				case 'Matrix':
