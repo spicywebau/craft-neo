@@ -7,6 +7,7 @@ use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\services\Fields;
 use craft\events\RegisterComponentTypesEvent;
+use craft\web\twig\variables\CraftVariable;
 
 use benf\neo\services\Fields as FieldsService;
 use benf\neo\services\BlockTypes as BlockTypesService;
@@ -45,5 +46,14 @@ class Plugin extends BasePlugin
 	            $event->types[] = Field::class;
 	        }
 	    );
+
+		Event::on(
+			CraftVariable::class,
+			CraftVariable::EVENT_INIT,
+			function(Event $event)
+			{
+				$event->sender->set('neo', Variable::class);
+			}
+		);
 	}
 }
