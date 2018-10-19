@@ -212,6 +212,7 @@ class Fields extends Component
 						->enabledForSite(false)
 						->ownerId($owner->id)
 						->fieldId($field->id)
+						->inReverse()
 						->where(['not', ['elements.id' => $blockIds] ]);
 
 					if ($field->localizeBlocks)

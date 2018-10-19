@@ -379,6 +379,7 @@ class Field extends BaseField
 			$query->enabledForSite(false);
 			$query->siteId($siteId);
 			$query->owner($element);
+			$query->inReverse();
 
 			$blocks = $query->all();
 
