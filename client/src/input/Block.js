@@ -340,31 +340,26 @@ export default Garnish.Base.extend({
 		condensed = typeof condensed === 'boolean' ? condensed : false
 
 		const $fields = this.$contentContainer.find('.field')
-		const blockType = this.getBlockType()
-		const fieldTypes = blockType.getFieldTypes()
 		const previewText = []
 
 		$fields.each(function()
 		{
 			const $field = $(this)
 			const $input = $field.children('.input')
-			const fieldId = $field.prop('id')
+			const fieldType = $field.data('type')
 			const label = $field.children('.heading').children('label').text()
-			const handleMatch = fieldId.match(/-([a-z0-9_]+)-field$/i)
 
-			// We rely on the field ID to tell us the field type, so if it doesn't tell us, we need to skip it.
-			if(handleMatch === null)
+			// We rely on knowing the field type to know how to generate its preview, so if we don't know, skip it.
+			if(fieldType === null)
 			{
 				return
 			}
 
-			const handle = handleMatch[1]
-			const fieldType = fieldTypes[handle]
 			let value = false
 
 			switch(fieldType)
 			{
-				case 'Assets':
+				case 'craft\\fields\\Assets':
 				{
 					const values = []
 					const $assets = $input.find('.element')
@@ -394,10 +389,10 @@ export default Garnish.Base.extend({
 					value = values.join(' ')
 				}
 				break
-				case 'Categories':
-				case 'Entries':
-				case 'Tags':
-				case 'Users':
+				case 'craft\\fields\\Categories':
+				case 'craft\\fields\\Entries':
+				case 'craft\\fields\\Tags':
+				case 'craft\\fields\\Users':
 				{
 					const values = []
 					const $elements = $input.find('.element')
@@ -413,7 +408,7 @@ export default Garnish.Base.extend({
 					value = values.join(', ')
 				}
 				break
-				case 'Checkboxes':
+				case 'craft\\fields\\Checkboxes':
 				{
 					const values = []
 					const $checkboxes = $input.find('input[type="checkbox"]')
@@ -434,7 +429,7 @@ export default Garnish.Base.extend({
 					value = values.join(', ')
 				}
 				break
-				case 'Color':
+				case 'craft\\fields\\Color':
 				{
 					let color = $input.find('input[type="color"]').val()
 
@@ -446,7 +441,7 @@ export default Garnish.Base.extend({
 					value = `<div class="preview_color" style="background-color: ${color}"></div>`
 				}
 				break
-				case 'Date':
+				case 'craft\\fields\\Date':
 				{
 					const date = _escapeHTML($input.find('.datewrapper input').val())
 					const time = _escapeHTML($input.find('.timewrapper input').val())
@@ -454,26 +449,26 @@ export default Garnish.Base.extend({
 					value = date && time ? (date + ' ' + time) : (date || time)
 				}
 				break
-				case 'Dropdown':
+				case 'craft\\fields\\Dropdown':
 				{
 					const $selected = $input.find('select').children(':selected')
 
 					value = _escapeHTML(_limit($selected.text()))
 				}
 				break
-				case 'Email':
+				case 'craft\\fields\\Email':
 				{
 					value = _escapeHTML(_limit($input.children('input[type="email"]').val()))
 				}
 				break
-				case 'Lightswitch':
+				case 'craft\\fields\\Lightswitch':
 				{
 					const enabled = !!$input.find('input').val()
 
 					value = `<span class="status${enabled ? ' live' : ''}"></span>` + _escapeHTML(_limit(label))
 				}
 				break
-				case 'MultiSelect':
+				case 'craft\\fields\\MultiSelect':
 				{
 					const values = []
 					const $selected = $input.find('select').children(':selected')
@@ -486,38 +481,31 @@ export default Garnish.Base.extend({
 					value = _escapeHTML(_limit(values.join(', ')))
 				}
 				break
-				case 'Number':
-				case 'PlainText':
+				case 'craft\\fields\\Number':
+				case 'craft\\fields\\PlainText':
 				{
 					value = _escapeHTML(_limit($input.children('input[type="text"]').val()))
 				}
 				break
-				case 'PositionSelect':
-				{
-					const $selected = $input.find('.btn.active')
-
-					value = _escapeHTML($selected.prop('title'))
-				}
-				break
-				case 'RadioButtons':
+				case 'craft\\fields\\RadioButtons':
 				{
 					const $checked = $input.find('input[type="g"]:checked')
 
 					value = _escapeHTML(_limit($checked.val()))
 				}
 				break
-				case 'RichText':
+				case 'craft\\redactor\\Field':
 				{
 					value = _escapeHTML(_limit(Craft.getText($input.find('textarea').val())))
 				}
 				break
-				case 'Url':
+				case 'craft\\fields\\Url':
 				{
 					value = _escapeHTML(_limit($input.children('input[type="url"]').val()))
 				}
 				break
-				case 'Matrix':
-				case 'SuperTable':
+				case 'craft\\fields\\Matrix':
+				case 'verbb\\supertable\\fields\\SuperTableField':
 				{
 					const $subFields = $field.find('.field');
 					const $subInputs = $subFields.find('input[type!="hidden"], select, textarea, .label')
@@ -552,7 +540,7 @@ export default Garnish.Base.extend({
 					value = _escapeHTML(values.join(', '))
 				}
 				break
-				case 'LinkField':
+				case 'typedlinkfield\\fields\\LinkField':
 				{
 					const values = []
 					const $selectedType = $input.find('select').children(':selected')
@@ -581,6 +569,13 @@ export default Garnish.Base.extend({
 					}
 
 					value = _escapeHTML(values.join(', '))
+				}
+				break
+				case 'rias\\positionfieldtype\\fields\\Position':
+				{
+					const $selected = $input.find('.btn.active')
+
+					value = _escapeHTML($selected.prop('title'))
 				}
 			}
 

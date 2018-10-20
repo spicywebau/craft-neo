@@ -139,8 +139,7 @@ class FieldAsset extends AssetBundle
 							'required' => $field->required,
 						];
 
-						$fieldClassName = explode('\\', $field->className());
-						$fieldTypes[$field->handle] = end($fieldClassName);
+						$fieldTypes[$field->handle] = $field->className();
 					}
 
 					$jsFieldLayout[] = [
