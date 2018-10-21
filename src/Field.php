@@ -7,6 +7,7 @@ use craft\helpers\ArrayHelper;
 use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\elements\db\ElementQueryInterface;
+use craft\models\EntryVersion;
 use craft\validators\ArrayValidator;
 
 use benf\neo\Plugin as Neo;
@@ -509,6 +510,13 @@ class Field extends BaseField
 
 				if ($blockType)
 				{
+					$blockLevel = (int)$blockData['level'];
+
+					if (!($element instanceof EntryVersion))
+					{
+						$blockLevel++;
+					}
+
 					if ($isNew || $isDeleted)
 					{
 						$block = new Block();
@@ -525,7 +533,7 @@ class Field extends BaseField
 					$block->setOwner($element);
 					$block->setCollapsed($isCollapsed);
 					$block->enabled = $isEnabled;
-					$block->level = ((int)$blockData['level']) + 1;
+					$block->level = $blockLevel;
 
 					$fieldNamespace = $element->getFieldParamNamespace();
 
