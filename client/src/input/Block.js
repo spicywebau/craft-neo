@@ -489,9 +489,11 @@ export default Garnish.Base.extend({
 				break
 				case 'craft\\fields\\RadioButtons':
 				{
-					const $checked = $input.find('input[type="g"]:checked')
+					const $checked = $input.find('input[type="radio"]:checked')
+					const $label = $checked.closest('label')
+					const label = $label.text()
 
-					value = _escapeHTML(_limit($checked.val()))
+					value = _escapeHTML(_limit(label))
 				}
 				break
 				case 'craft\\redactor\\Field':
