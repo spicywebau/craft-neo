@@ -19,6 +19,8 @@ class Plugin extends BasePlugin
 {
 	public static $plugin;
 
+	public $schemaVersion = '2.0.0';
+
 	public $controllerMap = [
 		'input' => InputController::class,
 	];
