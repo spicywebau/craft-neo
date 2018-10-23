@@ -13,8 +13,21 @@ use benf\neo\Field;
 use benf\neo\elements\Block;
 use benf\neo\helpers\Memoize;
 
+/**
+ * Class Fields
+ *
+ * @package benf\neo
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @since 2.0.0
+ */
 class Fields extends Component
 {
+	/**
+	 * Performs validation on a Neo field.
+	 *
+	 * @param Field $field The field to validate.
+	 * @return bool Whether validation was successful.
+	 */
 	public function validate(Field $field): bool
 	{
 		$isValid = true;
@@ -44,6 +57,14 @@ class Fields extends Component
 		return $isValid;
 	}
 
+	/**
+	 * Saves a Neo field's settings.
+	 *
+	 * @param Field $field The field to save.
+	 * @param bool $validate Whether to perform validation.
+	 * @return bool Whether saving was successful.
+	 * @throws \Throwable
+	 */
 	public function save(Field $field, bool $validate = true): bool
 	{
 		$dbService = Craft::$app->getDb();
@@ -109,6 +130,13 @@ class Fields extends Component
 		return $isValid;
 	}
 
+	/**
+	 * Deletes a Neo field.
+	 *
+	 * @param Field $field The field to delete.
+	 * @return bool Whether deletion was successful.
+	 * @throws \Throwable
+	 */
 	public function delete(Field $field): bool
 	{
 		$dbService = Craft::$app->getDb();
@@ -137,6 +165,14 @@ class Fields extends Component
 		return true;
 	}
 
+	/**
+	 * Saves a Neo field's value for a given element.
+	 *
+	 * @param Field $field The Neo field.
+	 * @param ElementInterface $owner The element that owns the Neo field.
+	 * @param bool $isNew
+	 * @throws \Throwable
+	 */
 	public function saveValue(Field $field, ElementInterface $owner, bool $isNew)
 	{
 		$dbService = Craft::$app->getDb();
@@ -264,6 +300,6 @@ class Fields extends Component
 
 	private function _applyFieldTranslationSettings(int $ownerId, int $ownerSiteId, Field $field)
 	{
-
+		// TODO
 	}
 }

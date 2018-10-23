@@ -15,8 +15,21 @@ use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
 use benf\neo\errors\BlockTypeNotFoundException;
 use benf\neo\helpers\Memoize;
 
+/**
+ * Class BlockTypes
+ *
+ * @package benf\neo
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @since 2.0.0
+ */
 class BlockTypes extends Component
 {
+	/**
+	 * Gets a Neo block type given its ID.
+	 *
+	 * @param $id The block type ID to check.
+	 * @return BlockType|null
+	 */
 	public function getById($id)
 	{
 		$blockType = null;
@@ -40,7 +53,13 @@ class BlockTypes extends Component
 
 		return $blockType;
 	}
-	
+
+	/**
+	 * Gets block types associated with a given field ID.
+	 *
+	 * @param $fieldId The field ID to check for block types.
+	 * @return array The block types.
+	 */
 	public function getByFieldId($fieldId): array
 	{
 		$blockTypes = [];
@@ -68,6 +87,12 @@ class BlockTypes extends Component
 		return $blockTypes;
 	}
 
+	/**
+	 * Gets block type groups associated with a given field ID.
+	 *
+	 * @param $fieldId The field ID to check for block type groups.
+	 * @return array The block type groups.
+	 */
 	public function getGroupsByFieldId($fieldId): array
 	{
 		$blockTypeGroups = [];
@@ -95,6 +120,13 @@ class BlockTypes extends Component
 		return $blockTypeGroups;
 	}
 
+	/**
+	 * Performs validation on a given Neo block type.
+	 *
+	 * @param BlockType $blockType The block type to perform validation on.
+	 * @param bool $validateUniques Whether to ensure that the block type's handle is unique.
+	 * @return bool Whether validation was successful.
+	 */
 	public function validate(BlockType $blockType, bool $validateUniques = true): bool
 	{
 		$record = $this->_getRecord($blockType);
@@ -120,6 +152,14 @@ class BlockTypes extends Component
 		return $isValid;
 	}
 
+	/**
+	 * Saves a Neo block type.
+	 *
+	 * @param BlockType $blockType The block type to save.
+	 * @param bool $validate Whether to perform validation on the block type.
+	 * @return bool Whether saving the block type was successful.
+	 * @throws \Throwable
+	 */
 	public function save(BlockType $blockType, bool $validate = true): bool
 	{
 		$dbService = Craft::$app->getDb();
@@ -188,6 +228,13 @@ class BlockTypes extends Component
 		return $isValid;
 	}
 
+	/**
+	 * Saves a Neo block type group.
+	 *
+	 * @param BlockTypeGroup $blockTypeGroup The block type group to save.
+	 * @return bool Whether saving the block type group was successful.
+	 * @throws \Throwable
+	 */
 	public function saveGroup(BlockTypeGroup $blockTypeGroup): bool
 	{
 		$dbService = Craft::$app->getDb();
@@ -216,6 +263,13 @@ class BlockTypes extends Component
 		return true;
 	}
 
+	/**
+	 * Deletes a Neo block type and all associated Neo blocks.
+	 *
+	 * @param BlockType $blockType The block type to delete.
+	 * @return bool Whether deleting the block type was successful.
+	 * @throws \Throwable
+	 */
 	public function delete(BlockType $blockType): bool
 	{
 		$dbService = Craft::$app->getDb();
@@ -264,6 +318,13 @@ class BlockTypes extends Component
 		return $success;
 	}
 
+	/**
+	 * Deletes Neo block type groups associated with a given field ID.
+	 *
+	 * @param int $fieldId The field ID having its associated block type groups deleted.
+	 * @return bool Whether deleting the block type groups was successful.
+	 * @throws \Throwable
+	 */
 	public function deleteGroupsByFieldId($fieldId): bool
 	{
 		$dbService = Craft::$app->getDb();
@@ -291,6 +352,14 @@ class BlockTypes extends Component
 		return $success;
 	}
 
+	/**
+	 * Renders a Neo block type's tabs.
+	 *
+	 * @param Block $block The Neo block type having its tabs rendered.
+	 * @param bool $static Whether to generate static tab content.
+	 * @param string|null $namespace
+	 * @return array The tabs data.
+	 */
 	public function renderTabs(BlockType $blockType, bool $static = false, $namespace = null): array
 	{
 		$block = new Block();
@@ -299,6 +368,11 @@ class BlockTypes extends Component
 		return Neo::$plugin->blocks->renderTabs($block, $static, $namespace);
 	}
 
+	/**
+	 * Creates a basic Neo block type query.
+	 *
+	 * @return Query
+	 */
 	private function _createQuery(): Query
 	{
 		return (new Query())
@@ -318,6 +392,11 @@ class BlockTypes extends Component
 			->orderBy(['sortOrder' => SORT_ASC]);
 	}
 
+	/**
+	 * Creates a basic Neo block type group query.
+	 *
+	 * @return Query
+	 */
 	private function _createGroupQuery(): Query
 	{
 		return (new Query())
@@ -331,6 +410,13 @@ class BlockTypes extends Component
 			->orderBy(['sortOrder' => SORT_ASC]);
 	}
 
+	/**
+	 * Gets the block type record associated with the given block type.
+	 *
+	 * @param BlockType The Neo block type.
+	 * @return BlockTypeRecord The block type record associated with the given block type.
+	 * @throws BlockTypeNotFoundException if the given block type has an invalid ID.
+	 */
 	private function _getRecord(BlockType $blockType): BlockTypeRecord
 	{
 		$record = null;

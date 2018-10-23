@@ -7,9 +7,18 @@ use Twig_SimpleTest;
 
 use benf\neo\elements\Block;
 
-
+/**
+ * Class TwigExtension
+ *
+ * @package benf\neo
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @since 2.0.0
+ */
 class TwigExtension extends Twig_Extension
 {
+	/**
+	 * return string
+	 */
 	public function getName()
 	{
 		return "Neo";

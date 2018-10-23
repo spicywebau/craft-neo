@@ -14,20 +14,36 @@ use benf\neo\models\BlockType;
 use benf\neo\models\BlockStructure;
 use benf\neo\records\BlockStructure as BlockStructureRecord;
 
+/**
+ * Class Blocks
+ *
+ * @package benf\neo
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @since 2.0.0
+ */
 class Blocks extends Component
 {
 	/**
-	 * Returns a block given its ID.
+	 * Returns a Neo block given its ID.
 	 *
-	 * @param int $blockId
-	 * @param int|null $siteId
-	 * @return Block|null
+	 * @param int $blockId The Neo block ID to look for.
+	 * @param int|null $siteId The site the Neo block should belong to.
+	 * @return Block|null The Neo block found, if any.
 	 */
 	public function getBlockById(int $blockId, int $siteId = null)
 	{
 		return Craft::$app->getElements()->getElementById($blockId, Block::class, $siteId);
 	}
 
+	/**
+	 * Gets the search keywords to be associated with the given Neo block.
+	 *
+	 * Checks the fields associated with the given Neo block, finds their search keywords and concatenates them.
+	 *
+	 * @param Block $block The Neo block.
+	 * @param ElementInterface|null $element The element the Neo block is associated with, if any.
+	 * $return string The search keywords.
+	 */
 	public function getSearchKeywords(Block $block, ElementInterface $element = null): string
 	{
 		$fieldsService = Craft::$app->getFields();
@@ -54,6 +70,14 @@ class Blocks extends Component
 		return StringHelper::toString($keywords, ' ');
 	}
 
+	/**
+	 * Renders a Neo block's tabs.
+	 *
+	 * @param Block $block The Neo block having its tabs rendered.
+	 * @param bool $static Whether to generate static tab content.
+	 * @param string|null $namespace
+	 * @return array The tabs data.
+	 */
 	public function renderTabs(Block $block, bool $static = false, $namespace = null): array
 	{
 		$viewService = Craft::$app->getView();
@@ -134,6 +158,15 @@ class Blocks extends Component
 		return $tabsHtml;
 	}
 
+	/**
+	 * Gets a Neo block structure.
+	 * Looks for a block structure associated with a given field ID and owner ID, and optionally the owner's site ID.
+	 *
+	 * @param int $fieldId The field ID to look for.
+	 * @param int $ownerId The owner ID to look for.
+	 * @param int|null $ownerSiteId The owner site ID to look for, if any.
+	 * @return BlockStructure|null The block structure found, if any.
+	 */
 	public function getStructure(int $fieldId, int $ownerId, $ownerSiteId = null)
 	{
 		$blockStructure = null;
@@ -159,6 +192,12 @@ class Blocks extends Component
 		return $blockStructure;
 	}
 
+	/**
+	 * Gets a Neo block structure given its ID.
+	 *
+	 * @param int $id The block structure ID to look for.
+	 * @return BlockStructure|null The block structure found, if any.
+	 */
 	public function getStructureById(int $id)
 	{
 		$blockStructure = null;
@@ -175,6 +214,12 @@ class Blocks extends Component
 		return $blockStructure;
 	}
 
+	/**
+	 * Saves a Neo block structure.
+	 *
+	 * @param BlockStructure $blockStructure The block structure to save.
+	 * @throws \Throwable
+	 */
 	public function saveStructure(BlockStructure $blockStructure)
 	{
 		$dbService = Craft::$app->getDb();
@@ -215,6 +260,13 @@ class Blocks extends Component
 		}
 	}
 
+	/**
+	 * Deletes a Neo block structure.
+	 *
+	 * @param BlockStructure $blockStructure The block structure to delete.
+	 * @return bool Whether the deletion was successful.
+	 * @throws \Throwable
+	 */
 	public function deleteStructure(BlockStructure $blockStructure): bool
 	{
 		$dbService = Craft::$app->getDb();
@@ -256,6 +308,14 @@ class Blocks extends Component
 		return $success;
 	}
 
+	/**
+	 * Builds a Neo block structure.
+	 *
+	 * @param array $blocks The Neo blocks to associate with the block structure.
+	 * @param BlockStructure $blockStructure The Neo block structure.
+	 * @return bool Whether building the block structure was successful.
+	 * @throws \Throwable
+	 */
 	public function buildStructure(array $blocks, BlockStructure $blockStructure): bool
 	{
 		$dbService = Craft::$app->getDb();
@@ -313,6 +373,11 @@ class Blocks extends Component
 		return $success;
 	}
 
+	/**
+	 * Creates a basic Neo block structure query.
+	 *
+	 * @return Query
+	 */
 	private function _createStructureQuery()
 	{
 		return (new Query())

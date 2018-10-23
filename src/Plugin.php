@@ -15,16 +15,35 @@ use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\Conversion as ConversionService;
 use benf\neo\controllers\Input as InputController;
 
+/**
+ * Class Plugin
+ *
+ * @package benf\neo
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @since 2.0.0
+ */
 class Plugin extends BasePlugin
 {
+	/**
+	 * @var Plugin
+	 */
 	public static $plugin;
 
+	/**
+	 * @inheritdoc
+	 */
 	public $schemaVersion = '2.0.0';
 
+	/**
+	 * @inheritdoc
+	 */
 	public $controllerMap = [
 		'input' => InputController::class,
 	];
 
+	/**
+	 * @inheritdoc
+	 */
 	public function init()
 	{
 		parent::init();
@@ -32,11 +51,11 @@ class Plugin extends BasePlugin
 		self::$plugin = $this;
 
 		$this->setComponents([
-            'fields' => FieldsService::class,
-            'blockTypes' => BlockTypesService::class,
-            'blocks' => BlocksService::class,
-            'conversion' => ConversionService::class,
-        ]);
+			'fields' => FieldsService::class,
+			'blockTypes' => BlockTypesService::class,
+			'blocks' => BlocksService::class,
+			'conversion' => ConversionService::class,
+		]);
 
 		Craft::$app->view->registerTwigExtension(new TwigExtension());
 
@@ -45,9 +64,9 @@ class Plugin extends BasePlugin
 			Fields::EVENT_REGISTER_FIELD_TYPES,
 			function(RegisterComponentTypesEvent $event)
 			{
-	            $event->types[] = Field::class;
-	        }
-	    );
+				$event->types[] = Field::class;
+			}
+		);
 
 		Event::on(
 			CraftVariable::class,
