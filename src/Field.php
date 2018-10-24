@@ -22,6 +22,7 @@ use benf\neo\assets\FieldAsset;
  *
  * @package benf\neo
  * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
  * @since 2.0.0
  */
 class Field extends BaseField

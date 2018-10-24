@@ -13,51 +13,111 @@ use craft\validators\SiteIdValidator;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\db\BlockQuery;
+use benf\neo\models\BlockType;
 use benf\neo\records\Block as BlockRecord;
 
+/**
+ * Class Block
+ *
+ * @package benf\neo\elements
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
+ * @since 2.0.0
+ */
 class Block extends Element
 {
-	private $_allElements;
-	private $_liveQueries = [];
-
+	/**
+	 * @inheritdoc
+	 */
 	public static function displayName(): string
 	{
 		return Craft::t('neo', "Neo Block");
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public static function refHandle(): string
 	{
 		return 'neoblock';
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public static function hasContent(): bool
 	{
 		return true;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public static function isLocalized(): bool
 	{
 		return true;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public static function hasStatuses(): bool
 	{
 		return true;
 	}
 
+	/**
+	 * @inheritdoc
+	 * @return BlockQuery
+	 */
 	public static function find(): ElementQueryInterface
 	{
 		return new BlockQuery(static::class);
 	}
 
+	/**
+	 * @var int|null The field ID.
+	 */
 	public $fieldId;
+
+	/**
+	 * @var int|null The owner ID.
+	 */
 	public $ownerId;
+
+	/**
+	 * @var int|null The owner site ID.
+	 */
 	public $ownerSiteId;
+
+	/**
+	 * @var int|null The block type ID.
+	 */
 	public $typeId;
 
+	/**
+	 * @var ElementInterface|null The owner.
+	 */
 	private $_owner;
+
+	/**
+	 * @var bool|null Whether this block should display as collapsed.
+	 */
 	public $_collapsed;
 
+	/**
+	 * @var array|null All blocks belonging to the same field as this one.
+	 */
+	private $_allElements;
+
+	/**
+	 * @var array|null Live queries for relatives of this block in live preview mode.
+	 */
+	private $_liveQueries = [];
+
+	/**
+	 * @inheritdoc
+	 */
 	public function extraFields(): array
 	{
 		$names = parent::extraFields();
@@ -67,6 +127,9 @@ class Block extends Element
 		return $names;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function rules(): array
 	{
 		$rules = parent::rules();
@@ -76,6 +139,9 @@ class Block extends Element
 		return $rules;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getSupportedSites(): array
 	{
 		$siteIds = [];
@@ -104,12 +170,21 @@ class Block extends Element
 		return $siteIds;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getFieldLayout()
 	{
 		return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
 	}
 
-	public function getType()
+	/**
+	 * Returns this block's type.
+	 *
+	 * @return BlockType
+	 * @throws InvalidConfigException if this block's block type ID is invalid.
+	 */
+	public function getType(): BlockType
 	{
 		if ($this->typeId === null)
 		{
@@ -126,6 +201,11 @@ class Block extends Element
 		return $blockType;
 	}
 
+	/**
+	 * Returns this block's owner, if it has one.
+	 *
+	 * @return ElementInterface|null
+	 */
 	public function getOwner()
 	{
 		$owner = $this->_owner;
@@ -150,11 +230,21 @@ class Block extends Element
 		return $owner;
 	}
 
+	/**
+	 * Sets this block's owner.
+	 *
+	 * @param ElementInterface|null $owner
+	 */
 	public function setOwner(ElementInterface $owner = null)
 	{
 		$this->_owner = $owner;
 	}
 
+	/**
+	 * Returns whether this block is collapsed.
+	 *
+	 * @return bool|null
+	 */
 	public function getCollapsed()
 	{
 		$cacheService = Craft::$app->getCache();
@@ -178,11 +268,19 @@ class Block extends Element
 		return $collapsed;
 	}
 
+	/**
+	 * Sets this block's collapsed state.
+	 *
+	 * @param bool $value Whether or not this block should be collapsed.
+	 */
 	public function setCollapsed(bool $value)
 	{
 		$this->_collapsed = $value;
 	}
 
+	/**
+	 * Sets this block's collapsed state in the Craft CMS cache.
+	 */
 	public function cacheCollapsed()
 	{
 		$cacheService = Craft::$app->getCache();
@@ -202,6 +300,9 @@ class Block extends Element
 		}
 	}
 
+	/**
+	 * Removes this block's collapsed state from the Craft CMS cache.
+	 */
 	public function forgetCollapsed()
 	{
 		$cacheService = Craft::$app->getCache();
@@ -213,6 +314,9 @@ class Block extends Element
 		}
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getHasFreshContent(): bool
 	{
 		$owner = $this->getOwner();
@@ -220,6 +324,10 @@ class Block extends Element
 		return $owner ? $owner->getHasFreshContent() : false;
 	}
 
+	/**
+	 * @inheritdoc
+	 * @throws Exception if the block ID is invalid.
+	 */
 	public function afterSave(bool $isNew)
 	{
 		$record = null;
@@ -459,7 +567,12 @@ class Block extends Element
 		return parent::getNextSibling();
 	}
 
-	private function _getBaseRelativeQuery()
+	/**
+	 * Returns a basic query for any blocks that are relatives of this block.
+	 *
+	 * @return BlockQuery
+	 */
+	private function _getBaseRelativeQuery(): BlockQuery
 	{
 		$query = Block::find();
 		$query->fieldId($this->fieldId);

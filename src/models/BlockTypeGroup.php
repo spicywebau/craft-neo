@@ -6,8 +6,9 @@ use craft\base\Model;
 /**
  * Class BlockTypeGroup
  *
- * @package benf\neo
+ * @package benf\neo\models
  * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
  * @since 2.0.0
  */
 class BlockTypeGroup extends Model

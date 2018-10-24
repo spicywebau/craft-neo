@@ -9,8 +9,21 @@ use craft\web\Controller;
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
 
+/**
+ * Class Input
+ *
+ * @package benf\neo\controllers
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
+ * @since 2.0.0
+ */
 class Input extends Controller
 {
+	/**
+	 * Renders copied/pasted input blocks.
+	 *
+	 * @return Response
+	 */
 	public function actionRenderBlocks(): Response
 	{
 		$this->requireAcceptsJson();
@@ -54,6 +67,11 @@ class Input extends Controller
 		]);
 	}
 
+	/**
+	 * Saves the expanded/collapsed state of a block.
+	 *
+	 * @return Response
+	 */
 	public function actionSaveExpansion(): Response
 	{
 		$this->requireAcceptsJson();

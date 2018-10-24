@@ -20,6 +20,7 @@ use benf\neo\controllers\Input as InputController;
  *
  * @package benf\neo
  * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
  * @since 2.0.0
  */
 class Plugin extends BasePlugin

@@ -16,16 +16,44 @@ use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
 use benf\neo\models\BlockType;
 
+/**
+ * Class BlockQuery
+ *
+ * @package benf\neo\elements\db
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
+ * @since 2.0.0
+ */
 class BlockQuery extends ElementQuery
 {
+	/**
+	 * @var int|array|null The field ID(s) to query for.
+	 */
 	public $fieldId;
+
+	/**
+	 * @var int|array|null The owner ID(s) to query for.
+	 */
 	public $ownerId;
+
+	/**
+	 * @var int|array|null The owner site ID to query for.
+	 */
 	public $ownerSiteId;
+
+	/**
+	 * @var int|array|null The block type ID(s) to query for.
+	 */
 	public $typeId;
 
+	/**
+	 * @var array|null The block data to be filtered in live preview mode.
+	 */
 	private $_allElements;
-	private $_currentFilters = [];
 
+	/**
+     * @inheritdoc
+     */
 	public function __set($name, $value)
 	{
 		$deprecatorService = Craft::$app->getDeprecator();
@@ -55,6 +83,9 @@ class BlockQuery extends ElementQuery
 		}
 	}
 
+	/**
+     * @inheritdoc
+     */
 	public function init()
 	{
 		$this->withStructure = true;
@@ -62,6 +93,12 @@ class BlockQuery extends ElementQuery
 		parent::init();
 	}
 
+	/**
+	 * Filters the query results based on the field ID.
+	 *
+	 * @param int|array|null $value The field ID(s).
+	 * @return $this
+	 */
 	public function fieldId($value)
 	{
 		$this->fieldId = $value;
@@ -69,6 +106,12 @@ class BlockQuery extends ElementQuery
 		return $this;
 	}
 
+	/**
+	 * Filters the query results based on the owner ID.
+	 *
+	 * @param int|array|null $value The owner ID(s).
+	 * @return $this
+	 */
 	public function ownerId($value)
 	{
 		$this->ownerId = $value;
@@ -76,6 +119,12 @@ class BlockQuery extends ElementQuery
 		return $this;
 	}
 
+	/**
+	 * Filters the query results based on the owner's site ID.
+	 *
+	 * @param int|string|null $value The site ID.
+	 * @return $this
+	 */
 	public function ownerSiteId($value)
 	{
 		$this->ownerSiteId = $value;
@@ -88,6 +137,13 @@ class BlockQuery extends ElementQuery
 		return $this;
 	}
 
+	/**
+	 * Filters the query results based on the owner's site.
+	 *
+	 * @param string|\craft\models\Site $value The site, specified either by a handle or a site model.
+	 * @return $this
+	 * @throws Exception if the site handle is invalid.
+	 */
 	public function ownerSite($value)
 	{
 		if ($value instanceof Site)
@@ -109,6 +165,13 @@ class BlockQuery extends ElementQuery
 		return $this;
 	}
 
+	/**
+	 * Filters the query results based on the owner's site.
+	 *
+	 * @param string $value The site handle.
+	 * @return $this
+	 * @deprecated in 2.0.0.  Use `ownerSite()` or `ownerSiteId()` instead.
+	 */
 	public function ownerLocale($value)
 	{
 		Craft::$app->getDeprecator()->log('ElementQuery::ownerLocale()', "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
@@ -117,6 +180,12 @@ class BlockQuery extends ElementQuery
 		return $this;
 	}
 
+	/**
+	 * Filters the query results based on the owner.
+	 *
+	 * @param ElementInterface $value The owner.
+	 * @return $this
+	 */
 	public function owner(ElementInterface $owner)
 	{
 		$this->ownerId = $owner->id;
@@ -125,6 +194,12 @@ class BlockQuery extends ElementQuery
 		return $this;
 	}
 
+	/**
+	 * Filters the query results based on the block type.
+	 *
+	 * @param BlockType|string|null The block type, specified either by a handle or a block type model.
+	 * @return $this
+	 */
 	public function type($value)
 	{
 		if ($value instanceof BlockType)
@@ -147,6 +222,12 @@ class BlockQuery extends ElementQuery
 		return $this;
 	}
 
+	/**
+	 * Filters the query results based on the block type IDs.
+	 *
+	 * @param int|array|null $value The block type ID(s).
+	 * @return $this
+	 */
 	public function typeId($value)
 	{
 		$this->typeId = $value;
@@ -225,6 +306,9 @@ class BlockQuery extends ElementQuery
 		$this->_allElements = $elements;
 	}
 
+	/**
+     * @inheritdoc
+     */
 	protected function beforePrepare(): bool
 	{
 		$this->joinElementTable('neoblocks');
@@ -295,6 +379,11 @@ class BlockQuery extends ElementQuery
 
 	// Private methods
 
+	/**
+	 * Returns the filtered blocks in live preview mode.
+	 *
+	 * @return array
+	 */
 	private function _getFilteredResult()
 	{
 		$result = $this->_allElements ?? [];
@@ -326,7 +415,7 @@ class BlockQuery extends ElementQuery
 	 * Takes in comparison inputs such as `1`, `'>=23'`, and `'< 4'`.
 	 *
 	 * @param int $value
-	 * @param int,string $comparison
+	 * @param int|string $comparison
 	 * @return bool
 	 */
 	private function _compareInt($value, $comparison)
@@ -422,6 +511,14 @@ class BlockQuery extends ElementQuery
 		return -1;
 	}
 
+	/**
+	 * Returns the previous siblings of a given block.
+	 *
+	 * @param array $elements The blocks being filtered.
+	 * @param Block $block The block having its previous siblings found.
+	 * @param int|null $index Optionally provide the block index to start checking from.
+	 * @return array The previous siblings.
+	 */
 	private function _getPrevSiblings(array $elements, Block $block, int $index = null): array
 	{
 		if ($index === null)
@@ -454,6 +551,14 @@ class BlockQuery extends ElementQuery
 		return $prevSiblings;
 	}
 
+	/**
+	 * Returns the next siblings of a given block.
+	 *
+	 * @param array $elements The blocks being filtered.
+	 * @param Block $block The block having its next siblings found.
+	 * @param int|null $index Optionally provide the block index to start checking from.
+	 * @return array The next siblings.
+	 */
 	private function _getNextSiblings(array $elements, Block $block, int $index = null): array
 	{
 		if ($index === null)

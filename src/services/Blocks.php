@@ -17,8 +17,9 @@ use benf\neo\records\BlockStructure as BlockStructureRecord;
 /**
  * Class Blocks
  *
- * @package benf\neo
+ * @package benf\neo\services
  * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
  * @since 2.0.0
  */
 class Blocks extends Component

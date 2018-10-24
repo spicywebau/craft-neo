@@ -8,8 +8,9 @@ use craft\db\ActiveRecord;
 /**
  * Class BlockTypeGroup
  *
- * @package benf\neo
+ * @package benf\neo\records
  * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
  * @since 2.0.0
  */
 class BlockTypeGroup extends ActiveRecord

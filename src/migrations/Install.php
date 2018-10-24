@@ -3,8 +3,19 @@ namespace benf\neo\migrations;
 
 use craft\db\Migration;
 
+/**
+ * Class Install
+ *
+ * @package benf\neo\migrations
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
+ * @since 2.0.0
+ */
 class Install extends Migration
 {
+	/**
+     * @inheritdoc
+     */
 	public function safeUp()
 	{
 		$hasBlocksTable = $this->db->tableExists('{{%neoblocks}}');
@@ -140,6 +151,9 @@ class Install extends Migration
 		return true;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function safeDown()
 	{
 		$this->dropTableIfExists('{{%neoblocks}}');

@@ -16,8 +16,9 @@ use benf\neo\helpers\Memoize;
 /**
  * Class Fields
  *
- * @package benf\neo
+ * @package benf\neo\services
  * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
  * @since 2.0.0
  */
 class Fields extends Component

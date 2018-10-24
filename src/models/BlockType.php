@@ -7,23 +7,79 @@ use craft\behaviors\FieldLayoutBehavior;
 
 use benf\neo\elements\Block;
 
+/**
+ * Class BlockType
+ *
+ * @package benf\neo\models
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
+ * @since 2.0.0
+ */
 class BlockType extends Model
 {
+	/**
+	 * @var int|null The block type ID.
+	 */
 	public $id;
+
+	/**
+	 * @var int|null The field ID.
+	 */
 	public $fieldId;
+
+	/**
+	 * @var int|null The field layout ID.
+	 */
 	public $fieldLayoutId;
+
+	/**
+	 * @var string|null The block type's name.
+	 */
 	public $name;
+
+	/**
+	 * @var string|null The block type's handle.
+	 */
 	public $handle;
+
+	/**
+	 * @var int|null The maximum number of blocks.
+	 */
 	public $maxBlocks;
+
+	/**
+	 * @var int|null The maximum number of child blocks.
+	 */
 	public $maxChildBlocks;
+
+	/**
+	 * @var array|null The child blocks.
+	 */
 	public $childBlocks;
+
+	/**
+	 * @var bool Whether this is at the top level of its field.
+	 */
 	public $topLevel = true;
+
+	/**
+	 * @var int|null The sort order.
+	 */
 	public $sortOrder;
 
+	/**
+	 * @var bool
+	 */
 	public $hasFieldErrors = false;
 
+	/**
+	 * @var Field|null The Neo field associated with this block type.
+	 */
 	private $_field;
 
+	/**
+	 * @inheritdoc
+	 */
 	public function behaviors()
 	{
 		return [
@@ -34,6 +90,9 @@ class BlockType extends Model
 		];
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function rules()
 	{
 		return [
@@ -42,16 +101,31 @@ class BlockType extends Model
 		];
 	}
 
+	/**
+	 * Returns the block type's handle as the string representation.
+	 *
+	 * @return string
+	 */
 	public function __toString(): string
 	{
 		return (string)$this->handle;
 	}
 
+	/**
+	 * Returns whether this block type is new.
+	 *
+	 * @return bool
+	 */
 	public function getIsNew(): bool
 	{
 		return (!$this->id || strpos($this->id, 'new') === 0);
 	}
 
+	/**
+	 * Returns the Neo field associated with this block type.
+	 *
+	 * @return \benf\neo\Field|null
+	 */
 	public function getField()
 	{
 		$fieldsService = Craft::$app->getFields();

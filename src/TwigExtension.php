@@ -12,6 +12,7 @@ use benf\neo\elements\Block;
  *
  * @package benf\neo
  * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
  * @since 2.0.0
  */
 class TwigExtension extends Twig_Extension

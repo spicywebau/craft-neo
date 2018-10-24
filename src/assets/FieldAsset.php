@@ -12,6 +12,14 @@ use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\elements\Block;
 
+/**
+ * Class FieldAsset
+ *
+ * @package benf\neo\assets
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
+ * @since 2.0.0
+ */
 class FieldAsset extends AssetBundle
 {
 	/**

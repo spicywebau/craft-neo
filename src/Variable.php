@@ -9,6 +9,7 @@ use benf\neo\elements\db\BlockQuery;
  *
  * @package benf\neo
  * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Benjamin Fleming
  * @since 2.0.0
  */
 class Variable

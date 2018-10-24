@@ -12,14 +12,18 @@ use benf\neo\elements\Block;
 
 /**
  * m181022_123749_craft3_upgrade migration.
+ *
+ * @package benf\neo\migrations
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @since 2.0.0
  */
 class m181022_123749_craft3_upgrade extends Migration
 {
-    /**
-     * @inheritdoc
-     */
-    public function safeUp()
-    {
+	/**
+	 * @inheritdoc
+	 */
+	public function safeUp()
+	{
 		$cacheService = Craft::$app->getCache();
 
 		$this->update('{{%elements}}', [
@@ -56,14 +60,14 @@ class m181022_123749_craft3_upgrade extends Migration
 
 		// Rename `neogroups` table to `neoblocktypegroups`
 		MigrationHelper::renameTable('{{%neogroups}}', '{{%neoblocktypegroups}}', $this);
-    }
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function safeDown()
-    {
-        echo "m181022_123749_craft3_upgrade cannot be reverted.\n";
-        return false;
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function safeDown()
+	{
+		echo "m181022_123749_craft3_upgrade cannot be reverted.\n";
+		return false;
+	}
 }
