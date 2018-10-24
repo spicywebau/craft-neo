@@ -14,6 +14,9 @@ use benf\neo\elements\Block;
 
 class FieldAsset extends AssetBundle
 {
+	/**
+	 * @inheritdoc
+	 */
 	public function init()
 	{
 		$this->sourcePath = '@benf/neo/resources';
@@ -30,6 +33,12 @@ class FieldAsset extends AssetBundle
 		parent::init();
 	}
 
+	/**
+	 * Sets up the field layout designer for a given Neo field.
+	 *
+	 * @param Field $field The Neo field.
+	 * @return string
+	 */
 	public static function createSettingsJs(Field $field): string
 	{
 		$viewService = Craft::$app->getView();
@@ -57,6 +66,14 @@ class FieldAsset extends AssetBundle
 		return "Neo.createConfigurator($encodedJsSettings)";
 	}
 
+	/**
+	 * Sets up the field block inputs for a given Neo field.
+	 *
+	 * @param Field $field The Neo field.
+	 * @param array $value The Neo blocks, associated with this field, to generate inputs for.
+	 * @param bool $static Whether to generate static HTML for the blocks, e.g. for displaying entry revisions.
+	 * @return string
+	 */
 	public static function createInputJs(Field $field, $value, bool $static = false): string
 	{
 		$viewService = Craft::$app->getView();
@@ -83,6 +100,15 @@ class FieldAsset extends AssetBundle
 		return "Neo.createInput($encodedJsSettings)";
 	}
 
+	/**
+	 * Returns the raw data from the given blocks.
+	 *
+	 * This converts Blocks into the format used by the input generator Javascript.
+	 *
+	 * @param array $blocks The Neo blocks.
+	 * @param bool $static Whether to generate static HTML for the blocks, e.g. for displaying entry revisions.
+	 * @return array
+	 */
 	private static function _getBlocksJsSettings(array $blocks, bool $static = false): array
 	{
 		$jsBlocks = [];
@@ -114,6 +140,16 @@ class FieldAsset extends AssetBundle
 		return $jsBlocks;
 	}
 
+	/**
+	 * Returns the raw data from the given block types.
+	 *
+	 * This converts block types into the format used by the input generator Javascript.
+	 *
+	 * @param array $blockTypes The Neo block types.
+	 * @param bool $renderTabs Whether to render the block types' tabs.
+	 * @param bool $static Whether to generate static HTML for the block types, e.g. for displaying entry revisions.
+	 * @return array
+	 */
 	private static function _getBlockTypesJsSettings(array $blockTypes, bool $renderTabs = false, bool $static = false): array
 	{
 		$jsBlockTypes = [];
@@ -180,6 +216,14 @@ class FieldAsset extends AssetBundle
 		return $jsBlockTypes;
 	}
 
+	/**
+	 * Returns the raw data from the given block type groups.
+	 *
+	 * This converts block type groups into the format used by the input generator Javascript.
+	 *
+	 * @param array $blockTypeGroups The Neo block type groups.
+	 * @return array
+	 */
 	private static function _getBlockTypeGroupsJsSettings(array $blockTypeGroups): array
 	{
 		$jsBlockTypeGroups = [];	

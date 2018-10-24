@@ -17,18 +17,34 @@ use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
 use benf\neo\assets\FieldAsset;
 
+/**
+ * Class Field
+ *
+ * @package benf\neo
+ * @author Spicy Web <craft@spicyweb.com.au>
+ * @since 2.0.0
+ */
 class Field extends BaseField
 {
+	/**
+	 * @inheritdoc
+	 */
 	public static function displayName(): string
 	{
 		return Craft::t('neo', "Neo");
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public static function hasContentColumn(): bool
 	{
 		return false;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public static function supportedTranslationMethods(): array
 	{
 		return [
@@ -36,11 +52,24 @@ class Field extends BaseField
 		];
 	}
 
+	/**
+	 * @var bool Whether this field is translatable.
+	 */
 	public $localizeBlocks = false;
 
+	/**
+	 * @var array|null The block types associated with this field.
+	 */
 	private $_blockTypes;
+
+	/**
+	 * @var array|null The block type groups associated with this field.
+	 */
 	private $_blockTypeGroups;
 
+	/**
+	 * @inheritdoc
+	 */
 	public function rules(): array
 	{
 		$rules = parent::rules();
@@ -49,9 +78,21 @@ class Field extends BaseField
 		return $rules;
 	}
 
+	/**
+	 * @var int|null The minimum number of blocks this field can have.
+	 */
 	public $minBlocks;
+
+	/**
+	 * @var int|null The maximum number of blocks this field can have.
+	 */
 	public $maxBlocks;
 
+	/**
+	 * Returns this field's block types.
+	 *
+	 * @return array This field's block types.
+	 */
 	public function getBlockTypes(): array
 	{
 		$blockTypes = $this->_blockTypes;
@@ -72,6 +113,11 @@ class Field extends BaseField
 		return $blockTypes;
 	}
 
+	/**
+	 * Sets this field's block types.
+	 *
+	 * @param array $blockTypes The block types to associate with this field.
+	 */
 	public function setBlockTypes($blockTypes)
 	{
 		$newBlockTypes = [];
@@ -116,6 +162,11 @@ class Field extends BaseField
 		$this->_blockTypes = $newBlockTypes;
 	}
 
+	/**
+	 * Returns this field's block type groups.
+	 *
+	 * @return array This field's block type groups.
+	 */
 	public function getGroups(): array
 	{
 		$blockTypeGroups = $this->_blockTypeGroups;
@@ -136,6 +187,11 @@ class Field extends BaseField
 		return $blockTypeGroups;
 	}
 
+	/**
+	 * Sets this field's block type groups.
+	 *
+	 * @param array $blockTypeGroups The block type groups to associate with this field.
+	 */
 	public function setGroups($blockTypeGroups)
 	{
 		$newBlockTypeGroups = [];
@@ -158,6 +214,9 @@ class Field extends BaseField
 		$this->_blockTypeGroups = $newBlockTypeGroups;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function validate($attributeNames = null, $clearErrors = true): bool
 	{
 		$validates = parent::validate($attributeNames, $clearErrors);
@@ -166,6 +225,9 @@ class Field extends BaseField
 		return $validates;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getSettingsHtml()
 	{
 		$viewService = Craft::$app->getView();
@@ -188,16 +250,25 @@ class Field extends BaseField
 		return $html;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getInputHtml($value, ElementInterface $element = null): string
 	{
 		return $this->_getInputHtml($value, $element);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getStaticHtml($value, ElementInterface $element): string
 	{
 		return $this->_getInputHtml($value, $element, true);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function normalizeValue($value, ElementInterface $element = null)
 	{
 		$query = null;
@@ -241,6 +312,9 @@ class Field extends BaseField
 		return $query;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function serializeValue($value, ElementInterface $element = null)
 	{
 		$serialized = [];
@@ -261,6 +335,9 @@ class Field extends BaseField
 		return $serialized;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function modifyElementsQuery(ElementQueryInterface $query, $value)
 	{
 		if ($value === 'not :empty:')
@@ -286,11 +363,17 @@ class Field extends BaseField
 		return null;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getIsTranslatable(ElementInterface $element = null): bool
 	{
 		return $this->localizeBlocks;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getElementValidationRules(): array
 	{
 		return [
@@ -307,11 +390,19 @@ class Field extends BaseField
 		];
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function isValueEmpty($value, ElementInterface $element): bool
 	{
 		return $value->count() === 0;
 	}
 
+	/**
+	 * Perform validation on blocks belonging to this field for a given element.
+	 *
+	 * @param ElementInterface $element
+	 */
 	public function validateBlocks(ElementInterface $element)
 	{
 		$value = $element->getFieldValue($this->handle);
@@ -330,6 +421,9 @@ class Field extends BaseField
 		}
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getSearchKeywords($value, ElementInterface $element): string
 	{
 		$keywords = [];
@@ -342,11 +436,16 @@ class Field extends BaseField
 		return parent::getSearchKeywords($keywords, $element);
 	}
 
+	/*
 	public function getEagerLoadingMap(array $sourceElements)
 	{
-
+		// TODO
 	}
+	*/
 
+	/**
+	 * @inheritdoc
+	 */
 	public function afterSave(bool $isNew)
 	{
 		Neo::$plugin->fields->save($this);
@@ -354,6 +453,9 @@ class Field extends BaseField
 		parent::afterSave($isNew);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function beforeDelete(): bool
 	{
 		Neo::$plugin->fields->delete($this);
@@ -361,6 +463,9 @@ class Field extends BaseField
 		return parent::beforeDelete();
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function afterElementSave(ElementInterface $element, bool $isNew)
 	{
 		Neo::$plugin->fields->saveValue($this, $element, $isNew);
@@ -368,6 +473,9 @@ class Field extends BaseField
 		parent::afterElementSave($element, $isNew);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function beforeElementDelete(ElementInterface $element): bool
 	{
 		$sitesService = Craft::$app->getSites();
@@ -395,7 +503,7 @@ class Field extends BaseField
 
 	/**
 	 * Returns what current depth the field is nested.
-	 * For example, if a Neo field was being rendered inside a Matrix block, it's depth will be 2.
+	 * For example, if a Neo field was being rendered inside a Matrix block, its depth will be 2.
 	 *
 	 * @return int
 	 */
@@ -405,11 +513,24 @@ class Field extends BaseField
 		return preg_match_all('/\\bfields\\b/', $namespace);
 	}
 
+	/**
+	 * Returns the error HTML associated with attempts to nest a Neo field within some other field.
+	 *
+	 * @return string
+	 */
 	private function _getNestingErrorHtml(): string
 	{
 		return '<span class="error">' . Craft::t('neo', "Unable to nest Neo fields.") . '</span>';
 	}
 
+	/**
+	 * Returns the input HTML for a Neo field.
+	 *
+	 * @param BlockQuery|array $value The block query or block data to render.
+	 * @param ElementInterface|null $element The element associated with this field, if any.
+	 * @param bool $static Whether to generate static HTML, e.g. for displaying entry revisions.
+	 * @return string
+	 */
 	private function _getInputHtml($value, ElementInterface $element = null, bool $static = false): string
 	{
 		$viewService = Craft::$app->getView();
@@ -452,6 +573,13 @@ class Field extends BaseField
 		return $html;
 	}
 
+	/**
+	 * Creates Neo blocks out of the given serialized data.
+	 *
+	 * @param array $value The raw field data.
+	 * @param ElementInterface|null $element The element associated with this field, if any.
+	 * @return array The Blocks created from the given data.
+	 */
 	private function _createBlocksFromSerializedData($value, ElementInterface $element = null): array
 	{
 		$requestService = Craft::$app->getRequest();
