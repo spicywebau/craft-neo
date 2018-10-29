@@ -37,7 +37,7 @@ class m181022_123749_craft3_upgrade extends Migration
 		// Move the `neoblocks` table's `collapsed` column data to the cache and then drop the column
 		$blocks = (new Query())
 			->select(['id', 'collapsed'])
-			->from(['{{%neoBlocks}}'])
+			->from(['{{%neoblocks}}'])
 			->all();
 
 		foreach ($blocks as $block)
