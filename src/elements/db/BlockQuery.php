@@ -52,8 +52,8 @@ class BlockQuery extends ElementQuery
 	private $_allElements;
 
 	/**
-     * @inheritdoc
-     */
+	 * @inheritdoc
+	 */
 	public function __set($name, $value)
 	{
 		$deprecatorService = Craft::$app->getDeprecator();
@@ -84,8 +84,8 @@ class BlockQuery extends ElementQuery
 	}
 
 	/**
-     * @inheritdoc
-     */
+	 * @inheritdoc
+	 */
 	public function init()
 	{
 		$this->withStructure = true;
@@ -307,8 +307,8 @@ class BlockQuery extends ElementQuery
 	}
 
 	/**
-     * @inheritdoc
-     */
+	 * @inheritdoc
+	 */
 	protected function beforePrepare(): bool
 	{
 		$this->joinElementTable('neoblocks');

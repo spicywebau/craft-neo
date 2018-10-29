@@ -14,8 +14,8 @@ use craft\db\Migration;
 class Install extends Migration
 {
 	/**
-     * @inheritdoc
-     */
+	 * @inheritdoc
+	 */
 	public function safeUp()
 	{
 		$hasBlocksTable = $this->db->tableExists('{{%neoblocks}}');
