@@ -8,6 +8,7 @@ use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\validators\SiteIdValidator;
 
@@ -76,6 +77,23 @@ class Block extends Element
 	}
 
 	/**
+	 * @inheritdoc
+	 */
+	public static function eagerLoadingMap(array $sourceElements, string $handle)
+	{
+		$map = false;
+		$separatedHandle = explode(':', $handle);
+
+		if (count($separatedHandle) === 2)
+		{
+			$fieldHandle = $separatedHandle[1];
+			$map = parent::eagerLoadingMap($sourceElements, $fieldHandle);
+		}
+
+		return $map;
+	}
+
+	/**
 	 * @var int|null The field ID.
 	 */
 	public $fieldId;
@@ -99,6 +117,11 @@ class Block extends Element
 	 * @var ElementInterface|null The owner.
 	 */
 	private $_owner;
+
+	/**
+	 * @var array|null Any eager-loaded elements for this block type.
+	 */
+	private $_eagerLoadedBlockTypeElements;
 
 	/**
 	 * @var bool|null Whether this block should display as collapsed.
@@ -311,6 +334,58 @@ class Block extends Element
 		{
 			$cacheKey = "neoblock-$this->id-collapsed";
 			$cacheService->delete($cacheKey);
+		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function hasEagerLoadedElements(string $handle): bool
+	{
+		$typeHandlePrefix = $this->_getTypeHandlePrefix();
+		$typeElementHandle = $typeHandlePrefix . $handle;
+		$hasEagerLoadedElements = isset($this->_eagerLoadedBlockTypeElements[$typeElementHandle]);
+
+		if ($hasEagerLoadedElements)
+		{
+			return true;
+		}
+
+		return parent::hasEagerLoadedElements($handle);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getEagerLoadedElements(string $handle)
+	{
+		$typeHandlePrefix = $this->_getTypeHandlePrefix();
+		$typeElementHandle = $typeHandlePrefix . $handle;
+		$hasEagerLoadedBlockTypeElements = isset($this->_eagerLoadedBlockTypeElements[$typeElementHandle]);
+
+		if ($hasEagerLoadedBlockTypeElements)
+		{
+			return $this->_eagerLoadedBlockTypeElements[$typeElementHandle];
+		}
+
+		return parent::getEagerLoadedElements($handle);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function setEagerLoadedElements(string $handle, array $elements)
+	{
+		$typeHandlePrefix = $this->_getTypeHandlePrefix();
+		$hasMatchingHandlePrefix = strpos($handle, $typeHandlePrefix) === 0;
+
+		if ($hasMatchingHandlePrefix)
+		{
+			$this->_eagerLoadedBlockTypeElements[$handle] = $elements;
+		}
+		else
+		{
+			parent::setEagerLoadedElements($handle, $elements);
 		}
 	}
 
@@ -584,5 +659,18 @@ class Block extends Element
 		$query->indexBy('id');
 
 		return $query;
+	}
+
+	/**
+	 * Returns the block type handle in the form of a prefix for finding fields belonging to this block's type.
+	 *
+	 * @return string
+	 */
+	private function _getTypeHandlePrefix(): string
+	{
+		$type = $this->getType();
+		$typeHandlePrefix = $type->handle . ':';
+
+		return $typeHandlePrefix;
 	}
 }

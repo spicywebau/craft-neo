@@ -2,11 +2,13 @@
 namespace benf\neo;
 
 use Craft;
-use craft\base\Field as BaseField;
-use craft\helpers\ArrayHelper;
+use craft\base\EagerLoadingFieldInterface;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\base\Field as BaseField;
+use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\ArrayHelper;
 use craft\models\EntryVersion;
 use craft\validators\ArrayValidator;
 
@@ -25,7 +27,7 @@ use benf\neo\assets\FieldAsset;
  * @author Benjamin Fleming
  * @since 2.0.0
  */
-class Field extends BaseField
+class Field extends BaseField implements EagerLoadingFieldInterface
 {
 	/**
 	 * @inheritdoc
@@ -437,12 +439,65 @@ class Field extends BaseField
 		return parent::getSearchKeywords($keywords, $element);
 	}
 
-	/*
+	/**
+	 * @inheritdoc
+	 */
 	public function getEagerLoadingMap(array $sourceElements)
 	{
-		// TODO
+		$sourceElementIds = [];
+
+		foreach ($sourceElements as $sourceElement)
+		{
+			$sourceElementIds[] = $sourceElement->id;
+		}
+
+		// Return any relation data on these elements, defined with this field.
+		$map = (new Query())
+			->select(['neoblocks.ownerId as source', 'neoblocks.id as target'])
+			->from('{{%neoblocks}} neoblocks')
+			->where([
+				'neoblocks.ownerId' => $sourceElementIds,
+				'neoblocks.fieldId' => $this->id
+			])
+			// Join structural information to get the ordering of the blocks.
+			->leftJoin(
+				'{{%neoblockstructures}} neoblockstructures',
+				[
+					'and',
+					'neoblockstructures.ownerId = neoblocks.ownerId',
+					'neoblockstructures.fieldId = neoblocks.fieldId',
+					[
+						'or',
+						'neoblockstructures.ownerSiteId = neoblocks.ownerSiteId',
+
+						// If there is no site ID set (in other words, `ownerSiteId` is `null`), then the above
+						// comparison will not be true for some reason. So if it's not evaluated to true, then check
+						// to see if both `ownerSiteId` properties are `null`.
+						[
+							'and',
+							'neoblockstructures.ownerSiteId is null',
+							'neoblocks.ownerSiteId is null',
+						],
+					],
+				]
+			)
+			->leftJoin(
+				'{{%structureelements}} structureelements',
+				[
+					'and',
+					'structureelements.structureId = neoblockstructures.structureId',
+					'structureelements.elementId = neoblocks.id',
+				]
+			)
+			->orderBy(['structureelements.lft' => SORT_ASC])
+			->all();
+
+		return [
+			'elementType' => Block::class,
+			'map' => $map,
+			'criteria' => ['fieldId' => $this->id],
+		];
 	}
-	*/
 
 	/**
 	 * @inheritdoc
