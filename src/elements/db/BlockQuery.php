@@ -26,6 +26,7 @@ use benf\neo\models\BlockType;
  */
 class BlockQuery extends ElementQuery
 {
+	// Public properties
 	/**
 	 * @var int|array|null The field ID(s) to query for.
 	 */
@@ -46,10 +47,21 @@ class BlockQuery extends ElementQuery
 	 */
 	public $typeId;
 
+
+	// Private properties
+
 	/**
 	 * @var array|null The block data to be filtered in live preview mode.
 	 */
 	private $_allElements;
+
+	/**
+	 * @var bool Whether to operate on a memoized data set.
+	 */
+	private $_useMemoized = false;
+
+
+	// Public methods
 
 	/**
 	 * @inheritdoc
@@ -241,8 +253,9 @@ class BlockQuery extends ElementQuery
 	public function count($q = '*', $db = null)
 	{
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview && isset($this->_allElements))
+		if (($isLivePreview || $isUsingMemoized) && isset($this->_allElements))
 		{
 			$this->setCachedResult($this->_getFilteredResult());
 		}
@@ -256,8 +269,9 @@ class BlockQuery extends ElementQuery
 	public function all($db = null)
 	{
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview && isset($this->_allElements))
+		if (($isLivePreview || $isUsingMemoized) && isset($this->_allElements))
 		{
 			$this->setCachedResult($this->_getFilteredResult());
 		}
@@ -271,8 +285,9 @@ class BlockQuery extends ElementQuery
 	public function one($db = null)
 	{
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview && isset($this->_allElements))
+		if (($isLivePreview || $isUsingMemoized) && isset($this->_allElements))
 		{
 			$this->setCachedResult($this->_getFilteredResult());
 		}
@@ -286,8 +301,9 @@ class BlockQuery extends ElementQuery
 	public function nth(int $n, Connection $db = null)
 	{
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview && isset($this->_allElements))
+		if (($isLivePreview || $isUsingMemoized) && isset($this->_allElements))
 		{
 			$this->setCachedResult($this->_getFilteredResult());
 		}
@@ -305,6 +321,35 @@ class BlockQuery extends ElementQuery
 	{
 		$this->_allElements = $elements;
 	}
+
+	/**
+	 * Whether the block query is operating on a memoized data set.
+	 *
+	 * @return bool
+	 */
+	public function isUsingMemoized()
+	{
+		return $this->_useMemoized;
+	}
+
+	/**
+	 * Sets whether the block query operates on a memoized data set.
+	 *
+	 * @param bool|array $use - Either a boolean to enable/disable, or a dataset to use (which results in enabling)
+	 */
+	public function useMemoized($use = true)
+	{
+		if (is_array($use))
+		{
+			$this->setAllElements($use);
+			$use = true;
+		}
+
+		$this->_useMemoized = $use;
+	}
+
+
+	// Protected methods
 
 	/**
 	 * @inheritdoc

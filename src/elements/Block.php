@@ -139,6 +139,11 @@ class Block extends Element
 	private $_liveQueries = [];
 
 	/**
+	 * @var bool Whether to operate on a memoized data set.
+	 */
+	private $_useMemoized = false;
+
+	/**
 	 * @inheritdoc
 	 */
 	public function extraFields(): array
@@ -445,8 +450,35 @@ class Block extends Element
 		// Update the elements across any memoized block queries
 		foreach ($this->_liveQueries as $name => $query)
 		{
+			$query->useMemoized($this->isUsingMemoized());
 			$query->setAllElements($this->_allElements);
 		}
+	}
+
+	/**
+	 * Whether block queries operate on a memoized data set.
+	 *
+	 * @return bool
+	 */
+	public function isUsingMemoized()
+	{
+		return $this->_useMemoized;
+	}
+
+	/**
+	 * Sets whether block queries operate on a memoized data set.
+	 *
+	 * @param bool|array $use - Either a boolean to enable/disable, or a dataset to use (which results in enabling)
+	 */
+	public function useMemoized($use = true)
+	{
+		if (is_array($use))
+		{
+			$this->setAllElements($use);
+			$use = true;
+		}
+
+		$this->_useMemoized = $use;
 	}
 
 	/**
@@ -456,8 +488,9 @@ class Block extends Element
 	{
 		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview)
+		if ($isLivePreview || $isUsingMemoized)
 		{
 			if (!isset($this->_liveQueries['ancestors']))
 			{
@@ -489,8 +522,9 @@ class Block extends Element
 	{
 		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview)
+		if ($isLivePreview || $isUsingMemoized)
 		{
 			if (!isset($this->_liveQueries['parent']))
 			{
@@ -515,8 +549,9 @@ class Block extends Element
 	{
 		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview)
+		if ($isLivePreview || $isUsingMemoized)
 		{
 			if (!isset($this->_liveQueries['descendants']))
 			{
@@ -548,8 +583,9 @@ class Block extends Element
 	{
 		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview)
+		if ($isLivePreview || $isUsingMemoized)
 		{
 			if (!isset($this->_liveQueries['children']))
 			{
@@ -574,8 +610,9 @@ class Block extends Element
 	{
 		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview)
+		if ($isLivePreview || $isUsingMemoized)
 		{
 			if (!isset($this->_liveQueries['siblings']))
 			{
@@ -599,8 +636,9 @@ class Block extends Element
 	{
 		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview)
+		if ($isLivePreview || $isUsingMemoized)
 		{
 			if (!isset($this->_liveQueries['prevSibling']))
 			{
@@ -624,8 +662,9 @@ class Block extends Element
 	{
 		// If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
+		$isUsingMemoized = $this->isUsingMemoized();
 
-		if ($isLivePreview)
+		if ($isLivePreview || $isUsingMemoized)
 		{
 			if (!isset($this->_liveQueries['nextSibling']))
 			{
