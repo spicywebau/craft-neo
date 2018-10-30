@@ -418,6 +418,8 @@ class BlockQuery extends ElementQuery
 			$this->subQuery->andWhere(Db::parseParam('neoblocks.typeId', $this->typeId));
 		}
 
+		$this->query->groupBy('{{elements}}.uid');
+
 		return parent::beforePrepare();
 	}
 
