@@ -38,3 +38,13 @@ Let block types have the ability to contain child block types. You can filter wh
 
 <img src="docs/assets/feature5-1.png" width="790">
 <img src="docs/assets/feature5-2.png" width="622">
+
+## Documentation
+- [Installation](docs/installation.md)
+- [Creating Neo Fields](docs/creating-neo-fields.md)
+- [Templating](docs/templating.md)
+- [Eager Loading](docs/eager-loading.md)
+- [Resources](docs/resources.md)
+- [API](docs/api.md)
+- [FAQ](docs/faq.md)
+- [Changelog](CHANGELOG.md)
