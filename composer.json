@@ -1,5 +1,5 @@
 {
-  "name": "benjamminf/craft-neo",
+  "name": "spicyweb/craft-neo",
   "description": "A Matrix-like field type that uses existing fields",
   "version": "2.0.0",
   "type": "craft-plugin",
@@ -11,18 +11,18 @@
     "matrix",
     "field"
   ],
-  "license": "MIT",
+  "license": "proprietary",
   "authors": [
     {
-      "name": "Benjamin Fleming",
-      "homepage": "https://github.com/benjamminf"
+      "name": "Spicy Web",
+      "homepage": "https://github.com/spicywebau"
     }
   ],
   "support": {
-    "issues": "https://github.com/benjamminf/craft-neo/issues",
-    "source": "https://github.com/benjamminf/craft-neo",
-    "docs": "https://github.com/benjamminf/craft-neo/wiki",
-    "rss": "https://github.com/benjamminf/craft-neo/commits/master.atom"
+    "issues": "https://github.com/spicywebau/craft-neo/issues",
+    "source": "https://github.com/spicywebau/craft-neo",
+    "docs": "https://github.com/spicywebau/craft-neo/docs",
+    "rss": "https://github.com/spicywebau/craft-neo/commits/master.atom"
   },
   "require": {
     "craftcms/cms": "^3.0.0"
@@ -43,7 +43,7 @@
     "name": "Neo",
     "schemaVersion": "2.0.0",
     "class": "benf\\neo\\Plugin",
-    "changelogUrl": "https://github.com/benjamminf/craft-neo/blob/master/CHANGELOG.md",
-    "downloadUrl": "https://github.com/benjamminf/craft-neo/archive/master.zip"
+    "changelogUrl": "https://github.com/spicywebau/craft-neo/blob/master/CHANGELOG.md",
+    "downloadUrl": "https://github.com/spicywebau/craft-neo/archive/master.zip"
   }
 }
