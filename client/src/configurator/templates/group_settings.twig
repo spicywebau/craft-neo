@@ -1,0 +1,23 @@
+{% import '../../macros.twig' as macros %}
+{% set id = uniqueId() %}
+
+<div>
+	<input type="hidden" name="{{ (id ~ '[sortOrder]')|ns }}" value="{{ sortOrder }}" data-neo-gs="input.sortOrder">
+
+	<div>
+		{{ macros.input({
+			type: 'text',
+			name: (id ~ '[name]')|ns,
+			label: "Name"|t,
+			instructions: "This can be left blank if you just want an unlabeled separator."|t,
+			value: name,
+			attributes: {
+				'data-neo-gs': 'input.name'
+			}
+		}) }}
+	</div>
+
+	<hr>
+
+	<a class="error delete" data-neo-gs="button.delete">{{ "Delete group"|t }}</a>
+</div>

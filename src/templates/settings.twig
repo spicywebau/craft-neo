@@ -1,0 +1,38 @@
+{% import '_includes/forms' as forms %}
+
+<div id="neo-configurator" class="neo-configurator">
+	{{ forms.field({
+		label: "Configuration"|t('neo'),
+		instructions: "Define the types of blocks that can be created within this Neo field, as well as the fields each block type is made up of."|t('neo'),
+		name: 'config',
+	}) }}
+</div>
+
+{% if craft.app.getIsMultiSite() %}
+	{{ forms.checkboxField({
+		label: "Manage blocks on a per-site basis"|t('neo'),
+		id: 'localizeBlocks',
+		name: 'localizeBlocks',
+		checked: neoField.localizeBlocks,
+	}) }}
+{% endif %}
+
+{{ forms.textField({
+	label: "Min Blocks"|t('neo'),
+	instructions: "The minimum number of blocks the field must have."|t('neo'),
+	id: 'minBlocks',
+	name: 'minBlocks',
+	value: neoField.minBlocks,
+	size: 3,
+	errors: neoField.getErrors('minBlocks'),
+}) }}
+
+{{ forms.textField({
+	label: "Max Blocks"|t('neo'),
+	instructions: "The maximum number of blocks the field is allowed to have."|t('neo'),
+	id: 'maxBlocks',
+	name: 'maxBlocks',
+	value: neoField.maxBlocks,
+	size: 3,
+	errors: neoField.getErrors('maxBlocks'),
+}) }}

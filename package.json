@@ -1,14 +1,14 @@
 {
   "name": "craft-neo",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "A Matrix-like field type that uses existing fields",
   "main": "webpack.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "./node_modules/.bin/webpack --config ./client/build/webpack.config.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/benjamminf/craft-neo.git"
+    "url": "git+https://github.com/spicywebau/craft-neo.git"
   },
   "keywords": [
     "craft cms",
@@ -16,12 +16,12 @@
     "matrix",
     "field type"
   ],
-  "author": "Benjamin Fleming",
-  "license": "MIT",
+  "author": "Spicy Web",
+  "license": "proprietary",
   "bugs": {
-    "url": "https://github.com/benjamminf/craft-neo/issues"
+    "url": "https://github.com/spicywebau/craft-neo/issues"
   },
-  "homepage": "https://github.com/benjamminf/craft-neo#readme",
+  "homepage": "https://github.com/spicywebau/craft-neo#readme",
   "devDependencies": {
     "babel-core": "^6.10.4",
     "babel-loader": "^6.2.4",

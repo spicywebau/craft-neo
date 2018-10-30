@@ -1,0 +1,47 @@
+# Templating
+
+## Examples
+
+### Basic
+
+```twig
+<ol>
+    {% for block in entry.neoField.level(1).all() %}
+        {% switch block.type.handle %}
+            {% case 'someBlockType' %}
+                <li>
+                    {{ block.someField }}
+                    {% if block.children.all() is not empty %}
+                        ...
+                    {% endif %}
+                </li>
+            {% case ...
+        {% endswitch %}
+    {% endfor %}
+</ol>
+```
+
+This is typically the most you'd need to know. Similar to how Matrix fields work, but with a notable difference. For Neo fields that have child blocks, you will first need to filter for blocks on the first level. It's essentially the same API as the [`craft.entries()`](https://docs.craftcms.com/v3/dev/element-queries/entry-queries.html) element query.
+
+### Recursive
+
+```twig
+<ol>
+    {% nav block in entry.neoField.all() %}
+        <li>
+            {{ block.someField }}
+            {% ifchildren %}
+                <ol>
+                    {% children %}
+                </ol>
+            {% endifchildren %}
+        </li>
+    {% endnav %}
+</ol>
+```
+
+Because Neo blocks have a `level` attribute, Neo fields are compatible with the [`{% nav %}`](https://docs.craftcms.com/v3/dev/tags/nav.html) tag.
+
+### More information
+
+For a more in-depth breakdown of templating for Neo, [see this issue](https://github.com/spicywebau/craft-neo/issues/34).
