@@ -21,7 +21,7 @@
   "support": {
     "issues": "https://github.com/spicywebau/craft-neo/issues",
     "source": "https://github.com/spicywebau/craft-neo",
-    "docs": "https://github.com/spicywebau/craft-neo/docs",
+    "docs": "https://github.com/spicywebau/craft-neo/wiki",
     "rss": "https://github.com/spicywebau/craft-neo/commits/master.atom"
   },
   "require": {
