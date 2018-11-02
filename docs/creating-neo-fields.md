@@ -1,6 +1,6 @@
 # Creating Neo Fields
 
-<img src="docs/assets/creating-field.png" width="790">
+<img src="/docs/assets/creating-field.png" width="790">
 
 #### 1. Field layout tab
 Design the field layout for each block type using the familiar field layout designer. One small thing to look out for is asset fields that use `{property}` tags in their directory settings. [Read more about it here.](faq.md#why-do-asset-fields-with-slug-as-an-upload-location-break-on-neo-blocks)
