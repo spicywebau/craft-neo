@@ -195,7 +195,7 @@ class FieldAsset extends AssetBundle
 				$jsBlockType = [
 					'id' => $blockType->id,
 					'sortOrder' => $blockType->sortOrder,
-					'name' => $blockType->name,
+					'name' => Craft::t('neo', $blockType->name),
 					'handle' => $blockType->handle,
 					'maxBlocks' => $blockType->maxBlocks,
 					'maxChildBlocks' => $blockType->maxChildBlocks,
