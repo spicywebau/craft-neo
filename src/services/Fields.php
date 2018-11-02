@@ -217,6 +217,8 @@ class Fields extends Component
 
 					if (!$hasBlocks)
 					{
+						$duplicatedBlocks = [];
+
 						foreach ($blocks as $block)
 						{
 							$duplicatedBlock = $elementsService->duplicateElement($block, [
@@ -226,7 +228,16 @@ class Fields extends Component
 
 							$duplicatedBlock->setCollapsed($block->getCollapsed());
 							$duplicatedBlock->cacheCollapsed();
+							$duplicatedBlocks[] = $duplicatedBlock;
 						}
+
+						$duplicatedblockStructure = new BlockStructure();
+						$duplicatedblockStructure->fieldId = $field->id;
+						$duplicatedblockStructure->ownerId = $owner->id;
+						$duplicatedblockStructure->ownerSiteId = $ownerSiteId;
+
+						Neo::$plugin->blocks->saveStructure($duplicatedblockStructure);
+						Neo::$plugin->blocks->buildStructure($duplicatedBlocks, $duplicatedblockStructure);
 					}
 				}
 				else
@@ -329,6 +340,7 @@ class Fields extends Component
 
 			if ($hasBlocks)
 			{
+				$blockStructure = Neo::$plugin->blocks->getStructure($fieldId, $ownerId);
 				$relatedElementFields = [];
 
 				foreach ($blocks as $block)
@@ -402,6 +414,9 @@ class Fields extends Component
 					$block->ownerSiteId = $ownerSiteId;
 					$elementsService->saveElement($block, false);
 				}
+
+				$blockStructure->ownerSiteId = $ownerSiteId;
+				Neo::$plugin->blocks->saveStructure($blockStructure);
 			}
 		}
 		else
