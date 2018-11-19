@@ -281,13 +281,13 @@ class Fields extends Component
 						$elementsService->deleteElement($deleteBlock);
 					}
 
-					$blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $ownerSiteId);
-
-					if ($blockStructure)
+					// Delete any existing block structures associated with this field/owner/site combination.
+					while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $ownerSiteId)) !== null)
 					{
 						Neo::$plugin->blocks->deleteStructure($blockStructure);
 					}
 
+					// Now, if there are any blocks, save their structure.
 					if (!empty($blocks))
 					{
 						$blockStructure = new BlockStructure();
