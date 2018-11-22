@@ -9,6 +9,7 @@ use craft\base\Field as BaseField;
 use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\models\EntryDraft;
 use craft\models\EntryVersion;
 use craft\validators\ArrayValidator;
 
@@ -696,7 +697,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				{
 					$blockLevel = (int)$blockData['level'];
 
-					if (!($element instanceof EntryVersion))
+					if (!($element instanceof EntryVersion || $element instanceof EntryDraft))
 					{
 						$blockLevel++;
 					}
