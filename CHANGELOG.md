@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.3 - 2018-11-22
+### Fixed
+- Fixed incorrect block levels being set in drafts
+- Set correct Craft minimum version requirement of 3.0.17
+
 ## 2.0.2 - 2018-11-19
 ### Fixed
 - Clean up block structures if duplicates exist, which would cause blocks to appear to duplicate
