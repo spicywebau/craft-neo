@@ -57,7 +57,7 @@ class NeoPlugin extends BasePlugin
 
 	public function getReleaseFeedUrl()
 	{
-		return 'https://raw.githubusercontent.com/benjamminf/craft-neo/master/releases.json';
+		return 'https://raw.githubusercontent.com/spicywebau/craft-neo/craft-2/releases.json';
 	}
 
 	public function isCraftRequiredVersion()
