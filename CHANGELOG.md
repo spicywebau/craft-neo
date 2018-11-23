@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.4 - 2018-11-23
+### Fixed
+- Fixed 500 error accessing block relatives from relational fields in live preview
+
 ## 2.0.3 - 2018-11-22
 ### Fixed
 - Fixed incorrect block levels being set in drafts
