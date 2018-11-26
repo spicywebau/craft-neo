@@ -86,6 +86,12 @@ export default Settings.extend({
 		this._topLevelLightswitch = this.$topLevelInput.data('lightswitch')
 		this._handleGenerator = new Craft.HandleGenerator(this.$nameInput, this.$handleInput)
 
+		// Ensure that an existing block type's handle will not be changed if the name is edited first.
+		if(this.getHandle() !== '')
+		{
+			this._handleGenerator.stopListening()
+		}
+
 		for(let blockType of settings.childBlockTypes)
 		{
 			this.addChildBlockType(blockType)
