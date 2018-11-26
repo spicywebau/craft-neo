@@ -431,14 +431,29 @@ export default Garnish.Base.extend({
 				break
 				case 'craft\\fields\\Color':
 				{
-					let color = $input.find('input[type="color"]').val()
+					const color = $input.find('input[type="color"]').val()
+					const colorText = $input.find('input[type="text"]').val()
+					let background;
 
-					if(!color)
+					if(color && colorText)
 					{
-						color = $input.find('input[type="text"]').val()
+						// Set the selected color.  `colorText` must also be checked, even though it's not used, because
+						// the color type field may still store a color value even if the text field has been cleared.
+						background = `background-color: ${color}`
+					}
+					else if(!color && colorText)
+					{
+						// When a block is initially collapsed, the color type field will not have been set, so the text
+						// field value will need to be used.
+						background = `background-color: ${colorText}`
+					}
+					else
+					{
+						// No color value has been set for the field.
+						background = 'background-image: repeating-linear-gradient(-45deg, transparent, transparent 2px, #777 2px, #777 3px)'
 					}
 
-					value = `<div class="preview_color" style="background-color: ${color}"></div>`
+					value = `<div class="preview_color" style="${background}"></div>`
 				}
 				break
 				case 'craft\\fields\\Date':
