@@ -433,7 +433,7 @@ export default Garnish.Base.extend({
 				{
 					const color = $input.find('input[type="color"]').val()
 					const colorText = $input.find('input[type="text"]').val()
-					let background;
+					let background = null
 
 					if(color && colorText)
 					{
@@ -788,7 +788,14 @@ export default Garnish.Base.extend({
 	{
 		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
 
+		const blockType = this.getBlockType()
+		const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
+		const maxBlockTypes = blockType.getMaxBlocks()
+
 		const allDisabled = (maxBlocks > 0 && blocks.length >= maxBlocks) || !additionalCheck
+		const typeDisabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
+
+		const disabled = allDisabled || typeDisabled
 
 		const pasteData = JSON.parse(localStorage.getItem('neo:copy') || '{}')
 		let pasteDisabled = (!pasteData.blocks || !pasteData.field || pasteData.field !== field)
@@ -833,6 +840,7 @@ export default Garnish.Base.extend({
 		}
 
 		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
+		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
 		this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
 	},
 
@@ -939,6 +947,11 @@ export default Garnish.Base.extend({
 				case 'paste':
 				{
 					this.trigger('pasteBlock', { block: this })
+				}
+				break
+				case 'duplicate':
+				{
+					this.trigger('duplicateBlock', { block: this })
 				}
 				break
 			}
