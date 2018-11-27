@@ -212,6 +212,12 @@ class Neo_CriteriaModel extends ElementCriteriaModel
 		{
 			$filteredElements = $this->_allElements;
 
+			// If the status filter isn't set, only use enabled blocks.
+			if(!isset($this->_currentFilters['status']))
+			{
+				$filteredElements = $this->__status($filteredElements, 'enabled');
+			}
+
 			foreach($this->filterOrder as $filter)
 			{
 				if(isset($this->_currentFilters[$filter]))
