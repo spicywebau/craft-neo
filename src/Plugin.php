@@ -75,5 +75,19 @@ class Plugin extends BasePlugin
 				$event->sender->set('neo', Variable::class);
 			}
 		);
+
+		if (class_exists('\NerdsAndCompany\Schematic\Schematic')) {
+			Event::on(
+				\NerdsAndCompany\Schematic\Schematic::class, 
+				\NerdsAndCompany\Schematic\Schematic::EVENT_RESOLVE_CONVERTER, 
+				function(\NerdsAndCompany\Schematic\Events\ConverterEvent $event) {
+					$modelClass = $event->modelClass;
+					if (strpos($modelClass, __NAMESPACE__) !== false) {
+						$converterClass = __NAMESPACE__.'\\converters\\'.str_replace(__NAMESPACE__.'\\', '', $modelClass);
+						$event->converterClass = $converterClass;
+					}
+				}
+			);
+		}
 	}
 }
