@@ -167,6 +167,10 @@ export default Garnish.Base.extend({
 
 			Garnish.$bod.siblings('head').append(this.$head)
 			Garnish.$bod.append(this.$foot)
+
+			// This may cause a (harmless) Garnish console warning in some cases, but it is required for lightswitches
+			// on new blocks to work.
+			Craft.initUiElements(this.$contentContainer)
 			
 			this.$tabsButton.menubtn()
 
