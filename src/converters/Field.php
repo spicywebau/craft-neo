@@ -19,14 +19,8 @@ class Field extends Base
     public function getRecordDefinition(Model $record): array
     {
         $definition = parent::getRecordDefinition($record);
-
-        $neo = Craft::$app->getPlugins()->getPlugin('neo');
-        $this->resetNeoCache();
-        $blockTypeGroups = $neo->blockTypes->getGroupsByFieldId($record->id);
-        $blockTypes = $neo->blockTypes->getByFieldId($record->id);
-
-        $definition['blockTypeGroups'] = Craft::$app->controller->module->modelMapper->export($blockTypeGroups);
-        $definition['blockTypes'] = Craft::$app->controller->module->modelMapper->export($blockTypes);
+        $definition['blockTypeGroups'] = Craft::$app->controller->module->modelMapper->export($record->getGroups());
+        $definition['blockTypes'] = Craft::$app->controller->module->modelMapper->export($record->getBlockTypes());
 
         return $definition;
     }
@@ -37,17 +31,27 @@ class Field extends Base
     public function saveRecord(Model $record, array $definition): bool
     {
         if (parent::saveRecord($record, $definition)) {
-            Craft::$app->controller->module->modelMapper->import(
-                $definition['blockTypeGroups'],
-                $record->getGroups(),
-                ['fieldId' => $record->id]
-            );
+            if (array_key_exists('blockTypeGroups', $definition)) {
+                $this->resetNeoCache();
+                $this->resetNeoFieldBlockTypeGroupsCache($record);
 
-            Craft::$app->controller->module->modelMapper->import(
-                $definition['blockTypes'],
-                $record->getBlockTypes(),
-                ['fieldId' => $record->id]
-            );
+                Craft::$app->controller->module->modelMapper->import(
+                    $definition['blockTypeGroups'],
+                    $record->getGroups(),
+                    ['fieldId' => $record->id]
+                );
+            }
+
+            if (array_key_exists('blockTypes', $definition)) {
+                $this->resetNeoCache();
+                $this->resetNeoFieldBlockTypesCache($record);
+
+                Craft::$app->controller->module->modelMapper->import(
+                    $definition['blockTypes'],
+                    $record->getBlockTypes(),
+                    ['fieldId' => $record->id]
+                );
+            }
 
             return true;
         }
@@ -64,5 +68,37 @@ class Field extends Base
         Memoize::$blockTypeGroupsByFieldId = null;
         Memoize::$blockTypesById = null;
         Memoize::$blockTypesByFieldId = null;
+    }
+
+    /**
+     * Reset neo field block types cache using reflection.
+     *
+     * @param Model $record
+     */
+    private function resetNeoFieldBlockTypesCache(Model $record)
+    {
+        $obj = $record;
+        $refObject = new \ReflectionObject($obj);
+        if ($refObject->hasProperty('_blockTypes')) {
+            $refProperty1 = $refObject->getProperty('_blockTypes');
+            $refProperty1->setAccessible(true);
+            $refProperty1->setValue($obj, null);
+        }
+    }
+
+    /**
+     * Reset neo field block type groups cache using reflection.
+     *
+     * @param Model $record
+     */
+    private function resetNeoFieldBlockTypeGroupsCache(Model $record)
+    {
+        $obj = $record;
+        $refObject = new \ReflectionObject($obj);
+        if ($refObject->hasProperty('_blockTypeGroups')) {
+            $refProperty1 = $refObject->getProperty('_blockTypeGroups');
+            $refProperty1->setAccessible(true);
+            $refProperty1->setValue($obj, null);
+        }
     }
 }
