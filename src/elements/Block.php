@@ -497,7 +497,7 @@ class Block extends Element
 			{
 				$query = $this->_getBaseRelativeQuery();
 				$query->ancestorOf = $this;
-				$query->setAllElements($this->_allElements);
+				$query->useMemoized($this->_allElements);
 
 				$this->_liveQueries['ancestors'] = $query;
 			}
@@ -505,7 +505,7 @@ class Block extends Element
 			if ($dist)
 			{
 				$query = $this->_liveQueries['ancestors']->ancestorDist($dist);
-				$query->setAllElements($this->_allElements);
+				$query->useMemoized($this->_allElements);
 
 				return $query;
 			}
@@ -533,7 +533,7 @@ class Block extends Element
 				$query = $this->_getBaseRelativeQuery();
 				$query->ancestorOf = $this;
 				$query->ancestorDist = 1;
-				$query->setAllElements($this->_allElements);
+				$query->useMemoized($this->_allElements);
 
 				$this->_liveQueries['parent'] = $query;
 			}
@@ -560,7 +560,7 @@ class Block extends Element
 			{
 				$query = $this->_getBaseRelativeQuery();
 				$query->descendantOf = $this;
-				$query->setAllElements($this->_allElements);
+				$query->useMemoized($this->_allElements);
 
 				$this->_liveQueries['descendants'] = $query;
 			}
@@ -568,7 +568,7 @@ class Block extends Element
 			if ($dist)
 			{
 				$query = $this->_liveQueries['descendants']->descendantDist($dist);
-				$query->setAllElements($this->_allElements);
+				$query->useMemoized($this->_allElements);
 
 				return $query;
 			}
@@ -596,7 +596,7 @@ class Block extends Element
 				$query = $this->_getBaseRelativeQuery();
 				$query->descendantOf = $this;
 				$query->descendantDist = 1;
-				$query->setAllElements($this->_allElements);
+				$query->useMemoized($this->_allElements);
 
 				$this->_liveQueries['children'] = $query;
 			}
@@ -623,7 +623,7 @@ class Block extends Element
 			{
 				$query = $this->_getBaseRelativeQuery();
 				$query->siblingOf = $this;
-				$query->setAllElements($this->_allElements);
+				$query->useMemoized($this->_allElements);
 
 				$this->_liveQueries['siblings'] = $query;
 			}
@@ -650,7 +650,7 @@ class Block extends Element
 			{
 				$query = $this->_getBaseRelativeQuery();
 				$query->prevSiblingOf = $this;
-				$query->setAllElements($this->_allElements);
+				$query->useMemoized($this->_allElements);
 
 				$this->_liveQueries['prevSibling'] = $query;
 			}
@@ -677,7 +677,7 @@ class Block extends Element
 			{
 				$query = $this->_getBaseRelativeQuery();
 				$query->nextSiblingOf = $this;
-				$query->setAllElements($this->_allElements);
+				$query->useMemoized($this->_allElements);
 
 				$this->_liveQueries['nextSibling'] = $query;
 			}
