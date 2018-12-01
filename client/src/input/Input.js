@@ -531,24 +531,11 @@ export default Garnish.Base.extend({
 
 		const blocks = this._blocks
 		const block = blocks[index]
-		const childBlocks = []
+		let childBlocks = []
 
 		if(block)
 		{
-			const level = block.getLevel()
-
-			let currentBlock = blocks[++index]
-			while(currentBlock && currentBlock.getLevel() > level)
-			{
-				let currentLevel = currentBlock.getLevel()
-
-				if(descendants ? currentLevel > level : currentLevel === level + 1)
-				{
-					childBlocks.push(currentBlock)
-				}
-
-				currentBlock = blocks[++index]
-			}
+			childBlocks = block.getChildren(blocks, descendants)
 		}
 
 		return childBlocks
@@ -775,21 +762,20 @@ export default Garnish.Base.extend({
 
 	'@copyBlock'(e)
 	{
-		// TODO Allow copying of multiple blocks
-		// There are some issues with the pasting looking jittery, and the max child blocks check not functioning
-		// correctly. The following code supports copying of multiple blocks, just need to sort out these issues.
-		/* const blocks = []
+		// Get the selected blocks and their descendants
+		const blocks = []
 		this._blockBatch(e.block, (block) =>
 		{
+			// TODO: Allow copying blocks from multiple levels.
+			// Given that the blocks would be pasted to the same level, the block data collection will need to be
+			// amended to ensure the correct levels of all blocks, including descendants.
 			if(block.getLevel() === e.block.getLevel())
 			{
 				blocks.push(block, ...this._findChildBlocks(block, true))
 			}
-		}) */
+		})
 
-		const blocks = this._findChildBlocks(e.block, true)
-		blocks.unshift(e.block)
-
+		// Collect the relevant data from those blocks to be stored for pasting
 		const data = {
 			field: this._name,
 			blocks: []

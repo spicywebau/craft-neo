@@ -335,6 +335,55 @@ export default Garnish.Base.extend({
 		return content
 	},
 
+	getParent(blocks)
+	{
+		const level = this.getLevel()
+		let index = blocks.indexOf(this)
+		let blockParent = null
+
+		if(index >= 0 && level > 0)
+		{
+			while(blockParent === null && index > 0)
+			{
+				let currentBlock = blocks[--index]
+				let currentLevel = currentBlock.getLevel()
+
+				if(currentLevel === level - 1)
+				{
+					blockParent = currentBlock
+				}
+			}
+		}
+
+		return blockParent
+	},
+
+	getChildren(blocks, descendants = null)
+	{
+		const level = this.getLevel()
+		let index = blocks.indexOf(this)
+		let childBlocks = []
+
+		if(index >= 0)
+		{
+			let currentBlock = blocks[++index]
+
+			while(currentBlock && currentBlock.getLevel() > level)
+			{
+				let currentLevel = currentBlock.getLevel()
+
+				if(descendants ? currentLevel > level : currentLevel === level + 1)
+				{
+					childBlocks.push(currentBlock)
+				}
+
+				currentBlock = blocks[++index]
+			}
+		}
+
+		return childBlocks
+	},
+
 	updatePreview(condensed=null)
 	{
 		condensed = typeof condensed === 'boolean' ? condensed : false
@@ -799,6 +848,20 @@ export default Garnish.Base.extend({
 
 		const pasteData = JSON.parse(localStorage.getItem('neo:copy') || '{}')
 		let pasteDisabled = (!pasteData.blocks || !pasteData.field || pasteData.field !== field)
+
+		// Test to see if pasting would exceed the parent's max child blocks
+		const parentBlock = this.getParent(blocks)
+		if(!pasteDisabled && parentBlock)
+		{
+			const maxChildBlocks = parentBlock.getBlockType().getMaxChildBlocks()
+
+			if(maxChildBlocks > 0)
+			{
+				const childBlockCount = parentBlock.getChildren(blocks).length
+				const pasteBlockCount = pasteData.blocks.length
+				pasteDisabled = pasteDisabled || childBlockCount + pasteBlockCount > maxChildBlocks
+			}
+		}
 
 		if(!pasteDisabled)
 		{
