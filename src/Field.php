@@ -9,8 +9,6 @@ use craft\base\Field as BaseField;
 use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
-use craft\models\EntryDraft;
-use craft\models\EntryVersion;
 use craft\validators\ArrayValidator;
 
 use benf\neo\Plugin as Neo;
@@ -682,6 +680,23 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				$ownerId = null;
 			}
 
+			// Generally, block data will be received with levels starting from 0, so they need to be adjusted up by 1.
+			// For entry revisions and new entry drafts, though, the block data will have levels starting from 1.
+			// Because the first block in a field will always be level 1, we can use that to check whether the count is
+			// starting from 0 or 1 and thus ensure that all blocks display at the correct level.
+			$adjustLevels = false;
+
+			if (!empty($value))
+			{
+				$firstBlock = reset($value);
+				$firstBlockLevel = (int)$firstBlock['level'];
+
+				if ($firstBlockLevel === 0)
+				{
+					$adjustLevels = true;
+				}
+			}
+
 			foreach ($value as $blockId => $blockData)
 			{
 				$blockTypeHandle = isset($blockData['type']) ? $blockData['type'] : null;
@@ -695,9 +710,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 				if ($blockType)
 				{
+					// Adjust block levels to their correct value if necessary.
 					$blockLevel = (int)$blockData['level'];
 
-					if (!($element instanceof EntryVersion || $element instanceof EntryDraft))
+					if ($adjustLevels)
 					{
 						$blockLevel++;
 					}
