@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.1.0 - 2018-12-01
+### Added
+- Added the ability to copy multiple selected blocks at the same level
+- Added Schematic support (thanks @boboldehampsink)
+- Restored the Duplicate menu option on blocks -- now named Clone
+
+### Fixed
+- Fixed incorrect block levels on drafts of existing entries
+- Fixed issues with blocks using memoized datasets for queries
+- Fixed field eager loading on PostgreSQL (thanks @boboldehampsink)
+- Fixed block previews of unfilled color fields
+- Fixed issue where the handle of an existing block type was changing when editing the name
+
 ## 2.0.4 - 2018-11-23
 ### Fixed
 - Fixed 500 error accessing block relatives from relational fields in live preview
