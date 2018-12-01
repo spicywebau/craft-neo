@@ -257,8 +257,7 @@ class Fields extends Component
 					}
 
 					$deleteQuery = Block::find()
-						->status(null)
-						->enabledForSite(false)
+						->anyStatus()
 						->ownerId($owner->id)
 						->fieldId($field->id)
 						->inReverse()

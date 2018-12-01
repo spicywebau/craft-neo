@@ -539,8 +539,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		foreach ($sitesService->getAllSiteIds() as $siteId)
 		{
 			$query = Block::find();
-			$query->status(null);
-			$query->enabledForSite(false);
+			$query->anyStatus();
 			$query->siteId($siteId);
 			$query->owner($element);
 			$query->inReverse();
@@ -599,8 +598,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		{
 			$value = $value
 				->limit(null)
-				->status(null)
-				->enabledForSite(false)
+				->anyStatus()
 				->all();
 		}
 
@@ -667,8 +665,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 					$oldBlocksQuery->ownerId($ownerId);
 					$oldBlocksQuery->id($blockIds);
 					$oldBlocksQuery->limit(null);
-					$oldBlocksQuery->status(null);
-					$oldBlocksQuery->enabledForSite(false);
+					$oldBlocksQuery->anyStatus();
 					$oldBlocksQuery->siteId($element->siteId);
 					$oldBlocksQuery->indexBy('id');
 
