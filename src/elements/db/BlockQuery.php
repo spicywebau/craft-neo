@@ -221,9 +221,9 @@ class BlockQuery extends ElementQuery
 		else if ($value !== null)
 		{
 			$this->typeId = (new Query())
-				->select(['id'])
-				->from(['{{%neoblocktypes}}'])
-				->where(Db::parseParam('handle', $value))
+				->select(['neoblocktypes.id'])
+				->from(['{{%neoblocktypes}} neoblocktypes'])
+				->where(Db::parseParam('neoblocktypes.handle', $value))
 				->column();
 		}
 		else
