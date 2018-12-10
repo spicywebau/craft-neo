@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1 - 2018-12-10
+### Fixed
+- Fixed issue where Neo was sometimes causing Craft to fail to delete stale template caches
+
 ## 2.1.0 - 2018-12-01
 ### Added
 - Added the ability to copy multiple selected blocks at the same level
