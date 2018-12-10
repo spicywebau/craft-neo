@@ -763,15 +763,21 @@ export default Garnish.Base.extend({
 	'@copyBlock'(e)
 	{
 		// Get the selected blocks and their descendants
-		const blocks = []
+		const blockGroups = []
+		let blockCount = 0
+
 		this._blockBatch(e.block, (block) =>
 		{
-			// TODO: Allow copying blocks from multiple levels.
-			// Given that the blocks would be pasted to the same level, the block data collection will need to be
-			// amended to ensure the correct levels of all blocks, including descendants.
-			if(block.getLevel() === e.block.getLevel())
+			// To prevent block descendants from being copied multiple times, determine whether the current block has
+			// been added to the most recently added group.
+			const blockAdded = blockCount > 0 && blockGroups[blockGroups.length - 1].indexOf(block) !== -1
+
+			if(!blockAdded)
 			{
-				blocks.push(block, ...this._findChildBlocks(block, true))
+				const newGroup = []
+				newGroup.push(block, ...this._findChildBlocks(block, true))
+				blockGroups.push(newGroup)
+				blockCount += newGroup.length
 			}
 		})
 
@@ -781,33 +787,38 @@ export default Garnish.Base.extend({
 			blocks: []
 		}
 
-		for(let block of blocks)
+		for(let group of blockGroups)
 		{
-			let blockData = {
-				type: block.getBlockType().getId(),
-				level: block.getLevel() - e.block.getLevel(),
-				content: block.getContent(),
-			}
+			const firstBlockLevel = group[0].getLevel()
 
-			if(block.isEnabled())
+			for(let block of group)
 			{
-				blockData.enabled = 1
-			}
+				let blockData = {
+					type: block.getBlockType().getId(),
+					level: block.getLevel() - firstBlockLevel,
+					content: block.getContent(),
+				}
 
-			if(!block.isExpanded())
-			{
-				blockData.collapsed = 1
-			}
+				if(block.isEnabled())
+				{
+					blockData.enabled = 1
+				}
 
-			data.blocks.push(blockData)
+				if(!block.isExpanded())
+				{
+					blockData.collapsed = 1
+				}
+
+				data.blocks.push(blockData)
+			}
 		}
 
 		localStorage.setItem('neo:copy', JSON.stringify(data))
 
 		this._updateButtons()
 
-		const notice = blocks.length == 1 ? "1 block copied" : "{n} blocks copied"
-		Craft.cp.displayNotice(Craft.t('neo', notice, { n: blocks.length }))
+		const notice = blockCount == 1 ? "1 block copied" : "{n} blocks copied"
+		Craft.cp.displayNotice(Craft.t('neo', notice, { n: blockCount }))
 	},
 
 	'@pasteBlock'(e)
