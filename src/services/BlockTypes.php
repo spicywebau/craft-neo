@@ -193,13 +193,13 @@ class BlockTypes extends Component
 							$fieldsService->deleteLayoutById($oldBlockType->fieldLayoutId);
 						}
 					}
-
-					$fieldsService->saveLayout($fieldLayout);
-
-					$blockType->fieldLayoutId = $fieldLayout->id;
-					$record->fieldLayoutId = $fieldLayout->id;
 				}
 
+				$fieldsService->saveLayout($fieldLayout);
+
+				$blockType->fieldLayoutId = $fieldLayout->id;
+				$record->fieldLayoutId = $fieldLayout->id;
+				
 				$record->fieldId = $blockType->fieldId;
 				$record->name = $blockType->name;
 				$record->handle = $blockType->handle;
