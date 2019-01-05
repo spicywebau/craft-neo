@@ -38,6 +38,11 @@ class FieldAsset extends AssetBundle
 			'main.js',
 		];
 
+		if ($this->_matchUriSegments(['settings', 'fields', 'edit', '*']))
+		{
+			array_push($this->js, 'converter.js');
+		}
+
 		parent::init();
 	}
 
@@ -253,5 +258,34 @@ class FieldAsset extends AssetBundle
 		}
 
 		return $jsBlockTypeGroups;
+	}
+
+	/**
+	 * Helper function for matching against the URI.
+	 * Useful for including resources on specific pages.
+	 *
+	 * @param $matchSegments
+	 * @return bool
+	 */
+	private function _matchUriSegments($matchSegments): bool
+	{
+		$segments = Craft::$app->getRequest()->getSegments();
+
+		if (count($segments) !== count($matchSegments))
+		{
+			return false;
+		}
+
+		foreach ($segments as $i => $segment)
+		{
+			$matchSegment = $matchSegments[$i];
+
+			if ($matchSegment !== '*' && $segment !== $matchSegment)
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

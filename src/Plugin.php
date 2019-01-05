@@ -5,14 +5,16 @@ use yii\base\Event;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
-use craft\services\Fields;
 use craft\events\RegisterComponentTypesEvent;
+use craft\services\Fields;
 use craft\web\twig\variables\CraftVariable;
 
-use benf\neo\services\Fields as FieldsService;
-use benf\neo\services\BlockTypes as BlockTypesService;
-use benf\neo\services\Blocks as BlocksService;
+use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;
+use benf\neo\services\Blocks as BlocksService;
+use benf\neo\services\BlockTypes as BlockTypesService;
+use benf\neo\services\Conversion as ConversionService;
+use benf\neo\services\Fields as FieldsService;
 
 /**
  * Class Plugin
@@ -38,6 +40,7 @@ class Plugin extends BasePlugin
 	 * @inheritdoc
 	 */
 	public $controllerMap = [
+		'conversion' => ConversionController::class,
 		'input' => InputController::class,
 	];
 
@@ -54,6 +57,7 @@ class Plugin extends BasePlugin
 			'fields' => FieldsService::class,
 			'blockTypes' => BlockTypesService::class,
 			'blocks' => BlocksService::class,
+			'conversion' => ConversionService::class,
 		]);
 
 		Craft::$app->view->registerTwigExtension(new TwigExtension());
