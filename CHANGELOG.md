@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.2 - 2019-01-05
+### Added
+- Added the ability to copy multiple selected blocks from different levels, which can be pasted at the same level
+
+### Fixed
+- Now always saves the block type field layout when saving a block type; fixes an issue with Schematic importing Neo before its field layout fields are imported (thanks @boboldehampsink)
+
 ## 2.1.1 - 2018-12-10
 ### Fixed
 - Fixed issue where Neo was sometimes causing Craft to fail to delete stale template caches
