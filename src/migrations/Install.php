@@ -1,7 +1,11 @@
 <?php
 namespace benf\neo\migrations;
 
+use Craft;
 use craft\db\Migration;
+
+use benf\neo\Field;
+use benf\neo\Plugin as Neo;
 
 /**
  * Class Install
@@ -156,6 +160,18 @@ class Install extends Migration
 	 */
 	public function safeDown()
 	{
+		// Convert Neo fields to Matrix fields
+		$fields = Craft::$app->getFields()->getAllFields();
+
+		foreach ($fields as $field)
+		{
+			if ($field instanceof Field)
+			{
+				Neo::$plugin->conversion->convertFieldToMatrix($field);
+			}
+		}
+
+		// Drop Neo tables
 		$this->dropTableIfExists('{{%neoblocks}}');
 		$this->dropTableIfExists('{{%neoblockstructures}}');
 		$this->dropTableIfExists('{{%neoblocktypes}}');
