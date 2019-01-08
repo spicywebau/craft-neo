@@ -388,7 +388,8 @@ export default Garnish.Base.extend({
 	{
 		condensed = typeof condensed === 'boolean' ? condensed : false
 
-		const $fields = this.$contentContainer.find('.field')
+		const $childFields = this.$childrenContainer.find('.field')
+		const $fields = this.$contentContainer.find('.field').add($childFields)
 		const previewText = []
 
 		$fields.each(function()
