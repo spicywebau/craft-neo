@@ -26,6 +26,7 @@ export default Editor => class extends Editor
 
 		if(editors.length === 0)
 		{
+			Garnish.$doc.off('click', '.menu a')
 			Garnish.$doc.on('click.ncr', '.menu a', e => onFSMIClick.call({refresh, templates: this.templates}, e))
 		}
 
