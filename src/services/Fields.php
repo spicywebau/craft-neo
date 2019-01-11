@@ -179,124 +179,121 @@ class Fields extends Component
 	{
 		$dbService = Craft::$app->getDb();
 		$elementsService = Craft::$app->getElements();
-
-		$query = $owner->getFieldValue($field->handle);
 		$ownerSiteId = $field->localizeBlocks ? $owner->siteId : null;
 
+		// Is the owner being duplicated?
+		if ($owner->duplicateOf !== null)
+		{
+			$query = $owner->duplicateOf->getFieldValue($field->handle);
+
+			// If this is the first site the element is being duplicated for, or if the element is set to manage blocks
+			// on a per-site basis, then we need to duplicate them for the new element
+			$duplicateBlocks = !$owner->propagating || $field->localizeBlocks;
+		}
+		else
+		{
+			$query = $owner->getFieldValue($field->handle);
+
+			// If the element is brand new and propagating, and the field manages blocks on a per-site basis,
+			// then we will need to duplicate the blocks for this site
+			$duplicateBlocks = !$query->ownerId && $owner->propagating && $field->localizeBlocks;
+		}
+
 		$isSite = $query->siteId == $owner->siteId;
-		$isNewElement = !$query->ownerId;
-		$isDuplicatingElement = $query->ownerId && $query->ownerId != $owner->id;
 
 		if ($isSite)
 		{
-			$blocks = $query->getCachedResult();
-
-			if ($blocks === null)
+			// Skip if the element is propagating right now, and we don't need to duplicate the blocks
+			if ($owner->propagating && !$duplicateBlocks)
 			{
-				$query = clone $query;
-				$query->status = null;
-				$query->enabledForSite = false;
-
-				$blocks = $query->all();
+				return;
 			}
+
+			// Get the Neo blocks
+			$blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
 
 			$transaction = $dbService->beginTransaction();
 			try
 			{
-				if (!$isNewElement)
+				// If we're duplicating an element, or the owner was a preexisting element,
+				// make sure that the blocks for this field/owner respect the field's translation setting
+				if ($owner->duplicateOf || $query->ownerId)
 				{
-					$this->_applyFieldTranslationSettings($query->ownerId, $query->siteId, $field);
+					$ownerId = $owner->duplicateOf ? $owner->duplicateOf->id : $query->ownerId;
+					$siteId = $owner->duplicateOf ? $owner->duplicateOf->siteId : $query->siteId;
+					$this->_applyFieldTranslationSettings($ownerId, $siteId, $field);
 				}
 
-				if ($isDuplicatingElement)
+				$blockIds = [];
+
+				foreach ($blocks as $block)
 				{
-					$blockCheckQuery = clone $query;
-					$blockCheckQuery->ownerId = $owner->id;
-
-					$hasBlocks = $blockCheckQuery->exists();
-
-					if (!$hasBlocks)
+					if ($duplicateBlocks)
 					{
-						$duplicatedBlocks = [];
-
-						foreach ($blocks as $block)
-						{
-							$duplicatedBlock = $elementsService->duplicateElement($block, [
-								'ownerId' => $owner->id,
-								'ownerSiteId' => $ownerSiteId,
-							]);
-
-							$duplicatedBlock->setCollapsed($block->getCollapsed());
-							$duplicatedBlock->cacheCollapsed();
-							$duplicatedBlocks[] = $duplicatedBlock;
-						}
-
-						$duplicatedblockStructure = new BlockStructure();
-						$duplicatedblockStructure->fieldId = $field->id;
-						$duplicatedblockStructure->ownerId = $owner->id;
-						$duplicatedblockStructure->ownerSiteId = $ownerSiteId;
-
-						Neo::$plugin->blocks->saveStructure($duplicatedblockStructure);
-						Neo::$plugin->blocks->buildStructure($duplicatedBlocks, $duplicatedblockStructure);
+						$collapsed = $block->getCollapsed();
+						$block = $elementsService->duplicateElement($block, [
+							'ownerId' => $owner->id,
+							'ownerSiteId' => $ownerSiteId,
+							'siteId' => $owner->siteId,
+							'propagating' => false,
+						]);
+						$block->setCollapsed($collapsed);
 					}
-				}
-				else
-				{
-					$blockIds = [];
-
-					foreach ($blocks as $block)
+					else
 					{
 						$block->ownerId = $owner->id;
 						$block->ownerSiteId = $ownerSiteId;
 						$block->propagating = $owner->propagating;
-
 						$elementsService->saveElement($block, false, !$owner->propagating);
-						$block->cacheCollapsed();
-
-						$blockIds[] = $block->id;
 					}
 
-					$deleteQuery = Block::find()
-						->anyStatus()
-						->ownerId($owner->id)
-						->fieldId($field->id)
-						->inReverse()
-						->where(['not', ['elements.id' => $blockIds] ]);
+					$block->cacheCollapsed();
+					$blockIds[] = $block->id;
+				}
 
-					if ($field->localizeBlocks)
-					{
-						$deleteQuery->ownerSiteId($owner->siteId);
-					}
-					else
-					{
-						$deleteQuery->siteId($owner->siteId);
-					}
+				// Now find any blocks that need to be deleted
+				// The blocks need to be returned in reverse order, as trying to delete them in regular order can
+				// cause a level-related SQL error
+				$deleteQuery = Block::find()
+					->anyStatus()
+					->ownerId($owner->id)
+					->fieldId($field->id)
+					->inReverse()
+					->where(['not', ['elements.id' => $blockIds] ]);
 
-					$deleteBlocks = $deleteQuery->all();
+				if ($field->localizeBlocks)
+				{
+					$deleteQuery->ownerSiteId($owner->siteId);
+				}
+				else
+				{
+					$deleteQuery->siteId($owner->siteId);
+				}
 
-					foreach ($deleteBlocks as $deleteBlock)
-					{
-						$deleteBlock->forgetCollapsed();
-						$elementsService->deleteElement($deleteBlock);
-					}
+				$deleteBlocks = $deleteQuery->all();
 
-					// Delete any existing block structures associated with this field/owner/site combination.
-					while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $ownerSiteId)) !== null)
-					{
-						Neo::$plugin->blocks->deleteStructure($blockStructure);
-					}
+				foreach ($deleteBlocks as $deleteBlock)
+				{
+					$deleteBlock->forgetCollapsed();
+					$elementsService->deleteElement($deleteBlock);
+				}
 
-					// Now, if there are any blocks, save their structure.
-					if (!empty($blocks))
-					{
-						$blockStructure = new BlockStructure();
-						$blockStructure->fieldId = $field->id;
-						$blockStructure->ownerId = $owner->id;
-						$blockStructure->ownerSiteId = $ownerSiteId;
+				// Delete any existing block structures associated with this field/owner/site combination
+				while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $ownerSiteId)) !== null)
+				{
+					Neo::$plugin->blocks->deleteStructure($blockStructure);
+				}
 
-						Neo::$plugin->blocks->saveStructure($blockStructure);
-						Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
-					}
+				// Now, if there are blocks, save their structure
+				if (!empty($blocks))
+				{
+					$blockStructure = new BlockStructure();
+					$blockStructure->fieldId = $field->id;
+					$blockStructure->ownerId = $owner->id;
+					$blockStructure->ownerSiteId = $ownerSiteId;
+
+					Neo::$plugin->blocks->saveStructure($blockStructure);
+					Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
 				}
 
 				$transaction->commit();

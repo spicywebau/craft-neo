@@ -182,9 +182,9 @@ class Block extends Element
 		{
 			$owner = $this->getOwner();
 
-			if ($owner)
+			if ($owner || $this->duplicateOf)
 			{
-				foreach (ElementHelper::supportedSitesForElement($owner) as $siteInfo)
+				foreach (ElementHelper::supportedSitesForElement($owner ?? $this->duplicateOf) as $siteInfo)
 				{
 					$siteIds[] = $siteInfo['siteId'];
 				}
