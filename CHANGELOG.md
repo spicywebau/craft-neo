@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.3 - 2019-01-12
+### Fixed
+- Fixed error when duplicating an element with a Neo field set not to manage blocks on a per-site basis
+
 ## 2.1.2 - 2019-01-05
 ### Added
 - Added the ability to copy multiple selected blocks from different levels, which can be pasted at the same level
