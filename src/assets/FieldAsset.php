@@ -80,9 +80,10 @@ class FieldAsset extends AssetBundle
 	 * @param Field $field The Neo field.
 	 * @param array $value The Neo blocks, associated with this field, to generate inputs for.
 	 * @param bool $static Whether to generate static HTML for the blocks, e.g. for displaying entry revisions.
+	 * @param int|null $siteId
 	 * @return string
 	 */
-	public static function createInputJs(Field $field, $value, bool $static = false): string
+	public static function createInputJs(Field $field, $value, bool $static = false, int $siteId = null): string
 	{
 		$viewService = Craft::$app->getView();
 
@@ -94,7 +95,7 @@ class FieldAsset extends AssetBundle
 		$jsSettings = [
 			'name' => $name,
 			'namespace' => $viewService->namespaceInputName($name),
-			'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static),
+			'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static, $siteId),
 			'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
 			'inputId' => $viewService->namespaceInputId($id),
 			'minBlocks' => $field->minBlocks,
@@ -156,9 +157,10 @@ class FieldAsset extends AssetBundle
 	 * @param array $blockTypes The Neo block types.
 	 * @param bool $renderTabs Whether to render the block types' tabs.
 	 * @param bool $static Whether to generate static HTML for the block types, e.g. for displaying entry revisions.
+	 * @param int|null $siteId
 	 * @return array
 	 */
-	private static function _getBlockTypesJsSettings(array $blockTypes, bool $renderTabs = false, bool $static = false): array
+	private static function _getBlockTypesJsSettings(array $blockTypes, bool $renderTabs = false, bool $static = false, int $siteId = null): array
 	{
 		$jsBlockTypes = [];
 
@@ -209,7 +211,7 @@ class FieldAsset extends AssetBundle
 
 				if ($renderTabs)
 				{
-					$tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static);
+					$tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId);
 					$jsBlockType['tabs'] = $tabsHtml;
 				}
 

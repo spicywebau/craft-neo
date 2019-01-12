@@ -20,7 +20,7 @@ use benf\neo\elements\Block;
 class Input extends Controller
 {
 	/**
-	 * Renders copied/pasted input blocks.
+	 * Renders pasted or cloned input blocks.
 	 *
 	 * @return Response
 	 */
@@ -33,7 +33,7 @@ class Input extends Controller
 
 		$blocks = $requestService->getRequiredBodyParam('blocks');
 		$namespace = $requestService->getParam('namespace');
-		$locale = $requestService->getParam('locale');
+		$siteId = $requestService->getParam('locale');
 		$renderedBlocks = [];
 
 		foreach ($blocks as $rawBlock)
@@ -45,7 +45,8 @@ class Input extends Controller
 			$block->level = $rawBlock['level'];
 			$block->enabled = isset($rawBlock['enabled']);
 			$block->setCollapsed(isset($rawBlock['collapsed']));
-			$block->ownerSiteId = $locale;
+			$block->ownerSiteId = $siteId;
+			$block->siteId = $siteId ?? $sitesService->getPrimarySite()->id;
 
 			if (!empty($rawBlock['content']))
 			{
@@ -85,15 +86,15 @@ class Input extends Controller
 
 		// If the `locale` parameter wasn't passed, then this Craft installation has only one site, thus we can just
 		// grab the primary site ID.
-		$locale = $requestService->getParam('locale', $sitesService->getPrimarySite()->id);
+		$siteId = $requestService->getParam('locale', $sitesService->getPrimarySite()->id);
 
 		$return = $this->asJson([
 			'success' => false,
 			'blockId' => $blockId,
-			'locale' => $locale,
+			'locale' => $siteId,
 		]);
 
-		$block = $blockId ? Neo::$plugin->blocks->getBlockById($blockId, $locale) : null;
+		$block = $blockId ? Neo::$plugin->blocks->getBlockById($blockId, $siteId) : null;
 
 		if ($block)
 		{
@@ -103,7 +104,7 @@ class Input extends Controller
 			$return = $this->asJson([
 				'success' => true,
 				'blockId' => $blockId,
-				'locale' => $locale,
+				'locale' => $siteId,
 				'expanded' => !$block->getCollapsed(),
 			]);
 		}
