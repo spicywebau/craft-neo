@@ -359,12 +359,20 @@ class BlockTypes extends Component
 	 * @param Block $block The Neo block type having its tabs rendered.
 	 * @param bool $static Whether to generate static tab content.
 	 * @param string|null $namespace
+	 * @param int|null $siteId
 	 * @return array The tabs data.
 	 */
-	public function renderTabs(BlockType $blockType, bool $static = false, $namespace = null): array
+	public function renderTabs(BlockType $blockType, bool $static = false, $namespace = null, int $siteId = null): array
 	{
 		$block = new Block();
 		$block->typeId = $blockType->id;
+
+		// Ensure that the passed site ID is valid before applying it
+		// If the site ID is not passed or is invalid, the block will default to the primary site
+		if ($siteId !== null && Craft::$app->getSites()->getSiteById($siteId) !== null)
+		{
+			$block->siteId = $siteId;
+		}
 
 		return Neo::$plugin->blocks->renderTabs($block, $static, $namespace);
 	}

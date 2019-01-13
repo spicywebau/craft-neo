@@ -602,6 +602,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				->all();
 		}
 
+		$siteId = $element !== null ? $element->siteId : null;
+
 		$html = '';
 
 		// Disable Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
@@ -612,7 +614,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		else
 		{
 			$viewService->registerAssetBundle(FieldAsset::class);
-			$viewService->registerJs(FieldAsset::createInputJs($this, $value, $static));
+			$viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId));
 
 			$html = $viewService->renderTemplate('neo/input', [
 				'neoField' => $this,

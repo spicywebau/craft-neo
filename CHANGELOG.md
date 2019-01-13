@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.4 - 2019-01-13
+### Fixed
+- Fixed issue on multi-site Craft installs where entry/category fields in new or pasted/cloned Neo blocks were always listing elements from the primary site
+
 ## 2.1.3 - 2019-01-12
 ### Fixed
 - Fixed error when duplicating an element with a Neo field set not to manage blocks on a per-site basis
