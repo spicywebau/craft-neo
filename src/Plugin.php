@@ -1,6 +1,7 @@
 <?php
 namespace benf\neo;
 
+use benf\neo\listeners\CraftQLGetFieldSchema;
 use yii\base\Event;
 
 use Craft;
@@ -75,6 +76,12 @@ class Plugin extends BasePlugin
 				$event->sender->set('neo', Variable::class);
 			}
 		);
+
+		Event::on(
+		    Field::class,
+            'craftQlGetFieldSchema',
+            [CraftQLGetFieldSchema::class, 'handle']
+        );
 
 		if (class_exists('\NerdsAndCompany\Schematic\Schematic')) {
 			Event::on(
