@@ -351,7 +351,19 @@ class BlockQuery extends ElementQuery
 
 	// Protected methods
 
-	/**
+    /**
+     * @inheritdoc
+     */
+    protected function afterPrepare(): bool
+    {
+        $this->subQuery->leftJoin('{{%structures}} structures', '[[structureelements.structureId]] = [[structures.id]]');
+        $this->query->leftJoin('{{%structures}} structures', '[[structureelements.structureId]] = [[structures.id]]');
+        $this->query->andWhere(['structures.dateDeleted' => null]);
+        $this->subQuery->andWhere(['structures.dateDeleted' => null]);
+        return parent::afterPrepare();
+    }
+
+    /**
 	 * @inheritdoc
 	 */
 	protected function beforePrepare(): bool
