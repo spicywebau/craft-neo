@@ -297,6 +297,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				->fieldId($this->id)
 				->siteId($element->siteId ?? null);
 
+			if ($this->localizeBlocks)
+			{
+				$query->ownerSiteId($element->siteId ?? null);
+			}
+
 			// Set the initially matched elements if $value is already set, which is the case if there was a validation
 			// error or we're loading an entry revision.
 			if (is_array($value) || $value === '')

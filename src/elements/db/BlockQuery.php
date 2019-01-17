@@ -373,15 +373,15 @@ class BlockQuery extends ElementQuery
 						->scalar();
 				}
 			}
+		}
 
-			if (!$this->structureId && $this->fieldId && $this->ownerId && $this->ownerSiteId)
+		if (!$this->structureId && $this->fieldId && $this->ownerId)
+		{
+			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->ownerSiteId);
+
+			if ($blockStructure)
 			{
-				$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->ownerSiteId);
-
-				if ($blockStructure)
-				{
-					$this->structureId = $blockStructure->structureId;
-				}
+				$this->structureId = $blockStructure->structureId;
 			}
 		}
 
