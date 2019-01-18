@@ -1,7 +1,7 @@
 {
   "name": "spicyweb/craft-neo",
   "description": "A Matrix-like field type that uses existing fields",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "type": "craft-plugin",
   "keywords": [
     "cms",
@@ -25,7 +25,7 @@
     "rss": "https://github.com/spicywebau/craft-neo/commits/master.atom"
   },
   "require": {
-    "craftcms/cms": "^3.0.17"
+    "craftcms/cms": "^3.0.31"
   },
   "autoload": {
     "psr-4": {
