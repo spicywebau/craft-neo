@@ -1133,9 +1133,8 @@ class NeoService extends BaseApplicationComponent
 		$transaction = $this->beginTransaction();
 		try
 		{
-			$blockStructure = $this->getStructure($fieldType, $locale);
-
-			if($blockStructure)
+			// Ensure all structures associated with this field/owner/locale are deleted, in case extras somehow exist
+			while($blockStructure = $this->getStructure($fieldType, $locale))
 			{
 				craft()->structures->deleteStructureById($blockStructure->id);
 			}
