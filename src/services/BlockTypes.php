@@ -5,6 +5,10 @@ use yii\base\Component;
 
 use Craft;
 use craft\db\Query;
+use craft\events\ConfigEvent;
+use craft\helpers\Db;
+use craft\helpers\StringHelper;
+use craft\models\FieldLayout;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
@@ -163,70 +167,67 @@ class BlockTypes extends Component
 	 */
 	public function save(BlockType $blockType, bool $validate = true): bool
 	{
-		$dbService = Craft::$app->getDb();
-		$fieldsService = Craft::$app->getFields();
-
-		$isValid = $validate || $this->validate($blockType);
-
-		if ($isValid)
+		// Ensure that the block type passes validation or that validation is disabled
+		if ($validate && !$this->validate($blockType))
 		{
-			$transaction = $dbService->beginTransaction();
-			try
-			{
-				$record = $this->_getRecord($blockType);
-				$isNew = $blockType->getIsNew();
-
-				$fieldLayout = $blockType->getFieldLayout();
-
-				if (!$fieldLayout->id)
-				{
-					if (!$isNew)
-					{
-						$result = $this->_createQuery()
-							->where(['id' => $blockType->id])
-							->one();
-
-						$oldBlockType = new BlockType($result);
-					
-						if ($oldBlockType->fieldLayoutId)
-						{
-							$fieldsService->deleteLayoutById($oldBlockType->fieldLayoutId);
-						}
-					}
-				}
-
-				$fieldsService->saveLayout($fieldLayout);
-
-				$blockType->fieldLayoutId = $fieldLayout->id;
-				$record->fieldLayoutId = $fieldLayout->id;
-				
-				$record->fieldId = $blockType->fieldId;
-				$record->name = $blockType->name;
-				$record->handle = $blockType->handle;
-				$record->sortOrder = $blockType->sortOrder;
-				$record->maxBlocks = $blockType->maxBlocks;
-				$record->maxChildBlocks = $blockType->maxChildBlocks;
-				$record->childBlocks = $blockType->childBlocks;
-				$record->topLevel = $blockType->topLevel;
-
-				$record->save(false);
-
-				if ($isNew)
-				{
-					$blockType->id = $record->id;
-				}
-
-				$transaction->commit();
-			}
-			catch (\Throwable $e)
-			{
-				$transaction->rollBack();
-
-				throw $e;
-			}
+			return false;
 		}
 
-		return $isValid;
+		$projectConfigService = Craft::$app->getProjectConfig();
+		$fieldsService = Craft::$app->getFields();
+		$field = $fieldsService->getFieldById($blockType->fieldId);
+		$fieldLayout = $blockType->getFieldLayout();
+		$fieldLayoutConfig = $fieldLayout->getConfig();
+		$isNew = $blockType->getIsNew();
+
+		if ($isNew)
+		{
+			$blockType->uid = StringHelper::UUID();
+		}
+
+		if ($blockType->uid === null)
+		{
+			$blockType->uid = Db::uidById('{{%neoblocktypes}}', $blockType->id);
+		}
+
+		$data = [
+			'field' => $field->uid,
+			'name' => $blockType->name,
+			'handle' => $blockType->handle,
+			'sortOrder' => $blockType->sortOrder,
+			'maxBlocks' => $blockType->maxBlocks,
+			'maxChildBlocks' => $blockType->maxChildBlocks,
+			'childBlocks' => $blockType->childBlocks,
+			'topLevel' => $blockType->topLevel,
+		];
+
+		// No need to bother with the field layout if it has no tabs
+		if ($fieldLayoutConfig !== null)
+		{
+			$fieldLayoutUid = $fieldLayout->uid ?? StringHelper::UUID();
+
+			if (!$fieldLayout->uid)
+			{
+				$fieldLayout->uid = $fieldLayoutUid;
+			}
+
+			foreach ($fieldLayoutConfig['tabs'] as &$tab)
+			{
+				if (!isset($tab['fields']))
+				{
+					$tab['fields'] = [];
+				}
+			}
+
+			$data['fieldLayouts'] = [
+				$fieldLayoutUid => $fieldLayoutConfig,
+			];
+		}
+
+		$path = 'neoBlockTypes.' . $blockType->uid;
+		$projectConfigService->set($path, $data);
+
+		return true;
 	}
 
 	/**
@@ -354,6 +355,75 @@ class BlockTypes extends Component
 	}
 
 	/**
+	 * Handles a Neo block type change.
+	 *
+	 * @param ConfigEvent $event
+	 * @throws \Throwable
+	 */
+	public function handleChangedBlockType(ConfigEvent $event)
+	{
+		$dbService = Craft::$app->getDb();
+		$fieldsService = Craft::$app->getFields();
+		$uid = $event->tokenMatches[0];
+		$data = $event->newValue;
+		$transaction = $dbService->beginTransaction();
+
+		try
+		{
+			$record = $this->_getRecordByUid($uid);
+			$fieldLayoutConfig = isset($data['fieldLayouts']) ? reset($data['fieldLayouts']) : null;
+			$fieldLayout = null;
+
+			if ($fieldLayoutConfig === null || !isset($fieldLayoutConfig['id']))
+			{
+				if ($record->id !== null)
+				{
+					$result = $this->_createQuery()
+						->where(['id' => $record->id])
+						->one();
+
+					$oldBlockType = new BlockType($result);
+					
+					if ($oldBlockType->fieldLayoutId)
+					{
+						$fieldsService->deleteLayoutById($oldBlockType->fieldLayoutId);
+					}
+				}
+			}
+
+			if ($fieldLayoutConfig !== null)
+			{
+				$fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
+				$fieldLayout->id = $record->fieldLayoutId;
+				$fieldLayout->type = Block::class;
+				$fieldLayout->uid = key($data['fieldLayouts']);
+
+				$fieldsService->saveLayout($fieldLayout);
+			}
+
+			$record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
+			$record->name = $data['name'];
+			$record->handle = $data['handle'];
+			$record->sortOrder = $data['sortOrder'];
+			$record->maxBlocks = $data['maxBlocks'];
+			$record->maxChildBlocks = $data['maxChildBlocks'];
+			$record->childBlocks = $data['childBlocks'];
+			$record->topLevel = $data['topLevel'];
+			$record->uid = $uid;
+			$record->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
+			$record->save(false);
+
+			$transaction->commit();
+		}
+		catch (\Throwable $e)
+		{
+			$transaction->rollBack();
+
+			throw $e;
+		}
+	}
+
+	/**
 	 * Renders a Neo block type's tabs.
 	 *
 	 * @param Block $block The Neo block type having its tabs rendered.
@@ -453,6 +523,28 @@ class BlockTypes extends Component
 
 				Memoize::$blockTypeRecordsById[$id] = $record;
 			}
+		}
+
+		return $record;
+	}
+
+	/**
+	 * Returns the block type record with the given UUID, if it exists; otherwise returns a new block type record.
+	 *
+	 * @param string $uid
+	 * @return BlockTypeRecord
+	 */
+	private function _getRecordByUid(string $uid): BlockTypeRecord
+	{
+		$record = BlockTypeRecord::findOne(['uid' => $uid]);
+
+		if ($record !== null)
+		{
+			Memoize::$blockTypeRecordsById[$record->id] = $record;
+		}
+		else
+		{
+			$record = new BlockTypeRecord();
 		}
 
 		return $record;

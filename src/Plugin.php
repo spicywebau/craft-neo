@@ -80,6 +80,10 @@ class Plugin extends BasePlugin
 			}
 		);
 
+		Craft::$app->getProjectConfig()
+			->onAdd('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
+			->onUpdate('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType']);
+
 		if (class_exists('\NerdsAndCompany\Schematic\Schematic')) {
 			Event::on(
 				\NerdsAndCompany\Schematic\Schematic::class, 

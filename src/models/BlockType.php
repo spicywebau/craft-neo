@@ -68,6 +68,11 @@ class BlockType extends Model
 	public $sortOrder;
 
 	/**
+	 * @var string
+	 */
+	public $uid;
+
+	/**
 	 * @var bool
 	 */
 	public $hasFieldErrors = false;
