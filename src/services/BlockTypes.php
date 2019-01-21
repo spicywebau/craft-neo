@@ -274,50 +274,9 @@ class BlockTypes extends Component
 	 */
 	public function delete(BlockType $blockType): bool
 	{
-		$dbService = Craft::$app->getDb();
-		$sitesService = Craft::$app->getSites();
-		$elementsService = Craft::$app->getElements();
-		$fieldsService = Craft::$app->getFields();
+		Craft::$app->getProjectConfig()->remove('neoBlockTypes.' . $blockType->uid);
 
-		$success = false;
-
-		$transaction = $dbService->beginTransaction();
-		try
-		{
-			// Delete all blocks of this type
-			foreach ($sitesService->getAllSiteIds() as $siteId)
-			{
-				$blocks = Block::find()
-					->siteId($siteId)
-					->typeId($blockType->id)
-					->all();
-
-				foreach ($blocks as $block)
-				{
-					$elementsService->deleteElement($block);
-				}
-			}
-
-			// Delete the block types field layout
-			$fieldsService->deleteLayoutById($blockType->fieldLayoutId);
-
-			// Delete the block type
-			$affectedRows = $dbService->createCommand()
-				->delete('{{%neoblocktypes}}', ['id' => $blockType->id])
-				->execute();
-
-			$transaction->commit();
-
-			$success = (bool)$affectedRows;
-		}
-		catch (\Throwable $e)
-		{
-			$transaction->rollBack();
-
-			throw $e;
-		}
-
-		return $success;
+		return true;
 	}
 
 	/**
@@ -424,6 +383,70 @@ class BlockTypes extends Component
 	}
 
 	/**
+	 * Handles deleting a Neo block type and all associated Neo blocks.
+	 *
+	 * @param ConfigEvent $event
+	 * @throws \Throwable
+	 */
+	public function handleDeletedBlockType(ConfigEvent $event)
+	{
+		$uid = $event->tokenMatches[0];
+		$record = $this->_getRecordByUid($uid);
+
+		if ($record->id === null)
+		{
+			return;
+		}
+
+		$dbService = Craft::$app->getDb();
+		$transaction = $dbService->beginTransaction();
+
+		try
+		{
+			$blockType = $this->getById($record->id);
+
+			if ($blockType === null)
+			{
+				return;
+			}
+
+			$sitesService = Craft::$app->getSites();
+			$elementsService = Craft::$app->getElements();
+			$fieldsService = Craft::$app->getFields();
+
+			// Delete all blocks of this type
+			foreach ($sitesService->getAllSiteIds() as $siteId)
+			{
+				$blocks = Block::find()
+					->siteId($siteId)
+					->typeId($blockType->id)
+					->all();
+
+				foreach ($blocks as $block)
+				{
+					$elementsService->deleteElement($block);
+				}
+			}
+
+			// Delete the block type's field layout
+			$fieldsService->deleteLayoutById($blockType->fieldLayoutId);
+
+			// Delete the block type
+			$affectedRows = $dbService->createCommand()
+				->delete('{{%neoblocktypes}}', ['id' => $blockType->id])
+				->execute();
+
+			$transaction->commit();
+		}
+		catch (\Throwable $e)
+		{
+			$transaction->rollBack();
+
+			throw $e;
+		}
+	}
+
+	/**
 	 * Renders a Neo block type's tabs.
 	 *
 	 * @param Block $block The Neo block type having its tabs rendered.
@@ -466,6 +489,7 @@ class BlockTypes extends Component
 				'childBlocks',
 				'topLevel',
 				'sortOrder',
+				'uid',
 			])
 			->from(['{{%neoblocktypes}}'])
 			->orderBy(['sortOrder' => SORT_ASC]);
