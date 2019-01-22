@@ -34,6 +34,11 @@ class BlockTypeGroup extends Model
 	public $sortOrder;
 
 	/**
+	 * @var string
+	 */
+	public $uid;
+
+	/**
 	 * @inheritdoc
 	 */
 	public function rules()

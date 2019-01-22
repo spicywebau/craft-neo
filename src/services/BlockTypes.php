@@ -239,28 +239,23 @@ class BlockTypes extends Component
 	 */
 	public function saveGroup(BlockTypeGroup $blockTypeGroup): bool
 	{
-		$dbService = Craft::$app->getDb();
+		$projectConfigService = Craft::$app->getProjectConfig();
+		$fieldsService = Craft::$app->getFields();
+		$field = $fieldsService->getFieldById($blockTypeGroup->fieldId);
 
-		$transaction = $dbService->beginTransaction();
-		try
+		if ($blockTypeGroup->getIsNew())
 		{
-			$record = new BlockTypeGroupRecord();
-			$record->fieldId = $blockTypeGroup->fieldId;
-			$record->name = $blockTypeGroup->name;
-			$record->sortOrder = $blockTypeGroup->sortOrder;
-
-			$record->save(false);
-
-			$blockTypeGroup->id = $record->id;
-
-			$transaction->commit();
+			$blockTypeGroup->uid = StringHelper::UUID();
 		}
-		catch(\Throwable $e)
-		{
-			$transaction->rollBack();
 
-			throw $e;
-		}
+		$data = [
+			'field' => $field->uid,
+			'name' => $blockTypeGroup->name,
+			'sortOrder' => $blockTypeGroup->sortOrder,
+		];
+
+		$path = 'neoBlockTypeGroups.' . $blockTypeGroup->uid;
+		$projectConfigService->set($path, $data);
 
 		return true;
 	}
@@ -439,6 +434,38 @@ class BlockTypes extends Component
 			$transaction->commit();
 		}
 		catch (\Throwable $e)
+		{
+			$transaction->rollBack();
+
+			throw $e;
+		}
+	}
+
+	/**
+	 * Handles a Neo block type group change.
+	 *
+	 * @param ConfigEvent $event
+	 * @throws \Throwable
+	 */
+	public function handleChangedBlockTypeGroup(ConfigEvent $event)
+	{
+		$uid = $event->tokenMatches[0];
+		$data = $event->newValue;
+		$dbService = Craft::$app->getDb();
+		$transaction = $dbService->beginTransaction();
+
+		try
+		{
+			$record = new BlockTypeGroupRecord();
+			$record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
+			$record->name = $data['name'];
+			$record->sortOrder = $data['sortOrder'];
+			$record->uid = $uid;
+			$record->save(false);
+
+			$transaction->commit();
+		}
+		catch(\Throwable $e)
 		{
 			$transaction->rollBack();
 

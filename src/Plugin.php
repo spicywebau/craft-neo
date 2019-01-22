@@ -83,7 +83,9 @@ class Plugin extends BasePlugin
 		Craft::$app->getProjectConfig()
 			->onAdd('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
 			->onUpdate('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
-			->onRemove('neoBlockTypes.{uid}', [$this->blockTypes, 'handleDeletedBlockType']);
+			->onRemove('neoBlockTypes.{uid}', [$this->blockTypes, 'handleDeletedBlockType'])
+			->onAdd('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
+			->onUpdate('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup']);
 
 		if (class_exists('\NerdsAndCompany\Schematic\Schematic')) {
 			Event::on(
