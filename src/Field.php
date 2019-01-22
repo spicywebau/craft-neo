@@ -301,6 +301,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 			{
 				$query->ownerSiteId($element->siteId ?? null);
 			}
+			else
+			{
+				// Try to get the block structure without setting `ownerSiteId`
+				// If the structure's `ownerSiteId` is not null and does not match `$element->siteId` then we need to
+				// set the query's `ownerSiteId`
+				$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
+
+				if ($blockStructure && $blockStructure->ownerSiteId && $blockStructure->ownerSiteId != $element->siteId)
+				{
+					$query->ownerSiteId($element->siteId);
+				}
+			}
 
 			// Set the initially matched elements if $value is already set, which is the case if there was a validation
 			// error or we're loading an entry revision.
@@ -308,8 +320,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 			{
 				$elements = $this->_createBlocksFromSerializedData($value, $element);
 
-				$query->status = null;
-				$query->enabledForSite = false;
+				$query->anyStatus();
 				$query->limit = null;
 				$query->setCachedResult($elements);
 				$query->setAllElements($elements);
