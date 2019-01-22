@@ -283,29 +283,16 @@ class BlockTypes extends Component
 	 */
 	public function deleteGroupsByFieldId($fieldId): bool
 	{
-		$dbService = Craft::$app->getDb();
+		$projectConfigService = Craft::$app->getProjectConfig();
+		$fieldsService = Craft::$app->getFields();
+		$field = $fieldsService->getFieldById($fieldId);
 
-		$success = false;
-
-		$transaction = $dbService->beginTransaction();
-		try
+		foreach ($field->getGroups() as $group)
 		{
-			$affectedRows = $dbService->createCommand()
-				->delete('{{%neoblocktypegroups}}', ['fieldId' => $fieldId])
-				->execute();
-
-			$transaction->commit();
-
-			$success = (bool)$affectedRows;
-		}
-		catch (\Throwable $e)
-		{
-			$transaction->rollBack();
-
-			throw $e;
+			$projectConfigService->remove('neoBlockTypeGroups.' . $group->uid);
 		}
 
-		return $success;
+		return true;
 	}
 
 	/**
@@ -474,6 +461,34 @@ class BlockTypes extends Component
 	}
 
 	/**
+	 * Handles deleting a Neo block type group.
+	 *
+	 * @param ConfigEvent $event
+	 * @throws \Throwable
+	 */
+	public function handleDeletedBlockTypeGroup(ConfigEvent $event)
+	{
+		$uid = $event->tokenMatches[0];
+		$dbService = Craft::$app->getDb();
+		$transaction = $dbService->beginTransaction();
+
+		try
+		{
+			$affectedRows = $dbService->createCommand()
+				->delete('{{%neoblocktypegroups}}', ['uid' => $uid])
+				->execute();
+
+			$transaction->commit();
+		}
+		catch (\Throwable $e)
+		{
+			$transaction->rollBack();
+
+			throw $e;
+		}
+	}
+
+	/**
 	 * Renders a Neo block type's tabs.
 	 *
 	 * @param Block $block The Neo block type having its tabs rendered.
@@ -535,6 +550,7 @@ class BlockTypes extends Component
 				'fieldId',
 				'name',
 				'sortOrder',
+				'uid',
 			])
 			->from(['{{%neoblocktypegroups}}'])
 			->orderBy(['sortOrder' => SORT_ASC]);
