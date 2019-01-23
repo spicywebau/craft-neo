@@ -282,9 +282,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		else
 		{
 			$query = Block::find();
+			$blockStructure = null;
 
 			// Existing element?
-			if ($element && $element->id)
+			$existingElement = $element && $element->id;
+			if ($existingElement)
 			{
 				$query->ownerId($element->id);
 			}
@@ -297,29 +299,45 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				->fieldId($this->id)
 				->siteId($element->siteId ?? null);
 
-			if ($this->localizeBlocks)
+			// If an owner element exists, set the appropriate owner site ID and block structure, depending on whether
+			// the field is set to manage blocks on a per-site basis
+			if ($existingElement)
 			{
-				$query->ownerSiteId($element->siteId ?? null);
-			}
-			else
-			{
-				// Try to get the block structure without setting `ownerSiteId`
-				// If the structure's `ownerSiteId` is not null and does not match `$element->siteId` then we did not
-				// get the correct structure, so we will need to set the query's `ownerSiteId`
-				$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
-
-				if ($blockStructure)
+				if ($this->localizeBlocks)
 				{
-					if ($blockStructure->ownerSiteId && $blockStructure->ownerSiteId != $element->siteId)
+					// Look for the block structure with the owner site ID
+					// If a structure is not found, then look for one without an owner site ID set
+					$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $element->siteId);
+
+					if ($blockStructure)
 					{
 						$query->ownerSiteId($element->siteId);
 					}
 					else
 					{
-						// If we got the correct structure, just set the query's `structureId` now
-						$query->structureId($blockStructure->structureId);
+						$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
 					}
 				}
+				else
+				{
+					// Look for the block structure without looking for a specific owner site ID
+					// If the structure's owner site ID is not null but does not match the owner's site ID, we did not
+					// find the correct structure, so we'll need to set the query's owner site ID and look for the
+					// structure with that owner site ID
+					$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
+
+					if ($blockStructure && $blockStructure->ownerSiteId && $blockStructure->ownerSiteId != $element->siteId)
+					{
+						$query->ownerSiteId($element->siteId);
+						$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $element->siteId);
+					}
+				}
+			}
+
+			// If we found the block structure, set the query's structure ID
+			if ($blockStructure)
+			{
+				$query->structureId($blockStructure->structureId);
 			}
 
 			// Set the initially matched elements if $value is already set, which is the case if there was a validation
