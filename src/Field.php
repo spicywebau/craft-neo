@@ -304,13 +304,21 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 			else
 			{
 				// Try to get the block structure without setting `ownerSiteId`
-				// If the structure's `ownerSiteId` is not null and does not match `$element->siteId` then we need to
-				// set the query's `ownerSiteId`
+				// If the structure's `ownerSiteId` is not null and does not match `$element->siteId` then we did not
+				// get the correct structure, so we will need to set the query's `ownerSiteId`
 				$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
 
-				if ($blockStructure && $blockStructure->ownerSiteId && $blockStructure->ownerSiteId != $element->siteId)
+				if ($blockStructure)
 				{
-					$query->ownerSiteId($element->siteId);
+					if ($blockStructure->ownerSiteId && $blockStructure->ownerSiteId != $element->siteId)
+					{
+						$query->ownerSiteId($element->siteId);
+					}
+					else
+					{
+						// If we got the correct structure, just set the query's `structureId` now
+						$query->structureId($blockStructure->structureId);
+					}
 				}
 			}
 
