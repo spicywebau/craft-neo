@@ -331,12 +331,18 @@ class Fields extends Component
 				->ownerSiteId(':empty:')
 				->anyStatus();
 
+			$blockStructure = Neo::$plugin->blocks->getStructure($fieldId, $ownerId);
+
+			if ($blockStructure)
+			{
+				$query->structureId($blockStructure->structureId);
+			}
+
 			$blocks = $query->all();
 			$hasBlocks = !empty($blocks);
 
 			if ($hasBlocks)
 			{
-				$blockStructure = Neo::$plugin->blocks->getStructure($fieldId, $ownerId);
 				$relatedElementFields = [];
 
 				foreach ($blocks as $block)
