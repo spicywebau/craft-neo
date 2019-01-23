@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.1.6 - 2019-01-24
-###
+### Fixed
 - Fixed error when pasting or cloning blocks on single-site Craft installations
 
 ## 2.1.5 - 2019-01-17
