@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.7 - 2019-01-25
+### Fixed
+- Fixed issue where Neo blocks would not appear on duplicated entries
+
 ## 2.1.6 - 2019-01-24
 ### Fixed
 - Fixed error when pasting or cloning blocks on single-site Craft installations
