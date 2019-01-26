@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.8 - 2019-01-26
+### Fixed
+- Fixed multi-site issue, when enabling a site for a section, where a Neo field set not to manage its blocks on a per-site basis would cause the resaving of the section's entries to fail
+
 ## 2.1.7 - 2019-01-25
 ### Fixed
 - Fixed issue where Neo blocks would not appear on duplicated entries
