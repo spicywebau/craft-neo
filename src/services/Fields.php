@@ -226,7 +226,7 @@ class Fields extends Component
 
 				$blockIds = [];
 
-				foreach ($blocks as $block)
+				foreach ($blocks as &$block)
 				{
 					if ($duplicateBlocks)
 					{
@@ -250,6 +250,8 @@ class Fields extends Component
 					$block->cacheCollapsed();
 					$blockIds[] = $block->id;
 				}
+
+				unset($block);
 
 				// Now find any blocks that need to be deleted
 				// The blocks need to be returned in reverse order, as trying to delete them in regular order can
