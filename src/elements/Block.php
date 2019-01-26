@@ -248,11 +248,7 @@ class Block extends Element
 		elseif ($this->ownerId !== null)
 		{
 			$owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId);
-
-			if ($owner === null)
-			{
-				$this->_owner = false;
-			}
+			$this->_owner = $owner ?? false;
 		}
 
 		return $owner;
