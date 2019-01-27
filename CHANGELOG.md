@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.2.0 - 2019-01-27
+### Added
+- Added Craft 3.1 project config support
+- Added Craft 3.1 soft-deletes support
+- Restored the ability to convert Neo fields to Matrix (New to Neo 2.x; previously added to Neo 1.4.0)
+- Restored automatic Neo-to-Matrix conversion on uninstalling Neo (New to Neo 2.x; previously added to Neo 1.4.0)
+
+### Changed
+- Neo now requires Craft 3.1.0 or newer
+- Collapsed block summaries now also show content from child blocks
+
+### Fixed
+- Fixed issue where blocks would disappear if a Neo field's 'manage blocks on a per-site basis' setting was changed
+- Fixed duplicated blocks when saving after setting an existing field to manage blocks on a per-site basis
+
 ## 2.1.8 - 2019-01-26
 ### Fixed
 - Fixed multi-site issue, when enabling a site for a section, where a Neo field set not to manage its blocks on a per-site basis would cause the resaving of the section's entries to fail
