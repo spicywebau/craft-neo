@@ -114,6 +114,11 @@ class Block extends Element
 	public $typeId;
 
 	/**
+	 * @var bool
+	 */
+	public $deletedWithOwner = false;
+
+	/**
 	 * @var ElementInterface|null The owner.
 	 */
 	private $_owner;
@@ -430,6 +435,38 @@ class Block extends Element
 		$record->save(false);
 
 		parent::afterSave($isNew);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function beforeDelete(): bool
+	{
+		if (!parent::beforeDelete())
+		{
+			return false;
+		}
+
+		// Update this block's DB row with whether it was deleted with its owner element
+		Craft::$app->getDb()
+			->createCommand()
+			->update('{{%neoblocks}}', [
+				'deletedWithOwner' => $this->deletedWithOwner,
+			], ['id' => $this->id], [], false)
+			->execute();
+
+		return true;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function afterDelete()
+	{
+		// Remove this block's collapsed state from the cache
+		$this->forgetCollapsed();
+
+		parent::afterDelete();
 	}
 
 	/**

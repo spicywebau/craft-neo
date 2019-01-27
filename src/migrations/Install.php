@@ -37,6 +37,7 @@ class Install extends Migration
 				'ownerSiteId' => $this->integer(),
 				'fieldId' => $this->integer()->notNull(),
 				'typeId' => $this->integer()->notNull(),
+				'deletedWithOwner' => $this->boolean()->null(),
 				'dateCreated' => $this->dateTime()->notNull(),
 				'dateUpdated' => $this->dateTime()->notNull(),
 				'uid' => $this->uid(),
