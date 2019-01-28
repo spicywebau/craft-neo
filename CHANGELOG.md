@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.1 - 2019-01-28
+### Fixed
+- Fixed issue where Craft would try to run Neo's Craft 3 upgrade migration on updating to Neo 2.2.0 if Neo 2 was originally installed as a pre-release version
+
 ## 2.2.0 - 2019-01-27
 ### Added
 - Added Craft 3.1 project config support
