@@ -24,11 +24,8 @@ export default Editor => class extends Editor
 		const onFSMIClick = this.onFieldSettingsMenuItemClick
 		this.onFieldSettingsMenuItemClick = function() {}
 
-		if(editors.length === 0)
-		{
-			Garnish.$doc.off('click', '.menu a')
-			Garnish.$doc.on('click.ncr', '.menu a', e => onFSMIClick.call({refresh, templates: this.templates}, e))
-		}
+		Garnish.$doc.off('click', '.menu a')
+		Garnish.$doc.on('click.ncr', '.menu a', e => onFSMIClick.call({refresh, templates: this.templates}, e))
 
 		super.init()
 
