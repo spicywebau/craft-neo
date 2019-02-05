@@ -7,7 +7,7 @@ import Craft from 'craft'
 import NS from '../namespace'
 
 import ReasonsRenderer from '../plugins/reasons/Renderer'
-import { addFieldLinks } from '../plugins/cpfieldlinks/main'
+import { addFieldLinks } from '../plugins/cpfieldinspect/main'
 
 import renderTemplate from './templates/block.twig'
 import '../twig-extensions'

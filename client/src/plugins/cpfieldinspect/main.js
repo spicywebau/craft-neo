@@ -2,8 +2,8 @@ import Craft from 'craft'
 
 export function addFieldLinks($element)
 {
-	if(Craft.CpFieldLinksPlugin)
+	if(Craft.CpFieldInspectPlugin)
 	{
-		Craft.CpFieldLinksPlugin.addFieldLinks()
+		Craft.CpFieldInspectPlugin.addFieldLinks()
 	}
 }
