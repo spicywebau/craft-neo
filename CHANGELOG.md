@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.2.3 - 2019-02-06
+### Added
+- Added support for the CP Field Inspect plugin
+
+### Fixed
+- Fixed issue with pasting or cloning blocks where number field values were not retained
+
 ## 2.2.2 - 2019-01-30
 ### Fixed
 - Fixed issue where block types would lose any blank tabs in Neo 2.2.0 and 2.2.1
