@@ -483,6 +483,7 @@ export default Garnish.Base.extend({
 				{
 					const color = $input.find('input[type="color"]').val()
 					const colorText = $input.find('input[type="text"]').val()
+					const colorRev = $input.find('div.colorhex').text()
 					let background = null
 
 					if(color && colorText)
@@ -496,6 +497,11 @@ export default Garnish.Base.extend({
 						// When a block is initially collapsed, the color type field will not have been set, so the text
 						// field value will need to be used.
 						background = `background-color: ${colorText}`
+					}
+					else if (colorRev)
+					{
+						// Entry revisions will hav a div rather than an input, so use that.
+						background = `background-color: ${colorRev}`
 					}
 					else
 					{
