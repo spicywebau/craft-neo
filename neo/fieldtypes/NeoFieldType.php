@@ -43,9 +43,18 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 		// This is so that keywords can be safely offloaded to a task later on
 		craft()->on('elements.onBeforeSaveElement', function($e)
 		{
-			if($this->_savingElement === null)
+			$disallowedElements = [
+				'Neo_BlockModel',
+				'MatrixBlockModel',
+				'SuperTable_BlockModel',
+			];
+
+			$element = $e->params['element'];
+			$class = explode("\\", get_class($element), 2)[1];
+
+			if($this->_savingElement === null && !in_array($class, $disallowedElements))
 			{
-				$this->_savingElement = $e->params['element'];
+				$this->_savingElement = $element;
 				$this->_isNewElement = !((bool) $this->_savingElement->id);
 			}
 		});
