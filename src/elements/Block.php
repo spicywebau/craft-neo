@@ -134,6 +134,11 @@ class Block extends Element
 	public $_collapsed;
 
 	/**
+	 * @var bool|null Whether this block has been modified.
+	 */
+	private $_modified;
+
+	/**
 	 * @var array|null All blocks belonging to the same field as this one.
 	 */
 	private $_allElements;
@@ -341,6 +346,26 @@ class Block extends Element
 			$cacheKey = "neoblock-$this->id-collapsed";
 			$cacheService->delete($cacheKey);
 		}
+	}
+
+	/**
+	 * Returns whether this block has been modified.
+	 * 
+	 * @return bool|null
+	 */
+	public function getModified()
+	{
+		return $this->_modified;
+	}
+
+	/**
+	 * Sets whether this block has been modified.
+	 * 
+	 * @param bool $value
+	 */
+	public function setModified(bool $value = true)
+	{
+		$this->_modified = $value;
 	}
 
 	/**

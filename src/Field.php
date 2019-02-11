@@ -832,6 +832,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 				$isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
 				$isCollapsed = isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false;
+				$isModified = isset($blockData['modified']) ? (bool)$blockData['modified'] : false;
 				$isNew = strpos($blockId, 'new') === 0;
 				$isDeleted = !isset($oldBlocksById[$blockId]);
 
@@ -860,6 +861,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 					$block->setOwner($element);
 					$block->setCollapsed($isCollapsed);
+					$block->setModified($isModified);
 					$block->enabled = $isEnabled;
 					$block->level = $blockLevel;
 

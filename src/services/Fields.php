@@ -241,10 +241,15 @@ class Fields extends Component
 					}
 					else
 					{
-						$block->ownerId = $owner->id;
-						$block->ownerSiteId = $ownerSiteId;
-						$block->propagating = $owner->propagating;
-						$elementsService->saveElement($block, false, !$owner->propagating);
+						$isModified = $block->getModified();
+
+						if ($isModified)
+						{
+							$block->ownerId = $owner->id;
+							$block->ownerSiteId = $ownerSiteId;
+							$block->propagating = $owner->propagating;
+							$elementsService->saveElement($block, false, !$owner->propagating);
+						}
 					}
 
 					$block->cacheCollapsed();
