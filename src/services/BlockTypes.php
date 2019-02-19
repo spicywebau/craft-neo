@@ -337,7 +337,7 @@ class BlockTypes extends Component
 			{
 				$fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
 
-				// Ensure that blank tabs are retained, since createFromConfig strips them out
+				// Ensure that blank tabs are retained, since createFromConfig() strips them out
 				$oldTabs = $fieldLayout->getTabs();
 				$configTabs = $fieldLayoutConfig['tabs'];
 
@@ -349,7 +349,7 @@ class BlockTypes extends Component
 					foreach ($oldTabs as $oldTab)
 					{
 						// Was a blank tab supposed to be here?
-						while ($oldTab->sortOrder !== $tabCount + 1)
+						while ($oldTab->sortOrder != $tabCount + 1)
 						{
 							$newTabData = $configTabs[$tabCount++];
 							$newTabs[] = new FieldLayoutTab($newTabData);
