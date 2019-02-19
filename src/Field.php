@@ -352,6 +352,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				$query->limit = null;
 				$query->setCachedResult($elements);
 				$query->setAllElements($elements);
+				$query->useMemoized();
 			}
 		}
 
