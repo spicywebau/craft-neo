@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/benjamminf/craft-neo.git"
+    "url": "git+https://github.com/spicywebau/craft-neo.git"
   },
   "keywords": [
     "craft cms",
@@ -16,12 +16,15 @@
     "matrix",
     "field type"
   ],
-  "author": "Benjamin Fleming",
+  "author": "Spicy Web",
+  "contributors": [
+    "Benjamin Fleming"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/benjamminf/craft-neo/issues"
+    "url": "https://github.com/spicywebau/craft-neo/issues"
   },
-  "homepage": "https://github.com/benjamminf/craft-neo#readme",
+  "homepage": "https://github.com/spicywebau/craft-neo/tree/craft-2#readme",
   "devDependencies": {
     "babel-core": "^6.10.4",
     "babel-loader": "^6.2.4",

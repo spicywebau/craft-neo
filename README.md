@@ -51,11 +51,17 @@ Supports the ability to create fields when building field layouts for block type
 #### [Reasons](https://github.com/mmikkel/Reasons-Craft)
 Supports the ability to set field conditionals on block types.
 
-#### [Relabel](https://github.com/benjamminf/craft-relabel)
+#### [Relabel](https://github.com/spicywebau/craft-relabel)
 Supports the ability to relabel fields on block types.
 
 <br>
 
 ---
 
-### [Refer to the Wiki](https://github.com/benjamminf/craft-neo/wiki) for documentation on how to use Neo.
+### [Refer to the Wiki](https://github.com/spicywebau/craft-neo/wiki) for documentation on how to use Neo.
+
+---
+
+*Created by [Benjamin Fleming](https://github.com/benjamminf)*
+<br>
+*Maintained by [Spicy Web](https://spicyweb.com.au)*

@@ -5,7 +5,7 @@ namespace Craft;
  * Class NeoPlugin
  *
  * Thank you for using Craft Neo!
- * @see https://github.com/benjamminf/craft-neo
+ * @see https://github.com/spicywebau/craft-neo
  * @package Craft
  */
 class NeoPlugin extends BasePlugin
@@ -42,17 +42,18 @@ class NeoPlugin extends BasePlugin
 
 	public function getDeveloper()
 	{
-		return 'Benjamin Fleming';
+		// Created by Benjamin Fleming https://github.com/benjamminf
+		return 'Spicy Web';
 	}
 
 	public function getDeveloperUrl()
 	{
-		return 'http://benjamminf.github.io';
+		return 'https://spicyweb.com.au';
 	}
 
 	public function getDocumentationUrl()
 	{
-		return 'https://github.com/benjamminf/craft-neo/wiki';
+		return 'https://github.com/spicywebau/craft-neo/wiki';
 	}
 
 	public function getReleaseFeedUrl()
@@ -94,7 +95,7 @@ class NeoPlugin extends BasePlugin
 	 * It adds a way to test if some value is an instance of Neo_BlockModel in your templates.
 	 * This is useful when using Twig variables in field settings.
 	 *
-	 * @see https://github.com/benjamminf/craft-neo/wiki/6.-FAQ#why-do-asset-fields-with-slug-as-an-upload-location-break-on-neo-blocks
+	 * @see https://github.com/spicywebau/craft-neo/wiki/6.-FAQ#why-do-asset-fields-with-slug-as-an-upload-location-break-on-neo-blocks
 	 * @return NeoTwigExtension
 	 * @throws \Exception
 	 */
