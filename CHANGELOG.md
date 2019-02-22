@@ -1,5 +1,14 @@
 ## Changelog
 
+### v1.5.1
+- `Added` Changed developer to Spicy Web
+- `Fixed` Fixed issue with blocks disappearing on elements with more than one Neo field
+- `Fixed` Fixed issue with lightswitches not working on new blocks
+- `Fixed` Fixed flickering Reasons modal when using Reasons v1.0.11
+- `Fixed` Fixed disabled blocks showing in live preview
+- `Fixed` Fixed issue where the handle of an existing block type was changing when editing the name
+- `Fixed` Clean up block structures if duplicates exist, which could cause blocks either to disappear or to all nest within a newly-added block
+
 ### v1.5.0
 - `Added` New icon 😎
 - `Added` Copy and paste functionality for blocks (replaces the Duplicate block option)
@@ -11,7 +20,6 @@
 - `Fixed` Fixed issue where field types like Matrix used within blocks could not clean up properly if that block was deleted, leading to stranded Matrix blocks left in the database
 - `Fixed` Fixed issue with stacking block criteria model filters in Live Preview sometimes not showing the right results
 - `Fixed` Fixed issue with translated relational fields (eg. Asset field) inside translated Neo fields not saving properly on newly added blocks
-- `Fixed` Front-end Garnish library console warning no longer shows
 
 #### v1.4.1
 - `Added` Added configuration options to enable/disable certain optimisations
