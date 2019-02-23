@@ -5,7 +5,6 @@ use yii\base\Exception;
 use yii\db\Connection;
 
 use Craft;
-use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
@@ -252,10 +251,9 @@ class BlockQuery extends ElementQuery
 	 */
 	public function count($q = '*', $db = null)
 	{
-		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$isUsingMemoized = $this->isUsingMemoized();
 
-		if (($isLivePreview || $isUsingMemoized) && isset($this->_allElements))
+		if ($isUsingMemoized && isset($this->_allElements))
 		{
 			$this->setCachedResult($this->_getFilteredResult());
 		}
@@ -268,10 +266,9 @@ class BlockQuery extends ElementQuery
 	 */
 	public function all($db = null)
 	{
-		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$isUsingMemoized = $this->isUsingMemoized();
 
-		if (($isLivePreview || $isUsingMemoized) && isset($this->_allElements))
+		if ($isUsingMemoized && isset($this->_allElements))
 		{
 			$this->setCachedResult($this->_getFilteredResult());
 		}
@@ -284,10 +281,9 @@ class BlockQuery extends ElementQuery
 	 */
 	public function one($db = null)
 	{
-		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$isUsingMemoized = $this->isUsingMemoized();
 
-		if (($isLivePreview || $isUsingMemoized) && isset($this->_allElements))
+		if ($isUsingMemoized && isset($this->_allElements))
 		{
 			$this->setCachedResult($this->_getFilteredResult());
 		}
@@ -300,10 +296,9 @@ class BlockQuery extends ElementQuery
 	 */
 	public function nth(int $n, Connection $db = null)
 	{
-		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$isUsingMemoized = $this->isUsingMemoized();
 
-		if (($isLivePreview || $isUsingMemoized) && isset($this->_allElements))
+		if ($isUsingMemoized && isset($this->_allElements))
 		{
 			$this->setCachedResult($this->_getFilteredResult());
 		}
@@ -965,7 +960,7 @@ class BlockQuery extends ElementQuery
 	{
 		if (!$value)
 		{
-			$value = Element::STATUS_ENABLED;
+			return $elements;
 		}
 
 		$newElements = array_filter($elements, function($element) use($value)

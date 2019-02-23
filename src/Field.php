@@ -348,10 +348,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 			{
 				$elements = $this->_createBlocksFromSerializedData($value, $element);
 
-				$query->anyStatus();
+				if (!Craft::$app->getRequest()->getIsLivePreview())
+				{
+					$query->anyStatus();
+				}
+				else
+				{
+					$query->status = Element::STATUS_ENABLED;
+				}
+
 				$query->limit = null;
 				$query->setCachedResult($elements);
-				$query->setAllElements($elements);
+				$query->useMemoized($elements);
 			}
 		}
 
