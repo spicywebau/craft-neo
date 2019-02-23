@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.5 - 2019-02-23
+### Fixed
+- Fixed issue in Neo 2.2.4 with disabled blocks being deleted when saving a Neo field's contents
+
 ## 2.2.4 - 2019-02-19
 ### Changed
 - Now supports filtering an entry draft's Neo field content with query parameters
