@@ -46,5 +46,6 @@ Let block types have the ability to contain child block types. You can filter wh
 - [Eager Loading](docs/eager-loading.md)
 - [Resources](docs/resources.md)
 - [API](docs/api.md)
+- [Plugin Compatibility](docs/plugin-compatibility.md)
 - [FAQ](docs/faq.md)
 - [Changelog](CHANGELOG.md)
