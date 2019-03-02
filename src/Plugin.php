@@ -11,6 +11,7 @@ use craft\web\twig\variables\CraftVariable;
 
 use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;
+use benf\neo\models\Settings;
 use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\BlockTypes as BlockTypesService;
 use benf\neo\services\Conversion as ConversionService;
@@ -101,5 +102,13 @@ class Plugin extends BasePlugin
 				}
 			);
 		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected function createSettingsModel(): Settings
+	{
+		return new Settings();
 	}
 }

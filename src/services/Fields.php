@@ -179,6 +179,7 @@ class Fields extends Component
 	{
 		$dbService = Craft::$app->getDb();
 		$elementsService = Craft::$app->getElements();
+		$neoSettings = Neo::$plugin->getSettings();
 		$ownerSiteId = $field->localizeBlocks ? $owner->siteId : null;
 
 		// Is the owner being duplicated?
@@ -241,7 +242,7 @@ class Fields extends Component
 					}
 					else
 					{
-						$isModified = $block->getModified();
+						$isModified = $neoSettings->saveModifiedBlocksOnly ? $block->getModified() : true;
 
 						if ($isModified)
 						{
