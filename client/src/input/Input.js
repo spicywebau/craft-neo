@@ -23,6 +23,7 @@ const _defaults = {
 	blocks: [],
 	inputId: null,
 	maxBlocks: 0,
+	maxTopBlocks: 0,
 	'static': false
 }
 
@@ -42,6 +43,7 @@ export default Garnish.Base.extend({
 		this._blocks = []
 		this._name = settings.name
 		this._maxBlocks = settings.maxBlocks
+		this._maxTopBlocks = settings.maxTopBlocks
 		this._static = settings['static']
 
 		NS.enter(this._templateNs)
@@ -78,7 +80,8 @@ export default Garnish.Base.extend({
 		this._buttons = new Buttons({
 			blockTypes: this.getBlockTypes(true),
 			groups: this.getGroups(),
-			maxBlocks: this.getMaxBlocks()
+			maxBlocks: this.getMaxBlocks(),
+			maxTopBlocks: this.getMaxTopBlocks()
 		})
 
 		this.$buttonsContainer.append(this._buttons.$container)
@@ -355,6 +358,11 @@ export default Garnish.Base.extend({
 		return this._maxBlocks
 	},
 
+	getMaxTopBlocks()
+	{
+		return this._maxTopBlocks
+	},
+
 	getSelectedBlocks()
 	{
 		const $selectedBlocks = this._blockSelect.getSelectedItems()
@@ -438,7 +446,14 @@ export default Garnish.Base.extend({
 				allowedBlockTypes = allowedBlockTypes.map(bt => typeof bt === 'string' ? this.getBlockTypeByHandle(bt) : bt)
 			}
 
-			block.updateMenuStates(this._name, blocks, this.getMaxBlocks(), this._checkMaxChildren(parentBlock), allowedBlockTypes)
+			block.updateMenuStates(
+				this._name,
+				blocks,
+				this.getMaxBlocks(),
+				this._checkMaxChildren(parentBlock),
+				allowedBlockTypes,
+				block.getLevel() == 0 ? this.getMaxTopBlocks() : 0
+			)
 
 			if(buttons)
 			{

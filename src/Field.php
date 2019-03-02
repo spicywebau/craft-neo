@@ -62,6 +62,21 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	public $localizeBlocks = false;
 
 	/**
+	 * @var int|null The minimum number of blocks this field can have.
+	 */
+	public $minBlocks;
+
+	/**
+	 * @var int|null The maximum number of blocks this field can have.
+	 */
+	public $maxBlocks;
+
+	/**
+	 * @var int|null The maximum number of top-level blocks this field can have.
+	 */
+	public $maxTopBlocks;
+
+	/**
 	 * @var array|null The block types associated with this field.
 	 */
 	private $_blockTypes;
@@ -77,20 +92,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	public function rules(): array
 	{
 		$rules = parent::rules();
-		$rules[] = [['minBlocks', 'maxBlocks'], 'integer', 'min' => 0];
+		$rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks'], 'integer', 'min' => 0];
 
 		return $rules;
 	}
-
-	/**
-	 * @var int|null The minimum number of blocks this field can have.
-	 */
-	public $minBlocks;
-
-	/**
-	 * @var int|null The maximum number of blocks this field can have.
-	 */
-	public $maxBlocks;
 
 	/**
 	 * Returns this field's block types.
