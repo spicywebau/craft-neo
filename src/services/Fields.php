@@ -239,10 +239,12 @@ class Fields extends Component
 							'propagating' => false,
 						]);
 						$block->setCollapsed($collapsed);
+						$block->cacheCollapsed();
 					}
 					else
 					{
 						$isModified = $neoSettings->saveModifiedBlocksOnly ? $block->getModified() : true;
+						$isNew = $block->id === null;
 
 						if ($isModified)
 						{
@@ -251,9 +253,14 @@ class Fields extends Component
 							$block->propagating = $owner->propagating;
 							$elementsService->saveElement($block, false, !$owner->propagating);
 						}
+
+						// If `collapseAllBlocks` is enabled, new blocks should still have their initial state cached
+						if (!$neoSettings->collapseAllBlocks || $isNew)
+						{
+							$block->cacheCollapsed();
+						}
 					}
 
-					$block->cacheCollapsed();
 					$blockIds[] = $block->id;
 				}
 

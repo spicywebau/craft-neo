@@ -18,12 +18,17 @@ class Settings extends Model
 	public $saveModifiedBlocksOnly = true;
 
 	/**
+	 * @var bool
+	 */
+	public $collapseAllBlocks = false;
+
+	/**
 	 * @inheritdoc
 	 */
 	public function rules()
 	{
 		return [
-			[['saveModifiedBlocksOnly'], 'boolean'],
+			[['saveModifiedBlocksOnly', 'collapseAllBlocks'], 'boolean'],
 		];
 	}
 }

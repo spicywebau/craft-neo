@@ -96,7 +96,9 @@ class Input extends Controller
 
 		$block = $blockId ? Neo::$plugin->blocks->getBlockById($blockId, $siteId) : null;
 
-		if ($block)
+		// Only set the collapsed state if `collapseAllBlocks` is disabled; if `collapseAllBlocks` is enabled, a block's
+		// original collapsed state will be preserved in case the setting is disabled in the future
+		if ($block && !Neo::$plugin->getSettings()->collapseAllBlocks)
 		{
 			$block->setCollapsed(!$expanded);
 			$block->cacheCollapsed();

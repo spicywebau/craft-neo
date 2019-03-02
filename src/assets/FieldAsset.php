@@ -125,6 +125,7 @@ class FieldAsset extends AssetBundle
 	 */
 	private static function _getBlocksJsSettings(array $blocks, bool $static = false): array
 	{
+		$collapseAllBlocks = Neo::$plugin->getSettings()->collapseAllBlocks;
 		$jsBlocks = [];
 		$sortOrder = 0;
 
@@ -139,7 +140,7 @@ class FieldAsset extends AssetBundle
 					'blockType' => $blockType->handle,
 					'modified' => false,
 					'sortOrder' => $sortOrder++,
-					'collapsed' => $block->getCollapsed(),
+					'collapsed' => !$collapseAllBlocks ? $block->getCollapsed() : true,
 					'enabled' => (bool)$block->enabled,
 					'level' => max(0, intval($block->level) - 1),
 					'tabs' => Neo::$plugin->blocks->renderTabs($block, $static),
