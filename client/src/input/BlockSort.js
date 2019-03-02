@@ -6,7 +6,7 @@ const BlockSort = Garnish.Drag.extend({
 	$container: null,
 	blocks: null,
 
-	_draggeeBlock: null,
+	_draggeeBlocks: null,
 
 	init(items, settings)
 	{
@@ -48,9 +48,22 @@ const BlockSort = Garnish.Drag.extend({
 		return this.blocks.find(block => block.$container.is($block))
 	},
 
+	getParentBlock(block)
+	{
+		const $parentBlock = block.$container.parent().closest('.ni_block')
+
+		return $parentBlock.length > 0 ? this.getBlockByElement($parentBlock) : false
+	},
+
 	onDragStart()
 	{
-		this._draggeeBlock = this.getBlockByElement(this.$draggee[0])
+		const that = this
+
+		this._draggeeBlocks = []
+		this.$draggee.each(function()
+		{
+			that._draggeeBlocks.push(that.getBlockByElement(this))
+		})
 
 		this.base()
 		this._calculateMidpoints()
@@ -62,7 +75,7 @@ const BlockSort = Garnish.Drag.extend({
 
 		if(midpoint)
 		{
-			this._moveDraggeeToBlock(midpoint.block, midpoint.type)
+			this._moveDraggeeToBlock(midpoint.block, midpoint.type, midpoint.direction)
 		}
 
 		this.base()
@@ -83,8 +96,7 @@ const BlockSort = Garnish.Drag.extend({
 			}
 			else
 			{
-				const $parentBlock = $block.parent().closest('.ni_block')
-				const parentBlock = that.getBlockByElement($parentBlock)
+				const parentBlock = that.getParentBlock(block)
 
 				block.setLevel(parentBlock.getLevel() + 1)
 			}
@@ -93,9 +105,7 @@ const BlockSort = Garnish.Drag.extend({
 			{
 				const $childBlock = $(this)
 				const childBlock = that.getBlockByElement($childBlock)
-
-				const $parentBlock = $childBlock.parent().closest('.ni_block')
-				const parentBlock = that.getBlockByElement($parentBlock)
+				const parentBlock = that.getParentBlock(childBlock)
 
 				childBlock.setLevel(parentBlock.getLevel() + 1)
 			})
@@ -120,40 +130,6 @@ const BlockSort = Garnish.Drag.extend({
 		this.removeItems(block.$container)
 	},
 
-	_calculateMidpoints()
-	{
-		const margin = 10
-
-		this._draggeeBlockY = this.$draggee.offset().top
-		this._draggeeBlockHeight = this.$draggee.height() + margin
-
-		this._currentMidpoints = []
-
-		for(let block of this.blocks)
-		{
-			if(block.$container.closest(this.$draggee).length == 0)
-			{
-				const midpoints = this._getBlockMidpoints(block)
-
-				for(let type of Object.keys(midpoints))
-				{
-					this._currentMidpoints.push({
-						block: block,
-						position: midpoints[type],
-						type: type
-					})
-				}
-			}
-		}
-
-		const endMidpoint = this.$container.offset().top + this.$container.height() + (margin / 2)
-		this._currentMidpoints.push({
-			block: null,
-			position: endMidpoint,
-			type: BlockSort.TYPE_END
-		})
-	},
-
 	_getClosestMidpoint()
 	{
 		let minDistance = Number.MAX_VALUE
@@ -162,7 +138,7 @@ const BlockSort = Garnish.Drag.extend({
 
 		for(let midpoint of this._currentMidpoints)
 		{
-			if(midpoint.position < this._draggeeBlockY)
+			if(midpoint.direction === BlockSort.DIRECTION_UP)
 			{
 				const compareY = this.mouseY - this.mouseOffsetY
 
@@ -187,6 +163,47 @@ const BlockSort = Garnish.Drag.extend({
 		return closest
 	},
 
+	_calculateMidpoints()
+	{
+		const margin = 10
+
+		this._draggeeBlockY = this.$draggee.offset().top
+		this._draggeeBlockHeight = this.$draggee.height() + margin
+
+		this._currentMidpoints = []
+
+		for(let block of this.blocks)
+		{
+			if(block.$container.closest(this.$draggee).length == 0)
+			{
+				const midpoints = this._getBlockMidpoints(block)
+
+				for(let type of Object.keys(midpoints))
+				{
+					const position = midpoints[type]
+					const direction = this._draggeeBlockY > position ?
+						BlockSort.DIRECTION_UP :
+						BlockSort.DIRECTION_DOWN
+
+					this._currentMidpoints.push({
+						block: block,
+						position: position,
+						type: type,
+						direction: direction
+					})
+				}
+			}
+		}
+
+		const endMidpoint = this.$container.offset().top + this.$container.height() + (margin / 2)
+		this._currentMidpoints.push({
+			block: null,
+			position: endMidpoint,
+			type: BlockSort.TYPE_END,
+			direction: BlockSort.DIRECTION_DOWN
+		})
+	},
+
 	_getBlockMidpoints(block)
 	{
 		const midpoints = {}
@@ -208,9 +225,14 @@ const BlockSort = Garnish.Drag.extend({
 			const contentHeight = isExpanded ? block.$contentContainer.height() : 0
 			const childrenHeight = isExpanded ? block.$childrenContainer.height() : 0
 
-			midpoints[BlockSort.TYPE_CONTENT] = offset + (topbarHeight + contentHeight) / 2
+			const parentBlock = this.getParentBlock(block)
 
-			if(childrenHeight > 0 && block.isExpanded())
+			if(!parentBlock || this._validateDraggeeChildren(parentBlock))
+			{
+				midpoints[BlockSort.TYPE_CONTENT] = offset + (topbarHeight + contentHeight) / 2
+			}
+
+			if(childrenHeight > 0 && block.isExpanded() && this._validateDraggeeChildren(block))
 			{
 				const buttonsHeight = block.getButtons().$container.height()
 				midpoints[BlockSort.TYPE_CHILDREN] = offset + blockHeight - border - (padding + buttonsHeight + margin) / 2
@@ -220,17 +242,20 @@ const BlockSort = Garnish.Drag.extend({
 		return midpoints
 	},
 
-	_moveDraggeeToBlock: function(block, type = BlockSort.TYPE_CONTENT)
+	_moveDraggeeToBlock: function(block, type = BlockSort.TYPE_CONTENT, direction = BlockSort.DIRECTION_DOWN)
 	{
+		const parentBlock = block ? this.getParentBlock(block) : null
+		const validChild = this._validateDraggeeChildren(parentBlock)
+
 		switch(type)
 		{
 			case BlockSort.TYPE_CHILDREN:
 			{
-				if(this.$draggee.offset().top > block.$container.offset().top && this.$draggee.closest(block.$container).length == 0)
+				if(direction === BlockSort.DIRECTION_UP && this.$draggee.closest(block.$container).length == 0)
 				{
 					block.$blocksContainer.append(this.$draggee)
 				}
-				else
+				else if(validChild)
 				{
 					block.$container.after(this.$draggee)
 				}
@@ -238,22 +263,28 @@ const BlockSort = Garnish.Drag.extend({
 			break
 			case BlockSort.TYPE_END:
 			{
-				this.$container.append(this.$draggee)
+				if(validChild)
+				{
+					this.$container.append(this.$draggee)
+				}
 			}
 			break
 			default:
 			{
-				if(this.$draggee.offset().top > block.$container.offset().top)
+				if(direction === BlockSort.DIRECTION_UP)
 				{
-					block.$container.before(this.$draggee)
+					if(validChild)
+					{
+						block.$container.before(this.$draggee)
+					}
 				}
 				else
 				{
-					if(block.$blocksContainer.length > 0 && block.isExpanded())
+					if(block.getBlockType().isParent() && block.isExpanded() && this._validateDraggeeChildren(block))
 					{
 						block.$blocksContainer.prepend(this.$draggee)
 					}
-					else
+					else if(validChild)
 					{
 						block.$container.after(this.$draggee)
 					}
@@ -263,6 +294,34 @@ const BlockSort = Garnish.Drag.extend({
 
 		this._updateHelperAppearance()
 		this._calculateMidpoints()
+	},
+
+	_validateDraggeeChildren(block)
+	{
+		if(!block)
+		{
+			for(let draggeeBlock of this._draggeeBlocks)
+			{
+				if(!draggeeBlock.getBlockType().getTopLevel())
+				{
+					return false
+				}
+			}
+
+			return true
+		}
+
+		const blockType = block.getBlockType()
+
+		for(let draggeeBlock of this._draggeeBlocks)
+		{
+			if(!blockType.isValidChildBlock(draggeeBlock))
+			{
+				return false
+			}
+		}
+
+		return true
 	},
 
 	_updateHelperAppearance()
@@ -284,6 +343,8 @@ const BlockSort = Garnish.Drag.extend({
 	TYPE_CONTENT: 'content',
 	TYPE_CHILDREN: 'children',
 	TYPE_END: 'end',
+	DIRECTION_UP: 'up',
+	DIRECTION_DOWN: 'down',
 
 	defaults: {
 		container: null,
