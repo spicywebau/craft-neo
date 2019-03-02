@@ -69,6 +69,7 @@
 			line-height: 30px;
 			background-color: #f1f5f8;
 			color: #8f98a3;
+			transition: background-color 0.5s;
 
 			&_left,
 			&_right {
@@ -216,6 +217,7 @@
 						display: inline-block;
 						height: 30px;
 						padding: 0 10px;
+						border-bottom-color: #fafafa;
 						color: rgba(#29323d, 0.5);
 
 						&:hover {
@@ -225,9 +227,10 @@
 						&.is-selected {
 							cursor: default;
 							padding: 0 9px;
-							border: 1px solid #e3e5e8;
-							border-top: 0;
-							border-bottom-color: #fbfcfd;
+							border-left: 1px solid #e3e5e8;
+							border-right: 1px solid #e3e5e8;
+							border-bottom-width: 1px;
+							border-bottom-style: solid;
 							margin-bottom: -1px;
 							background-color: #fbfcfd;
 							color: #576575;
@@ -235,6 +238,7 @@
 							&.is-blank {
 								border-bottom-color: #f1f5f8;
 								background-color: transparent;
+								transition: border-bottom-color 0.5s;
 							}
 						}
 
@@ -315,6 +319,7 @@
 			padding: 14px;
 			border-top: 1px solid #e3e5e8;
 			background-color: #f1f5f8;
+			transition: background-color 0.5s;
 		}
 
 		&_collapsed-children {
@@ -341,7 +346,7 @@
 				body.ltr & { background-image: linear-gradient(to left,  white 72px, rgba(white, 0) 100px); }
 				body.rtl & { background-image: linear-gradient(to right, white 72px, rgba(white, 0) 100px); }
 				
-				> .ni_block_topbar_item.tabs .tab.is-selected.is-blank {
+				> .ni_block_topbar_item.tabs .tab.is-blank {
 					border-bottom-color: white;
 				}
 			}
