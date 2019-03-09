@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+### Added
+- Added the `collapseAllBlocks` plugin setting, allowing all input blocks to display as collapsed by default
+- Restored the `saveModifiedBlocksOnly` plugin setting (New to Neo 2; previously added to Neo 1.4.1)
+- Added the Max Top-Level Blocks field setting
+
+### Changed
+- By default, Neo will only save modified blocks when saving a Neo field's value (New to Neo 2; previously added to Neo 1.3.0)
+
+### Fixed
+- Fixed collapsed block summaries of colour fields on entry revisions
+
 ## 2.2.5 - 2019-02-23
 ### Fixed
 - Fixed issue in Neo 2.2.4 with disabled blocks being deleted when saving a Neo field's contents
