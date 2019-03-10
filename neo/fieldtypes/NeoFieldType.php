@@ -655,8 +655,10 @@ class NeoFieldType extends BaseFieldType implements IEagerLoadingFieldType
 				[':fieldId' => $this->model->id]
 			);
 		}
-
-		return $value !== null ? false : null;
+		else if($value !== null)
+		{
+			return false;
+		}
 	}
 
 
