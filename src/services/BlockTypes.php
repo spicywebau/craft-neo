@@ -306,8 +306,17 @@ class BlockTypes extends Component
 	{
 		$dbService = Craft::$app->getDb();
 		$fieldsService = Craft::$app->getFields();
+		$projectConfigService = Craft::$app->getProjectConfig();
 		$uid = $event->tokenMatches[0];
 		$data = $event->newValue;
+
+		// Make sure the field has been synced
+		if (($fieldId = Db::idByUid('{{%fields}}', $data['field'])) === null)
+		{
+			$projectConfigService->defer($event, [$this, __FUNCTION__]);
+			return;
+		}
+
 		$transaction = $dbService->beginTransaction();
 
 		try
@@ -382,7 +391,7 @@ class BlockTypes extends Component
 				$fieldsService->saveLayout($fieldLayout);
 			}
 
-			$record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
+			$record->fieldId = $fieldId;
 			$record->name = $data['name'];
 			$record->handle = $data['handle'];
 			$record->sortOrder = $data['sortOrder'];
@@ -442,6 +451,7 @@ class BlockTypes extends Component
 				$blocks = Block::find()
 					->siteId($siteId)
 					->typeId($blockType->id)
+					->inReverse()
 					->all();
 
 				foreach ($blocks as $block)

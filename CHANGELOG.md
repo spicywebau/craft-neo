@@ -12,6 +12,14 @@
 ### Fixed
 - Fixed collapsed block summaries of colour fields on entry revisions
 
+## 2.2.6 - 2019-03-14
+### Changed
+- Neo now requires Craft 3.1.13 or later
+
+### Fixed
+- Fixed error when applying a project config to another project where a Neo field from the first project doesn't exist
+- Fixed error in some cases when deleting a block type and that block type's blocks
+
 ## 2.2.5 - 2019-02-23
 ### Fixed
 - Fixed issue in Neo 2.2.4 with disabled blocks being deleted when saving a Neo field's contents
