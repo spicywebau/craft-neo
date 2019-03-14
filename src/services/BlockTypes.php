@@ -451,6 +451,7 @@ class BlockTypes extends Component
 				$blocks = Block::find()
 					->siteId($siteId)
 					->typeId($blockType->id)
+					->inReverse()
 					->all();
 
 				foreach ($blocks as $block)
