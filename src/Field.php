@@ -19,6 +19,7 @@ use benf\neo\elements\db\BlockQuery;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
+use benf\neo\validators\FieldValidator;
 
 /**
  * Class Field
@@ -444,6 +445,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				'tooFew' => Craft::t('neo', '{attribute} should contain at least {min, number} {min, plural, one{block} other{blocks}}.'),
 				'tooMany' => Craft::t('neo', '{attribute} should contain at most {max, number} {max, plural, one{block} other{blocks}}.'),
 				'skipOnEmpty' => false,
+				'on' => Element::SCENARIO_LIVE,
+			],
+			[
+				FieldValidator::class,
+				'maxTopBlocks' => $this->maxTopBlocks ?: null,
 				'on' => Element::SCENARIO_LIVE,
 			],
 		];
