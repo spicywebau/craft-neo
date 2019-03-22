@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.7 - 2019-03-23
+### Fixed
+- Fixed issue, when applying a project config to another environment or project, where a Neo field and block types could be synced before other fields they use, causing the block types not to have those fields in the target environment/project
+
 ## 2.2.6 - 2019-03-14
 ### Changed
 - Neo now requires Craft 3.1.13 or later
