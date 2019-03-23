@@ -7,6 +7,7 @@ use Craft;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
@@ -310,12 +311,10 @@ class BlockTypes extends Component
 		$uid = $event->tokenMatches[0];
 		$data = $event->newValue;
 
-		// Make sure the field has been synced
-		if (($fieldId = Db::idByUid('{{%fields}}', $data['field'])) === null)
-		{
-			$projectConfigService->defer($event, [$this, __FUNCTION__]);
-			return;
-		}
+		// Make sure the fields have been synced
+		ProjectConfigHelper::ensureAllFieldsProcessed();
+
+		$fieldId = Db::idByUid('{{%fields}}', $data['field']);
 
 		$transaction = $dbService->beginTransaction();
 
