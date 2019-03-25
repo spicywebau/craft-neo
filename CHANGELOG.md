@@ -5,6 +5,7 @@
 - Added the `collapseAllBlocks` plugin setting, allowing all input blocks to display as collapsed by default
 - Restored the `saveModifiedBlocksOnly` plugin setting (New to Neo 2; previously added to Neo 1.4.1)
 - Added the Max Top-Level Blocks field setting
+- Restored support for the Field Labels plugin (New to Neo 2; previously added to Neo 0.5.0 under Field Labels' previous name, Relabel)
 
 ### Changed
 - By default, Neo will only save modified blocks when saving a Neo field's value (New to Neo 2; previously added to Neo 1.3.0)

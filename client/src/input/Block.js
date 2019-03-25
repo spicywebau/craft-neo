@@ -185,7 +185,7 @@ export default Garnish.Base.extend({
 			Garnish.requestAnimationFrame(() => this.updateResponsiveness())
 
 			this._initReasonsPlugin()
-			this._initRelabelPlugin()
+			this._initFieldLabelsPlugin()
 
 			// For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
 			// Neo applies it's own styles to Matrix blocks in an effort to improve the visibility of them, however
@@ -948,16 +948,16 @@ export default Garnish.Base.extend({
 		}
 	},
 
-	_initRelabelPlugin()
+	_initFieldLabelsPlugin()
 	{
-		const Relabel = window.Relabel
+		const FieldLabels = window.FieldLabels
 
-		if(Relabel)
+		if(FieldLabels)
 		{
 			NS.enter(this._templateNs)
 
 			const blockType = this.getBlockType()
-			Relabel.applyLabels(this.$contentContainer, blockType.getFieldLayoutId(), NS.value())
+			FieldLabels.applyLabels(this.$contentContainer, blockType.getFieldLayoutId(), NS.value())
 
 			NS.leave()
 		}

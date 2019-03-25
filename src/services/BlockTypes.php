@@ -31,6 +31,8 @@ use benf\neo\helpers\Memoize;
  */
 class BlockTypes extends Component
 {
+	public $currentSavingBlockType;
+
 	/**
 	 * Gets a Neo block type given its ID.
 	 *
@@ -324,19 +326,24 @@ class BlockTypes extends Component
 			$fieldLayoutConfig = isset($data['fieldLayouts']) ? reset($data['fieldLayouts']) : null;
 			$fieldLayout = null;
 
+			if ($record->id !== null)
+			{
+				$result = $this->_createQuery()
+					->where(['id' => $record->id])
+					->one();
+
+				$this->currentSavingBlockType = new BlockType($result);
+			} else {
+				$this->currentSavingBlockType = new BlockType();
+			}
+
 			if ($fieldLayoutConfig === null || !isset($fieldLayoutConfig['id']))
 			{
 				if ($record->id !== null)
-				{
-					$result = $this->_createQuery()
-						->where(['id' => $record->id])
-						->one();
-
-					$oldBlockType = new BlockType($result);
-					
-					if ($oldBlockType->fieldLayoutId)
+				{	
+					if ($this->currentSavingBlockType->fieldLayoutId)
 					{
-						$fieldsService->deleteLayoutById($oldBlockType->fieldLayoutId);
+						$fieldsService->deleteLayoutById($this->currentSavingBlockType->fieldLayoutId);
 					}
 				}
 			}
@@ -401,6 +408,8 @@ class BlockTypes extends Component
 			$record->uid = $uid;
 			$record->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
 			$record->save(false);
+
+			$this->currentSavingBlockType = null;
 
 			$transaction->commit();
 		}

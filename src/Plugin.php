@@ -11,6 +11,7 @@ use craft\web\twig\variables\CraftVariable;
 
 use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;
+use benf\neo\integrations\fieldlabels\FieldLabels;
 use benf\neo\models\Settings;
 use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\BlockTypes as BlockTypesService;
@@ -88,6 +89,11 @@ class Plugin extends BasePlugin
 			->onAdd('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
 			->onUpdate('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
 			->onRemove('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleDeletedBlockTypeGroup']);
+
+		if (class_exists('\spicyweb\fieldlabels\Plugin'))
+		{
+			FieldLabels::init();
+		}
 
 		if (class_exists('\NerdsAndCompany\Schematic\Schematic')) {
 			Event::on(
