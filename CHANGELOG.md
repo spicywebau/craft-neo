@@ -8,6 +8,7 @@
 - Restored support for the Field Labels plugin (New to Neo 2; previously added to Neo 0.5.0 under Field Labels' previous name, Relabel)
 
 ### Changed
+- New icon
 - By default, Neo will only save modified blocks when saving a Neo field's value (New to Neo 2; previously added to Neo 1.3.0)
 
 ### Fixed
