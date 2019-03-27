@@ -492,7 +492,12 @@ class BlockTypes extends Component
 
 		try
 		{
-			$record = new BlockTypeGroupRecord();
+			$record = BlockTypeGroupRecord::findOne(['uid' => $uid]);
+
+			if ($record === null) {
+				$record = new BlockTypeGroupRecord();
+			}
+			
 			$record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
 			$record->name = $data['name'];
 			$record->sortOrder = $data['sortOrder'];
