@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.8 - 2018-03-27
+### Fixed
+- Fixed issue where duplicate block type groups could be created (thanks @boboldehampsink)
+
 ## 2.2.7 - 2019-03-23
 ### Fixed
 - Fixed issue, when applying a project config to another environment or project, where a Neo field and block types could be synced before other fields they use, causing the block types not to have those fields in the target environment/project
