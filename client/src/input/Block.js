@@ -572,6 +572,11 @@ export default Garnish.Base.extend({
 					value = _escapeHTML(_limit(Craft.getText($input.find('textarea').val())))
 				}
 				break
+				case 'craft\\ckeditor\\Field':
+				{
+					value = _escapeHTML(_limit(Craft.getText($input.find('[role="textbox"]').html())))
+				}
+				break
 				case 'craft\\fields\\Url':
 				{
 					value = _escapeHTML(_limit($input.children('input[type="url"]').val()))

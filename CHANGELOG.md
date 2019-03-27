@@ -6,6 +6,7 @@
 - Restored the `saveModifiedBlocksOnly` plugin setting (New to Neo 2; previously added to Neo 1.4.1)
 - Added the Max Top-Level Blocks field setting
 - Restored support for the Field Labels plugin (New to Neo 2; previously added to Neo 0.5.0 under Field Labels' previous name, Relabel)
+- Added CKEditor field content to collapsed block summaries
 
 ### Changed
 - New icon
