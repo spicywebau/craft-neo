@@ -90,7 +90,9 @@ class Plugin extends BasePlugin
 			->onUpdate('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
 			->onRemove('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleDeletedBlockTypeGroup']);
 
-		if (class_exists('\spicyweb\fieldlabels\Plugin'))
+		$pluginsService = Craft::$app->getPlugins();
+
+		if ($pluginsService->isPluginInstalled('fieldlabels'))
 		{
 			FieldLabels::init();
 		}
