@@ -92,7 +92,7 @@ class Plugin extends BasePlugin
 
 		if ($pluginsService->isPluginInstalled('fieldlabels'))
 		{
-			FieldLabels::init();
+			(new FieldLabels)->init();
 		}
 
 		if (class_exists('\NerdsAndCompany\Schematic\Schematic')) {

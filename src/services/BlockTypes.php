@@ -44,8 +44,6 @@ class BlockTypes extends Component
 	 */
 	const EVENT_AFTER_SAVE_BLOCK_TYPE = 'afterSaveNeoBlockType';
 
-	public $currentSavingBlockType;
-
 	/**
 	 * Gets a Neo block type given its ID.
 	 *
@@ -346,6 +344,7 @@ class BlockTypes extends Component
 			$fieldLayoutConfig = isset($data['fieldLayouts']) ? reset($data['fieldLayouts']) : null;
 			$fieldLayout = null;
 			$isNew = false;
+			$blockType = null;
 
 			if ($record->id !== null)
 			{
@@ -353,9 +352,9 @@ class BlockTypes extends Component
 					->where(['id' => $record->id])
 					->one();
 
-				$this->currentSavingBlockType = new BlockType($result);
+				$blockType = new BlockType($result);
 			} else {
-				$this->currentSavingBlockType = new BlockType();
+				$blockType = new BlockType();
 				$isNew = true;
 			}
 
@@ -363,9 +362,9 @@ class BlockTypes extends Component
 			{
 				if ($record->id !== null)
 				{	
-					if ($this->currentSavingBlockType->fieldLayoutId)
+					if ($blockType->fieldLayoutId)
 					{
-						$fieldsService->deleteLayoutById($this->currentSavingBlockType->fieldLayoutId);
+						$fieldsService->deleteLayoutById($blockType->fieldLayoutId);
 					}
 				}
 			}
@@ -431,26 +430,24 @@ class BlockTypes extends Component
 			$record->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
 			$record->save(false);
 
-			$this->currentSavingBlockType->id = $record->id;
-			$this->currentSavingBlockType->fieldId = $fieldId;
-			$this->currentSavingBlockType->name = $data['name'];
-			$this->currentSavingBlockType->handle = $data['handle'];
-			$this->currentSavingBlockType->sortOrder = $data['sortOrder'];
-			$this->currentSavingBlockType->maxBlocks = $data['maxBlocks'];
-			$this->currentSavingBlockType->maxChildBlocks = $data['maxChildBlocks'];
-			$this->currentSavingBlockType->childBlocks = $data['childBlocks'];
-			$this->currentSavingBlockType->topLevel = $data['topLevel'];
-			$this->currentSavingBlockType->uid = $uid;
-			$this->currentSavingBlockType->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
+			$blockType->id = $record->id;
+			$blockType->fieldId = $fieldId;
+			$blockType->name = $data['name'];
+			$blockType->handle = $data['handle'];
+			$blockType->sortOrder = $data['sortOrder'];
+			$blockType->maxBlocks = $data['maxBlocks'];
+			$blockType->maxChildBlocks = $data['maxChildBlocks'];
+			$blockType->childBlocks = $data['childBlocks'];
+			$blockType->topLevel = $data['topLevel'];
+			$blockType->uid = $uid;
+			$blockType->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
 
 			$event = new BlockTypeEvent([
-				'blockType' => $this->currentSavingBlockType,
+				'blockType' => $blockType,
 				'isNew' => $isNew,
 			]);
 
 			$this->trigger(self::EVENT_AFTER_SAVE_BLOCK_TYPE, $event);
-
-			$this->currentSavingBlockType = null;
 
 			$transaction->commit();
 		}
