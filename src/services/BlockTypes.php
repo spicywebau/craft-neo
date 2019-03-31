@@ -14,6 +14,7 @@ use craft\models\FieldLayoutTab;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
+use benf\neo\events\BlockTypeEvent;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\records\BlockType as BlockTypeRecord;
@@ -31,6 +32,18 @@ use benf\neo\helpers\Memoize;
  */
 class BlockTypes extends Component
 {
+	/**
+	 * @event BlockTypeEvent The event that is triggered before saving a block type.
+	 * @since 2.3.0
+	 */
+	const EVENT_BEFORE_SAVE_BLOCK_TYPE = 'beforeSaveNeoBlockType';
+
+	/**
+	 * @event BlockTypeEvent The event that is triggered after saving a block type.
+	 * @since 2.3.0
+	 */
+	const EVENT_AFTER_SAVE_BLOCK_TYPE = 'afterSaveNeoBlockType';
+
 	public $currentSavingBlockType;
 
 	/**
@@ -228,6 +241,13 @@ class BlockTypes extends Component
 			];
 		}
 
+		$event = new BlockTypeEvent([
+			'blockType' => $blockType,
+			'isNew' => $isNew,
+		]);
+
+		$this->trigger(self::EVENT_BEFORE_SAVE_BLOCK_TYPE, $event);
+
 		$path = 'neoBlockTypes.' . $blockType->uid;
 		$projectConfigService->set($path, $data);
 
@@ -325,6 +345,7 @@ class BlockTypes extends Component
 			$record = $this->_getRecordByUid($uid);
 			$fieldLayoutConfig = isset($data['fieldLayouts']) ? reset($data['fieldLayouts']) : null;
 			$fieldLayout = null;
+			$isNew = false;
 
 			if ($record->id !== null)
 			{
@@ -335,6 +356,7 @@ class BlockTypes extends Component
 				$this->currentSavingBlockType = new BlockType($result);
 			} else {
 				$this->currentSavingBlockType = new BlockType();
+				$isNew = true;
 			}
 
 			if ($fieldLayoutConfig === null || !isset($fieldLayoutConfig['id']))
@@ -408,6 +430,25 @@ class BlockTypes extends Component
 			$record->uid = $uid;
 			$record->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
 			$record->save(false);
+
+			$this->currentSavingBlockType->id = $record->id;
+			$this->currentSavingBlockType->fieldId = $fieldId;
+			$this->currentSavingBlockType->name = $data['name'];
+			$this->currentSavingBlockType->handle = $data['handle'];
+			$this->currentSavingBlockType->sortOrder = $data['sortOrder'];
+			$this->currentSavingBlockType->maxBlocks = $data['maxBlocks'];
+			$this->currentSavingBlockType->maxChildBlocks = $data['maxChildBlocks'];
+			$this->currentSavingBlockType->childBlocks = $data['childBlocks'];
+			$this->currentSavingBlockType->topLevel = $data['topLevel'];
+			$this->currentSavingBlockType->uid = $uid;
+			$this->currentSavingBlockType->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
+
+			$event = new BlockTypeEvent([
+				'blockType' => $this->currentSavingBlockType,
+				'isNew' => $isNew,
+			]);
+
+			$this->trigger(self::EVENT_AFTER_SAVE_BLOCK_TYPE, $event);
 
 			$this->currentSavingBlockType = null;
 

@@ -2,10 +2,13 @@
 
 ## Unreleased
 ### Added
+- Added the Max Top-Level Blocks field setting
 - Added the `collapseAllBlocks` plugin setting, allowing all input blocks to display as collapsed by default
 - Restored the `saveModifiedBlocksOnly` plugin setting (New to Neo 2; previously added to Neo 1.4.1)
-- Added the Max Top-Level Blocks field setting
 - Restored support for the Field Labels plugin (New to Neo 2; previously added to Neo 0.5.0 under Field Labels' previous name, Relabel)
+- Added `benf\neo\events\BlockTypeEvent`
+- Added `benf\neo\services\BlockTypes::EVENT_BEFORE_SAVE_BLOCK_TYPE`
+- Added `benf\neo\services\BlockTypes::EVENT_AFTER_SAVE_BLOCK_TYPE`
 - Added CKEditor field content to collapsed block summaries
 
 ### Changed
