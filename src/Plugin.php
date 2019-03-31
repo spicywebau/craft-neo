@@ -5,8 +5,11 @@ use yii\base\Event;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
+use craft\db\Query;
+use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\services\Fields;
+use craft\services\ProjectConfig;
 use craft\web\twig\variables\CraftVariable;
 
 use benf\neo\controllers\Conversion as ConversionController;
@@ -82,13 +85,8 @@ class Plugin extends BasePlugin
 			}
 		);
 
-		Craft::$app->getProjectConfig()
-			->onAdd('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
-			->onUpdate('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
-			->onRemove('neoBlockTypes.{uid}', [$this->blockTypes, 'handleDeletedBlockType'])
-			->onAdd('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
-			->onUpdate('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
-			->onRemove('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleDeletedBlockTypeGroup']);
+		// Setup project config functionality
+		$this->_setupProjectConfig();
 
 		$pluginsService = Craft::$app->getPlugins();
 
@@ -118,5 +116,43 @@ class Plugin extends BasePlugin
 	protected function createSettingsModel(): Settings
 	{
 		return new Settings();
+	}
+
+	private function _setupProjectConfig()
+	{
+		// Listen for Neo updates in the project config to apply them to the database
+		Craft::$app->getProjectConfig()
+			->onAdd('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
+			->onUpdate('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
+			->onRemove('neoBlockTypes.{uid}', [$this->blockTypes, 'handleDeletedBlockType'])
+			->onAdd('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
+			->onUpdate('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
+			->onRemove('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleDeletedBlockTypeGroup']);
+
+		// Listen for a project config rebuild, and provide the Neo data from the database
+		Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
+			$blockTypeGroupData = [];
+
+			$blockTypeGroupQuery = (new Query())
+				->select([
+					'groups.name',
+					'groups.sortOrder',
+					'groups.uid',
+					'fields.uid AS field',
+				])
+				->from(['{{%neoblocktypegroups}} groups'])
+				->innerJoin('{{%fields}} fields', '[[groups.fieldId]] = [[fields.id]]');
+
+			foreach ($blockTypeGroupQuery->all() as $blockTypeGroup)
+			{
+				$blockTypeGroupData[$blockTypeGroup['uid']] = [
+					'field' => $blockTypeGroup['field'],
+					'name' => $blockTypeGroup['name'],
+					'sortOrder' => $blockTypeGroup['sortOrder'],
+				];
+			}
+
+			$event->config['neoBlockTypeGroups'] = $blockTypeGroupData;
+		});
 	}
 }

@@ -9,6 +9,7 @@
 - Added CKEditor field content to collapsed block summaries
 
 ### Changed
+- Neo now requires Craft 3.1.20 or later
 - New icon
 - By default, Neo will only save modified blocks when saving a Neo field's value (New to Neo 2; previously added to Neo 1.3.0)
 
