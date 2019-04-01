@@ -234,6 +234,8 @@ class BlockTypes extends Component
 				}
 			}
 
+			unset($tab);
+
 			$data['fieldLayouts'] = [
 				$fieldLayoutUid => $fieldLayoutConfig,
 			];
