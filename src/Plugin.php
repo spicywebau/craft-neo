@@ -130,8 +130,61 @@ class Plugin extends BasePlugin
 			->onRemove('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleDeletedBlockTypeGroup']);
 
 		// Listen for a project config rebuild, and provide the Neo data from the database
-		Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
+		Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event)
+		{
+			$fieldsService = Craft::$app->getFields();
+			$blockTypeData = [];
 			$blockTypeGroupData = [];
+
+			$blockTypeQuery = (new Query)
+				->select([
+					// We require querying for the layout ID, rather than performing an inner join and getting the
+					// layout UID that way, because Neo allows block types not to have field layouts
+					'types.fieldLayoutId',
+					'types.name',
+					'types.handle',
+					'types.maxBlocks',
+					'types.maxChildBlocks',
+					'types.childBlocks',
+					'types.topLevel',
+					'types.sortOrder',
+					'types.uid',
+					'fields.uid AS field',
+				])
+				->from(['{{%neoblocktypes}} types'])
+				->innerJoin('{{%fields}} fields', '[[types.fieldId]] = [[fields.id]]');
+
+			foreach ($blockTypeQuery->all() as $blockType)
+			{
+				$childBlocks = $blockType['childBlocks'];
+
+				if (!empty($childBlocks))
+				{
+					$childBlocks = json_decode($childBlocks);
+				}
+
+				$blockTypeData[$blockType['uid']] = [
+					'field' => $blockType['field'],
+					'name' => $blockType['name'],
+					'handle' => $blockType['handle'],
+					'sortOrder' => (int)$blockType['sortOrder'],
+					'maxBlocks' => (int)$blockType['maxBlocks'],
+					'maxChildBlocks' => (int)$blockType['maxChildBlocks'],
+					'childBlocks' => $childBlocks,
+					'topLevel' => (bool)$blockType['topLevel'],
+				];
+
+				if ($blockType['fieldLayoutId'] !== null)
+				{
+					$fieldLayout = $fieldsService->getLayoutById($blockType['fieldLayoutId']);
+					$fieldLayoutConfig = $fieldLayout->getConfig();
+					$blockType['fieldLayouts'] = [
+						$fieldLayout->uid => $fieldLayoutConfig,
+					];
+				}
+
+				unset($blockType['fieldLayoutId']);
+			}
 
 			$blockTypeGroupQuery = (new Query())
 				->select([
@@ -152,6 +205,7 @@ class Plugin extends BasePlugin
 				];
 			}
 
+			$event->config['neoBlockTypes'] = $blockTypeData;
 			$event->config['neoBlockTypeGroups'] = $blockTypeGroupData;
 		});
 	}

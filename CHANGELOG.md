@@ -2,6 +2,7 @@
 
 ## Unreleased
 ### Added
+- Added support for the project config rebuild functionality introduced in Craft 3.1.20
 - Added the Max Top-Level Blocks field setting
 - Added the `collapseAllBlocks` plugin setting, allowing all input blocks to display as collapsed by default
 - Restored the `saveModifiedBlocksOnly` plugin setting (New to Neo 2; previously added to Neo 1.4.1)
