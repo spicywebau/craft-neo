@@ -1,5 +1,13 @@
 [
 	{
+		"version": "1.5.2",
+		"downloadUrl": "https://github.com/spicywebau/craft-neo/archive/1.5.2.zip",
+		"date": "2019-04-02T22:15:00+11:00",
+		"notes": [
+			"[Fixed] Fixed issue where queries for elements with empty Neo Fields would always return no elements"
+		]
+	},
+	{
 		"version": "1.5.1",
 		"downloadUrl": "https://github.com/spicywebau/craft-neo/archive/1.5.1.zip",
 		"date": "2019-02-22T20:52:00+11:00",

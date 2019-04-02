@@ -1,5 +1,8 @@
 ## Changelog
 
+### v1.5.2
+- `Fixed` Fixed issue where queries for elements with empty Neo Fields would always return no elements
+
 ### v1.5.1
 - `Added` Changed developer to Spicy Web
 - `Fixed` Fixed issue with blocks disappearing on elements with more than one Neo field
