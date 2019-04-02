@@ -226,16 +226,6 @@ class BlockTypes extends Component
 				$fieldLayout->uid = $fieldLayoutUid;
 			}
 
-			foreach ($fieldLayoutConfig['tabs'] as &$tab)
-			{
-				if (!isset($tab['fields']))
-				{
-					$tab['fields'] = [];
-				}
-			}
-
-			unset($tab);
-
 			$data['fieldLayouts'] = [
 				$fieldLayoutUid => $fieldLayoutConfig,
 			];
