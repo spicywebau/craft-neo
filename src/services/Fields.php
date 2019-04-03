@@ -6,6 +6,7 @@ use yii\base\Component;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\db\Query;
 use craft\fields\BaseRelationField;
 use craft\helpers\Html;
 
@@ -225,6 +226,30 @@ class Fields extends Component
 					$this->_applyFieldTranslationSettings($ownerId, $siteId, $field);
 				}
 
+				$resaveForNewSites = false;
+				if (!$field->localizeBlocks)
+				{
+					$supportedSites = $owner->getSupportedSites();
+					foreach ($blocks as $block)
+					{
+						if ($block->id !== null)
+						{
+							$savedSites = (new Query)
+								->select('siteId')
+								->from('{{%elements_sites}}')
+								->where(['elementId' => $block->id])
+								->all();
+
+							if (!in_array($siteId, $savedSites))
+							{
+								$resaveForNewSites = true;
+							}
+
+							break;
+						}
+					}
+				}
+
 				$blockIds = [];
 
 				foreach ($blocks as &$block)
@@ -243,8 +268,14 @@ class Fields extends Component
 					}
 					else
 					{
-						$isModified = $neoSettings->saveModifiedBlocksOnly ? $block->getModified() : true;
 						$isNew = $block->id === null;
+
+						if (!$isNew && $resaveForNewSites)
+						{
+							$block->setModified();
+						}
+
+						$isModified = $neoSettings->saveModifiedBlocksOnly ? $block->getModified() : true;
 
 						if ($isModified)
 						{

@@ -185,7 +185,7 @@ export default Garnish.Base.extend({
 			Garnish.requestAnimationFrame(() => this.updateResponsiveness())
 
 			this._initReasonsPlugin()
-			this._initRelabelPlugin()
+			this._initFieldLabelsPlugin()
 
 			// For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
 			// Neo applies it's own styles to Matrix blocks in an effort to improve the visibility of them, however
@@ -572,6 +572,11 @@ export default Garnish.Base.extend({
 					value = _escapeHTML(_limit(Craft.getText($input.find('textarea').val())))
 				}
 				break
+				case 'craft\\ckeditor\\Field':
+				{
+					value = _escapeHTML(_limit(Craft.getText($input.find('[role="textbox"]').html())))
+				}
+				break
 				case 'craft\\fields\\Url':
 				{
 					value = _escapeHTML(_limit($input.children('input[type="url"]').val()))
@@ -840,7 +845,7 @@ export default Garnish.Base.extend({
 		this.$tabsButton.toggleClass('invisible', !isMobile)
 	},
 
-	updateMenuStates(field, blocks = [], maxBlocks = 0, additionalCheck = null, allowedBlockTypes = false)
+	updateMenuStates(field, blocks = [], maxBlocks = 0, additionalCheck = null, allowedBlockTypes = false, maxTopBlocks = 0)
 	{
 		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
 
@@ -848,7 +853,17 @@ export default Garnish.Base.extend({
 		const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
 		const maxBlockTypes = blockType.getMaxBlocks()
 
-		const allDisabled = (maxBlocks > 0 && blocks.length >= maxBlocks) || !additionalCheck
+		let totalTopBlocks = 0;
+
+		for(let block of blocks)
+		{
+			block.getLevel() > 0 || totalTopBlocks++
+		}
+
+		const maxBlocksMet = maxBlocks > 0 && blocks.length >= maxBlocks
+		const maxTopBlocksMet = maxTopBlocks > 0 && totalTopBlocks >= maxTopBlocks
+
+		const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
 		const typeDisabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
 
 		const disabled = allDisabled || typeDisabled
@@ -938,16 +953,16 @@ export default Garnish.Base.extend({
 		}
 	},
 
-	_initRelabelPlugin()
+	_initFieldLabelsPlugin()
 	{
-		const Relabel = window.Relabel
+		const FieldLabels = window.FieldLabels
 
-		if(Relabel)
+		if(FieldLabels)
 		{
 			NS.enter(this._templateNs)
 
 			const blockType = this.getBlockType()
-			Relabel.applyLabels(this.$contentContainer, blockType.getFieldLayoutId(), NS.value())
+			FieldLabels.applyLabels(this.$contentContainer, blockType.getFieldLayoutId(), NS.value())
 
 			NS.leave()
 		}

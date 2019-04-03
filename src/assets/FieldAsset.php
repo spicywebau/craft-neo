@@ -105,6 +105,7 @@ class FieldAsset extends AssetBundle
 			'inputId' => $viewService->namespaceInputId($id),
 			'minBlocks' => $field->minBlocks,
 			'maxBlocks' => $field->maxBlocks,
+			'maxTopBlocks' => $field->maxTopBlocks,
 			'blocks' => self::_getBlocksJsSettings($value, $static),
 			'static' => $static,
 		];

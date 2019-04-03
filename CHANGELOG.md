@@ -1,5 +1,41 @@
 # Changelog
 
+## 2.3.0 - 2019-04-03
+### Added
+- Added support for the project config rebuild functionality introduced in Craft 3.1.20
+- Added the Max Top-Level Blocks field setting
+- Added the `collapseAllBlocks` plugin setting, allowing all input blocks to display as collapsed by default
+- Restored the `saveModifiedBlocksOnly` plugin setting (New to Neo 2; previously added to Neo 1.4.1)
+- Restored support for the Field Labels plugin (New to Neo 2; previously added to Neo 0.5.0 under Field Labels' previous name, Relabel)
+- Added `benf\neo\events\BlockTypeEvent`
+- Added `benf\neo\services\BlockTypes::EVENT_BEFORE_SAVE_BLOCK_TYPE`
+- Added `benf\neo\services\BlockTypes::EVENT_AFTER_SAVE_BLOCK_TYPE`
+- Added CKEditor field content to collapsed block summaries
+
+### Changed
+- Neo now requires Craft 3.1.20 or later
+- New icon
+- By default, Neo will only save modified blocks when saving a Neo field's value (New to Neo 2; previously added to Neo 1.3.0)
+
+### Fixed
+- Fixed collapsed block summaries of colour fields on entry revisions
+
+## 2.2.8 - 2018-03-27
+### Fixed
+- Fixed issue where duplicate block type groups could be created (thanks @boboldehampsink)
+
+## 2.2.7 - 2019-03-23
+### Fixed
+- Fixed issue, when applying a project config to another environment or project, where a Neo field and block types could be synced before other fields they use, causing the block types not to have those fields in the target environment/project
+
+## 2.2.6 - 2019-03-14
+### Changed
+- Neo now requires Craft 3.1.13 or later
+
+### Fixed
+- Fixed error when applying a project config to another project where a Neo field from the first project doesn't exist
+- Fixed error in some cases when deleting a block type and that block type's blocks
+
 ## 2.2.5 - 2019-02-23
 ### Fixed
 - Fixed issue in Neo 2.2.4 with disabled blocks being deleted when saving a Neo field's contents

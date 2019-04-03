@@ -1,4 +1,4 @@
-<img src="docs/assets/icon.png" width="60">
+<img src="docs/assets/icon.png" width="100">
 
 # Neo
 #### A Matrix-like field type that uses existing fields
@@ -46,5 +46,7 @@ Let block types have the ability to contain child block types. You can filter wh
 - [Eager Loading](docs/eager-loading.md)
 - [Resources](docs/resources.md)
 - [API](docs/api.md)
+- [Plugin Compatibility](docs/plugin-compatibility.md)
 - [FAQ](docs/faq.md)
+- [Content Migration Guide: Updating, Duplicating and Creating Block Types](docs/content-migration-guides/updating-duplicating-creating-block-types.md)
 - [Changelog](CHANGELOG.md)

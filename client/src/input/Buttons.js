@@ -12,6 +12,7 @@ const _defaults = {
 	groups: [],
 	items: null,
 	maxBlocks: 0,
+	maxTopBlocks: 0,
 	blocks: null
 }
 
@@ -20,6 +21,7 @@ export default Garnish.Base.extend({
 	_blockTypes: [],
 	_groups: [],
 	_maxBlocks: 0,
+	_maxTopBlocks: 0,
 
 	init(settings = {})
 	{
@@ -39,12 +41,14 @@ export default Garnish.Base.extend({
 		}
 
 		this._maxBlocks = settings.maxBlocks|0
+		this._maxTopBlocks = settings.maxTopBlocks|0
 
 		this.$container = $(renderTemplate({
 			blockTypes: this._blockTypes,
 			groups: this._groups,
 			items: this._items,
-			maxBlocks: this._maxBlocks
+			maxBlocks: this._maxBlocks,
+			maxTopBlocks: this._maxTopBlocks
 		}))
 
 		const $neo = this.$container.find('[data-neo-bn]')
@@ -87,7 +91,17 @@ export default Garnish.Base.extend({
 		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
 
 		const that = this
-		const allDisabled = (this._maxBlocks > 0 && blocks.length >= this._maxBlocks) || !additionalCheck
+		let totalTopBlocks = 0;
+
+		for(let block of blocks)
+		{
+			block.getLevel() > 0 || totalTopBlocks++
+		}
+
+		const maxBlocksMet = this._maxBlocks > 0 && blocks.length >= this._maxBlocks
+		const maxTopBlocksMet = this._maxTopBlocks > 0 && totalTopBlocks >= this._maxTopBlocks
+
+		const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
 
 		this.$blockButtons.each(function()
 		{

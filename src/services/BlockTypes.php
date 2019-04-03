@@ -7,12 +7,14 @@ use Craft;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
+use benf\neo\events\BlockTypeEvent;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\records\BlockType as BlockTypeRecord;
@@ -30,6 +32,18 @@ use benf\neo\helpers\Memoize;
  */
 class BlockTypes extends Component
 {
+	/**
+	 * @event BlockTypeEvent The event that is triggered before saving a block type.
+	 * @since 2.3.0
+	 */
+	const EVENT_BEFORE_SAVE_BLOCK_TYPE = 'beforeSaveNeoBlockType';
+
+	/**
+	 * @event BlockTypeEvent The event that is triggered after saving a block type.
+	 * @since 2.3.0
+	 */
+	const EVENT_AFTER_SAVE_BLOCK_TYPE = 'afterSaveNeoBlockType';
+
 	/**
 	 * Gets a Neo block type given its ID.
 	 *
@@ -212,18 +226,17 @@ class BlockTypes extends Component
 				$fieldLayout->uid = $fieldLayoutUid;
 			}
 
-			foreach ($fieldLayoutConfig['tabs'] as &$tab)
-			{
-				if (!isset($tab['fields']))
-				{
-					$tab['fields'] = [];
-				}
-			}
-
 			$data['fieldLayouts'] = [
 				$fieldLayoutUid => $fieldLayoutConfig,
 			];
 		}
+
+		$event = new BlockTypeEvent([
+			'blockType' => $blockType,
+			'isNew' => $isNew,
+		]);
+
+		$this->trigger(self::EVENT_BEFORE_SAVE_BLOCK_TYPE, $event);
 
 		$path = 'neoBlockTypes.' . $blockType->uid;
 		$projectConfigService->set($path, $data);
@@ -306,8 +319,15 @@ class BlockTypes extends Component
 	{
 		$dbService = Craft::$app->getDb();
 		$fieldsService = Craft::$app->getFields();
+		$projectConfigService = Craft::$app->getProjectConfig();
 		$uid = $event->tokenMatches[0];
 		$data = $event->newValue;
+
+		// Make sure the fields have been synced
+		ProjectConfigHelper::ensureAllFieldsProcessed();
+
+		$fieldId = Db::idByUid('{{%fields}}', $data['field']);
+
 		$transaction = $dbService->beginTransaction();
 
 		try
@@ -315,20 +335,28 @@ class BlockTypes extends Component
 			$record = $this->_getRecordByUid($uid);
 			$fieldLayoutConfig = isset($data['fieldLayouts']) ? reset($data['fieldLayouts']) : null;
 			$fieldLayout = null;
+			$isNew = false;
+			$blockType = null;
+
+			if ($record->id !== null)
+			{
+				$result = $this->_createQuery()
+					->where(['id' => $record->id])
+					->one();
+
+				$blockType = new BlockType($result);
+			} else {
+				$blockType = new BlockType();
+				$isNew = true;
+			}
 
 			if ($fieldLayoutConfig === null || !isset($fieldLayoutConfig['id']))
 			{
 				if ($record->id !== null)
-				{
-					$result = $this->_createQuery()
-						->where(['id' => $record->id])
-						->one();
-
-					$oldBlockType = new BlockType($result);
-					
-					if ($oldBlockType->fieldLayoutId)
+				{	
+					if ($blockType->fieldLayoutId)
 					{
-						$fieldsService->deleteLayoutById($oldBlockType->fieldLayoutId);
+						$fieldsService->deleteLayoutById($blockType->fieldLayoutId);
 					}
 				}
 			}
@@ -382,7 +410,7 @@ class BlockTypes extends Component
 				$fieldsService->saveLayout($fieldLayout);
 			}
 
-			$record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
+			$record->fieldId = $fieldId;
 			$record->name = $data['name'];
 			$record->handle = $data['handle'];
 			$record->sortOrder = $data['sortOrder'];
@@ -393,6 +421,25 @@ class BlockTypes extends Component
 			$record->uid = $uid;
 			$record->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
 			$record->save(false);
+
+			$blockType->id = $record->id;
+			$blockType->fieldId = $fieldId;
+			$blockType->name = $data['name'];
+			$blockType->handle = $data['handle'];
+			$blockType->sortOrder = $data['sortOrder'];
+			$blockType->maxBlocks = $data['maxBlocks'];
+			$blockType->maxChildBlocks = $data['maxChildBlocks'];
+			$blockType->childBlocks = $data['childBlocks'];
+			$blockType->topLevel = $data['topLevel'];
+			$blockType->uid = $uid;
+			$blockType->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
+
+			$event = new BlockTypeEvent([
+				'blockType' => $blockType,
+				'isNew' => $isNew,
+			]);
+
+			$this->trigger(self::EVENT_AFTER_SAVE_BLOCK_TYPE, $event);
 
 			$transaction->commit();
 		}
@@ -442,6 +489,7 @@ class BlockTypes extends Component
 				$blocks = Block::find()
 					->siteId($siteId)
 					->typeId($blockType->id)
+					->inReverse()
 					->all();
 
 				foreach ($blocks as $block)
@@ -483,7 +531,12 @@ class BlockTypes extends Component
 
 		try
 		{
-			$record = new BlockTypeGroupRecord();
+			$record = BlockTypeGroupRecord::findOne(['uid' => $uid]);
+
+			if ($record === null) {
+				$record = new BlockTypeGroupRecord();
+			}
+			
 			$record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
 			$record->name = $data['name'];
 			$record->sortOrder = $data['sortOrder'];
