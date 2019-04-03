@@ -3,6 +3,8 @@
 # Neo
 #### A Matrix-like field type that uses existing fields
 
+**Note: As of April 3, 2019, Neo for Craft 2 is no longer supported and v1.5.2 is the final release of this version.  You may continue using it for your Craft 2 projects, and the license allows you to fork it and make any changes to Neo for Craft 2 that you require.**
+
 Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the concept of the [Matrix field type](https://craftcms.com/features/matrix) with a number of very useful features. Neo has been carefully crafted (pun intended) to ensure it matches the look and feel of Craft.
 
 <br>
