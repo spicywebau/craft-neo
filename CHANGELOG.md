@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.3.0 - 2019-04-03
 ### Added
 - Added support for the project config rebuild functionality introduced in Craft 3.1.20
 - Added the Max Top-Level Blocks field setting
