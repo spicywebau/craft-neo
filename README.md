@@ -50,3 +50,10 @@ Let block types have the ability to contain child block types. You can filter wh
 - [FAQ](docs/faq.md)
 - [Content Migration Guide: Updating, Duplicating and Creating Block Types](docs/content-migration-guides/updating-duplicating-creating-block-types.md)
 - [Changelog](CHANGELOG.md)
+
+
+---
+
+*Created by [Benjamin Fleming](https://github.com/benjamminf)*
+<br>
+*Maintained by [Spicy Web](https://spicyweb.com.au)*
