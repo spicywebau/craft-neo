@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.0.1 - 2019-04-11
+### Changed
+- Disable saveModifiedBlocksOnly for now
+
 ## 2.3.0 - 2019-04-03
 ### Added
 - Added support for the project config rebuild functionality introduced in Craft 3.1.20
