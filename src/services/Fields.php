@@ -275,15 +275,15 @@ class Fields extends Component
 							$block->setModified();
 						}
 
-						$isModified = $neoSettings->saveModifiedBlocksOnly ? $block->getModified() : true;
+						// $isModified = $neoSettings->saveModifiedBlocksOnly ? $block->getModified() : true;
 
-						if ($isModified)
-						{
-							$block->ownerId = $owner->id;
-							$block->ownerSiteId = $ownerSiteId;
-							$block->propagating = $owner->propagating;
-							$elementsService->saveElement($block, false, !$owner->propagating);
-						}
+						// if ($isModified)
+						// {
+                  $block->ownerId = $owner->id;
+                  $block->ownerSiteId = $ownerSiteId;
+                  $block->propagating = $owner->propagating;
+                  $elementsService->saveElement($block, false, !$owner->propagating);
+						// }
 
 						// If `collapseAllBlocks` is enabled, new blocks should still have their initial state cached
 						if (!$neoSettings->collapseAllBlocks || $isNew)
