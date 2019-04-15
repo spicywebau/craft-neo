@@ -201,7 +201,7 @@ class Plugin extends BasePlugin
 				$blockTypeGroupData[$blockTypeGroup['uid']] = [
 					'field' => $blockTypeGroup['field'],
 					'name' => $blockTypeGroup['name'],
-					'sortOrder' => $blockTypeGroup['sortOrder'],
+					'sortOrder' => (int)$blockTypeGroup['sortOrder'],
 				];
 			}
 
