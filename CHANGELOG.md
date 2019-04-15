@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.1 - 2019-04-16
+### Fixed
+- Project Config - typecast group sortOrder to int
+
 ## 2.3.0.1 - 2019-04-11
 ### Changed
 - Disable saveModifiedBlocksOnly for now
