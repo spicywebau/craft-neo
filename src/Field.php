@@ -162,6 +162,19 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 					$fieldLayout = Craft::$app->getFields()->assembleLayout($fieldLayoutPost, $requiredFieldPost);
 					$fieldLayout->type = Block::class;
+
+					// Ensure the field layout ID is set, if it exists
+					$layoutIdResult = (new Query)
+						->select(['fieldLayoutId'])
+						->from('{{%neoblocktypes}}')
+						->where(['id' => $blockTypeId])
+						->one();
+
+					if ($layoutIdResult !== null)
+					{
+						$fieldLayout->id = $layoutIdResult['fieldLayoutId'];
+					}
+
 					$newBlockType->setFieldLayout($fieldLayout);
 				}
 			}
