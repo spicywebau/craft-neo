@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.2 - 2019-04-24
+### Fixed
+- Ensure field layout IDs are set when setting a field's block types - Thanks @ttempleton
+
 ## 2.3.1 - 2019-04-16
 ### Fixed
 - Project Config - typecast group sortOrder to int
