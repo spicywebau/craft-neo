@@ -224,7 +224,7 @@ const BlockSort = Garnish.Drag.extend({
 
 			const blockHeight = block.$container.height()
 			const topbarHeight = block.$topbarContainer.height()
-			const contentHeight = isExpanded ? block.$contentContainer.height() : 0
+			const contentHeight = isExpanded && block.$contentContainer.length > 0 ? block.$contentContainer.height() : 0
 			const childrenHeight = isExpanded ? block.$childrenContainer.height() : 0
 
 			const parentBlock = this.getParentBlock(block)
