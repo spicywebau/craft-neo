@@ -92,6 +92,7 @@ export default Garnish.Base.extend({
 		this._blockSort = new BlockSort({
 			container: this.$blocksContainer,
 			handle: '[data-neo-b="button.move"]',
+			maxTopBlocks: this.getMaxTopBlocks(),
 			filter: () =>
 			{
 				// Only return all the selected items if the target item is selected
@@ -106,7 +107,11 @@ export default Garnish.Base.extend({
 			magnetStrength: 4,
 			helperLagBase: 1.5,
 			helperOpacity: 0.9,
-			onDragStop: () => this._updateBlockOrder()
+			onDragStop: () =>
+			{
+				this._updateBlockOrder()
+				this._updateButtons()
+			}
 		})
 
 		this._blockSelect = new Garnish.Select(this.$blocksContainer, null, {
