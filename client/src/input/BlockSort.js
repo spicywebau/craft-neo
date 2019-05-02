@@ -253,7 +253,7 @@ const BlockSort = Garnish.Drag.extend({
 		{
 			case BlockSort.TYPE_CHILDREN:
 			{
-				if(direction === BlockSort.DIRECTION_UP && this.$draggee.closest(block.$container).length == 0)
+				if(this.$draggee.closest(block.$container).length == 0)
 				{
 					block.$blocksContainer.append(this.$draggee)
 				}
