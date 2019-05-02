@@ -113,8 +113,11 @@ class Fields extends Component
 
 				foreach ($field->getGroups() as $blockTypeGroup)
 				{
-					$blockTypeGroup->fieldId = $field->id;
-					Neo::$plugin->blockTypes->saveGroup($blockTypeGroup);
+					// since the old groups was deleted, we make sure to add in the new ones only and ignore writing the old groups to the project.yaml file.
+					if(empty($blockTypeGroup->id)) {
+						$blockTypeGroup->fieldId = $field->id;
+						Neo::$plugin->blockTypes->saveGroup($blockTypeGroup);
+					}
 				}
 
 				$transaction->commit();

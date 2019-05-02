@@ -209,11 +209,11 @@ class BlockTypes extends Component
 			'field' => $field->uid,
 			'name' => $blockType->name,
 			'handle' => $blockType->handle,
-			'sortOrder' => $blockType->sortOrder,
-			'maxBlocks' => $blockType->maxBlocks,
-			'maxChildBlocks' => $blockType->maxChildBlocks,
+			'sortOrder' => (int)$blockType->sortOrder,
+			'maxBlocks' => (int)$blockType->maxBlocks,
+			'maxChildBlocks' => (int)$blockType->maxChildBlocks,
 			'childBlocks' => $blockType->childBlocks,
-			'topLevel' => $blockType->topLevel,
+			'topLevel' => (bool)$blockType->topLevel,
 		];
 
 		// No need to bother with the field layout if it has no tabs
