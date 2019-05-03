@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.3 - 2019-05-04
+### Fixed
+- Fix PostgreSQL error when saving new block types - thanks @ttempleton
+- Fixed issue where groups were duplicated when changing min/max blocks
+
 ## 2.3.2 - 2019-04-24
 ### Fixed
 - Ensure field layout IDs are set when setting a field's block types - Thanks @ttempleton
