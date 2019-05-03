@@ -164,15 +164,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 					$fieldLayout->type = Block::class;
 
 					// Ensure the field layout ID is set, if it exists
-					$layoutIdResult = (new Query)
-						->select(['fieldLayoutId'])
-						->from('{{%neoblocktypes}}')
-						->where(['id' => $blockTypeId])
-						->one();
-
-					if ($layoutIdResult !== null)
+					if (is_int($blockTypeId))
 					{
-						$fieldLayout->id = $layoutIdResult['fieldLayoutId'];
+						$layoutIdResult = (new Query)
+							->select(['fieldLayoutId'])
+							->from('{{%neoblocktypes}}')
+							->where(['id' => $blockTypeId])
+							->one();
+
+						if ($layoutIdResult !== null)
+						{
+							$fieldLayout->id = $layoutIdResult['fieldLayoutId'];
+						}
 					}
 
 					$newBlockType->setFieldLayout($fieldLayout);
