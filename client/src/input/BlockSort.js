@@ -303,7 +303,9 @@ const BlockSort = Garnish.Drag.extend({
 		// If no block, then we're checking at the top level
 		if(!block)
 		{
-			let topBlockCount = this.$container.children('.ni_block:not(.is-disabled)').length
+			const that = this
+			const topBlocks = this.$container.children('.ni_block:not(.is-disabled)')
+			let topBlocksCount = topBlocks.length
 
 			for(let draggeeBlock of this._draggeeBlocks)
 			{
@@ -312,16 +314,19 @@ const BlockSort = Garnish.Drag.extend({
 				{
 					return false
 				}
-
-				// If the block is already at the top level, don't count it for max top level block check purposes
-				if(draggeeBlock.getLevel() == 0)
-				{
-					topBlockCount--
-				}
 			}
 
+			// If the block is already at the top level, don't count it for max top level block check purposes
+			topBlocks.each(function()
+			{
+				if(that._draggeeBlocks.includes(that.getBlockByElement(this)))
+				{
+					topBlocksCount--
+				}
+			})
+
 			// If this move would exceed the field's max top level blocks, we can't allow it
-			if(this.maxTopBlocks > 0 && topBlockCount >= this.maxTopBlocks)
+			if(this.maxTopBlocks > 0 && topBlocksCount >= this.maxTopBlocks)
 			{
 				return false
 			}
