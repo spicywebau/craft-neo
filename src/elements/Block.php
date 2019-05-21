@@ -758,7 +758,7 @@ class Block extends Element
 		$query->ownerId($this->ownerId);
 		$query->siteId($this->siteId);
 		$query->limit(null);
-		$query->anyStatus();
+		$query->status('enabled');
 		$query->indexBy('id');
 
 		return $query;
