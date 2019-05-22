@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.4 - 2019-05-22
+### Fixed
+- Fix #214 - added in type filtering function that was missing for live preview
+- Fix #213 - get enabled blocks only instead of any status blocks for live preview
+
 ## 2.3.3 - 2019-05-04
 ### Fixed
 - Fix PostgreSQL error when saving new block types - thanks @ttempleton
