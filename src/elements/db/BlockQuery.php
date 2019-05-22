@@ -640,6 +640,26 @@ class BlockQuery extends ElementQuery
 	 * @param int $value
 	 * @return array
 	 */
+	private function __typeId(array $elements, $value): array
+	{
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$newElements = array_filter($elements, function($element) use($value)
+		{
+			return in_array($element->typeId, $value);
+		});
+
+		return array_values($newElements);
+	}
+
+	/**
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
 	private function __ancestorDist($elements, $value): array
 	{
 		if (!$value || !$this->ancestorOf)
