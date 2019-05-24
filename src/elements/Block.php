@@ -540,6 +540,31 @@ class Block extends Element
 	}
 
 	/**
+	 * Whether current view is a draft or not
+	 *
+	 * @return bool
+	 */
+	public function isDraftPreview()
+	{
+		// get token
+		$token = Craft::$app->request->getParam('token');
+
+		if(!empty($token)) 
+		{
+			// get the route of the token
+			$route = Craft::$app->tokens->getTokenRoute($token);
+
+			// check it's a shared entry
+			if($route && $route[0] == 'entries/view-shared-entry')
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function getAncestors(int $dist = null)
@@ -548,8 +573,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['ancestors']))
 			{
@@ -583,8 +609,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['parent']))
 			{
@@ -611,8 +638,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['descendants']))
 			{
@@ -646,8 +674,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['children']))
 			{
@@ -674,8 +703,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['siblings']))
 			{
@@ -701,8 +731,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['prevSibling']))
 			{
@@ -728,8 +759,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['nextSibling']))
 			{
