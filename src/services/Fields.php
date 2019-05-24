@@ -220,12 +220,14 @@ class Fields extends Component
 			$transaction = $dbService->beginTransaction();
 			try
 			{
+				$siteId = $query->siteId;
+
 				// If we're duplicating an element, or the owner was a preexisting element,
 				// make sure that the blocks for this field/owner respect the field's translation setting
 				if ($owner->duplicateOf || $query->ownerId)
 				{
 					$ownerId = $owner->duplicateOf ? $owner->duplicateOf->id : $query->ownerId;
-					$siteId = $owner->duplicateOf ? $owner->duplicateOf->siteId : $query->siteId;
+					$siteId = $owner->duplicateOf ? $owner->duplicateOf->siteId : $siteId;
 					$this->_applyFieldTranslationSettings($ownerId, $siteId, $field);
 				}
 
