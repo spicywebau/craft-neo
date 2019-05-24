@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.5 - 2019-05-24
+### Fixed
+- Fix #210 - check if viewing a shared draft so it can retrieve the correct data
+
 ## 2.3.4 - 2019-05-22
 ### Fixed
 - Fix #214 - added in type filtering function that was missing for live preview
