@@ -219,7 +219,7 @@ class BlockTypes extends Component
 		// No need to bother with the field layout if it has no tabs
 		if ($fieldLayoutConfig !== null)
 		{
-			$fieldLayoutUid = $fieldLayout->uid ?? StringHelper::UUID();
+			$fieldLayoutUid = $fieldLayout->uid ?? ($fieldLayout->id ? Craft::$app->getFields()->getLayoutById($fieldLayout->id)->uid : false) ?? StringHelper::UUID();
 
 			if (!$fieldLayout->uid)
 			{
