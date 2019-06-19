@@ -91,7 +91,9 @@ class Blocks extends Component
 		$newNamespace = $namespace . '[__NEOBLOCK__][fields]';
 		$viewService->setNamespace($newNamespace);
 
-		$isNewBlock = $block->id === null;
+		// Ensure that this block is actually new, and not just a pasted or cloned block
+		// New blocks won't have their levels set at this stage, whereas they will be set for pasted/cloned blocks
+		$isNewBlock = $block->id === null && $block->level === null;
 
 		$tabsHtml = [];
 

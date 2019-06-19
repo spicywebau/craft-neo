@@ -38,6 +38,11 @@ class FieldAsset extends AssetBundle
 			'main.js',
 		];
 
+		if ($this->_matchUriSegments(['settings', 'fields', 'edit', '*']))
+		{
+			array_push($this->js, 'converter.js');
+		}
+
 		parent::init();
 	}
 
@@ -100,6 +105,7 @@ class FieldAsset extends AssetBundle
 			'inputId' => $viewService->namespaceInputId($id),
 			'minBlocks' => $field->minBlocks,
 			'maxBlocks' => $field->maxBlocks,
+			'maxTopBlocks' => $field->maxTopBlocks,
 			'blocks' => self::_getBlocksJsSettings($value, $static),
 			'static' => $static,
 		];
@@ -120,6 +126,7 @@ class FieldAsset extends AssetBundle
 	 */
 	private static function _getBlocksJsSettings(array $blocks, bool $static = false): array
 	{
+		$collapseAllBlocks = Neo::$plugin->getSettings()->collapseAllBlocks;
 		$jsBlocks = [];
 		$sortOrder = 0;
 
@@ -134,7 +141,7 @@ class FieldAsset extends AssetBundle
 					'blockType' => $blockType->handle,
 					'modified' => false,
 					'sortOrder' => $sortOrder++,
-					'collapsed' => $block->getCollapsed(),
+					'collapsed' => !$collapseAllBlocks ? $block->getCollapsed() : true,
 					'enabled' => (bool)$block->enabled,
 					'level' => max(0, intval($block->level) - 1),
 					'tabs' => Neo::$plugin->blocks->renderTabs($block, $static),
@@ -255,5 +262,34 @@ class FieldAsset extends AssetBundle
 		}
 
 		return $jsBlockTypeGroups;
+	}
+
+	/**
+	 * Helper function for matching against the URI.
+	 * Useful for including resources on specific pages.
+	 *
+	 * @param $matchSegments
+	 * @return bool
+	 */
+	private function _matchUriSegments($matchSegments): bool
+	{
+		$segments = Craft::$app->getRequest()->getSegments();
+
+		if (count($segments) !== count($matchSegments))
+		{
+			return false;
+		}
+
+		foreach ($segments as $i => $segment)
+		{
+			$matchSegment = $matchSegments[$i];
+
+			if ($matchSegment !== '*' && $segment !== $matchSegment)
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

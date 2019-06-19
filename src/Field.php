@@ -9,14 +9,17 @@ use craft\base\Field as BaseField;
 use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\helpers\ElementHelper;
 use craft\validators\ArrayValidator;
 
 use benf\neo\Plugin as Neo;
-use benf\neo\models\BlockType;
-use benf\neo\models\BlockTypeGroup;
+use benf\neo\assets\FieldAsset;
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
-use benf\neo\assets\FieldAsset;
+use benf\neo\models\BlockStructure;
+use benf\neo\models\BlockType;
+use benf\neo\models\BlockTypeGroup;
+use benf\neo\validators\FieldValidator;
 
 /**
  * Class Field
@@ -60,6 +63,21 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	public $localizeBlocks = false;
 
 	/**
+	 * @var int|null The minimum number of blocks this field can have.
+	 */
+	public $minBlocks;
+
+	/**
+	 * @var int|null The maximum number of blocks this field can have.
+	 */
+	public $maxBlocks;
+
+	/**
+	 * @var int|null The maximum number of top-level blocks this field can have.
+	 */
+	public $maxTopBlocks;
+
+	/**
 	 * @var array|null The block types associated with this field.
 	 */
 	private $_blockTypes;
@@ -75,20 +93,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	public function rules(): array
 	{
 		$rules = parent::rules();
-		$rules[] = [['minBlocks', 'maxBlocks'], 'integer', 'min' => 0];
+		$rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks'], 'integer', 'min' => 0];
 
 		return $rules;
 	}
-
-	/**
-	 * @var int|null The minimum number of blocks this field can have.
-	 */
-	public $minBlocks;
-
-	/**
-	 * @var int|null The maximum number of blocks this field can have.
-	 */
-	public $maxBlocks;
 
 	/**
 	 * Returns this field's block types.
@@ -154,6 +162,22 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 					$fieldLayout = Craft::$app->getFields()->assembleLayout($fieldLayoutPost, $requiredFieldPost);
 					$fieldLayout->type = Block::class;
+
+					// Ensure the field layout ID is set, if it exists
+					if (is_int($blockTypeId))
+					{
+						$layoutIdResult = (new Query)
+							->select(['fieldLayoutId'])
+							->from('{{%neoblocktypes}}')
+							->where(['id' => $blockTypeId])
+							->one();
+
+						if ($layoutIdResult !== null)
+						{
+							$fieldLayout->id = $layoutIdResult['fieldLayoutId'];
+						}
+					}
+
 					$newBlockType->setFieldLayout($fieldLayout);
 				}
 			}
@@ -282,9 +306,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		else
 		{
 			$query = Block::find();
+			$blockStructure = null;
 
 			// Existing element?
-			if ($element && $element->id)
+			$existingElement = $element && $element->id;
+			if ($existingElement)
 			{
 				$query->ownerId($element->id);
 			}
@@ -297,9 +323,45 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				->fieldId($this->id)
 				->siteId($element->siteId ?? null);
 
-			if ($this->localizeBlocks)
+			// If an owner element exists, set the appropriate owner site ID and block structure, depending on whether
+			// the field is set to manage blocks on a per-site basis
+			if ($existingElement)
 			{
-				$query->ownerSiteId($element->siteId ?? null);
+				if ($this->localizeBlocks)
+				{
+					// Look for the block structure with the owner site ID
+					// If a structure is not found, then look for one without an owner site ID set
+					$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $element->siteId);
+
+					if ($blockStructure)
+					{
+						$query->ownerSiteId($element->siteId);
+					}
+					else
+					{
+						$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
+					}
+				}
+				else
+				{
+					// Look for the block structure without looking for a specific owner site ID
+					// If the structure's owner site ID is not null but does not match the owner's site ID, we did not
+					// find the correct structure, so we'll need to set the query's owner site ID and look for the
+					// structure with that owner site ID
+					$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
+
+					if ($blockStructure && $blockStructure->ownerSiteId && $blockStructure->ownerSiteId != $element->siteId)
+					{
+						$query->ownerSiteId($element->siteId);
+						$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $element->siteId);
+					}
+				}
+			}
+
+			// If we found the block structure, set the query's structure ID
+			if ($blockStructure)
+			{
+				$query->structureId($blockStructure->structureId);
 			}
 
 			// Set the initially matched elements if $value is already set, which is the case if there was a validation
@@ -308,11 +370,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 			{
 				$elements = $this->_createBlocksFromSerializedData($value, $element);
 
-				$query->status = null;
-				$query->enabledForSite = false;
+				if (!Craft::$app->getRequest()->getIsLivePreview())
+				{
+					$query->anyStatus();
+				}
+				else
+				{
+					$query->status = Element::STATUS_ENABLED;
+				}
+
 				$query->limit = null;
 				$query->setCachedResult($elements);
-				$query->setAllElements($elements);
+				$query->useMemoized($elements);
 			}
 		}
 
@@ -392,6 +461,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				'tooFew' => Craft::t('neo', '{attribute} should contain at least {min, number} {min, plural, one{block} other{blocks}}.'),
 				'tooMany' => Craft::t('neo', '{attribute} should contain at most {max, number} {max, plural, one{block} other{blocks}}.'),
 				'skipOnEmpty' => false,
+				'on' => Element::SCENARIO_LIVE,
+			],
+			[
+				FieldValidator::class,
+				'maxTopBlocks' => $this->maxTopBlocks ?: null,
 				'on' => Element::SCENARIO_LIVE,
 			],
 		];
@@ -538,26 +612,110 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	 */
 	public function beforeElementDelete(ElementInterface $element): bool
 	{
+		if (!parent::beforeElementDelete($element))
+		{
+			return false;
+		}
+
 		$sitesService = Craft::$app->getSites();
 		$elementsService = Craft::$app->getElements();
 
+		// Craft hard-deletes element structure nodes even when soft-deleting an element, which means we lose all Neo
+		// field structure data (i.e. block order, levels) when its owner is soft-deleted.  We need to get all block
+		// structures for this field/owner before soft-deleting the blocks, and re-save them after the blocks are
+		// soft-deleted, so the blocks can be restored correctly if the owner element is restored.
+		$blockStructures = [];
+		$blocksBySite = [];
+
+		// Get the structures for each site
+		$structureRows = (new Query())
+			->select([
+				'id',
+				'structureId',
+				'ownerId',
+				'ownerSiteId',
+				'fieldId',
+			])
+			->from(['{{%neoblockstructures}}'])
+			->where([
+				'fieldId' => $this->id,
+				'ownerId' => $element->id,
+			])
+			->all();
+
+		foreach ($structureRows as $row)
+		{
+			$blockStructures[] = new BlockStructure($row);
+		}
+
+		// Get the blocks for each structure
+		foreach ($blockStructures as $blockStructure)
+		{
+			// Site IDs start from 1 -- let's treat non-localized blocks as site 0
+			$key = $blockStructure->ownerSiteId ?? 0;
+			$blocksBySite[$key] = Block::find()
+				->anyStatus()
+				->fieldId($this->id)
+				->ownerSiteId($blockStructure->ownerSiteId)
+				->owner($element)
+				->all();
+		}
+
+		// Delete all Neo blocks for this element and field
 		foreach ($sitesService->getAllSiteIds() as $siteId)
 		{
-			$query = Block::find();
-			$query->anyStatus();
-			$query->siteId($siteId);
-			$query->owner($element);
-			$query->inReverse();
-
-			$blocks = $query->all();
+			$blocks = Block::find()
+				->anyStatus()
+				->fieldId($this->id)
+				->siteId($siteId)
+				->owner($element)
+				->inReverse()
+				->all();
 
 			foreach ($blocks as $block)
 			{
+				$block->deletedWithOwner = true;
 				$elementsService->deleteElement($block);
 			}
 		}
 
-		return parent::beforeElementDelete($element);
+		// Recreate the block structures with the original block data
+		foreach ($blockStructures as $blockStructure)
+		{
+			$key = $blockStructure->ownerSiteId ?? 0;
+			Neo::$plugin->blocks->saveStructure($blockStructure);
+			Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
+		}
+
+		return true;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function afterElementRestore(ElementInterface $element)
+	{
+		$elementsService = Craft::$app->getElements();
+		$supportedSites = ElementHelper::supportedSitesForElement($element);
+
+		// Restore the Neo blocks that were deleted with $element
+		foreach ($supportedSites as $supportedSite)
+		{
+			$blocks = Block::find()
+				->anyStatus()
+				->siteId($supportedSite['siteId'])
+				->owner($element)
+				->trashed()
+				->andWhere(['neoblocks.deletedWithOwner' => true])
+				->all();
+
+			foreach ($blocks as $block)
+			{
+				$elementsService->restoreElement($block);
+			}
+		}
+
+		parent::afterElementRestore($element);
 	}
 
 	/**
@@ -709,6 +867,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 				$isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
 				$isCollapsed = isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false;
+				$isModified = isset($blockData['modified']) ? (bool)$blockData['modified'] : false;
 				$isNew = strpos($blockId, 'new') === 0;
 				$isDeleted = !isset($oldBlocksById[$blockId]);
 
@@ -737,6 +896,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 					$block->setOwner($element);
 					$block->setCollapsed($isCollapsed);
+					$block->setModified($isModified);
 					$block->enabled = $isEnabled;
 					$block->level = $blockLevel;
 

@@ -6,6 +6,7 @@ use yii\base\Component;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\db\Query;
 use craft\fields\BaseRelationField;
 use craft\helpers\Html;
 
@@ -112,8 +113,11 @@ class Fields extends Component
 
 				foreach ($field->getGroups() as $blockTypeGroup)
 				{
-					$blockTypeGroup->fieldId = $field->id;
-					Neo::$plugin->blockTypes->saveGroup($blockTypeGroup);
+					// since the old groups was deleted, we make sure to add in the new ones only and ignore writing the old groups to the project.yaml file.
+					if(empty($blockTypeGroup->id)) {
+						$blockTypeGroup->fieldId = $field->id;
+						Neo::$plugin->blockTypes->saveGroup($blockTypeGroup);
+					}
 				}
 
 				$transaction->commit();
@@ -179,6 +183,7 @@ class Fields extends Component
 	{
 		$dbService = Craft::$app->getDb();
 		$elementsService = Craft::$app->getElements();
+		$neoSettings = Neo::$plugin->getSettings();
 		$ownerSiteId = $field->localizeBlocks ? $owner->siteId : null;
 
 		// Is the owner being duplicated?
@@ -224,6 +229,30 @@ class Fields extends Component
 					$this->_applyFieldTranslationSettings($ownerId, $siteId, $field);
 				}
 
+				$resaveForNewSites = false;
+				if (!$field->localizeBlocks)
+				{
+					$supportedSites = $owner->getSupportedSites();
+					foreach ($blocks as $block)
+					{
+						if ($block->id !== null)
+						{
+							$savedSites = (new Query)
+								->select('siteId')
+								->from('{{%elements_sites}}')
+								->where(['elementId' => $block->id])
+								->all();
+
+							if (!in_array($siteId, $savedSites))
+							{
+								$resaveForNewSites = true;
+							}
+
+							break;
+						}
+					}
+				}
+
 				$blockIds = [];
 
 				foreach ($blocks as &$block)
@@ -238,16 +267,34 @@ class Fields extends Component
 							'propagating' => false,
 						]);
 						$block->setCollapsed($collapsed);
+						$block->cacheCollapsed();
 					}
 					else
 					{
-						$block->ownerId = $owner->id;
-						$block->ownerSiteId = $ownerSiteId;
-						$block->propagating = $owner->propagating;
-						$elementsService->saveElement($block, false, !$owner->propagating);
+						$isNew = $block->id === null;
+
+						if (!$isNew && $resaveForNewSites)
+						{
+							$block->setModified();
+						}
+
+						// $isModified = $neoSettings->saveModifiedBlocksOnly ? $block->getModified() : true;
+
+						// if ($isModified)
+						// {
+                  $block->ownerId = $owner->id;
+                  $block->ownerSiteId = $ownerSiteId;
+                  $block->propagating = $owner->propagating;
+                  $elementsService->saveElement($block, false, !$owner->propagating);
+						// }
+
+						// If `collapseAllBlocks` is enabled, new blocks should still have their initial state cached
+						if (!$neoSettings->collapseAllBlocks || $isNew)
+						{
+							$block->cacheCollapsed();
+						}
 					}
 
-					$block->cacheCollapsed();
 					$blockIds[] = $block->id;
 				}
 
@@ -333,12 +380,18 @@ class Fields extends Component
 				->ownerSiteId(':empty:')
 				->anyStatus();
 
+			$blockStructure = Neo::$plugin->blocks->getStructure($fieldId, $ownerId);
+
+			if ($blockStructure)
+			{
+				$query->structureId($blockStructure->structureId);
+			}
+
 			$blocks = $query->all();
 			$hasBlocks = !empty($blocks);
 
 			if ($hasBlocks)
 			{
-				$blockStructure = Neo::$plugin->blocks->getStructure($fieldId, $ownerId);
 				$relatedElementFields = [];
 
 				foreach ($blocks as $block)

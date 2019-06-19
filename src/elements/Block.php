@@ -114,6 +114,11 @@ class Block extends Element
 	public $typeId;
 
 	/**
+	 * @var bool
+	 */
+	public $deletedWithOwner = false;
+
+	/**
 	 * @var ElementInterface|null The owner.
 	 */
 	private $_owner;
@@ -127,6 +132,11 @@ class Block extends Element
 	 * @var bool|null Whether this block should display as collapsed.
 	 */
 	public $_collapsed;
+
+	/**
+	 * @var bool|null Whether this block has been modified.
+	 */
+	private $_modified;
 
 	/**
 	 * @var array|null All blocks belonging to the same field as this one.
@@ -248,11 +258,7 @@ class Block extends Element
 		elseif ($this->ownerId !== null)
 		{
 			$owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId);
-
-			if ($owner === null)
-			{
-				$this->_owner = false;
-			}
+			$this->_owner = $owner ?? false;
 		}
 
 		return $owner;
@@ -340,6 +346,26 @@ class Block extends Element
 			$cacheKey = "neoblock-$this->id-collapsed";
 			$cacheService->delete($cacheKey);
 		}
+	}
+
+	/**
+	 * Returns whether this block has been modified.
+	 * 
+	 * @return bool|null
+	 */
+	public function getModified()
+	{
+		return $this->_modified;
+	}
+
+	/**
+	 * Sets whether this block has been modified.
+	 * 
+	 * @param bool $value
+	 */
+	public function setModified(bool $value = true)
+	{
+		$this->_modified = $value;
 	}
 
 	/**
@@ -437,6 +463,38 @@ class Block extends Element
 	}
 
 	/**
+	 * @inheritdoc
+	 */
+	public function beforeDelete(): bool
+	{
+		if (!parent::beforeDelete())
+		{
+			return false;
+		}
+
+		// Update this block's DB row with whether it was deleted with its owner element
+		Craft::$app->getDb()
+			->createCommand()
+			->update('{{%neoblocks}}', [
+				'deletedWithOwner' => $this->deletedWithOwner,
+			], ['id' => $this->id], [], false)
+			->execute();
+
+		return true;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function afterDelete()
+	{
+		// Remove this block's collapsed state from the cache
+		$this->forgetCollapsed();
+
+		parent::afterDelete();
+	}
+
+	/**
 	 * Allows memoizing all blocks (including this one) for a particular field.
 	 * This is used for Live Preview mode, where certain methods, like `getAncestors`, create block queries which need
 	 * a local set of blocks to query against.
@@ -482,6 +540,31 @@ class Block extends Element
 	}
 
 	/**
+	 * Whether current view is a draft or not
+	 *
+	 * @return bool
+	 */
+	public function isDraftPreview()
+	{
+		// get token
+		$token = Craft::$app->request->getParam('token');
+
+		if(!empty($token)) 
+		{
+			// get the route of the token
+			$route = Craft::$app->tokens->getTokenRoute($token);
+
+			// check it's a shared entry
+			if($route && $route[0] == 'entries/view-shared-entry')
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function getAncestors(int $dist = null)
@@ -490,8 +573,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['ancestors']))
 			{
@@ -525,8 +609,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['parent']))
 			{
@@ -553,8 +638,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['descendants']))
 			{
@@ -588,8 +674,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['children']))
 			{
@@ -616,8 +703,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['siblings']))
 			{
@@ -643,8 +731,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['prevSibling']))
 			{
@@ -670,8 +759,9 @@ class Block extends Element
 		$isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
 		$hasLocalElements = isset($this->_allElements);
 		$isUsingMemoized = $this->isUsingMemoized();
+		$isDraftPreview = $this->isDraftPreview();
 
-		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized)
+		if (($isLivePreview && $hasLocalElements) || $isUsingMemoized || $isDraftPreview)
 		{
 			if (!isset($this->_liveQueries['nextSibling']))
 			{
@@ -700,7 +790,7 @@ class Block extends Element
 		$query->ownerId($this->ownerId);
 		$query->siteId($this->siteId);
 		$query->limit(null);
-		$query->anyStatus();
+		$query->status('enabled');
 		$query->indexBy('id');
 
 		return $query;

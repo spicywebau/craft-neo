@@ -36,3 +36,13 @@
 	size: 3,
 	errors: neoField.getErrors('maxBlocks'),
 }) }}
+
+{{ forms.textField({
+	label: "Max Top-Level Blocks"|t('neo'),
+	instructions: "The maximum number of top-level blocks the field is allowed to have."|t('neo'),
+	id: 'maxTopBlocks',
+	name: 'maxTopBlocks',
+	value: neoField.maxTopBlocks,
+	size: 3,
+	errors: neoField.getErrors('maxTopBlocks'),
+}) }}

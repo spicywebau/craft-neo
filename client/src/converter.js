@@ -2,16 +2,15 @@ import $ from 'jquery'
 
 const $fieldType = $('#type')
 const $fieldId = $('input[name="fieldId"]')
-const $matrixSettings = $('#Matrix')
+const $matrixSettings = $('#craft-fields-Matrix')
 
-if($fieldType.val() === 'Neo' && $fieldId.length > 0)
+if($fieldType.val() === 'benf\\neo\\Field' && $fieldId.length > 0)
 {
 	$matrixSettings.prepend(`
-		<hr>
 		<div class="field">
 			<div class="heading">
 				<label>${ Craft.t('neo', "Convert from Neo") }</label>
-				<div class="instructions"><p>${ Craft.t('neo', "This field is currently of the Neo type. You may automatically convert it to Matrix along with all of it's content.") }</p></div>
+				<div class="instructions"><p>${ Craft.t('neo', "This field is currently of the Neo type. You may automatically convert it to Matrix along with all of its content.") }</p></div>
 			</div>
 			<div class="input ltr">
 				<input id="Matrix-convert_button" type="button" class="btn submit" value="${ Craft.t('neo', "Convert") }">
@@ -51,7 +50,7 @@ if($fieldType.val() === 'Neo' && $fieldId.length > 0)
 
 		$spinner.removeClass('hidden')
 
-		Craft.postActionRequest('neo/convertToMatrix', { fieldId: $fieldId.val() }, (response, textStatus) =>
+		Craft.postActionRequest('neo/conversion/convert-to-matrix', { fieldId: $fieldId.val() }, (response, textStatus) =>
 		{
 			if(response.success)
 			{

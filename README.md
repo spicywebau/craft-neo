@@ -1,4 +1,4 @@
-<img src="docs/assets/icon.png" width="60">
+<img src="docs/assets/icon.png" width="100">
 
 # Neo
 #### A Matrix-like field type that uses existing fields
@@ -39,6 +39,13 @@ Let block types have the ability to contain child block types. You can filter wh
 <img src="docs/assets/feature5-1.png" width="790">
 <img src="docs/assets/feature5-2.png" width="622">
 
+### Copy/Paste Blocks
+A copied block can be pasted anywhere within its field that allows that particular block type to exist. 
+Neo copies/pastes a block with descendants, all descendant blocks are copied and pasted with the ancestor block.
+
+<img src="docs/assets/feature6-1.png" width="790">
+<img src="docs/assets/feature6-2.png" width="750">
+
 ## Documentation
 - [Installation](docs/installation.md)
 - [Creating Neo Fields](docs/creating-neo-fields.md)
@@ -46,5 +53,14 @@ Let block types have the ability to contain child block types. You can filter wh
 - [Eager Loading](docs/eager-loading.md)
 - [Resources](docs/resources.md)
 - [API](docs/api.md)
+- [Plugin Compatibility](docs/plugin-compatibility.md)
 - [FAQ](docs/faq.md)
+- [Content Migration Guide: Updating, Duplicating and Creating Block Types](docs/content-migration-guides/updating-duplicating-creating-block-types.md)
 - [Changelog](CHANGELOG.md)
+
+
+---
+
+*Created by [Benjamin Fleming](https://github.com/benjamminf)*
+<br>
+*Maintained by [Spicy Web](https://spicyweb.com.au)*

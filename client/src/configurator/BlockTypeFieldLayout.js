@@ -63,7 +63,7 @@ export default Garnish.Base.extend({
 		this._updateInstructions()
 		this._setupBlankTabs()
 		this._initReasonsPlugin()
-		this._initRelabelPlugin()
+		this._initFieldLabelsPlugin()
 		this._initQuickFieldPlugin()
 	},
 
@@ -256,17 +256,17 @@ export default Garnish.Base.extend({
 		})
 	},
 
-	_initRelabelPlugin()
+	_initFieldLabelsPlugin()
 	{
-		if(this._fld.relabel)
+		if(this._fld.fieldlabels)
 		{
-			const relabel = this._fld.relabel
+			const fieldlabels = this._fld.fieldlabels
 
 			const id = this.getBlockId()
-			relabel.namespace = `neo[relabel][${id}]`;
-			relabel.applyLabels(this.getId())
+			fieldlabels.namespace = `neo[fieldlabels][${id}]`;
+			fieldlabels.applyLabels(this.getId())
 
-			this._relabel = relabel
+			this._fieldlabels = fieldlabels
 		}
 	},
 
