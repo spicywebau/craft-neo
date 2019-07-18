@@ -7,6 +7,7 @@ use yii\base\InvalidConfigException;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\base\BlockElementInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
@@ -25,7 +26,7 @@ use benf\neo\records\Block as BlockRecord;
  * @author Benjamin Fleming
  * @since 2.0.0
  */
-class Block extends Element
+class Block extends Element implements BlockElementInterface
 {
 	/**
 	 * @inheritdoc
@@ -244,7 +245,7 @@ class Block extends Element
 	 *
 	 * @return ElementInterface|null
 	 */
-	public function getOwner()
+	public function getOwner(): ElementInterface
 	{
 		$owner = $this->_owner;
 
