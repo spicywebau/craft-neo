@@ -439,26 +439,28 @@ class Block extends Element implements BlockElementInterface
 	{
 		$record = null;
 
-		if ($isNew)
-		{
-			$record = new BlockRecord();
-			$record->id = $this->id;
-		}
-		else
-		{
-			$record = BlockRecord::findOne($this->id);
-
-			if (!$record)
+		if (!$this->propagating) {
+			if ($isNew)
 			{
-				throw new Exception("Invalid Neo block ID: $this->id");
+				$record = new BlockRecord();
+				$record->id = $this->id;
 			}
-		}
+			else
+			{
+				$record = BlockRecord::findOne($this->id);
 
-		$record->fieldId = $this->fieldId;
-		$record->ownerId = $this->ownerId;
-		$record->ownerSiteId = $this->ownerSiteId;
-		$record->typeId = $this->typeId;
-		$record->save(false);
+				if (!$record)
+				{
+					throw new Exception("Invalid Neo block ID: $this->id");
+				}
+			}
+
+			$record->fieldId = $this->fieldId;
+			$record->ownerId = $this->ownerId;
+			$record->ownerSiteId = $this->ownerSiteId;
+			$record->typeId = $this->typeId;
+			$record->save(false);
+		}
 
 		parent::afterSave($isNew);
 	}
