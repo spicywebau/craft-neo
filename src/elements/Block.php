@@ -247,22 +247,22 @@ class Block extends Element implements BlockElementInterface
 	 */
 	public function getOwner(): ElementInterface
 	{
-		$owner = $this->_owner;
-
-		if ($owner !== null)
-		{
-			if ($owner === false)
-			{
-				$owner = null;
+		if ($this->_owner === null) {
+			if ($this->ownerId === null) {
+				 throw new InvalidConfigException('Neo block is missing its owner ID');
 			}
-		}
-		elseif ($this->ownerId !== null)
-		{
-			$owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId);
-			$this->_owner = $owner ?? false;
-		}
+	
+			// if null check with the ownerSiteId
+			if(($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null) {
+				
+				// and if ownerSiteId is null the throw error
+				if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null) {
+					throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
+			  	}
+			}
+	  }
 
-		return $owner;
+	  return $this->_owner;
 	}
 
 	/**
