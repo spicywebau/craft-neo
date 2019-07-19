@@ -259,13 +259,10 @@ class Block extends Element implements BlockElementInterface
 					{
 						$site = Craft::$app->request->getQueryParam('site') !== null ? Craft::$app->sites->getSiteByHandle(Craft::$app->request->getQueryParam('site'))->id : Craft::$app->request->getParam('siteId');
 						
-						if($site)
+						if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $site)) === null)
 						{
-							if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $site)) === null)
-							{
-								if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null) {
-										throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
-								}
+							if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null) {
+									throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
 							}
 						}
 					}
