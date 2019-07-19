@@ -247,32 +247,29 @@ class Block extends Element implements BlockElementInterface
 	 */
 	public function getOwner(): ElementInterface
 	{
-		if ($this->_owner === null) {
-			if ($this->ownerId === null) {
-				 throw new InvalidConfigException('Neo block is missing its owner ID');
-			}
-	
-			// if null check with the ownerSiteId
-			if(($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null)
-			{
-				
-				// and if ownerSiteId is null the throw error
-				if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null)
-				{
-
-					$siteUrl = Craft::$app->request->getQueryParam('site');
-
-					if($siteUrl)
+		 if ($this->_owner === null) {
+			  if ($this->ownerId === null) {
+					throw new InvalidConfigException('Neo block is missing its owner ID');
+			  }
+			  // if null check with the ownerSiteId
+			  if(($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null)
+			  {
+					// and if ownerSiteId is null the throw error
+					if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null)
 					{
-						if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, Craft::$app->sites->getSiteByHandle($siteUrl))) === null)
+						$site = Craft::$app->request->getQueryParam('site') !== null ? Craft::$app->sites->getSiteByHandle(Craft::$app->request->getQueryParam('site'))->id : Craft::$app->request->getParam('siteId');
+						
+						if($site)
 						{
-							if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null) {
-								throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
+							if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $site)) === null)
+							{
+								if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null) {
+										throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
+								}
 							}
 						}
 					}
-			  	}
-			}
+			  }
 	  }
 
 	  return $this->_owner;
