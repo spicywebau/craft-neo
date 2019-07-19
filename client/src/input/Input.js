@@ -37,6 +37,7 @@ export default Garnish.Base.extend({
 	{
 		settings = Object.assign({}, _defaults, settings)
 
+		let _this = this;
 		this._templateNs = NS.parse(settings.namespace)
 		this._blockTypes = []
 		this._groups = []
@@ -45,6 +46,9 @@ export default Garnish.Base.extend({
 		this._maxBlocks = settings.maxBlocks
 		this._maxTopBlocks = settings.maxTopBlocks
 		this._static = settings['static']
+
+		this._form = $('form[data-confirm-unload]');
+		this._form.removeAttr('data-confirm-unload');
 
 		NS.enter(this._templateNs)
 
@@ -155,6 +159,77 @@ export default Garnish.Base.extend({
 		}
 
 		this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
+
+		function dataConfirmUnloadSetup() {
+			if(!(typeof _this._form.attr('data-confirm-unload') !== typeof undefined && _this._form.attr('data-confirm-unload') !== false)) {
+				_this._form.attr('data-confirm-unload', '');
+				_this.initConfirmUnloadForms();
+
+				_this._form.find('#main-content input').off('input', '#main-content input', dataConfirmUnloadSetup);
+			}
+		}
+
+		this._form.find('#main-content input').on('input', dataConfirmUnloadSetup);
+	},
+
+	initConfirmUnloadForms: function() {
+		// Look for forms that we should watch for changes on
+		this.$confirmUnloadForms = $('form[data-confirm-unload]');
+
+		if (!this.$confirmUnloadForms.length) {
+				return;
+		}
+
+		var $form, serialized;
+
+		for (var i = 0; i < this.$confirmUnloadForms.length; i++) {
+				$form = this.$confirmUnloadForms.eq(i);
+				if (!$form.data('initialSerializedValue')) {
+					if (typeof $form.data('serializer') === 'function') {
+						serialized = $form.data('serializer')();
+					} else {
+						serialized = $form.serialize();
+					}
+					$form.data('initialSerializedValue', serialized);
+				}
+				this.addListener($form, 'submit', function() {
+					this.removeListener(Garnish.$win, 'beforeunload');
+				});
+		}
+
+		this.addListener(Garnish.$win, 'beforeunload', function(ev) {
+				var confirmUnload = false;
+				var $form, serialized;
+				if (typeof Craft.livePreview !== 'undefined' && Craft.livePreview.inPreviewMode) {
+					confirmUnload = true;
+				} else {
+					for (var i = 0; i < this.$confirmUnloadForms.length; i++) {
+						$form = this.$confirmUnloadForms.eq(i);
+						if (typeof $form.data('serializer') === 'function') {
+								serialized = $form.data('serializer')();
+						} else {
+								serialized = $form.serialize();
+						}
+						if ($form.data('initialSerializedValue') !== serialized) {
+								confirmUnload = true;
+								break;
+						}
+					}
+				}
+
+				if (confirmUnload) {
+					var message = Craft.t('app', 'Any changes will be lost if you leave this page.');
+
+					if (ev) {
+						ev.originalEvent.returnValue = message;
+					}
+					else {
+						window.event.returnValue = message;
+					}
+
+					return message;
+				}
+		});
 	},
 
 	updateResponsiveness()
