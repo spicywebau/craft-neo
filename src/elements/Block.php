@@ -264,7 +264,7 @@ class Block extends Element implements BlockElementInterface
 
 					if($siteUrl)
 					{
-						if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, Craft::$app->sites->getSiteByHandle($siteUrl))) === null)
+						if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, Craft::$app->sites->getSiteByHandle($siteUrl)->id)) === null)
 						{
 							if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null) {
 								throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
