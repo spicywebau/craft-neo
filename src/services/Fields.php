@@ -1,6 +1,7 @@
 <?php
 namespace benf\neo\services;
 
+use benf\neo\elements\db\BlockQuery;
 use benf\neo\models\BlockStructure;
 use yii\base\Component;
 
@@ -9,6 +10,8 @@ use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\fields\BaseRelationField;
 use craft\helpers\Html;
+use craft\helpers\ArrayHelper;
+use craft\helpers\ElementHelper;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\Field;
@@ -179,182 +182,247 @@ class Fields extends Component
 	 * @param bool $isNew
 	 * @throws \Throwable
 	 */
-	public function saveValue(Field $field, ElementInterface $owner, bool $isNew)
+	public function saveValue(Field $field, ElementInterface $owner, $checkOtherSites = false)
 	{
 		$dbService = Craft::$app->getDb();
 		$elementsService = Craft::$app->getElements();
 		$neoSettings = Neo::$plugin->getSettings();
-		$ownerSiteId = $field->localizeBlocks ? $owner->siteId : null;
 
-		// Is the owner being duplicated?
-		if ($owner->duplicateOf !== null)
-		{
-			$query = $owner->duplicateOf->getFieldValue($field->handle);
+        $query = $owner->getFieldValue($field->handle);
+        $blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
+        $blockIds = [];
 
-			// If this is the first site the element is being duplicated for, or if the element is set to manage blocks
-			// on a per-site basis, then we need to duplicate them for the new element
-			$duplicateBlocks = !$owner->propagating || $field->localizeBlocks;
-		}
-		else
-		{
-			$query = $owner->getFieldValue($field->handle);
+        $transaction = $dbService->beginTransaction();
 
-			// If the element is brand new and propagating, and the field manages blocks on a per-site basis,
-			// then we will need to duplicate the blocks for this site
-			$duplicateBlocks = !$query->ownerId && $owner->propagating && $field->localizeBlocks;
-		}
+		try {
+		    foreach ($blocks as $block) {
+                $block->ownerId = $owner->id;
+                $block->propagating = $owner->propagating;
+                $elementsService->saveElement($block, false, !$owner->propagating);
 
-		$isSite = $query->siteId == $owner->siteId;
+                $isNew = $block->id === null;
+                $block->setModified();
 
-		if ($isSite)
-		{
-			// Skip if the element is propagating right now, and we don't need to duplicate the blocks
-			if ($owner->propagating && !$duplicateBlocks)
-			{
-				return;
-			}
+                $blockIds[] = $block->id;
+                if (!$neoSettings->collapseAllBlocks || $isNew)
+                {
+                    $block->cacheCollapsed();
+                }
+            }
 
-			// Get the Neo blocks
-			$blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
+		    $this->_deleteOtherBlocks($field, $owner, $blockIds);
 
-			$transaction = $dbService->beginTransaction();
-			try
-			{
-				// If we're duplicating an element, or the owner was a preexisting element,
-				// make sure that the blocks for this field/owner respect the field's translation setting
-				if ($owner->duplicateOf || $query->ownerId)
-				{
-					$ownerId = $owner->duplicateOf ? $owner->duplicateOf->id : $query->ownerId;
-					$siteId = $owner->duplicateOf ? $owner->duplicateOf->siteId : $query->siteId;
-					$this->_applyFieldTranslationSettings($ownerId, $siteId, $field);
-				}
+            if (!empty($blocks))
+            {
+                $blockStructure = new BlockStructure();
+                $blockStructure->fieldId = $field->id;
+                $blockStructure->ownerId = $owner->id;
 
-				$resaveForNewSites = false;
-				if (!$field->localizeBlocks)
-				{
-					$supportedSites = $owner->getSupportedSites();
-					foreach ($blocks as $block)
-					{
-						if ($block->id !== null)
-						{
-							$savedSites = (new Query)
-								->select('siteId')
-								->from('{{%elements_sites}}')
-								->where(['elementId' => $block->id])
-								->all();
+                Neo::$plugin->blocks->saveStructure($blockStructure);
+                Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+            }
 
-							if (!in_array($siteId, $savedSites))
-							{
-								$resaveForNewSites = true;
-							}
+            if ($owner->propagateAll && $field->propagationMethod != Field::PROPAGATION_METHOD_ALL) {
+                $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
+                $fieldSiteIds = $this->getSupportedSiteIdsForField($field, $owner);
+                $otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
 
-							break;
-						}
-					}
-				}
+                if (!empty($otherSiteIds)) {
+                    // Get the original element and duplicated element for each of those sites
+                    /** @var Element[] $otherTargets */
+                    $otherTargets = $owner::find()
+                        ->drafts($owner->getIsDraft())
+                        ->revisions($owner->getIsRevision())
+                        ->id($owner->id)
+                        ->siteId($otherSiteIds)
+                        ->anyStatus()
+                        ->all();
 
-				$blockIds = [];
+                    // Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
+                    $handledSiteIds = [];
+                    $cachedQuery = (clone $query)->anyStatus();
+                    $cachedQuery->setCachedResult($blocks);
+                    $owner->setFieldValue($field->handle, $cachedQuery);
 
-				foreach ($blocks as &$block)
-				{
-					if ($duplicateBlocks)
-					{
-						$collapsed = $block->getCollapsed();
-						$block = $elementsService->duplicateElement($block, [
-							'ownerId' => $owner->id,
-							'ownerSiteId' => $ownerSiteId,
-							'siteId' => $owner->siteId,
-							'propagating' => false,
-						]);
-						$block->setCollapsed($collapsed);
-						$block->cacheCollapsed();
-					}
-					else
-					{
-						$isNew = $block->id === null;
+                    foreach ($otherTargets as $otherTarget) {
+                        // Make sure we haven't already duplicated blocks for this site, via propagation from another site
+                        if (isset($handledSiteIds[$otherTarget->siteId])) {
+                            continue;
+                        }
+                        $this->duplicateBlocks($field, $owner, $otherTarget);
+                        // Make sure we don't duplicate blocks for any of the sites that were just propagated to
+                        $sourceSupportedSiteIds = $this->getSupportedSiteIdsForField($field, $otherTarget);
+                        $handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
+                    }
+                    $owner->setFieldValue($field->handle, $query);
+                }
+            }
 
-						if (!$isNew && $resaveForNewSites)
-						{
-							$block->setModified();
-						}
+            $transaction->commit();
 
-						// $isModified = $neoSettings->saveModifiedBlocksOnly ? $block->getModified() : true;
-
-						// if ($isModified)
-						// {
-                  $block->ownerId = $owner->id;
-                  $block->ownerSiteId = $ownerSiteId;
-                  $block->propagating = $owner->propagating;
-                  $elementsService->saveElement($block, false, !$owner->propagating);
-						// }
-
-						// If `collapseAllBlocks` is enabled, new blocks should still have their initial state cached
-						if (!$neoSettings->collapseAllBlocks || $isNew)
-						{
-							$block->cacheCollapsed();
-						}
-					}
-
-					$blockIds[] = $block->id;
-				}
-
-				unset($block);
-
-				// Now find any blocks that need to be deleted
-				// The blocks need to be returned in reverse order, as trying to delete them in regular order can
-				// cause a level-related SQL error
-				$deleteQuery = Block::find()
-					->anyStatus()
-					->ownerId($owner->id)
-					->fieldId($field->id)
-					->inReverse()
-					->where(['not', ['elements.id' => $blockIds] ]);
-
-				if ($field->localizeBlocks)
-				{
-					$deleteQuery->ownerSiteId($owner->siteId);
-				}
-				else
-				{
-					$deleteQuery->siteId($owner->siteId);
-				}
-
-				$deleteBlocks = $deleteQuery->all();
-
-				foreach ($deleteBlocks as $deleteBlock)
-				{
-					$deleteBlock->forgetCollapsed();
-					$elementsService->deleteElement($deleteBlock);
-				}
-
-				// Delete any existing block structures associated with this field/owner/site combination
-				while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $ownerSiteId)) !== null)
-				{
-					Neo::$plugin->blocks->deleteStructure($blockStructure);
-				}
-
-				// Now, if there are blocks, save their structure
-				if (!empty($blocks))
-				{
-					$blockStructure = new BlockStructure();
-					$blockStructure->fieldId = $field->id;
-					$blockStructure->ownerId = $owner->id;
-					$blockStructure->ownerSiteId = $ownerSiteId;
-
-					Neo::$plugin->blocks->saveStructure($blockStructure);
-					Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
-				}
-
-				$transaction->commit();
-			}
-			catch (\Throwable $e)
-			{
-				$transaction->rollBack();
-
-				throw $e;
-			}
-		}
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
 	}
+
+    /**
+     * Duplicates Neo blocks from one owner element to another.
+     *
+     * @param Field $field The Neo field to duplicate blocks for
+     * @param ElementInterface $source The source element blocks should be duplicated from
+     * @param ElementInterface $target The target element blocks should be duplicated to
+     * @param bool $checkOtherSites Whether to duplicate blocks for the source element's other supported sites
+     * @throws \Throwable if reasons
+     */
+    public function duplicateBlocks(Field $field, ElementInterface $source, ElementInterface $target, bool $checkOtherSites = false)
+    {
+        /** @var Element $source */
+        /** @var Element $target */
+        $elementsService = Craft::$app->getElements();
+        /** @var BlockQuery $query */
+        $query = $source->getFieldValue($field->handle);
+        /** @var Block[] $blocks */
+        $blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
+        $newBlockIds = [];
+        $transaction = Craft::$app->getDb()->beginTransaction();
+
+        try {
+            foreach ($blocks as $block) {
+                /** @var Block $newBlock */
+                $newBlock = $elementsService->duplicateElement($block, [
+                    'ownerId' => $target->id,
+                    'owner' => $target,
+                    'siteId' => $target->siteId,
+                    'propagating' => false,
+                ]);
+                $newBlockIds[] = $newBlock->id;
+            }
+            // Delete any blocks that shouldn't be there anymore
+            $this->_deleteOtherBlocks($field, $target, $newBlockIds);
+            $transaction->commit();
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+        // Duplicate blocks for other sites as well?
+        if ($checkOtherSites && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
+            // Find the target's site IDs that *aren't* supported by this site's Matrix blocks
+            $targetSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($target), 'siteId');
+            $fieldSiteIds = $this->getSupportedSiteIdsForField($field, $target);
+            $otherSiteIds = array_diff($targetSiteIds, $fieldSiteIds);
+            if (!empty($otherSiteIds)) {
+                // Get the original element and duplicated element for each of those sites
+                /** @var Element[] $otherSources */
+                $otherSources = $target::find()
+                    ->drafts($source->getIsDraft())
+                    ->revisions($source->getIsRevision())
+                    ->id($source->id)
+                    ->siteId($otherSiteIds)
+                    ->anyStatus()
+                    ->all();
+                /** @var Element[] $otherTargets */
+                $otherTargets = $target::find()
+                    ->drafts($target->getIsDraft())
+                    ->revisions($target->getIsRevision())
+                    ->id($target->id)
+                    ->siteId($otherSiteIds)
+                    ->anyStatus()
+                    ->indexBy('siteId')
+                    ->all();
+                // Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
+                $handledSiteIds = [];
+                foreach ($otherSources as $otherSource) {
+                    // Make sure the target actually exists for this site
+                    if (!isset($otherTargets[$otherSource->siteId])) {
+                        continue;
+                    }
+                    // Make sure we haven't already duplicated blocks for this site, via propagation from another site
+                    if (isset($handledSiteIds[$otherSource->siteId])) {
+                        continue;
+                    }
+                    $this->duplicateBlocks($field, $otherSource, $otherTargets[$otherSource->siteId]);
+                    // Make sure we don't duplicate blocks for any of the sites that were just propagated to
+                    $sourceSupportedSiteIds = $this->getSupportedSiteIdsForField($field, $otherSource);
+                    $handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the site IDs that are supported by Matrix blocks for the given Matrix field and owner element.
+     *
+     * @param MatrixField $field
+     * @param ElementInterface $owner
+     * @throws \Throwable if reasons
+     * @return int[]
+     */
+    public function getSupportedSiteIdsForField(Field $field, ElementInterface $owner): array
+    {
+        /** @var Element $owner */
+        /** @var Site[] $allSites */
+        $allSites = ArrayHelper::index(Craft::$app->getSites()->getAllSites(), 'id');
+        $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
+        $siteIds = [];
+
+        foreach ($ownerSiteIds as $siteId) {
+            switch ($field->propagationMethod) {
+                case Field::PROPAGATION_METHOD_NONE:
+                    $include = (int)$siteId === (int)$owner->siteId;
+                    break;
+                case Field::PROPAGATION_METHOD_SITE_GROUP:
+                    $include = (int)$allSites[$siteId]->groupId === (int)$allSites[$owner->siteId]->groupId;
+                    break;
+                case Field::PROPAGATION_METHOD_LANGUAGE:
+                    $include = (int)$allSites[$siteId]->language === (int)$allSites[$owner->siteId]->language;
+                    break;
+                default:
+                    $include = true;
+                    break;
+            }
+            if ($include) {
+                $siteIds[] = $siteId;
+            }
+        }
+        return $siteIds;
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Deletes blocks from an owner element
+     *
+     * @param Field $field The Neo field
+     * @param ElementInterface The owner element
+     * @param int[] $except Block IDs that should be left alone
+     * @throws \Throwable if reasons
+     */
+    private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
+    {
+        /** @var Element $owner */
+        $deleteBlocks = Block::find()
+            ->anyStatus()
+            ->ownerId($owner->id)
+            ->fieldId($field->id)
+            ->siteId($owner->siteId)
+            ->inReverse()
+            ->andWhere(['not', ['elements.id' => $except]])
+            ->all();
+
+        $elementsService = Craft::$app->getElements();
+
+        foreach ($deleteBlocks as $deleteBlock) {
+            $elementsService->deleteElement($deleteBlock);
+        }
+
+        // Delete any existing block structures associated with this field/owner/site combination
+        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id)) !== null)
+        {
+            Neo::$plugin->blocks->deleteStructure($blockStructure);
+        }
+    }
 
 	/**
 	 * Applies translation settings for this field to its blocks for a given owner and owner site ID.
@@ -362,6 +430,7 @@ class Fields extends Component
 	 * @param int $ownerId The ID of the blocks' owner.
 	 * @param int $ownerSiteId The ID of the blocks' owner's site.
 	 * @param Field $field The field having its translation settings applied to its blocks.
+     * @throws \Throwable if reasons
 	 */
 	private function _applyFieldTranslationSettings(int $ownerId, int $ownerSiteId, Field $field)
 	{

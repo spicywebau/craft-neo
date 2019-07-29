@@ -1,6 +1,7 @@
 <?php
 namespace benf\neo;
 
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\EagerLoadingFieldInterface;
 use craft\base\Element;
@@ -11,8 +12,8 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\validators\ArrayValidator;
+use craft\queue\jobs\ResaveElements;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\assets\FieldAsset;
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
@@ -31,6 +32,11 @@ use benf\neo\validators\FieldValidator;
  */
 class Field extends BaseField implements EagerLoadingFieldInterface
 {
+    const PROPAGATION_METHOD_NONE = 'none';
+    const PROPAGATION_METHOD_SITE_GROUP = 'siteGroup';
+    const PROPAGATION_METHOD_LANGUAGE = 'language';
+    const PROPAGATION_METHOD_ALL = 'all';
+
 	/**
 	 * @inheritdoc
 	 */
@@ -59,6 +65,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 	/**
 	 * @var bool Whether this field is translatable.
+     * @deprecated in 3.2. Use [[$propagationMethod]] instead
 	 */
 	public $localizeBlocks = false;
 
@@ -87,12 +94,71 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	 */
 	private $_blockTypeGroups;
 
+    /**
+     * @var string Propagation method
+     *
+     * This will be set to one of the following:
+     *
+     * - `none` – Only save b locks in the site they were created in
+     * - `siteGroup` – Save  blocks to other sites in the same site group
+     * - `language` – Save blocks to other sites with the same language
+     * - `all` – Save blocks to all sites supported by the owner element
+     *
+     * @since 2.4.0
+     */
+    public $propagationMethod = self::PROPAGATION_METHOD_ALL;
+
+    /**
+     * @var string The old propagation method for this field
+     */
+    private $_oldPropagationMethod;
+
+    // Public Methods
+    // =========================================================================
+    /**
+     * @inheritdoc
+     */
+    public function __construct($config = [])
+    {
+        if (array_key_exists('localizeBlocks', $config)) {
+            $config['propagationMethod'] = $config['localizeBlocks'] ? 'none' : 'all';
+            unset($config['localizeBlocks']);
+        }
+        parent::__construct($config);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        // Set localizeBlocks in case anything is still checking it
+        $this->localizeBlocks = $this->propagationMethod === self::PROPAGATION_METHOD_NONE;
+        parent::init();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function settingsAttributes(): array
+    {
+        return ArrayHelper::withoutValue(parent::settingsAttributes(), 'localizeBlocks');
+    }
+
 	/**
 	 * @inheritdoc
 	 */
 	public function rules(): array
 	{
 		$rules = parent::rules();
+        $rules[] = [
+            ['propagationMethod'], 'in', 'range' => [
+                self::PROPAGATION_METHOD_NONE,
+                self::PROPAGATION_METHOD_SITE_GROUP,
+                self::PROPAGATION_METHOD_LANGUAGE,
+                self::PROPAGATION_METHOD_ALL
+            ]
+        ];
 		$rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks'], 'integer', 'min' => 0];
 
 		return $rules;
@@ -143,6 +209,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				$newBlockType->fieldId = $this->id;
 				$newBlockType->name = $blockType['name'];
 				$newBlockType->handle = $blockType['handle'];
+				$newBlockType->translationMethod = BaseField::TRANSLATION_METHOD_NONE;
 				$newBlockType->maxBlocks = (int)$blockType['maxBlocks'];
 				$newBlockType->maxChildBlocks = (int)$blockType['maxChildBlocks'];
 				$newBlockType->topLevel = (bool)$blockType['topLevel'];
@@ -301,89 +368,57 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 		if ($value instanceof ElementQueryInterface)
 		{
-			$query = $value;
+			return $value;
 		}
-		else
-		{
-			$query = Block::find();
-			$blockStructure = null;
 
-			// Existing element?
-			$existingElement = $element && $element->id;
-			if ($existingElement)
-			{
-				$query->ownerId($element->id);
-			}
-			else
-			{
-				$query->id(false);
-			}
+        $query = Block::find();
+        $blockStructure = null;
 
-			$query
-				->fieldId($this->id)
-				->siteId($element->siteId ?? null);
+        // Existing element?
+        $existingElement = $element && $element->id;
+        if ($existingElement)
+        {
+            $query->ownerId($element->id);
+        }
+        else
+        {
+            $query->id(false);
+        }
 
-			// If an owner element exists, set the appropriate owner site ID and block structure, depending on whether
-			// the field is set to manage blocks on a per-site basis
-			if ($existingElement)
-			{
-				if ($this->localizeBlocks)
-				{
-					// Look for the block structure with the owner site ID
-					// If a structure is not found, then look for one without an owner site ID set
-					$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $element->siteId);
+        $query->fieldId($this->id)->siteId($element->siteId ?? null);
 
-					if ($blockStructure)
-					{
-						$query->ownerSiteId($element->siteId);
-					}
-					else
-					{
-						$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
-					}
-				}
-				else
-				{
-					// Look for the block structure without looking for a specific owner site ID
-					// If the structure's owner site ID is not null but does not match the owner's site ID, we did not
-					// find the correct structure, so we'll need to set the query's owner site ID and look for the
-					// structure with that owner site ID
-					$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
+        // If an owner element exists, set the appropriate owner site ID and block structure, depending on whether
+        // the field is set to manage blocks on a per-site basis
+        if ($existingElement)
+        {
+            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
+        }
 
-					if ($blockStructure && $blockStructure->ownerSiteId && $blockStructure->ownerSiteId != $element->siteId)
-					{
-						$query->ownerSiteId($element->siteId);
-						$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $element->siteId);
-					}
-				}
-			}
+        // If we found the block structure, set the query's structure ID
+        if ($blockStructure)
+        {
+            $query->structureId($blockStructure->structureId);
+        }
 
-			// If we found the block structure, set the query's structure ID
-			if ($blockStructure)
-			{
-				$query->structureId($blockStructure->structureId);
-			}
+        // Set the initially matched elements if $value is already set, which is the case if there was a validation
+        // error or we're loading an entry revision.
+        if (is_array($value) || $value === '')
+        {
+            $elements = $this->_createBlocksFromSerializedData($value, $element);
 
-			// Set the initially matched elements if $value is already set, which is the case if there was a validation
-			// error or we're loading an entry revision.
-			if (is_array($value) || $value === '')
-			{
-				$elements = $this->_createBlocksFromSerializedData($value, $element);
+            if (!Craft::$app->getRequest()->getIsLivePreview())
+            {
+                $query->anyStatus();
+            }
+            else
+            {
+                $query->status = Element::STATUS_ENABLED;
+            }
 
-				if (!Craft::$app->getRequest()->getIsLivePreview())
-				{
-					$query->anyStatus();
-				}
-				else
-				{
-					$query->status = Element::STATUS_ENABLED;
-				}
-
-				$query->limit = null;
-				$query->setCachedResult($elements);
-				$query->useMemoized($elements);
-			}
-		}
+            $query->limit = null;
+            $query->setCachedResult($elements);
+            $query->useMemoized($elements);
+        }
 
 		return $query;
 	}
@@ -444,7 +479,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	 */
 	public function getIsTranslatable(ElementInterface $element = null): bool
 	{
-		return $this->localizeBlocks;
+		return $this->propagationMethod !== self::PROPAGATION_METHOD_ALL;
 	}
 
 	/**
@@ -544,19 +579,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 					'and',
 					'[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
 					'[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
-					[
-						'or',
-						'[[neoblockstructures.ownerSiteId]] = [[neoblocks.ownerSiteId]]',
-
-						// If there is no site ID set (in other words, `ownerSiteId` is `null`), then the above
-						// comparison will not be true for some reason. So if it's not evaluated to true, then check
-						// to see if both `ownerSiteId` properties are `null`.
-						[
-							'and',
-							'[[neoblockstructures.ownerSiteId]] is null',
-							'[[neoblocks.ownerSiteId]] is null',
-						],
-					],
 				]
 			)
 			->leftJoin(
@@ -584,6 +606,21 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	{
 		Neo::$plugin->fields->save($this);
 
+        // If the propagation method just changed, resave all the Matrix blocks
+        if ($this->_oldPropagationMethod && $this->propagationMethod !== $this->_oldPropagationMethod) {
+            Craft::$app->getQueue()->push(new ResaveElements([
+                'elementType' => Block::class,
+                'criteria' => [
+                    'fieldId' => $this->id,
+                    'siteId' => '*',
+                    'unique' => true,
+                    'status' => null,
+                    'enabledForSite' => false,
+                ]
+            ]));
+            $this->_oldPropagationMethod = null;
+        }
+
 		parent::afterSave($isNew);
 	}
 
@@ -602,10 +639,30 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	 */
 	public function afterElementSave(ElementInterface $element, bool $isNew)
 	{
-		Neo::$plugin->fields->saveValue($this, $element, $isNew);
+		Neo::$plugin->fields->saveValue($this, $element);
 
 		parent::afterElementSave($element, $isNew);
 	}
+
+    /**
+     * @inheritdoc
+     */
+//    public function afterElementPropagate(ElementInterface $element, bool $isNew)
+//    {
+//        /** @var Element $element */
+//        if ($element->duplicateOf !== null) {
+//             Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true);
+//        } else {
+//            Neo::$plugin->fields->saveValue($this, $element, $isNew);
+//        }
+//
+//        // Reset the field value if this is a new element
+//        if ($element->duplicateOf || $isNew) {
+//            $element->setFieldValue($this->handle, null);
+//        }
+//
+//        parent::afterElementPropagate($element, $isNew);
+//    }
 
 	/**
 	 * @inheritdoc
@@ -633,7 +690,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				'id',
 				'structureId',
 				'ownerId',
-				'ownerSiteId',
 				'fieldId',
 			])
 			->from(['{{%neoblockstructures}}'])
@@ -652,11 +708,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		foreach ($blockStructures as $blockStructure)
 		{
 			// Site IDs start from 1 -- let's treat non-localized blocks as site 0
-			$key = $blockStructure->ownerSiteId ?? 0;
+			$key = $blockStructure->id ?? 0;
 			$blocksBySite[$key] = Block::find()
 				->anyStatus()
 				->fieldId($this->id)
-				->ownerSiteId($blockStructure->ownerSiteId)
 				->owner($element)
 				->all();
 		}
@@ -682,7 +737,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		// Recreate the block structures with the original block data
 		foreach ($blockStructures as $blockStructure)
 		{
-			$key = $blockStructure->ownerSiteId ?? 0;
+			$key = $blockStructure->id ?? 0;
 			Neo::$plugin->blocks->saveStructure($blockStructure);
 			Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
 		}

@@ -38,6 +38,7 @@ class BlockQuery extends ElementQuery
 
 	/**
 	 * @var int|array|null The owner site ID to query for.
+     * @deprecated in 2.4.0. Use [[$siteId]] instead.
 	 */
 	public $ownerSiteId;
 
@@ -73,7 +74,7 @@ class BlockQuery extends ElementQuery
 		{
 			case 'ownerSite':
 			{
-				$this->ownerSite($value);
+                Craft::$app->getDeprecator()->log('BlockQuery::ownerSite()', 'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
 			}
 			break;
 			case 'type':
@@ -83,8 +84,7 @@ class BlockQuery extends ElementQuery
 			break;
 			case 'ownerLocale':
 			{
-				$deprecatorService->log('BlockQuery::ownerLocale()', "The “ownerLocale” Neo block query param has been deprecated. Use “ownerSite” or “ownerSiteId” instead.");
-				$this->ownerSite($value);
+				$deprecatorService->log('BlockQuery::ownerLocale()', "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
 			}
 			break;
 			default:
@@ -138,12 +138,7 @@ class BlockQuery extends ElementQuery
 	 */
 	public function ownerSiteId($value)
 	{
-		$this->ownerSiteId = $value;
-
-		if ($value && strtolower($value) !== ':empty:')
-		{
-			$this->siteId = (int)$value;
-		}
+        Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()', 'The “ownerSiteId” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
 
 		return $this;
 	}
@@ -157,21 +152,7 @@ class BlockQuery extends ElementQuery
 	 */
 	public function ownerSite($value)
 	{
-		if ($value instanceof Site)
-		{
-			$this->ownerSiteId($value->id);
-		}
-		else
-		{
-			$site = Craft::$app->getSites()->getSiteByHandle($value);
-
-			if (!$site)
-			{
-				throw new Exception("Invalid site handle: $value");
-			}
-
-			$this->ownerSiteId($site->id);
-		}
+        Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()', 'The “ownerSiteId” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
 
 		return $this;
 	}
@@ -372,7 +353,7 @@ class BlockQuery extends ElementQuery
 
 		if (!$this->structureId && $this->fieldId && $this->ownerId)
 		{
-			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->ownerSiteId);
+			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId);
 
 			if ($blockStructure)
 			{
@@ -383,7 +364,7 @@ class BlockQuery extends ElementQuery
 		$this->query->select([
 			'neoblocks.fieldId',
 			'neoblocks.ownerId',
-			'neoblocks.ownerSiteId',
+//			'neoblocks.siteId',
 			'neoblocks.typeId',
 		]);
 
@@ -397,10 +378,10 @@ class BlockQuery extends ElementQuery
 			$this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $this->ownerId));
 		}
 
-		if ($this->ownerSiteId)
-		{
-			$this->subQuery->andWhere(Db::parseParam('neoblocks.ownerSiteId', $this->ownerSiteId));
-		}
+//		if ($this->siteId)
+//		{
+//			$this->subQuery->andWhere(Db::parseParam('neoblocks.siteId', $this->siteId));
+//		}
 
 		if ($this->typeId !== null)
 		{
@@ -613,7 +594,8 @@ class BlockQuery extends ElementQuery
 
 		$nextSiblings = [];
 
-		for ($i = $index + 1; $i < count($elements); $i++)
+		$elementsCount = count($elements);
+		for ($i = $index + 1; $i < $elementsCount; $i++)
 		{
 			$element = $elements[$i];
 

@@ -180,11 +180,6 @@ class Blocks extends Component
 				'ownerId' => $ownerId,
 			]);
 
-		if ($ownerSiteId)
-		{
-			$query->andWhere(['ownerSiteId' => $ownerSiteId]);
-		}
-
 		$result = $query->one();
 
 		if ($result)
@@ -291,7 +286,6 @@ class Blocks extends Component
 					->delete('{{%neoblockstructures}}', [
 						'id' => $blockStructure->id,
 						'ownerId' => $blockStructure->ownerId,
-						'ownerSiteId' => $blockStructure->ownerSiteId,
 						'fieldId' => $blockStructure->fieldId,
 					])
 					->execute();
