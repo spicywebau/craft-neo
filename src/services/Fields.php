@@ -196,12 +196,15 @@ class Fields extends Component
 
 		try {
 		    foreach ($blocks as $block) {
-                $block->ownerId = $owner->id;
+                $block->ownerId = (int)$owner->id;
                 $block->propagating = $owner->propagating;
                 $elementsService->saveElement($block, false, !$owner->propagating);
 
                 $isNew = $block->id === null;
-                $block->setModified();
+
+                if(!$isNew) {
+                    $block->setModified();
+                }
 
                 $blockIds[] = $block->id;
                 if (!$neoSettings->collapseAllBlocks || $isNew)
@@ -215,8 +218,8 @@ class Fields extends Component
             if (!empty($blocks))
             {
                 $blockStructure = new BlockStructure();
-                $blockStructure->fieldId = $field->id;
-                $blockStructure->ownerId = $owner->id;
+                $blockStructure->fieldId = (int)$field->id;
+                $blockStructure->ownerId = (int)$owner->id;
 
                 Neo::$plugin->blocks->saveStructure($blockStructure);
                 Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);

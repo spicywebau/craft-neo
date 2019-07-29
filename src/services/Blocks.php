@@ -167,10 +167,9 @@ class Blocks extends Component
 	 *
 	 * @param int $fieldId The field ID to look for.
 	 * @param int $ownerId The owner ID to look for.
-	 * @param int|null $ownerSiteId The owner site ID to look for, if any.
 	 * @return BlockStructure|null The block structure found, if any.
 	 */
-	public function getStructure(int $fieldId, int $ownerId, $ownerSiteId = null)
+	public function getStructure(int $fieldId, int $ownerId)
 	{
 		$blockStructure = null;
 
@@ -241,7 +240,6 @@ class Blocks extends Component
 
 			$record->structureId = $blockStructure->structureId;
 			$record->ownerId = $blockStructure->ownerId;
-			$record->ownerSiteId = $blockStructure->ownerSiteId;
 			$record->fieldId = $blockStructure->fieldId;
 
 			$record->save(false);
@@ -382,7 +380,6 @@ class Blocks extends Component
 				'id',
 				'structureId',
 				'ownerId',
-				'ownerSiteId',
 				'fieldId',
 			])
 			->from(['{{%neoblockstructures}}']);

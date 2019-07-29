@@ -255,8 +255,9 @@ class Block extends Element implements BlockElementInterface
 	{
 		 if ($this->_owner === null) {
              if ($this->ownerId === null) {
-                 throw new InvalidConfigException('Matrix block is missing its owner ID');
+                 throw new InvalidConfigException('Neo block is missing its owner ID');
              }
+
              if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null) {
                  throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
              }
@@ -446,7 +447,7 @@ class Block extends Element implements BlockElementInterface
 			if ($isNew)
 			{
 				$record = new BlockRecord();
-				$record->id = $this->id;
+				$record->id = (int)$this->id;
 			}
 			else
 			{
@@ -458,10 +459,9 @@ class Block extends Element implements BlockElementInterface
 				}
 			}
 
-			$record->fieldId = $this->fieldId;
-			$record->ownerId = $this->ownerId;
-//			$record->ownerSiteId = $this->ownerSiteId;
-			$record->typeId = $this->typeId;
+			$record->fieldId = (int)$this->fieldId;
+			$record->ownerId = (int)$this->ownerId;
+			$record->typeId = (int)$this->typeId;
 			$record->save(false);
 		}
 

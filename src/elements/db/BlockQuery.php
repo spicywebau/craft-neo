@@ -152,7 +152,7 @@ class BlockQuery extends ElementQuery
 	 */
 	public function ownerSite($value)
 	{
-        Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()', 'The “ownerSiteId” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
+        Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()', 'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
 
 		return $this;
 	}
@@ -332,13 +332,15 @@ class BlockQuery extends ElementQuery
 	 */
 	protected function beforePrepare(): bool
 	{
+
+//	    throw new \Exception(print_r($this, true));
 		$this->joinElementTable('neoblocks');
 
 		$isSaved = $this->id && is_numeric($this->id);
 
 		if ($isSaved)
 		{
-			foreach (['fieldId', 'ownerId', 'ownerSiteId'] as $idProperty)
+			foreach (['fieldId', 'ownerId'] as $idProperty)
 			{
 				if (!$this->$idProperty)
 				{

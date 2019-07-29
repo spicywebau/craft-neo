@@ -13,6 +13,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\validators\ArrayValidator;
 use craft\queue\jobs\ResaveElements;
+use craft\services\Elements;
 
 use benf\neo\assets\FieldAsset;
 use benf\neo\elements\Block;
@@ -21,6 +22,7 @@ use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\validators\FieldValidator;
+use yii\db\Exception;
 
 /**
  * Class Field
@@ -209,7 +211,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				$newBlockType->fieldId = $this->id;
 				$newBlockType->name = $blockType['name'];
 				$newBlockType->handle = $blockType['handle'];
-				$newBlockType->translationMethod = BaseField::TRANSLATION_METHOD_NONE;
 				$newBlockType->maxBlocks = (int)$blockType['maxBlocks'];
 				$newBlockType->maxChildBlocks = (int)$blockType['maxChildBlocks'];
 				$newBlockType->topLevel = (bool)$blockType['topLevel'];
@@ -449,30 +450,30 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function modifyElementsQuery(ElementQueryInterface $query, $value)
-	{
-		if ($value === 'not :empty:')
-		{
-			$value = ':notempty:';
-		}
-
-		if ($value === ':notempty:' || $value === ':empty:')
-		{
-			$alias = 'neoblocks_' . $this->handle;
-			$operator = $value === ':notempty:' ? '!=' : '=';
-
-			$query->subQuery->andWhere(
-				"(select count([[{$alias}.id]]) from {{%neoblocks}} {{{$alias}}} where [[{$alias}.ownerId]] = [[elements.id]] and [[{$alias}.fieldId]] = :fieldId) {$operator} 0",
-				[':fieldId' => $this->id]
-			);
-		}
-		elseif ($value !== null)
-		{
-			return false;
-		}
-
-		return null;
-	}
+//	public function modifyElementsQuery(ElementQueryInterface $query, $value)
+//	{
+//		if ($value === 'not :empty:')
+//		{
+//			$value = ':notempty:';
+//		}
+//
+//		if ($value === ':notempty:' || $value === ':empty:')
+//		{
+//			$alias = 'neoblocks_' . $this->handle;
+//			$operator = $value === ':notempty:' ? '!=' : '=';
+//
+//			$query->subQuery->andWhere(
+//				"(select count([[{$alias}.id]]) from {{%neoblocks}} {{{$alias}}} where [[{$alias}.ownerId]] = [[elements.id]] and [[{$alias}.fieldId]] = :fieldId) {$operator} 0",
+//				[':fieldId' => $this->id]
+//			);
+//		}
+//		elseif ($value !== null)
+//		{
+//			return false;
+//		}
+//
+//		return null;
+//	}
 
 	/**
 	 * @inheritdoc
@@ -637,32 +638,32 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function afterElementSave(ElementInterface $element, bool $isNew)
-	{
-		Neo::$plugin->fields->saveValue($this, $element);
-
-		parent::afterElementSave($element, $isNew);
-	}
+//	public function afterElementSave(ElementInterface $element, bool $isNew)
+//	{
+//		Neo::$plugin->fields->saveValue($this, $element);
+//
+//		parent::afterElementSave($element, $isNew);
+//	}
 
     /**
      * @inheritdoc
      */
-//    public function afterElementPropagate(ElementInterface $element, bool $isNew)
-//    {
-//        /** @var Element $element */
-//        if ($element->duplicateOf !== null) {
-//             Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true);
-//        } else {
-//            Neo::$plugin->fields->saveValue($this, $element, $isNew);
-//        }
-//
-//        // Reset the field value if this is a new element
-//        if ($element->duplicateOf || $isNew) {
-//            $element->setFieldValue($this->handle, null);
-//        }
-//
-//        parent::afterElementPropagate($element, $isNew);
-//    }
+    public function afterElementPropagate(ElementInterface $element, bool $isNew)
+    {
+        /** @var Element $element */
+        if ($element->duplicateOf !== null) {
+             Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true);
+        } else {
+            Neo::$plugin->fields->saveValue($this, $element, $isNew);
+        }
+
+        // Reset the field value if this is a new element
+        if ($element->duplicateOf || $isNew) {
+            $element->setFieldValue($this->handle, null);
+        }
+
+        parent::afterElementPropagate($element, $isNew);
+    }
 
 	/**
 	 * @inheritdoc
@@ -708,7 +709,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		foreach ($blockStructures as $blockStructure)
 		{
 			// Site IDs start from 1 -- let's treat non-localized blocks as site 0
-			$key = $blockStructure->id ?? 0;
+			$key = $blockStructure->ownerId ?? 0;
 			$blocksBySite[$key] = Block::find()
 				->anyStatus()
 				->fieldId($this->id)
@@ -737,7 +738,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		// Recreate the block structures with the original block data
 		foreach ($blockStructures as $blockStructure)
 		{
-			$key = $blockStructure->id ?? 0;
+			$key = $blockStructure->ownerId ?? 0;
 			Neo::$plugin->blocks->saveStructure($blockStructure);
 			Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
 		}
@@ -814,11 +815,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 		if ($value instanceof BlockQuery)
 		{
-			$value = $value
-				->limit(null)
-				->anyStatus()
-				->all();
+//		    throw new \Exception(print_r($value, true));
+			$value = $value->getCachedResult() ?? $value->limit(null)->anyStatus()->all();
 		}
+
+//		throw new Exception(print_r($value, true));
 
 		$siteId = $element !== null ? $element->siteId : null;
 
@@ -838,7 +839,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 				'neoField' => $this,
 				'id' => $viewService->formatInputId($this->handle),
 				'name' => $this->handle,
-				'translatable' => $this->localizeBlocks,
+				'translatable' => $this->propagationMethod,
 				'static' => $static,
 			]);
 		}
@@ -855,135 +856,140 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	 */
 	private function _createBlocksFromSerializedData($value, ElementInterface $element = null): array
 	{
+        if (!is_array($value)) {
+            return [];
+        }
+
 		$requestService = Craft::$app->getRequest();
 
 		$blocks = [];
 
-		if (is_array($value))
-		{
-			$oldBlocksById = [];
-			$blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getByFieldId($this->id), 'handle');
-			$prevBlock = null;
-			
-			if ($element && $element->id)
-			{
-				$ownerId = $element->id;
-				$blockIds = [];
+        $oldBlocksById = [];
+        $blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getByFieldId($this->id), 'handle');
+        $prevBlock = null;
 
-				foreach (array_keys($value) as $blockId)
-				{
-					if (is_numeric($blockId) && $blockId !== 0)
-					{
-						$blockIds[] = $blockId;
-					}
-				}
+        if ($element && $element->id)
+        {
+            $ownerId = $element->id;
+            $blockIds = [];
 
-				if (!empty($blockIds))
-				{
-					$oldBlocksQuery = Block::find();
-					$oldBlocksQuery->fieldId($this->id);
-					$oldBlocksQuery->ownerId($ownerId);
-					$oldBlocksQuery->id($blockIds);
-					$oldBlocksQuery->limit(null);
-					$oldBlocksQuery->anyStatus();
-					$oldBlocksQuery->siteId($element->siteId);
-					$oldBlocksQuery->indexBy('id');
+            foreach (array_keys($value) as $blockId)
+            {
+                if (is_numeric($blockId) && $blockId !== 0)
+                {
+                    $blockIds[] = $blockId;
 
-					$oldBlocksById = $oldBlocksQuery->all();
-				}
-			}
-			else
-			{
-				$ownerId = null;
-			}
+                    // If that block was duplicated earlier in this request, check for that as well.
+                    if (isset(Elements::$duplicatedElementIds[$blockId])) {
+                        $blockIds[] = Elements::$duplicatedElementIds[$blockId];
+                    }
+                }
+            }
 
-			// Generally, block data will be received with levels starting from 0, so they need to be adjusted up by 1.
-			// For entry revisions and new entry drafts, though, the block data will have levels starting from 1.
-			// Because the first block in a field will always be level 1, we can use that to check whether the count is
-			// starting from 0 or 1 and thus ensure that all blocks display at the correct level.
-			$adjustLevels = false;
+            if (!empty($blockIds))
+            {
+                $oldBlocksQuery = Block::find();
+                $oldBlocksQuery->fieldId($this->id);
+                $oldBlocksQuery->ownerId($ownerId);
+                $oldBlocksQuery->id($blockIds);
+                $oldBlocksQuery->limit(null);
+                $oldBlocksQuery->anyStatus();
+                $oldBlocksQuery->siteId($element->siteId);
+                $oldBlocksQuery->indexBy('id');
+                $oldBlocksById = $oldBlocksQuery->all();
+            }
+        }
+        else
+        {
+            $ownerId = null;
+        }
 
-			if (!empty($value))
-			{
-				$firstBlock = reset($value);
-				$firstBlockLevel = (int)$firstBlock['level'];
+        // Generally, block data will be received with levels starting from 0, so they need to be adjusted up by 1.
+        // For entry revisions and new entry drafts, though, the block data will have levels starting from 1.
+        // Because the first block in a field will always be level 1, we can use that to check whether the count is
+        // starting from 0 or 1 and thus ensure that all blocks display at the correct level.
+        $adjustLevels = false;
 
-				if ($firstBlockLevel === 0)
-				{
-					$adjustLevels = true;
-				}
-			}
+        if (!empty($value))
+        {
+            $firstBlock = reset($value);
+            $firstBlockLevel = (int)$firstBlock['level'];
 
-			foreach ($value as $blockId => $blockData)
-			{
-				$blockTypeHandle = isset($blockData['type']) ? $blockData['type'] : null;
-				$blockType = $blockTypeHandle && isset($blockTypes[$blockTypeHandle]) ? $blockTypes[$blockTypeHandle] : null;
-				$blockFields = isset($blockData['fields']) ? $blockData['fields'] : null;
+            if ($firstBlockLevel === 0)
+            {
+                $adjustLevels = true;
+            }
+        }
 
-				$isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
-				$isCollapsed = isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false;
-				$isModified = isset($blockData['modified']) ? (bool)$blockData['modified'] : false;
-				$isNew = strpos($blockId, 'new') === 0;
-				$isDeleted = !isset($oldBlocksById[$blockId]);
+        foreach ($value as $blockId => $blockData)
+        {
+            $blockTypeHandle = isset($blockData['type']) ? $blockData['type'] : null;
+            $blockType = $blockTypeHandle && isset($blockTypes[$blockTypeHandle]) ? $blockTypes[$blockTypeHandle] : null;
+            $blockFields = isset($blockData['fields']) ? $blockData['fields'] : null;
 
-				if ($blockType)
-				{
-					// Adjust block levels to their correct value if necessary.
-					$blockLevel = (int)$blockData['level'];
+            $isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
+            $isCollapsed = isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false;
+            $isModified = isset($blockData['modified']) ? (bool)$blockData['modified'] : false;
+            $isNew = strpos($blockId, 'new') === 0;
+            $isDeleted = !isset($oldBlocksById[$blockId]);
 
-					if ($adjustLevels)
-					{
-						$blockLevel++;
-					}
+            if ($blockType)
+            {
+                // Adjust block levels to their correct value if necessary.
+                $blockLevel = (int)$blockData['level'];
 
-					if ($isNew || $isDeleted)
-					{
-						$block = new Block();
-						$block->fieldId = $this->id;
-						$block->typeId = $blockType->id;
-						$block->ownerId = $ownerId;
-						$block->siteId = $element->siteId;
-					}
-					else
-					{
-						$block = $oldBlocksById[$blockId];
-					}
+                if ($adjustLevels)
+                {
+                    $blockLevel++;
+                }
 
-					$block->setOwner($element);
-					$block->setCollapsed($isCollapsed);
-					$block->setModified($isModified);
-					$block->enabled = $isEnabled;
-					$block->level = $blockLevel;
+                if ($isNew || $isDeleted)
+                {
+                    $block = new Block();
+                    $block->fieldId = $this->id;
+                    $block->typeId = $blockType->id;
+                    $block->ownerId = $ownerId;
+                    $block->siteId = $element->siteId;
+                }
+                else
+                {
+                    $block = $oldBlocksById[$blockId];
+                }
 
-					$fieldNamespace = $element->getFieldParamNamespace();
+                $block->setOwner($element);
+                $block->setCollapsed($isCollapsed);
+                $block->setModified($isModified);
+                $block->enabled = $isEnabled;
+                $block->level = $blockLevel;
 
-					if ($fieldNamespace !== null)
-					{
-						$blockNamespace = ($fieldNamespace ? $fieldNamespace . '.' : '') . "$this->handle.$blockId.fields";
-						$block->setFieldParamNamespace($blockNamespace);
-					}
+                $fieldNamespace = $element->getFieldParamNamespace();
 
-					if ($blockFields)
-					{
-						$block->setFieldValues($blockFields);
-					}
+                if ($fieldNamespace !== null)
+                {
+                    $blockNamespace = ($fieldNamespace ? $fieldNamespace . '.' : '') . "$this->handle.$blockId.fields";
+                    $block->setFieldParamNamespace($blockNamespace);
+                }
 
-					if ($prevBlock)
-					{
-						$prevBlock->setNext($block);
-						$block->setPrev($prevBlock);
-					}
+                if ($blockFields)
+                {
+                    $block->setFieldValues($blockFields);
+                }
 
-					$prevBlock = $block;
-					$blocks[] = $block;
-				}
-			}
+                if ($prevBlock)
+                {
+                    $prevBlock->setNext($block);
+                    $block->setPrev($prevBlock);
+                }
 
-			foreach ($blocks as $block)
-			{
-				$block->setAllElements($blocks);
-			}
-		}
+                $prevBlock = $block;
+                $blocks[] = $block;
+            }
+        }
+
+        foreach ($blocks as $block)
+        {
+            $block->setAllElements($blocks);
+        }
 
 		return $blocks;
 	}
