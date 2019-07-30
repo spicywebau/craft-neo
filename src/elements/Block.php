@@ -250,6 +250,7 @@ class Block extends Element implements BlockElementInterface
 	 * Returns this block's owner, if it has one.
 	 *
 	 * @return ElementInterface|null
+     * @throws
 	 */
 	public function getOwner(): ElementInterface
 	{

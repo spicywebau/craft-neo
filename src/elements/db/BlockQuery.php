@@ -136,7 +136,7 @@ class BlockQuery extends ElementQuery
 	 * @param int|string|null $value The site ID.
 	 * @return $this
 	 */
-	public function ownerSiteId($value)
+	public function ownerSiteId()
 	{
         Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()', 'The “ownerSiteId” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
 
@@ -150,7 +150,7 @@ class BlockQuery extends ElementQuery
 	 * @return $this
 	 * @throws Exception if the site handle is invalid.
 	 */
-	public function ownerSite($value)
+	public function ownerSite()
 	{
         Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()', 'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
 
@@ -164,10 +164,10 @@ class BlockQuery extends ElementQuery
 	 * @return $this
 	 * @deprecated in 2.0.0.  Use `ownerSite()` or `ownerSiteId()` instead.
 	 */
-	public function ownerLocale($value)
+	public function ownerLocale()
 	{
 		Craft::$app->getDeprecator()->log('ElementQuery::ownerLocale()', "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
-		$this->ownerSite($value);
+//		$this->ownerSite($value);
 
 		return $this;
 	}
@@ -355,7 +355,7 @@ class BlockQuery extends ElementQuery
 
 		if (!$this->structureId && $this->fieldId && $this->ownerId)
 		{
-			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId);
+			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->siteId);
 
 			if ($blockStructure)
 			{
@@ -366,7 +366,6 @@ class BlockQuery extends ElementQuery
 		$this->query->select([
 			'neoblocks.fieldId',
 			'neoblocks.ownerId',
-//			'neoblocks.siteId',
 			'neoblocks.typeId',
 		]);
 
@@ -379,11 +378,6 @@ class BlockQuery extends ElementQuery
 		{
 			$this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $this->ownerId));
 		}
-
-//		if ($this->siteId)
-//		{
-//			$this->subQuery->andWhere(Db::parseParam('neoblocks.siteId', $this->siteId));
-//		}
 
 		if ($this->typeId !== null)
 		{

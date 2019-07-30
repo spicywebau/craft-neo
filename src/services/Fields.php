@@ -220,6 +220,7 @@ class Fields extends Component
                 $blockStructure = new BlockStructure();
                 $blockStructure->fieldId = (int)$field->id;
                 $blockStructure->ownerId = (int)$owner->id;
+                $blockStructure->ownerSiteId = (int)$owner->siteId;
 
                 Neo::$plugin->blocks->saveStructure($blockStructure);
                 Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
@@ -303,6 +304,16 @@ class Fields extends Component
             }
             // Delete any blocks that shouldn't be there anymore
             $this->_deleteOtherBlocks($field, $target, $newBlockIds);
+            if (!empty($blocks))
+            {
+                $blockStructure = new BlockStructure();
+                $blockStructure->fieldId = (int)$field->id;
+                $blockStructure->ownerId = (int)$target->id;
+                $blockStructure->ownerSiteId = (int)$target->siteId;
+
+                Neo::$plugin->blocks->saveStructure($blockStructure);
+                Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+            }
             $transaction->commit();
         } catch (\Throwable $e) {
             $transaction->rollBack();
@@ -420,8 +431,9 @@ class Fields extends Component
             $elementsService->deleteElement($deleteBlock);
         }
 
+//        throw new
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id)) !== null)
+        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $owner->siteId)) !== null)
         {
             Neo::$plugin->blocks->deleteStructure($blockStructure);
         }

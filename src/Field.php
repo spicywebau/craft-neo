@@ -392,7 +392,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
         // the field is set to manage blocks on a per-site basis
         if ($existingElement)
         {
-            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id);
+            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $element->siteId);
         }
 
         // If we found the block structure, set the query's structure ID
@@ -400,6 +400,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface
         {
             $query->structureId($blockStructure->structureId);
         }
+
+//        throw new \Exception(print_r($query, true));
 
         // Set the initially matched elements if $value is already set, which is the case if there was a validation
         // error or we're loading an entry revision.
@@ -580,6 +582,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 					'and',
 					'[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
 					'[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
+                    [
+                        'or',
+                        '[[neoblockstructures.ownerSiteId]] = [[neoblocks.ownerSiteId]]',
+                        // If there is no site ID set (in other words, `ownerSiteId` is `null`), then the above
+                        // comparison will not be true for some reason. So if it's not evaluated to true, then check
+                        // to see if both `ownerSiteId` properties are `null`.
+                        [
+                            'and',
+                            '[[neoblockstructures.ownerSiteId]] is null',
+                            '[[neoblocks.ownerSiteId]] is null',
+                        ],
+                    ]
 				]
 			)
 			->leftJoin(
@@ -709,7 +723,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		foreach ($blockStructures as $blockStructure)
 		{
 			// Site IDs start from 1 -- let's treat non-localized blocks as site 0
-			$key = $blockStructure->ownerId ?? 0;
+			$key = $blockStructure->ownerSiteId ?? 0;
 			$blocksBySite[$key] = Block::find()
 				->anyStatus()
 				->fieldId($this->id)
@@ -738,7 +752,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		// Recreate the block structures with the original block data
 		foreach ($blockStructures as $blockStructure)
 		{
-			$key = $blockStructure->ownerId ?? 0;
+			$key = $blockStructure->ownerSiteId ?? 0;
 			Neo::$plugin->blocks->saveStructure($blockStructure);
 			Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
 		}
@@ -815,11 +829,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 		if ($value instanceof BlockQuery)
 		{
-//		    throw new \Exception(print_r($value, true));
 			$value = $value->getCachedResult() ?? $value->limit(null)->anyStatus()->all();
 		}
-
-//		throw new Exception(print_r($value, true));
 
 		$siteId = $element !== null ? $element->siteId : null;
 
