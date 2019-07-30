@@ -54,7 +54,7 @@ class FieldLabels
 
 					if ($fieldlabelsPost && array_key_exists($blockTypeId, $fieldlabelsPost))
 					{
-						FieldLabelsPlugin::$plugin->methods->saveLabels($fieldlabelsPost[$blockTypeId], $blockType->fieldLayoutId);
+						FieldLabelsPlugin::$plugin->methods->saveLabels($fieldlabelsPost[$blockTypeId][0], $blockType->fieldLayoutId);
 					}
 				}
 			});
