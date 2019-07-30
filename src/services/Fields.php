@@ -433,7 +433,8 @@ class Fields extends Component
 
 //        throw new
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $owner->siteId)) !== null)
+
+        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, (int)$owner->siteId)) !== null)
         {
             Neo::$plugin->blocks->deleteStructure($blockStructure);
         }

@@ -239,10 +239,10 @@ class Blocks extends Component
 				$blockStructure->structureId = $structure->id;
 			}
 
-			$record->structureId = $blockStructure->structureId;
-			$record->ownerId = $blockStructure->ownerId;
-            $record->ownerSiteId = $blockStructure->ownerSiteId;
-			$record->fieldId = $blockStructure->fieldId;
+			$record->structureId = (int)$blockStructure->structureId;
+			$record->ownerId = (int)$blockStructure->ownerId;
+            $record->ownerSiteId = (int)$blockStructure->ownerSiteId;
+			$record->fieldId = (int)$blockStructure->fieldId;
 
 			$record->save(false);
 

@@ -355,7 +355,7 @@ class BlockQuery extends ElementQuery
 
 		if (!$this->structureId && $this->fieldId && $this->ownerId)
 		{
-			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->siteId);
+			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, (int)$this->siteId);
 
 			if ($blockStructure)
 			{

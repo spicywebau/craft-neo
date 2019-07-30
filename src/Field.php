@@ -392,7 +392,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
         // the field is set to manage blocks on a per-site basis
         if ($existingElement)
         {
-            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $element->siteId);
+            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, (int)$element->siteId);
         }
 
         // If we found the block structure, set the query's structure ID
