@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.5.2 - 2019-08-01
+### Fixed
+- Fix craft constraint to allow update to 3.2
+
 ## 2.3.5.1 - 2019-07-31
 ### Fixed
 - Fix #227 - fixed issue where Neo fields could lose their content when updating to Craft 3.2
