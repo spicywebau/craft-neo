@@ -604,6 +604,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	{
 		Neo::$plugin->fields->saveValue($this, $element, $isNew);
 
+        // Reset the field value if this is a new element
+        if ($element->duplicateOf || $isNew) {
+            $element->setFieldValue($this->handle, null);
+        }
+
 		parent::afterElementSave($element, $isNew);
 	}
 
