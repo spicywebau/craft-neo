@@ -303,7 +303,7 @@ class Fields extends Component
                 $newBlockIds[] = $newBlock->id;
             }
             // Delete any blocks that shouldn't be there anymore
-//            $this->_deleteOtherBlocks($field, $target, $newBlockIds);
+            $this->_deleteOtherBlocks($field, $target, $newBlockIds);
 //            if (!empty($blocks))
 //            {
 //                $blockStructure = new BlockStructure();

@@ -40,7 +40,7 @@ class BlockStructure extends ActiveRecord
 	 */
 	public function getOwnerSite(): ActiveQueryInterface
 	{
-		return $this->hasOne(Element::class, [ 'id' => 'siteId' ]);
+		return $this->hasOne(Element::class, [ 'id' => 'ownerSiteId' ]);
 	}
 
 	/**
