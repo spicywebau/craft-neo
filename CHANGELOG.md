@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.6 - 2019-07-19
+### Update - Minor Patch for Craft 3.2
+- implement BlockElementInterface
+- update getOwner and correctly return ElementInterface
+- update afterSave
+
 ## 2.3.5.2 - 2019-08-01
 ### Fixed
 - Fix craft constraint to allow update to 3.2

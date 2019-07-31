@@ -7,6 +7,7 @@ use yii\base\InvalidConfigException;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\base\BlockElementInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
@@ -25,7 +26,7 @@ use benf\neo\records\Block as BlockRecord;
  * @author Benjamin Fleming
  * @since 2.0.0
  */
-class Block extends Element
+class Block extends Element implements BlockElementInterface
 {
 	/**
 	 * @inheritdoc
@@ -244,24 +245,31 @@ class Block extends Element
 	 *
 	 * @return ElementInterface|null
 	 */
-	public function getOwner()
+	public function getOwner(): ElementInterface
 	{
-		$owner = $this->_owner;
+		 if ($this->_owner === null) {
+			  if ($this->ownerId === null) {
+					throw new InvalidConfigException('Neo block is missing its owner ID');
+			  }
+			  // if null check with the ownerSiteId
+			  if(($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null)
+			  {
+					// and if ownerSiteId is null the throw error
+					if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null)
+					{
+						$site = Craft::$app->request->getQueryParam('site') !== null ? Craft::$app->sites->getSiteByHandle(Craft::$app->request->getQueryParam('site'))->id : Craft::$app->request->getParam('siteId');
+						
+						if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $site)) === null)
+						{
+							if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null) {
+									throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
+							}
+						}
+					}
+			  }
+	  }
 
-		if ($owner !== null)
-		{
-			if ($owner === false)
-			{
-				$owner = null;
-			}
-		}
-		elseif ($this->ownerId !== null)
-		{
-			$owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId);
-			$this->_owner = $owner ?? false;
-		}
-
-		return $owner;
+	  return $this->_owner;
 	}
 
 	/**
@@ -438,26 +446,28 @@ class Block extends Element
 	{
 		$record = null;
 
-		if ($isNew)
-		{
-			$record = new BlockRecord();
-			$record->id = $this->id;
-		}
-		else
-		{
-			$record = BlockRecord::findOne($this->id);
-
-			if (!$record)
+		if (!$this->propagating) {
+			if ($isNew)
 			{
-				throw new Exception("Invalid Neo block ID: $this->id");
+				$record = new BlockRecord();
+				$record->id = $this->id;
 			}
-		}
+			else
+			{
+				$record = BlockRecord::findOne($this->id);
 
-		$record->fieldId = $this->fieldId;
-		$record->ownerId = $this->ownerId;
-		$record->ownerSiteId = $this->ownerSiteId;
-		$record->typeId = $this->typeId;
-		$record->save(false);
+				if (!$record)
+				{
+					throw new Exception("Invalid Neo block ID: $this->id");
+				}
+			}
+
+			$record->fieldId = $this->fieldId;
+			$record->ownerId = $this->ownerId;
+			$record->ownerSiteId = $this->ownerSiteId;
+			$record->typeId = $this->typeId;
+			$record->save(false);
+		}
 
 		parent::afterSave($isNew);
 	}
