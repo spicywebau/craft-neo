@@ -3,6 +3,7 @@
 ## Unreleased
 ### Fxed
 - Fix #227 - fixed issue where Neo fields could lose their content when updating to Craft 3.2
+- Update craft version constraints
 
 ## 2.3.5 - 2019-05-24
 ### Fixed
