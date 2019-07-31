@@ -704,6 +704,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 			->select([
 				'id',
 				'structureId',
+                'ownerSiteId',
 				'ownerId',
 				'fieldId',
 			])
