@@ -582,18 +582,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 					'and',
 					'[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
 					'[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
-                    [
-                        'or',
-                        '[[neoblockstructures.ownerSiteId]] = [[neoblocks.ownerSiteId]]',
-                        // If there is no site ID set (in other words, `ownerSiteId` is `null`), then the above
-                        // comparison will not be true for some reason. So if it's not evaluated to true, then check
-                        // to see if both `ownerSiteId` properties are `null`.
-                        [
-                            'and',
-                            '[[neoblockstructures.ownerSiteId]] is null',
-                            '[[neoblocks.ownerSiteId]] is null',
-                        ],
-                    ]
 				]
 			)
 			->leftJoin(

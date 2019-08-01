@@ -223,7 +223,7 @@ class Fields extends Component
                 $blockStructure->ownerSiteId = (int)$owner->siteId;
 
                 Neo::$plugin->blocks->saveStructure($blockStructure);
-                Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+                $buildSuccess = Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
             }
 
             if ($owner->propagateAll && $field->propagationMethod != Field::PROPAGATION_METHOD_ALL) {
@@ -292,28 +292,37 @@ class Fields extends Component
         $transaction = Craft::$app->getDb()->beginTransaction();
 
         try {
+            $newBlocks = [];
             foreach ($blocks as $block) {
                 /** @var Block $newBlock */
+                $collapsed = $block->getCollapsed();
+
                 $newBlock = $elementsService->duplicateElement($block, [
                     'ownerId' => $target->id,
                     'owner' => $target,
                     'siteId' => $target->siteId,
                     'propagating' => false,
                 ]);
+
+                $newBlock->setCollapsed($collapsed);
+                $newBlock->cacheCollapsed();
+
                 $newBlockIds[] = $newBlock->id;
+                $newBlocks[] = $newBlock;
             }
             // Delete any blocks that shouldn't be there anymore
             $this->_deleteOtherBlocks($field, $target, $newBlockIds);
-//            if (!empty($blocks))
-//            {
-//                $blockStructure = new BlockStructure();
-//                $blockStructure->fieldId = (int)$field->id;
-//                $blockStructure->ownerId = (int)$target->id;
-//                $blockStructure->ownerSiteId = (int)$target->siteId;
-//
-//                Neo::$plugin->blocks->saveStructure($blockStructure);
-//                Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
-//            }
+
+            if (!empty($newBlocks))
+            {
+                $blockStructure = new BlockStructure();
+                $blockStructure->fieldId = (int)$field->id;
+                $blockStructure->ownerId = (int)$target->id;
+                $blockStructure->ownerSiteId = (int)$target->siteId;
+
+                Neo::$plugin->blocks->saveStructure($blockStructure);
+                Neo::$plugin->blocks->buildStructure($newBlocks, $blockStructure);
+            }
 
             $transaction->commit();
         } catch (\Throwable $e) {
@@ -421,7 +430,6 @@ class Fields extends Component
             ->anyStatus()
             ->ownerId($owner->id)
             ->fieldId($field->id)
-            ->siteId($owner->siteId)
             ->inReverse()
             ->andWhere(['not', ['elements.id' => $except]])
             ->all();
