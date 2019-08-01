@@ -430,6 +430,7 @@ class Fields extends Component
             ->anyStatus()
             ->ownerId($owner->id)
             ->fieldId($field->id)
+            ->siteId($owner->siteId)
             ->inReverse()
             ->andWhere(['not', ['elements.id' => $except]])
             ->all();
