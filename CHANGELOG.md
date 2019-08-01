@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.7 - 2019-08-01
+### Fixed
+- Fix #227 - fixed issue where Neo fields could lose their content when updating to Craft 3.2. - thanks @brandonkelly
+
 ## 2.3.6 - 2019-07-19
 ### Update - Minor Patch for Craft 3.2
 - implement BlockElementInterface
