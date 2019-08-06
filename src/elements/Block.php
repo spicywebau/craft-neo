@@ -15,6 +15,7 @@ use craft\validators\SiteIdValidator;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\db\BlockQuery;
+use benf\neo\Field as neoField;
 use benf\neo\models\BlockType;
 use benf\neo\records\Block as BlockRecord;
 
@@ -35,6 +36,14 @@ class Block extends Element implements BlockElementInterface
 	{
 		return Craft::t('neo', "Neo Block");
 	}
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
+        return Craft::t('neo', 'Neo Blocks');
+    }
 
 	/**
 	 * @inheritdoc
@@ -106,6 +115,7 @@ class Block extends Element implements BlockElementInterface
 
 	/**
 	 * @var int|null The owner site ID.
+     * @deprecated in 2.4.0. Use [[$siteId]] instead.
 	 */
 	public $ownerSiteId;
 
@@ -154,10 +164,20 @@ class Block extends Element implements BlockElementInterface
 	 */
 	private $_useMemoized = false;
 
+    /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $names = parent::attributes();
+        $names[] = 'owner';
+        return $names;
+    }
+
 	/**
 	 * @inheritdoc
 	 */
-	public function extraFields(): array
+	public function extraFields()
 	{
 		$names = parent::extraFields();
 		$names[] = 'owner';
@@ -169,11 +189,10 @@ class Block extends Element implements BlockElementInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function rules(): array
+	public function rules()
 	{
 		$rules = parent::rules();
 		$rules[] = [['fieldId', 'ownerId', 'typeId'], 'number', 'integerOnly' => true];
-		$rules[] = [['ownerSiteId'], SiteIdValidator::class];
 
 		return $rules;
 	}
@@ -183,30 +202,17 @@ class Block extends Element implements BlockElementInterface
 	 */
 	public function getSupportedSites(): array
 	{
-		$siteIds = [];
+        try {
+            $owner = $this->getOwner();
+        } catch (InvalidConfigException $e) {
+            $owner = $this->duplicateOf;
+        }
 
-		if ($this->ownerSiteId !== null)
-		{
-			$siteIds[] = $this->ownerSiteId;
-		}
-		else
-		{
-			$owner = $this->getOwner();
+        if (!$owner) {
+            return [Craft::$app->getSites()->getPrimarySite()->id];
+        }
 
-			if ($owner || $this->duplicateOf)
-			{
-				foreach (ElementHelper::supportedSitesForElement($owner ?? $this->duplicateOf) as $siteInfo)
-				{
-					$siteIds[] = $siteInfo['siteId'];
-				}
-			}
-			else
-			{
-				$siteIds[] = Craft::$app->getSites()->getPrimarySite()->id;
-			}
-		}
-
-		return $siteIds;
+        return Neo::$plugin->fields->getSupportedSiteIdsForField($this->_getField(), $owner);
 	}
 
 	/**
@@ -244,29 +250,18 @@ class Block extends Element implements BlockElementInterface
 	 * Returns this block's owner, if it has one.
 	 *
 	 * @return ElementInterface|null
+     * @throws
 	 */
 	public function getOwner(): ElementInterface
 	{
 		 if ($this->_owner === null) {
-			  if ($this->ownerId === null) {
-					throw new InvalidConfigException('Neo block is missing its owner ID');
-			  }
-			  // if null check with the ownerSiteId
-			  if(($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null)
-			  {
-					// and if ownerSiteId is null the throw error
-					if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null)
-					{
-						$site = Craft::$app->request->getQueryParam('site') !== null ? Craft::$app->sites->getSiteByHandle(Craft::$app->request->getQueryParam('site'))->id : Craft::$app->request->getParam('siteId');
-						
-						if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $site)) === null)
-						{
-							if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->ownerSiteId)) === null) {
-									throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
-							}
-						}
-					}
-			  }
+             if ($this->ownerId === null) {
+                 throw new InvalidConfigException('Neo block is missing its owner ID');
+             }
+
+             if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null) {
+                 throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
+             }
 	  }
 
 	  return $this->_owner;
@@ -433,9 +428,12 @@ class Block extends Element implements BlockElementInterface
 	 */
 	public function getHasFreshContent(): bool
 	{
-		$owner = $this->getOwner();
-
-		return $owner ? $owner->getHasFreshContent() : false;
+        // Defer to the owner element
+        try {
+            return $this->getOwner()->getHasFreshContent();
+        } catch (InvalidConfigException $e) {
+            return false;
+        }
 	}
 
 	/**
@@ -450,7 +448,7 @@ class Block extends Element implements BlockElementInterface
 			if ($isNew)
 			{
 				$record = new BlockRecord();
-				$record->id = $this->id;
+				$record->id = (int)$this->id;
 			}
 			else
 			{
@@ -462,10 +460,9 @@ class Block extends Element implements BlockElementInterface
 				}
 			}
 
-			$record->fieldId = $this->fieldId;
-			$record->ownerId = $this->ownerId;
-			$record->ownerSiteId = $this->ownerSiteId;
-			$record->typeId = $this->typeId;
+			$record->fieldId = (int)$this->fieldId;
+			$record->ownerId = (int)$this->ownerId;
+			$record->typeId = (int)$this->typeId;
 			$record->save(false);
 		}
 
@@ -818,4 +815,17 @@ class Block extends Element implements BlockElementInterface
 
 		return $typeHandlePrefix;
 	}
+
+    // Private Methods
+    // =========================================================================
+    /**
+     * Returns the Matrix field.
+     *
+     * @return neoField
+     */
+    private function _getField(): neoField
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return Craft::$app->getFields()->getFieldById($this->fieldId);
+    }
 }

@@ -45,7 +45,6 @@ class Input extends Controller
 			$block->level = $rawBlock['level'];
 			$block->enabled = isset($rawBlock['enabled']);
 			$block->setCollapsed(isset($rawBlock['collapsed']));
-			$block->ownerSiteId = $siteId;
 			$block->siteId = $siteId ?? Craft::$app->getSites()->getPrimarySite()->id;
 
 			if (!empty($rawBlock['content']))
