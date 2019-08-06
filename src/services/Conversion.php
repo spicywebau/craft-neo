@@ -84,7 +84,6 @@ class Conversion extends Component
 					->fieldId($neoField->id)
 					->ownerId(null)
 					->siteId($siteId)
-					->ownerSiteId($neoField->localizeBlocks ? $siteId : ':empty:')
 					->limit(null)
 					->anyStatus()
 					->all();
@@ -295,7 +294,6 @@ class Conversion extends Component
 		$matrixBlock->ownerId = $neoBlock->ownerId;
 		$matrixBlock->fieldId = $neoBlock->fieldId;
 		$matrixBlock->siteId = $neoBlock->siteId;
-		$matrixBlock->ownerSiteId = $neoBlock->ownerSiteId;
 		$matrixBlock->sortOrder = $neoBlock->lft;
 		$matrixBlock->collapsed = $neoBlock->collapsed;
 		$matrixBlock->setFieldValues($blockFieldValues);
