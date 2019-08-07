@@ -756,9 +756,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		// Recreate the block structures with the original block data
 		foreach ($blockStructures as $blockStructure)
 		{
-            $key = $blockStructure->ownerSiteId ?? 0;
-            Neo::$plugin->blocks->saveStructure($blockStructure);
-            Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
+			$key = $blockStructure->ownerSiteId ?? 0;
+			Neo::$plugin->blocks->saveStructure($blockStructure);
+			Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
 		}
 
 		return true;
