@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed issue 239.
+
+### Changed
+- Cleaned up the Field Service
+
 ## 2.4.0 - 2019-08-06
 ### Changed - 3.2 saving changes
 - update composer
