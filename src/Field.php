@@ -712,27 +712,27 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		// Get the blocks for each structure
 		foreach ($blockStructures as $blockStructure)
 		{
-            // Site IDs start from 1 -- let's treat non-localized blocks as site 0
-            $key = $blockStructure->ownerSiteId ?? 0;
+			// Site IDs start from 1 -- let's treat non-localized blocks as site 0
+			$key = $blockStructure->ownerSiteId ?? 0;
 
-            $allBlocks = Block::find()
-                ->anyStatus()
-                ->fieldId($this->id)
-                ->owner($element)
-                ->all();
+			$allBlocks = Block::find()
+				->anyStatus()
+				->fieldId($this->id)
+				->owner($element)
+				->all();
 
-            $allBlocksCount = count($allBlocks);
+			$allBlocksCount = count($allBlocks);
 
-            // if the neo block structure doesn't have the ownerSiteId set and has blocks
-            // set the ownerSiteId of the neo block structure.
+			// if the neo block structure doesn't have the ownerSiteId set and has blocks
+			// set the ownerSiteId of the neo block structure.
 
-            // it's set from the first block because we got all blocks related to this structure beforehand
-            // so the siteId should be the same for all blocks.
-            if (empty($blockStructure->ownerSiteId) && $allBlocksCount > 0) {
-                $blockStructure->ownerSiteId = $allBlocks[0]->siteId;
-            }
+			// it's set from the first block because we got all blocks related to this structure beforehand
+			// so the siteId should be the same for all blocks.
+			if (empty($blockStructure->ownerSiteId) && $allBlocksCount > 0) {
+				$blockStructure->ownerSiteId = $allBlocks[0]->siteId;
+			}
 
-            $blocksBySite[$key] = $allBlocks;
+			$blocksBySite[$key] = $allBlocks;
 		}
 
 		// Delete all Neo blocks for this element and field
