@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.2 - 2019-08-08
+### Fixed
+- Fix - Need to set the new key for neo structures since the ownerSiteId is now set
+
 ## 2.4.1 - 2019-08-08
 ### Fixed
 - Fixed issue #239  
