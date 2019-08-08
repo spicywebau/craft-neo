@@ -730,6 +730,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 			// so the siteId should be the same for all blocks.
 			if (empty($blockStructure->ownerSiteId) && $allBlocksCount > 0) {
 				$blockStructure->ownerSiteId = $allBlocks[0]->siteId;
+				// need to set the new key since the ownersiteid is now set
+				$key = $blockStructure->ownerSiteId;
 			}
 
 			$blocksBySite[$key] = $allBlocks;
