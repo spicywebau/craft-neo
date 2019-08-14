@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.4.2 - 2019-08-08
+### Fixed
+- Fix - Need to set the new key for neo structures since the ownerSiteId is now set
+
+## 2.4.1 - 2019-08-08
+### Fixed
+- Fixed issue #239  
+- Fixed indentation, swapped to tabs.
+
+### Changed
+- Cleaned up the Field Service
+
+## 2.4.0 - 2019-08-06
+### Changed - 3.2 saving changes
+- update composer
+- fix multisite site id block save issue
+- fix duplicateBlocks so it creates the neo structure for duplicated blocks
+- changes for blockstructure and duplicateBlocks
+- remove deletion of blocks from duplicateBlocks function
+- FIX: Include 'ownerSiteId' when querying neo structure data.
+- fix type error when updating search indexes
+- fixes to neo structures for multisite
+- deprecate ownerSiteId and additional changes to compensate.
+- making neo more inline with craft
+
 ## 2.3.7 - 2019-08-01
 ### Fixed
 - Fix #227 - fixed issue where Neo fields could lose their content when updating to Craft 3.2. - thanks @brandonkelly
