@@ -182,7 +182,7 @@ class Fields extends Component
 	 * @param bool $isNew
 	 * @throws \Throwable
 	 */
-	public function saveValue(Field $field, ElementInterface $owner, $checkOtherSites = false)
+	public function saveValue(Field $field, ElementInterface $owner)
 	{
 		$dbService = Craft::$app->getDb();
 		$elementsService = Craft::$app->getElements();
@@ -197,17 +197,10 @@ class Fields extends Component
 		try {
 		    foreach ($blocks as $block) {
                 $block->ownerId = (int)$owner->id;
-                $block->propagating = $owner->propagating;
-                $elementsService->saveElement($block, false, !$owner->propagating);
-
-                $isNew = $block->id === null;
-
-                if(!$isNew) {
-                    $block->setModified();
-                }
-
+                $elementsService->saveElement($block, false);
                 $blockIds[] = $block->id;
-                if (!$neoSettings->collapseAllBlocks || $isNew)
+                
+                if (!$neoSettings->collapseAllBlocks)
                 {
                     $block->cacheCollapsed();
                 }
@@ -217,16 +210,10 @@ class Fields extends Component
 
             if (!empty($blocks))
             {
-                $blockStructure = new BlockStructure();
-                $blockStructure->fieldId = (int)$field->id;
-                $blockStructure->ownerId = (int)$owner->id;
-                $blockStructure->ownerSiteId = (int)$owner->siteId;
-
-                Neo::$plugin->blocks->saveStructure($blockStructure);
-                Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+            	$this->_saveNeoStructuresForSites($field, $owner, $blocks);
             }
 
-            if ($owner->propagateAll && $field->propagationMethod != Field::PROPAGATION_METHOD_ALL) {
+            if ($owner->propagateAll && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
                 $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
                 $fieldSiteIds = $this->getSupportedSiteIdsForField($field, $owner);
                 $otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
@@ -315,13 +302,7 @@ class Fields extends Component
 
             if (!empty($newBlocks))
             {
-                $blockStructure = new BlockStructure();
-                $blockStructure->fieldId = (int)$field->id;
-                $blockStructure->ownerId = (int)$target->id;
-                $blockStructure->ownerSiteId = (int)$target->siteId;
-
-                Neo::$plugin->blocks->saveStructure($blockStructure);
-                Neo::$plugin->blocks->buildStructure($newBlocks, $blockStructure);
+                $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
             }
 
             $transaction->commit();
@@ -425,27 +406,75 @@ class Fields extends Component
      */
     private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
     {
-        /** @var Element $owner */
-        $deleteBlocks = Block::find()
-            ->anyStatus()
-            ->ownerId($owner->id)
-            ->fieldId($field->id)
-            ->siteId($owner->siteId)
-            ->inReverse()
-            ->andWhere(['not', ['elements.id' => $except]])
-            ->all();
-
-        $elementsService = Craft::$app->getElements();
-
-        foreach ($deleteBlocks as $deleteBlock) {
-            $deleteBlock->forgetCollapsed();
-            $elementsService->deleteElement($deleteBlock);
-        }
-
-        // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, (int)$owner->siteId)) !== null)
-        {
-            Neo::$plugin->blocks->deleteStructure($blockStructure);
-        }
+	
+		$supportedSites = $this->getSupportedSiteIdsForField($field, $owner);
+		$supportedSitesCount = count($supportedSites);
+		// throw new \Exception(print_r($supportedSitesCount, true));
+		if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
+			foreach	($supportedSites as $site) {
+				$this->_deleteNeoBlocksAndStructures($field, $owner, $except, $site);
+			}
+		} else {
+			$this->_deleteNeoBlocksAndStructures($field, $owner, $except);
+		}
     }
+    
+    private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null) {
+    	
+    	$siteId = $sId ?? $owner->siteId;
+    	
+		/** @var Element $owner */
+		$deleteBlocks = Block::find()
+			->anyStatus()
+			->ownerId($owner->id)
+			->fieldId($field->id)
+			->siteId($siteId)
+			->inReverse()
+			->andWhere(['not', ['elements.id' => $except]])
+			->all();
+	
+		$elementsService = Craft::$app->getElements();
+	
+		foreach ($deleteBlocks as $deleteBlock) {
+			$deleteBlock->forgetCollapsed();
+			$elementsService->deleteElement($deleteBlock);
+		}
+	
+		// Delete any existing block structures associated with this field/owner/site combination
+		while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null)
+		{
+			Neo::$plugin->blocks->deleteStructure($blockStructure);
+		}
+	}
+    
+    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks) {
+		// get the supported sites
+		$supportedSites = $this->getSupportedSiteIdsForField($field, $owner);
+		$supportedSitesCount = count($supportedSites) > 1;
+	
+		// if more than 1 supported sites and propagation method is not PROPAGATION_METHOD_NONE
+		// then save the neo structures for each site.
+		if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
+		
+			foreach ($supportedSites as $site) {
+				$blockStructure = new BlockStructure();
+				$blockStructure->fieldId = (int)$field->id;
+				$blockStructure->ownerId = (int)$owner->id;
+				$blockStructure->ownerSiteId = (int)$site;
+			
+				Neo::$plugin->blocks->saveStructure($blockStructure);
+				Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+			}
+		
+		
+		} else {
+			$blockStructure = new BlockStructure();
+			$blockStructure->fieldId = (int)$field->id;
+			$blockStructure->ownerId = (int)$owner->id;
+			$blockStructure->ownerSiteId = (int)$owner->siteId;
+		
+			Neo::$plugin->blocks->saveStructure($blockStructure);
+			Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+		}
+	}
 }

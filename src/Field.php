@@ -452,30 +452,30 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	/**
 	 * @inheritdoc
 	 */
-//	public function modifyElementsQuery(ElementQueryInterface $query, $value)
-//	{
-//		if ($value === 'not :empty:')
-//		{
-//			$value = ':notempty:';
-//		}
-//
-//		if ($value === ':notempty:' || $value === ':empty:')
-//		{
-//			$alias = 'neoblocks_' . $this->handle;
-//			$operator = $value === ':notempty:' ? '!=' : '=';
-//
-//			$query->subQuery->andWhere(
-//				"(select count([[{$alias}.id]]) from {{%neoblocks}} {{{$alias}}} where [[{$alias}.ownerId]] = [[elements.id]] and [[{$alias}.fieldId]] = :fieldId) {$operator} 0",
-//				[':fieldId' => $this->id]
-//			);
-//		}
-//		elseif ($value !== null)
-//		{
-//			return false;
-//		}
-//
-//		return null;
-//	}
+	public function modifyElementsQuery(ElementQueryInterface $query, $value)
+	{
+		if ($value === 'not :empty:')
+		{
+			$value = ':notempty:';
+		}
+
+		if ($value === ':notempty:' || $value === ':empty:')
+		{
+			$alias = 'neoblocks_' . $this->handle;
+			$operator = $value === ':notempty:' ? '!=' : '=';
+
+			$query->subQuery->andWhere(
+				"(select count([[{$alias}.id]]) from {{%neoblocks}} {{{$alias}}} where [[{$alias}.ownerId]] = [[elements.id]] and [[{$alias}.fieldId]] = :fieldId) {$operator} 0",
+				[':fieldId' => $this->id]
+			);
+		}
+		elseif ($value !== null)
+		{
+			return false;
+		}
+
+		return null;
+	}
 
 	/**
 	 * @inheritdoc
@@ -601,7 +601,30 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 			'criteria' => ['fieldId' => $this->id],
 		];
 	}
+	
+	/**
+	 * @inheritdoc
+	 */
+	public function beforeSave(bool $isNew): bool
+	{
+		if (!parent::beforeSave($isNew)) {
+			return false;
+		}
+		// Prep the block types & fields for save
+		$fieldsService = Craft::$app->getFields();
 
+		// remember the original propagation method
+		if ($this->id) {
+			$oldField = $fieldsService->getFieldById($this->id);
+			
+			if ($oldField instanceof self) {
+				$this->_oldPropagationMethod = $oldField->propagationMethod;
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @inheritdoc
 	 */
@@ -609,7 +632,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	{
 		Neo::$plugin->fields->save($this);
 
-        // If the propagation method just changed, resave all the Matrix blocks
+        // If the propagation method just changed, resave all the neo blocks
         if ($this->_oldPropagationMethod && $this->propagationMethod !== $this->_oldPropagationMethod) {
             Craft::$app->getQueue()->push(new ResaveElements([
                 'elementType' => Block::class,
@@ -657,7 +680,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
         if ($element->duplicateOf !== null) {
              Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true);
         } else {
-            Neo::$plugin->fields->saveValue($this, $element, $isNew);
+            Neo::$plugin->fields->saveValue($this, $element);
         }
 
         // Reset the field value if this is a new element
@@ -838,7 +861,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 			$value = $value->getCachedResult() ?? $value->limit(null)->anyStatus()->all();
 		}
 
-		$siteId = $element !== null ? $element->siteId : null;
+		$siteId = $element->siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
 
 		$html = '';
 
