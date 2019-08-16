@@ -384,34 +384,34 @@ class Fields extends Component
 	 * @return int[]
 	 */
 	public function getSupportedSiteIdsForField(Field $field, ElementInterface $owner): array
-    {
-        /** @var Element $owner */
-        /** @var Site[] $allSites */
-        $allSites = ArrayHelper::index(Craft::$app->getSites()->getAllSites(), 'id');
-        $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
-        $siteIds = [];
-
-        foreach ($ownerSiteIds as $siteId) {
-            switch ($field->propagationMethod) {
-                case Field::PROPAGATION_METHOD_NONE:
-                    $include = (int)$siteId === (int)$owner->siteId;
-                    break;
-                case Field::PROPAGATION_METHOD_SITE_GROUP:
-                    $include = (int)$allSites[$siteId]->groupId === (int)$allSites[$owner->siteId]->groupId;
-                    break;
-                case Field::PROPAGATION_METHOD_LANGUAGE:
-                    $include = (int)$allSites[$siteId]->language === (int)$allSites[$owner->siteId]->language;
-                    break;
-                default:
-                    $include = true;
-                    break;
-            }
-            if ($include) {
-                $siteIds[] = $siteId;
-            }
-        }
-        return $siteIds;
-    }
+	{
+		/** @var Element $owner */
+		/** @var Site[] $allSites */
+		$allSites = ArrayHelper::index(Craft::$app->getSites()->getAllSites(), 'id');
+		$ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
+		$siteIds = [];
+	
+		foreach ($ownerSiteIds as $siteId) {
+			switch ($field->propagationMethod) {
+				case Field::PROPAGATION_METHOD_NONE:
+					$include = (int)$siteId === (int)$owner->siteId;
+					break;
+				case Field::PROPAGATION_METHOD_SITE_GROUP:
+					$include = (int)$allSites[$siteId]->groupId === (int)$allSites[$owner->siteId]->groupId;
+					break;
+				case Field::PROPAGATION_METHOD_LANGUAGE:
+					$include = (int)$allSites[$siteId]->language === (int)$allSites[$owner->siteId]->language;
+					break;
+				default:
+					$include = true;
+					break;
+			}
+			if ($include) {
+				$siteIds[] = $siteId;
+			}
+		}
+		return $siteIds;
+	}
 
 	// Private Methods
 	// =========================================================================
