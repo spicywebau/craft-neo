@@ -266,56 +266,56 @@ class Fields extends Component
         }
 	}
 
-    /**
-     * Duplicates Neo blocks from one owner element to another.
-     *
-     * @param Field $field The Neo field to duplicate blocks for
-     * @param ElementInterface $source The source element blocks should be duplicated from
-     * @param ElementInterface $target The target element blocks should be duplicated to
-     * @param bool $checkOtherSites Whether to duplicate blocks for the source element's other supported sites
-     * @throws \Throwable if reasons
-     */
-    public function duplicateBlocks(Field $field, ElementInterface $source, ElementInterface $target, bool $checkOtherSites = false)
-    {
-        /** @var Element $source */
-        /** @var Element $target */
-        $elementsService = Craft::$app->getElements();
-        /** @var BlockQuery $query */
-        $query = $source->getFieldValue($field->handle);
-        /** @var Block[] $blocks */
-        $blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
-        $newBlockIds = [];
-        $transaction = Craft::$app->getDb()->beginTransaction();
-
-        try {
-            $newBlocks = [];
-            foreach ($blocks as $block) {
-                /** @var Block $newBlock */
-                $collapsed = $block->getCollapsed();
-
-                $newBlock = $elementsService->duplicateElement($block, [
-                    'ownerId' => $target->id,
-                    'owner' => $target,
-                    'siteId' => $target->siteId,
-                    'propagating' => false,
-                ]);
-
-                $newBlock->setCollapsed($collapsed);
-                $newBlock->cacheCollapsed();
-
-                $newBlockIds[] = $newBlock->id;
-                $newBlocks[] = $newBlock;
-            }
-            // Delete any blocks that shouldn't be there anymore
-            $this->_deleteOtherBlocks($field, $target, $newBlockIds);
-
-            if (!empty($newBlocks))
-            {
-                // $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
+	/**
+	 * Duplicates Neo blocks from one owner element to another.
+	 *
+	 * @param Field $field The Neo field to duplicate blocks for
+	 * @param ElementInterface $source The source element blocks should be duplicated from
+	 * @param ElementInterface $target The target element blocks should be duplicated to
+	 * @param bool $checkOtherSites Whether to duplicate blocks for the source element's other supported sites
+	 * @throws \Throwable if reasons
+	 */
+	public function duplicateBlocks(Field $field, ElementInterface $source, ElementInterface $target, bool $checkOtherSites = false)
+	{
+		/** @var Element $source */
+		/** @var Element $target */
+		$elementsService = Craft::$app->getElements();
+		/** @var BlockQuery $query */
+		$query = $source->getFieldValue($field->handle);
+		/** @var Block[] $blocks */
+		$blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
+		$newBlockIds = [];
+		$transaction = Craft::$app->getDb()->beginTransaction();
+	
+		try {
+			$newBlocks = [];
+			foreach ($blocks as $block) {
+				/** @var Block $newBlock */
+				$collapsed = $block->getCollapsed();
+	
+				$newBlock = $elementsService->duplicateElement($block, [
+					'ownerId' => $target->id,
+					'owner' => $target,
+					'siteId' => $target->siteId,
+					'propagating' => false,
+				]);
+	
+				$newBlock->setCollapsed($collapsed);
+				$newBlock->cacheCollapsed();
+	
+				$newBlockIds[] = $newBlock->id;
+				$newBlocks[] = $newBlock;
+			}
+			// Delete any blocks that shouldn't be there anymore
+			$this->_deleteOtherBlocks($field, $target, $newBlockIds);
+	
+			if (!empty($newBlocks))
+			{
+				// $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
 	
 				// get the supported sites
 				$supportedSites = $this->getSupportedSiteIdsForField($field, $target);
-
+	
 				if ($this->_checkSupportedSitesAndPropagation($field, $supportedSites)) {
 					foreach ($supportedSites as $site) {
 						$this->_saveNeoStructuresForSites($field, $target, $newBlocks, $site);
@@ -323,67 +323,67 @@ class Fields extends Component
 				} else {
 					$this->_saveNeoStructuresForSites($field, $target, $newBlocks);
 				}
-            }
+			}
+	
+			$transaction->commit();
+		} catch (\Throwable $e) {
+			$transaction->rollBack();
+			throw $e;
+		}
+		// Duplicate blocks for other sites as well?
+		if ($checkOtherSites && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
+			// Find the target's site IDs that *aren't* supported by this site's Matrix blocks
+			$targetSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($target), 'siteId');
+			$fieldSiteIds = $this->getSupportedSiteIdsForField($field, $target);
+			$otherSiteIds = array_diff($targetSiteIds, $fieldSiteIds);
+			if (!empty($otherSiteIds)) {
+				// Get the original element and duplicated element for each of those sites
+				/** @var Element[] $otherSources */
+				$otherSources = $target::find()
+					->drafts($source->getIsDraft())
+					->revisions($source->getIsRevision())
+					->id($source->id)
+					->siteId($otherSiteIds)
+					->anyStatus()
+					->all();
+				/** @var Element[] $otherTargets */
+				$otherTargets = $target::find()
+					->drafts($target->getIsDraft())
+					->revisions($target->getIsRevision())
+					->id($target->id)
+					->siteId($otherSiteIds)
+					->anyStatus()
+					->indexBy('siteId')
+					->all();
+				// Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
+				$handledSiteIds = [];
+				foreach ($otherSources as $otherSource) {
+					// Make sure the target actually exists for this site
+					if (!isset($otherTargets[$otherSource->siteId])) {
+						continue;
+					}
+					// Make sure we haven't already duplicated blocks for this site, via propagation from another site
+					if (isset($handledSiteIds[$otherSource->siteId])) {
+						continue;
+					}
+					$this->duplicateBlocks($field, $otherSource, $otherTargets[$otherSource->siteId]);
+					// Make sure we don't duplicate blocks for any of the sites that were just propagated to
+					$sourceSupportedSiteIds = $this->getSupportedSiteIdsForField($field, $otherSource);
+					$handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
+				}
+			}
+		}
+	}
 
-            $transaction->commit();
-        } catch (\Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-        // Duplicate blocks for other sites as well?
-        if ($checkOtherSites && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
-            // Find the target's site IDs that *aren't* supported by this site's Matrix blocks
-            $targetSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($target), 'siteId');
-            $fieldSiteIds = $this->getSupportedSiteIdsForField($field, $target);
-            $otherSiteIds = array_diff($targetSiteIds, $fieldSiteIds);
-            if (!empty($otherSiteIds)) {
-                // Get the original element and duplicated element for each of those sites
-                /** @var Element[] $otherSources */
-                $otherSources = $target::find()
-                    ->drafts($source->getIsDraft())
-                    ->revisions($source->getIsRevision())
-                    ->id($source->id)
-                    ->siteId($otherSiteIds)
-                    ->anyStatus()
-                    ->all();
-                /** @var Element[] $otherTargets */
-                $otherTargets = $target::find()
-                    ->drafts($target->getIsDraft())
-                    ->revisions($target->getIsRevision())
-                    ->id($target->id)
-                    ->siteId($otherSiteIds)
-                    ->anyStatus()
-                    ->indexBy('siteId')
-                    ->all();
-                // Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
-                $handledSiteIds = [];
-                foreach ($otherSources as $otherSource) {
-                    // Make sure the target actually exists for this site
-                    if (!isset($otherTargets[$otherSource->siteId])) {
-                        continue;
-                    }
-                    // Make sure we haven't already duplicated blocks for this site, via propagation from another site
-                    if (isset($handledSiteIds[$otherSource->siteId])) {
-                        continue;
-                    }
-                    $this->duplicateBlocks($field, $otherSource, $otherTargets[$otherSource->siteId]);
-                    // Make sure we don't duplicate blocks for any of the sites that were just propagated to
-                    $sourceSupportedSiteIds = $this->getSupportedSiteIdsForField($field, $otherSource);
-                    $handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns the site IDs that are supported by Matrix blocks for the given Matrix field and owner element.
-     *
-     * @param MatrixField $field
-     * @param ElementInterface $owner
-     * @throws \Throwable if reasons
-     * @return int[]
-     */
-    public function getSupportedSiteIdsForField(Field $field, ElementInterface $owner): array
+	/**
+	 * Returns the site IDs that are supported by Matrix blocks for the given Matrix field and owner element.
+	 *
+	 * @param MatrixField $field
+	 * @param ElementInterface $owner
+	 * @throws \Throwable if reasons
+	 * @return int[]
+	 */
+	public function getSupportedSiteIdsForField(Field $field, ElementInterface $owner): array
     {
         /** @var Element $owner */
         /** @var Site[] $allSites */
@@ -413,8 +413,8 @@ class Fields extends Component
         return $siteIds;
     }
 
-    // Private Methods
-    // =========================================================================
+	// Private Methods
+	// =========================================================================
 
 	/**
 	 * Deletes blocks from an owner element
