@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- added beforeSave function to properly update the neo field propagation method by setting and checking the oldPropagationMethod variable.
+
+- if PROPAGATION_METHOD_NONE is NOT set for the neo field, make sure to duplicate the block and structures for the other sites using the primary content.
+
 ## 2.4.2 - 2019-08-08
 ### Fixed
 - Fix - Need to set the new key for neo structures since the ownerSiteId is now set
