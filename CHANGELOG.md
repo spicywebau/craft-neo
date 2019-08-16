@@ -6,6 +6,8 @@
 
 - if PROPAGATION_METHOD_NONE is NOT set for the neo field, make sure to duplicate the block and structures for the other sites using the primary content.
 
+- Fix indentation of code
+
 ## 2.4.2 - 2019-08-08
 ### Fixed
 - Fix - Need to set the new key for neo structures since the ownerSiteId is now set

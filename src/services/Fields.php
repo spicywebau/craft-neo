@@ -187,32 +187,32 @@ class Fields extends Component
 		$dbService = Craft::$app->getDb();
 		$elementsService = Craft::$app->getElements();
 		$neoSettings = Neo::$plugin->getSettings();
-
-        $query = $owner->getFieldValue($field->handle);
-        $blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
-        $blockIds = [];
-
-        $transaction = $dbService->beginTransaction();
-
+		
+		$query = $owner->getFieldValue($field->handle);
+		$blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
+		$blockIds = [];
+		
+		$transaction = $dbService->beginTransaction();
+		
 		try {
-		    foreach ($blocks as $block) {
-                $block->ownerId = (int)$owner->id;
-                $elementsService->saveElement($block, false);
-                $blockIds[] = $block->id;
-                
-                if (!$neoSettings->collapseAllBlocks)
-                {
-                    $block->cacheCollapsed();
-                }
-            }
-
-		    $this->_deleteOtherBlocks($field, $owner, $blockIds);
-
-            if (!empty($blocks))
-            {
+			foreach ($blocks as $block) {
+				$block->ownerId = (int)$owner->id;
+				$elementsService->saveElement($block, false);
+				$blockIds[] = $block->id;
+				
+				if (!$neoSettings->collapseAllBlocks)
+				{
+					$block->cacheCollapsed();
+				}
+			}
+		
+			$this->_deleteOtherBlocks($field, $owner, $blockIds);
+		
+			if (!empty($blocks))
+			{
 				// get the supported sites
 				$supportedSites = $this->getSupportedSiteIdsForField($field, $owner);
-	
+		
 				if ($this->_checkSupportedSitesAndPropagation($field, $supportedSites)) {
 					foreach ($supportedSites as $site) {
 						$this->_saveNeoStructuresForSites($field, $owner, $blocks, $site);
@@ -220,50 +220,50 @@ class Fields extends Component
 				} else {
 					$this->_saveNeoStructuresForSites($field, $owner, $blocks);
 				}
-            }
-
-            if ($owner->propagateAll && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
-                $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
-                $fieldSiteIds = $this->getSupportedSiteIdsForField($field, $owner);
-                $otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
-
-                if (!empty($otherSiteIds)) {
-                    // Get the original element and duplicated element for each of those sites
-                    /** @var Element[] $otherTargets */
-                    $otherTargets = $owner::find()
-                        ->drafts($owner->getIsDraft())
-                        ->revisions($owner->getIsRevision())
-                        ->id($owner->id)
-                        ->siteId($otherSiteIds)
-                        ->anyStatus()
-                        ->all();
-
-                    // Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
-                    $handledSiteIds = [];
-                    $cachedQuery = (clone $query)->anyStatus();
-                    $cachedQuery->setCachedResult($blocks);
-                    $owner->setFieldValue($field->handle, $cachedQuery);
-
-                    foreach ($otherTargets as $otherTarget) {
-                        // Make sure we haven't already duplicated blocks for this site, via propagation from another site
-                        if (isset($handledSiteIds[$otherTarget->siteId])) {
-                            continue;
-                        }
-                        $this->duplicateBlocks($field, $owner, $otherTarget);
-                        // Make sure we don't duplicate blocks for any of the sites that were just propagated to
-                        $sourceSupportedSiteIds = $this->getSupportedSiteIdsForField($field, $otherTarget);
-                        $handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
-                    }
-                    $owner->setFieldValue($field->handle, $query);
-                }
-            }
-
-            $transaction->commit();
-
-        } catch (\Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
+			}
+		
+			if ($owner->propagateAll && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
+				$ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
+				$fieldSiteIds = $this->getSupportedSiteIdsForField($field, $owner);
+				$otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
+		
+				if (!empty($otherSiteIds)) {
+					// Get the original element and duplicated element for each of those sites
+					/** @var Element[] $otherTargets */
+					$otherTargets = $owner::find()
+						->drafts($owner->getIsDraft())
+						->revisions($owner->getIsRevision())
+						->id($owner->id)
+						->siteId($otherSiteIds)
+						->anyStatus()
+						->all();
+		
+					// Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
+					$handledSiteIds = [];
+					$cachedQuery = (clone $query)->anyStatus();
+					$cachedQuery->setCachedResult($blocks);
+					$owner->setFieldValue($field->handle, $cachedQuery);
+		
+					foreach ($otherTargets as $otherTarget) {
+						// Make sure we haven't already duplicated blocks for this site, via propagation from another site
+						if (isset($handledSiteIds[$otherTarget->siteId])) {
+							continue;
+						}
+						$this->duplicateBlocks($field, $owner, $otherTarget);
+						// Make sure we don't duplicate blocks for any of the sites that were just propagated to
+						$sourceSupportedSiteIds = $this->getSupportedSiteIdsForField($field, $otherTarget);
+						$handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
+					}
+					$owner->setFieldValue($field->handle, $query);
+				}
+			}
+		
+			$transaction->commit();
+		
+		} catch (\Throwable $e) {
+			$transaction->rollBack();
+			throw $e;
+		}
 	}
 
 	/**
@@ -286,36 +286,36 @@ class Fields extends Component
 		$blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
 		$newBlockIds = [];
 		$transaction = Craft::$app->getDb()->beginTransaction();
-	
+		
 		try {
 			$newBlocks = [];
 			foreach ($blocks as $block) {
 				/** @var Block $newBlock */
 				$collapsed = $block->getCollapsed();
-	
+		
 				$newBlock = $elementsService->duplicateElement($block, [
 					'ownerId' => $target->id,
 					'owner' => $target,
 					'siteId' => $target->siteId,
 					'propagating' => false,
 				]);
-	
+		
 				$newBlock->setCollapsed($collapsed);
 				$newBlock->cacheCollapsed();
-	
+		
 				$newBlockIds[] = $newBlock->id;
 				$newBlocks[] = $newBlock;
 			}
 			// Delete any blocks that shouldn't be there anymore
 			$this->_deleteOtherBlocks($field, $target, $newBlockIds);
-	
+		
 			if (!empty($newBlocks))
 			{
 				// $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
-	
+		
 				// get the supported sites
 				$supportedSites = $this->getSupportedSiteIdsForField($field, $target);
-	
+		
 				if ($this->_checkSupportedSitesAndPropagation($field, $supportedSites)) {
 					foreach ($supportedSites as $site) {
 						$this->_saveNeoStructuresForSites($field, $target, $newBlocks, $site);
@@ -324,7 +324,7 @@ class Fields extends Component
 					$this->_saveNeoStructuresForSites($field, $target, $newBlocks);
 				}
 			}
-	
+		
 			$transaction->commit();
 		} catch (\Throwable $e) {
 			$transaction->rollBack();
@@ -390,7 +390,7 @@ class Fields extends Component
 		$allSites = ArrayHelper::index(Craft::$app->getSites()->getAllSites(), 'id');
 		$ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
 		$siteIds = [];
-	
+		
 		foreach ($ownerSiteIds as $siteId) {
 			switch ($field->propagationMethod) {
 				case Field::PROPAGATION_METHOD_NONE:
@@ -426,7 +426,6 @@ class Fields extends Component
 	 */
 	private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
 	{
-	
 		$supportedSites = $this->getSupportedSiteIdsForField($field, $owner);
 		$supportedSitesCount = count($supportedSites);
 		// throw new \Exception(print_r($supportedSitesCount, true));
@@ -442,17 +441,16 @@ class Fields extends Component
 	private function _checkSupportedSitesAndPropagation($field, $supportedSites) {
 		// get the supported sites
 		$supportedSitesCount = count($supportedSites);
-	
+		
 		// if more than 1 supported sites and propagation method is not PROPAGATION_METHOD_NONE
 		// then save the neo structures for each site.
-		
 		return $supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE;
 	}
     
 	private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null) {
-    	
-    	$siteId = $sId ?? $owner->siteId;
-    	
+		
+		$siteId = $sId ?? $owner->siteId;
+		
 		/** @var Element $owner */
 		$deleteBlocks = Block::find()
 			->anyStatus()
@@ -462,14 +460,14 @@ class Fields extends Component
 			->inReverse()
 			->andWhere(['not', ['elements.id' => $except]])
 			->all();
-	
+		
 		$elementsService = Craft::$app->getElements();
-	
+		
 		foreach ($deleteBlocks as $deleteBlock) {
 			$deleteBlock->forgetCollapsed();
 			$elementsService->deleteElement($deleteBlock);
 		}
-	
+		
 		// Delete any existing block structures associated with this field/owner/site combination
 		while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null)
 		{
@@ -483,7 +481,7 @@ class Fields extends Component
 		$blockStructure->fieldId = (int)$field->id;
 		$blockStructure->ownerId = (int)$owner->id;
 		$blockStructure->ownerSiteId = (int)$siteId;
-	
+		
 		Neo::$plugin->blocks->saveStructure($blockStructure);
 		Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
 	}
