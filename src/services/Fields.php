@@ -416,16 +416,16 @@ class Fields extends Component
     // Private Methods
     // =========================================================================
 
-    /**
-     * Deletes blocks from an owner element
-     *
-     * @param Field $field The Neo field
-     * @param ElementInterface The owner element
-     * @param int[] $except Block IDs that should be left alone
-     * @throws \Throwable if reasons
-     */
-    private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
-    {
+	/**
+	 * Deletes blocks from an owner element
+	 *
+	 * @param Field $field The Neo field
+	 * @param ElementInterface The owner element
+	 * @param int[] $except Block IDs that should be left alone
+	 * @throws \Throwable if reasons
+	 */
+	private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
+	{
 	
 		$supportedSites = $this->getSupportedSiteIdsForField($field, $owner);
 		$supportedSitesCount = count($supportedSites);
@@ -437,9 +437,9 @@ class Fields extends Component
 		} else {
 			$this->_deleteNeoBlocksAndStructures($field, $owner, $except);
 		}
-    }
+	}
     
-    private function _checkSupportedSitesAndPropagation($field, $supportedSites) {
+	private function _checkSupportedSitesAndPropagation($field, $supportedSites) {
 		// get the supported sites
 		$supportedSitesCount = count($supportedSites);
 	
@@ -449,7 +449,7 @@ class Fields extends Component
 		return $supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE;
 	}
     
-    private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null) {
+	private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null) {
     	
     	$siteId = $sId ?? $owner->siteId;
     	
@@ -477,7 +477,7 @@ class Fields extends Component
 		}
 	}
     
-    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null) {
+	private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null) {
 		$siteId = $sId ?? $owner->siteId;
 		$blockStructure = new BlockStructure();
 		$blockStructure->fieldId = (int)$field->id;
