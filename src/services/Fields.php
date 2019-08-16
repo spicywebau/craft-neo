@@ -210,7 +210,16 @@ class Fields extends Component
 
             if (!empty($blocks))
             {
-            	$this->_saveNeoStructuresForSites($field, $owner, $blocks);
+				// get the supported sites
+				$supportedSites = $this->getSupportedSiteIdsForField($field, $owner);
+	
+				if ($this->_checkSupportedSitesAndPropagation($field, $supportedSites)) {
+					foreach ($supportedSites as $site) {
+						$this->_saveNeoStructuresForSites($field, $owner, $blocks, $site);
+					}
+				} else {
+					$this->_saveNeoStructuresForSites($field, $owner, $blocks);
+				}
             }
 
             if ($owner->propagateAll && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
@@ -302,7 +311,18 @@ class Fields extends Component
 
             if (!empty($newBlocks))
             {
-                $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
+                // $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
+	
+				// get the supported sites
+				$supportedSites = $this->getSupportedSiteIdsForField($field, $target);
+
+				if ($this->_checkSupportedSitesAndPropagation($field, $supportedSites)) {
+					foreach ($supportedSites as $site) {
+						$this->_saveNeoStructuresForSites($field, $target, $newBlocks, $site);
+					}
+				} else {
+					$this->_saveNeoStructuresForSites($field, $target, $newBlocks);
+				}
             }
 
             $transaction->commit();
@@ -419,6 +439,16 @@ class Fields extends Component
 		}
     }
     
+    private function _checkSupportedSitesAndPropagation($field, $supportedSites) {
+		// get the supported sites
+		$supportedSitesCount = count($supportedSites);
+	
+		// if more than 1 supported sites and propagation method is not PROPAGATION_METHOD_NONE
+		// then save the neo structures for each site.
+		
+		return $supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE;
+	}
+    
     private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null) {
     	
     	$siteId = $sId ?? $owner->siteId;
@@ -447,34 +477,14 @@ class Fields extends Component
 		}
 	}
     
-    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks) {
-		// get the supported sites
-		$supportedSites = $this->getSupportedSiteIdsForField($field, $owner);
-		$supportedSitesCount = count($supportedSites) > 1;
+    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null) {
+		$siteId = $sId ?? $owner->siteId;
+		$blockStructure = new BlockStructure();
+		$blockStructure->fieldId = (int)$field->id;
+		$blockStructure->ownerId = (int)$owner->id;
+		$blockStructure->ownerSiteId = (int)$siteId;
 	
-		// if more than 1 supported sites and propagation method is not PROPAGATION_METHOD_NONE
-		// then save the neo structures for each site.
-		if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
-		
-			foreach ($supportedSites as $site) {
-				$blockStructure = new BlockStructure();
-				$blockStructure->fieldId = (int)$field->id;
-				$blockStructure->ownerId = (int)$owner->id;
-				$blockStructure->ownerSiteId = (int)$site;
-			
-				Neo::$plugin->blocks->saveStructure($blockStructure);
-				Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
-			}
-		
-		
-		} else {
-			$blockStructure = new BlockStructure();
-			$blockStructure->fieldId = (int)$field->id;
-			$blockStructure->ownerId = (int)$owner->id;
-			$blockStructure->ownerSiteId = (int)$owner->siteId;
-		
-			Neo::$plugin->blocks->saveStructure($blockStructure);
-			Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
-		}
+		Neo::$plugin->blocks->saveStructure($blockStructure);
+		Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
 	}
 }
