@@ -605,26 +605,28 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	
 	/**
 	 * @inheritdoc
+	 * removed as this is causing issues when changing propagation method.
+	 * manually it can still be done by saving the entry
 	 */
-	public function beforeSave(bool $isNew): bool
-	{
-		if (!parent::beforeSave($isNew)) {
-			return false;
-		}
-		// Prep the block types & fields for save
-		$fieldsService = Craft::$app->getFields();
-
-		// remember the original propagation method
-		if ($this->id) {
-			$oldField = $fieldsService->getFieldById($this->id);
-			
-			if ($oldField instanceof self) {
-				$this->_oldPropagationMethod = $oldField->propagationMethod;
-			}
-		}
-		
-		return true;
-	}
+	// public function beforeSave(bool $isNew): bool
+	// {
+	// 	if (!parent::beforeSave($isNew)) {
+	// 		return false;
+	// 	}
+	// 	// Prep the block types & fields for save
+	// 	$fieldsService = Craft::$app->getFields();
+	//
+	// 	// remember the original propagation method
+	// 	if ($this->id) {
+	// 		$oldField = $fieldsService->getFieldById($this->id);
+	//
+	// 		if ($oldField instanceof self) {
+	// 			$this->_oldPropagationMethod = $oldField->propagationMethod;
+	// 		}
+	// 	}
+	//
+	// 	return true;
+	// }
 	
 	/**
 	 * @inheritdoc
@@ -634,19 +636,20 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 		Neo::$plugin->fields->save($this);
 
         // If the propagation method just changed, resave all the neo blocks
-        if ($this->_oldPropagationMethod && $this->propagationMethod !== $this->_oldPropagationMethod) {
-            Craft::$app->getQueue()->push(new ResaveElements([
-                'elementType' => Block::class,
-                'criteria' => [
-                    'fieldId' => $this->id,
-                    'siteId' => '*',
-                    'unique' => true,
-                    'status' => null,
-                    'enabledForSite' => false,
-                ]
-            ]));
-            $this->_oldPropagationMethod = null;
-        }
+		// TODO - fix the issue when automatically resaving neo fields.
+        // if ($this->_oldPropagationMethod && $this->propagationMethod !== $this->_oldPropagationMethod) {
+        //     Craft::$app->getQueue()->push(new ResaveElements([
+        //         'elementType' => Block::class,
+        //         'criteria' => [
+        //             'fieldId' => $this->id,
+        //             'siteId' => '*',
+        //             'unique' => true,
+        //             'status' => null,
+        //             'enabledForSite' => false,
+        //         ]
+        //     ]));
+        //     $this->_oldPropagationMethod = null;
+        // }
 
 		parent::afterSave($isNew);
 	}
