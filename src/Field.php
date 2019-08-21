@@ -582,6 +582,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 					'and',
 					'[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
 					'[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
+					'[[neoblockstructures.ownerSiteId]] = '. Craft::$app->getSites()->getCurrentSite()->id,
 				]
 			)
 			->leftJoin(

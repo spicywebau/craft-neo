@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- require the siteId for neo structures for eager loading
+
 ## 2.4.3 - 2019-08-16
 ### Fixed
 - added beforeSave function to properly update the neo field propagation method by setting and checking the oldPropagationMethod variable.
