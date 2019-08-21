@@ -400,7 +400,7 @@ class Fields extends Component
 					$include = (int)$allSites[$siteId]->groupId === (int)$allSites[$owner->siteId]->groupId;
 					break;
 				case Field::PROPAGATION_METHOD_LANGUAGE:
-					$include = (int)$allSites[$siteId]->language === (int)$allSites[$owner->siteId]->language;
+					$include = $allSites[$siteId]->language === $allSites[$owner->siteId]->language;
 					break;
 				default:
 					$include = true;

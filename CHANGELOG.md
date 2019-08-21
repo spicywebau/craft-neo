@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- require the siteId for neo structures for eager loading
+- fix getSupportedSiteIdsForField language comparison
+
+### Changed
+- Removed the queue job after changing the propagation method for the neo field as it was causing `Attempting to save an element in an unsupported site.`. Propagation changes will be applied once the entry containing the field is saved.
+
 ## 2.4.3 - 2019-08-16
 ### Fixed
 - added beforeSave function to properly update the neo field propagation method by setting and checking the oldPropagationMethod variable.
