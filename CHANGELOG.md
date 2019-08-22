@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- fix multi-site issue where on draft creation the contents of the draft is copied over to the other site drafts. #246 
+
 ## 2.4.4 - 2019-08-21
 ### Fixed
 - require the siteId for neo structures for eager loading

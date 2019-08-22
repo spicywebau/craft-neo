@@ -419,8 +419,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface
             }
 
             $query->limit = null;
-            $query->setCachedResult($elements);
-            $query->useMemoized($elements);
+            // don't set the cached result if element is a draft initially.
+			// on draft creation the all other sites (in a multisite) uses the cached result from the element (where the draft came from)
+			// which overwrites the contents on the other sites.
+			if (!$element->getIsDraft() || ($element->getIsDraft() && count($element->newSiteIds) === 0)) {
+				$query->setCachedResult($elements);
+				$query->useMemoized($elements);
+			}
         }
 
 		return $query;
