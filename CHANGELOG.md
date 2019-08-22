@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.4.4 - 2019-08-21
 ### Fixed
 - require the siteId for neo structures for eager loading
 - fix getSupportedSiteIdsForField language comparison
