@@ -5,6 +5,7 @@ const BlockSort = Garnish.Drag.extend({
 
 	$container: null,
 	blocks: null,
+	maxTopBlocks: 0,
 
 	_draggeeBlocks: null,
 
@@ -23,6 +24,7 @@ const BlockSort = Garnish.Drag.extend({
 
 		this.$container = settings.container
 		this.blocks = []
+		this.maxTopBlocks = settings.maxTopBlocks
 	},
 
 	getHelperTargetX()
@@ -222,7 +224,7 @@ const BlockSort = Garnish.Drag.extend({
 
 			const blockHeight = block.$container.height()
 			const topbarHeight = block.$topbarContainer.height()
-			const contentHeight = isExpanded ? block.$contentContainer.height() : 0
+			const contentHeight = isExpanded && block.$contentContainer.length > 0 ? block.$contentContainer.height() : 0
 			const childrenHeight = isExpanded ? block.$childrenContainer.height() : 0
 
 			const parentBlock = this.getParentBlock(block)
@@ -251,7 +253,7 @@ const BlockSort = Garnish.Drag.extend({
 		{
 			case BlockSort.TYPE_CHILDREN:
 			{
-				if(direction === BlockSort.DIRECTION_UP && this.$draggee.closest(block.$container).length == 0)
+				if(this.$draggee.closest(block.$container).length == 0)
 				{
 					block.$blocksContainer.append(this.$draggee)
 				}
@@ -298,21 +300,67 @@ const BlockSort = Garnish.Drag.extend({
 
 	_validateDraggeeChildren(block)
 	{
+		// If no block, then we're checking at the top level
 		if(!block)
 		{
+			const that = this
+			const topBlocks = this.$container.children('.ni_block:not(.is-disabled)')
+			let topBlocksCount = topBlocks.length
+
 			for(let draggeeBlock of this._draggeeBlocks)
 			{
+				// Is this block allowed at the top level?
 				if(!draggeeBlock.getBlockType().getTopLevel())
 				{
 					return false
 				}
 			}
 
+			// If the block is already at the top level, don't count it for max top level block check purposes
+			topBlocks.each(function()
+			{
+				if(that._draggeeBlocks.includes(that.getBlockByElement(this)))
+				{
+					topBlocksCount--
+				}
+			})
+
+			// If this move would exceed the field's max top level blocks, we can't allow it
+			if(this.maxTopBlocks > 0 && topBlocksCount >= this.maxTopBlocks)
+			{
+				return false
+			}
+
 			return true
 		}
 
 		const blockType = block.getBlockType()
+		const maxChildBlocks = blockType.getMaxChildBlocks()
 
+		// Check whether the move would make the potential parent block exceed its max child blocks
+		if(maxChildBlocks > 0)
+		{
+			const blockChildren = block.$childrenContainer.children('.ni_blocks').children('.ni_block')
+			let blockChildCount = blockChildren.length
+			const that = this
+
+			// If the block is already a child block, don't count it for max child block check purposes
+			blockChildren.each(function()
+			{
+				if(that._draggeeBlocks.includes(that.getBlockByElement(this)))
+				{
+					blockChildCount--
+				}
+			})
+
+			// Exceeds max child blocks?  Can't move it here, then
+			if(blockChildCount >= maxChildBlocks)
+			{
+				return false
+			}
+		}
+
+		// Check whether the block is a valid child block for the parent's block type
 		for(let draggeeBlock of this._draggeeBlocks)
 		{
 			if(!blockType.isValidChildBlock(draggeeBlock))
