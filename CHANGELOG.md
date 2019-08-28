@@ -2,7 +2,10 @@
 
 ## Unreleased
 ### Fixed
-- fix multi-site issue where on draft creation the contents of the draft is copied over to the other site drafts. #246 
+- fix multi-site issue where on draft creation the contents of the draft is copied over to the other site drafts. #246
+
+### Changed
+- removed the confim unload function for the Input class as the "Do you want to leave" alert is now fixed within craft.
 
 ## 2.4.4 - 2019-08-21
 ### Fixed
