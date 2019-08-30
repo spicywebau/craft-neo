@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Field Labels compatibility update
+
 ## 2.4.5 - 2019-08-30
 ### Fixed
 - fix multi-site issue where on draft creation the contents of the draft is copied over to the other site drafts. #246
