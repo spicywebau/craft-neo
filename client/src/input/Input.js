@@ -47,8 +47,8 @@ export default Garnish.Base.extend({
 		this._maxTopBlocks = settings.maxTopBlocks
 		this._static = settings['static']
 
-		// this._form = $('form[data-confirm-unload]');
-		// this._form.removeAttr('data-confirm-unload');
+		this.$confirmUnloadForms = $('form[data-confirm-unload]')
+		this.$confirmUnloadForms[0].removeAttribute('data-confirm-unload')
 
 		NS.enter(this._templateNs)
 
@@ -160,16 +160,16 @@ export default Garnish.Base.extend({
 
 		this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
 
-		// function dataConfirmUnloadSetup() {
-		// 	if(!(typeof _this._form.attr('data-confirm-unload') !== typeof undefined && _this._form.attr('data-confirm-unload') !== false)) {
-		// 		_this._form.attr('data-confirm-unload', '');
-		// 		_this.initConfirmUnloadForms();
-		//
-		// 		_this._form.find('#main-content input').off('input', '#main-content input', dataConfirmUnloadSetup);
-		// 	}
-		// }
-		//
-		// this._form.find('#main-content input').on('input', dataConfirmUnloadSetup);
+		let serialized;
+
+		if (typeof $form.data('serializer') === 'function') {
+			serialized = $form.data('serializer')()
+		} else {
+			serialized = $form.serialize()
+		}
+
+		$form.data('initialSerializedValue', serialized)
+		this.$confirmUnloadForms.attr('data-confirm-unload', '')
 	},
 
 	initConfirmUnloadForms: function() {

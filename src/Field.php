@@ -401,8 +401,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface
             $query->structureId($blockStructure->structureId);
         }
 
-//        throw new \Exception(print_r($query, true));
-
         // Set the initially matched elements if $value is already set, which is the case if there was a validation
         // error or we're loading an entry revision.
         if (is_array($value) || $value === '')

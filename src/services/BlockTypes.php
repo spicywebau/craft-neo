@@ -482,7 +482,7 @@ class BlockTypes extends Component
 			$sitesService = Craft::$app->getSites();
 			$elementsService = Craft::$app->getElements();
 			$fieldsService = Craft::$app->getFields();
-
+			
 			// Delete all blocks of this type
 			foreach ($sitesService->getAllSiteIds() as $siteId)
 			{
