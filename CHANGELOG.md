@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- fix multi-site issue where on draft creation the contents of the draft is copied over to the other site drafts. #246
+- Fixed issue with saving a new entry and the alert that appears (the "Do you want to leave" msg on save).
+- Fixed issue with field deletion when there's multi level nested blocks #249
+
+
 ## 2.4.4 - 2019-08-21
 ### Fixed
 - require the siteId for neo structures for eager loading
