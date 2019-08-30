@@ -472,12 +472,24 @@ class BlockTypes extends Component
 
 		try
 		{
-			$blockType = $this->getById($record->id);
-
-			if ($blockType === null)
+			// get all block types with the same field id
+			$blockTypes = $this->getByFieldId($record->fieldId);
+			
+			if (count($blockTypes) === 0)
 			{
 				return;
 			}
+			
+			// sort block types so the sort order is descending
+			usort($blockTypes, function($a, $b)
+			{
+				if ((int)$a->sortOrder === (int)$b->sortOrder)
+				{
+					return 0;
+				}
+				
+				return (int)$a->sortOrder > (int)$b->sortOrder ? -1 : 1;
+			});
 
 			$sitesService = Craft::$app->getSites();
 			$elementsService = Craft::$app->getElements();
@@ -486,25 +498,32 @@ class BlockTypes extends Component
 			// Delete all blocks of this type
 			foreach ($sitesService->getAllSiteIds() as $siteId)
 			{
-				$blocks = Block::find()
-					->siteId($siteId)
-					->typeId($blockType->id)
-					->inReverse()
-					->all();
-
+				$blocks = [];
+				
+				foreach ($blockTypes as $blockType) {
+					$allBlocks = Block::find()
+						->siteId($siteId)
+						->typeId($blockType->id)
+						->all();
+					
+					$blocks += $allBlocks;
+				}
+				
 				foreach ($blocks as $block)
 				{
 					$elementsService->deleteElement($block);
 				}
 			}
-
-			// Delete the block type's field layout
-			$fieldsService->deleteLayoutById($blockType->fieldLayoutId);
-
-			// Delete the block type
-			$affectedRows = $dbService->createCommand()
-				->delete('{{%neoblocktypes}}', ['id' => $blockType->id])
-				->execute();
+			
+			foreach ($blockTypes as $blockType) {
+				// Delete the block type's field layout
+				$fieldsService->deleteLayoutById($blockType->fieldLayoutId);
+				
+				// Delete the block type
+				$dbService->createCommand()
+					->delete('{{%neoblocktypes}}', ['id' => $blockType->id])
+					->execute();
+			}
 
 			$transaction->commit();
 		}
