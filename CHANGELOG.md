@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.4.5 - 2019-08-30
 ### Fixed
 - fix multi-site issue where on draft creation the contents of the draft is copied over to the other site drafts. #246
 - Fixed issue with saving a new entry and the alert that appears (the "Do you want to leave" msg on save).
