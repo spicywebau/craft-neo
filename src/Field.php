@@ -7,6 +7,8 @@ use craft\base\EagerLoadingFieldInterface;
 use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\base\Field as BaseField;
+use craft\base\GqlInlineFragmentFieldInterface;
+use craft\base\GqlInlineFragmentInterface;
 use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
@@ -14,6 +16,9 @@ use craft\helpers\ElementHelper;
 use craft\validators\ArrayValidator;
 use craft\queue\jobs\ResaveElements;
 use craft\services\Elements;
+use craft\gql\GqlEntityRegistry;
+use craft\helpers\Gql as GqlHelper;
+use GraphQL\Type\Definition\Type;
 
 use benf\neo\assets\FieldAsset;
 use benf\neo\elements\Block;
@@ -21,8 +26,12 @@ use benf\neo\elements\db\BlockQuery;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
+use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
+use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
+use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
 use benf\neo\validators\FieldValidator;
 use yii\db\Exception;
+use yii\base\InvalidArgumentException;
 
 /**
  * Class Field
@@ -32,7 +41,7 @@ use yii\db\Exception;
  * @author Benjamin Fleming
  * @since 2.0.0
  */
-class Field extends BaseField implements EagerLoadingFieldInterface
+class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFragmentFieldInterface
 {
     const PROPAGATION_METHOD_NONE = 'none';
     const PROPAGATION_METHOD_SITE_GROUP = 'siteGroup';
@@ -823,6 +832,50 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 
 		parent::afterElementRestore($element);
 	}
+	
+	
+	/**
+	 * @inheritdoc
+	 */
+	public function getContentGqlType()
+	{
+		$typeArray = NeoBlockTypeGenerator::generateTypes($this);
+		$typeName = $this->handle . '_NeoField';
+		$resolver = function (Block $value) {
+			return GqlEntityRegistry::getEntity($value->getGqlTypeName());
+		};
+		
+		return [
+			'name' => $this->handle,
+			'type' => Type::listOf(GqlHelper::getUnionType($typeName, $typeArray, $resolver)),
+			'args' => NeoBlockArguments::getArguments(),
+			'resolve' => NeoBlockResolver::class . '::resolve',
+		];
+	}
+	
+	/**
+	 * @inheritdoc
+	 * @throws InvalidArgumentException
+	 */
+	public function getGqlFragmentEntityByName(string $fragmentName): GqlInlineFragmentInterface
+	{
+		if (!preg_match('/^(?P<fieldHandle>[\w]+)_(?P<blockTypeHandle>[\w]+)_BlockType$/i', $fragmentName, $matches)) {
+			throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
+		}
+		
+		if ($this->handle !== $matches['fieldHandle']) {
+			throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
+		}
+		
+		$blockType = ArrayHelper::firstWhere($this->getBlockTypes(), 'handle', $matches['blockTypeHandle']);
+		
+		if (!$blockType) {
+			throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
+		}
+		
+		return $blockType;
+	}
+	
 
 	/**
 	 * Returns what current depth the field is nested.
@@ -853,6 +906,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface
 	 * @param ElementInterface|null $element The element associated with this field, if any.
 	 * @param bool $static Whether to generate static HTML, e.g. for displaying entry revisions.
 	 * @return string
+	 * @throws
 	 */
 	private function _getInputHtml($value, ElementInterface $element = null, bool $static = false): string
 	{

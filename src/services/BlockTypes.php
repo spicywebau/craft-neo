@@ -623,6 +623,21 @@ class BlockTypes extends Component
 
 		return Neo::$plugin->blocks->renderTabs($block, $static, $namespace);
 	}
+	
+	/**
+	 * Returns all the block types.
+	 */
+	public function getAllBlockTypes(): array
+	{
+		$results = $this->_createQuery()
+			->all();
+		
+		foreach ($results as $key => $result) {
+			$results[$key] = new BlockType($result);
+		}
+		
+		return $results;
+	}
 
 	/**
 	 * Creates a basic Neo block type query.
