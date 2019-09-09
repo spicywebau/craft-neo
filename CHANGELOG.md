@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.4.6 - 2019-09-10
 ### Fixed
 - Field Labels compatibility update
+- Fix #243. Revert handleDeletedBlockType changes as it causes some issues when deleting the block types in the neo field.
 
 ## 2.4.5 - 2019-08-30
 ### Fixed
