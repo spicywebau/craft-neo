@@ -461,36 +461,24 @@ class BlockTypes extends Component
 	{
 		$uid = $event->tokenMatches[0];
 		$record = $this->_getRecordByUid($uid);
-
+		
 		if ($record->id === null)
 		{
 			return;
 		}
-
+		
 		$dbService = Craft::$app->getDb();
 		$transaction = $dbService->beginTransaction();
-
+		
 		try
 		{
-			// get all block types with the same field id
-			$blockTypes = $this->getByFieldId($record->fieldId);
+			$blockType = $this->getById($record->id);
 			
-			if (count($blockTypes) === 0)
+			if ($blockType === null)
 			{
 				return;
 			}
 			
-			// sort block types so the sort order is descending
-			usort($blockTypes, function($a, $b)
-			{
-				if ((int)$a->sortOrder === (int)$b->sortOrder)
-				{
-					return 0;
-				}
-				
-				return (int)$a->sortOrder > (int)$b->sortOrder ? -1 : 1;
-			});
-
 			$sitesService = Craft::$app->getSites();
 			$elementsService = Craft::$app->getElements();
 			$fieldsService = Craft::$app->getFields();
@@ -498,39 +486,30 @@ class BlockTypes extends Component
 			// Delete all blocks of this type
 			foreach ($sitesService->getAllSiteIds() as $siteId)
 			{
-				$blocks = [];
-				
-				foreach ($blockTypes as $blockType) {
-					$allBlocks = Block::find()
-						->siteId($siteId)
-						->typeId($blockType->id)
-						->all();
-					
-					$blocks += $allBlocks;
-				}
+				$blocks = Block::find()
+					->siteId($siteId)
+					->typeId($blockType->id)
+					->inReverse()
+					->all();
 				
 				foreach ($blocks as $block)
 				{
 					$elementsService->deleteElement($block);
 				}
 			}
+			// Delete the block type's field layout
+			$fieldsService->deleteLayoutById($blockType->fieldLayoutId);
 			
-			foreach ($blockTypes as $blockType) {
-				// Delete the block type's field layout
-				$fieldsService->deleteLayoutById($blockType->fieldLayoutId);
-				
-				// Delete the block type
-				$dbService->createCommand()
-					->delete('{{%neoblocktypes}}', ['id' => $blockType->id])
-					->execute();
-			}
-
+			// Delete the block type
+			$affectedRows = $dbService->createCommand()
+				->delete('{{%neoblocktypes}}', ['id' => $blockType->id])
+				->execute();
+			
 			$transaction->commit();
 		}
 		catch (\Throwable $e)
 		{
 			$transaction->rollBack();
-
 			throw $e;
 		}
 	}
