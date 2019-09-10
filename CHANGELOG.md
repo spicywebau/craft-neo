@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fix #249
+
 ## 2.4.6 - 2019-09-10
 ### Fixed
 - Field Labels compatibility update
