@@ -154,6 +154,18 @@ class Fields extends Component
 		try
 		{
 			$blockTypes = Neo::$plugin->blockTypes->getByFieldId($field->id);
+			
+			// sort block types so the sort order is descending
+			// need to reverse to multi level blocks get deleted before the parent
+			usort($blockTypes, function($a, $b)
+			{
+				if ((int)$a->sortOrder === (int)$b->sortOrder)
+				{
+					return 0;
+				}
+				
+				return (int)$a->sortOrder > (int)$b->sortOrder ? -1 : 1;
+			});
 
 			foreach ($blockTypes as $blockType)
 			{
