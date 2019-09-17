@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.4.7 - 2019-09-10
 ### Fixed
 - Fix #249
+- Fix #255, removed 0 index with Field Labels Integration as it causes `Undefined offset: 0`
 
 ## 2.4.6 - 2019-09-10
 ### Fixed
