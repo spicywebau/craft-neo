@@ -40,7 +40,7 @@ class Block extends Element
 			'name' => static::getName(),
 			'fields' => self::class . '::getFieldDefinitions',
 			'description' => 'This is the interface implemented by all neo blocks.',
-			'resolveType' => function (NeoBlock $value) {
+			'resolveType' => static function (NeoBlock $value) {
 				return GqlEntityRegistry::getEntity($value->getGqlTypeName());
 			}
 		]));
