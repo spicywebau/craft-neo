@@ -1,8 +1,14 @@
 # Changelog
 
-## Unreleased
+## 2.4.7 - 2019-09-10
+### Fixed
+- Fix #249
+- Fix #255, removed 0 index with Field Labels Integration as it causes `Undefined offset: 0`
+
+## 2.4.6 - 2019-09-10
 ### Fixed
 - Field Labels compatibility update
+- Fix #243. Revert handleDeletedBlockType changes as it causes some issues when deleting the block types in the neo field.
 
 ## 2.4.5 - 2019-08-30
 ### Fixed
