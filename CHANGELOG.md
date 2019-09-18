@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4.8 - 2019-09-14
+### Fixed
+- Fix #232 - make sure to clear the uid when cloning the field so the original doesn't get overwritten when converting.
+
+### Changed
+- Update tar
+- Update js-yaml
+
 ## 2.4.7 - 2019-09-10
 ### Fixed
 - Fix #249
