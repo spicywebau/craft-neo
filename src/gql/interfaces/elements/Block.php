@@ -45,6 +45,10 @@ class Block extends Element
 			}
 		]));
 		
+		// NeoBlockInterface needs to be registered for craft >=3.3.3
+		// else it will throw an error
+		TypeLoader::registerType(static::getName(), function () use ($type) { return $type ;});
+		
 		foreach (BlockType::generateTypes() as $typeName => $generatedType) {
 			TypeLoader::registerType($typeName, function () use ($generatedType) { return $generatedType ;});
 		}
