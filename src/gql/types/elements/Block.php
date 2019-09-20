@@ -2,7 +2,6 @@
 
 namespace benf\neo\gql\types\elements;
 
-
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block as BlockElement;
 use benf\neo\gql\interfaces\elements\Block as NeoBlockInterface;
