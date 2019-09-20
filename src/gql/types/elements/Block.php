@@ -26,7 +26,7 @@ class Block extends ObjectType
 	{
 		$config['interfaces'] = [
 			NeoBlockInterface::getType(),
-			ElementInterface::getType(),
+			ElementInterface::getType()
 		];
 		
 		parent::__construct($config);
@@ -41,6 +41,41 @@ class Block extends ObjectType
 		
 		if ($fieldName === 'typeHandle') {
 			return $source->getType()->handle;
+		}
+		
+		if ($fieldName === 'children') {
+			
+			$newBlocks = [];
+			$blocks = $source->$fieldName;
+			$sourceLevel = (int)$source->level + 1;
+			
+			// if blocks are already in the array
+			if (is_array($blocks) && count($blocks) > 0) {
+				// filter blocks for this blocktypes children
+				foreach ($blocks as $block) {
+					if ((int)$block->level === $sourceLevel) {
+						$newBlocks[] = $block;
+					}
+				}
+			} else {
+				// because of how the children is retrieve the blocks are located in the parent,
+				// which is why we now have to retrieve them by query
+				// if there's none return the default.
+				$q = BlockElement::find()
+					->ownerId($source->ownerId)
+					->fieldId($source->fieldId)
+					->level($sourceLevel)
+					->all();
+				
+				if(count($q) and is_array($q)) {
+					$newBlocks = $q;
+				}
+			}
+			
+			if (count($newBlocks)) {
+				return $newBlocks;
+			}
+			
 		}
 		
 		return $source->$fieldName;

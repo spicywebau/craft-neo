@@ -7,7 +7,7 @@ use benf\neo\elements\Block as BlockElement;
 use craft\gql\base\ElementResolver;
 
 /**
- * Class MatrixBlock
+ * Class Block
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3.0
@@ -21,7 +21,9 @@ class Block extends ElementResolver
 	{
 		// If this is the beginning of a resolver chain, start fresh
 		if ($source === null) {
-			$query = BlockElement::find();
+			// get the first level
+			$query = BlockElement::find()->level(1);
+			
 			// If not, get the prepared element query
 		} else {
 			$query = $source->$fieldName;
@@ -29,6 +31,21 @@ class Block extends ElementResolver
 		
 		// If it's preloaded, it's preloaded.
 		if (is_array($query)) {
+			
+			// if it's preloaded, return the first level of the neo field only (child elements will be retrieved using `children`.
+			$newQuery = [];
+			
+			foreach ($query as $q) {
+				if ((int)$q->level === 1) {
+					$newQuery[] = $q;
+				}
+			}
+			
+			// if any level 1 blocks
+			if (count($newQuery)) {
+				return $newQuery;
+			}
+			
 			return $query;
 		}
 		

@@ -841,7 +841,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 	{
 		$typeArray = NeoBlockTypeGenerator::generateTypes($this);
 		$typeName = $this->handle . '_NeoField';
-		$resolver = function (Block $value) {
+		$resolver = static function (Block $value) {
 			return GqlEntityRegistry::getEntity($value->getGqlTypeName());
 		};
 		
