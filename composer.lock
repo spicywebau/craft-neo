@@ -402,16 +402,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "3.3.3",
+            "version": "3.3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "f80576531d23f44f51dd04c5101de1593256cd6a"
+                "reference": "411852758f009292eb203c89e24dc83e0445c44c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/f80576531d23f44f51dd04c5101de1593256cd6a",
-                "reference": "f80576531d23f44f51dd04c5101de1593256cd6a",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/411852758f009292eb203c89e24dc83e0445c44c",
+                "reference": "411852758f009292eb203c89e24dc83e0445c44c",
                 "shasum": ""
             },
             "require": {
@@ -492,7 +492,7 @@
                 "craftcms",
                 "yii2"
             ],
-            "time": "2019-09-12T17:24:17+00:00"
+            "time": "2019-09-17T22:35:58+00:00"
         },
         {
             "name": "craftcms/oauth2-craftid",
@@ -3191,16 +3191,16 @@
         },
         {
             "name": "voku/portable-utf8",
-            "version": "5.4.20",
+            "version": "5.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/voku/portable-utf8.git",
-                "reference": "a0ebc4908326cb6ee282acab250916bbb1b5256c"
+                "reference": "df543931d92b8403e9b5b38e56abdd24851d8cff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/voku/portable-utf8/zipball/a0ebc4908326cb6ee282acab250916bbb1b5256c",
-                "reference": "a0ebc4908326cb6ee282acab250916bbb1b5256c",
+                "url": "https://api.github.com/repos/voku/portable-utf8/zipball/df543931d92b8403e9b5b38e56abdd24851d8cff",
+                "reference": "df543931d92b8403e9b5b38e56abdd24851d8cff",
                 "shasum": ""
             },
             "require": {
@@ -3261,7 +3261,7 @@
                 "utf-8",
                 "utf8"
             ],
-            "time": "2019-09-15T22:59:31+00:00"
+            "time": "2019-09-17T14:53:36+00:00"
         },
         {
             "name": "voku/stop-words",
@@ -3738,16 +3738,16 @@
         },
         {
             "name": "yiisoft/yii2-debug",
-            "version": "2.1.8",
+            "version": "2.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-debug.git",
-                "reference": "959bf8206a3ec64f8949f62024a2c58d9a02e78f"
+                "reference": "62679af3183c308c0edffecc69778afc32ae55aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-debug/zipball/959bf8206a3ec64f8949f62024a2c58d9a02e78f",
-                "reference": "959bf8206a3ec64f8949f62024a2c58d9a02e78f",
+                "url": "https://api.github.com/repos/yiisoft/yii2-debug/zipball/62679af3183c308c0edffecc69778afc32ae55aa",
+                "reference": "62679af3183c308c0edffecc69778afc32ae55aa",
                 "shasum": ""
             },
             "require": {
@@ -3792,7 +3792,7 @@
                 "debugger",
                 "yii2"
             ],
-            "time": "2019-08-20T15:19:56+00:00"
+            "time": "2019-09-18T10:49:01+00:00"
         },
         {
             "name": "yiisoft/yii2-queue",
