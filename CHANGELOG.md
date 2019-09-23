@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.0 - 2019-09-23
+### Added
+- GraphQL implementation
+- Add GraphQL how to doc
+
 ## 2.4.8 - 2019-09-14
 ### Fixed
 - Fix #232 - make sure to clear the uid when cloning the field so the original doesn't get overwritten when converting.
