@@ -60,14 +60,10 @@ class Block extends ObjectType
 				// because of how the children is retrieve the blocks are located in the parent,
 				// which is why we now have to retrieve them by query
 				// if there's none return the default.
-				$q = BlockElement::find()
-					->ownerId($source->ownerId)
-					->fieldId($source->fieldId)
-					->level($sourceLevel)
-					->all();
+				$children = $source->getDescendants()->level($sourceLevel)->all();
 				
-				if(count($q) and is_array($q)) {
-					$newBlocks = $q;
+				if(count($children) and is_array($children)) {
+					$newBlocks = $children;
 				}
 			}
 			
