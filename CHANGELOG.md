@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.1 - 2019-09-24
+### Fixed
+- Fix #263 - correctly get the children blocks (GraphQL)
+- Add in a check to make sure we're getting the next level blocks only. (GraphQL)
+
 ## 2.5.0 - 2019-09-23
 ### Added
 - GraphQL implementation
