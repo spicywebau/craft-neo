@@ -63,7 +63,13 @@ class Block extends ObjectType
 				$children = $source->getDescendants()->level($sourceLevel)->all();
 				
 				if(count($children) and is_array($children)) {
-					$newBlocks = $children;
+					
+					foreach ($children as $block) {
+						if ((int)$block->level === $sourceLevel) {
+							$newBlocks[] = $block;
+						}
+					}
+					// $newBlocks = $children;
 				}
 			}
 			
