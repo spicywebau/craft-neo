@@ -51,6 +51,7 @@ Neo copies/pastes a block with descendants, all descendant blocks are copied and
 - [Creating Neo Fields](docs/creating-neo-fields.md)
 - [Templating](docs/templating.md)
 - [Eager Loading](docs/eager-loading.md)
+- [GraphQL](docs/graphql.md)
 - [Resources](docs/resources.md)
 - [API](docs/api.md)
 - [Plugin Compatibility](docs/plugin-compatibility.md)
