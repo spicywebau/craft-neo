@@ -186,9 +186,11 @@ class Plugin extends BasePlugin
 				{
 					$fieldLayout = $fieldsService->getLayoutById($blockType['fieldLayoutId']);
 					$fieldLayoutConfig = $fieldLayout->getConfig();
-					$blockType['fieldLayouts'] = [
-						$fieldLayout->uid => $fieldLayoutConfig,
-					];
+					if ($fieldLayoutConfig) {
+						$blockTypeData[$blockType['uid']]['fieldLayouts'] = [
+							$fieldLayout->uid => $fieldLayoutConfig,
+						];
+					}
 				}
 
 				unset($blockType['fieldLayoutId']);
