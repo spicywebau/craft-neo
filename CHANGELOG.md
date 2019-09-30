@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 2.5.2 - 2019-09-30
 ### Fixed
 - Fix #250. When rebuilding the project.yaml file, the fieldLayouts will now correctly be included
 
