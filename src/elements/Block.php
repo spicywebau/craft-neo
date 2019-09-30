@@ -102,6 +102,15 @@ class Block extends Element implements BlockElementInterface
 
 		return $map;
 	}
+	
+	/**
+	 * @inheritdoc
+	 */
+	public static function gqlTypeNameByContext($context): string
+	{
+		/** @var BlockType $context */
+		return $context->getField()->handle . '_' . $context->handle . '_BlockType';
+	}
 
 	/**
 	 * @var int|null The field ID.
@@ -421,6 +430,14 @@ class Block extends Element implements BlockElementInterface
 		{
 			parent::setEagerLoadedElements($handle, $elements);
 		}
+	}
+	
+	/**
+	 * @inheritdoc
+	 */
+	public function getGqlTypeName(): string
+	{
+		return static::gqlTypeNameByContext($this->getType());
 	}
 
 	/**
