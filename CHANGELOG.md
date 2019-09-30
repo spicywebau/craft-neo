@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+### Changed
+- Stop the blocktype always recreating a fieldlayout.uid - thanks @samuelbirch
 
 ## 2.5.2 - 2019-09-30
 ### Fixed
