@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fix #250. When rebuilding the project.yaml file, the fieldLayouts will now correctly be included
+
 ## 2.5.1 - 2019-09-24
 ### Fixed
 - Fix #263 - correctly get the children blocks (GraphQL)
