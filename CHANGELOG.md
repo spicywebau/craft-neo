@@ -2,7 +2,7 @@
 
 ## Unreleased
 ### Changed
-- reflect changes that was made in 80192a55f8f89b129abff2b43d4a0c7d66d60f45
+- reflect changes that was made in https://github.com/craftcms/cms/commit/80192a55f8f89b129abff2b43d4a0c7d66d60f45
 
 ## 2.5.3
 ### Changed
