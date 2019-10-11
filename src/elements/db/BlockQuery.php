@@ -7,6 +7,7 @@ use yii\db\Connection;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
+use craft\db\Table;
 use craft\elements\db\ElementQuery;
 use craft\models\Site;
 use craft\helpers\Db;
@@ -332,8 +333,6 @@ class BlockQuery extends ElementQuery
 	 */
 	protected function beforePrepare(): bool
 	{
-
-//	    throw new \Exception(print_r($this, true));
 		$this->joinElementTable('neoblocks');
 
 		$isSaved = $this->id && is_numeric($this->id);
@@ -388,6 +387,16 @@ class BlockQuery extends ElementQuery
 			}
 
 			$this->subQuery->andWhere(Db::parseParam('neoblocks.typeId', $this->typeId));
+		}
+		
+		// Ignore revision/draft blocks by default
+		if (!$this->id && !$this->ownerId) {
+			$this->subQuery
+				->innerJoin(Table::ELEMENTS . ' owners', '[[owners.id]] = [[neoblocks.ownerId]]')
+				->andWhere([
+					'owners.draftId' => null,
+					'owners.revisionId' => null,
+				]);
 		}
 
 		return parent::beforePrepare();

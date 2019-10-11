@@ -234,10 +234,17 @@ class Fields extends Component
 				}
 			}
 		
-			if ($owner->propagateAll && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
+			if (
+				$field->propagationMethod !== Field::PROPAGATION_METHOD_ALL &&
+				($owner->propagateAll || !empty($owner->newSiteIds))
+			) {
 				$ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
 				$fieldSiteIds = $this->getSupportedSiteIdsForField($field, $owner);
 				$otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
+				
+				if (!$owner->propagateAll) {
+					$otherSiteIds = array_intersect($otherSiteIds, $owner->newSiteIds);
+				}
 		
 				if (!empty($otherSiteIds)) {
 					// Get the original element and duplicated element for each of those sites
@@ -252,7 +259,8 @@ class Fields extends Component
 		
 					// Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
 					$handledSiteIds = [];
-					$cachedQuery = (clone $query)->anyStatus();
+					$cachedQuery = clone $query;
+					$cachedQuery->anyStatus();
 					$cachedQuery->setCachedResult($blocks);
 					$owner->setFieldValue($field->handle, $cachedQuery);
 		
@@ -294,8 +302,14 @@ class Fields extends Component
 		$elementsService = Craft::$app->getElements();
 		/** @var BlockQuery $query */
 		$query = $source->getFieldValue($field->handle);
+		
+		
 		/** @var Block[] $blocks */
-		$blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
+		if (($blocks = $query->getCachedResult()) === null) {
+			$blocksQuery = clone $query;
+			$blocks = $blocksQuery->anyStatus()->all();
+		}
+		
 		$newBlockIds = [];
 		$transaction = Craft::$app->getDb()->beginTransaction();
 		
@@ -348,6 +362,7 @@ class Fields extends Component
 			$targetSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($target), 'siteId');
 			$fieldSiteIds = $this->getSupportedSiteIdsForField($field, $target);
 			$otherSiteIds = array_diff($targetSiteIds, $fieldSiteIds);
+			
 			if (!empty($otherSiteIds)) {
 				// Get the original element and duplicated element for each of those sites
 				/** @var Element[] $otherSources */
@@ -367,6 +382,7 @@ class Fields extends Component
 					->anyStatus()
 					->indexBy('siteId')
 					->all();
+				
 				// Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
 				$handledSiteIds = [];
 				foreach ($otherSources as $otherSource) {
@@ -375,13 +391,13 @@ class Fields extends Component
 						continue;
 					}
 					// Make sure we haven't already duplicated blocks for this site, via propagation from another site
-					if (isset($handledSiteIds[$otherSource->siteId])) {
+					if (in_array($otherSource->siteId, $handledSiteIds, false)) {
 						continue;
 					}
 					$this->duplicateBlocks($field, $otherSource, $otherTargets[$otherSource->siteId]);
 					// Make sure we don't duplicate blocks for any of the sites that were just propagated to
 					$sourceSupportedSiteIds = $this->getSupportedSiteIdsForField($field, $otherSource);
-					$handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
+					$handledSiteIds = array_merge($handledSiteIds, $sourceSupportedSiteIds);
 				}
 			}
 		}
