@@ -1,13 +1,14 @@
 # Changelog
 
-## Unreleased
+## 2.5.4 - 2019-10-11
 ### Changed
 - reflect changes that was made in https://github.com/craftcms/cms/commit/80192a55f8f89b129abff2b43d4a0c7d66d60f45
+- update format document spacing
 
 ### Fixed
 - Fix issue #270
 
-## 2.5.3
+## 2.5.3 - 2019-10-01
 ### Changed
 - Stop the blocktype always recreating a fieldlayout.uid - thanks @samuelbirch
 
