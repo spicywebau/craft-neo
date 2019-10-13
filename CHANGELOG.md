@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed issue with field labels where removing relabeled field doesn't actually remove them.
+
 ## 2.5.4 - 2019-10-11
 ### Changed
 - reflect changes that was made in https://github.com/craftcms/cms/commit/80192a55f8f89b129abff2b43d4a0c7d66d60f45
