@@ -390,14 +390,14 @@ class BlockQuery extends ElementQuery
 		}
 		
 		// Ignore revision/draft blocks by default
-		if (!$this->id && !$this->ownerId) {
-			$this->subQuery
-				->innerJoin(Table::ELEMENTS . ' owners', '[[owners.id]] = [[neoblocks.ownerId]]')
-				->andWhere([
-					'owners.draftId' => null,
-					'owners.revisionId' => null,
-				]);
-		}
+		// if (!$this->id && !$this->ownerId) {
+		// 	$this->subQuery
+		// 		->innerJoin(Table::ELEMENTS . ' owners', '[[owners.id]] = [[neoblocks.ownerId]]')
+		// 		->andWhere([
+		// 			'owners.draftId' => null,
+		// 			'owners.revisionId' => null,
+		// 		]);
+		// }
 
 		return parent::beforePrepare();
 	}
