@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.5.5 - 2019-10-16
 ### Fixed
 - Fixed issue with field labels where removing relabeled field doesn't actually remove them.
-- Removed the ignore revision and draft blocks by default in beforePrepare() as it was causing issues with graphql live preview and previewing drafts.
+- Removed ignoring revision and draft blocks by default in beforePrepare() as it was causing issues with graphql live preview and previewing drafts.
 
 ## 2.5.4 - 2019-10-11
 ### Changed
