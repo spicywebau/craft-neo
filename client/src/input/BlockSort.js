@@ -295,7 +295,15 @@ const BlockSort = Garnish.Drag.extend({
 		}
 
 		this._updateHelperAppearance()
-		this._calculateMidpoints()
+
+		// need to check if the other element is in view.
+		if (direction === BlockSort.DIRECTION_UP) {
+			if ((this.$draggee.offset().top + this.$container.offset().top) > this.$container.offset().top) {
+				this._calculateMidpoints()
+			}
+		} else {
+			this._calculateMidpoints()
+		}
 	},
 
 	_validateDraggeeChildren(block)
