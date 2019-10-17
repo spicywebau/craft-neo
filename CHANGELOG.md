@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.6 - 2019-10-18
+### Fixed
+- Fix #274 - removal of the data-confirm-unload attr is not needed anymore since a better solution for the "Leave Site" issue was implemented in a previous commit.
+
 ## 2.5.5 - 2019-10-16
 ### Fixed
 - Fixed issue with field labels where removing relabeled field doesn't actually remove them.
