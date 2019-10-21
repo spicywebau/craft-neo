@@ -42,7 +42,7 @@ class FieldLabels
 			Event::on(BlockTypes::class, BlockTypes::EVENT_AFTER_SAVE_BLOCK_TYPE, function (Event $event) {
 				$postData = Craft::$app->getRequest()->getBodyParam('neo');
 				$blockType = $event->blockType;
-				$layoutFieldIds = Craft::$app->getFields()->getFieldIdsByLayoutId($blockType->fieldLayoutId);
+				$layoutFieldIds = Craft::$app->getFields()->getFieldIdsByLayoutId((int) $blockType->fieldLayoutId);
 				$fieldLabelsPost = null;
 				$doesTheBlockTypeIdKeyExist = null;
 				
