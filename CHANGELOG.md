@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.7 - 2019-10-22
+### Fixed
+- Field Labels integration: Fixed issue with blank field layout - thanks @verbeeksteven
+
 ## 2.5.6 - 2019-10-18
 ### Fixed
 - Fix #274 - removal of the data-confirm-unload attr is not needed anymore since a better solution for the "Leave Site" issue was implemented in a previous commit.
