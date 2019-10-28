@@ -25,19 +25,13 @@
     "rss": "https://github.com/spicywebau/craft-neo/commits/master.atom"
   },
   "require": {
-    "craftcms/cms": "^3.3.0"
+    "craftcms/cms": "^3.4.0"
   },
   "autoload": {
     "psr-4": {
       "benf\\neo\\": "src/"
     }
   },
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://asset-packagist.org"
-    }
-  ],
   "extra": {
     "handle": "neo",
     "name": "Neo",

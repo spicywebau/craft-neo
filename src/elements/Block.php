@@ -154,6 +154,13 @@ class Block extends Element implements BlockElementInterface
 	public $_collapsed;
 
 	/**
+	 * @var bool Whether the block has changed.
+	 * @internal
+	 * @since 2.6.0
+	 */
+	public $dirty = false;
+
+	/**
 	 * @var bool|null Whether this block has been modified.
 	 */
 	private $_modified;
