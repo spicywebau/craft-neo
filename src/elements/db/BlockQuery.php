@@ -245,6 +245,7 @@ class BlockQuery extends ElementQuery
 
 	/**
 	 * @inheritdoc
+     * @return Block[]|array
 	 */
 	public function all($db = null)
 	{
@@ -260,6 +261,7 @@ class BlockQuery extends ElementQuery
 
 	/**
 	 * @inheritdoc
+     * @return Block|array|null
 	 */
 	public function one($db = null)
 	{
@@ -275,6 +277,7 @@ class BlockQuery extends ElementQuery
 
 	/**
 	 * @inheritdoc
+     * @return Block|array|null
 	 */
 	public function nth(int $n, Connection $db = null)
 	{
