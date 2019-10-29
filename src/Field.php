@@ -913,7 +913,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 	 * @param ElementInterface $element The element associated with this field
 	 * @return array The Blocks created from the given data.
 	 */
-	private function _createBlocksFromSerializedData($value, ElementInterface $element): array
+	private function _createBlocksFromSerializedData(array $value, ElementInterface $element): array
 	{
 		$blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getByFieldId($this->id), 'handle');
 		
