@@ -913,7 +913,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 	 * @param ElementInterface $element The element associated with this field
 	 * @return array The Blocks created from the given data.
 	 */
-	private function _createBlocksFromSerializedData($value, ElementInterface $element): array
+	private function _createBlocksFromSerializedData(array $value, ElementInterface $element): array
 	{
 		$blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getByFieldId($this->id), 'handle');
 		
@@ -971,7 +971,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 			// Existing block?
 			if (isset($oldBlocksById[$blockId])) {
 			    $block = $oldBlocksById[$blockId];
-			    $block->dirty = true;
+			    $block->dirty = !empty($blockData);
             } else {
 			    // Make sure it's a valid block type
                 if (!isset($blockData['type']) || !isset($blockTypes[$blockData['type']])) {
