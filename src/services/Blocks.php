@@ -137,6 +137,7 @@ class Blocks extends Component
 				'element' => $block,
 				'fields' => $fields,
 				'static' => $static,
+				'registerDeltas' => true,
 			]);
 
 			if ($isNewBlock)
