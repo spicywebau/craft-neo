@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.8 - 2019-11-14
+### Fixed
+- Fix a GraphQL issue where the children blocks are being returned in an incorrect order. #281.
+
 ## 2.5.7 - 2019-10-22
 ### Fixed
 - Field Labels integration: Fixed issue with blank field layout - thanks @verbeeksteven
