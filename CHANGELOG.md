@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.9 - 2019-12-17
+### Fixed
+- Fix #287. Make sure there is post data when saving field labels for neo.
+
 ## 2.5.8 - 2019-11-14
 ### Fixed
 - Fix a GraphQL issue where the children blocks are being returned in an incorrect order. #281.
