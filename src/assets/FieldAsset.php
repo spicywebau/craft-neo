@@ -47,6 +47,52 @@ class FieldAsset extends AssetBundle
 	}
 
 	/**
+	 * @inheritdoc
+	 */
+	public function registerAssetFiles($view)
+	{
+		$view->registerTranslations('neo', [
+			'Select',
+			'Disabled',
+			'Actions',
+			'Collapse',
+			'Expand',
+			'Disable',
+			'Enable',
+			'Add block above',
+			'Copy',
+			'Paste',
+			'Clone',
+			'Delete',
+			'Reorder',
+			'Add a block',
+			'Name',
+			'What this block type will be called in the CP.',
+			'Handle',
+			'How you&#8217;ll refer to this block type in the templates.',
+			'Max Blocks',
+			'The maximum number of blocks of this type the field is allowed to have.',
+			'All',
+			'Child Blocks',
+			'Which block types do you want to allow as children?',
+			'Max Child Blocks',
+			'The maximum number of child blocks this block type is allowed to have.',
+			'Top Level',
+			'Will this block type be allowed at the top level?',
+			'Delete block type',
+			'This can be left blank if you just want an unlabeled separator.',
+			'Delete group',
+			'Block Types',
+			'Block type',
+			'Group',
+			'Settings',
+			'Field Layout',
+		]);
+
+		parent::registerAssetFiles($view);
+	}
+
+	/**
 	 * Sets up the field layout designer for a given Neo field.
 	 *
 	 * @param Field $field The Neo field.
