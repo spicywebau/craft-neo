@@ -221,7 +221,7 @@ class Block extends Element implements BlockElementInterface
             return [Craft::$app->getSites()->getPrimarySite()->id];
         }
 
-        return Neo::$plugin->fields->getSupportedSiteIdsForField($this->_getField(), $owner);
+        return Neo::$plugin->fields->getSupportedSiteIds($this->_getField()->propagationMethod, $owner);
 	}
 
 	/**
@@ -570,6 +570,11 @@ class Block extends Element implements BlockElementInterface
 	 */
 	public function isDraftPreview()
 	{
+	    // if console request then ignore
+	    if (Craft::$app->request->getIsConsoleRequest()) {
+	        return false;
+        }
+	    
 		// get token
 		$token = Craft::$app->request->getParam('token');
 

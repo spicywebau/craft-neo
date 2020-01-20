@@ -11,6 +11,11 @@ use benf\neo\helpers\Memoize;
  *
  * {@inheritdoc}
  */
+
+if (!class_exists(Base::class)) {
+    return;
+}
+
 class Field extends Base
 {
     /**

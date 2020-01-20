@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `getSupportedSiteIds()`
+
+### Deprecated
+- Deprecated `getSupportedSiteIdsForField()`. Used `getSupportedSiteIds()` instead.
+
+### Fixed
+- Check if `NerdsAndCompany\Schematic\Converters\Base\Field` is available. #286
+- Updated `isDraftPreview` to return false if it's a console request
+
 ## 2.5.9 - 2019-12-17
 ### Fixed
 - Fix #287. Make sure there is post data when saving field labels for neo.
