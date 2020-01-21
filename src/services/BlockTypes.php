@@ -317,6 +317,10 @@ class BlockTypes extends Component
 	 */
 	public function handleChangedBlockType(ConfigEvent $event)
 	{
+	    if(Craft::$app->projectConfig->muteEvents) {
+	        return;
+        }
+	    
 		$dbService = Craft::$app->getDb();
 		$fieldsService = Craft::$app->getFields();
 		$projectConfigService = Craft::$app->getProjectConfig();
@@ -459,6 +463,10 @@ class BlockTypes extends Component
 	 */
 	public function handleDeletedBlockType(ConfigEvent $event)
 	{
+        if(Craft::$app->projectConfig->muteEvents) {
+            return;
+        }
+        
 		$uid = $event->tokenMatches[0];
 		$record = $this->_getRecordByUid($uid);
 		
@@ -522,6 +530,10 @@ class BlockTypes extends Component
 	 */
 	public function handleChangedBlockTypeGroup(ConfigEvent $event)
 	{
+        if(Craft::$app->projectConfig->muteEvents) {
+            return;
+        }
+        
 		$uid = $event->tokenMatches[0];
 		$data = $event->newValue;
 		$dbService = Craft::$app->getDb();
@@ -559,6 +571,10 @@ class BlockTypes extends Component
 	 */
 	public function handleDeletedBlockTypeGroup(ConfigEvent $event)
 	{
+        if(Craft::$app->projectConfig->muteEvents) {
+            return;
+        }
+        
 		$uid = $event->tokenMatches[0];
 		$dbService = Craft::$app->getDb();
 		$transaction = $dbService->beginTransaction();
