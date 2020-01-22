@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.5.10 - 2020-01-22
+
+### Added
+- Added `getSupportedSiteIds()`
+
+### Deprecated
+- Deprecated `getSupportedSiteIdsForField()`. Used `getSupportedSiteIds()` instead.
+
+### Fixed
+- Check if `NerdsAndCompany\Schematic\Converters\Base\Field` and `NerdsAndCompany\Schematic\Converters\Models\Base` is available. #286
+- Updated `isDraftPreview` to return false if it's a console request
+- Don't set the project config value if in readOnly mode #217
+
+## 2.5.9 - 2019-12-17
+### Fixed
+- Fix #287. Make sure there is post data when saving field labels for neo.
+
 ## 2.5.8 - 2019-11-14
 ### Fixed
 - Fix a GraphQL issue where the children blocks are being returned in an incorrect order. #281.

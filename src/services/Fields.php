@@ -234,7 +234,7 @@ class Fields extends Component
 			if (!empty($blocks))
 			{
 				// get the supported sites
-				$supportedSites = $this->getSupportedSiteIdsForField($field, $owner);
+				$supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner);
 		
 				if ($this->_checkSupportedSitesAndPropagation($field, $supportedSites)) {
 					foreach ($supportedSites as $site) {
@@ -250,7 +250,7 @@ class Fields extends Component
 				($owner->propagateAll || !empty($owner->newSiteIds))
 			) {
 				$ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
-				$fieldSiteIds = $this->getSupportedSiteIdsForField($field, $owner);
+				$fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $owner);
 				$otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
 				
 				if (!$owner->propagateAll) {
@@ -268,8 +268,9 @@ class Fields extends Component
 						->anyStatus()
 						->all();
 		
-					// Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
+					// Duplicate neo blocks, ensuring we don't process the same blocks more than once
 					$handledSiteIds = [];
+					
 					$cachedQuery = clone $query;
 					$cachedQuery->anyStatus();
 					$cachedQuery->setCachedResult($blocks);
@@ -282,7 +283,7 @@ class Fields extends Component
 						}
 						$this->duplicateBlocks($field, $owner, $otherTarget);
 						// Make sure we don't duplicate blocks for any of the sites that were just propagated to
-						$sourceSupportedSiteIds = $this->getSupportedSiteIdsForField($field, $otherTarget);
+						$sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherTarget);
 						$handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
 					}
 					$owner->setFieldValue($field->handle, $query);
@@ -313,17 +314,14 @@ class Fields extends Component
 		$elementsService = Craft::$app->getElements();
 		/** @var BlockQuery $query */
 		$query = $source->getFieldValue($field->handle);
-		
-		
 		/** @var Block[] $blocks */
 		if (($blocks = $query->getCachedResult()) === null) {
 			$blocksQuery = clone $query;
 			$blocks = $blocksQuery->anyStatus()->all();
 		}
-		
 		$newBlockIds = [];
-		$transaction = Craft::$app->getDb()->beginTransaction();
 		
+		$transaction = Craft::$app->getDb()->beginTransaction();
 		try {
 			$newBlocks = [];
 			foreach ($blocks as $block) {
@@ -351,7 +349,7 @@ class Fields extends Component
 				// $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
 		
 				// get the supported sites
-				$supportedSites = $this->getSupportedSiteIdsForField($field, $target);
+				$supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $target);
 		
 				if ($this->_checkSupportedSitesAndPropagation($field, $supportedSites)) {
 					foreach ($supportedSites as $site) {
@@ -369,9 +367,9 @@ class Fields extends Component
 		}
 		// Duplicate blocks for other sites as well?
 		if ($checkOtherSites && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
-			// Find the target's site IDs that *aren't* supported by this site's Matrix blocks
+			// Find the target's site IDs that *aren't* supported by this site's neo blocks
 			$targetSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($target), 'siteId');
-			$fieldSiteIds = $this->getSupportedSiteIdsForField($field, $target);
+			$fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $target);
 			$otherSiteIds = array_diff($targetSiteIds, $fieldSiteIds);
 			
 			if (!empty($otherSiteIds)) {
@@ -394,20 +392,24 @@ class Fields extends Component
 					->indexBy('siteId')
 					->all();
 				
-				// Duplicate Matrix blocks, ensuring we don't process the same blocks more than once
+				// Duplicate neo blocks, ensuring we don't process the same blocks more than once
 				$handledSiteIds = [];
+				
 				foreach ($otherSources as $otherSource) {
 					// Make sure the target actually exists for this site
 					if (!isset($otherTargets[$otherSource->siteId])) {
 						continue;
 					}
+					
 					// Make sure we haven't already duplicated blocks for this site, via propagation from another site
 					if (in_array($otherSource->siteId, $handledSiteIds, false)) {
 						continue;
 					}
+					
 					$this->duplicateBlocks($field, $otherSource, $otherTargets[$otherSource->siteId]);
+					
 					// Make sure we don't duplicate blocks for any of the sites that were just propagated to
-					$sourceSupportedSiteIds = $this->getSupportedSiteIdsForField($field, $otherSource);
+					$sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherSource);
 					$handledSiteIds = array_merge($handledSiteIds, $sourceSupportedSiteIds);
 				}
 			}
@@ -415,42 +417,58 @@ class Fields extends Component
 	}
 
 	/**
-	 * Returns the site IDs that are supported by Matrix blocks for the given Matrix field and owner element.
+	 * Returns the site IDs that are supported by neo blocks for the given neo field and owner element.
 	 *
-	 * @param MatrixField $field
+	 * @param Field $field
 	 * @param ElementInterface $owner
 	 * @throws \Throwable if reasons
 	 * @return int[]
+     * @deprecated in 2.5.10. Use [[getSupportedSiteIds()]] instead.
 	 */
 	public function getSupportedSiteIdsForField(Field $field, ElementInterface $owner): array
 	{
-		/** @var Element $owner */
-		/** @var Site[] $allSites */
-		$allSites = ArrayHelper::index(Craft::$app->getSites()->getAllSites(), 'id');
-		$ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
-		$siteIds = [];
-		
-		foreach ($ownerSiteIds as $siteId) {
-			switch ($field->propagationMethod) {
-				case Field::PROPAGATION_METHOD_NONE:
-					$include = (int)$siteId === (int)$owner->siteId;
-					break;
-				case Field::PROPAGATION_METHOD_SITE_GROUP:
-					$include = (int)$allSites[$siteId]->groupId === (int)$allSites[$owner->siteId]->groupId;
-					break;
-				case Field::PROPAGATION_METHOD_LANGUAGE:
-					$include = $allSites[$siteId]->language === $allSites[$owner->siteId]->language;
-					break;
-				default:
-					$include = true;
-					break;
-			}
-			if ($include) {
-				$siteIds[] = $siteId;
-			}
-		}
-		return $siteIds;
+        return $this->getSupportedSiteIds($field->propagationMethod, $owner);
 	}
+    
+    /**
+     * Returns the site IDs that are supported by neo blocks for the given propagation method and owner element.
+     *
+     * @param string $propagationMethod
+     * @param ElementInterface $owner
+     * @return int[]
+     * @since 2.5.10
+     */
+    public function getSupportedSiteIds(string $propagationMethod, ElementInterface $owner): array
+    {
+        /** @var Element $owner */
+        /** @var Site[] $allSites */
+        $allSites = ArrayHelper::index(Craft::$app->getSites()->getAllSites(), 'id');
+        $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
+        $siteIds = [];
+        
+        foreach ($ownerSiteIds as $siteId) {
+            switch ($propagationMethod) {
+                case Field::PROPAGATION_METHOD_NONE:
+                    $include = $siteId == $owner->siteId;
+                    break;
+                case Field::PROPAGATION_METHOD_SITE_GROUP:
+                    $include = $allSites[$siteId]->groupId == $allSites[$owner->siteId]->groupId;
+                    break;
+                case Field::PROPAGATION_METHOD_LANGUAGE:
+                    $include = $allSites[$siteId]->language == $allSites[$owner->siteId]->language;
+                    break;
+                default:
+                    $include = true;
+                    break;
+            }
+            
+            if ($include) {
+                $siteIds[] = $siteId;
+            }
+        }
+        
+        return $siteIds;
+    }
 
 	// Private Methods
 	// =========================================================================
@@ -465,7 +483,7 @@ class Fields extends Component
 	 */
 	private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
 	{
-		$supportedSites = $this->getSupportedSiteIdsForField($field, $owner);
+		$supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner);
 		$supportedSitesCount = count($supportedSites);
 		// throw new \Exception(print_r($supportedSitesCount, true));
 		if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {

@@ -239,7 +239,10 @@ class BlockTypes extends Component
 		$this->trigger(self::EVENT_BEFORE_SAVE_BLOCK_TYPE, $event);
 
 		$path = 'neoBlockTypes.' . $blockType->uid;
-		$projectConfigService->set($path, $data);
+		
+        if (!$projectConfigService->readOnly) {
+            $projectConfigService->set($path, $data);
+        }
 
 		return true;
 	}
@@ -269,7 +272,10 @@ class BlockTypes extends Component
 		];
 
 		$path = 'neoBlockTypeGroups.' . $blockTypeGroup->uid;
-		$projectConfigService->set($path, $data);
+		
+		if (!$projectConfigService->readOnly) {
+            $projectConfigService->set($path, $data);
+        }
 
 		return true;
 	}
