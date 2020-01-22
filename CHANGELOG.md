@@ -11,7 +11,7 @@
 ### Fixed
 - Check if `NerdsAndCompany\Schematic\Converters\Base\Field` and `NerdsAndCompany\Schematic\Converters\Models\Base` is available. #286
 - Updated `isDraftPreview` to return false if it's a console request
-- Stop `project.yaml` changes if muted #217
+- Don't set the project config value if in readOnly mode #217
 
 ## 2.5.9 - 2019-12-17
 ### Fixed
