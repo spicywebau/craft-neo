@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.5.10 - 2020-01-22
 
 ### Added
 - Added `getSupportedSiteIds()`
