@@ -10,6 +10,11 @@ use NerdsAndCompany\Schematic\Converters\Models\Base;
  *
  * {@inheritdoc}
  */
+
+if (!class_exists(Base::class)) {
+    return;
+}
+
 class BlockType extends Base
 {
     /**

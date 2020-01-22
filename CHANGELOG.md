@@ -9,7 +9,7 @@
 - Deprecated `getSupportedSiteIdsForField()`. Used `getSupportedSiteIds()` instead.
 
 ### Fixed
-- Check if `NerdsAndCompany\Schematic\Converters\Base\Field` is available. #286
+- Check if `NerdsAndCompany\Schematic\Converters\Base\Field` and `NerdsAndCompany\Schematic\Converters\Models\Base` is available. #286
 - Updated `isDraftPreview` to return false if it's a console request
 - Stop `project.yaml` changes if muted #217
 
