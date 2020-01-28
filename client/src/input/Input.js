@@ -6,6 +6,7 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
+import BlockSort from './BlockSort'
 import BlockType from './BlockType'
 import Group from './Group'
 import Block from './Block'
@@ -89,29 +90,29 @@ export default Garnish.Base.extend({
 		this._buttons.on('newBlock', e => this['@newBlock'](e))
 		this._buttons.initUi()
 
-		this._blockSort = new Garnish.DragSort(null, {
+		this._blockSort = new BlockSort({
 			container: this.$blocksContainer,
 			handle: '[data-neo-b="button.move"]',
-			axis: 'y',
+			maxTopBlocks: this.getMaxTopBlocks(),
 			filter: () =>
 			{
 				// Only return all the selected items if the target item is selected
 				if(this._blockSort.$targetItem.hasClass('is-selected'))
 				{
-					// Also only use selected items that are on the same level as the target one
-					const $parent = this._blockSort.$targetItem.parent()
-					return this._blockSelect.getSelectedItems().filter((i, el) => $(el).parent().is($parent))
+					return this._blockSelect.getSelectedItems()
 				}
-				else
-				{
-					return this._blockSort.$targetItem
-				}
+
+				return this._blockSort.$targetItem
 			},
 			collapseDraggees: true,
 			magnetStrength: 4,
 			helperLagBase: 1.5,
 			helperOpacity: 0.9,
-			onSortChange: () => this._updateBlockOrder()
+			onDragStop: () =>
+			{
+				this._updateBlockOrder()
+				this._updateButtons()
+			}
 		})
 
 		this._blockSelect = new Garnish.Select(this.$blocksContainer, null, {
@@ -224,7 +225,7 @@ export default Garnish.Base.extend({
 		block.setLevel(level)
 
 		this._blocks.push(block)
-		this._blockSort.addItems(block.$container)
+		this._blockSort.addBlock(block)
 		this._blockSelect.addItems(block.$container)
 
 		block.initUi()
@@ -384,7 +385,7 @@ export default Garnish.Base.extend({
 	{
 		const blocks = []
 
-		this._blockSort.$items.each((index, element) =>
+		this.$blocksContainer.find('.ni_block').each((index, element) =>
 		{
 			const block = this.getBlockByElement(element)
 			blocks.push(block)

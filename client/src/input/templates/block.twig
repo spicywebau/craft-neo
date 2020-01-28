@@ -1,6 +1,6 @@
 {% set hasTabs = (type.getTabs() is not empty) %}
 {% set isParent = type.isParent() %}
-<div class="ni_block ni_block--{{ type.getHandle() }} {{ collapsed ? 'is-collapsed' : 'is-expanded' }} {{ not hasTabs and not isParent ? 'is-empty' : '' }}">
+<div class="ni_block ni_block--{{ type.getHandle() }} {{ collapsed ? 'is-collapsed' : 'is-expanded' }} {{ not hasTabs and not isParent ? 'is-empty' : '' }}" data-neo-b-id="{{ uniqueId() }}">
 	<input type="hidden" name="{{ 'modified'|ns }}" value="{{ modified ? 1 : 0 }}" data-neo-b="input.modified">
 	<input type="hidden" name="{{ 'type'|ns }}" value="{{ type.getHandle() }}">
 	<input type="hidden" name="{{ 'enabled'|ns }}" value="{{ enabled ? 1 : 0 }}" data-neo-b="input.enabled">
