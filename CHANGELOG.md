@@ -4,7 +4,8 @@
 
 ### Added
 - Added Delta support.
-- Multi level 
+- Multi level ordering
+
 ### Changes
 - Update for Craft 3.4.0
 
