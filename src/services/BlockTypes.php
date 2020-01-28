@@ -209,17 +209,17 @@ class BlockTypes extends Component
 			'field' => $field->uid,
 			'name' => $blockType->name,
 			'handle' => $blockType->handle,
-			'sortOrder' => $blockType->sortOrder,
-			'maxBlocks' => $blockType->maxBlocks,
-			'maxChildBlocks' => $blockType->maxChildBlocks,
+			'sortOrder' => (int)$blockType->sortOrder,
+			'maxBlocks' => (int)$blockType->maxBlocks,
+			'maxChildBlocks' => (int)$blockType->maxChildBlocks,
 			'childBlocks' => $blockType->childBlocks,
-			'topLevel' => $blockType->topLevel,
+			'topLevel' => (bool)$blockType->topLevel,
 		];
 
 		// No need to bother with the field layout if it has no tabs
 		if ($fieldLayoutConfig !== null)
 		{
-			$fieldLayoutUid = $fieldLayout->uid ?? StringHelper::UUID();
+			$fieldLayoutUid = $fieldLayout->uid ?? ($fieldLayout->id ? Craft::$app->getFields()->getLayoutById($fieldLayout->id)->uid : false) ?? StringHelper::UUID();
 
 			if (!$fieldLayout->uid)
 			{
@@ -239,7 +239,10 @@ class BlockTypes extends Component
 		$this->trigger(self::EVENT_BEFORE_SAVE_BLOCK_TYPE, $event);
 
 		$path = 'neoBlockTypes.' . $blockType->uid;
-		$projectConfigService->set($path, $data);
+		
+        if (!$projectConfigService->readOnly) {
+            $projectConfigService->set($path, $data);
+        }
 
 		return true;
 	}
@@ -269,7 +272,10 @@ class BlockTypes extends Component
 		];
 
 		$path = 'neoBlockTypeGroups.' . $blockTypeGroup->uid;
-		$projectConfigService->set($path, $data);
+		
+		if (!$projectConfigService->readOnly) {
+            $projectConfigService->set($path, $data);
+        }
 
 		return true;
 	}
@@ -461,28 +467,28 @@ class BlockTypes extends Component
 	{
 		$uid = $event->tokenMatches[0];
 		$record = $this->_getRecordByUid($uid);
-
+		
 		if ($record->id === null)
 		{
 			return;
 		}
-
+		
 		$dbService = Craft::$app->getDb();
 		$transaction = $dbService->beginTransaction();
-
+		
 		try
 		{
 			$blockType = $this->getById($record->id);
-
+			
 			if ($blockType === null)
 			{
 				return;
 			}
-
+			
 			$sitesService = Craft::$app->getSites();
 			$elementsService = Craft::$app->getElements();
 			$fieldsService = Craft::$app->getFields();
-
+			
 			// Delete all blocks of this type
 			foreach ($sitesService->getAllSiteIds() as $siteId)
 			{
@@ -491,27 +497,25 @@ class BlockTypes extends Component
 					->typeId($blockType->id)
 					->inReverse()
 					->all();
-
+				
 				foreach ($blocks as $block)
 				{
 					$elementsService->deleteElement($block);
 				}
 			}
-
 			// Delete the block type's field layout
 			$fieldsService->deleteLayoutById($blockType->fieldLayoutId);
-
+			
 			// Delete the block type
 			$affectedRows = $dbService->createCommand()
 				->delete('{{%neoblocktypes}}', ['id' => $blockType->id])
 				->execute();
-
+			
 			$transaction->commit();
 		}
 		catch (\Throwable $e)
 		{
 			$transaction->rollBack();
-
 			throw $e;
 		}
 	}
@@ -603,6 +607,21 @@ class BlockTypes extends Component
 		}
 
 		return Neo::$plugin->blocks->renderTabs($block, $static, $namespace);
+	}
+	
+	/**
+	 * Returns all the block types.
+	 */
+	public function getAllBlockTypes(): array
+	{
+		$results = $this->_createQuery()
+			->all();
+		
+		foreach ($results as $key => $result) {
+			$results[$key] = new BlockType($result);
+		}
+		
+		return $results;
 	}
 
 	/**

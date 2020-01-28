@@ -1,5 +1,176 @@
 # Changelog
 
+## 2.5.10 - 2020-01-22
+
+### Added
+- Added `getSupportedSiteIds()`
+
+### Deprecated
+- Deprecated `getSupportedSiteIdsForField()`. Used `getSupportedSiteIds()` instead.
+
+### Fixed
+- Check if `NerdsAndCompany\Schematic\Converters\Base\Field` and `NerdsAndCompany\Schematic\Converters\Models\Base` is available. #286
+- Updated `isDraftPreview` to return false if it's a console request
+- Don't set the project config value if in readOnly mode #217
+
+## 2.5.9 - 2019-12-17
+### Fixed
+- Fix #287. Make sure there is post data when saving field labels for neo.
+
+## 2.5.8 - 2019-11-14
+### Fixed
+- Fix a GraphQL issue where the children blocks are being returned in an incorrect order. #281.
+
+## 2.5.7 - 2019-10-22
+### Fixed
+- Field Labels integration: Fixed issue with blank field layout - thanks @verbeeksteven
+
+## 2.5.6 - 2019-10-18
+### Fixed
+- Fix #274 - removal of the data-confirm-unload attr is not needed anymore since a better solution for the "Leave Site" issue was implemented in a previous commit.
+
+## 2.5.5 - 2019-10-16
+### Fixed
+- Fixed issue with field labels where removing relabeled field doesn't actually remove them.
+- Removed ignoring revision and draft blocks by default in beforePrepare() as it was causing issues with graphql live preview and previewing drafts.
+
+## 2.5.4 - 2019-10-11
+### Changed
+- reflect changes that was made in https://github.com/craftcms/cms/commit/80192a55f8f89b129abff2b43d4a0c7d66d60f45
+- update format document spacing
+
+### Fixed
+- Fix issue #270
+
+## 2.5.3 - 2019-10-01
+### Changed
+- Stop the blocktype always recreating a fieldlayout.uid - thanks @samuelbirch
+
+## 2.5.2 - 2019-09-30
+### Fixed
+- Fix #250. When rebuilding the project.yaml file, the fieldLayouts will now correctly be included
+
+## 2.5.1 - 2019-09-24
+### Fixed
+- Fix #263 - correctly get the children blocks (GraphQL)
+- Add in a check to make sure we're getting the next level blocks only. (GraphQL)
+
+## 2.5.0 - 2019-09-23
+### Added
+- GraphQL implementation
+- Add GraphQL how to doc
+
+## 2.4.8 - 2019-09-14
+### Fixed
+- Fix #232 - make sure to clear the uid when cloning the field so the original doesn't get overwritten when converting.
+
+### Changed
+- Update tar
+- Update js-yaml
+
+## 2.4.7 - 2019-09-10
+### Fixed
+- Fix #249
+- Fix #255, removed 0 index with Field Labels Integration as it causes `Undefined offset: 0`
+
+## 2.4.6 - 2019-09-10
+### Fixed
+- Field Labels compatibility update
+- Fix #243. Revert handleDeletedBlockType changes as it causes some issues when deleting the block types in the neo field.
+
+## 2.4.5 - 2019-08-30
+### Fixed
+- fix multi-site issue where on draft creation the contents of the draft is copied over to the other site drafts. #246
+- Fixed issue with saving a new entry and the alert that appears (the "Do you want to leave" msg on save).
+- Fixed issue with field deletion when there's multi level nested blocks #249
+
+
+## 2.4.4 - 2019-08-21
+### Fixed
+- require the siteId for neo structures for eager loading
+- fix getSupportedSiteIdsForField language comparison
+
+### Changed
+- Removed the queue job after changing the propagation method for the neo field as it was causing `Attempting to save an element in an unsupported site.`. Propagation changes will be applied once the entry containing the field is saved.
+
+## 2.4.3 - 2019-08-16
+### Fixed
+- added beforeSave function to properly update the neo field propagation method by setting and checking the oldPropagationMethod variable.
+
+- if PROPAGATION_METHOD_NONE is NOT set for the neo field, make sure to duplicate the block and structures for the other sites using the primary content.
+
+- Fix indentation of code
+
+## 2.4.2 - 2019-08-08
+### Fixed
+- Fix - Need to set the new key for neo structures since the ownerSiteId is now set
+
+## 2.4.1 - 2019-08-08
+### Fixed
+- Fixed issue #239  
+- Fixed indentation, swapped to tabs.
+
+### Changed
+- Cleaned up the Field Service
+
+## 2.4.0 - 2019-08-06
+### Changed - 3.2 saving changes
+- update composer
+- fix multisite site id block save issue
+- fix duplicateBlocks so it creates the neo structure for duplicated blocks
+- changes for blockstructure and duplicateBlocks
+- remove deletion of blocks from duplicateBlocks function
+- FIX: Include 'ownerSiteId' when querying neo structure data.
+- fix type error when updating search indexes
+- fixes to neo structures for multisite
+- deprecate ownerSiteId and additional changes to compensate.
+- making neo more inline with craft
+
+## 2.3.7 - 2019-08-01
+### Fixed
+- Fix #227 - fixed issue where Neo fields could lose their content when updating to Craft 3.2. - thanks @brandonkelly
+
+## 2.3.6 - 2019-07-19
+### Update - Minor Patch for Craft 3.2
+- implement BlockElementInterface
+- update getOwner and correctly return ElementInterface
+- update afterSave
+
+## 2.3.5.2 - 2019-08-01
+### Fixed
+- Fix craft constraint to allow update to 3.2
+
+## 2.3.5.1 - 2019-07-31
+### Fixed
+- Fix #227 - fixed issue where Neo fields could lose their content when updating to Craft 3.2
+- Update craft version constraints
+
+## 2.3.5 - 2019-05-24
+### Fixed
+- Fix #210 - check if viewing a shared draft so it can retrieve the correct data
+
+## 2.3.4 - 2019-05-22
+### Fixed
+- Fix #214 - added in type filtering function that was missing for live preview
+- Fix #213 - get enabled blocks only instead of any status blocks for live preview
+
+## 2.3.3 - 2019-05-04
+### Fixed
+- Fix PostgreSQL error when saving new block types - thanks @ttempleton
+- Fixed issue where groups were duplicated when changing min/max blocks
+
+## 2.3.2 - 2019-04-24
+### Fixed
+- Ensure field layout IDs are set when setting a field's block types - Thanks @ttempleton
+
+## 2.3.1 - 2019-04-16
+### Fixed
+- Project Config - typecast group sortOrder to int
+
+## 2.3.0.1 - 2019-04-11
+### Changed
+- Disable saveModifiedBlocksOnly for now
+
 ## 2.3.0 - 2019-04-03
 ### Added
 - Added support for the project config rebuild functionality introduced in Craft 3.1.20

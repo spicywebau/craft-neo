@@ -38,6 +38,7 @@ export default Garnish.Base.extend({
 	{
 		settings = Object.assign({}, _defaults, settings)
 
+		let _this = this;
 		this._templateNs = NS.parse(settings.namespace)
 		this._blockTypes = []
 		this._groups = []
@@ -156,6 +157,16 @@ export default Garnish.Base.extend({
 		}
 
 		this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
+
+		let serialized;
+
+		if (typeof $form.data('serializer') === 'function') {
+			serialized = $form.data('serializer')()
+		} else {
+			serialized = $form.serialize()
+		}
+
+		$form.data('initialSerializedValue', serialized)
 	},
 
 	updateResponsiveness()

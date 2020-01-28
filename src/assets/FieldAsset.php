@@ -96,10 +96,10 @@ class FieldAsset extends AssetBundle
 		$id = $viewService->formatInputId($name);
 		$blockTypes = $field->getBlockTypes();
 		$blockTypeGroups = $field->getGroups();
-
+		
 		$jsSettings = [
 			'name' => $name,
-			'namespace' => $viewService->namespaceInputName($name),
+			'namespace' => $viewService->namespaceInputName($name).'[blocks]',
 			'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static, $siteId),
 			'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
 			'inputId' => $viewService->namespaceInputId($id),

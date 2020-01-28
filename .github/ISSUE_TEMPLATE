@@ -9,5 +9,6 @@
 #### Other information
 - Neo version:
 - Craft version:
-- Is the affected Craft installation multi-site:
 - (if multi-site) Are the affected Neo fields set to manage blocks on a per-site basis:
+- (if multi-site, > 2.4.0) What is the propagation method of the neo field:
+- Is eager-loading used?

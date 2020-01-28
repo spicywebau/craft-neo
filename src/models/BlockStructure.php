@@ -50,7 +50,7 @@ class BlockStructure extends Model
 	public function rules()
 	{
 		return [
-			[['id', 'structureId', 'fieldId', 'ownerId', 'ownerSiteId' ], 'number', 'integerOnly' => true],
+			[['id', 'structureId', 'fieldId', 'ownerId', 'ownerSiteId'], 'number', 'integerOnly' => true],
 		];
 	}
 

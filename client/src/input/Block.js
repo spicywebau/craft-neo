@@ -99,6 +99,7 @@ export default Garnish.Base.extend({
 			collapsed: !!settings.collapsed,
 			level: settings.level,
 			modified: this._modified,
+			sortOrder: this._id
 		}))
 
 		NS.leave()
@@ -126,6 +127,7 @@ export default Garnish.Base.extend({
 		this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
 		this.$modifiedInput = $neo.filter('[data-neo-b="input.modified"]')
 		this.$status = $neo.filter('[data-neo-b="status"]')
+		this.$sortOrder = $neo.filter('[data-neo-b="sortOrder"]')
 
 		if(this._buttons)
 		{
@@ -146,6 +148,7 @@ export default Garnish.Base.extend({
 			}
 		}
 
+		this.setSortOrderAttr();
 		this.setLevel(settings.level)
 		this.toggleEnabled(settings.enabled)
 		this.toggleExpansion(hasErrors ? true : !settings.collapsed, false, false)
@@ -269,6 +272,11 @@ export default Garnish.Base.extend({
 	getLevel()
 	{
 		return this._level
+	},
+
+	setSortOrderAttr()
+	{
+		this.$sortOrder.attr('name', this._templateNs[0] + `[${this._templateNs[1]}][sortOrder][]`)
 	},
 
 	setLevel(level)

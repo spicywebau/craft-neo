@@ -9,11 +9,18 @@
 </div>
 
 {% if craft.app.getIsMultiSite() %}
-	{{ forms.checkboxField({
-		label: "Manage blocks on a per-site basis"|t('neo'),
-		id: 'localizeBlocks',
-		name: 'localizeBlocks',
-		checked: neoField.localizeBlocks,
+	{{ forms.selectField({
+		label: 'Propagation Method' | t('neo'),
+		instructions: 'Which sites should blocks be saved to?' | t('neo'),
+		id: 'propagationMethod',
+		name: 'propagationMethod',
+		options: [
+			{ value: 'none', label: 'Only save blocks to the site they were created in' | t('neo') },
+			{ value: 'siteGroup', label: 'Save blocks to other sites in the same site group' | t('neo') },
+			{ value: 'language', label: 'Save blocks to other sites with the same language' | t('neo') },
+			{ value: 'all', label: 'Save blocks to all sites the owner element is saved in' | t('neo') },
+		],
+		value: neoField.propagationMethod
 	}) }}
 {% endif %}
 

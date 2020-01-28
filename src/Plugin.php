@@ -11,6 +11,8 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\services\Fields;
 use craft\services\ProjectConfig;
 use craft\web\twig\variables\CraftVariable;
+use craft\events\RegisterGqlTypesEvent;
+use craft\services\Gql;
 
 use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;
@@ -20,6 +22,7 @@ use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\BlockTypes as BlockTypesService;
 use benf\neo\services\Conversion as ConversionService;
 use benf\neo\services\Fields as FieldsService;
+use benf\neo\gql\interfaces\elements\Block as NeoGqlInterface;
 
 /**
  * Class Plugin
@@ -84,6 +87,11 @@ class Plugin extends BasePlugin
 				$event->sender->set('neo', Variable::class);
 			}
 		);
+		
+		Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
+		    // Add my GraphQL types
+		    $event->types[] = NeoGqlInterface::class;
+		});
 
 		// Setup project config functionality
 		$this->_setupProjectConfig();
@@ -178,9 +186,11 @@ class Plugin extends BasePlugin
 				{
 					$fieldLayout = $fieldsService->getLayoutById($blockType['fieldLayoutId']);
 					$fieldLayoutConfig = $fieldLayout->getConfig();
-					$blockType['fieldLayouts'] = [
-						$fieldLayout->uid => $fieldLayoutConfig,
-					];
+					if ($fieldLayoutConfig) {
+						$blockTypeData[$blockType['uid']]['fieldLayouts'] = [
+							$fieldLayout->uid => $fieldLayoutConfig,
+						];
+					}
 				}
 
 				unset($blockType['fieldLayoutId']);
@@ -201,7 +211,7 @@ class Plugin extends BasePlugin
 				$blockTypeGroupData[$blockTypeGroup['uid']] = [
 					'field' => $blockTypeGroup['field'],
 					'name' => $blockTypeGroup['name'],
-					'sortOrder' => $blockTypeGroup['sortOrder'],
+					'sortOrder' => (int)$blockTypeGroup['sortOrder'],
 				];
 			}
 

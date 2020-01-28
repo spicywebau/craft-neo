@@ -44,16 +44,6 @@ class Block extends ActiveRecord
 	}
 
 	/**
-	 * Returns the block's owner's site.
-	 *
-	 * @return ActiveQueryInterface
-	 */
-	public function getOwnerSite(): ActiveQueryInterface
-	{
-		return $this->hasOne(Element::class, ['id' => 'ownerSiteId']);
-	}
-
-	/**
 	 * Returns the block's field.
 	 *
 	 * @return ActiveQueryInterface

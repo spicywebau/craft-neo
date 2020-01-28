@@ -7,6 +7,7 @@ use yii\db\Connection;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
+use craft\db\Table;
 use craft\elements\db\ElementQuery;
 use craft\models\Site;
 use craft\helpers\Db;
@@ -38,6 +39,7 @@ class BlockQuery extends ElementQuery
 
 	/**
 	 * @var int|array|null The owner site ID to query for.
+     * @deprecated in 2.4.0. Use [[$siteId]] instead.
 	 */
 	public $ownerSiteId;
 
@@ -73,7 +75,7 @@ class BlockQuery extends ElementQuery
 		{
 			case 'ownerSite':
 			{
-				$this->ownerSite($value);
+                Craft::$app->getDeprecator()->log('BlockQuery::ownerSite()', 'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
 			}
 			break;
 			case 'type':
@@ -83,8 +85,7 @@ class BlockQuery extends ElementQuery
 			break;
 			case 'ownerLocale':
 			{
-				$deprecatorService->log('BlockQuery::ownerLocale()', "The “ownerLocale” Neo block query param has been deprecated. Use “ownerSite” or “ownerSiteId” instead.");
-				$this->ownerSite($value);
+				$deprecatorService->log('BlockQuery::ownerLocale()', "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
 			}
 			break;
 			default:
@@ -136,14 +137,9 @@ class BlockQuery extends ElementQuery
 	 * @param int|string|null $value The site ID.
 	 * @return $this
 	 */
-	public function ownerSiteId($value)
+	public function ownerSiteId()
 	{
-		$this->ownerSiteId = $value;
-
-		if ($value && strtolower($value) !== ':empty:')
-		{
-			$this->siteId = (int)$value;
-		}
+        Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()', 'The “ownerSiteId” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
 
 		return $this;
 	}
@@ -155,23 +151,9 @@ class BlockQuery extends ElementQuery
 	 * @return $this
 	 * @throws Exception if the site handle is invalid.
 	 */
-	public function ownerSite($value)
+	public function ownerSite()
 	{
-		if ($value instanceof Site)
-		{
-			$this->ownerSiteId($value->id);
-		}
-		else
-		{
-			$site = Craft::$app->getSites()->getSiteByHandle($value);
-
-			if (!$site)
-			{
-				throw new Exception("Invalid site handle: $value");
-			}
-
-			$this->ownerSiteId($site->id);
-		}
+        Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()', 'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
 
 		return $this;
 	}
@@ -183,10 +165,10 @@ class BlockQuery extends ElementQuery
 	 * @return $this
 	 * @deprecated in 2.0.0.  Use `ownerSite()` or `ownerSiteId()` instead.
 	 */
-	public function ownerLocale($value)
+	public function ownerLocale()
 	{
 		Craft::$app->getDeprecator()->log('ElementQuery::ownerLocale()', "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
-		$this->ownerSite($value);
+//		$this->ownerSite($value);
 
 		return $this;
 	}
@@ -263,6 +245,7 @@ class BlockQuery extends ElementQuery
 
 	/**
 	 * @inheritdoc
+     * @return Block[]|array
 	 */
 	public function all($db = null)
 	{
@@ -278,6 +261,7 @@ class BlockQuery extends ElementQuery
 
 	/**
 	 * @inheritdoc
+     * @return Block|array|null
 	 */
 	public function one($db = null)
 	{
@@ -293,6 +277,7 @@ class BlockQuery extends ElementQuery
 
 	/**
 	 * @inheritdoc
+     * @return Block|array|null
 	 */
 	public function nth(int $n, Connection $db = null)
 	{
@@ -357,7 +342,7 @@ class BlockQuery extends ElementQuery
 
 		if ($isSaved)
 		{
-			foreach (['fieldId', 'ownerId', 'ownerSiteId'] as $idProperty)
+			foreach (['fieldId', 'ownerId'] as $idProperty)
 			{
 				if (!$this->$idProperty)
 				{
@@ -372,7 +357,7 @@ class BlockQuery extends ElementQuery
 
 		if (!$this->structureId && $this->fieldId && $this->ownerId)
 		{
-			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->ownerSiteId);
+			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, (int)$this->siteId);
 
 			if ($blockStructure)
 			{
@@ -383,7 +368,6 @@ class BlockQuery extends ElementQuery
 		$this->query->select([
 			'neoblocks.fieldId',
 			'neoblocks.ownerId',
-			'neoblocks.ownerSiteId',
 			'neoblocks.typeId',
 		]);
 
@@ -397,11 +381,6 @@ class BlockQuery extends ElementQuery
 			$this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $this->ownerId));
 		}
 
-		if ($this->ownerSiteId)
-		{
-			$this->subQuery->andWhere(Db::parseParam('neoblocks.ownerSiteId', $this->ownerSiteId));
-		}
-
 		if ($this->typeId !== null)
 		{
 			// If typeId is an empty array, it's because type() was called but no valid type handles were passed in
@@ -412,6 +391,16 @@ class BlockQuery extends ElementQuery
 
 			$this->subQuery->andWhere(Db::parseParam('neoblocks.typeId', $this->typeId));
 		}
+		
+		// Ignore revision/draft blocks by default
+		// if (!$this->id && !$this->ownerId) {
+		// 	$this->subQuery
+		// 		->innerJoin(Table::ELEMENTS . ' owners', '[[owners.id]] = [[neoblocks.ownerId]]')
+		// 		->andWhere([
+		// 			'owners.draftId' => null,
+		// 			'owners.revisionId' => null,
+		// 		]);
+		// }
 
 		return parent::beforePrepare();
 	}
@@ -613,7 +602,8 @@ class BlockQuery extends ElementQuery
 
 		$nextSiblings = [];
 
-		for ($i = $index + 1; $i < count($elements); $i++)
+		$elementsCount = count($elements);
+		for ($i = $index + 1; $i < $elementsCount; $i++)
 		{
 			$element = $elements[$i];
 
@@ -634,6 +624,26 @@ class BlockQuery extends ElementQuery
 
 	// Live Preview methods
 	// These methods must be prefixed with two underscores. They will automatically be detected and used when filtering.
+
+	/**
+	 * @param array $elements
+	 * @param int $value
+	 * @return array
+	 */
+	private function __typeId(array $elements, $value): array
+	{
+		if (!$value)
+		{
+			return $elements;
+		}
+
+		$newElements = array_filter($elements, function($element) use($value)
+		{
+			return in_array($element->typeId, $value);
+		});
+
+		return array_values($newElements);
+	}
 
 	/**
 	 * @param array $elements

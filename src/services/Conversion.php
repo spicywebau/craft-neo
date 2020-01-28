@@ -67,6 +67,7 @@ class Conversion extends Component
 			$matrixField->minBlocks = $neoField->minBlocks;
 			$matrixField->maxBlocks = $neoField->maxBlocks;
 			$matrixField->localizeBlocks = $neoField->localizeBlocks;
+			$matrixField->propagationMethod = $neoField->propagationMethod;
 			$matrixField->uid = $neoField->uid;
 
 			$neoBlocks = [];
@@ -84,7 +85,6 @@ class Conversion extends Component
 					->fieldId($neoField->id)
 					->ownerId(null)
 					->siteId($siteId)
-					->ownerSiteId($neoField->localizeBlocks ? $siteId : ':empty:')
 					->limit(null)
 					->anyStatus()
 					->all();
@@ -263,6 +263,7 @@ class Conversion extends Component
 				$matrixField->name = $neoFieldLayoutField->name;
 				$matrixField->handle = $neoFieldLayoutField->handle;
 				$matrixField->required = (bool)$neoFieldLayoutField->required;
+				$matrixField->uid = null;
 
 				// Force disable translation on fields if the Neo field was also translatable
 				if ($field && $field->translatable)
@@ -295,7 +296,6 @@ class Conversion extends Component
 		$matrixBlock->ownerId = $neoBlock->ownerId;
 		$matrixBlock->fieldId = $neoBlock->fieldId;
 		$matrixBlock->siteId = $neoBlock->siteId;
-		$matrixBlock->ownerSiteId = $neoBlock->ownerSiteId;
 		$matrixBlock->sortOrder = $neoBlock->lft;
 		$matrixBlock->collapsed = $neoBlock->collapsed;
 		$matrixBlock->setFieldValues($blockFieldValues);

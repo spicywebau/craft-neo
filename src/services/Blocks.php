@@ -88,7 +88,7 @@ class Blocks extends Component
 
 		$namespace = $namespace ?? $viewService->namespaceInputName($field->handle);
 		$oldNamespace = $viewService->getNamespace();
-		$newNamespace = $namespace . '[__NEOBLOCK__][fields]';
+		$newNamespace = $namespace . '[blocks][__NEOBLOCK__][fields]';
 		$viewService->setNamespace($newNamespace);
 
 		// Ensure that this block is actually new, and not just a pasted or cloned block
@@ -137,6 +137,7 @@ class Blocks extends Component
 				'element' => $block,
 				'fields' => $fields,
 				'static' => $static,
+				'registerDeltas' => true,
 			]);
 
 			if ($isNewBlock)
@@ -167,10 +168,9 @@ class Blocks extends Component
 	 *
 	 * @param int $fieldId The field ID to look for.
 	 * @param int $ownerId The owner ID to look for.
-	 * @param int|null $ownerSiteId The owner site ID to look for, if any.
 	 * @return BlockStructure|null The block structure found, if any.
 	 */
-	public function getStructure(int $fieldId, int $ownerId, $ownerSiteId = null)
+	public function getStructure(int $fieldId, int $ownerId, int $siteId=null)
 	{
 		$blockStructure = null;
 
@@ -178,12 +178,8 @@ class Blocks extends Component
 			->where([
 				'fieldId' => $fieldId,
 				'ownerId' => $ownerId,
+                'ownerSiteId' => $siteId
 			]);
-
-		if ($ownerSiteId)
-		{
-			$query->andWhere(['ownerSiteId' => $ownerSiteId]);
-		}
 
 		$result = $query->one();
 
@@ -244,10 +240,10 @@ class Blocks extends Component
 				$blockStructure->structureId = $structure->id;
 			}
 
-			$record->structureId = $blockStructure->structureId;
-			$record->ownerId = $blockStructure->ownerId;
-			$record->ownerSiteId = $blockStructure->ownerSiteId;
-			$record->fieldId = $blockStructure->fieldId;
+			$record->structureId = (int)$blockStructure->structureId;
+			$record->ownerId = (int)$blockStructure->ownerId;
+            $record->ownerSiteId = (int)$blockStructure->ownerSiteId;
+			$record->fieldId = (int)$blockStructure->fieldId;
 
 			$record->save(false);
 
@@ -291,7 +287,7 @@ class Blocks extends Component
 					->delete('{{%neoblockstructures}}', [
 						'id' => $blockStructure->id,
 						'ownerId' => $blockStructure->ownerId,
-						'ownerSiteId' => $blockStructure->ownerSiteId,
+                        'ownerSiteId' => $blockStructure->ownerSiteId,
 						'fieldId' => $blockStructure->fieldId,
 					])
 					->execute();
@@ -388,7 +384,7 @@ class Blocks extends Component
 				'id',
 				'structureId',
 				'ownerId',
-				'ownerSiteId',
+                'ownerSiteId',
 				'fieldId',
 			])
 			->from(['{{%neoblockstructures}}']);
