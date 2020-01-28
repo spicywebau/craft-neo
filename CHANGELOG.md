@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.6.0 - 2020-01-29
+
+### Added
+- Added Delta support
+- Added Multi level ordering
+
+### Changes
+- Fixes for Craft 3.4
+
 ## 2.5.10 - 2020-01-22
 
 ### Added

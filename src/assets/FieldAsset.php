@@ -96,10 +96,10 @@ class FieldAsset extends AssetBundle
 		$id = $viewService->formatInputId($name);
 		$blockTypes = $field->getBlockTypes();
 		$blockTypeGroups = $field->getGroups();
-
+		
 		$jsSettings = [
 			'name' => $name,
-			'namespace' => $viewService->namespaceInputName($name),
+			'namespace' => $viewService->namespaceInputName($name).'[blocks]',
 			'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static, $siteId),
 			'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
 			'inputId' => $viewService->namespaceInputId($id),
@@ -143,7 +143,7 @@ class FieldAsset extends AssetBundle
 					'sortOrder' => $sortOrder++,
 					'collapsed' => !$collapseAllBlocks ? $block->getCollapsed() : true,
 					'enabled' => (bool)$block->enabled,
-					'level' => max(0, intval($block->level) - 1),
+					'level' => max(0, (int)$block->level - 1),
 					'tabs' => Neo::$plugin->blocks->renderTabs($block, $static),
 				];
 			}

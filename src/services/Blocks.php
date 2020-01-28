@@ -88,7 +88,7 @@ class Blocks extends Component
 
 		$namespace = $namespace ?? $viewService->namespaceInputName($field->handle);
 		$oldNamespace = $viewService->getNamespace();
-		$newNamespace = $namespace . '[__NEOBLOCK__][fields]';
+		$newNamespace = $namespace . '[blocks][__NEOBLOCK__][fields]';
 		$viewService->setNamespace($newNamespace);
 
 		// Ensure that this block is actually new, and not just a pasted or cloned block
@@ -137,6 +137,7 @@ class Blocks extends Component
 				'element' => $block,
 				'fields' => $fields,
 				'static' => $static,
+				'registerDeltas' => true,
 			]);
 
 			if ($isNewBlock)

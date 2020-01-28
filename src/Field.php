@@ -391,9 +391,15 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 		
 		// Set the initially matched elements if $value is already set, which is the case if there was a validation
 		// error or we're loading an entry revision.
-		if (is_array($value) || $value === '') {
+		$elements = null;
+
+		if ($value === '') {
+			$elements = [];
+		} else if ($element && is_array($value)) {
 			$elements = $this->_createBlocksFromSerializedData($value, $element);
-			
+		}
+
+		if ($elements !== null) {
 			if (!Craft::$app->getRequest()->getIsLivePreview()) {
 				$query->anyStatus();
 			} else {
@@ -660,7 +666,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 		/** @var Element $element */
 		if ($element->duplicateOf !== null) {
 			Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true);
-		} else {
+		} else if ($element->isFieldDirty($this->handle)) {
 			Neo::$plugin->fields->saveValue($this, $element);
 		}
 		
@@ -904,100 +910,81 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 	 * Creates Neo blocks out of the given serialized data.
 	 *
 	 * @param array $value The raw field data.
-	 * @param ElementInterface|null $element The element associated with this field, if any.
+	 * @param ElementInterface $element The element associated with this field
 	 * @return array The Blocks created from the given data.
 	 */
-	private function _createBlocksFromSerializedData($value, ElementInterface $element = null): array
+	private function _createBlocksFromSerializedData(array $value, ElementInterface $element): array
 	{
-		if (!is_array($value)) {
-			return [];
-		}
-		
 		$blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getByFieldId($this->id), 'handle');
-		$oldBlocksById = [];
 		
-		if ($element && $element->id) {
-			$ownerId = $element->id;
-			$blockIds = [];
-			
-			foreach (array_keys($value) as $blockId) {
-				if (is_numeric($blockId) && $blockId !== 0) {
-					$blockIds[] = $blockId;
-					
-					// If that block was duplicated earlier in this request, check for that as well.
-					if (isset(Elements::$duplicatedElementIds[$blockId])) {
-						$blockIds[] = Elements::$duplicatedElementIds[$blockId];
-					}
-				}
-			}
-			
-			if (!empty($blockIds)) {
-				$oldBlocksQuery = Block::find();
-				$oldBlocksQuery->fieldId($this->id);
-				$oldBlocksQuery->ownerId($ownerId);
-				$oldBlocksQuery->id($blockIds);
-				$oldBlocksQuery->limit(null);
-				$oldBlocksQuery->anyStatus();
-				$oldBlocksQuery->siteId($element->siteId);
-				$oldBlocksQuery->indexBy('id');
-				$oldBlocksById = $oldBlocksQuery->all();
-			}
+		// Get the old blocks
+		if ($element->id) {
+			$oldBlocksById = Block::find()
+				->fieldId($this->id)
+				->ownerId($element->id)
+				->limit(null)
+				->anyStatus()
+				->siteId($element->siteId)
+				->indexBy('id')
+				->all();
 		} else {
-			$ownerId = null;
+			$oldBlocksById = [];
 		}
 		
-		// Generally, block data will be received with levels starting from 0, so they need to be adjusted up by 1.
-		// For entry revisions and new entry drafts, though, the block data will have levels starting from 1.
-		// Because the first block in a field will always be level 1, we can use that to check whether the count is
-		// starting from 0 or 1 and thus ensure that all blocks display at the correct level.
-		$adjustLevels = false;
+		$fieldNamespace = $element->getFieldParamNamespace();
+		$baseBlockFieldNamespace = $fieldNamespace ? "{$fieldNamespace}.{$this->handle}" : null;
+
+		// Was the value posted in the new (delta) format?
+        if (isset($value['blocks']) || isset($value['sortOrder'])) {
+            $newBlockData = $value['blocks'] ?? [];
+            $newSortOrder = $value['sortOrder'] ?? array_keys($oldBlocksById);
+            if ($baseBlockFieldNamespace) {
+                $baseBlockFieldNamespace .= '.blocks';
+            }
+        } else {
+            $newBlockData = $value;
+            $newSortOrder = array_keys($value);
+        }
+        
+        /** @var Block[] $blocks */
 		$blocks = [];
 		$prevBlock = null;
 		
-		if (!empty($value)) {
-			$firstBlock = reset($value);
-			$firstBlockLevel = (int)$firstBlock['level'];
+		foreach ($newSortOrder as $blockId) {
+			$blockData = $newBlockData[$blockId] ?? [];
 			
-			if ($firstBlockLevel === 0) {
-				$adjustLevels = true;
-			}
-		}
-		
-		foreach ($value as $blockId => $blockData) {
-			
-			if (!isset($blockData['type']) || !isset($blockTypes[$blockData['type']])) {
-				continue;
-			}
-			
-			$blockType = $blockTypes[$blockData['type']];
 			$isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
 			$isCollapsed = isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false;
 			$isModified = isset($blockData['modified']) ? (bool)$blockData['modified'] : false;
 			
+            // If this is a preexisting block but we don't have a record of it,
+            // check to see if it was recently duplicated.
 			if (
 				strpos($blockId, 'new') !== 0 &&
 				!isset($oldBlocksById[$blockId]) &&
-				isset(Elements::$duplicatedElementIds[$blockId])
+				isset(Elements::$duplicatedElementIds[$blockId]) &&
+				isset($oldBlocksById[Elements::$duplicatedElementIds[$blockId]])
 			) {
 				$blockId = Elements::$duplicatedElementIds[$blockId];
 			}
 			
-			// Is this new? (Or has it been deleted?)
-			if (strpos($blockId, 'new') === 0 || !isset($oldBlocksById[$blockId])) {
-				$block = new Block();
-				$block->fieldId = $this->id;
-				$block->typeId = $blockType->id;
-				$block->ownerId = $ownerId;
-				$block->siteId = $element->siteId;
-			} else {
-				$block = $oldBlocksById[$blockId];
-			}
+			// Existing block?
+			if (isset($oldBlocksById[$blockId])) {
+			    $block = $oldBlocksById[$blockId];
+			    $block->dirty = !empty($blockData);
+            } else {
+			    // Make sure it's a valid block type
+                if (!isset($blockData['type']) || !isset($blockTypes[$blockData['type']])) {
+                    continue;
+                }
+                $block = new Block();
+                $block->fieldId = $this->id;
+                $block->typeId = $blockTypes[$blockData['type']]->id;
+                $block->ownerId = $element->id;
+                $block->siteId = $element->siteId;
+            }
 			
-			$blockLevel = (int)$blockData['level'];
-			
-			if ($adjustLevels) {
-				$blockLevel++;
-			}
+			$blockLevel = (int)($blockData['level'] ?? $block->level);
 			
 			$block->setOwner($element);
 			$block->setCollapsed($isCollapsed);
@@ -1005,21 +992,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 			$block->enabled = $isEnabled;
 			$block->level = $blockLevel;
 			
-			$fieldNamespace = $element->getFieldParamNamespace();
-			
-			if ($fieldNamespace !== null) {
-				$blockNamespace = ($fieldNamespace ? $fieldNamespace . '.' : '') . "$this->handle.$blockId.fields";
-				$block->setFieldParamNamespace($blockNamespace);
+            // Set the content post location on the block if we can
+			if ($baseBlockFieldNamespace) {
+				$block->setFieldParamNamespace("{$baseBlockFieldNamespace}.{$blockId}.fields");
 			}
 			
 			if (isset($blockData['fields'])) {
-				foreach ($blockData['fields'] as $fieldHandle => $fieldValue) {
-					try {
-						$block->setFieldValue($fieldHandle, $fieldValue);
-					} catch (UnknownPropertyException $e) {
-						// the field was probably deleted
-					}
-				}
+			    $block->setFieldValues($blockData['fields']);
 			}
 			
 			if ($prevBlock) {
@@ -1030,10 +1009,22 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 			$prevBlock = $block;
 			$blocks[] = $block;
 		}
-		
-		foreach ($blocks as $block) {
-			$block->setAllElements($blocks);
-		}
+
+        if (!empty($blocks)) {
+            // Generally, block data will be received with levels starting from 0, so they need to be adjusted up by 1.
+            // For entry revisions and new entry drafts, though, the block data will have levels starting from 1.
+            // Because the first block in a field will always be level 1, we can use that to check whether the count is
+            // starting from 0 or 1 and thus ensure that all blocks display at the correct level.
+            $adjustLevels = (int)$blocks[0]->level === 0;
+
+            foreach ($blocks as $block) {
+                $block->setAllElements($blocks);
+                
+                if ($adjustLevels) {
+                    $block->level++;
+                }
+            }
+        }
 		
 		return $blocks;
 	}

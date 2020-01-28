@@ -201,20 +201,31 @@ class Fields extends Component
 		$neoSettings = Neo::$plugin->getSettings();
 		
 		$query = $owner->getFieldValue($field->handle);
-		$blocks = $query->getCachedResult() ?? (clone $query)->anyStatus()->all();
+		
+		if (($blocks = $query->getCachedResult()) !== null) {
+			$saveAll = false;
+		} else {
+			$blocks = (clone $query)->anyStatus()->all();
+			$saveAll = true;
+		}
+		
 		$blockIds = [];
 		
 		$transaction = $dbService->beginTransaction();
 		
 		try {
 			foreach ($blocks as $block) {
-				$block->ownerId = (int)$owner->id;
-				$elementsService->saveElement($block, false);
-				$blockIds[] = $block->id;
-				
-				if (!$neoSettings->collapseAllBlocks)
-				{
-					$block->cacheCollapsed();
+				if ($saveAll || !$block->id || $block->dirty) {
+					$block->ownerId = (int)$owner->id;
+					$elementsService->saveElement($block, false);
+					$blockIds[] = $block->id;
+					
+					if (!$neoSettings->collapseAllBlocks)
+					{
+						$block->cacheCollapsed();
+					}
+				} else {
+					$blockIds[] = $block->id;
 				}
 			}
 		
@@ -483,7 +494,7 @@ class Fields extends Component
 			$this->_deleteNeoBlocksAndStructures($field, $owner, $except);
 		}
 	}
-    
+ 
 	private function _checkSupportedSitesAndPropagation($field, $supportedSites) {
 		// get the supported sites
 		$supportedSitesCount = count($supportedSites);
@@ -492,7 +503,7 @@ class Fields extends Component
 		// then save the neo structures for each site.
 		return $supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE;
 	}
-    
+ 
 	private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null) {
 		
 		$siteId = $sId ?? $owner->siteId;
@@ -520,7 +531,7 @@ class Fields extends Component
 			Neo::$plugin->blocks->deleteStructure($blockStructure);
 		}
 	}
-    
+ 
 	private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null) {
 		$siteId = $sId ?? $owner->siteId;
 		$blockStructure = new BlockStructure();

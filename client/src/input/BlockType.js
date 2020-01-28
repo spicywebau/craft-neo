@@ -78,5 +78,30 @@ export default Garnish.Base.extend({
 	{
 		const cb = this.getChildBlocks()
 		return cb === true || cb === '*' || (Array.isArray(cb) && cb.includes(handle))
+	},
+
+	isValidChildBlock(block)
+	{
+		const cb = this.getChildBlocks()
+
+		if(cb === true || cb === '*')
+		{
+			return true
+		}
+
+		const typeHandle = block.getBlockType().getHandle()
+
+		if(Array.isArray(cb))
+		{
+			for(let th of cb)
+			{
+				if(th == typeHandle)
+				{
+					return true
+				}
+			}
+		}
+
+		return false
 	}
 })
