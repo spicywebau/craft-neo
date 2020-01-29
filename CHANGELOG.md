@@ -7,7 +7,7 @@
 - Added Multi level ordering
 
 ### Changes
-- Fixes for Craft 3.4
+- Fixes and updates for Craft 3.4
 
 ## 2.5.10 - 2020-01-22
 
