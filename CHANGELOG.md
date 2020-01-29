@@ -6,7 +6,7 @@
 - Added Delta support
 - Added Multi level ordering
 
-### Changes
+### Fixed/Changes
 - Fixes and updates for Craft 3.4
 
 ## 2.5.10 - 2020-01-22
