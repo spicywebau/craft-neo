@@ -32,8 +32,13 @@ class Input extends Controller
 		$requestService = Craft::$app->getRequest();
 
 		$blocks = $requestService->getRequiredBodyParam('blocks');
-		$namespace = $requestService->getParam('namespace');
-		$siteId = $requestService->getParam('locale');
+        $namespace = $requestService->getParam('namespace');
+        
+        // remove the ending section of the namespace since we're adding it back in renderBlocks. having it in will make it double up.
+        $ex = explode('][', $namespace);
+        $namespace = $ex[0] . ']';
+		
+        $siteId = $requestService->getParam('locale');
 		$renderedBlocks = [];
 
 		foreach ($blocks as $rawBlock)

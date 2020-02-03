@@ -88,7 +88,7 @@ class Blocks extends Component
 
 		$namespace = $namespace ?? $viewService->namespaceInputName($field->handle);
 		$oldNamespace = $viewService->getNamespace();
-		$newNamespace = (strpos($namespace, '[blocks]') === false) ? $namespace . '[blocks][__NEOBLOCK__][fields]' : $namespace . '[__NEOBLOCK__][fields]';
+        $newNamespace = $namespace . '[blocks][__NEOBLOCK__][fields]';
 		$viewService->setNamespace($newNamespace);
 
 		// Ensure that this block is actually new, and not just a pasted or cloned block
@@ -242,7 +242,8 @@ class Blocks extends Component
 
 			$record->structureId = (int)$blockStructure->structureId;
 			$record->ownerId = (int)$blockStructure->ownerId;
-            $record->ownerSiteId = (int)$blockStructure->ownerSiteId;
+			// can't be 0 need to be at least the primary site.
+            $record->ownerSiteId = (int)$blockStructure->ownerSiteId === 0 ? Craft::$app->getSites()->getPrimarySite()->id : (int)$blockStructure->ownerSiteId;
 			$record->fieldId = (int)$blockStructure->fieldId;
 
 			$record->save(false);
