@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.6.1 - 2020-02-04
+
+### Fixed
+- Fixed a delta blocks namespace issue if the neo field was called 'blocks'
+- Fixed an issue where the structure owner site id is 0 and causes an error when saving. It must be at least the primary site id. (craft 2 -> 3 issue)
+
+### Changed
+- updated the input controller for the namespace change.
+
 ## 2.6.0 - 2020-01-29
 
 ### Added
