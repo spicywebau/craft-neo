@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Media fields using dynamic paths should now show the correct directory when adding/copy/cloning new blocks. #233
+
 ## 2.6.1 - 2020-02-04
 
 ### Fixed

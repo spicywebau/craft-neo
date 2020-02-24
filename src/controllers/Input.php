@@ -22,7 +22,7 @@ class Input extends Controller
 {
     /**
      * Renders pasted or cloned input blocks.
-     *
+     * @throws
      * @return Response
      */
     public function actionRenderBlocks(): Response
@@ -46,6 +46,9 @@ class Input extends Controller
             $type = Neo::$plugin->blockTypes->getById((int)$rawBlock['type']);
             $block = new Block();
             //$block->modified = true;
+            if (isset($rawBlock['ownerId']) && $rawBlock['ownerId']) {
+                $block->ownerId = $rawBlock['ownerId'];
+            }
             $block->typeId = $rawBlock['type'];
             $block->level = $rawBlock['level'];
             $block->enabled = isset($rawBlock['enabled']);

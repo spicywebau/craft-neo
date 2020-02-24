@@ -592,12 +592,17 @@ class BlockTypes extends Component
 	 * @param bool $static Whether to generate static tab content.
 	 * @param string|null $namespace
 	 * @param int|null $siteId
+     * @param int|null $ownerId
 	 * @return array The tabs data.
 	 */
-	public function renderTabs(BlockType $blockType, bool $static = false, $namespace = null, int $siteId = null): array
+	public function renderTabs(BlockType $blockType, bool $static = false, $namespace = null, int $siteId = null, $ownerId = null): array
 	{
 		$block = new Block();
 		$block->typeId = $blockType->id;
+		
+		if (!$block->ownerId && $ownerId) {
+		    $block->ownerId = $ownerId;
+        }
 
 		// Ensure that the passed site ID is valid before applying it
 		// If the site ID is not passed or is invalid, the block will default to the primary site

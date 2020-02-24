@@ -824,6 +824,7 @@ export default Garnish.Base.extend({
 					type: block.getBlockType().getId(),
 					level: block.getLevel() - firstBlockLevel,
 					content: block.getContent(),
+					ownerId: $('[name="entryId"]').val()
 				}
 
 				if(block.isEnabled())
@@ -896,7 +897,8 @@ export default Garnish.Base.extend({
 		let blockData = {
 			type: block.getBlockType().getId(),
 			level: block.getLevel(),
-			content: block.getContent()
+			content: block.getContent(),
+			ownerId: $('[name="entryId"]').val()
 		}
 
 		if(block.isEnabled())
