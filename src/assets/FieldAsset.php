@@ -134,8 +134,13 @@ class FieldAsset extends AssetBundle
      * @param int|null $siteId
      * @return string
      */
-    public static function createInputJs(Field $field, $value, bool $static = false, int $siteId = null): string
-    {
+    public static function createInputJs(
+        Field $field,
+        $value,
+        bool $static = false,
+        int $siteId = null,
+        $ownerId = null
+    ): string {
         $viewService = Craft::$app->getView();
         
         $name = $field->handle;
@@ -146,7 +151,7 @@ class FieldAsset extends AssetBundle
         $jsSettings = [
             'name' => $name,
             'namespace' => $viewService->namespaceInputName($name) . '[blocks]',
-            'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static, $siteId),
+            'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static, $siteId, $ownerId),
             'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
             'inputId' => $viewService->namespaceInputId($id),
             'minBlocks' => $field->minBlocks,
@@ -207,13 +212,15 @@ class FieldAsset extends AssetBundle
      * @param bool $renderTabs Whether to render the block types' tabs.
      * @param bool $static Whether to generate static HTML for the block types, e.g. for displaying entry revisions.
      * @param int|null $siteId
+     * @param int|null $ownerId
      * @return array
      */
     private static function _getBlockTypesJsSettings(
         array $blockTypes,
         bool $renderTabs = false,
         bool $static = false,
-        int $siteId = null
+        int $siteId = null,
+        $ownerId = null
     ): array {
         $jsBlockTypes = [];
         
@@ -259,7 +266,7 @@ class FieldAsset extends AssetBundle
                 ];
                 
                 if ($renderTabs) {
-                    $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId);
+                    $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $ownerId);
                     $jsBlockType['tabs'] = $tabsHtml;
                 }
                 
