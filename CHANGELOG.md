@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Add German translation - thanks @gglnx
+
 ### Fixed
 - Media fields using dynamic paths should now show the correct directory when adding/copy/cloning new blocks. #233
 
