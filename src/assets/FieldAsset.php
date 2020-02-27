@@ -88,8 +88,13 @@ class FieldAsset extends AssetBundle
      * @param int|null $siteId
      * @return string
      */
-    public static function createInputJs(Field $field, $value, bool $static = false, int $siteId = null, $ownerId = null): string
-    {
+    public static function createInputJs(
+        Field $field,
+        $value,
+        bool $static = false,
+        int $siteId = null,
+        $ownerId = null
+    ): string {
         $viewService = Craft::$app->getView();
         
         $name = $field->handle;
