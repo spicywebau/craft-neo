@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.6.2 - 2020-02-28
 
 ### Added
 - Add German translation - thanks @gglnx
