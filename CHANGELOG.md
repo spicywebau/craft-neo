@@ -8,6 +8,7 @@
 ### Fixed
 - Media fields using dynamic paths should now show the correct directory when adding/copy/cloning new blocks. #233
 - Fixed an issue where the groups wouldn't allow the field to be saved when using the project config + further changes for the group duplicating issue.
+- Any required matrix blocks (that's empty) will now correctly highlight the tab to show where the issue is. #299
 
 ## 2.6.1 - 2020-02-04
 
