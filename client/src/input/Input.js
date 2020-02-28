@@ -167,6 +167,9 @@ export default Garnish.Base.extend({
 		}
 
 		$form.data('initialSerializedValue', serialized)
+
+		// add error highlight for matrix fields within neo
+		this._setMatrixClassErrors();
 	},
 
 	updateResponsiveness()
@@ -379,6 +382,26 @@ export default Garnish.Base.extend({
 	{
 		const $selectedBlocks = this._blockSelect.getSelectedItems()
 		return this._blocks.filter(block => block.$container.closest($selectedBlocks).length > 0)
+	},
+
+	_setMatrixClassErrors() {
+		// TODO: will need probably need to find a method within php instead of JS
+		// temp solution for now.
+		let matrixErrors = $('.ni_block_body .matrix-field .input.errors');
+		if (matrixErrors.length) {
+			matrixErrors.each(function(){
+				let _this = $(this),
+					tabContainer = _this.closest('.ni_block_content_tab'),
+					tabData = tabContainer.data('neo-b-info'),
+					closestContainer = _this.closest('.ni_block'),
+					bar = closestContainer.find('.tabs .tab[data-neo-b-info="' + tabData + '"]');
+
+				if (bar.length) {
+					bar.addClass('has-errors');
+				}
+
+			});
+		}
 	},
 
 	_updateBlockOrder()
