@@ -296,7 +296,7 @@ class FieldAsset extends AssetBundle
                 $jsBlockTypeGroups[] = [
                     'id' => $blockTypeGroup->id,
                     'sortOrder' => $blockTypeGroup->sortOrder,
-                    'name' => $blockTypeGroup->name,
+                    'name' => Craft::t('neo', $blockTypeGroup->name),
                 ];
             } elseif (is_array($blockTypeGroup)) {
                 $jsBlockTypeGroups[] = $blockTypeGroup;
