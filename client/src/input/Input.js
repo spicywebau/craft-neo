@@ -170,6 +170,7 @@ export default Garnish.Base.extend({
 
 		// add error highlight for matrix fields within neo
 		this._setMatrixClassErrors();
+		this._setBlockTypeClassErrors();
 	},
 
 	updateResponsiveness()
@@ -400,6 +401,20 @@ export default Garnish.Base.extend({
 					bar.addClass('has-errors');
 				}
 
+			});
+		}
+	},
+
+	_setBlockTypeClassErrors() {
+		let tabErrors = $('.ni_block .tab.has-errors');
+
+		if (tabErrors.length) {
+			tabErrors.each(function(){
+				let parents = tabErrors.parents('.ni_block.is-contracted');
+				parents.each(function(){
+					let _this = $(this);
+					_this.find('> .ni_block_topbar .title .blocktype').addClass('has-errors');
+				});
 			});
 		}
 	},

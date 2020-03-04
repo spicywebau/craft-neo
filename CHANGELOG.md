@@ -4,6 +4,7 @@
 
 ### Added
 - Group buttons will now be translated. #301.
+- If there's an error within a field + it's collapsed, the block name will now be highlighted. #299
 
 ## 2.6.2 - 2020-02-28
 
