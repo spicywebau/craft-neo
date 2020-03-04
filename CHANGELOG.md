@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.6.3 - 2020-03-04
 
 ### Added
 - Group buttons will now be translated. #301.
