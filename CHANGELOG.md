@@ -6,6 +6,9 @@
 - Group buttons will now be translated. #301.
 - If there's an error within a field + it's collapsed, the block name will now be highlighted. #299
 
+### Fixed
+- Fixed an issue where it would throw an error about a missing function on the dashboard widgets. #304
+
 ## 2.6.2 - 2020-02-28
 
 ### Added
