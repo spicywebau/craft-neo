@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Fixed an issue where it was impossible to eager-load fields inside Neo fields. #306
+- Fixed an issue where it was impossible to eager-load fields inside Neo fields. #306. - thanks @andris-sevcenko
 
 ## 2.6.3 - 2020-03-04
 
