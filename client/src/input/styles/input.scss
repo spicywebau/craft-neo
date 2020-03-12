@@ -126,6 +126,10 @@
 					.blocktype {
 						// Add vertical padding so there's more hit area for the checkbox
 						padding: 8px 0;
+						
+						&.has-errors {
+							color: #da5a47;
+						}
 					}
 
 					.preview {

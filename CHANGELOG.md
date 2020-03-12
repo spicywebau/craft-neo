@@ -1,6 +1,23 @@
 # Changelog
 
-## Unreleased
+## 2.6.4 - 2020-03-12
+
+### Fixed
+- Fixed an issue where it was impossible to eager-load fields inside Neo fields. #306. - thanks @andris-sevcenko
+
+### Changed
+- Small change for the delta updates. Should be more reliable in determining which blocks should be updated. #257.
+
+## 2.6.3 - 2020-03-04
+
+### Added
+- Group buttons will now be translated. #301.
+- If there's an error within a field + it's collapsed, the block name will now be highlighted. #299
+
+### Fixed
+- Fixed an issue where it would throw an error about a missing function on the dashboard widgets. #304
+
+## 2.6.2 - 2020-02-28
 
 ### Added
 - Add German translation - thanks @gglnx

@@ -149,7 +149,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
 	 */
 	public function getFieldContext(): string
 	{
-		return 'neoBlockTypes:' . $this->uid;
+		return 'global';
 	}
 	
 	/**

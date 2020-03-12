@@ -892,7 +892,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 			$html = $this->_getNestingErrorHtml();
 		} else {
 			$viewService->registerAssetBundle(FieldAsset::class);
-			$viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $element->getId()));
+			
+			$elementId = $element ? $element->getId() : null;
+            $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $elementId));
 			
 			$html = $viewService->renderTemplate('neo/input', [
 				'neoField' => $this,
@@ -971,7 +973,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 			// Existing block?
 			if (isset($oldBlocksById[$blockId])) {
 			    $block = $oldBlocksById[$blockId];
-			    $block->dirty = !empty($blockData);
+                $block->dirty = (bool)$blockData['modified'];
             } else {
 			    // Make sure it's a valid block type
                 if (!isset($blockData['type']) || !isset($blockTypes[$blockData['type']])) {
