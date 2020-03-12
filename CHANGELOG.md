@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.6.4 - 2020-03-12
 
 ### Fixed
 - Fixed an issue where it was impossible to eager-load fields inside Neo fields. #306. - thanks @andris-sevcenko
