@@ -848,7 +848,7 @@ class Block extends Element implements BlockElementInterface
     // Private Methods
     // =========================================================================
     /**
-     * Returns the Matrix field.
+     * Returns the neo field.
      *
      * @return neoField
      */

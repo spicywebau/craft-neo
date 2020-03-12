@@ -973,7 +973,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 			// Existing block?
 			if (isset($oldBlocksById[$blockId])) {
 			    $block = $oldBlocksById[$blockId];
-			    $block->dirty = !empty($blockData);
+                $block->dirty = (bool)$blockData['modified'];
             } else {
 			    // Make sure it's a valid block type
                 if (!isset($blockData['type']) || !isset($blockTypes[$blockData['type']])) {
