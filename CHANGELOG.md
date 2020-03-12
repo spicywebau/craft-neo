@@ -6,7 +6,7 @@
 - Fixed an issue where it was impossible to eager-load fields inside Neo fields. #306. - thanks @andris-sevcenko
 
 ### Changed
-- Small change for the delta updates. Should be more reliable which blocks should be saved updated. #257.
+- Small change for the delta updates. Should be more reliable in determining which blocks should be updated. #257.
 
 ## 2.6.3 - 2020-03-04
 
