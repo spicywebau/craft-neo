@@ -355,20 +355,22 @@ class BlockQuery extends ElementQuery
 			}
 		}
 
-		if (!$this->structureId && $this->fieldId && $this->ownerId)
-		{
-			$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, (int)$this->siteId);
-
-			if ($blockStructure)
-			{
-				$this->structureId = $blockStructure->structureId;
-			}
-		}
+		// if (!$this->structureId && $this->fieldId && $this->ownerId)
+		// {
+		// 	$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, (int)$this->siteId);
+        //
+		// 	if ($blockStructure)
+		// 	{
+		// 		$this->structureId = $blockStructure->structureId;
+		// 	}
+		// }
 
 		$this->query->select([
 			'neoblocks.fieldId',
 			'neoblocks.ownerId',
 			'neoblocks.typeId',
+            'neoblocks.level',
+            'neoblocks.sortOrder'
 		]);
 
 		if ($this->fieldId)

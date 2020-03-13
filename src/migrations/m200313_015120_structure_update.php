@@ -4,9 +4,11 @@ namespace benf\neo\migrations;
 
 use Craft;
 use craft\db\Migration;
+use craft\db\Query;
 
 use benf\neo\Field;
 use benf\neo\Plugin as Neo;
+use benf\neo\elements\Block;
 
 /**
  * m200313_015120_structure_update migration.
@@ -19,20 +21,37 @@ class m200313_015120_structure_update extends Migration
      */
     public function safeUp()
     {
-        // Place migration code here...
-        $blockHasSortOrder = $this->db->columnExists('{{%neoblocks}}', 'sortOrder');
-        $blockHasLevel = $this->db->columnExists('{{%neoblocks}}', 'level');
+        // setup new columns
+        $newColumns = ['sortOrder', 'level'];
+        
+        foreach ($newColumns as $col) {
+            $exists = $this->db->columnExists('{{%neoblocks}}', $col);
     
-        // Create tables
-    
-        if (!$blockHasSortOrder)
-        {
-            $this->addColumn('{{%neoblocks}}', 'sortOrder', $this->integer()->notNull());
+            if (!$exists)
+            {
+                $this->addColumn('{{%neoblocks}}', $col, $this->integer()->notNull()->after('dateUpdated'));
+            }
         }
-    
-        if (!$blockHasLevel)
-        {
-            $this->addColumn('{{%neoblocks}}', 'level', $this->integer()->notNull());
+        
+        // set the level and order for the new columns
+        $elements = (new Query())
+            ->select(['id'])
+            ->from('{{%elements}}')
+            ->where(['type' => 'benf\neo\elements\Block'])
+            ->limit(null)
+            ->all($this->db);
+        
+        foreach($elements as $el) {
+            $structureElement = (new Query())
+                ->select(['id', 'lft', 'level'])
+                ->from('{{%structureelements}}')
+                ->where(['elementId' => $el['id']])
+                ->one($this->db);
+            
+            if ($structureElement) {
+                $this->update('{{%neoblocks}}', ['sortOrder' => $structureElement['lft']], ['id' => $structureElement['id']]);
+                $this->update('{{%neoblocks}}', ['level' => $structureElement['level']], ['id' => $structureElement['id']]);
+            }
         }
     }
 
