@@ -152,8 +152,14 @@ class Block extends Element implements BlockElementInterface
 	 * @var bool|null Whether this block should display as collapsed.
 	 */
 	public $_collapsed;
-
-	/**
+    
+    /**
+     * @since 2.7.0
+     */
+    public $sortOrder;
+    public $level;
+	
+    /**
 	 * @var bool Whether the block has changed.
 	 * @internal
 	 * @since 2.6.0
@@ -487,6 +493,8 @@ class Block extends Element implements BlockElementInterface
 			$record->fieldId = (int)$this->fieldId;
 			$record->ownerId = (int)$this->ownerId;
 			$record->typeId = (int)$this->typeId;
+            $record->sortOrder = (int)$this->sortOrder ?: null;
+            $record->level = (int)$this->level ?: null;
 			$record->save(false);
 		}
 

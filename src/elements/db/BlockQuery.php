@@ -100,8 +100,7 @@ class BlockQuery extends ElementQuery
 	 */
 	public function init()
 	{
-		$this->withStructure = true;
-
+		$this->withStructure = false;
 		parent::init();
 	}
 
@@ -355,16 +354,6 @@ class BlockQuery extends ElementQuery
 			}
 		}
 
-		// if (!$this->structureId && $this->fieldId && $this->ownerId)
-		// {
-		// 	$blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, (int)$this->siteId);
-        //
-		// 	if ($blockStructure)
-		// 	{
-		// 		$this->structureId = $blockStructure->structureId;
-		// 	}
-		// }
-
 		$this->query->select([
 			'neoblocks.fieldId',
 			'neoblocks.ownerId',
@@ -372,6 +361,8 @@ class BlockQuery extends ElementQuery
             'neoblocks.level',
             'neoblocks.sortOrder'
 		]);
+		
+		$this->query->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
 
 		if ($this->fieldId)
 		{

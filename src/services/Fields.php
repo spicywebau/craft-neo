@@ -210,23 +210,32 @@ class Fields extends Component
 		}
 		
 		$blockIds = [];
+        $sortOrder = 0;
 		
 		$transaction = $dbService->beginTransaction();
 		
 		try {
 			foreach ($blocks as $block) {
+                $sortOrder++;
 				if ($saveAll || !$block->id || $block->dirty) {
 					$block->ownerId = (int)$owner->id;
+                    $block->sortOrder = $sortOrder;
 					$elementsService->saveElement($block, false);
-					$blockIds[] = $block->id;
 					
 					if (!$neoSettings->collapseAllBlocks)
 					{
 						$block->cacheCollapsed();
 					}
-				} else {
-					$blockIds[] = $block->id;
-				}
+				} else if ((int)$block->sortOrder !== $sortOrder) {
+                    // Just update its sortOrder
+                    $block->sortOrder = $sortOrder;
+                    $dbService->createCommand()->update('{{%neoblocks}}',
+                        ['sortOrder' => $sortOrder],
+                        ['id' => $block->id], [], false)
+                        ->execute();
+                }
+                
+                $blockIds[] = $block->id;
 			}
 		
 			$this->_deleteOtherBlocks($field, $owner, $blockIds);
