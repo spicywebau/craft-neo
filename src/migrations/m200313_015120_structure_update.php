@@ -29,7 +29,7 @@ class m200313_015120_structure_update extends Migration
     
             if (!$exists)
             {
-                $this->addColumn('{{%neoblocks}}', $col, $this->integer()->notNull()->after('dateUpdated'));
+                $this->addColumn('{{%neoblocks}}', $col, $this->integer()->after('dateUpdated'));
             }
         }
         
