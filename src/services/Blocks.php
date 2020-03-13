@@ -328,7 +328,7 @@ class Blocks extends Component
                     }
                     
                     // The current block may potentially be a parent block as well, so save it to the stack
-                    array_push($parentStack, $block);
+                    $parentStack[] = $block;
                 }
                 
                 $transaction->commit();

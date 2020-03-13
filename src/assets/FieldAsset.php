@@ -173,6 +173,7 @@ class FieldAsset extends AssetBundle
      *
      * @param array $blocks The Neo blocks.
      * @param bool $static Whether to generate static HTML for the blocks, e.g. for displaying entry revisions.
+     * @throws
      * @return array
      */
     private static function _getBlocksJsSettings(array $blocks, bool $static = false): array

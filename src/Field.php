@@ -999,8 +999,23 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 				$block->setFieldParamNamespace("{$baseBlockFieldNamespace}.{$blockId}.fields");
 			}
 			
+			$oldBlockData = $block->getBehaviors('customFields');
+			
 			if (isset($blockData['fields'])) {
-			    $block->setFieldValues($blockData['fields']);
+       
+			    // checking if the fields are actually changed
+                $fieldData = [];
+                $fieldKeys = array_keys($blockData['fields']);
+                
+                foreach($fieldKeys as $key) {
+                    if ($oldBlockData['customFields']->$key !== $blockData['fields'][$key]) {
+                        $fieldData += [$key => $blockData['fields'][$key]];
+                    }
+                }
+			    
+                if ($fieldData) {
+                    $block->setFieldValues($fieldData);
+                }
 			}
 			
 			if ($prevBlock) {
