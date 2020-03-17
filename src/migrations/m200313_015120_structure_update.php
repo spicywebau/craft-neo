@@ -26,9 +26,8 @@ class m200313_015120_structure_update extends Migration
         
         foreach ($newColumns as $col) {
             $exists = $this->db->columnExists('{{%neoblocks}}', $col);
-    
-            if (!$exists)
-            {
+            
+            if (!$exists) {
                 $this->addColumn('{{%neoblocks}}', $col, $this->integer()->after('dateUpdated'));
             }
         }
@@ -41,7 +40,7 @@ class m200313_015120_structure_update extends Migration
             ->limit(null)
             ->all($this->db);
         
-        foreach($elements as $el) {
+        foreach ($elements as $el) {
             $structureElement = (new Query())
                 ->select(['id', 'lft', 'level'])
                 ->from('{{%structureelements}}')
@@ -49,12 +48,14 @@ class m200313_015120_structure_update extends Migration
                 ->one($this->db);
             
             if ($structureElement) {
-                $this->update('{{%neoblocks}}', ['sortOrder' => $structureElement['lft']], ['id' => $structureElement['id']]);
-                $this->update('{{%neoblocks}}', ['level' => $structureElement['level']], ['id' => $structureElement['id']]);
+                $this->update('{{%neoblocks}}', ['sortOrder' => $structureElement['lft']],
+                    ['id' => $structureElement['id']]);
+                $this->update('{{%neoblocks}}', ['level' => $structureElement['level']],
+                    ['id' => $structureElement['id']]);
             }
         }
     }
-
+    
     /**
      * @inheritdoc
      */
