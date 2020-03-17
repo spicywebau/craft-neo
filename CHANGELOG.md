@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-> {note} This update contains a massive change with how the neo blocks structure is saved. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks.
+> {note} This update contains a breakable change with how the neo blocks structure is saved. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks.
 
 ### Changed
 - Neo blocks now have its own sort order and level property without the need for structures. This improves the speed at which the entry is saved and prevents timeout errors when there's a lot of neo blocks being saved. #257
@@ -10,6 +10,7 @@
 
 ### Added
 - Added a migration file that creates 2 new columns (level + sortOrder) for the `neoblocks` table and fills in the data using the current structure elements. #257
+- Added further checks for delta updates.
 
 ## 2.6.4 - 2020-03-12
 
