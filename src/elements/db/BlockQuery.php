@@ -363,6 +363,7 @@ class BlockQuery extends ElementQuery
             'neoblocks.sortOrder'
 		]);
 		
+		$this->query->groupBy('neoblocks.sortOrder');
 		$this->query->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
 
 		if ($this->fieldId)
