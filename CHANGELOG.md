@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.5 - 2020-03-18
+
+### Fixed
+- Fix an issue where the neo field couldn't be modified. #310
+
 ## 2.6.4 - 2020-03-12
 
 ### Fixed
