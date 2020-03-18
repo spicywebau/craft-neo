@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.5.1 - 2020-03-18
+### Fixed
+- need to check if `wasModified` is set. #310
+
 ## 2.6.5 - 2020-03-18
 
 ### Fixed
