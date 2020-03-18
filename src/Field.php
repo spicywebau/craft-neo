@@ -610,7 +610,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $path = $fieldsService::CONFIG_FIELDS_KEY . '.' . $this->uid;
             $this->wasModified = !$this->wasModified;
             $value = $projectService->get($path);
-            if ($value) {
+            if ($value && isset($value['settings']['wasModified'])) {
                 $this->wasModified = !$value['settings']['wasModified'];
             }
         }
