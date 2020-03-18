@@ -69,7 +69,7 @@ class Fields extends Component
 	 * @param Field $field The field to save.
 	 * @param bool $validate Whether to perform validation.
 	 * @return bool Whether saving was successful.
-	 * @throws \Throwable
+	 * @throws
 	 */
 	public function save(Field $field, bool $validate = true): bool
 	{
@@ -436,6 +436,7 @@ class Fields extends Component
      * @param string $propagationMethod
      * @param ElementInterface $owner
      * @return int[]
+     * @throws
      * @since 2.5.10
      */
     public function getSupportedSiteIds(string $propagationMethod, ElementInterface $owner): array

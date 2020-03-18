@@ -97,6 +97,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 	 */
 	public $maxTopBlocks;
 	
+	public $wasModified = false;
+	
 	/**
 	 * @var array|null The block types associated with this field.
 	 */
@@ -106,6 +108,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 	 * @var array|null The block type groups associated with this field.
 	 */
 	private $_blockTypeGroups;
+	
 	
 	/**
 	 * @var string Propagation method
@@ -591,25 +594,41 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 	 * removed as this is causing issues when changing propagation method.
 	 * manually it can still be done by saving the entry
 	 */
-	// public function beforeSave(bool $isNew): bool
-	// {
-	// 	if (!parent::beforeSave($isNew)) {
-	// 		return false;
-	// 	}
-	// 	// Prep the block types & fields for save
-	// 	$fieldsService = Craft::$app->getFields();
-	//
-	// 	// remember the original propagation method
-	// 	if ($this->id) {
-	// 		$oldField = $fieldsService->getFieldById($this->id);
-	//
-	// 		if ($oldField instanceof self) {
-	// 			$this->_oldPropagationMethod = $oldField->propagationMethod;
-	// 		}
-	// 	}
-	//
-	// 	return true;
-	// }
+	public function beforeSave(bool $isNew): bool
+	{
+		if (!parent::beforeSave($isNew)) {
+            return false;
+        }
+		
+		// TODO: need to further modify so it checks if there's changes to the field. current it's just a quick fix for #310
+		if ($this->uid) {
+            $fieldsService = Craft::$app->getFields();
+            $projectService = Craft::$app->getProjectConfig();
+            
+            // since new uses predefined fields then we need to make sure craft knows to update the field.
+            // the new setting
+            $path = $fieldsService::CONFIG_FIELDS_KEY . '.' . $this->uid;
+            $this->wasModified = !$this->wasModified;
+            $value = $projectService->get($path);
+            if ($value) {
+                $this->wasModified = !$value['settings']['wasModified'];
+            }
+        }
+		
+        // 	// Prep the block types & fields for save
+        // 	$fieldsService = Craft::$app->getFields();
+        //
+        // 	// remember the original propagation method
+        // 	if ($this->id) {
+        // 		$oldField = $fieldsService->getFieldById($this->id);
+        //
+        // 		if ($oldField instanceof self) {
+        // 			$this->_oldPropagationMethod = $oldField->propagationMethod;
+        // 		}
+        // 	}
+        //
+		return true;
+	}
 	
 	/**
 	 * @inheritdoc
