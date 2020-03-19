@@ -18,6 +18,7 @@ use benf\neo\Plugin as Neo;
 use benf\neo\Field;
 use benf\neo\elements\Block;
 use benf\neo\helpers\Memoize;
+use benf\neo\tasks\DuplicateNeoStructureTask;
 
 /**
  * Class Fields
@@ -290,7 +291,7 @@ class Fields extends Component
      * @param ElementInterface $source The source element blocks should be duplicated from
      * @param ElementInterface $target The target element blocks should be duplicated to
      * @param bool $checkOtherSites Whether to duplicate blocks for the source element's other supported sites
-     * @throws \Throwable if reasons
+     * @throws
      */
     public function duplicateBlocks(
         Field $field,
@@ -333,7 +334,13 @@ class Fields extends Component
             // Delete any blocks that shouldn't be there anymore
             $this->_deleteOtherBlocks($field, $target, $newBlockIds);
             
-            $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
+            Craft::$app->queue->push(new DuplicateNeoStructureTask([
+                'field' => $field,
+                'owner' => $target,
+                'blocks' => $newBlocks
+            ]));
+            
+            // $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
             
             $transaction->commit();
         } catch (\Throwable $e) {
