@@ -97,6 +97,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public $maxTopBlocks;
     
+    public $wasModified = false;
+    
     /**
      * @var array|null The block types associated with this field.
      */
@@ -561,23 +563,23 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 '[[neoblocks.fieldId]]' => $this->id
             ])
             // Join structural information to get the ordering of the blocks.
-            // ->leftJoin(
-            // 	'{{%neoblockstructures}} neoblockstructures',
-            // 	[
-            // 		'and',
-            // 		'[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
-            // 		'[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
-            // 		'[[neoblockstructures.ownerSiteId]] = ' . Craft::$app->getSites()->getCurrentSite()->id,
-            // 	]
-            // )
-            // ->leftJoin(
-            // 	'{{%structureelements}} structureelements',
-            // 	[
-            // 		'and',
-            // 		'[[structureelements.structureId]] = [[neoblockstructures.structureId]]',
-            // 		'[[structureelements.elementId]] = [[neoblocks.id]]',
-            // 	]
-            // )
+            ->leftJoin(
+            	'{{%neoblockstructures}} neoblockstructures',
+            	[
+            		'and',
+            		'[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
+            		'[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
+            		'[[neoblockstructures.ownerSiteId]] = ' . Craft::$app->getSites()->getCurrentSite()->id,
+            	]
+            )
+            ->leftJoin(
+            	'{{%structureelements}} structureelements',
+            	[
+            		'and',
+            		'[[structureelements.structureId]] = [[neoblockstructures.structureId]]',
+            		'[[structureelements.elementId]] = [[neoblocks.id]]',
+            	]
+            )
             ->orderBy(['[[neoblocks.sortOrder]]' => SORT_ASC])
             ->all();
         
@@ -593,25 +595,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      * removed as this is causing issues when changing propagation method.
      * manually it can still be done by saving the entry
      */
-    // public function beforeSave(bool $isNew): bool
-    // {
-    // 	if (!parent::beforeSave($isNew)) {
-    // 		return false;
-    // 	}
-    // 	// Prep the block types & fields for save
-    // 	$fieldsService = Craft::$app->getFields();
-    //
-    // 	// remember the original propagation method
-    // 	if ($this->id) {
-    // 		$oldField = $fieldsService->getFieldById($this->id);
-    //
-    // 		if ($oldField instanceof self) {
-    // 			$this->_oldPropagationMethod = $oldField->propagationMethod;
-    // 		}
-    // 	}
-    //
-    // 	return true;
-    // }
+    public function beforeSave(bool $isNew): bool
+    {
+    	if (!parent::beforeSave($isNew)) {
+    		return false;
+    	}
+    	
+    	return true;
+    }
     
     /**
      * @inheritdoc
@@ -997,6 +988,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $block->setCollapsed($isCollapsed);
             $block->setModified($isModified);
             $block->enabled = $isEnabled;
+            $block->oldLevel = $block->level;
             $block->level = $blockLevel;
             
             // Set the content post location on the block if we can

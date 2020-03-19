@@ -22,7 +22,8 @@ class m200313_015120_structure_update extends Migration
     public function safeUp()
     {
         // setup new columns
-        $newColumns = ['sortOrder', 'level'];
+        // level not needed
+        $newColumns = ['sortOrder'];
         
         foreach ($newColumns as $col) {
             $exists = $this->db->columnExists('{{%neoblocks}}', $col);
@@ -42,7 +43,8 @@ class m200313_015120_structure_update extends Migration
         
         foreach ($elements as $el) {
             $structureElement = (new Query())
-                ->select(['id', 'lft', 'level'])
+                //level not needed
+                ->select(['id', 'lft'])
                 ->from('{{%structureelements}}')
                 ->where(['elementId' => $el['id']])
                 ->one($this->db);
@@ -50,8 +52,8 @@ class m200313_015120_structure_update extends Migration
             if ($structureElement) {
                 $this->update('{{%neoblocks}}', ['sortOrder' => $structureElement['lft']],
                     ['id' => $structureElement['id']]);
-                $this->update('{{%neoblocks}}', ['level' => $structureElement['level']],
-                    ['id' => $structureElement['id']]);
+                // $this->update('{{%neoblocks}}', ['level' => $structureElement['level']],
+                //     ['id' => $structureElement['id']]);
             }
         }
     }

@@ -255,7 +255,6 @@ class Blocks extends Component
      * @param BlockStructure $blockStructure The block structure to delete.
      * @return bool Whether the deletion was successful.
      * @throws \Throwable
-     * @deprecated since 2.7.0
      */
     public function deleteStructure(BlockStructure $blockStructure): bool
     {

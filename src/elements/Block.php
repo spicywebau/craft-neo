@@ -157,7 +157,7 @@ class Block extends Element implements BlockElementInterface
      * @since 2.7.0
      */
     public $sortOrder;
-    public $level;
+    public $oldLevel;
 	
     /**
 	 * @var bool Whether the block has changed.
@@ -494,7 +494,7 @@ class Block extends Element implements BlockElementInterface
 			$record->ownerId = (int)$this->ownerId;
 			$record->typeId = (int)$this->typeId;
             $record->sortOrder = (int)$this->sortOrder ?: null;
-            $record->level = (int)$this->level ?: null;
+            $record->level = (int)$this->level ?: 0;
 			$record->save(false);
 		}
 

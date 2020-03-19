@@ -192,6 +192,7 @@ class Fields extends Component
         
         $blockIds = [];
         $sortOrder = 0;
+        $structureModified = false;
         
         $transaction = $dbService->beginTransaction();
         
@@ -215,24 +216,19 @@ class Fields extends Component
                         ->execute();
                 }
                 
+                // check if block level has been changed
+                if ((!$structureModified && $block->level !== (int)$block->oldLevel) || !$block->structureId) {
+                    $structureModified = true;
+                }
+                
                 $blockIds[] = $block->id;
             }
             
             $this->_deleteOtherBlocks($field, $owner, $blockIds);
             
-            // if (!empty($blocks))
-            // {
-            // 	// get the supported sites
-            // 	$supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner);
-            //
-            // 	if ($this->_checkSupportedSitesAndPropagation($field, $supportedSites)) {
-            // 		foreach ($supportedSites as $site) {
-            // 			$this->_saveNeoStructuresForSites($field, $owner, $blocks, $site);
-            // 		}
-            // 	} else {
-            // 		$this->_saveNeoStructuresForSites($field, $owner, $blocks);
-            // 	}
-            // }
+            if ($structureModified) {
+                $this->_saveNeoStructuresForSites($field, $owner, $blocks);
+            }
             
             if (
                 $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL &&
@@ -337,21 +333,7 @@ class Fields extends Component
             // Delete any blocks that shouldn't be there anymore
             $this->_deleteOtherBlocks($field, $target, $newBlockIds);
             
-            // if (!empty($newBlocks))
-            // {
-            // 	// $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
-            //
-            // 	// get the supported sites
-            // 	$supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $target);
-            //
-            // 	if ($this->_checkSupportedSitesAndPropagation($field, $supportedSites)) {
-            // 		foreach ($supportedSites as $site) {
-            // 			$this->_saveNeoStructuresForSites($field, $target, $newBlocks, $site);
-            // 		}
-            // 	} else {
-            // 		$this->_saveNeoStructuresForSites($field, $target, $newBlocks);
-            // 	}
-            // }
+            $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
             
             $transaction->commit();
         } catch (\Throwable $e) {
@@ -519,17 +501,18 @@ class Fields extends Component
             $deleteBlock->forgetCollapsed();
             $elementsService->deleteElement($deleteBlock);
         }
-        
-        // Delete any existing block structures associated with this field/owner/site combination
-        // while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null)
-        // {
-        // 	Neo::$plugin->blocks->deleteStructure($blockStructure);
-        // }
     }
     
     private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null)
     {
         $siteId = $sId ?? $owner->siteId;
+    
+        // Delete any existing block structures associated with this field/owner/site combination
+        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null)
+        {
+            Neo::$plugin->blocks->deleteStructure($blockStructure);
+        }
+        
         $blockStructure = new BlockStructure();
         $blockStructure->fieldId = (int)$field->id;
         $blockStructure->ownerId = (int)$owner->id;
