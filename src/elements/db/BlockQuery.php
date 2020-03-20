@@ -353,7 +353,6 @@ class BlockQuery extends ElementQuery
             'neoblocks.fieldId',
             'neoblocks.ownerId',
             'neoblocks.typeId',
-            // 'neoblocks.level',
             'neoblocks.sortOrder'
         ]);
         
@@ -376,14 +375,6 @@ class BlockQuery extends ElementQuery
             
             $this->subQuery->andWhere(Db::parseParam('neoblocks.typeId', $this->typeId));
         }
-        
-        // if ($this->level !== null) {
-            // if level is set then store it in the custom property and then clear it.
-            // this is done the structure data doesn't use add the level where clause for structureelements (because we are using the neoblocks one)
-        //     $this->blockLevel = $this->level;
-        //     $this->level = null;
-        //     $this->subQuery->andWhere(Db::parseParam('neoblocks.level', $this->blockLevel));
-        // }
         
         // Ignore revision/draft blocks by default
         // if (!$this->id && !$this->ownerId) {

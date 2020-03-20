@@ -397,10 +397,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         
         if ($value === '') {
             $elements = [];
-        } else {
-            if ($element && is_array($value)) {
-                $elements = $this->_createBlocksFromSerializedData($value, $element);
-            }
+        } elseif ($element && is_array($value)) {
+            $elements = $this->_createBlocksFromSerializedData($value, $element);
         }
         
         if ($elements !== null) {

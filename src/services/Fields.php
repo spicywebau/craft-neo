@@ -334,13 +334,13 @@ class Fields extends Component
             // Delete any blocks that shouldn't be there anymore
             $this->_deleteOtherBlocks($field, $target, $newBlockIds);
             
+            // Save the structure of duplicates using a job
+            // faster for original element save.
             Craft::$app->queue->push(new DuplicateNeoStructureTask([
                 'field' => $field,
                 'owner' => $target,
                 'blocks' => $newBlocks
             ]));
-            
-            // $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
             
             $transaction->commit();
         } catch (\Throwable $e) {
