@@ -714,55 +714,55 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // field structure data (i.e. block order, levels) when its owner is soft-deleted.  We need to get all block
         // structures for this field/owner before soft-deleting the blocks, and re-save them after the blocks are
         // soft-deleted, so the blocks can be restored correctly if the owner element is restored.
-        // $blockStructures = [];
-        // $blocksBySite = [];
+        $blockStructures = [];
+        $blocksBySite = [];
         
         // Get the structures for each site
-        // $structureRows = (new Query())
-        // 	->select([
-        // 		'id',
-        // 		'structureId',
-        // 		'ownerSiteId',
-        // 		'ownerId',
-        // 		'fieldId',
-        // 	])
-        // 	->from(['{{%neoblockstructures}}'])
-        // 	->where([
-        // 		'fieldId' => $this->id,
-        // 		'ownerId' => $element->id,
-        // 	])
-        // 	->all();
-        //
-        // foreach ($structureRows as $row) {
-        // 	$blockStructures[] = new BlockStructure($row);
-        // }
+        $structureRows = (new Query())
+            ->select([
+                'id',
+                'structureId',
+                'ownerSiteId',
+                'ownerId',
+                'fieldId',
+            ])
+            ->from(['{{%neoblockstructures}}'])
+            ->where([
+                'fieldId' => $this->id,
+                'ownerId' => $element->id,
+            ])
+            ->all();
+        
+        foreach ($structureRows as $row) {
+            $blockStructures[] = new BlockStructure($row);
+        }
         
         // Get the blocks for each structure
-        // foreach ($blockStructures as $blockStructure) {
-        // 	// Site IDs start from 1 -- let's treat non-localized blocks as site 0
-        // 	$key = $blockStructure->ownerSiteId ?? 0;
-        //
-        // 	$allBlocks = Block::find()
-        // 		->anyStatus()
-        // 		->fieldId($this->id)
-        // 		->owner($element)
-        // 		->all();
-        //
-        // 	$allBlocksCount = count($allBlocks);
-        //
-        // 	// if the neo block structure doesn't have the ownerSiteId set and has blocks
-        // 	// set the ownerSiteId of the neo block structure.
-        //
-        // 	// it's set from the first block because we got all blocks related to this structure beforehand
-        // 	// so the siteId should be the same for all blocks.
-        // 	if (empty($blockStructure->ownerSiteId) && $allBlocksCount > 0) {
-        // 		$blockStructure->ownerSiteId = $allBlocks[0]->siteId;
-        // 		// need to set the new key since the ownersiteid is now set
-        // 		$key = $blockStructure->ownerSiteId;
-        // 	}
-        //
-        // 	$blocksBySite[$key] = $allBlocks;
-        // }
+        foreach ($blockStructures as $blockStructure) {
+            // Site IDs start from 1 -- let's treat non-localized blocks as site 0
+            $key = $blockStructure->ownerSiteId ?? 0;
+            
+            $allBlocks = Block::find()
+                ->anyStatus()
+                ->fieldId($this->id)
+                ->owner($element)
+                ->all();
+            
+            $allBlocksCount = count($allBlocks);
+            
+            // if the neo block structure doesn't have the ownerSiteId set and has blocks
+            // set the ownerSiteId of the neo block structure.
+            
+            // it's set from the first block because we got all blocks related to this structure beforehand
+            // so the siteId should be the same for all blocks.
+            if (empty($blockStructure->ownerSiteId) && $allBlocksCount > 0) {
+                $blockStructure->ownerSiteId = $allBlocks[0]->siteId;
+                // need to set the new key since the ownersiteid is now set
+                $key = $blockStructure->ownerSiteId;
+            }
+            
+            $blocksBySite[$key] = $allBlocks;
+        }
         
         // Delete all Neo blocks for this element and field
         foreach ($sitesService->getAllSiteIds() as $siteId) {
@@ -781,11 +781,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
         
         // Recreate the block structures with the original block data
-        // foreach ($blockStructures as $blockStructure) {
-        // 	$key = $blockStructure->ownerSiteId ?? 0;
-        // 	Neo::$plugin->blocks->saveStructure($blockStructure);
-        // 	Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
-        // }
+        foreach ($blockStructures as $blockStructure) {
+            $key = $blockStructure->ownerSiteId ?? 0;
+            Neo::$plugin->blocks->saveStructure($blockStructure);
+            Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
+        }
         
         return true;
     }
