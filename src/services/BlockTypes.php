@@ -223,9 +223,9 @@ class BlockTypes extends Component
         
         $path = 'neoBlockTypes.' . $blockType->uid;
         
-        // if (!$projectConfigService->readOnly) {
-        $projectConfigService->set($path, $data);
-        // }
+        if (!$projectConfigService->readOnly) {
+            $projectConfigService->set($path, $data);
+        }
         
         return true;
     }
@@ -257,14 +257,13 @@ class BlockTypes extends Component
         
         $path = 'neoBlockTypeGroups.' . $blockTypeGroup->uid;
         
-        // if (!$projectConfigService->readOnly) {
-        $projectConfigService->set($path, $data);
-    
+        if (!$projectConfigService->readOnly) {
+            $projectConfigService->set($path, $data);
+        }
+        
         if ($blockTypeGroup->getIsNew()) {
             $blockTypeGroup->id = Db::idByUid('{{%neoblocktypegroups}}', $blockTypeGroup->uid);
         }
-        
-        // }
         
         return true;
     }
@@ -510,7 +509,7 @@ class BlockTypes extends Component
             if ($record === null) {
                 $record = new BlockTypeGroupRecord();
             }
-    
+            
             if ($record) {
                 if ($data) {
                     $record->fieldId = Db::idByUid('{{%fields}}', $data['field']);

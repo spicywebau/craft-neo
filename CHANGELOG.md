@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+> {note} This update contains a breakable change with how the neo blocks structure is saved. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks.
+
+### Changed
+- Added sort order to blocks
+- Modified how the the structure is being saved. #257
+- Re-added the project config read only check.
+
+### Added
+- Added a migration file that creates a new columns (sortOrder) for the `neoblocks` table and fills in the data using the current structure elements. #257
+- Added further checks for delta updates.
+
 ## 2.6.5.1 - 2020-03-18
 ### Fixed
 - need to check if `wasModified` is set. #310
