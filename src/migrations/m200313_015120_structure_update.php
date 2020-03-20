@@ -33,28 +33,21 @@ class m200313_015120_structure_update extends Migration
             }
         }
         
-        // set the level and order for the new columns
-        $elements = (new Query())
-            ->select(['id'])
-            ->from('{{%elements}}')
-            ->where(['type' => 'benf\neo\elements\Block'])
-            ->limit(null)
-            ->all($this->db);
+        // set the order for the new columns
+        
+        $query = (new Query())
+            ->select(['elements.id', 'elements.type', 'structureelements.id as sId', 'structureelements.lft'])
+            ->from('{{%elements}} elements')
+            ->leftJoin('{{%structureelements}} structureelements', '[[elements.id]] = [[structureelements.id]]')
+            ->where(['elements.type' => Block::class])
+            ->andWhere('structureelements.lft IS NOT NULL')
+            ->limit(null);
+        
+        $elements = $query->all($this->db);
         
         foreach ($elements as $el) {
-            $structureElement = (new Query())
-                //level not needed
-                ->select(['id', 'lft'])
-                ->from('{{%structureelements}}')
-                ->where(['elementId' => $el['id']])
-                ->one($this->db);
-            
-            if ($structureElement) {
-                $this->update('{{%neoblocks}}', ['sortOrder' => $structureElement['lft']],
-                    ['id' => $structureElement['id']]);
-                // $this->update('{{%neoblocks}}', ['level' => $structureElement['level']],
-                //     ['id' => $structureElement['id']]);
-            }
+            $this->update('{{%neoblocks}}', ['sortOrder' => (int)$el['lft']],
+                ['id' => (int)$el['sId']]);
         }
     }
     
