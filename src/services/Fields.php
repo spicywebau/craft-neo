@@ -418,6 +418,7 @@ class Fields extends Component
      * @param string $propagationMethod
      * @param ElementInterface $owner
      * @return int[]
+     * @throws
      * @since 2.5.10
      */
     public function getSupportedSiteIds(string $propagationMethod, ElementInterface $owner): array

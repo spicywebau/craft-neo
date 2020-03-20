@@ -13,6 +13,15 @@
 - Added a migration file that creates a new columns (sortOrder) for the `neoblocks` table and fills in the data using the current structure elements. #257
 - Added further checks for delta updates.
 
+## 2.6.5.1 - 2020-03-18
+### Fixed
+- need to check if `wasModified` is set. #310
+
+## 2.6.5 - 2020-03-18
+
+### Fixed
+- Fix an issue where the neo field couldn't be modified. #310
+
 ## 2.6.4 - 2020-03-12
 
 ### Fixed

@@ -595,11 +595,38 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function beforeSave(bool $isNew): bool
     {
-    	if (!parent::beforeSave($isNew)) {
-    		return false;
-    	}
-    	
-    	return true;
+        if (!parent::beforeSave($isNew)) {
+            return false;
+        }
+        
+        // TODO: need to further modify so it checks if there's changes to the field. current it's just a quick fix for #310
+        if ($this->uid) {
+            $fieldsService = Craft::$app->getFields();
+            $projectService = Craft::$app->getProjectConfig();
+            
+            // since new uses predefined fields then we need to make sure craft knows to update the field.
+            // the new setting
+            $path = $fieldsService::CONFIG_FIELDS_KEY . '.' . $this->uid;
+            $this->wasModified = !$this->wasModified;
+            $value = $projectService->get($path);
+            if ($value && isset($value['settings']['wasModified'])) {
+                $this->wasModified = !$value['settings']['wasModified'];
+            }
+        }
+        
+        // 	// Prep the block types & fields for save
+        // 	$fieldsService = Craft::$app->getFields();
+        //
+        // 	// remember the original propagation method
+        // 	if ($this->id) {
+        // 		$oldField = $fieldsService->getFieldById($this->id);
+        //
+        // 		if ($oldField instanceof self) {
+        // 			$this->_oldPropagationMethod = $oldField->propagationMethod;
+        // 		}
+        // 	}
+        //
+        return true;
     }
     
     /**
@@ -887,6 +914,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $viewService->registerAssetBundle(FieldAsset::class);
             
             $elementId = $element ? $element->getId() : null;
+          
             $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $elementId));
             
             $html = $viewService->renderTemplate('neo/input', [
