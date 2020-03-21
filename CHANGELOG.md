@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-> {note} This update contains a breakable change with how the neo blocks structure is saved. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks.
+> {note} This update contains a schema update which could potentially break the structure of the neo blocks. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks. If the structure is indeed broken re-saving the page should resolve it.
 
 ### Changed
 - Added sort order to blocks
@@ -12,6 +12,7 @@
 ### Added
 - Added a migration file that creates a new columns (sortOrder) for the `neoblocks` table and fills in the data using the current structure elements. #257
 - Added further checks for delta updates.
+- Added redactor field change detection
 
 ## 2.6.5.1 - 2020-03-18
 ### Fixed
