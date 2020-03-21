@@ -222,8 +222,8 @@ export default Garnish.Base.extend({
 						attributeFilter: ['name', 'value'],
 					})
 
-					this.$contentContainer.on('propertychange change click', 'input, textarea, select', detectChange)
-					this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea', detectChange)
+					this.$contentContainer.on('propertychange change click', 'input, textarea, select, div.redactor-in', detectChange)
+					this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea, div.redactor-in', detectChange)
 
 					this._detectChangeObserver = observer
 				}
