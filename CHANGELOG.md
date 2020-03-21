@@ -1,16 +1,16 @@
 # Changelog
 
-## Unreleased
+## 2.7.0 - 2020-03-22
 
-> {note} This update contains a schema update which could potentially break the structure of the neo blocks. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks. If the structure is indeed broken re-saving the page should resolve it.
+> {note} This update contains a schema update which could potentially break the structure of the neo blocks. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks. If the structure is indeed broken, re-saving the page should resolve it.
 
 ### Changed
-- Added sort order to blocks
+- Added `sortOrder` to blocks
 - Modified how the the structure is being saved. #257
 - Re-added the project config read only check.
 
 ### Added
-- Added a migration file that creates a new columns (sortOrder) for the `neoblocks` table and fills in the data using the current structure elements. #257
+- Added a migration file that creates a new column (`sortOrder`) for the `neoblocks` table and fills in the data using the current structure elements. #257
 - Added further checks for delta updates.
 - Added redactor field change detection
 
