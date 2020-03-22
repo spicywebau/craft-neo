@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.1 - 2020-03-23
 
 ### Changed
 - Add the `orderBy` clause for postgres only. #315
