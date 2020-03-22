@@ -333,6 +333,8 @@ class BlockQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
+        $dbService = Craft::$app->getDb();
+        
         $this->joinElementTable('neoblocks');
         
         $isSaved = $this->id && is_numeric($this->id);
@@ -356,7 +358,10 @@ class BlockQuery extends ElementQuery
             'neoblocks.sortOrder'
         ]);
         
-        $this->query->groupBy('neoblocks.sortOrder');
+        // added for postgres only, otherwise it'll throw an error.
+        if ($dbService->getIsPgsql()) {
+            $this->query->groupBy('neoblocks.sortOrder');
+        }
         $this->query->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
         
         if ($this->fieldId) {
