@@ -30,6 +30,9 @@ use benf\neo\tasks\DuplicateNeoStructureTask;
  */
 class Fields extends Component
 {
+    
+    private $_rebuildIfDeleted = false;
+    
     /**
      * Performs validation on a Neo field.
      *
@@ -181,7 +184,8 @@ class Fields extends Component
         $dbService = Craft::$app->getDb();
         $elementsService = Craft::$app->getElements();
         $neoSettings = Neo::$plugin->getSettings();
-        
+    
+        $this->_rebuildIfDeleted = false;
         $query = $owner->getFieldValue($field->handle);
         
         if (($blocks = $query->getCachedResult()) !== null) {
@@ -218,14 +222,19 @@ class Fields extends Component
                 }
                 
                 // check if block level has been changed
-                if ((!$structureModified && $block->level !== (int)$block->oldLevel) || !$block->structureId) {
+                if ((!$structureModified && $block->level !== (int)$block->oldLevel) || !$block->structureId || !$block->id) {
                     $structureModified = true;
                 }
                 
                 $blockIds[] = $block->id;
             }
-            
+
             $this->_deleteOtherBlocks($field, $owner, $blockIds);
+            
+            // need to check if the blocks is different e.g any deletions so we can rebuild the structure.
+            if ($this->_rebuildIfDeleted) {
+                $structureModified = true;
+            }
             
             if ($structureModified) {
                 $this->_saveNeoStructuresForSites($field, $owner, $blocks);
@@ -508,6 +517,11 @@ class Fields extends Component
         foreach ($deleteBlocks as $deleteBlock) {
             $deleteBlock->forgetCollapsed();
             $elementsService->deleteElement($deleteBlock);
+        }
+        
+        // if there are blocks to delete then we need to rebuild the structure.
+        if (count($deleteBlocks) >= 1) {
+            $this->_rebuildIfDeleted = true;
         }
     }
     
