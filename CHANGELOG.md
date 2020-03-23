@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.2.1 - 2020-03-24
 ### Fixed
 - Fixed the migration for `sortOrder`, should be using the `elementId` instead of `id` for `structureelements` - thanks @Mosnar
 
