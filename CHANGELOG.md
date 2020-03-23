@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.1.1 - 2020-03-23
+### Changed
+- if there are blocks to delete then we need to rebuild the structure.
+
 ## 2.7.1 - 2020-03-23
 
 ### Changed
