@@ -562,21 +562,21 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             ])
             // Join structural information to get the ordering of the blocks.
             ->leftJoin(
-            	'{{%neoblockstructures}} neoblockstructures',
-            	[
-            		'and',
-            		'[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
-            		'[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
-            		'[[neoblockstructures.ownerSiteId]] = ' . Craft::$app->getSites()->getCurrentSite()->id,
-            	]
+                '{{%neoblockstructures}} neoblockstructures',
+                [
+                    'and',
+                    '[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
+                    '[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
+                    '[[neoblockstructures.ownerSiteId]] = ' . Craft::$app->getSites()->getCurrentSite()->id,
+                ]
             )
             ->leftJoin(
-            	'{{%structureelements}} structureelements',
-            	[
-            		'and',
-            		'[[structureelements.structureId]] = [[neoblockstructures.structureId]]',
-            		'[[structureelements.elementId]] = [[neoblocks.id]]',
-            	]
+                '{{%structureelements}} structureelements',
+                [
+                    'and',
+                    '[[structureelements.structureId]] = [[neoblockstructures.structureId]]',
+                    '[[structureelements.elementId]] = [[neoblocks.id]]',
+                ]
             )
             ->orderBy(['[[neoblocks.sortOrder]]' => SORT_ASC])
             ->all();
@@ -900,7 +900,22 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
         
         if ($value instanceof BlockQuery) {
-            $value = $value->getCachedResult() ?? $value->limit(null)->anyStatus()->all();
+            $query = $value;
+            
+            if ($query->getCachedResult()) {
+                $value = $query->getCachedResult();
+            } else {
+                $query = $query->limit(null)->anyStatus();
+                $value = $query->all();
+                
+                if (!empty($value) && !$this->_checkSortOrderOfBlocks($value)) {
+                    $query->query->orderBy = null;
+                    $this->query->orderBy(['structureelements.lft' => SORT_ASC, 'elements.dateCreated' => SORT_DESC]);
+                    $value = $query->all();
+                }
+            }
+            
+            // $value = $query->getCachedResult() ?? $query->limit(null)->anyStatus()->all();
         }
         
         $siteId = $element->siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
@@ -914,7 +929,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $viewService->registerAssetBundle(FieldAsset::class);
             
             $elementId = $element ? $element->getId() : null;
-          
+            
             $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $elementId));
             
             $html = $viewService->renderTemplate('neo/input', [
@@ -1068,5 +1083,26 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
         
         return $blocks;
+    }
+    
+    /**
+     * Checks if the blocks has sortOrder
+     * Returns the true if it has sortOrder else it'll be false.
+     *
+     * @param array $blocks The raw field data.
+     * @return bool
+     */
+    private function _checkSortOrderOfBlocks(array $blocks): bool
+    {
+        $isNull = false;
+        
+        foreach ($blocks as $block) {
+            if ($block->sortOrder === null) {
+                $$isNull = true;
+                break;
+            }
+        }
+        
+        return !$isNull;
     }
 }
