@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed the migration for `sortOrder`, should be using the `elementId` instead of `id` for `structureelements` - thanks @Mosnar
+
+
 ## 2.7.2 - 2020-03-24
 ### Fixed
 - need to group by all selected values, not just `sortOrder` #316
