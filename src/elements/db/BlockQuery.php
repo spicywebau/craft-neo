@@ -351,6 +351,17 @@ class BlockQuery extends ElementQuery
             }
         }
         
+        // add the structureId so it doesn't retrieve all blocks for every site.
+        if (!$this->structureId && $this->fieldId && $this->ownerId)
+        {
+            $blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, (int)$this->siteId);
+        
+            if ($blockStructure)
+            {
+                $this->structureId = $blockStructure->structureId;
+            }
+        }
+        
         $this->query->select([
             'neoblocks.fieldId',
             'neoblocks.ownerId',

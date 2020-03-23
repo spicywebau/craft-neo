@@ -3,6 +3,7 @@
 ## Unreleased
 ## Fixed
 - need to group by all selected values, not just sortOrder #316
+- add the structureId to the element query. #317 #318
 
 ## 2.7.1.1 - 2020-03-23
 ### Changed
