@@ -359,8 +359,9 @@ class BlockQuery extends ElementQuery
         ]);
         
         // added for postgres only, otherwise it'll throw an error.
+        // need to group by all selected values
         if ($dbService->getIsPgsql()) {
-            $this->query->groupBy('neoblocks.sortOrder');
+            $this->query->groupBy('neoblocks.fieldId, neoblocks.ownerId, neoblocks.typeId, neoblocks.sortOrder');
         }
         $this->query->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
         
