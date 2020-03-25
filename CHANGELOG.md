@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.2.1 - 2020-03-25
 ### Changed
 - we need to change the delay of the observer. redactor has 200ms delay when syncing. #319
 
