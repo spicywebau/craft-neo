@@ -1,6 +1,10 @@
 # Changelog
 
-## 2.7.2.1 - 2020-03-25
+## Unreleased
+### Fixed
+- Do not create a structure using a job task if a new entry is being created (the entry is duplicated from the first draft). Create the structure immediately.
+
+## 2.7.2.2 - 2020-03-25
 ### Changed
 - we need to change the delay of the observer. redactor has 200ms delay when syncing. #319
 

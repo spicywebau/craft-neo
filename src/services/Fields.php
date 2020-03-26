@@ -184,7 +184,7 @@ class Fields extends Component
         $dbService = Craft::$app->getDb();
         $elementsService = Craft::$app->getElements();
         $neoSettings = Neo::$plugin->getSettings();
-    
+        
         $this->_rebuildIfDeleted = false;
         $query = $owner->getFieldValue($field->handle);
         
@@ -228,7 +228,7 @@ class Fields extends Component
                 
                 $blockIds[] = $block->id;
             }
-
+            
             $this->_deleteOtherBlocks($field, $owner, $blockIds);
             
             // need to check if the blocks is different e.g any deletions so we can rebuild the structure.
@@ -343,13 +343,23 @@ class Fields extends Component
             // Delete any blocks that shouldn't be there anymore
             $this->_deleteOtherBlocks($field, $target, $newBlockIds);
             
-            // Save the structure of duplicates using a job
-            // faster for original element save.
-            Craft::$app->queue->push(new DuplicateNeoStructureTask([
-                'field' => $field,
-                'owner' => $target,
-                'blocks' => $newBlocks
-            ]));
+            // check if it's creating a whole new entry using a draft.
+            // if so create the blocks immediately instead of using a job.
+            if ($target->draftId === null &&
+                $target->revisionId === null &&
+                $target->structureId === null &&
+                $target->duplicateOf &&
+                $target->duplicateOf->draftId) {
+                $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
+            } else {
+                // Save the structure of duplicates using a job
+                // faster for original element save.
+                Craft::$app->queue->push(new DuplicateNeoStructureTask([
+                    'field' => $field,
+                    'owner' => $target,
+                    'blocks' => $newBlocks
+                ]));
+            }
             
             $transaction->commit();
         } catch (\Throwable $e) {
@@ -528,10 +538,9 @@ class Fields extends Component
     private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null)
     {
         $siteId = $sId ?? $owner->siteId;
-    
+        
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null)
-        {
+        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null) {
             Neo::$plugin->blocks->deleteStructure($blockStructure);
         }
         
