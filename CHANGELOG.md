@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.7.3 - 2020-03-27
 ### Fixed
-- Do not create a structure using a job task if a new entry is being created (the entry is duplicated from the first draft). Create the structure immediately.
+- Do not create a structure using a job task if a new entry is being created (since it's duplicated from the first draft). Create the structure immediately.
 
 ## 2.7.2.2 - 2020-03-25
 ### Changed
