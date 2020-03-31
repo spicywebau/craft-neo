@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### - Fixed
+- On publish of draft or reverting from revision, create the structure immediately #323, #325
+
 ## 2.7.3 - 2020-03-27
 ### Fixed
 - Do not create a structure using a job task if a new entry is being created (since it's duplicated from the first draft). Create the structure immediately.

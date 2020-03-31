@@ -345,11 +345,7 @@ class Fields extends Component
             
             // check if it's creating a whole new entry using a draft.
             // if so create the blocks immediately instead of using a job.
-            if ($target->draftId === null &&
-                $target->revisionId === null &&
-                $target->structureId === null &&
-                $target->duplicateOf &&
-                $target->duplicateOf->draftId) {
+            if ($this->_shouldCreateStructure($target)) {
                 $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
             } else {
                 // Save the structure of duplicates using a job
@@ -474,6 +470,27 @@ class Fields extends Component
     
     // Private Methods
     // =========================================================================
+    private function _shouldCreateStructure($target): bool
+    {
+        // if target is not a draft or revision
+        if (
+            $target->draftId === null &&
+            $target->revisionId === null &&
+            $target->duplicateOf
+        ) {
+            if ($target->duplicateOf->draftId || $target->duplicateOf->revisionId) {
+                return true;
+            }
+            
+            // if the target is a duplicate entry
+            if ($target->duplicateOf->draftId === null && $target->duplicateOf->revisionId === null && ((int)$target->duplicateOf->siteId === (int)$target->siteId)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
     
     /**
      * Deletes blocks from an owner element
