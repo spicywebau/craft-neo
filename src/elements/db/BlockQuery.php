@@ -49,6 +49,8 @@ class BlockQuery extends ElementQuery
      */
     public $typeId;
     
+    protected $defaultOrderBy = ['neoblocks.sortOrder' => SORT_ASC];
+    
     // Private properties
     
     /**
@@ -371,10 +373,10 @@ class BlockQuery extends ElementQuery
         
         // added for postgres only, otherwise it'll throw an error.
         // need to group by all selected values
-        if ($dbService->getIsPgsql()) {
-            $this->query->groupBy('neoblocks.fieldId, neoblocks.ownerId, neoblocks.typeId, neoblocks.sortOrder');
-        }
-        $this->query->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
+        // if ($dbService->getIsPgsql()) {
+        //     $this->query->groupBy('neoblocks.fieldId, neoblocks.ownerId, neoblocks.typeId, neoblocks.sortOrder');
+        // }
+        // $this->query->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
         
         if ($this->fieldId) {
             $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $this->fieldId));
