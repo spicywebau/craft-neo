@@ -901,6 +901,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         
         if ($value instanceof BlockQuery) {
             $query = $value;
+            // we need to overwrite the sort order or else it'll use the structureelements order instead (which we don't want).
+            $query->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
             
             // remove for now. might be needed if users migrated the neoblocks and there's issues with sortOrder being null
             // if ($query->getCachedResult()) {

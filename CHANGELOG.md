@@ -3,7 +3,7 @@
 ## Unreleased
 ### - Fixed
 - On publish of draft or reverting from revision, create the structure immediately #323, #325
-- Proper method to fix #257, #324
+- Proper method to fix #257, #324 and fix `sortOrder` issue relating to the changes.
 
 ## 2.7.3 - 2020-03-27
 ### Fixed
