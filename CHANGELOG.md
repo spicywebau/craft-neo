@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed multisite propagation issue #328.
+
+### Changes
+- Small changes to the block query
+
 ## 2.7.4 - 2020-04-02
 ### - Fixed
 - On publish of draft or reverting from revision, create the structure immediately #323, #325

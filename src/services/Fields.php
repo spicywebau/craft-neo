@@ -238,6 +238,15 @@ class Fields extends Component
             
             if ($structureModified) {
                 $this->_saveNeoStructuresForSites($field, $owner, $blocks);
+                
+                // we need to setup the structure for the other supported sites too.
+                // must be immediate to show changes on the front end.
+                $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner);
+                if (count($supported) > 0) {
+                    foreach($supported as $s) {
+                        $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
+                    }
+                }
             }
             
             if (
@@ -502,16 +511,17 @@ class Fields extends Component
      */
     private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
     {
-        $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner);
-        $supportedSitesCount = count($supportedSites);
-        // throw new \Exception(print_r($supportedSitesCount, true));
-        if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
-            foreach ($supportedSites as $site) {
-                $this->_deleteNeoBlocksAndStructures($field, $owner, $except, $site);
-            }
-        } else {
-            $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
-        }
+        // $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner);
+        // $supportedSitesCount = count($supportedSites);
+        // // throw new \Exception(print_r($supportedSitesCount, true));
+        // if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
+        //     foreach ($supportedSites as $site) {
+        //         $this->_deleteNeoBlocksAndStructures($field, $owner, $except, $site);
+        //     }
+        // } else {
+        //     $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
+        // }
+        $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
     }
     
     private function _checkSupportedSitesAndPropagation($field, $supportedSites)
