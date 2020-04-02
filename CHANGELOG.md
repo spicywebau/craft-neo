@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.4 - 2020-04-02
 ### - Fixed
 - On publish of draft or reverting from revision, create the structure immediately #323, #325
 - Fix postgresql issue #257, #324 and fix `sortOrder` issue relating to the changes.
