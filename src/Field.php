@@ -368,7 +368,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
         
         $query = Block::find();
-        // $blockStructure = null;
+        $blockStructure = null;
         
         // Existing element?
         $existingElement = $element && $element->id;
