@@ -244,9 +244,9 @@ class Fields extends Component
                 $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner);
     
                 // remove the current
-                // if (($key = array_search($owner->siteId, $supported)) !== false) {
-                //     unset($supported[$key]);
-                // }
+                if (($key = array_search($owner->siteId, $supported)) !== false) {
+                    array_splice($supported, $key, 1);
+                }
     
                 $supportedCount = count($supported);
                 
