@@ -219,7 +219,6 @@ export default Garnish.Base.extend({
 						childList: true,
 						characterData: true,
 						subtree: true,
-						attributeFilter: ['name', 'value'],
 					})
 
 					this.$contentContainer.on('propertychange change click', 'input, textarea, select, div.redactor-in', detectChange)
