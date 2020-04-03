@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.5 - 2020-04-03
 ### Fixed
 - Fixed multisite propagation issue #328.
 - Made a change for redactor detection. #329
