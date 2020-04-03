@@ -3,6 +3,7 @@
 ## Unreleased
 ### Fixed
 - Fixed multisite propagation issue #328.
+- Made a change for redactor detection. #329
 
 ### Changes
 - Small changes to the block query
