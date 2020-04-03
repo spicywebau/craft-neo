@@ -244,25 +244,27 @@ class Fields extends Component
                 $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner);
     
                 // remove the current
-                if (($key = array_search($owner->siteId, $supported)) !== false) {
-                    unset($supported[$key]);
-                }
+                // if (($key = array_search($owner->siteId, $supported)) !== false) {
+                //     unset($supported[$key]);
+                // }
     
                 $supportedCount = count($supported);
                 
                 if ($supportedCount > 0) {
                     // if has more than 3 sites then use a job instead to lighten the load.
                     foreach($supported as $s) {
-                        if ($supportedCount > 3) {
-                            Craft::$app->queue->push(new DuplicateNeoStructureTask([
-                                'field' => $field,
-                                'owner' => $owner,
-                                'blocks' => $blocks,
-                                'siteId' => $s
-                            ]));
-                        } else {
-                            $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
-                        }
+                        // TODO - for some reason some blocks aren't passed correctly.
+                        // if ($supportedCount > 1) {
+                        //     Craft::$app->queue->push(new DuplicateNeoStructureTask([
+                        //         'field' => $field,
+                        //         'owner' => $owner,
+                        //         'blocks' => $blocks,
+                        //         'siteId' => $s
+                        //     ]));
+                        // } else {
+                        //     $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
+                        // }
+                        $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
                     }
                 }
             }

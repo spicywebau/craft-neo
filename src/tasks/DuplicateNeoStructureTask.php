@@ -20,10 +20,11 @@ class DuplicateNeoStructureTask extends BaseJob
     {
         $siteId = $this->siteId ?? $this->owner->siteId;
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($this->field->id, $this->owner->id, $siteId)) !== null)
+        while (($blockStructure = Neo::$plugin->blocks->getStructure($this->field->id, $this->owner->id, (int)$siteId)) !== null)
         {
             Neo::$plugin->blocks->deleteStructure($blockStructure);
         }
+        
         $this->setProgress($queue, 0.3);
         
         if (Craft::$app->getElements()->getElementById($this->owner->id)) {
