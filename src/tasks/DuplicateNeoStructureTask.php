@@ -14,9 +14,11 @@ class DuplicateNeoStructureTask extends BaseJob
     
     public $blocks;
     
+    public $siteId;
+    
     public function execute($queue)
     {
-        $siteId = $this->owner->siteId;
+        $siteId = $this->siteId ?? $this->owner->siteId;
         // Delete any existing block structures associated with this field/owner/site combination
         while (($blockStructure = Neo::$plugin->blocks->getStructure($this->field->id, $this->owner->id, $siteId)) !== null)
         {

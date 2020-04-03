@@ -242,9 +242,27 @@ class Fields extends Component
                 // we need to setup the structure for the other supported sites too.
                 // must be immediate to show changes on the front end.
                 $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner);
-                if (count($supported) > 0) {
+    
+                // remove the current
+                if (($key = array_search($owner->siteId, $supported)) !== false) {
+                    unset($supported[$key]);
+                }
+    
+                $supportedCount = count($supported);
+                
+                if ($supportedCount > 0) {
+                    // if has more than 3 sites then use a job instead to lighten the load.
                     foreach($supported as $s) {
-                        $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
+                        if ($supportedCount > 3) {
+                            Craft::$app->queue->push(new DuplicateNeoStructureTask([
+                                'field' => $field,
+                                'owner' => $owner,
+                                'blocks' => $blocks,
+                                'siteId' => $s
+                            ]));
+                        } else {
+                            $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
+                        }
                     }
                 }
             }
@@ -362,7 +380,8 @@ class Fields extends Component
                 Craft::$app->queue->push(new DuplicateNeoStructureTask([
                     'field' => $field,
                     'owner' => $target,
-                    'blocks' => $newBlocks
+                    'blocks' => $newBlocks,
+                    'siteId' => null
                 ]));
             }
             
@@ -511,17 +530,17 @@ class Fields extends Component
      */
     private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
     {
-        // $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner);
-        // $supportedSitesCount = count($supportedSites);
-        // // throw new \Exception(print_r($supportedSitesCount, true));
-        // if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
-        //     foreach ($supportedSites as $site) {
-        //         $this->_deleteNeoBlocksAndStructures($field, $owner, $except, $site);
-        //     }
-        // } else {
-        //     $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
-        // }
-        $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
+        $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner);
+        $supportedSitesCount = count($supportedSites);
+        // throw new \Exception(print_r($supportedSitesCount, true));
+        if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
+            foreach ($supportedSites as $site) {
+                $this->_deleteNeoBlocksAndStructures($field, $owner, $except, $site);
+            }
+        } else {
+            $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
+        }
+        // $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
     }
     
     private function _checkSupportedSitesAndPropagation($field, $supportedSites)

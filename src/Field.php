@@ -901,22 +901,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         
         if ($value instanceof BlockQuery) {
             $query = $value;
-            $raw = $query->getRawSql();
-            
-            // remove for now. might be needed if users migrated the neoblocks and there's issues with sortOrder being null
-            // if ($query->getCachedResult()) {
-            //     $value = $query->getCachedResult();
-            // } else {
-            //     $query = $query->limit(null)->anyStatus();
-            //     $value = $query->all();
-            //
-            //     if (!empty($value) && !$this->_checkSortOrderOfBlocks($value)) {
-            //         $query->query->orderBy = null;
-            //         $this->query->orderBy(['structureelements.lft' => SORT_ASC, 'elements.dateCreated' => SORT_DESC]);
-            //         $value = $query->all();
-            //     }
-            // }
-            
             $value = $query->getCachedResult() ?? $query->limit(null)->anyStatus()->all();
         }
         
