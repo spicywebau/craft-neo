@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Made changes for the neo structure job. #330 #325
+- Fixed an issue with the draft and revision creation which children are displaced
+
 ## 2.7.5 - 2020-04-03
 ### Fixed
 - Fixed multisite propagation issue #328.

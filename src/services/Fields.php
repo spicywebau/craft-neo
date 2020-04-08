@@ -219,6 +219,8 @@ class Fields extends Component
                         ['sortOrder' => $sortOrder],
                         ['id' => $block->id], [], false)
                         ->execute();
+    
+                    $structureModified = true;
                 }
                 
                 // check if block level has been changed
@@ -253,17 +255,6 @@ class Fields extends Component
                 if ($supportedCount > 0) {
                     // if has more than 3 sites then use a job instead to lighten the load.
                     foreach($supported as $s) {
-                        // TODO - for some reason some blocks aren't passed correctly.
-                        // if ($supportedCount > 1) {
-                        //     Craft::$app->queue->push(new DuplicateNeoStructureTask([
-                        //         'field' => $field,
-                        //         'owner' => $owner,
-                        //         'blocks' => $blocks,
-                        //         'siteId' => $s
-                        //     ]));
-                        // } else {
-                        //     $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
-                        // }
                         $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
                     }
                 }
@@ -352,6 +343,8 @@ class Fields extends Component
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
             $newBlocks = [];
+            $newBlocksTaskData = [];
+            
             foreach ($blocks as $block) {
                 /** @var Block $newBlock */
                 $collapsed = $block->getCollapsed();
@@ -367,6 +360,13 @@ class Fields extends Component
                 $newBlock->cacheCollapsed();
                 
                 $newBlockIds[] = $newBlock->id;
+                $newBlocksTaskData[] = [
+                    'id' => $newBlock->id,
+                    'sortOrder' => $newBlock->sortOrder,
+                    'lft' => $newBlock->lft,
+                    'rgt' => $newBlock->rgt,
+                    'level' => $newBlock->level,
+                ];
                 $newBlocks[] = $newBlock;
             }
             // Delete any blocks that shouldn't be there anymore
@@ -376,13 +376,14 @@ class Fields extends Component
             // if so create the blocks immediately instead of using a job.
             if ($this->_shouldCreateStructure($target)) {
                 $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
-            } else {
-                // Save the structure of duplicates using a job
-                // faster for original element save.
+            } elseif ($target->revisionId) {
                 Craft::$app->queue->push(new DuplicateNeoStructureTask([
-                    'field' => $field,
-                    'owner' => $target,
-                    'blocks' => $newBlocks,
+                    'field' => $field->id,
+                    'owner' => [
+                        'id' => $target->id,
+                        'siteId' => $target->siteId
+                    ],
+                    'blocks' => $newBlocksTaskData,
                     'siteId' => null
                 ]));
             }
@@ -503,17 +504,23 @@ class Fields extends Component
     private function _shouldCreateStructure($target): bool
     {
         // if target is not a draft or revision
-        if (
-            $target->draftId === null &&
-            $target->revisionId === null &&
-            $target->duplicateOf
-        ) {
-            if ($target->duplicateOf->draftId || $target->duplicateOf->revisionId) {
-                return true;
-            }
-            
-            // if the target is a duplicate entry
-            if ($target->duplicateOf->draftId === null && $target->duplicateOf->revisionId === null && ((int)$target->duplicateOf->siteId === (int)$target->siteId)) {
+        $duplicate = $target->duplicateOf;
+        if ($duplicate) {
+            if (
+                $target->draftId === null &&
+                $target->revisionId === null
+            ) {
+                // if being duplicated from a draft or revision
+                if ($duplicate->draftId || $duplicate->revisionId) {
+                    return true;
+                }
+        
+                // if the target is a duplicate entry
+                if ($duplicate->draftId === null && $duplicate->revisionId === null && ((int)$duplicate->siteId === (int)$target->siteId)) {
+                    return true;
+                }
+            } elseif ($target->draftId && ($duplicate->draftId === null && $duplicate->revisionId === null)) {
+                // if create a new draft from the original content
                 return true;
             }
         }
