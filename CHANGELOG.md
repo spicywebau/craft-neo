@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.6 - 2020-04-11
 
 ### Fixed
 - Made changes for the neo structure job. #330 #325
