@@ -219,7 +219,7 @@ class Fields extends Component
                         ['sortOrder' => $sortOrder],
                         ['id' => $block->id], [], false)
                         ->execute();
-    
+                    
                     $structureModified = true;
                 }
                 
@@ -241,20 +241,12 @@ class Fields extends Component
             if ($structureModified) {
                 $this->_saveNeoStructuresForSites($field, $owner, $blocks);
                 
-                // we need to setup the structure for the other supported sites too.
-                // must be immediate to show changes on the front end.
-                $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner);
-    
-                // remove the current
-                if (($key = array_search($owner->siteId, $supported)) !== false) {
-                    array_splice($supported, $key, 1);
-                }
-    
+                $supported = $this->getSupportedSiteIdsExCurrent($field, $owner);
                 $supportedCount = count($supported);
                 
                 if ($supportedCount > 0) {
                     // if has more than 3 sites then use a job instead to lighten the load.
-                    foreach($supported as $s) {
+                    foreach ($supported as $s) {
                         $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
                     }
                 }
@@ -375,6 +367,16 @@ class Fields extends Component
             // check if it's creating a whole new entry using a draft.
             // if so create the blocks immediately instead of using a job.
             if ($this->_shouldCreateStructure($target)) {
+                $supported = $this->getSupportedSiteIdsExCurrent($field, $target);
+                $supportedCount = count($supported);
+    
+                if ($supportedCount > 0) {
+                    // if has more than 3 sites then use a job instead to lighten the load.
+                    foreach ($supported as $s) {
+                        $this->_saveNeoStructuresForSites($field, $target, $newBlocks, $s);
+                    }
+                }
+                
                 $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
             } elseif ($target->revisionId) {
                 Craft::$app->queue->push(new DuplicateNeoStructureTask([
@@ -499,6 +501,20 @@ class Fields extends Component
         return $siteIds;
     }
     
+    public function getSupportedSiteIdsExCurrent($field, $owner)
+    {
+        // we need to setup the structure for the other supported sites too.
+        // must be immediate to show changes on the front end.
+        $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner);
+    
+        // remove the current
+        if (($key = array_search($owner->siteId, $supported)) !== false) {
+            array_splice($supported, $key, 1);
+        }
+    
+        return $supported;
+    }
+    
     // Private Methods
     // =========================================================================
     private function _shouldCreateStructure($target): bool
@@ -514,7 +530,7 @@ class Fields extends Component
                 if ($duplicate->draftId || $duplicate->revisionId) {
                     return true;
                 }
-        
+                
                 // if the target is a duplicate entry
                 if ($duplicate->draftId === null && $duplicate->revisionId === null && ((int)$duplicate->siteId === (int)$target->siteId)) {
                     return true;

@@ -1,5 +1,10 @@
 # Changelog
 
+##Unreleased - 2020-04-15
+## Fixed
+- Fixed an issue when publishing a multisite draft #330, [comment of issue](https://github.com/spicywebau/craft-neo/issues/330#issuecomment-613833346)
+- Added a fix for the neo structure job. Thanks @engram-design.
+
 ## 2.7.6 - 2020-04-11
 
 ### Fixed

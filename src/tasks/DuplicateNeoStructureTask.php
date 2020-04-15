@@ -29,18 +29,21 @@ class DuplicateNeoStructureTask extends BaseJob
         $this->setProgress($queue, 0.3);
         
         foreach ($this->blocks as $b) {
-            $neoBlock = Neo::$plugin->blocks->getBlockById($b['id']);
-            $neoBlock->sortOrder = (int)$b['sortOrder'];
-            $neoBlock->lft = (int)$b['lft'];
-            $neoBlock->rgt = (int)$b['rgt'];
-            $neoBlock->level = (int)$b['level'];
-    
-            $blocks[] = $neoBlock;
+            $neoBlock = Neo::$plugin->blocks->getBlockById($b['id'], $siteId);
+            
+            if ($neoBlock) {
+                $neoBlock->sortOrder = (int)$b['sortOrder'];
+                $neoBlock->lft = (int)$b['lft'];
+                $neoBlock->rgt = (int)$b['rgt'];
+                $neoBlock->level = (int)$b['level'];
+        
+                $blocks[] = $neoBlock;
+            }
         }
         
         $this->setProgress($queue, 0.6);
         
-        if (Craft::$app->getElements()->getElementById($this->owner['id'])) {
+        if (count($blocks) > 0 && Craft::$app->getElements()->getElementById($this->owner['id'])) {
             $blockStructure = new BlockStructure();
             $blockStructure->fieldId = (int)$this->field;
             $blockStructure->ownerId = (int)$this->owner['id'];
