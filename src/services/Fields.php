@@ -240,16 +240,6 @@ class Fields extends Component
             
             if ($structureModified) {
                 $this->_saveNeoStructuresForSites($field, $owner, $blocks);
-                
-                $supported = $this->getSupportedSiteIdsExCurrent($field, $owner);
-                $supportedCount = count($supported);
-                
-                if ($supportedCount > 0) {
-                    // if has more than 3 sites then use a job instead to lighten the load.
-                    foreach ($supported as $s) {
-                        $this->_saveNeoStructuresForSites($field, $owner, $blocks, $s);
-                    }
-                }
             }
             
             if (
@@ -364,21 +354,7 @@ class Fields extends Component
             // Delete any blocks that shouldn't be there anymore
             $this->_deleteOtherBlocks($field, $target, $newBlockIds);
             
-            // check if it's creating a whole new entry using a draft.
-            // if so create the blocks immediately instead of using a job.
-            if ($this->_shouldCreateStructure($target)) {
-                $supported = $this->getSupportedSiteIdsExCurrent($field, $target);
-                $supportedCount = count($supported);
-    
-                if ($supportedCount > 0) {
-                    // if has more than 3 sites then use a job instead to lighten the load.
-                    foreach ($supported as $s) {
-                        $this->_saveNeoStructuresForSites($field, $target, $newBlocks, $s);
-                    }
-                }
-                
-                $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
-            } elseif ($target->revisionId) {
+            if ($this->_shouldCreateStructureWithJob($target)) {
                 Craft::$app->queue->push(new DuplicateNeoStructureTask([
                     'field' => $field->id,
                     'owner' => [
@@ -386,8 +362,11 @@ class Fields extends Component
                         'siteId' => $target->siteId
                     ],
                     'blocks' => $newBlocksTaskData,
-                    'siteId' => null
+                    'siteId' => null,
+                    'supportedSites' => $this->getSupportedSiteIdsExCurrent($field, $target)
                 ]));
+            } else {
+                $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
             }
             
             $transaction->commit();
@@ -506,42 +485,25 @@ class Fields extends Component
         // we need to setup the structure for the other supported sites too.
         // must be immediate to show changes on the front end.
         $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner);
-    
+        
         // remove the current
         if (($key = array_search($owner->siteId, $supported)) !== false) {
             array_splice($supported, $key, 1);
         }
-    
+        
         return $supported;
     }
     
     // Private Methods
     // =========================================================================
-    private function _shouldCreateStructure($target): bool
+    private function _shouldCreateStructureWithJob($target): bool
     {
         // if target is not a draft or revision
         $duplicate = $target->duplicateOf;
-        if ($duplicate) {
-            if (
-                $target->draftId === null &&
-                $target->revisionId === null
-            ) {
-                // if being duplicated from a draft or revision
-                if ($duplicate->draftId || $duplicate->revisionId) {
-                    return true;
-                }
-                
-                // if the target is a duplicate entry
-                if ($duplicate->draftId === null && $duplicate->revisionId === null && ((int)$duplicate->siteId === (int)$target->siteId)) {
-                    return true;
-                }
-            } elseif ($target->draftId && ($duplicate->draftId === null && $duplicate->revisionId === null)) {
-                // if create a new draft from the original content
-                return true;
-            }
-        }
         
-        return false;
+        // return true if creating a revision
+        return $duplicate && $duplicate->draftId === null &&
+            $duplicate->revisionId === null && $target->revisionId;
     }
     
     
@@ -580,7 +542,6 @@ class Fields extends Component
     
     private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null)
     {
-        
         $siteId = $sId ?? $owner->siteId;
         
         /** @var Element $owner */
@@ -606,7 +567,7 @@ class Fields extends Component
         }
     }
     
-    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null)
+    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null): void
     {
         $siteId = $sId ?? $owner->siteId;
         
@@ -622,5 +583,24 @@ class Fields extends Component
         
         Neo::$plugin->blocks->saveStructure($blockStructure);
         Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+        
+        // if multi site then save the structure for it. since it's all the same then we can use the same structure.
+        $supported = $this->getSupportedSiteIdsExCurrent($field, $owner);
+        $supportedCount = count($supported);
+        
+        if ($supportedCount > 0) {
+            // if has more than 3 sites then use a job instead to lighten the load.
+            foreach ($supported as $s) {
+                while (($mBlockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $s)) !== null) {
+                    Neo::$plugin->blocks->deleteStructure($mBlockStructure);
+                }
+                
+                $multiBlockStructure = $blockStructure;
+                $multiBlockStructure->id = null;
+                $multiBlockStructure->ownerSiteId = $s;
+                
+                Neo::$plugin->blocks->saveStructure($multiBlockStructure);
+            }
+        }
     }
 }

@@ -16,6 +16,8 @@ class DuplicateNeoStructureTask extends BaseJob
     
     public $siteId;
     
+    public $supportedSites;
+    
     public function execute($queue)
     {
         $blocks = [];
@@ -51,6 +53,21 @@ class DuplicateNeoStructureTask extends BaseJob
             
             Neo::$plugin->blocks->saveStructure($blockStructure);
             Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+    
+            if (count($this->supportedSites) > 0) {
+                // if has more than 3 sites then use a job instead to lighten the load.
+                foreach ($this->supportedSites as $s) {
+                    while (($mBlockStructure = Neo::$plugin->blocks->getStructure($this->field, $this->owner['id'], $s)) !== null) {
+                        Neo::$plugin->blocks->deleteStructure($mBlockStructure);
+                    }
+            
+                    $multiBlockStructure = $blockStructure;
+                    $multiBlockStructure->id = null;
+                    $multiBlockStructure->ownerSiteId = $s;
+            
+                    Neo::$plugin->blocks->saveStructure($multiBlockStructure);
+                }
+            }
         }
         
         $this->setProgress($queue, 1);
