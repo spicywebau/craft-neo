@@ -383,12 +383,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // If an owner element exists, set the appropriate owner site ID and block structure, depending on whether
         // the field is set to manage blocks on a per-site basis
         if ($existingElement) {
-        	$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, (int)$element->siteId);
+            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, (int)$element->siteId);
         }
         
         // If we found the block structure, set the query's structure ID
         if ($blockStructure) {
-        	$query->structureId($blockStructure->structureId);
+            $query->structureId($blockStructure->structureId);
         }
         
         // Set the initially matched elements if $value is already set, which is the case if there was a validation

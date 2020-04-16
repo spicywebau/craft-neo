@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Changed
+- use `$isModified` variable instead within `_createBlocksFromSerializedData`  - thanks @ronaldex
+
 ## 2.7.7 - 2020-04-16
 ### Fixed
 - Fixed an issue when publishing a multisite draft #330, [comment of issue](https://github.com/spicywebau/craft-neo/issues/330#issuecomment-613833346)
