@@ -1,10 +1,13 @@
 # Changelog
 
 ##Unreleased - 2020-04-15
-## Fixed
+### Fixed
 - Fixed an issue when publishing a multisite draft #330, [comment of issue](https://github.com/spicywebau/craft-neo/issues/330#issuecomment-613833346)
 - Added a fix for the neo structure job. Thanks @engram-design.
 - Update the block preview on load so it correctly shows the preview. #331
+
+### Changed
+- further changes to the neo structure saving job + changes on how the structure is saved
 
 ## 2.7.6 - 2020-04-11
 
