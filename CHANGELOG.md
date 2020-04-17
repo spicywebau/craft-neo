@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.7.7.1
+## 2.7.7.1 - 2020-04-17
 ### Changed
 - use `$isModified` variable instead within `_createBlocksFromSerializedData`  - thanks @ronaldex
 
