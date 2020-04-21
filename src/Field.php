@@ -368,7 +368,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
         
         $query = Block::find();
-        // $blockStructure = null;
+        $blockStructure = null;
         
         // Existing element?
         $existingElement = $element && $element->id;
@@ -382,14 +382,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         
         // If an owner element exists, set the appropriate owner site ID and block structure, depending on whether
         // the field is set to manage blocks on a per-site basis
-        // if ($existingElement) {
-        // 	$blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, (int)$element->siteId);
-        // }
+        if ($existingElement) {
+            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, (int)$element->siteId);
+        }
         
         // If we found the block structure, set the query's structure ID
-        // if ($blockStructure) {
-        // 	$query->structureId($blockStructure->structureId);
-        // }
+        if ($blockStructure) {
+            $query->structureId($blockStructure->structureId);
+        }
         
         // Set the initially matched elements if $value is already set, which is the case if there was a validation
         // error or we're loading an entry revision.
@@ -562,21 +562,21 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             ])
             // Join structural information to get the ordering of the blocks.
             ->leftJoin(
-            	'{{%neoblockstructures}} neoblockstructures',
-            	[
-            		'and',
-            		'[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
-            		'[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
-            		'[[neoblockstructures.ownerSiteId]] = ' . Craft::$app->getSites()->getCurrentSite()->id,
-            	]
+                '{{%neoblockstructures}} neoblockstructures',
+                [
+                    'and',
+                    '[[neoblockstructures.ownerId]] = [[neoblocks.ownerId]]',
+                    '[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
+                    '[[neoblockstructures.ownerSiteId]] = ' . Craft::$app->getSites()->getCurrentSite()->id,
+                ]
             )
             ->leftJoin(
-            	'{{%structureelements}} structureelements',
-            	[
-            		'and',
-            		'[[structureelements.structureId]] = [[neoblockstructures.structureId]]',
-            		'[[structureelements.elementId]] = [[neoblocks.id]]',
-            	]
+                '{{%structureelements}} structureelements',
+                [
+                    'and',
+                    '[[structureelements.structureId]] = [[neoblockstructures.structureId]]',
+                    '[[structureelements.elementId]] = [[neoblocks.id]]',
+                ]
             )
             ->orderBy(['[[neoblocks.sortOrder]]' => SORT_ASC])
             ->all();
@@ -900,7 +900,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
         
         if ($value instanceof BlockQuery) {
-            $value = $value->getCachedResult() ?? $value->limit(null)->anyStatus()->all();
+            $query = $value;
+            $value = $query->getCachedResult() ?? $query->limit(null)->anyStatus()->all();
         }
         
         $siteId = $element->siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
@@ -914,7 +915,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $viewService->registerAssetBundle(FieldAsset::class);
             
             $elementId = $element ? $element->getId() : null;
-          
+            
             $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $elementId));
             
             $html = $viewService->renderTemplate('neo/input', [
@@ -994,7 +995,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             // Existing block?
             if (isset($oldBlocksById[$blockId])) {
                 $block = $oldBlocksById[$blockId];
-                $block->dirty = (bool)$blockData['modified'];
+                $block->dirty = $isModified;
                 // $block->dirty = !empty($blockData);
             } else {
                 // Make sure it's a valid block type
@@ -1068,5 +1069,26 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
         
         return $blocks;
+    }
+    
+    /**
+     * Checks if the blocks has sortOrder
+     * Returns the true if it has sortOrder else it'll be false.
+     *
+     * @param array $blocks The raw field data.
+     * @return bool
+     */
+    private function _checkSortOrderOfBlocks(array $blocks): bool
+    {
+        $isNull = false;
+        
+        foreach ($blocks as $block) {
+            if ($block->sortOrder === null) {
+                $$isNull = true;
+                break;
+            }
+        }
+        
+        return !$isNull;
     }
 }

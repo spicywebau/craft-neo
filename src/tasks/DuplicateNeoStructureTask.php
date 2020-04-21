@@ -14,26 +14,62 @@ class DuplicateNeoStructureTask extends BaseJob
     
     public $blocks;
     
+    public $siteId;
+    
+    public $supportedSites;
+    
     public function execute($queue)
     {
-        $siteId = $this->owner->siteId;
+        $blocks = [];
+        $siteId = $this->siteId ?? $this->owner['siteId'];
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($this->field->id, $this->owner->id, $siteId)) !== null)
+        while (($blockStructure = Neo::$plugin->blocks->getStructure($this->field, $this->owner['id'], (int)$siteId)) !== null)
         {
             Neo::$plugin->blocks->deleteStructure($blockStructure);
         }
+        
         $this->setProgress($queue, 0.3);
         
-        if (Craft::$app->getElements()->getElementById($this->owner->id)) {
+        foreach ($this->blocks as $b) {
+            $neoBlock = Neo::$plugin->blocks->getBlockById($b['id'], $siteId);
+            
+            if ($neoBlock) {
+                $neoBlock->sortOrder = (int)$b['sortOrder'];
+                $neoBlock->lft = (int)$b['lft'];
+                $neoBlock->rgt = (int)$b['rgt'];
+                $neoBlock->level = (int)$b['level'];
+        
+                $blocks[] = $neoBlock;
+            }
+        }
+        
+        $this->setProgress($queue, 0.6);
+        
+        if (count($blocks) > 0 && Craft::$app->getElements()->getElementById($this->owner['id'])) {
             $blockStructure = new BlockStructure();
-            $blockStructure->fieldId = (int)$this->field->id;
-            $blockStructure->ownerId = (int)$this->owner->id;
+            $blockStructure->fieldId = (int)$this->field;
+            $blockStructure->ownerId = (int)$this->owner['id'];
             $blockStructure->ownerSiteId = (int)$siteId;
-            $this->setProgress($queue, 0.6);
             
             Neo::$plugin->blocks->saveStructure($blockStructure);
-            Neo::$plugin->blocks->buildStructure($this->blocks, $blockStructure);
+            Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+    
+            if (count($this->supportedSites) > 0) {
+                // if has more than 3 sites then use a job instead to lighten the load.
+                foreach ($this->supportedSites as $s) {
+                    while (($mBlockStructure = Neo::$plugin->blocks->getStructure($this->field, $this->owner['id'], $s)) !== null) {
+                        Neo::$plugin->blocks->deleteStructure($mBlockStructure);
+                    }
+            
+                    $multiBlockStructure = $blockStructure;
+                    $multiBlockStructure->id = null;
+                    $multiBlockStructure->ownerSiteId = $s;
+            
+                    Neo::$plugin->blocks->saveStructure($multiBlockStructure);
+                }
+            }
         }
+        
         $this->setProgress($queue, 1);
     }
     

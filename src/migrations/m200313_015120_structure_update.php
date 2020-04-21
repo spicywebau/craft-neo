@@ -36,9 +36,9 @@ class m200313_015120_structure_update extends Migration
         // set the order for the new columns
         
         $query = (new Query())
-            ->select(['elements.id', 'elements.type', 'structureelements.id as sId', 'structureelements.lft'])
+            ->select(['elements.id', 'elements.type', 'structureelements.elementId as sId', 'structureelements.lft'])
             ->from('{{%elements}} elements')
-            ->leftJoin('{{%structureelements}} structureelements', '[[elements.id]] = [[structureelements.id]]')
+            ->leftJoin('{{%structureelements}} structureelements', '[[elements.id]] = [[structureelements.elementId]]')
             ->where(['elements.type' => Block::class])
             ->andWhere('structureelements.lft IS NOT NULL')
             ->limit(null);

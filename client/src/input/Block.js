@@ -212,14 +212,13 @@ export default Garnish.Base.extend({
 				if(MutationObserver)
 				{
 					const detectChange = () => this._detectChange()
-					const observer = new MutationObserver(() => setTimeout(detectChange, 20))
+					const observer = new MutationObserver(() => setTimeout(detectChange, 200))
 
 					observer.observe(this.$container[0], {
 						attributes: true,
 						childList: true,
 						characterData: true,
 						subtree: true,
-						attributeFilter: ['name', 'value'],
 					})
 
 					this.$contentContainer.on('propertychange change click', 'input, textarea, select, div.redactor-in', detectChange)

@@ -171,6 +171,12 @@ export default Garnish.Base.extend({
 		// add error highlight for matrix fields within neo
 		this._setMatrixClassErrors();
 		this._setBlockTypeClassErrors();
+
+		this._blocks.forEach(function(block){
+			if (!block.isExpanded()) {
+				block.updatePreview()
+			}
+		});
 	},
 
 	updateResponsiveness()

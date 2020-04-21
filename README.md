@@ -57,6 +57,7 @@ Neo copies/pastes a block with descendants, all descendant blocks are copied and
 - [Plugin Compatibility](docs/plugin-compatibility.md)
 - [FAQ](docs/faq.md)
 - [Content Migration Guide: Updating, Duplicating and Creating Block Types](docs/content-migration-guides/updating-duplicating-creating-block-types.md)
+- [Updating to Craft 3.4 and 2.7.x+](docs/craft3.4.md)
 - [Changelog](CHANGELOG.md)
 
 

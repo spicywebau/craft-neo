@@ -1,5 +1,64 @@
 # Changelog
 
+## 2.7.7.1 - 2020-04-17
+### Changed
+- use `$isModified` variable instead within `_createBlocksFromSerializedData`  - thanks @ronaldex
+
+## 2.7.7 - 2020-04-16
+### Fixed
+- Fixed an issue when publishing a multisite draft #330, [comment of issue](https://github.com/spicywebau/craft-neo/issues/330#issuecomment-613833346)
+- Added a fix for the neo structure job. Thanks @engram-design.
+- Update the block preview on load so it correctly shows the preview. #331
+
+### Changed
+- further changes to the neo structure saving job + changes on how the structure is saved
+
+## 2.7.6 - 2020-04-11
+
+### Fixed
+- Made changes for the neo structure job. #330 #325
+- Fixed an issue with the draft and revision creation which children are displaced
+
+## 2.7.5 - 2020-04-03
+### Fixed
+- Fixed multisite propagation issue #328.
+- Made a change for redactor detection. #329
+
+### Changes
+- Small changes to the block query
+
+## 2.7.4 - 2020-04-02
+### - Fixed
+- On publish of draft or reverting from revision, create the structure immediately #323, #325
+- Fix postgresql issue #257, #324 and fix `sortOrder` issue relating to the changes.
+
+## 2.7.3 - 2020-03-27
+### Fixed
+- Do not create a structure using a job task if a new entry is being created (since it's duplicated from the first draft). Create the structure immediately.
+
+## 2.7.2.2 - 2020-03-25
+### Changed
+- we need to change the delay of the observer. redactor has 200ms delay when syncing. #319
+
+## 2.7.2.1 - 2020-03-24
+### Fixed
+- Fixed the migration for `sortOrder`, should be using the `elementId` instead of `id` for `structureelements` - thanks @Mosnar
+
+
+## 2.7.2 - 2020-03-24
+### Fixed
+- need to group by all selected values, not just `sortOrder` #316
+- add the `structureId` to the element query. #317 #318
+
+## 2.7.1.1 - 2020-03-23
+### Changed
+- if there are blocks to delete then we need to rebuild the structure.
+
+## 2.7.1 - 2020-03-23
+
+### Changed
+- Add the `orderBy` clause for postgres only. #315
+
 ## 2.7.0 - 2020-03-22
 
 > {note} This update contains a schema update which could potentially break the structure of the neo blocks. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks. If the structure is indeed broken, re-saving the page should resolve it.
