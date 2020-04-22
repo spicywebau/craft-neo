@@ -1,5 +1,10 @@
 # Changelog
 
+## Unrelease
+### Changed
+- better postgresql block query fix (more clean)
+- added some changes for when a user is updating craft to 3.4 from an older version
+
 ## 2.7.7.1 - 2020-04-17
 ### Changed
 - use `$isModified` variable instead within `_createBlocksFromSerializedData`  - thanks @ronaldex
