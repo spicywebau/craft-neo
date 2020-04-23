@@ -34,20 +34,21 @@ class m200313_015120_structure_update extends Migration
         }
         
         // set the order for the new columns
-        
+    
         $query = (new Query())
-            ->select(['elements.id', 'elements.type', 'structureelements.elementId as sId', 'structureelements.lft'])
-            ->from('{{%elements}} elements')
-            ->leftJoin('{{%structureelements}} structureelements', '[[elements.id]] = [[structureelements.elementId]]')
-            ->where(['elements.type' => Block::class])
-            ->andWhere('structureelements.lft IS NOT NULL')
+            ->select(['neoblocks.id', 'structureelements.elementId', 'structureelements.lft'])
+            ->from('{{%neoblocks}} neoblocks')
+            ->leftJoin('{{%structureelements}} structureelements', '[[neoblocks.id]] = [[structureelements.elementId]]')
+            ->where('"structureelements"."lft" IS NOT NULL')
             ->limit(null);
-        
-        $elements = $query->all($this->db);
-        
-        foreach ($elements as $el) {
-            $this->update('{{%neoblocks}}', ['sortOrder' => (int)$el['lft']],
-                ['id' => (int)$el['sId']]);
+    
+        $blocks = $query->all($this->db);
+    
+        if (count($blocks) > 0) {
+            foreach ($blocks as $block) {
+                $this->update('{{%neoblocks}}', ['sortOrder' => (int)$block['lft']],
+                    ['id' => (int)$block['id']]);
+            }
         }
     }
     
