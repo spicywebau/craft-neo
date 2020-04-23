@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## 2.7.8 - 2020-04-23
 ### Changed
 - better postgresql block query fix (more clean)
+
+### Added
 - added some changes for when a user is updating craft to 3.4 from an older version
 
 ## 2.7.7.1 - 2020-04-17
