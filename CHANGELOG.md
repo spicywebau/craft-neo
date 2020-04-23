@@ -68,7 +68,7 @@
 
 ## 2.7.0 - 2020-03-22
 
-> {note} This update contains a schema update which could potentially break the structure of the neo blocks. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks. If the structure is indeed broken, re-saving the page should resolve it.
+> {note} ~This update contains a schema update which could potentially break the structure of the neo blocks. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks. If the structure is indeed broken, re-saving the page should resolve it.~ See #336. I'm currently looking into this issue so it's best to wait at version v2.6.x for now.
 
 ### Changed
 - Added `sortOrder` to blocks
