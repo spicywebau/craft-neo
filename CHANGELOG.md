@@ -1,6 +1,6 @@
 # Changelog
 
-## Unrelease
+## Unreleased
 ### Changed
 - better postgresql block query fix (more clean)
 - added some changes for when a user is updating craft to 3.4 from an older version
