@@ -34,13 +34,14 @@ class m200313_015120_structure_update extends Migration
         }
         
         // set the order for the new columns
-    
         $query = (new Query())
             ->select(['neoblocks.id', 'structureelements.elementId', 'structureelements.lft'])
             ->from('{{%neoblocks}} neoblocks')
             ->leftJoin('{{%structureelements}} structureelements', '[[neoblocks.id]] = [[structureelements.elementId]]')
-            ->where('"structureelements"."lft" IS NOT NULL')
+            ->where('structureelements.lft IS NOT NULL')
             ->limit(null);
+        
+        $raw = $query->getRawSql();
     
         $blocks = $query->all($this->db);
     
