@@ -6,6 +6,7 @@
 
 ### Fixed
 - need to pass the id for entries, globals and categories. #333
+- remove the type for `_setupBlocksHasSortOrder` #342
 
 ## 2.7.8 - 2020-04-23
 ### Changed
