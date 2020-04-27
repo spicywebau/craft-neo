@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.9 - 2020-04-27
 ### Changed
 - changes to v2.7.x migration file #336
 
