@@ -47,6 +47,12 @@ export default Garnish.Base.extend({
 		this._maxBlocks = settings.maxBlocks
 		this._maxTopBlocks = settings.maxTopBlocks
 		this._static = settings['static']
+		this._ownerId = null
+
+		let ownerIdElement = $('[name="setId"], [name="entryId"], [name="categoryId"]');
+		if (ownerIdElement.length) {
+			this._ownerId = ownerIdElement.val();
+		}
 
 		NS.enter(this._templateNs)
 
@@ -836,6 +842,7 @@ export default Garnish.Base.extend({
 		// Get the selected blocks and their descendants
 		const blockGroups = []
 		let blockCount = 0
+		const ownerId = this._ownerId
 
 		this._blockBatch(e.block, (block) =>
 		{
@@ -868,7 +875,7 @@ export default Garnish.Base.extend({
 					type: block.getBlockType().getId(),
 					level: block.getLevel() - firstBlockLevel,
 					content: block.getContent(),
-					ownerId: $('[name="entryId"]').val()
+					ownerId: ownerId
 				}
 
 				if(block.isEnabled())
@@ -927,6 +934,7 @@ export default Garnish.Base.extend({
 		const block = e.block
 		const blockIndex = this._blocks.indexOf(block)
 		const subBlocks = this._findChildBlocks(blockIndex, true)
+		const ownerId = this._ownerId;
 
 		NS.enter(this._templateNs)
 
@@ -942,7 +950,7 @@ export default Garnish.Base.extend({
 			type: block.getBlockType().getId(),
 			level: block.getLevel(),
 			content: block.getContent(),
-			ownerId: $('[name="entryId"]').val()
+			ownerId: ownerId
 		}
 
 		if(block.isEnabled())
