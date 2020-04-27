@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Changed
+- remove void return types since it's not compatible with php 7.0. #342
+
 ## 2.7.9 - 2020-04-27
 ### Changed
 - changes to v2.7.x migration file #336
