@@ -225,7 +225,7 @@ class Plugin extends BasePlugin
 		});
 	}
     
-    private function _setupBlocksHasSortOrder(): void
+    private function _setupBlocksHasSortOrder()
     {
         $dbService = Craft::$app->getDb();
         
