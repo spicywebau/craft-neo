@@ -57,7 +57,8 @@
 		margin-bottom: 10px;
 		border-radius: 4px;
 		border: 1px solid #e3e5e8;
-		background-color: #f1f5f8;
+		background-color: #f3f7fc;
+		padding: 0 14px 14px;
 
 		&:focus {
 			outline: 0;
@@ -67,7 +68,7 @@
 			position: relative;
 			height: 30px;
 			line-height: 30px;
-			background-color: #f1f5f8;
+			//background-color: #f1f5f8;
 			color: #8f98a3;
 			transition: background-color 0.5s;
 
@@ -90,12 +91,12 @@
 
 				body.ltr & {
 					right: 0;
-					background-image: linear-gradient(to left, #f1f5f8 72px, rgba(#f1f5f8, 0) 100px);
+					//background-image: linear-gradient(to left, #f1f5f8 72px, rgba(#f1f5f8, 0) 100px);
 				}
 
 				body.rtl & {
 					left:  0;
-					background-image: linear-gradient(to right, #f1f5f8 72px, rgba(#f1f5f8, 0) 100px);
+					//background-image: linear-gradient(to right, #f1f5f8 72px, rgba(#f1f5f8, 0) 100px);
 				}
 			}
 
@@ -110,6 +111,14 @@
 				body.ltr &:not(:first-child),
 				body.rtl &:not(:last-child) {
 					padding-left: 0;
+				}
+				
+				&:first-child {
+					padding-left: 0;
+				}
+				
+				&:last-child {
+					padding-right: 0;
 				}
 
 				&.size-full {
@@ -300,9 +309,8 @@
 
 			&_tab {
 				display: none;
-				padding: 14px;
+				padding: 14px 0 0;
 				border-top: 1px solid #e3e5e8;
-				background-color: #fbfcfd;
 
 				&.is-blank {
 					padding: 0;
@@ -320,10 +328,16 @@
 		}
 
 		&_children {
-			padding: 14px;
+			padding: 14px 0 7px;
 			border-top: 1px solid #e3e5e8;
-			background-color: #f1f5f8;
+			//background-color: #f1f5f8;
 			transition: background-color 0.5s;
+			
+			> .ni_blocks {
+				> .ni_block {
+					background-color: lighten(#fbfcfd, 5%);
+				}
+			}
 		}
 
 		&_collapsed-children {
@@ -339,16 +353,15 @@
 		}
 
 		&.is-level-odd {
-
-			> .ni_block_topbar,
-			> .ni_block_body > .ni_block_children {
-				background-color: white;
-			}
+			//> .ni_block_topbar,
+			//> .ni_block_body > .ni_block_children {
+			//	background-color: white;
+			//}
 
 			> .ni_block_topbar > .ni_block_topbar_right {
 
-				body.ltr & { background-image: linear-gradient(to left,  white 72px, rgba(white, 0) 100px); }
-				body.rtl & { background-image: linear-gradient(to right, white 72px, rgba(white, 0) 100px); }
+				//body.ltr & { background-image: linear-gradient(to left,  white 72px, rgba(white, 0) 100px); }
+				//body.rtl & { background-image: linear-gradient(to right, white 72px, rgba(white, 0) 100px); }
 				
 				> .ni_block_topbar_item.tabs .tab.is-blank {
 					border-bottom-color: white;
