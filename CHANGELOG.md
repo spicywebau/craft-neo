@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+### Changed
+- Updated neo block styling to be more inline with craft 3.4. #346
+
+## 2.7.9.1 - 2020-04-28
+### Changed
+- remove void return types since it's not compatible with php 7.0. #342
+
+## 2.7.9 - 2020-04-27
+### Changed
+- changes to v2.7.x migration file #336
+
+### Fixed
+- need to pass the id for entries, globals and categories. #333
+- remove the type for `_setupBlocksHasSortOrder` #342
+
+## 2.7.8 - 2020-04-23
+### Changed
+- better postgresql block query fix (more clean)
+
+### Added
+- added some changes for when a user is updating craft to 3.4 from an older version
+
+## 2.7.7.1 - 2020-04-17
+### Changed
+- use `$isModified` variable instead within `_createBlocksFromSerializedData`  - thanks @ronaldex
+
 ## 2.7.7 - 2020-04-16
 ### Fixed
 - Fixed an issue when publishing a multisite draft #330, [comment of issue](https://github.com/spicywebau/craft-neo/issues/330#issuecomment-613833346)
@@ -57,7 +84,7 @@
 
 ## 2.7.0 - 2020-03-22
 
-> {note} This update contains a schema update which could potentially break the structure of the neo blocks. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks. If the structure is indeed broken, re-saving the page should resolve it.
+> {note} ~This update contains a schema update which could potentially break the structure of the neo blocks. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks. If the structure is indeed broken, re-saving the page should resolve it.~ See #336. I'm currently looking into this issue so it's best to wait at version v2.6.x for now.
 
 ### Changed
 - Added `sortOrder` to blocks

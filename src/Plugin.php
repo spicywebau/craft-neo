@@ -23,6 +23,7 @@ use benf\neo\services\BlockTypes as BlockTypesService;
 use benf\neo\services\Conversion as ConversionService;
 use benf\neo\services\Fields as FieldsService;
 use benf\neo\gql\interfaces\elements\Block as NeoGqlInterface;
+use yii\base\NotSupportedException;
 
 /**
  * Class Plugin
@@ -51,6 +52,8 @@ class Plugin extends BasePlugin
 		'conversion' => ConversionController::class,
 		'input' => InputController::class,
 	];
+	
+	public $blockHasSortOrder = true;
 
 	/**
 	 * @inheritdoc
@@ -116,6 +119,8 @@ class Plugin extends BasePlugin
 				}
 			);
 		}
+		
+		$this->_setupBlocksHasSortOrder();
 	}
 
 	/**
@@ -219,4 +224,15 @@ class Plugin extends BasePlugin
 			$event->config['neoBlockTypeGroups'] = $blockTypeGroupData;
 		});
 	}
+    
+    private function _setupBlocksHasSortOrder()
+    {
+        $dbService = Craft::$app->getDb();
+        
+        try {
+            $this->blockHasSortOrder = $dbService->columnExists('{{%neoblocks}}', 'sortOrder');
+        } catch (NotSupportedException $e) {
+            $this->blockHasSortOrder = true;
+        }
+    }
 }

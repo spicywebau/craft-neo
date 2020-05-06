@@ -296,7 +296,7 @@ class Conversion extends Component
 		$matrixBlock->ownerId = $neoBlock->ownerId;
 		$matrixBlock->fieldId = $neoBlock->fieldId;
 		$matrixBlock->siteId = $neoBlock->siteId;
-		$matrixBlock->sortOrder = $neoBlock->sortOrder;
+		$matrixBlock->sortOrder = Neo::$plugin->blockHasSortOrder ? $neoBlock->sortOrder : $neoBlock->lft;
 		$matrixBlock->collapsed = $neoBlock->collapsed;
 		$matrixBlock->setFieldValues($blockFieldValues);
 

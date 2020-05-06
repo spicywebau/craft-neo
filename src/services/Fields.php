@@ -567,7 +567,7 @@ class Fields extends Component
         }
     }
     
-    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null): void
+    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null)
     {
         $siteId = $sId ?? $owner->siteId;
         
