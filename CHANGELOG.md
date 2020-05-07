@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.10 - 2020-05-07
 ### Changed
 - Updated neo block styling to be more inline with craft 3.4. #346
 
