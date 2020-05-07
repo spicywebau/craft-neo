@@ -85,6 +85,8 @@
 ## 2.7.0 - 2020-03-22
 
 > {note} ~This update contains a schema update which could potentially break the structure of the neo blocks. Make sure to backup your database and do the update locally first as it includes migration of all neo blocks. If the structure is indeed broken, re-saving the page should resolve it.~ See #336. I'm currently looking into this issue so it's best to wait at version v2.6.x for now.
+>
+> The latest release v2.7.9+ has changes to the migration file + fixes the issue when updating from craft at 3.3 and lower #326. The migration should only update the new `sortOrder` column for each neo block and shouldn't cause any issues with missing blocks
 
 ### Changed
 - Added `sortOrder` to blocks
