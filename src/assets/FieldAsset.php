@@ -189,7 +189,7 @@ class FieldAsset extends AssetBundle
                 $jsBlocks[] = [
                     'id' => $block->id,
                     'blockType' => $blockType->handle,
-                    'modified' => false,
+                    'modified' => $block->getModified(),
                     'sortOrder' => $sortOrder++,
                     'collapsed' => !$collapseAllBlocks ? $block->getCollapsed() : true,
                     'enabled' => (bool)$block->enabled,
