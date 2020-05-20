@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.11 - 2020-05-20
+### Fixed
+- Fixed bug where blocks' correct modified states were not being set after validation errors, causing block content modified before the validation error, but not after, not to be saved
+
 ## 2.7.10 - 2020-05-07
 ### Changed
 - Updated neo block styling to be more inline with craft 3.4. #346
