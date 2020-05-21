@@ -12,7 +12,6 @@ use benf\neo\services\BlockTypes;
 use spicyweb\fieldlabels\Plugin as FieldLabelsPlugin;
 
 /**
- * Class FieldLabels
  * Implements support for the Field Labels plugin.
  *
  * @see https://github.com/spicywebau/craft-fieldlabels
@@ -57,9 +56,10 @@ class FieldLabels
 						$doesTheBlockTypeIdKeyExist = array_key_exists($blockTypeId, $fieldLabelsPost);
 						
 						if ($fieldLabelsPost && $doesTheBlockTypeIdKeyExist) {
-							// FieldLabelsPlugin::$plugin->methods->saveLabels($fieldlabelsPost[$blockTypeId][0], $blockType->fieldLayoutId);
-							FieldLabelsPlugin::$plugin->methods->saveLabels($fieldLabelsPost[$blockTypeId],
-								$blockType->fieldLayoutId);
+							FieldLabelsPlugin::$plugin->methods->saveLabels(
+								$fieldLabelsPost[$blockTypeId][0],
+								$blockType->fieldLayoutId
+							);
 						}
 					}
 					
@@ -67,7 +67,7 @@ class FieldLabels
 					if ($fieldLabelsPost === null) {
 						$labelledFieldIds = [];
 					} else {
-						$labelledFieldIds = $doesTheBlockTypeIdKeyExist ? array_keys($fieldLabelsPost[$blockTypeId]) : [];
+						$labelledFieldIds = $doesTheBlockTypeIdKeyExist ? array_keys($fieldLabelsPost[$blockTypeId][0]) : [];
 					}
 					
 					$unlabelledFieldIds = array_filter($layoutFieldIds,
