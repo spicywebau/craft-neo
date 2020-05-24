@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.12 - 2020-05-24
 ### Fixed
 - Fixed bug where Neo blocks with asset fields with dynamic upload paths were not finding the correct path when editing a new category or product
 - Compatibility with Field Labels v1.2.0
