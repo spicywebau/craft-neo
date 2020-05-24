@@ -913,10 +913,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $html = $this->_getNestingErrorHtml();
         } else {
             $viewService->registerAssetBundle(FieldAsset::class);
-            
-            $elementId = $element ? $element->getId() : null;
-            
-            $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $elementId));
+            $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $element));
             
             $html = $viewService->renderTemplate('neo/input', [
                 'neoField' => $this,

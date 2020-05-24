@@ -5,6 +5,7 @@ namespace benf\neo\services;
 use yii\base\Component;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
@@ -563,7 +564,7 @@ class BlockTypes extends Component
      * @param bool $static Whether to generate static tab content.
      * @param string|null $namespace
      * @param int|null $siteId
-     * @param int|null $ownerId
+     * @param ElementInterface|int|null $owner
      * @return array The tabs data.
      */
     public function renderTabs(
@@ -571,21 +572,26 @@ class BlockTypes extends Component
         bool $static = false,
         $namespace = null,
         int $siteId = null,
-        $ownerId = null
+        $owner = null
     ): array {
         $block = new Block();
         $block->typeId = $blockType->id;
-        
-        if (!$block->ownerId && $ownerId) {
-            $block->ownerId = $ownerId;
-        }
-        
+
         // Ensure that the passed site ID is valid before applying it
         // If the site ID is not passed or is invalid, the block will default to the primary site
         if ($siteId !== null && Craft::$app->getSites()->getSiteById($siteId) !== null) {
             $block->siteId = $siteId;
         }
-        
+
+        if (is_int($owner)) {
+            $owner = Craft::$app->getElements()->getElementById($owner, null, $block->siteId);
+        }
+
+        if (!$block->ownerId && $owner !== null) {
+            $block->ownerId = $owner->id;
+            $block->setOwner($owner);
+        }
+
         return Neo::$plugin->blocks->renderTabs($block, $static, $namespace);
     }
     

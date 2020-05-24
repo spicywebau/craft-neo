@@ -3,6 +3,7 @@
 namespace benf\neo\assets;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\helpers\Json;
@@ -131,7 +132,7 @@ class FieldAsset extends AssetBundle
      * @param Field $field The Neo field.
      * @param array $value The Neo blocks, associated with this field, to generate inputs for.
      * @param bool $static Whether to generate static HTML for the blocks, e.g. for displaying entry revisions.
-     * @param int|null $siteId
+     * @param ElementInterface|int|null $siteId
      * @return string
      */
     public static function createInputJs(
@@ -139,7 +140,7 @@ class FieldAsset extends AssetBundle
         $value,
         bool $static = false,
         int $siteId = null,
-        $ownerId = null
+        $owner = null
     ): string {
         $viewService = Craft::$app->getView();
         
@@ -151,7 +152,7 @@ class FieldAsset extends AssetBundle
         $jsSettings = [
             'name' => $name,
             'namespace' => $viewService->namespaceInputName($name) . '[blocks]',
-            'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static, $siteId, $ownerId),
+            'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static, $siteId, $owner),
             'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
             'inputId' => $viewService->namespaceInputId($id),
             'minBlocks' => $field->minBlocks,
@@ -213,7 +214,7 @@ class FieldAsset extends AssetBundle
      * @param bool $renderTabs Whether to render the block types' tabs.
      * @param bool $static Whether to generate static HTML for the block types, e.g. for displaying entry revisions.
      * @param int|null $siteId
-     * @param int|null $ownerId
+     * @param ElementInterface|int|null $owner
      * @return array
      */
     private static function _getBlockTypesJsSettings(
@@ -221,7 +222,7 @@ class FieldAsset extends AssetBundle
         bool $renderTabs = false,
         bool $static = false,
         int $siteId = null,
-        $ownerId = null
+        $owner = null
     ): array {
         $jsBlockTypes = [];
         
@@ -267,7 +268,7 @@ class FieldAsset extends AssetBundle
                 ];
                 
                 if ($renderTabs) {
-                    $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $ownerId);
+                    $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $owner);
                     $jsBlockType['tabs'] = $tabsHtml;
                 }
                 

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed bug where Neo blocks with asset fields with dynamic upload paths were not finding the correct path when editing a new category or product
+- Compatibility with Field Labels v1.2.0
+
 ## 2.7.11 - 2020-05-20
 ### Fixed
 - Fixed bug where blocks' correct modified states were not being set after validation errors, causing block content modified before the validation error, but not after, not to be saved
