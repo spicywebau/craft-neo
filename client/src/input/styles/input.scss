@@ -1,3 +1,5 @@
+$preview-reduction: 70px;
+
 .neo-input {
 
 	&.is-static {
@@ -80,8 +82,15 @@
 
 			&_left {
 
-				body.ltr & { left:  0; }
-				body.rtl & { right: 0; }
+				body.ltr & {
+					left:  0;
+					right: $preview-reduction;
+				}
+
+				body.rtl & {
+					left: $preview-reduction;
+					right: 0;
+				}
 			}
 
 			&_right {
@@ -141,12 +150,32 @@
 					.preview {
 						pointer-events: none; // Allow the double-click expand/collapse work it's magic
 						position: absolute;
+						width: calc(100% - #{$preview-reduction});
 						height: 30px;
+						overflow: hidden;
 						color: #b9bfc6;
 						transition: opacity 0.2s;
 
 						body.ltr & { margin-left:  8px; }
 						body.rtl & { margin-right: 8px; }
+
+						&::before {
+							content: '';
+							pointer-events: none;
+							position: absolute;
+							top: 0;
+							bottom: 0;
+							left: 0;
+							right: 0;
+
+							body.ltr & {
+								background-image: linear-gradient(-90deg, #f3f7fc 0, transparent 40px, transparent 100%);
+							}
+
+							body.rtl & {
+								background-image: linear-gradient(-90deg, #f3f7fc 0, transparent 40px, transparent 100%);
+							}
+						}
 
 						&:empty {
 							// Fixes bug where the blocktype can get clipped prematurely

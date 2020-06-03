@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed bug where collapsed block previews could cover the options dropdown and block drag buttons
+
 ## 2.7.12 - 2020-05-24
 ### Fixed
 - Fixed bug where Neo blocks with asset fields with dynamic upload paths were not finding the correct path when editing a new category or product
