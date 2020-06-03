@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.13 - 2020-06-03
 ### Fixed
 - Fixed bug where collapsed block previews could cover the options dropdown and block drag buttons
 
