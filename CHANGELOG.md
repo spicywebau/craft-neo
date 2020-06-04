@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.14 - 2020-06-04
+### Fixed
+- Fixed issue where disabling a parent block, while editing an entry draft, would cause its child blocks to save at the field's top level
+
 ## 2.7.13 - 2020-06-03
 ### Fixed
 - Fixed bug where collapsed block previews could cover the options dropdown and block drag buttons
