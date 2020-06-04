@@ -6,7 +6,6 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
-import ReasonsRenderer from '../plugins/reasons/Renderer'
 import { addFieldLinks } from '../plugins/cpfieldinspect/main'
 
 import renderTemplate from './templates/block.twig'
@@ -187,7 +186,6 @@ export default Garnish.Base.extend({
 
 			Garnish.requestAnimationFrame(() => this.updateResponsiveness())
 
-			this._initReasonsPlugin()
 			this._initFieldLabelsPlugin()
 
 			// For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
@@ -251,8 +249,6 @@ export default Garnish.Base.extend({
 			{
 				this._detectChangeObserver.disconnect()
 			}
-
-			this._destroyReasonsPlugin()
 
 			this.trigger('destroy')
 		}
@@ -934,30 +930,6 @@ export default Garnish.Base.extend({
 		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
 		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
 		this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
-	},
-
-	_initReasonsPlugin()
-	{
-		const Reasons = Craft.ReasonsPlugin
-
-		if(Reasons)
-		{
-			const Renderer = ReasonsRenderer(Reasons.ConditionalsRenderer)
-
-			const type = this.getBlockType()
-			const typeId = type.getId()
-			const conditionals = Reasons.Neo.conditionals[typeId] || {}
-
-			this._reasons = new Renderer(this.$contentContainer, conditionals)
-		}
-	},
-
-	_destroyReasonsPlugin()
-	{
-		if(this._reasons)
-		{
-			this._reasons.destroy()
-		}
 	},
 
 	_initFieldLabelsPlugin()

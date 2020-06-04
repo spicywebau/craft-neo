@@ -5,7 +5,6 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
-import ReasonsEditor from '../plugins/reasons/Editor'
 import QuickField from '../plugins/quickfield/QuickField'
 
 const _defaults = {
@@ -16,8 +15,6 @@ const _defaults = {
 	blockId: null,
 	blockName: ''
 }
-
-let _reasonsInitialised = false
 
 export default Garnish.Base.extend({
 
@@ -62,7 +59,6 @@ export default Garnish.Base.extend({
 		this._patchFLD()
 		this._updateInstructions()
 		this._setupBlankTabs()
-		this._initReasonsPlugin()
 		this._initFieldLabelsPlugin()
 		this._initQuickFieldPlugin()
 	},
@@ -207,29 +203,6 @@ export default Garnish.Base.extend({
 		if(this.$instructions)
 		{
 			this.$instructions.html(Craft.t('neo', "For block type {blockType}", {blockType: this.getBlockName() || '&hellip;'}))
-		}
-	},
-
-	_initReasonsPlugin()
-	{
-		const Reasons = Craft.ReasonsPlugin
-
-		if(Reasons)
-		{
-			const Editor = ReasonsEditor(Reasons.FieldLayoutDesigner)
-
-			const id = this.getBlockId()
-			const conditionals = Reasons.Neo.conditionals[id]
-
-			this._reasons = new Editor(this.$container, conditionals, id)
-		}
-	},
-
-	_destroyReasonsPlugin()
-	{
-		if(this._reasons)
-		{
-			this._reasons.destroy()
 		}
 	},
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Removed old Reasons plugin compatibility code from the Craft 2 version; fixes JavaScript errors when the Craft 3 version of Reasons is installed
+
 ## 2.7.14 - 2020-06-04
 ### Fixed
 - Fixed issue where disabling a parent block, while editing an entry draft, would cause its child blocks to save at the field's top level
