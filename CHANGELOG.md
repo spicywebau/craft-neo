@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.15 - 2020-06-05
 ### Fixed
 - Removed old Reasons plugin compatibility code from the Craft 2 version; fixes JavaScript errors when the Craft 3 version of Reasons is installed
 
