@@ -337,6 +337,9 @@ class Fields extends Component
                     'siteId' => $target->siteId,
                     'propagating' => false,
                 ]);
+
+                // Levels not applying properly when saving drafts, so do it manually
+                $newBlock->level = $block->level;
                 
                 $newBlock->setCollapsed($collapsed);
                 $newBlock->cacheCollapsed();
