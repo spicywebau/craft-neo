@@ -335,6 +335,7 @@ class Fields extends Component
                     'ownerId' => $target->id,
                     'owner' => $target,
                     'siteId' => $target->siteId,
+                    'structureId' => null,
                     'propagating' => false,
                 ]);
 
