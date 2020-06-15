@@ -543,6 +543,7 @@ export default Garnish.Base.extend({
 				}
 				break
 				case 'craft\\fields\\MultiSelect':
+				case 'ttempleton\\categorygroupsfield\\fields\\CategoryGroupsField':
 				{
 					const values = []
 					const $selected = $input.find('select').children(':selected')
