@@ -6,6 +6,7 @@
 
 ### Fixed
 - In combination with an update to Craft 3.4.24, fixes an Exception that could occur when saving an entry (thanks @brandonkelly)
+- Fixed issue where unmodified Neo fields on entry drafts were being incorrectly set as modified
 
 ## 2.7.15 - 2020-06-05
 ### Fixed

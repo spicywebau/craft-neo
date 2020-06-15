@@ -361,35 +361,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function normalizeValue($value, ElementInterface $element = null)
     {
-        $query = null;
-        
         if ($value instanceof ElementQueryInterface) {
             return $value;
         }
-        
+
         $query = Block::find();
-        $blockStructure = null;
-        
-        // Existing element?
-        $existingElement = $element && $element->id;
-        if ($existingElement) {
-            $query->ownerId($element->id);
-        } else {
-            $query->id(false);
-        }
-        
-        $query->fieldId($this->id)->siteId($element->siteId ?? null);
-        
-        // If an owner element exists, set the appropriate owner site ID and block structure, depending on whether
-        // the field is set to manage blocks on a per-site basis
-        if ($existingElement) {
-            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, (int)$element->siteId);
-        }
-        
-        // If we found the block structure, set the query's structure ID
-        if ($blockStructure) {
-            $query->structureId($blockStructure->structureId);
-        }
+        $this->_populateQuery($query, $element);
         
         // Set the initially matched elements if $value is already set, which is the case if there was a validation
         // error or we're loading an entry revision.
@@ -664,18 +641,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         
         return parent::beforeDelete();
     }
-    
-    /**
-     * @inheritdoc
-     */
-    
-    //	public function afterElementSave(ElementInterface $element, bool $isNew)
-    //	{
-    //		Neo::$plugin->fields->saveValue($this, $element);
-    //
-    //		parent::afterElementSave($element, $isNew);
-    //	}
-    
+
     /**
      * @inheritdoc
      */
@@ -689,15 +655,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 Neo::$plugin->fields->saveValue($this, $element);
             }
         }
-        
-        // Reset the field value if this is a new element
+
+        // Repopulate the Neo block query if this is a new element
         if ($element->duplicateOf || $isNew) {
-            $element->setFieldValue($this->handle, null);
+            $query = $element->getFieldValue($this->handle);
+            $this->_populateQuery($query, $element);
+            $query->clearCachedResult();
         }
-        
+
         parent::afterElementPropagate($element, $isNew);
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -1087,5 +1055,34 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
         
         return !$isNull;
+    }
+
+    /**
+     * Sets some default properties on a Neo block query on this field, given its owner element.
+     *
+     * @param BlockQuery $query
+     * @param ElementInterface|null $element
+     */
+    private function _populateQuery(BlockQuery $query, ElementInterface $element = null)
+    {
+        // Existing element?
+        $existingElement = $element && $element->id;
+
+        if ($existingElement) {
+            $query->ownerId($element->id);
+        } else {
+            $query->id(false);
+        }
+
+        $query->fieldId($this->id)->siteId($element->siteId ?? null);
+
+        // If the owner element exists, set the appropriate block structure
+        if ($existingElement) {
+            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, (int)$element->siteId);
+
+            if ($blockStructure) {
+                $query->structureId($blockStructure->structureId);
+            }
+        }
     }
 }
