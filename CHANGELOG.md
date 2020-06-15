@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- In combination with an update to Craft 3.4.24, fixes an Exception that could occur when saving an entry (thanks @brandonkelly)
+
 ## 2.7.15 - 2020-06-05
 ### Fixed
 - Removed old Reasons plugin compatibility code from the Craft 2 version; fixes JavaScript errors when the Craft 3 version of Reasons is installed
