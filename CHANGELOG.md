@@ -4,6 +4,9 @@
 ### Added
 - Collapsed block previews can now display Category Groups Field content
 
+### Changed
+- Neo now requires Craft 3.4.24 or later
+
 ### Fixed
 - In combination with an update to Craft 3.4.24, fixes an Exception that could occur when saving an entry (thanks @brandonkelly)
 - Fixed issue where unmodified Neo fields on entry drafts were being incorrectly set as modified
