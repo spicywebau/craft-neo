@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.16 - 2020-06-17
 ### Added
 - Collapsed block previews can now display Category Groups Field content
 
