@@ -278,7 +278,7 @@ export default Garnish.Base.extend({
 	{
 		this._level = level|0
 
-		this.$levelInput.val(this._level)
+		this.$levelInput.val(`0${this._level}`)
 		this.$container.toggleClass('is-level-odd', !!(this._level % 2))
 		this.$container.toggleClass('is-level-even', !(this._level % 2))
 	},
