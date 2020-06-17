@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.17 - 2020-06-17
+### Fixed
+- Fixed an issue on entry drafts, where Neo blocks with a level that matched the entry's element ID would have their level overwritten with the entry draft element ID
+
 ## 2.7.16 - 2020-06-17
 ### Added
 - Collapsed block previews can now display Category Groups Field content
