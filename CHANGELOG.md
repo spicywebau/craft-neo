@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed an issue where the sort order of Neo blocks was not being set properly when editing an element using an element editor modal, causing new blocks to disappear
+
 ## 2.7.17 - 2020-06-17
 ### Fixed
 - Fixed an issue on entry drafts, where Neo blocks with a level that matched the entry's element ID would have their level overwritten with the entry draft element ID

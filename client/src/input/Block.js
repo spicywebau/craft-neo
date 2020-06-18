@@ -271,7 +271,7 @@ export default Garnish.Base.extend({
 
 	setSortOrderAttr()
 	{
-		this.$sortOrder.attr('name', this._templateNs[0] + `[${this._templateNs[1]}][sortOrder][]`)
+		this.$sortOrder.attr('name', `${this._templateNs[0]}[${this._templateNs.slice(1, -2).join('][')}][sortOrder][]`)
 	},
 
 	setLevel(level)
