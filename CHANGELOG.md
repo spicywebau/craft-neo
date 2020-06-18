@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.18 - 2020-06-18
 ### Fixed
 - Fixed an issue where the sort order of Neo blocks was not being set properly when editing an element using an element editor modal, causing new blocks to disappear
 
