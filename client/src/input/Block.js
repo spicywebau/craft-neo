@@ -623,13 +623,14 @@ export default Garnish.Base.extend({
 				}
 				break
 				case 'typedlinkfield\\fields\\LinkField':
+				case 'fruitstudios\\linkit\\fields\\LinkitField':
 				{
 					const values = []
 					const $selectedType = $input.find('select').children(':selected')
-					const $visibleOption = $input.find('.linkfield--typeOption:not(.hidden)')
+					const $visibleOption = $input.find('.linkfield--typeOption:not(.hidden), [class^="linkit--"]:not(.hidden)')
 					const visibleInputVal = $visibleOption.find('input[type!="hidden"]').val()
 					const $visibleElement = $visibleOption.find('.element')
-					const customText = $input.find('.field[id*="customText"] input').val()
+					const customText = $input.find('.field[id*="customText"] input, .linkit--customText input').val()
 
 					values.push(_limit($selectedType.text()))
 
