@@ -6,11 +6,13 @@ Neo supports the functionality of some other Craft plugins, listed below:
 - [Schematic](https://github.com/nerds-and-company/schematic)
 - [CP Field Inspect](https://github.com/mmikkel/CpFieldInspect-Craft)
 
-In addition, Neo supports displaying the content of the following plugins in Neo's collapsed block summaries:
+In addition, Neo supports displaying the content of the following plugins in Neo's collapsed block previews:
 
 - [Embedded Assets](https://github.com/spicywebau/craft-embedded-assets)
 - [Super Table](https://github.com/verbb/super-table)
 - [Typed Link Field](https://github.com/sebastian-lenz/craft-linkfield)
+- [Linkit](https://github.com/fruitstudios/craft-linkit)
+- [Category Groups Field](https://github.com/ttempleton/craft-category-groups-field)
 
 The following is a list of plugins that could conflict with Neo in some way.  If you know of a plugin that could conflict with Neo that isn't listed here, please let us know by [submitting an issue on GitHub](https://github.com/spicywebau/craft-neo/issues/new) so we can investigate the issue and resolve it if possible.
 
