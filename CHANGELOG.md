@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.7.19 - 2020-06-21
+### Added
+- Collapsed block previews can now display Linkit field content
+
+### Fixed
+- Improved Neo's performance during a project config rebuild
+- Fixed an issue with displaying a Typed Link Field's selected type in collapsed block previews
+
 ## 2.7.18 - 2020-06-18
 ### Fixed
 - Fixed an issue where the sort order of Neo blocks was not being set properly when editing an element using an element editor modal, causing new blocks to disappear

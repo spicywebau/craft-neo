@@ -1,7 +1,7 @@
 {
   "name": "spicyweb/craft-neo",
   "description": "A Matrix-like field type that uses existing fields",
-  "version": "2.7.18",
+  "version": "2.7.19",
   "type": "craft-plugin",
   "keywords": [
     "cms",
