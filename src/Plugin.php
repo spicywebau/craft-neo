@@ -6,6 +6,7 @@ use yii\base\Event;
 use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\db\Query;
+use craft\db\Table;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\services\Fields;
@@ -147,6 +148,7 @@ class Plugin extends BasePlugin
             $fieldsService = Craft::$app->getFields();
             $blockTypeData = [];
             $blockTypeGroupData = [];
+            $layoutIds = [];
 
             $blockTypeQuery = (new Query)
                 ->select([
@@ -164,9 +166,10 @@ class Plugin extends BasePlugin
                     'fields.uid AS field',
                 ])
                 ->from(['{{%neoblocktypes}} types'])
-                ->innerJoin('{{%fields}} fields', '[[types.fieldId]] = [[fields.id]]');
+                ->innerJoin('{{%fields}} fields', '[[types.fieldId]] = [[fields.id]]')
+                ->all();
 
-            foreach ($blockTypeQuery->all() as $blockType) {
+            foreach ($blockTypeQuery as $blockType) {
                 $childBlocks = $blockType['childBlocks'];
 
                 if (!empty($childBlocks)) {
@@ -185,17 +188,28 @@ class Plugin extends BasePlugin
                 ];
 
                 if ($blockType['fieldLayoutId'] !== null) {
-                    $fieldLayout = $fieldsService->getLayoutById($blockType['fieldLayoutId']);
-                    $fieldLayoutConfig = $fieldLayout->getConfig();
-
-                    if ($fieldLayoutConfig) {
-                        $blockTypeData[$blockType['uid']]['fieldLayouts'] = [
-                            $fieldLayout->uid => $fieldLayoutConfig,
-                        ];
-                    }
+                    $layoutIds[] = $blockType['fieldLayoutId'];
                 }
+            }
 
-                unset($blockType['fieldLayoutId']);
+            $layoutIdUidMap = (new Query())
+                    ->select(['id', 'uid'])
+                    ->from(Table::FIELDLAYOUTS)
+                    ->where(['id' => $layoutIds])
+                    ->pairs();
+
+            $layoutsData = $this->_getFieldLayoutsData($layoutIds);
+
+            foreach ($blockTypeQuery as $blockType) {
+                $layoutId = $blockType['fieldLayoutId'];
+
+                if ($layoutId !== null) {
+                    $blockTypeData[$blockType['uid']]['fieldLayouts'] = [
+                        $layoutIdUidMap[$layoutId] => $layoutsData[$layoutId],
+                    ];
+
+                    unset($blockTypeData[$blockType['uid']]['fieldLayoutId']);
+                }
             }
 
             $blockTypeGroupQuery = (new Query())
@@ -230,5 +244,51 @@ class Plugin extends BasePlugin
         } catch (NotSupportedException $e) {
             $this->blockHasSortOrder = true;
         }
+    }
+
+    private function _getFieldLayoutsData(array $layoutIds)
+    {
+        $layoutData = [];
+        $layoutFields = (new Query())
+            ->select([
+                'lf.required',
+                'lf.sortOrder AS fieldSortOrder',
+                'f.uid AS fieldUid',
+                't.uid AS tabUid',
+                't.name',
+                't.sortOrder AS tabSortOrder',
+                'l.id AS layoutId',
+            ])
+            ->from(['lf' => Table::FIELDLAYOUTFIELDS])
+            ->innerJoin(['f' => Table::FIELDS], '[[f.id]] = [[lf.fieldId]]')
+            ->innerJoin(['t' => Table::FIELDLAYOUTTABS], '[[lf.tabId]] = [[t.id]]')
+            ->innerJoin(['l' => Table::FIELDLAYOUTS], '[[l.id]] = [[t.layoutId]]')
+            ->where([
+                'l.id' => $layoutIds,
+                'l.dateDeleted' => null,
+            ])
+            ->orderBy([
+                'tabSortOrder' => SORT_ASC,
+                'fieldSortOrder' => SORT_ASC,
+            ])
+            ->all();
+
+        foreach ($layoutFields as $layoutField) {
+            $layoutId = $layoutField['layoutId'];
+            $tabUid = $layoutField['tabUid'];
+
+            $layoutData[$layoutId]['tabs'][$tabUid]['name'] = $layoutField['name'];
+            $layoutData[$layoutId]['tabs'][$tabUid]['sortOrder'] = (int)$layoutField['tabSortOrder'];
+            $layoutData[$layoutId]['tabs'][$tabUid]['fields'][$layoutField['fieldUid']] = [
+                'required' => (bool)$layoutField['required'],
+                'sortOrder' => (int)$layoutField['fieldSortOrder'],
+            ];
+        }
+
+        foreach ($layoutData as &$layout) {
+            $layout['tabs'] = array_values($layout['tabs']);
+        }
+
+        return $layoutData;
     }
 }
