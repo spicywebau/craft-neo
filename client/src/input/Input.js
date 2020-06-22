@@ -61,6 +61,8 @@ export default Garnish.Base.extend({
 			'static': this._static
 		}))
 
+		this.$container.find('#' + settings.inputId + '--spinner').remove()
+
 		NS.leave()
 
 		for(let btInfo of settings.blockTypes)

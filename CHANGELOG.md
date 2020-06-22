@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Changed
+- When loading en element edit page, Neo fields now display a spinner before they load
+
 ## 2.7.19 - 2020-06-21
 ### Added
 - Collapsed block previews can now display Linkit field content
