@@ -2,7 +2,7 @@
 
 ## 2.7.20 - 2020-06-25
 ### Changed
-- When loading en element edit page, Neo fields now display a spinner before they load
+- When loading an element edit page, Neo fields now display a spinner before they load
 
 ### Fixed
 - Reduced the bottom padding on collapsed Neo blocks
