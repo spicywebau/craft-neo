@@ -7,6 +7,7 @@
 ### Fixed
 - Reduced the padding-bottom on collapsed Neo blocks
 - Fixed the side padding on Neo blocks with no fields or child block types
+- Fixed an issue where the fade-out of collapsed block preview text was not displaying correctly in Safari
 
 ## 2.7.19 - 2020-06-21
 ### Added

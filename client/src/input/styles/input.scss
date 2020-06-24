@@ -169,11 +169,11 @@ $preview-reduction: 70px;
 							right: 0;
 
 							body.ltr & {
-								background-image: linear-gradient(-90deg, #f3f7fc 0, transparent 40px, transparent 100%);
+								background-image: linear-gradient(-90deg, #f3f7fc 0, rgba(243, 247, 252, 0) 40px, rgba(243, 247, 252, 0) 100%);
 							}
 
 							body.rtl & {
-								background-image: linear-gradient(-90deg, #f3f7fc 0, transparent 40px, transparent 100%);
+								background-image: linear-gradient(-90deg, #f3f7fc 0, rgba(243, 247, 252, 0) 40px, rgba(243, 247, 252, 0) 100%);
 							}
 						}
 
