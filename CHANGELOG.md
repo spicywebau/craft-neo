@@ -1,11 +1,11 @@
 # Changelog
 
-## Unreleased
+## 2.7.20 - 2020-06-25
 ### Changed
 - When loading en element edit page, Neo fields now display a spinner before they load
 
 ### Fixed
-- Reduced the padding-bottom on collapsed Neo blocks
+- Reduced the bottom padding on collapsed Neo blocks
 - Fixed the side padding on Neo blocks with no fields or child block types
 - Fixed an issue where the fade-out of collapsed block preview text was not displaying correctly in Safari
 
