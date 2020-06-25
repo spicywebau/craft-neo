@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed an issue where a collapsed block preview could still cover the settings/drag buttons in some cases
+
 ## 2.7.20 - 2020-06-25
 ### Changed
 - When loading an element edit page, Neo fields now display a spinner before they load

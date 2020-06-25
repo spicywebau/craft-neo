@@ -81,6 +81,26 @@ $preview-reduction: 70px;
 			}
 
 			&_left {
+				overflow: hidden;
+
+				&::before {
+					content: '';
+					pointer-events: none;
+					position: absolute;
+					top: 0;
+					bottom: 0;
+					left: 0;
+					right: 0;
+					z-index: 1;
+
+					body.ltr & {
+						background-image: linear-gradient(-90deg, #f3f7fc 0, rgba(243, 247, 252, 0) 40px, rgba(243, 247, 252, 0) 100%);
+					}
+
+					body.rtl & {
+						background-image: linear-gradient(90deg, #f3f7fc 0, rgba(243, 247, 252, 0) 40px, rgba(243, 247, 252, 0) 100%);
+					}
+				}
 
 				body.ltr & {
 					left:  0;
@@ -158,24 +178,6 @@ $preview-reduction: 70px;
 
 						body.ltr & { margin-left:  8px; }
 						body.rtl & { margin-right: 8px; }
-
-						&::before {
-							content: '';
-							pointer-events: none;
-							position: absolute;
-							top: 0;
-							bottom: 0;
-							left: 0;
-							right: 0;
-
-							body.ltr & {
-								background-image: linear-gradient(-90deg, #f3f7fc 0, rgba(243, 247, 252, 0) 40px, rgba(243, 247, 252, 0) 100%);
-							}
-
-							body.rtl & {
-								background-image: linear-gradient(-90deg, #f3f7fc 0, rgba(243, 247, 252, 0) 40px, rgba(243, 247, 252, 0) 100%);
-							}
-						}
 
 						&:empty {
 							// Fixes bug where the blocktype can get clipped prematurely
