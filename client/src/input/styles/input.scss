@@ -448,6 +448,10 @@ $preview-reduction: 70px;
 				background-color: white;
 			}
 		}
+
+		&.is-parent .ni_block_content {
+			padding-bottom: 14px;
+		}
 	}
 }
 
