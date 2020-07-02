@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.21 - 2020-07-02
 ### Fixed
 - Fixed an issue where a collapsed block preview could still cover the settings/drag buttons in some cases
 - Fixed the padding between parent block content and child blocks
