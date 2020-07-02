@@ -841,9 +841,12 @@ export default Garnish.Base.extend({
 
 	updateResponsiveness()
 	{
-		this._topbarLeftWidth = this._topbarLeftWidth || this.$topbarLeftContainer.width()
-		this._topbarRightWidth = this._topbarRightWidth || this.$topbarRightContainer.width()
+		if (typeof this._topbarLeftWidth === 'undefined') {
+			const previewWidth = this._expanded ? 0 : this.$previewContainer.width()
+			this._topbarLeftWidth = this.$topbarLeftContainer.width() - previewWidth
+		}
 
+		this._topbarRightWidth = this._topbarRightWidth || this.$topbarRightContainer.width()
 		const isMobile = (this.$topbarContainer.width() < this._topbarLeftWidth + this._topbarRightWidth)
 
 		this.$tabsContainer.toggleClass('invisible', isMobile)
