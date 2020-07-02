@@ -706,7 +706,7 @@ export default Garnish.Base.extend({
 
 			this.$container
 				.toggleClass('is-expanded', this._expanded)
-				.toggleClass('is-contracted', !this._expanded)
+				.toggleClass('is-collapsed', !this._expanded)
 
 			expandContainer.toggleClass('hidden', this._expanded)
 			collapseContainer.toggleClass('hidden', !this._expanded)

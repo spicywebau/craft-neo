@@ -214,7 +214,7 @@ const BlockSort = Garnish.Drag.extend({
 		const margin = 10
 		const padding = 14
 
-		const isAncestorCollapsed = (block.$container.parent().closest('.ni_block.is-contracted').length > 0)
+		const isAncestorCollapsed = (block.$container.parent().closest('.ni_block.is-collapsed').length > 0)
 
 		if(!isAncestorCollapsed)
 		{

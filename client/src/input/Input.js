@@ -424,7 +424,7 @@ export default Garnish.Base.extend({
 
 		if (tabErrors.length) {
 			tabErrors.each(function(){
-				let parents = tabErrors.parents('.ni_block.is-contracted');
+				let parents = tabErrors.parents('.ni_block.is-collapsed');
 				parents.each(function(){
 					let _this = $(this);
 					_this.find('> .ni_block_topbar .title .blocktype').addClass('has-errors');
