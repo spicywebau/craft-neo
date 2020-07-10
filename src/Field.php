@@ -404,7 +404,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $serialized = [];
         $new = 0;
         
-        foreach ($value->all() as $block) {
+        foreach ($value->status(null)->all() as $block) {
             $blockId = $block->id ?? 'new' . ++$new;
             $serialized[$blockId] = [
                 'type' => $block->getType()->handle,
