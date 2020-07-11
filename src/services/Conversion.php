@@ -102,9 +102,7 @@ class Conversion extends Component
                 $matrixBlocks[] = $matrixBlock;
             }
 
-            $success = $fieldsService->saveField($matrixField, false);
-
-            if (!$success) {
+            if (!$fieldsService->saveField($matrixField, false)) {
                 throw new Exception("Unable to save Matrix field");
             }
 
@@ -137,9 +135,7 @@ class Conversion extends Component
                 $neoBlockTypeId = $matrixBlock->typeId;
                 $matrixBlock->typeId = $neoToMatrixBlockTypeIds[$neoBlockTypeId];
 
-                $success = Craft::$app->getElements()->saveElement($matrixBlock, false);
-
-                if (!$success) {
+                if (!Craft::$app->getElements()->saveElement($matrixBlock, false)) {
                     throw new Exception("Unable to save Matrix block");
                 }
 
