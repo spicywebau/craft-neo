@@ -224,34 +224,34 @@ class Conversion extends Component
         $matrixBlockType->handle = $neoBlockType->handle;
 
         $neoFieldLayout = $neoBlockType->getFieldLayout();
-        $neoFields = $neoFieldLayout->getFields();
-        $matrixFields = [];
+        $neoBlockTypeFields = $neoFieldLayout->getFields();
+        $matrixBlockTypeFields = [];
 
         $ids = 1;
 
-        foreach ($neoFields as $neoFieldLayoutField) {
+        foreach ($neoBlockTypeFields as $neoBlockTypeField) {
             $fieldType = get_class($neoFieldLayoutField);
 
             if (!in_array($fieldType, [MatrixField::class, Field::class])) {
-                $matrixField = clone $neoFieldLayoutField;
-                $matrixField->id = 'new' . ($ids++);
-                $matrixField->groupId = null;
-                $matrixField->context = null;
-                $matrixField->name = $neoFieldLayoutField->name;
-                $matrixField->handle = $neoFieldLayoutField->handle;
-                $matrixField->required = (bool)$neoFieldLayoutField->required;
-                $matrixField->uid = null;
+                $matrixBlockTypeField = clone $neoBlockTypeField;
+                $matrixBlockTypeField->id = 'new' . ($ids++);
+                $matrixBlockTypeField->groupId = null;
+                $matrixBlockTypeField->context = null;
+                $matrixBlockTypeField->name = $neoBlockTypeField->name;
+                $matrixBlockTypeField->handle = $neoBlockTypeField->handle;
+                $matrixBlockTypeField->required = (bool)$neoBlockTypeField->required;
+                $matrixBlockTypeField->uid = null;
 
                 // Force disable translation on fields if the Neo field was also translatable
                 if ($field && $field->translatable) {
-                    $matrixField->translatable = false;
+                    $matrixBlockTypeField->translatable = false;
                 }
 
-                $matrixFields[] = $matrixField;
+                $matrixBlockTypeFields[] = $matrixBlockTypeField;
             }
         }
 
-        $matrixBlockType->setFields($matrixFields);
+        $matrixBlockType->setFields($matrixBlockTypeFields);
 
         return $matrixBlockType;
     }
