@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed an issue where a Neo field containing a Super Table field would cause Neo-to-Matrix conversion to fail, also causing attempts to uninstall Neo to fail
+
 ## 2.7.21 - 2020-07-02
 ### Fixed
 - Fixed an issue where a collapsed block preview could still cover the settings/drag buttons in some cases

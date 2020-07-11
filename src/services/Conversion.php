@@ -227,14 +227,12 @@ class Conversion extends Component
         $neoBlockTypeFields = $neoFieldLayout->getFields();
         $matrixBlockTypeFields = [];
 
-        $ids = 1;
-
         foreach ($neoBlockTypeFields as $neoBlockTypeField) {
             $fieldType = get_class($neoBlockTypeField);
 
             if (!in_array($fieldType, [MatrixField::class, Field::class])) {
                 $matrixBlockTypeField = clone $neoBlockTypeField;
-                $matrixBlockTypeField->id = 'new' . ($ids++);
+                $matrixBlockTypeField->id = null;
                 $matrixBlockTypeField->groupId = null;
                 $matrixBlockTypeField->context = null;
                 $matrixBlockTypeField->name = $neoBlockTypeField->name;
