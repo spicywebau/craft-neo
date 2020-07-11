@@ -230,7 +230,7 @@ class Conversion extends Component
         $ids = 1;
 
         foreach ($neoBlockTypeFields as $neoBlockTypeField) {
-            $fieldType = get_class($neoFieldLayoutField);
+            $fieldType = get_class($neoBlockTypeField);
 
             if (!in_array($fieldType, [MatrixField::class, Field::class])) {
                 $matrixBlockTypeField = clone $neoBlockTypeField;
