@@ -2,30 +2,56 @@ import $ from 'jquery'
 
 const $fieldType = $('#type')
 const $fieldId = $('input[name="fieldId"]')
-const $matrixSettings = $('#craft-fields-Matrix')
 
 if($fieldType.val() === 'benf\\neo\\Field' && $fieldId.length > 0)
 {
-	$matrixSettings.prepend(`
-		<div class="field">
-			<div class="heading">
-				<label>${ Craft.t('neo', "Convert from Neo") }</label>
-				<div class="instructions"><p>${ Craft.t('neo', "This field is currently of the Neo type. You may automatically convert it to Matrix along with all of its content.") }</p></div>
-			</div>
-			<div class="input ltr">
-				<input id="Matrix-convert_button" type="button" class="btn submit" value="${ Craft.t('neo', "Convert") }">
-				<span id="Matrix-convert_spinner" class="spinner hidden"></span>
-			</div>
-			<p class="warning">${ Craft.t('neo', "By converting to Matrix, structural information will be lost.") }</p>
-		</div>
-		<hr>
-	`)
+	const settingsObserver = new MutationObserver(applyHtml)
+	settingsObserver.observe(document.getElementById('settings'), { childList: true, subtree: true })
 
-	const $convert = $('#Matrix-convert_button')
-	const $spinner = $('#Matrix-convert_spinner')
 	const $form = Craft.cp.$primaryForm
 	const $formButton = $form.find('input[type="submit"]')
+	let $convert = $('#Matrix-convert_button')
+	let $spinner = $('#Matrix-convert_spinner')
 	let enabled = true
+
+	function applyHtml()
+	{
+		const $matrixSettings = $('#craft-fields-Matrix')
+
+		if ($matrixSettings.find('#conversion-prompt').length > 0) {
+			return
+		}
+
+		$matrixSettings.prepend(`
+			<div id="conversion-prompt">
+				<div class="field">
+					<div class="heading">
+						<label>${ Craft.t('neo', "Convert from Neo") }</label>
+						<div class="instructions"><p>${ Craft.t('neo', "This field is currently of the Neo type. You may automatically convert it to Matrix along with all of its content.") }</p></div>
+					</div>
+					<div class="input ltr">
+						<input id="Matrix-convert_button" type="button" class="btn submit" value="${ Craft.t('neo', "Convert") }">
+						<span id="Matrix-convert_spinner" class="spinner hidden"></span>
+					</div>
+					<p class="warning">${ Craft.t('neo', "By converting to Matrix, structural information will be lost.") }</p>
+				</div>
+			</div>
+			<hr>
+		`)
+
+		$convert = $('#Matrix-convert_button')
+		$spinner = $('#Matrix-convert_spinner')
+
+		$convert.on('click', e =>
+		{
+			e.preventDefault()
+
+			if(enabled && confirm(Craft.t('neo', "Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.")))
+			{
+				perform()
+			}
+		})
+	}
 
 	function toggleState(state)
 	{
@@ -75,14 +101,4 @@ if($fieldType.val() === 'benf\\neo\\Field' && $fieldId.length > 0)
 			}
 		})
 	}
-
-	$convert.on('click', e =>
-	{
-		e.preventDefault()
-
-		if(enabled && confirm(Craft.t('neo', "Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.")))
-		{
-			perform()
-		}
-	})
 }
