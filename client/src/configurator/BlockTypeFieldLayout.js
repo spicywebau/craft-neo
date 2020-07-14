@@ -5,8 +5,6 @@ import Craft from 'craft'
 
 import NS from '../namespace'
 
-import QuickField from '../plugins/quickfield/QuickField'
-
 const _defaults = {
 	namespace: [],
 	html: '',
@@ -60,7 +58,6 @@ export default Garnish.Base.extend({
 		this._updateInstructions()
 		this._setupBlankTabs()
 		this._initFieldLabelsPlugin()
-		this._initQuickFieldPlugin()
 	},
 
 	getId()
@@ -242,29 +239,4 @@ export default Garnish.Base.extend({
 			this._fieldlabels = fieldlabels
 		}
 	},
-
-	_initQuickFieldPlugin()
-	{
-		if(QuickField)
-		{
-			const quickField = new QuickField(this._fld)
-
-			const newGroups = QuickField.getNewGroups()
-			const newFields = QuickField.getNewFields()
-
-			for(let id of Object.keys(newGroups))
-			{
-				let group = newGroups[id]
-				quickField.addGroup(id, group.name)
-			}
-
-			for(let id of Object.keys(newFields))
-			{
-				let field = newFields[id]
-				quickField.addField(id, field.name, field.groupName)
-			}
-
-			this._quickField = quickField
-		}
-	}
 })
