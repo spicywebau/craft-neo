@@ -29,14 +29,15 @@ export default Garnish.Base.extend({
 
 		this.setBlockName(settings.blockName)
 
-		this.$container = $(settings.html)
+		this.$container = $(settings.html).find('.layoutdesigner')
 		this.$container.removeAttr('id')
 
 		NS.enter(this._templateNs)
 
 		this._fld = new Craft.FieldLayoutDesigner(this.$container, {
 			customizableTabs: true,
-			fieldInputName: NS.fieldName('fieldLayout[__TAB_NAME__][]'),
+			elementPlacementInputName: NS.fieldName('elementPlacements[__TAB_NAME__][]'),
+			elementConfigInputName: NS.fieldName('elementConfigs[__ELEMENT_KEY__]'),
 			requiredFieldInputName: NS.fieldName('requiredFields[]')
 		})
 
@@ -143,13 +144,13 @@ export default Garnish.Base.extend({
 			this._fld.unusedFieldGrid.removeItems($unusedGroup)
 		}
 
-		let $fieldInput = $field.find('.id-input')
+		let $fieldInput = $field.find('.placement-input')
 		if($fieldInput.length === 0)
 		{
 			let tabName = $tab.find('.tab > span').text()
-			let inputName = this._fld.getFieldInputName(tabName)
+			let inputName = this._fld.getElementPlacementInputName(tabName)
 
-			$fieldInput = $(`<input class="id-input" type="hidden" name="${inputName}" value="${fieldId}">`)
+			$fieldInput = $(`<input class="placement-input" type="hidden" name="${inputName}" value="${fieldId}">`)
 			$field.append($fieldInput)
 		}
 
@@ -209,7 +210,7 @@ export default Garnish.Base.extend({
 		$tab.children('.nc_blanktab').remove()
 
 		const tabName = $tab.find('.tab > span').text()
-		let inputName = this._fld.getFieldInputName(tabName)
+		let inputName = this._fld.getElementPlacementInputName(tabName)
 		inputName = inputName.substr(0, inputName.length - 2) // Remove the "[]" array part
 
 		$tab.prepend(`<input type="hidden" class="nc_blanktab" name="${inputName}">`)
