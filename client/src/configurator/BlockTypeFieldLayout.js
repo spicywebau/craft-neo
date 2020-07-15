@@ -42,8 +42,6 @@ export default Garnish.Base.extend({
 
 		NS.leave()
 
-		this.$instructions = this.$container.find('.instructions')
-
 		for(let tab of settings.layout)
 		{
 			let $tab = this.addTab(tab.name)
@@ -56,7 +54,6 @@ export default Garnish.Base.extend({
 
 		this._hideNeoFields()
 		this._patchFLD()
-		this._updateInstructions()
 		this._setupBlankTabs()
 		this._initFieldLabelsPlugin()
 	},
@@ -75,8 +72,6 @@ export default Garnish.Base.extend({
 	setBlockName(name)
 	{
 		this._blockName = name
-
-		this._updateInstructions()
 	},
 
 	/**
@@ -157,14 +152,6 @@ export default Garnish.Base.extend({
 
 		patch('initTab', $tab => this._setupBlankTab($tab))
 		patch('renameTab', $tab => this._setupBlankTab($tab))
-	},
-
-	_updateInstructions()
-	{
-		if(this.$instructions)
-		{
-			this.$instructions.html(Craft.t('neo', "For block type {blockType}", {blockType: this.getBlockName() || '&hellip;'}))
-		}
 	},
 
 	_setupBlankTab($tab)
