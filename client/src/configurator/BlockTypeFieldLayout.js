@@ -54,6 +54,7 @@ export default Garnish.Base.extend({
 			}
 		}
 
+		this._hideNeoFields()
 		this._patchFLD()
 		this._updateInstructions()
 		this._setupBlankTabs()
@@ -128,6 +129,17 @@ export default Garnish.Base.extend({
 		$fieldContainer.append($field)
 		this._fld.initElement($field)
 		this._fld.elementDrag.addItems($field)
+	},
+
+	_hideNeoFields()
+	{
+		this._fld.$fields.each(function() {
+			const $this = $(this)
+
+			if ($this.find('.field-name > .smalltext').html() === 'Neo') {
+				$this.addClass('hidden')
+			}
+		})
 	},
 
 	_patchFLD()
