@@ -55,7 +55,6 @@ export default Garnish.Base.extend({
 		this._hideNeoFields()
 		this._patchFLD()
 		this._setupBlankTabs()
-		this._initFieldLabelsPlugin()
 	},
 
 	getId()
@@ -175,19 +174,5 @@ export default Garnish.Base.extend({
 		{
 			that._setupBlankTab(this)
 		})
-	},
-
-	_initFieldLabelsPlugin()
-	{
-		if(this._fld.fieldlabels)
-		{
-			const fieldlabels = this._fld.fieldlabels
-
-			const id = this.getBlockId()
-			fieldlabels.namespace = `neo[fieldlabels][${id}]`;
-			fieldlabels.applyLabels(this.getId())
-
-			this._fieldlabels = fieldlabels
-		}
 	},
 })
