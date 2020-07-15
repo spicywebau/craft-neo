@@ -204,11 +204,11 @@ class FieldAsset extends AssetBundle
         
         return $jsBlocks;
     }
-    
+
     /**
      * Returns the raw data from the given block types.
      *
-     * This converts block types into the format used by the input generator Javascript.
+     * This converts block types into the format used by the input generator JavaScript.
      *
      * @param array $blockTypes The Neo block types.
      * @param bool $renderTabs Whether to render the block types' tabs.
@@ -225,33 +225,36 @@ class FieldAsset extends AssetBundle
         $owner = null
     ): array {
         $jsBlockTypes = [];
-        
+
         foreach ($blockTypes as $blockType) {
             if ($blockType instanceof BlockType) {
                 $fieldLayout = $blockType->getFieldLayout();
                 $fieldLayoutTabs = $fieldLayout->getTabs();
                 $jsFieldLayout = [];
                 $fieldTypes = [];
-                
+
                 foreach ($fieldLayoutTabs as $tab) {
-                    $tabFields = $tab->getFields();
-                    $jsTabFields = [];
-                    
-                    foreach ($tabFields as $field) {
-                        $jsTabFields[] = [
-                            'id' => $field->id,
-                            'required' => $field->required,
+                    $tabElements = $tab->elements;
+                    $jsTabElements = [];
+
+                    foreach ($tabElements as $element) {
+                        $jsTabElements[] = [
+                            // TODO: this was the only way I could find to get the field ID, but if there's ever a
+                            // better way to do it, do that instead
+                            'id' => (int)explode('"', explode('data-id="', $element->selectorHtml())[1])[0],
+                            'config' => $element->toArray(),
+                            'settings-html' => $element->settingsHtml()
                         ];
-                        
-                        $fieldTypes[$field->handle] = $field->className();
+
+                        // $fieldTypes[$element->attribute()] = $field->className();
                     }
-                    
+
                     $jsFieldLayout[] = [
                         'name' => $tab->name,
-                        'fields' => $jsTabFields,
+                        'elements' => $jsTabElements,
                     ];
                 }
-                
+
                 $jsBlockType = [
                     'id' => $blockType->id,
                     'sortOrder' => $blockType->sortOrder,
@@ -266,21 +269,21 @@ class FieldAsset extends AssetBundle
                     'fieldLayoutId' => $fieldLayout->id,
                     'fieldTypes' => $fieldTypes,
                 ];
-                
+
                 if ($renderTabs) {
                     $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $owner);
                     $jsBlockType['tabs'] = $tabsHtml;
                 }
-                
+
                 $jsBlockTypes[] = $jsBlockType;
             } elseif (is_array($blockType)) {
                 $jsBlockTypes[] = $blockType;
             }
         }
-        
+
         return $jsBlockTypes;
     }
-    
+
     /**
      * Returns the raw data from the given block type groups.
      *

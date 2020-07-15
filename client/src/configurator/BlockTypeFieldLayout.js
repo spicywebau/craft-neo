@@ -37,8 +37,7 @@ export default Garnish.Base.extend({
 		this._fld = new Craft.FieldLayoutDesigner(this.$container, {
 			customizableTabs: true,
 			elementPlacementInputName: NS.fieldName('elementPlacements[__TAB_NAME__][]'),
-			elementConfigInputName: NS.fieldName('elementConfigs[__ELEMENT_KEY__]'),
-			requiredFieldInputName: NS.fieldName('requiredFields[]')
+			elementConfigInputName: NS.fieldName('elementConfigs[__ELEMENT_KEY__]')
 		})
 
 		NS.leave()
@@ -49,9 +48,9 @@ export default Garnish.Base.extend({
 		{
 			let $tab = this.addTab(tab.name)
 
-			for(let field of tab.fields)
+			for(let field of tab.elements)
 			{
-				this.addFieldToTab($tab, field.id, field.required == 1)
+				this.addFieldToTab($tab, field)
 			}
 		}
 
@@ -100,25 +99,9 @@ export default Garnish.Base.extend({
 		fld.tabGrid.addItems($tab)
 		fld.tabDrag.addItems($tab)
 
-		// In order for tabs to be added to the FLD, the FLD must be visible in the DOM.
-		// To ensure this, the FLD is momentarily placed in the root body element, then after the tab has been added,
-		// it is placed back in the same position it was.
-
-		const $containerNext = this.$container.next()
-		const $containerParent = this.$container.parent()
-
 		this.$container.appendTo(document.body)
 
 		fld.initTab($tab)
-
-		if($containerNext.length > 0)
-		{
-			$containerNext.before(this.$container)
-		}
-		else
-		{
-			$containerParent.append(this.$container)
-		}
 
 		this._setupBlankTab($tab)
 
@@ -128,55 +111,23 @@ export default Garnish.Base.extend({
 	/**
 	 * @see Craft.FieldLayoutDesigner.FieldDrag.onDragStop
 	 */
-	addFieldToTab($tab, fieldId, required = null)
+	addFieldToTab($tab, field)
 	{
-		required = !!required
-
-		const $unusedField = this._fld.$allFields.filter(`[data-id="${fieldId}"]`)
-		const $unusedGroup = $unusedField.closest('.fld-tab')
+		const $unusedField = this._fld.$fields.filter(`[data-id="${field.id}"]`)
 		const $field = $unusedField.clone().removeClass('unused')
 		const $fieldContainer = $tab.find('.fld-tabcontent')
+		$field.data('config', field.config)
+		$field.data('settings-html', field['settings-html'])
+		$field.toggleClass('fld-required', !!field.config.required)
+
+		if (field.config.label) {
+			$field.find('.field-name > h4').text(field.config.label)
+		}
 
 		$unusedField.addClass('hidden')
-		if($unusedField.siblings(':not(.hidden)').length === 0)
-		{
-			$unusedGroup.addClass('hidden')
-			this._fld.unusedFieldGrid.removeItems($unusedGroup)
-		}
-
-		let $fieldInput = $field.find('.placement-input')
-		if($fieldInput.length === 0)
-		{
-			let tabName = $tab.find('.tab > span').text()
-			let inputName = this._fld.getElementPlacementInputName(tabName)
-
-			$fieldInput = $(`<input class="placement-input" type="hidden" name="${inputName}" value="${fieldId}">`)
-			$field.append($fieldInput)
-		}
-
-		$field.prepend(`<a class="settings icon" title="${Craft.t('neo', 'Edit')}"></a>`);
 		$fieldContainer.append($field)
-		this._fld.initField($field)
-		this._fld.fieldDrag.addItems($field)
-
-		this.toggleFieldRequire(fieldId, required)
-	},
-
-	toggleFieldRequire(fieldId, required = null)
-	{
-		const $field = this._fld.$tabContainer.find(`[data-id="${fieldId}"]`)
-		const isRequired = $field.hasClass('fld-required')
-
-		if(required === null || required !== isRequired)
-		{
-			const $editButton = $field.find('.settings')
-			const menuButton = $editButton.data('menubtn')
-			const menu = menuButton.menu
-			const $options = menu.$options
-			const $requiredOption = $options.filter('.toggle-required')
-
-			this._fld.toggleRequiredField($field, $requiredOption)
-		}
+		this._fld.initElement($field)
+		this._fld.elementDrag.addItems($field)
 	},
 
 	_patchFLD()
