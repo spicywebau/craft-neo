@@ -4,9 +4,10 @@ namespace benf\neo\assets;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\fieldlayoutelements\BaseField;
+use craft\helpers\Json;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
-use craft\helpers\Json;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\Field;
@@ -110,7 +111,7 @@ class FieldAsset extends AssetBundle
         $viewService->startJsBuffer();
         $fieldLayoutHtml = $viewService->renderTemplate('_includes/fieldlayoutdesigner', [
             'fieldLayout' => false,
-            'instructions' => '',
+            'customizableUi' => true,
         ]);
         $viewService->clearJsBuffer();
         
@@ -238,13 +239,23 @@ class FieldAsset extends AssetBundle
                     $jsTabElements = [];
 
                     foreach ($tabElements as $element) {
-                        $jsTabElements[] = [
-                            // TODO: this was the only way I could find to get the field ID, but if there's ever a
-                            // better way to do it, do that instead
-                            'id' => (int)explode('"', explode('data-id="', $element->selectorHtml())[1])[0],
+                        $elementData = [
                             'config' => $element->toArray(),
-                            'settings-html' => $element->settingsHtml()
+                            'settings-html' => $element->settingsHtml(),
+                            'type' => get_class($element),
                         ];
+
+                        if ($element instanceof BaseField) {
+                            $matches = null;
+
+                            // TODO: $element->selectorHtml() was the only way I could find to get the field ID, but if
+                            // there's ever a better way to do it, do that instead
+                            if (preg_match('/data-id="([0-9]+)"/', $element->selectorHtml(), $matches)) {
+                                $elementData['id'] = $matches[1];
+                            }
+                        }
+
+                        $jsTabElements[] = $elementData;
 
                         // $fieldTypes[$element->attribute()] = $field->className();
                     }

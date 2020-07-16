@@ -36,6 +36,7 @@ export default Garnish.Base.extend({
 
 		this._fld = new Craft.FieldLayoutDesigner(this.$container, {
 			customizableTabs: true,
+			customizableUi: true,
 			elementPlacementInputName: NS.fieldName('elementPlacements[__TAB_NAME__][]'),
 			elementConfigInputName: NS.fieldName('elementConfigs[__ELEMENT_KEY__]')
 		})
@@ -46,9 +47,9 @@ export default Garnish.Base.extend({
 		{
 			let $tab = this.addTab(tab.name)
 
-			for(let field of tab.elements)
+			for(let element of tab.elements)
 			{
-				this.addFieldToTab($tab, field)
+				this.addElementToTab($tab, element)
 			}
 		}
 
@@ -104,25 +105,59 @@ export default Garnish.Base.extend({
 	},
 
 	/**
-	 * @see Craft.FieldLayoutDesigner.FieldDrag.onDragStop
+	 * @see Craft.FieldLayoutDesigner.ElementDrag.onDragStop
 	 */
-	addFieldToTab($tab, field)
+	addElementToTab($tab, element)
 	{
-		const $unusedField = this._fld.$fields.filter(`[data-id="${field.id}"]`)
-		const $field = $unusedField.clone().removeClass('unused')
-		const $fieldContainer = $tab.find('.fld-tabcontent')
-		$field.data('config', field.config)
-		$field.data('settings-html', field['settings-html'])
-		$field.toggleClass('fld-required', !!field.config.required)
+		const $elementContainer = $tab.find('.fld-tabcontent')
+		let $element = null;
 
-		if (field.config.label) {
-			$field.find('.field-name > h4').text(field.config.label)
+		if (element.type === 'craft\\fieldlayoutelements\\CustomField') {
+			const $unusedField = this._fld.$fields.filter(`[data-id="${element.id}"]`)
+			$element = $unusedField.clone().toggleClass('fld-required', !!element.config.required)
+
+			if (element.config.label) {
+				$element.find('.field-name > h4').text(element.config.label)
+			}
+
+			$unusedField.addClass('hidden')
+		} else {
+			$element = this._fld.$uiLibraryElements.filter(function() {
+				const $this = $(this)
+				const type = $this.data('type')
+				const style = $this.data('config').style
+
+				return type === element.type && (!style || style === element.config.style)
+			}).clone()
+			let newLabel = null;
+
+			switch (element.type) {
+				case 'craft\\fieldlayoutelements\\Tip':
+					newLabel = element.config.tip
+					break
+
+				case 'craft\\fieldlayoutelements\\Heading':
+					newLabel = element.config.heading
+					break
+
+				case 'craft\\fieldlayoutelements\\Template':
+					newLabel = element.config.template
+					break
+			}
+
+			if (newLabel) {
+				const $label = $element.find('.fld-element-label')
+				$label.text(newLabel)
+				$label.toggleClass('code', element.type === 'craft\\fieldlayoutelements\\Template')
+			}
 		}
 
-		$unusedField.addClass('hidden')
-		$fieldContainer.append($field)
-		this._fld.initElement($field)
-		this._fld.elementDrag.addItems($field)
+		$element.removeClass('unused')
+		$elementContainer.append($element)
+		$element.data('config', element.config)
+		$element.data('settings-html', element['settings-html'])
+		this._fld.initElement($element)
+		this._fld.elementDrag.addItems($element)
 	},
 
 	_hideNeoFields()
