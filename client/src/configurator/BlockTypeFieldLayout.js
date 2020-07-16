@@ -45,7 +45,7 @@ export default Garnish.Base.extend({
 
 		for(let tab of settings.layout)
 		{
-			let $tab = this.addTab(tab.name)
+			const $tab = this.addTab(tab.name)
 
 			for(let element of tab.elements)
 			{
