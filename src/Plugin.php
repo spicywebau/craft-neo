@@ -17,7 +17,6 @@ use craft\services\Gql;
 
 use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;
-use benf\neo\integrations\fieldlabels\FieldLabels;
 use benf\neo\models\Settings;
 use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\BlockTypes as BlockTypesService;
@@ -101,10 +100,6 @@ class Plugin extends BasePlugin
         $this->_setupProjectConfig();
 
         $pluginsService = Craft::$app->getPlugins();
-
-        if ($pluginsService->isPluginInstalled('fieldlabels')) {
-            (new FieldLabels)->init();
-        }
 
         if (class_exists('\NerdsAndCompany\Schematic\Schematic')) {
             Event::on(

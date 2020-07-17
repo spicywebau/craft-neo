@@ -19,6 +19,7 @@ use spicyweb\fieldlabels\Plugin as FieldLabelsPlugin;
  * @author Spicy Web <craft@spicyweb.com.au>
  * @author Benjamin Fleming
  * @since 2.3.0
+ * @deprecated in 2.8.0
  */
 class FieldLabels
 {

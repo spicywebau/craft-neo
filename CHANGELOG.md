@@ -7,6 +7,9 @@
 ### Changed
 - Neo now requires Craft 3.5.0 or later
 
+### Deprecated
+- Deprecated `benf\neo\integrations\fieldlabels\FieldLabels`
+
 ### Removed
 - Removed unused JavaScript related to compatibility with Quick Field, a Craft 2 plugin which was not updated for Craft 3
 

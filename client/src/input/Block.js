@@ -186,8 +186,6 @@ export default Garnish.Base.extend({
 
 			Garnish.requestAnimationFrame(() => this.updateResponsiveness())
 
-			this._initFieldLabelsPlugin()
-
 			// For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
 			// Neo applies it's own styles to Matrix blocks in an effort to improve the visibility of them, however
 			// when dragging a Matrix block these styles get lost (since a dragged Matrix block loses it's context of
@@ -935,21 +933,6 @@ export default Garnish.Base.extend({
 		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
 		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
 		this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
-	},
-
-	_initFieldLabelsPlugin()
-	{
-		const FieldLabels = window.FieldLabels
-
-		if(FieldLabels)
-		{
-			NS.enter(this._templateNs)
-
-			const blockType = this.getBlockType()
-			FieldLabels.applyLabels(this.$contentContainer, blockType.getFieldLayoutId(), NS.value())
-
-			NS.leave()
-		}
 	},
 
 	_detectChange()
