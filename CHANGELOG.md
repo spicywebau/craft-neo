@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+### Added
+- Full support for Craft 3.5's new field layout designer
+
 ### Changed
 - Neo now requires Craft 3.5.0 or later
 
