@@ -3,6 +3,7 @@
 ## Unreleased
 ### Fixed
 - Fixed a JavaScript error preventing Neo input blocks from appearing, if the Neo field had any block types with the handles `filter` or `push`
+- Corrected the position of a Neo input block's corner checkbox
 
 ## 2.7.22 - 2020-07-12
 ### Fixed
