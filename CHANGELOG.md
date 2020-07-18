@@ -3,6 +3,7 @@
 ## Unreleased
 ### Removed
 - Removed unused JavaScript related to compatibility with Quick Field, a Craft 2 plugin which was not updated for Craft 3
+- Removed usage of babel-polyfill
 
 ## 2.7.22 - 2020-07-12
 ### Fixed

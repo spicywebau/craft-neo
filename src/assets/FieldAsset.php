@@ -35,13 +35,10 @@ class FieldAsset extends AssetBundle
             CpAsset::class,
         ];
         
-        $this->js = [
-            'polyfill.js',
-            'main.js',
-        ];
+        $this->js = ['main.js'];
         
         if ($this->_matchUriSegments(['settings', 'fields', 'edit', '*'])) {
-            array_push($this->js, 'converter.js');
+            $this->js[] = 'converter.js';
         }
         
         parent::init();

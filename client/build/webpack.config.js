@@ -5,7 +5,6 @@ module.exports = {
 	entry: {
 		main: path.resolve(__dirname, '../src/main.js'),
 		converter: path.resolve(__dirname, '../src/converter.js'),
-		polyfill: path.resolve(__dirname, '../src/polyfill.js'),
 	},
 	output: {
 		path: path.resolve(__dirname, '../../src/resources/'),
