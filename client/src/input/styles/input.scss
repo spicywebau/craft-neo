@@ -314,7 +314,6 @@ $preview-reduction: 70px;
 			}
 
 			&_tab {
-				display: none;
 				padding: 14px 0 0;
 				border-top: 1px solid #e3e5e8;
 
@@ -323,8 +322,8 @@ $preview-reduction: 70px;
 					border-top: 0;
 				}
 
-				&.is-selected {
-					display: block;
+				&:not(.is-selected) {
+					display: none;
 				}
 
 				> .field {

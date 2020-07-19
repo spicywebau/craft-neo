@@ -90,7 +90,7 @@
 			{% if hasTabs %}
 				<div class="ni_block_content" data-neo-b="container.content">{%
 					for tab in type.getTabs() %}
-						<div class="ni_block_content_tab {{ tab.isBlank() ? ' is-blank' : '' }} {{ loop.first ? ' is-selected' : '' }}"
+						<div class="ni_block_content_tab {{ tab.isBlank() ? ' is-blank' : 'flex-fields' }} {{ loop.first ? ' is-selected' : '' }}"
 							 data-neo-b="container.tab"
 							 data-neo-b-info="{{ tab.name }}">
 							{{ tab.getBodyHtml(id) }}

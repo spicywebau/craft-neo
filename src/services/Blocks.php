@@ -113,12 +113,12 @@ class Blocks extends Component
             $elements = $tab->elements;
             $fieldsHtml = '';
 
-            foreach ($elements as $formElement) {
-                if (!($formElement instanceof CustomField)) {
+            foreach ($elements as $tabElement) {
+                if (!($tabElement instanceof CustomField)) {
                     continue;
                 }
 
-                $field = $formElement->getField();
+                $field = $tabElement->getField();
 
                 if ($isNewBlock) {
                     $field->setIsFresh(true);
@@ -131,36 +131,21 @@ class Blocks extends Component
                 }
             }
 
-            foreach ($elements as $formElement) {
-                if ($formElement instanceof CustomField) {
-                    $field = $formElement->getField();
-                    $field->name = $formElement->label ?: $field->name;
-                    $field->instructions = $formElement->instructions ?: $field->instructions;
-                    $fieldsHtml .= $viewService->renderTemplate('_includes/field', [
-                        'field' => $field,
-                        'required' => $field->required,
-                        'element' => $block,
-                        'static' => $static,
-                        'registerDeltas' => true,
-                    ]);
-                } else {
-                    $fieldsHtml .= $formElement->formHtml();
-                }
+            foreach ($elements as $tabElement) {
+                $fieldsHtml .= $tabElement->formHtml($block, $static);
             }
 
             if ($isNewBlock) {
                 // Reset $_isFresh's
-                foreach ($elements as $formElement) {
-                    if ($formElement instanceof CustomField) {
-                        $formElement->getField()->setIsFresh(null);
+                foreach ($elements as $tabElement) {
+                    if ($tabElement instanceof CustomField) {
+                        $tabElement->getField()->setIsFresh(null);
                     }
                 }
             }
 
-            $fieldsJs = $viewService->clearJsBuffer();
-
             $tabHtml['bodyHtml'] = $viewService->namespaceInputs($fieldsHtml);
-            $tabHtml['footHtml'] = $fieldsJs;
+            $tabHtml['footHtml'] = $viewService->clearJsBuffer();
 
             $tabsHtml[] = $tabHtml;
         }
