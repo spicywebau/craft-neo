@@ -344,12 +344,8 @@ class BlockTypes extends Component
                 $isNew = true;
             }
             
-            if ($fieldLayoutConfig === null || !isset($fieldLayoutConfig['id'])) {
-                if ($record->id !== null) {
-                    if ($blockType->fieldLayoutId) {
-                        $fieldsService->deleteLayoutById($blockType->fieldLayoutId);
-                    }
-                }
+            if ($fieldLayoutConfig === null && $record->id !== null && $blockType->fieldLayoutId !== null) {
+                $fieldsService->deleteLayoutById($blockType->fieldLayoutId);
             }
             
             if ($fieldLayoutConfig !== null) {
