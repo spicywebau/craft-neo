@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.24 - 2020-07-19
 ### Fixed
 - Fixed a bug where, when saving a Neo field's configuration, block types' field layouts were being deleted and recreated
 - Updated the lodash version requirement in yarn.lock to 4.17.19
