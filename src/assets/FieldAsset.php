@@ -4,7 +4,7 @@ namespace benf\neo\assets;
 
 use Craft;
 use craft\base\ElementInterface;
-use craft\fieldlayoutelements\BaseField;
+use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
@@ -245,14 +245,8 @@ class FieldAsset extends AssetBundle
                             'type' => get_class($element),
                         ];
 
-                        if ($element instanceof BaseField) {
-                            $matches = null;
-
-                            // TODO: $element->selectorHtml() was the only way I could find to get the field ID, but if
-                            // there's ever a better way to do it, do that instead
-                            if (preg_match('/data-id="([0-9]+)"/', $element->selectorHtml(), $matches)) {
-                                $elementData['id'] = $matches[1];
-                            }
+                        if ($element instanceof CustomField) {
+                            $elementData['id'] = $element->getField()->id;
                         }
 
                         $jsTabElements[] = $elementData;

@@ -9,7 +9,7 @@ use benf\neo\records\BlockStructure as BlockStructureRecord;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
-use craft\fieldlayoutelements\BaseField;
+use craft\fieldlayoutelements\CustomField;
 use craft\helpers\StringHelper;
 use craft\models\Structure;
 use yii\base\Component;
@@ -111,11 +111,15 @@ class Blocks extends Component
             ];
 
             $elements = $tab->elements;
-            $fields = $tab->getFields();
-            $currentField = 0;
             $fieldsHtml = '';
 
-            foreach ($fields as $field) {
+            foreach ($elements as $formElement) {
+                if (!($formElement instanceof CustomField)) {
+                    continue;
+                }
+
+                $field = $formElement->getField();
+
                 if ($isNewBlock) {
                     $field->setIsFresh(true);
                 }
@@ -128,8 +132,8 @@ class Blocks extends Component
             }
 
             foreach ($elements as $formElement) {
-                if ($formElement instanceof BaseField) {
-                    $field = $fields[$currentField++];
+                if ($formElement instanceof CustomField) {
+                    $field = $formElement->getField();
                     $field->name = $formElement->label ?: $field->name;
                     $field->instructions = $formElement->instructions ?: $field->instructions;
                     $fieldsHtml .= $viewService->renderTemplate('_includes/field', [
@@ -146,8 +150,10 @@ class Blocks extends Component
 
             if ($isNewBlock) {
                 // Reset $_isFresh's
-                foreach ($fields as $field) {
-                    $field->setIsFresh(null);
+                foreach ($elements as $formElement) {
+                    if ($formElement instanceof CustomField) {
+                        $formElement->getField()->setIsFresh(null);
+                    }
                 }
             }
 
