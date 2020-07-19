@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Updated the lodash version requirement in yarn.lock to 4.17.19
+
 ## 2.7.23 - 2020-07-17
 ### Fixed
 - Fixed a JavaScript error preventing Neo input blocks from appearing, if the Neo field had any block types with the handles `filter` or `push`
