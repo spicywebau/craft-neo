@@ -10,6 +10,9 @@
 - Removed unused JavaScript related to compatibility with Quick Field, a Craft 2 plugin which was not updated for Craft 3
 - Removed usage of babel-polyfill
 
+### Fixed
+- Fixed the position of the new block type / block type group buttons on the Neo field configurator
+
 ## 2.7.24 - 2020-07-19
 ### Fixed
 - Fixed a bug where, when saving a Neo field's configuration, block types' field layouts were being deleted and recreated
