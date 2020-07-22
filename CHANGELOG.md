@@ -13,6 +13,16 @@
 ### Removed
 - Removed unused JavaScript related to compatibility with Quick Field, a Craft 2 plugin which was not updated for Craft 3
 
+## 2.7.24 - 2020-07-19
+### Fixed
+- Fixed a bug where, when saving a Neo field's configuration, block types' field layouts were being deleted and recreated
+- Updated the lodash version requirement in yarn.lock to 4.17.19
+
+## 2.7.23 - 2020-07-17
+### Fixed
+- Fixed a JavaScript error preventing Neo input blocks from appearing, if the Neo field had any block types with the handles `filter` or `push`
+- Corrected the position of a Neo input block's corner checkbox
+
 ## 2.7.22 - 2020-07-12
 ### Fixed
 - Fixed an issue where, when editing a Neo field and selecting to make the field a Matrix field, the Neo-to-Matrix conversion prompt was not appearing

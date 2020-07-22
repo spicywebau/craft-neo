@@ -65,12 +65,14 @@ export default Garnish.Base.extend({
 
 		NS.leave()
 
+		let tempBlockTypes = []
+
 		for(let btInfo of settings.blockTypes)
 		{
 			let blockType = new BlockType(btInfo)
 
 			this._blockTypes.push(blockType)
-			this._blockTypes[blockType.getHandle()] = blockType
+			tempBlockTypes[blockType.getHandle()] = blockType
 		}
 
 		for(let gInfo of settings.groups)
@@ -133,7 +135,7 @@ export default Garnish.Base.extend({
 
 		for(let bInfo of settings.blocks)
 		{
-			let blockType = this._blockTypes[bInfo.blockType]
+			let blockType = tempBlockTypes[bInfo.blockType]
 
 			if(isNaN(parseInt(bInfo.id)))
 			{
