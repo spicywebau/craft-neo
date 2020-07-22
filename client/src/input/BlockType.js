@@ -10,6 +10,7 @@ const _defaults = {
 	name: '',
 	handle: '',
 	maxBlocks: 0,
+	maxSiblingBlocks: 0,
 	maxChildBlocks: 0,
 	childBlocks: false,
 	topLevel: true,
@@ -29,6 +30,7 @@ export default Garnish.Base.extend({
 		this._name = settings.name
 		this._handle = settings.handle
 		this._maxBlocks = settings.maxBlocks|0
+		this._maxSiblingBlocks = settings.maxSiblingBlocks|0
 		this._maxChildBlocks = settings.maxChildBlocks|0
 		this._childBlocks = settings.childBlocks
 		this._topLevel = settings.topLevel
@@ -43,6 +45,7 @@ export default Garnish.Base.extend({
 	getName() { return this._name },
 	getHandle() { return this._handle },
 	getMaxBlocks() { return this._maxBlocks },
+	getMaxSiblingBlocks() { return this._maxSiblingBlocks },
 	getMaxChildBlocks() { return this._maxChildBlocks },
 	getChildBlocks() { return this._childBlocks },
 	getTopLevel() { return this._topLevel },

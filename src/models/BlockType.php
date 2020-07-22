@@ -44,9 +44,15 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public $handle;
 
     /**
-     * @var int|null The maximum number of blocks.
+     * @var int|null The maximum number of blocks of this type allowed in this block type's field.
      */
     public $maxBlocks;
+
+    /**
+     * @var int|null The maximum number of blocks of this type allowed under one parent block.
+     * @since 2.8.0
+     */
+    public $maxSiblingBlocks;
 
     /**
      * @var int|null The maximum number of child blocks.

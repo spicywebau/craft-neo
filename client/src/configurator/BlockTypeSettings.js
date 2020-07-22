@@ -18,6 +18,7 @@ const _defaults = {
 	name: '',
 	handle: '',
 	maxBlocks: 0,
+	maxSiblingBlocks: 0,
 	maxChildBlocks: 0,
 	topLevel: true,
 	childBlocks: null,
@@ -34,6 +35,7 @@ export default Settings.extend({
 	$nameInput: new $,
 	$handleInput: new $,
 	$maxBlocksInput: new $,
+	$maxSiblingBlocksInput: new $,
 	$maxChildBlocksInput: new $,
 
 	init(settings = {})
@@ -49,6 +51,7 @@ export default Settings.extend({
 		this.setName(settings.name)
 		this.setHandle(settings.handle)
 		this.setMaxBlocks(settings.maxBlocks)
+		this.setMaxSiblingBlocks(settings.maxSiblingBlocks)
 		this.setMaxChildBlocks(settings.maxChildBlocks)
 		this.setTopLevel(settings.topLevel)
 
@@ -60,6 +63,7 @@ export default Settings.extend({
 			name: this.getName(),
 			handle: this.getHandle(),
 			maxBlocks: this.getMaxBlocks(),
+			maxSiblingBlocks: this.getMaxSiblingBlocks(),
 			maxChildBlocks: this.getMaxChildBlocks(),
 			topLevel: this.getTopLevel(),
 			errors: this.getErrors()
@@ -72,6 +76,7 @@ export default Settings.extend({
 		this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
 		this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
 		this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
+		this.$maxSiblingBlocksInput = $neo.filter('[data-neo-bts="input.maxSiblingBlocks"]')
 		this.$maxChildBlocksInput = $neo.filter('[data-neo-bts="input.maxChildBlocks"]')
 		this.$maxChildBlocksContainer = $neo.filter('[data-neo-bts="container.maxChildBlocks"]')
 		this.$topLevelInput = $neo.filter('[data-neo-bts="input.topLevel"]')
@@ -105,6 +110,7 @@ export default Settings.extend({
 		this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
 		this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
 		this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
+		this.addListener(this.$maxSiblingBlocksInput, 'keyup change', () => this.setSiblingMaxBlocks(this.$maxSiblingBlocksInput.val()))
 		this.addListener(this.$maxChildBlocksInput, 'keyup change', () => this.setMaxChildBlocks(this.$maxChildBlocksInput.val()))
 		this.addListener(this.$deleteButton, 'click', () => this.destroy())
 
@@ -204,6 +210,34 @@ export default Settings.extend({
 				property: 'maxBlocks',
 				oldValue: oldMaxBlocks,
 				newValue: this._maxBlocks
+			})
+		}
+	},
+
+	getMaxSiblingBlocks() { return this._maxSiblingBlocks },
+	setMaxSiblingBlocks(maxSiblingBlocks)
+	{
+		const oldMaxSiblingBlocks = this._maxSiblingBlocks
+		const newMaxSiblingBlocks = Math.max(0, maxSiblingBlocks|0)
+
+		if(newMaxSiblingBlocks === 0)
+		{
+			this.$maxSiblingBlocksInput.val(null)
+		}
+
+		if(oldMaxSiblingBlocks !== newMaxSiblingBlocks)
+		{
+			this._maxSiblingBlocks = newMaxSiblingBlocks
+
+			if(this._maxSiblingBlocks > 0 && this.$maxSiblingBlocksInput.val() != this._maxSiblingBlocks)
+			{
+				this.$maxSiblingBlocksInput.val(this._maxSiblingBlocks)
+			}
+
+			this.trigger('change', {
+				property: 'maxSiblingBlocks',
+				oldValue: oldMaxSiblingBlocks,
+				newValue: this._maxSiblingBlocks
 			})
 		}
 	},

@@ -152,6 +152,7 @@ export default Garnish.Base.extend({
 				name: blockType.getName(),
 				handle: blockType.getHandle(),
 				maxBlocks: blockType.getMaxBlocks(),
+				maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
 				maxChildBlocks: blockType.getMaxChildBlocks(),
 				childBlocks: blockType.getChildBlocks(),
 				topLevel: blockType.getTopLevel(),
@@ -523,7 +524,7 @@ export default Garnish.Base.extend({
 
 			if(buttons)
 			{
-				buttons.updateButtonStates(blocks, this._checkMaxChildren(block))
+				buttons.updateButtonStates(blocks, this._checkMaxChildren(block), block)
 			}
 		}
 	},
@@ -707,6 +708,7 @@ export default Garnish.Base.extend({
 						name: blockType.getName(),
 						handle: blockType.getHandle(),
 						maxBlocks: blockType.getMaxBlocks(),
+						maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
 						maxChildBlocks: blockType.getMaxChildBlocks(),
 						childBlocks: blockType.getChildBlocks(),
 						topLevel: blockType.getTopLevel(),

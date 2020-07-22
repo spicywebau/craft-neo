@@ -49,6 +49,22 @@
 			}
 		}) }}
 
+		{{ macros.input({
+			type: 'number',
+			id: 'maxSiblingBlocks'|ns('id'),
+			name: 'maxSiblingBlocks'|ns,
+			label: "Max Sibling Blocks of This Type"|t,
+			instructions: "The maximum number of blocks of this type allowed under one parent block or at the top level."|t,
+			fullWidth: false,
+			value: maxSiblingBlocks > 0 ? maxSiblingBlocks : null,
+			errors: errors.maxSiblingBlocks,
+			attributes: {
+				min: 0,
+				style: 'width: 80px;',
+				'data-neo-bts': 'input.maxSiblingBlocks'
+			}
+		}) }}
+
 		{% set childBlocksId = 'childBlocks'|ns('id') %}
 		{% set childBlocksName = 'childBlocks'|ns %}
 		{% set childBlocksInput %}

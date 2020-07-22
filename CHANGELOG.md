@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+### Added
+- Added the `Max Sibling Blocks of This Type` block type setting, which sets the maximum number of blocks of that block type allowed under one parent block or at the top level
+
 ### Deprecated
 - Deprecated `benf\neo\converters\Field` (Neo Field Converter for Schematic)
 - Deprecated `benf\neo\converters\models\BlockType` (Neo BlockType Converter for Schematic)

@@ -30,7 +30,7 @@ use yii\base\NotSupportedException;
  * Class Plugin
  *
  * @package benf\neo
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
  * @since 2.0.0
  */
@@ -44,7 +44,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public $schemaVersion = '2.3.0';
+    public $schemaVersion = '2.8.0';
 
     /**
      * @inheritdoc
@@ -144,6 +144,7 @@ class Plugin extends BasePlugin
                     'types.name',
                     'types.handle',
                     'types.maxBlocks',
+                    'types.maxSiblingBlocks',
                     'types.maxChildBlocks',
                     'types.childBlocks',
                     'types.topLevel',
@@ -168,6 +169,7 @@ class Plugin extends BasePlugin
                     'handle' => $blockType['handle'],
                     'sortOrder' => (int)$blockType['sortOrder'],
                     'maxBlocks' => (int)$blockType['maxBlocks'],
+                    'maxSiblingBlocks' => (int)$blockType['maxSiblingBlocks'],
                     'maxChildBlocks' => (int)$blockType['maxChildBlocks'],
                     'childBlocks' => $childBlocks,
                     'topLevel' => (bool)$blockType['topLevel'],

@@ -68,6 +68,7 @@ class Install extends Migration
                 'name' => $this->string()->notNull(),
                 'handle' => $this->string()->notNull(),
                 'maxBlocks' => $this->smallInteger()->unsigned(),
+                'maxSiblingBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'maxChildBlocks' => $this->smallInteger()->unsigned(),
                 'childBlocks' => $this->text(),
                 'topLevel' => $this->boolean()->defaultValue(true)->notNull(),

@@ -147,6 +147,7 @@ class BlockTypes extends Component
         $record->handle = $blockType->handle;
         $record->sortOrder = $blockType->sortOrder;
         $record->maxBlocks = $blockType->maxBlocks;
+        $record->maxSiblingBlocks = $blockType->maxSiblingBlocks;
         $record->maxChildBlocks = $blockType->maxChildBlocks;
         $record->childBlocks = $blockType->childBlocks;
         $record->topLevel = $blockType->topLevel;
@@ -197,6 +198,7 @@ class BlockTypes extends Component
             'handle' => $blockType->handle,
             'sortOrder' => (int)$blockType->sortOrder,
             'maxBlocks' => (int)$blockType->maxBlocks,
+            'maxSiblingBlocks' => (int)$blockType->maxSiblingBlocks,
             'maxChildBlocks' => (int)$blockType->maxChildBlocks,
             'childBlocks' => $blockType->childBlocks,
             'topLevel' => (bool)$blockType->topLevel,
@@ -396,6 +398,7 @@ class BlockTypes extends Component
             $record->handle = $data['handle'];
             $record->sortOrder = $data['sortOrder'];
             $record->maxBlocks = $data['maxBlocks'];
+            $record->maxSiblingBlocks = $data['maxSiblingBlocks'];
             $record->maxChildBlocks = $data['maxChildBlocks'];
             $record->childBlocks = $data['childBlocks'];
             $record->topLevel = $data['topLevel'];
@@ -409,6 +412,7 @@ class BlockTypes extends Component
             $blockType->handle = $data['handle'];
             $blockType->sortOrder = $data['sortOrder'];
             $blockType->maxBlocks = $data['maxBlocks'];
+            $blockType->maxSiblingBlocks = $data['maxSiblingBlocks'];
             $blockType->maxChildBlocks = $data['maxChildBlocks'];
             $blockType->childBlocks = $data['childBlocks'];
             $blockType->topLevel = $data['topLevel'];
@@ -621,6 +625,7 @@ class BlockTypes extends Component
                 'name',
                 'handle',
                 'maxBlocks',
+                'maxSiblingBlocks',
                 'maxChildBlocks',
                 'childBlocks',
                 'topLevel',

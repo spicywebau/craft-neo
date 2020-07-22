@@ -387,6 +387,15 @@ export default Garnish.Base.extend({
 		return childBlocks
 	},
 
+	getSiblings(blocks)
+	{
+		if (this._level === 0) {
+			return blocks.filter(b => b.getLevel() === 0)
+		}
+
+		return this.getParent(blocks).getChildren(blocks)
+	},
+
 	updatePreview(condensed=null)
 	{
 		condensed = typeof condensed === 'boolean' ? condensed : false
@@ -873,8 +882,7 @@ export default Garnish.Base.extend({
 
 		const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
 		const typeDisabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
-
-		const disabled = allDisabled || typeDisabled
+		let cloneDisabled = allDisabled || typeDisabled
 
 		const pasteData = JSON.parse(localStorage.getItem('neo:copy') || '{}')
 		let pasteDisabled = (!pasteData.blocks || !pasteData.field || pasteData.field !== field)
@@ -890,6 +898,33 @@ export default Garnish.Base.extend({
 				const childBlockCount = parentBlock.getChildren(blocks).length
 				const pasteBlockCount = pasteData.blocks.length
 				pasteDisabled = pasteDisabled || childBlockCount + pasteBlockCount > maxChildBlocks
+			}
+		}
+
+		// Test to see if pasting would exceed this block's max sibling blocks
+		if(!(pasteDisabled && cloneDisabled))
+		{
+			const maxSiblingBlocks = this.getBlockType().getMaxSiblingBlocks()
+
+			if(maxSiblingBlocks > 0)
+			{
+				const hasSameBlockType = (block) => {
+					if(block.hasOwnProperty('type'))
+					{
+						return block.type === this.getBlockType().getId()
+					}
+					else if(typeof block['getBlockType'] === 'function')
+					{
+						return block.getBlockType().getHandle() === this.getBlockType().getHandle()
+					}
+
+					return false
+				}
+
+				const siblingBlockCount = this.getSiblings(blocks).filter(hasSameBlockType, this).length
+				const pasteSiblingBlockCount = pasteData.blocks ? pasteData.blocks.filter(hasSameBlockType, this).length : 0
+				pasteDisabled = pasteDisabled || siblingBlockCount + pasteSiblingBlockCount > maxSiblingBlocks
+				cloneDisabled = cloneDisabled || siblingBlockCount >= maxSiblingBlocks
 			}
 		}
 
@@ -933,7 +968,7 @@ export default Garnish.Base.extend({
 		}
 
 		this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
-		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', disabled)
+		this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', cloneDisabled)
 		this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
 	},
 

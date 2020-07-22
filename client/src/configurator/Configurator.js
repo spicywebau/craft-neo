@@ -79,6 +79,7 @@ export default Garnish.Base.extend({
 				name: btInfo.name,
 				handle: btInfo.handle,
 				maxBlocks: btInfo.maxBlocks,
+				maxSiblingBlocks: btInfo.maxSiblingBlocks,
 				maxChildBlocks: btInfo.maxChildBlocks,
 				topLevel: btInfo.topLevel,
 				errors: btInfo.errors,

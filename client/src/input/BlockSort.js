@@ -348,22 +348,29 @@ const BlockSort = Garnish.Drag.extend({
 		const blockType = block.getBlockType()
 		const maxChildBlocks = blockType.getMaxChildBlocks()
 
+		const blockChildren = block.$childrenContainer.children('.ni_blocks').children('.ni_block')
+		let blockChildCount = blockChildren.length
+		const blockChildrenWithoutDraggees = []
+		const that = this
+
+		// If the block is already a child block, don't count it for validation purposes
+		blockChildren.each(function()
+		{
+			const childBlock = that.getBlockByElement(this)
+
+			if(that._draggeeBlocks.includes(childBlock))
+			{
+				blockChildCount--
+			}
+			else
+			{
+				blockChildrenWithoutDraggees.push(childBlock)
+			}
+		})
+
 		// Check whether the move would make the potential parent block exceed its max child blocks
 		if(maxChildBlocks > 0)
 		{
-			const blockChildren = block.$childrenContainer.children('.ni_blocks').children('.ni_block')
-			let blockChildCount = blockChildren.length
-			const that = this
-
-			// If the block is already a child block, don't count it for max child block check purposes
-			blockChildren.each(function()
-			{
-				if(that._draggeeBlocks.includes(that.getBlockByElement(this)))
-				{
-					blockChildCount--
-				}
-			})
-
 			// Exceeds max child blocks?  Can't move it here, then
 			if(blockChildCount >= maxChildBlocks)
 			{
@@ -371,13 +378,34 @@ const BlockSort = Garnish.Drag.extend({
 			}
 		}
 
-		// Check whether the block is a valid child block for the parent's block type
+		const checkedDraggeeBlocks = []
+
 		for(let draggeeBlock of this._draggeeBlocks)
 		{
+			// Check whether the block is a valid child block for the parent's block type
 			if(!blockType.isValidChildBlock(draggeeBlock))
 			{
 				return false
 			}
+
+			// Check whether this move would cause any max sibling block type violations, unless we
+			// checked this block already
+			if(checkedDraggeeBlocks.includes(draggeeBlock))
+			{
+				continue
+			}
+
+			const draggeeBlockType = draggeeBlock.getBlockType()
+			const maxSiblingBlocks = draggeeBlockType.getMaxSiblingBlocks()
+			const draggeeBlocksOfType = this._draggeeBlocks.filter(b => b.getBlockType().getHandle() === draggeeBlockType.getHandle())
+			const siblingBlocksOfType = blockChildrenWithoutDraggees.filter(b => b.getBlockType().getHandle() === draggeeBlockType.getHandle())
+
+			if(siblingBlocksOfType.length + draggeeBlocksOfType.length > maxSiblingBlocks)
+			{
+				return false
+			}
+
+			checkedDraggeeBlocks.push(...draggeeBlocksOfType)
 		}
 
 		return true

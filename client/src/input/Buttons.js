@@ -86,7 +86,7 @@ export default Garnish.Base.extend({
 		return this._maxBlocks
 	},
 
-	updateButtonStates(blocks = [], additionalCheck = null)
+	updateButtonStates(blocks = [], additionalCheck = null, block = null)
 	{
 		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
 
@@ -110,11 +110,27 @@ export default Garnish.Base.extend({
 
 			if(!disabled)
 			{
+				const blockHasSameType = b => b.getBlockType().getHandle() === blockType.getHandle()
 				const blockType = that.getBlockTypeByButton($button)
-				const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
-				const maxBlockTypes = blockType.getMaxBlocks()
+				const blocksOfType = blocks.filter(blockHasSameType)
+				const maxBlocksOfType = blockType.getMaxBlocks()
 
-				disabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
+				const maxSiblingBlocks = blockType.getMaxSiblingBlocks()
+				let siblingBlocksOfType = null
+
+				if(block !== null)
+				{
+					siblingBlocksOfType = block.getChildren(blocks).filter(blockHasSameType)
+				}
+				else
+				{
+					// This is at the top level
+					siblingBlocksOfType = blocks.filter(b => b.getLevel() === 0 && b.getBlockType().getHandle() === blockType.getHandle())
+				}
+
+				disabled = disabled ||
+					(maxBlocksOfType > 0 && blocksOfType.length >= maxBlocksOfType) ||
+					(maxSiblingBlocks > 0 && siblingBlocksOfType.length >= maxSiblingBlocks)
 			}
 
 			$button.toggleClass('disabled', disabled)
