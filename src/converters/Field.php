@@ -1,21 +1,23 @@
 <?php
+
 namespace benf\neo\converters;
 
+use benf\neo\helpers\Memoize;
 use Craft;
 use craft\base\Model;
 use NerdsAndCompany\Schematic\Converters\Base\Field as Base;
-use benf\neo\helpers\Memoize;
-
-/**
- * Neo Field Converter for Schematic.
- *
- * {@inheritdoc}
- */
 
 if (!class_exists(Base::class)) {
     return;
 }
 
+/**
+ * Neo Field Converter for Schematic.
+ *
+ * {@inheritdoc}
+ * @since 2.1.0
+ * @deprecated in 2.8.0
+ */
 class Field extends Base
 {
     /**

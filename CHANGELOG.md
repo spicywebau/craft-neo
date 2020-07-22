@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+### Deprecated
+- Deprecated `benf\neo\converters\Field` (Neo Field Converter for Schematic)
+- Deprecated `benf\neo\converters\models\BlockType` (Neo BlockType Converter for Schematic)
+- Deprecated `benf\neo\converters\models\BlockTypeGroup` (Neo BlockTypeGroup Converter for Schematic)
+
 ### Removed
 - Removed unused JavaScript related to compatibility with Quick Field, a Craft 2 plugin which was not updated for Craft 3
 - Removed usage of babel-polyfill
