@@ -4,9 +4,10 @@ namespace benf\neo\assets;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\fieldlayoutelements\CustomField;
+use craft\helpers\Json;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
-use craft\helpers\Json;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\Field;
@@ -107,7 +108,7 @@ class FieldAsset extends AssetBundle
         $viewService->startJsBuffer();
         $fieldLayoutHtml = $viewService->renderTemplate('_includes/fieldlayoutdesigner', [
             'fieldLayout' => false,
-            'instructions' => '',
+            'customizableUi' => true,
         ]);
         $viewService->clearJsBuffer();
         
@@ -201,11 +202,11 @@ class FieldAsset extends AssetBundle
         
         return $jsBlocks;
     }
-    
+
     /**
      * Returns the raw data from the given block types.
      *
-     * This converts block types into the format used by the input generator Javascript.
+     * This converts block types into the format used by the input generator JavaScript.
      *
      * @param array $blockTypes The Neo block types.
      * @param bool $renderTabs Whether to render the block types' tabs.
@@ -222,33 +223,40 @@ class FieldAsset extends AssetBundle
         $owner = null
     ): array {
         $jsBlockTypes = [];
-        
+
         foreach ($blockTypes as $blockType) {
             if ($blockType instanceof BlockType) {
                 $fieldLayout = $blockType->getFieldLayout();
                 $fieldLayoutTabs = $fieldLayout->getTabs();
                 $jsFieldLayout = [];
                 $fieldTypes = [];
-                
+
                 foreach ($fieldLayoutTabs as $tab) {
-                    $tabFields = $tab->getFields();
-                    $jsTabFields = [];
-                    
-                    foreach ($tabFields as $field) {
-                        $jsTabFields[] = [
-                            'id' => $field->id,
-                            'required' => $field->required,
+                    $tabElements = $tab->elements;
+                    $jsTabElements = [];
+
+                    foreach ($tabElements as $element) {
+                        $elementData = [
+                            'config' => $element->toArray(),
+                            'settings-html' => $element->settingsHtml(),
+                            'type' => get_class($element),
                         ];
-                        
-                        $fieldTypes[$field->handle] = $field->className();
+
+                        if ($element instanceof CustomField) {
+                            $elementData['id'] = $element->getField()->id;
+                        }
+
+                        $jsTabElements[] = $elementData;
+
+                        // $fieldTypes[$element->attribute()] = $field->className();
                     }
-                    
+
                     $jsFieldLayout[] = [
                         'name' => $tab->name,
-                        'fields' => $jsTabFields,
+                        'elements' => $jsTabElements,
                     ];
                 }
-                
+
                 $jsBlockType = [
                     'id' => $blockType->id,
                     'sortOrder' => $blockType->sortOrder,
@@ -264,21 +272,21 @@ class FieldAsset extends AssetBundle
                     'fieldLayoutId' => $fieldLayout->id,
                     'fieldTypes' => $fieldTypes,
                 ];
-                
+
                 if ($renderTabs) {
                     $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $owner);
                     $jsBlockType['tabs'] = $tabsHtml;
                 }
-                
+
                 $jsBlockTypes[] = $jsBlockType;
             } elseif (is_array($blockType)) {
                 $jsBlockTypes[] = $blockType;
             }
         }
-        
+
         return $jsBlockTypes;
     }
-    
+
     /**
      * Returns the raw data from the given block type groups.
      *

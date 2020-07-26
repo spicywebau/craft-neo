@@ -2,7 +2,6 @@
 
 Neo supports the functionality of some other Craft plugins, listed below:
 
-- [Field Labels](https://github.com/spicywebau/craft-fieldlabels)
 - [Schematic](https://github.com/nerds-and-company/schematic)
 - [CP Field Inspect](https://github.com/mmikkel/CpFieldInspect-Craft)
 

@@ -2,9 +2,14 @@
 
 ## Unreleased
 ### Added
+- Full support for Craft 3.5's new field layout designer
 - Added the `Max Sibling Blocks of This Type` block type setting, which sets the maximum number of blocks of that block type allowed under one parent block or at the top level
 
+### Changed
+- Neo now requires Craft 3.5.0 or later
+
 ### Deprecated
+- Deprecated `benf\neo\integrations\fieldlabels\FieldLabels`
 - Deprecated `benf\neo\converters\Field` (Neo Field Converter for Schematic)
 - Deprecated `benf\neo\converters\models\BlockType` (Neo BlockType Converter for Schematic)
 - Deprecated `benf\neo\converters\models\BlockTypeGroup` (Neo BlockTypeGroup Converter for Schematic)
