@@ -96,11 +96,7 @@ class Plugin extends BasePlugin
             $event->types[] = NeoGqlInterface::class;
         });
 
-        // Setup project config functionality
         $this->_setupProjectConfig();
-
-        $pluginsService = Craft::$app->getPlugins();
-
         $this->_setupBlocksHasSortOrder();
     }
 
