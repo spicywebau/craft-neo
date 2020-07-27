@@ -114,33 +114,15 @@ class Blocks extends Component
             $fieldsHtml = '';
 
             foreach ($elements as $tabElement) {
-                if (!($tabElement instanceof CustomField)) {
-                    continue;
+                if ($tabElement instanceof CustomField && $isNewBlock) {
+                    $tabElement->getField()->setIsFresh(true);
                 }
 
-                $field = $tabElement->getField();
-
-                if ($isNewBlock) {
-                    $field->setIsFresh(true);
-                }
-
-                $fieldErrors = $block->getErrors($field->handle);
-
-                if (!empty($fieldErrors)) {
-                    $tabHtml['errors'] = array_merge($tabHtml['errors'], $fieldErrors);
-                }
-            }
-
-            foreach ($elements as $tabElement) {
                 $fieldsHtml .= $tabElement->formHtml($block, $static);
-            }
 
-            if ($isNewBlock) {
-                // Reset $_isFresh's
-                foreach ($elements as $tabElement) {
-                    if ($tabElement instanceof CustomField) {
-                        $tabElement->getField()->setIsFresh(null);
-                    }
+                if ($tabElement instanceof CustomField && $isNewBlock) {
+                    // Reset $_isFresh's
+                    $tabElement->getField()->setIsFresh(null);
                 }
             }
 
