@@ -111,14 +111,14 @@ class Blocks extends Component
             ];
 
             $elements = $tab->elements;
-            $fieldsHtml = '';
+            $fieldsHtml = [];
 
             foreach ($elements as $tabElement) {
                 if ($tabElement instanceof CustomField && $isNewBlock) {
                     $tabElement->getField()->setIsFresh(true);
                 }
 
-                $fieldsHtml .= $tabElement->formHtml($block, $static);
+                $fieldsHtml[] = $tabElement->formHtml($block, $static);
 
                 if ($tabElement instanceof CustomField && $isNewBlock) {
                     // Reset $_isFresh's
@@ -126,7 +126,7 @@ class Blocks extends Component
                 }
             }
 
-            $tabHtml['bodyHtml'] = $viewService->namespaceInputs($fieldsHtml);
+            $tabHtml['bodyHtml'] = $viewService->namespaceInputs(implode('', $fieldsHtml));
             $tabHtml['footHtml'] = $viewService->clearJsBuffer();
 
             $tabsHtml[] = $tabHtml;
