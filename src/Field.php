@@ -493,15 +493,25 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function validateBlocks(ElementInterface $element)
     {
         $value = $element->getFieldValue($this->handle);
+        $blocks = $value->all();
+        $allBlocksValidate = true;
         
-        foreach ($value->all() as $key => $block) {
+        foreach ($blocks as $key => $block) {
             if ($element->getScenario() === Element::SCENARIO_LIVE) {
                 $block->setScenario(Element::SCENARIO_LIVE);
             }
             
             if (!$block->validate()) {
                 $element->addModelErrors($block, "{$this->handle}[{$key}]");
+
+                if ($allBlocksValidate) {
+                    $allBlocksValidate = false;
+                }
             }
+        }
+
+        if (!$allBlocksValidate) {
+            $value->setCachedResult($blocks);
         }
     }
     
