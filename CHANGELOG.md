@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.25 - 2020-07-28
+### Fixed
+- Fixed propagation issues that happen when an entry is enabled for a new site (thanks @brandonkelly)
+
 ## 2.7.24 - 2020-07-19
 ### Fixed
 - Fixed a bug where, when saving a Neo field's configuration, block types' field layouts were being deleted and recreated

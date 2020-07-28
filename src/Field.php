@@ -651,7 +651,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         if ($element->duplicateOf !== null) {
             Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true);
         } else {
-            if ($element->isFieldDirty($this->handle)) {
+            if ($element->isFieldDirty($this->handle) || !empty($element->newSiteIds)) {
                 Neo::$plugin->fields->saveValue($this, $element);
             }
         }
