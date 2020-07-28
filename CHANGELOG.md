@@ -19,9 +19,12 @@
 - Removed usage of babel-polyfill
 
 ### Fixed
-- Fixed propagation issues that happen when an entry is enabled for a new site (thanks @brandonkelly)
 - Fixed a bug where validation errors that occurred when attempting to publish a draft were not displaying on Neo blocks
 - Fixed the position of the new block type / block type group buttons on the Neo field configurator
+
+## 2.7.25 - 2020-07-28
+### Fixed
+- Fixed propagation issues that happen when an entry is enabled for a new site (thanks @brandonkelly)
 
 ## 2.7.24 - 2020-07-19
 ### Fixed
