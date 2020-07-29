@@ -11,12 +11,6 @@ import { addFieldLinks } from '../plugins/cpfieldinspect/main'
 import renderTemplate from './templates/block.twig'
 import '../twig-extensions'
 
-const MutationObserver = (
-	window.MutationObserver ||
-	window.WebKitMutationObserver ||
-	window.MozMutationObserver
-)
-
 const _defaults = {
 	namespace: [],
 	blockType: null,
@@ -205,27 +199,20 @@ export default Garnish.Base.extend({
 					content: Garnish.getPostData(this.$contentContainer)
 				}
 
-				if(MutationObserver)
-				{
-					const detectChange = () => this._detectChange()
-					const observer = new MutationObserver(() => setTimeout(detectChange, 200))
+				const detectChange = () => this._detectChange()
+				const observer = new window.MutationObserver(() => setTimeout(detectChange, 200))
 
-					observer.observe(this.$container[0], {
-						attributes: true,
-						childList: true,
-						characterData: true,
-						subtree: true,
-					})
+				observer.observe(this.$container[0], {
+					attributes: true,
+					childList: true,
+					characterData: true,
+					subtree: true,
+				})
 
-					this.$contentContainer.on('propertychange change click', 'input, textarea, select, div.redactor-in', detectChange)
-					this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea, div.redactor-in', detectChange)
+				this.$contentContainer.on('propertychange change click', 'input, textarea, select, div.redactor-in', detectChange)
+				this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea, div.redactor-in', detectChange)
 
-					this._detectChangeObserver = observer
-				}
-				else
-				{
-					this._detectChangeInterval = setInterval(() => this._detectChange(), 300)
-				}
+				this._detectChangeObserver = observer
 			}
 
 			addFieldLinks(this.$contentContainer)
