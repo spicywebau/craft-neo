@@ -617,21 +617,35 @@ class BlockTypes extends Component
      */
     private function _createQuery(): Query
     {
+        // `maxSiblingBlocks` was added for Neo 2.8, which was also the Craft 3.5 compatibility update.  However, Craft
+        // migrations run before plugin migrations, and Craft's `m200620_230205_field_layout_changes` migration will
+        // eventually cause this method to be called if an affected entry has a Neo field.  To work around this, we need
+        // to check whether the `maxSiblingBlocks` column exists, and only add it to `$selectColumns` if it does exist.
+        $maxSiblingBlocks = Craft::$app->getDb()
+            ->getSchema()
+            ->getTableSchema('{{%neoblocktypes}}')
+            ->getColumn('maxSiblingBlocks');
+
+        $selectColumns = [
+            'id',
+            'fieldId',
+            'fieldLayoutId',
+            'name',
+            'handle',
+            'maxBlocks',
+            'maxChildBlocks',
+            'childBlocks',
+            'topLevel',
+            'sortOrder',
+            'uid',
+        ];
+
+        if ($maxSiblingBlocks !== null) {
+            $selectColumns[] = 'maxSiblingBlocks';
+        }
+
         return (new Query())
-            ->select([
-                'id',
-                'fieldId',
-                'fieldLayoutId',
-                'name',
-                'handle',
-                'maxBlocks',
-                'maxSiblingBlocks',
-                'maxChildBlocks',
-                'childBlocks',
-                'topLevel',
-                'sortOrder',
-                'uid',
-            ])
+            ->select($selectColumns)
             ->from(['{{%neoblocktypes}}'])
             ->orderBy(['sortOrder' => SORT_ASC]);
     }
