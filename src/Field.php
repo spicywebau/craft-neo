@@ -230,12 +230,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 if (!empty($blockType['fieldLayout'])) {
                     $fieldLayoutPost = $blockType['fieldLayout'];
                     $requiredFieldPost = empty($blockType['requiredFields']) ? [] : $blockType['requiredFields'];
-                    
-                    // Add support for blank tabs
-                    foreach ($fieldLayoutPost as $tabName => $fieldIds) {
-                        $fieldLayoutPost[$tabName] = is_array($fieldIds) ? $fieldIds : [];
-                    }
-                    
                     $fieldLayout = Craft::$app->getFields()->assembleLayout($fieldLayoutPost, $requiredFieldPost);
                     $fieldLayout->type = Block::class;
                     

@@ -352,40 +352,6 @@ class BlockTypes extends Component
             
             if ($fieldLayoutConfig !== null) {
                 $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
-                
-                // Ensure that blank tabs are retained, since createFromConfig() strips them out
-                $oldTabs = $fieldLayout->getTabs();
-                $configTabs = $fieldLayoutConfig['tabs'];
-                
-                if (count($configTabs) > count($oldTabs)) {
-                    $newTabs = [];
-                    $tabCount = 0;
-                    
-                    foreach ($oldTabs as $oldTab) {
-                        // Was a blank tab supposed to be here?
-                        while ($oldTab->sortOrder != $tabCount + 1) {
-                            $newTabData = $configTabs[$tabCount++];
-                            $newTabs[] = new FieldLayoutTab($newTabData);
-                        }
-                        
-                        $newTabs[] = $oldTab;
-                        $tabCount++;
-                    }
-                    
-                    // Check for any blank tab(s) at the end of the layout
-                    $endBlankTabData = array_slice($configTabs, count($newTabs));
-                    
-                    foreach ($endBlankTabData as $tabData) {
-                        $newTabs[] = new FieldLayoutTab($tabData);
-                    }
-                    
-                    // Re-set the field layout tabs if any blank tabs were added
-                    if (count($oldTabs) !== count($newTabs)) {
-                        $fieldLayout->setTabs($newTabs);
-                    }
-                }
-                
-                // Now we can save the field layout
                 $fieldLayout->id = $record->fieldLayoutId;
                 $fieldLayout->type = Block::class;
                 $fieldLayout->uid = key($data['fieldLayouts']);
