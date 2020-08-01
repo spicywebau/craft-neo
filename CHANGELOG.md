@@ -24,6 +24,7 @@
 ### Fixed
 - Fixed a bug where validation errors that occurred when attempting to publish a draft were not displaying on Neo blocks
 - Fixed the position of the new block type / block type group buttons on the Neo field configurator
+- Fixed a bug where Neo-to-Matrix conversion failures were not being logged
 
 ## 2.7.25 - 2020-07-28
 ### Fixed

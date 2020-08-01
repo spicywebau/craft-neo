@@ -183,7 +183,8 @@ class Conversion extends Component
             return true;
         } catch (\Throwable $e) {
             $transaction->rollBack();
-            // NeoPlugin::log("Couldn't convert Neo field '{$neoField->handle}' to Matrix: " . $e->getMessage(), LogLevel::Error);
+            Craft::error("Couldn't convert Neo field '{$neoField->handle}' to Matrix: " . $e->getMessage());
+
             throw $e;
         }
     }
