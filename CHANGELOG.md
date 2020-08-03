@@ -9,7 +9,7 @@
 - Added the `Max Sibling Blocks of This Type` block type setting, which sets the maximum number of blocks of that block type allowed under one parent block or at the top level
 
 ### Changed
-- Neo now requires Craft 3.5.0 or later
+- Neo now requires Craft 3.5.0-RC6 or later
 
 ### Deprecated
 - Deprecated `benf\neo\integrations\fieldlabels\FieldLabels`
