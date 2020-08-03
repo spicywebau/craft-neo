@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-> {warning} As part of the changes to Neo 2.8 to support Craft 3.5's new field layout designer, it's no longer possible to save blank tabs in Neo block types' field layouts.  Existing blank tabs should be retained when upgrading to Craft 3.5 and Neo 2.8, but they will be lost if they're still blank when the field is saved.  It's recommended to place a UI element in any blank tabs that should be kept.
+> {warning} As part of the changes to Neo 2.8 to support Craft 3.5's new field layout designer, it's no longer possible to save blank tabs in Neo block types' field layouts.  Existing blank tabs should be retained when upgrading to Craft 3.5 and Neo 2.8, but they will be lost if they're still blank next time the field is saved.  It's recommended to place a UI element in any blank tabs that should be kept.
 
 ### Added
 - Full support for Craft 3.5's new field layout designer
@@ -10,6 +10,7 @@
 
 ### Changed
 - Neo now requires Craft 3.5.0-RC6 or later
+- Updated node-sass to ^4.14.1
 
 ### Deprecated
 - Deprecated `benf\neo\integrations\fieldlabels\FieldLabels`
