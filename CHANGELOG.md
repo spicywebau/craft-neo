@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a CSS issue where unselected Neo block tab content would still be displayed along with the selected tab's content
+- Fixed a bug where Neo fields created prior to the 2.8.0 upgrade, and that had not since been saved, would cause the `craft project-config/apply` command to fail, due to the lack of `maxSiblingBlocks` property
 
 ## 2.8.0 - 2020-08-04
 
