@@ -322,7 +322,7 @@ $preview-reduction: 70px;
 					border-top: 0;
 				}
 
-				&:not(.is-selected) {
+				#content &:not(.is-selected) {
 					display: none;
 				}
 
