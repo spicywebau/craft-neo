@@ -5,6 +5,9 @@
 ### Changed
 - Neo now requires Craft 3.5.0 or later
 
+### Fixed
+- Fixed a CSS issue where unselected Neo block tab content would still be displayed along with the selected tab's content when in live preview mode
+
 ## 2.8.1 - 2020-08-04
 
 ### Fixed
