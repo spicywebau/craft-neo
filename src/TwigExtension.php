@@ -2,9 +2,9 @@
 
 namespace benf\neo;
 
-use Twig_Extension;
-use Twig_Environment;
-use Twig_SimpleTest;
+use Twig\Environment;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigTest;
 
 use benf\neo\elements\Block;
 
@@ -16,7 +16,7 @@ use benf\neo\elements\Block;
  * @author Benjamin Fleming
  * @since 2.0.0
  */
-class TwigExtension extends Twig_Extension
+class TwigExtension extends AbstractExtension
 {
     /**
      * return string
@@ -27,12 +27,12 @@ class TwigExtension extends Twig_Extension
     }
 
     /**
-     * @return array|Twig_SimpleTest[]|\Twig_Test[]
+     * @return array|TwigTest[]
      */
     public function getTests()
     {
         return [
-            new Twig_SimpleTest('neoblock', [$this, 'isNeoBlock']),
+            new TwigTest('neoblock', [$this, 'isNeoBlock']),
         ];
     }
 
@@ -53,9 +53,9 @@ class TwigExtension extends Twig_Extension
      * Added this to avoid PHP error of undeclared method.
      * This method is deprecated so it should eventually be removed when safe to do so.
      *
-     * @param Twig_Environment $environment
+     * @param Environment $environment
      */
-    public function initRuntime(Twig_Environment $environment)
+    public function initRuntime(Environment $environment)
     {
 
     }
