@@ -182,7 +182,11 @@ class Plugin extends BasePlugin
             foreach ($blockTypeQuery as $blockType) {
                 $layoutId = $blockType['fieldLayoutId'];
 
-                if ($layoutId !== null) {
+                // We need to check if `$layoutsData[$layoutId]` exists: `$this->_getFieldLayoutsData($layoutIds)` won't
+                // contain field layouts that only contained blank tab(s), which might be the case if a Craft install
+                // was upgraded from Craft 3.4 / Neo 2.7 or earlier (when Neo was able to support blank tabs) or if the
+                // field(s) that belonged to the blank tab(s) were deleted.
+                if ($layoutId !== null && isset($layoutsData[$layoutId])) {
                     $blockTypeData[$blockType['uid']]['fieldLayouts'] = [
                         $layoutIdUidMap[$layoutId] => $layoutsData[$layoutId],
                     ];

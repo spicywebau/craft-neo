@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred with Craft 3.5 / Neo 2.8 when rebuilding the project config, if any Neo block type field layout consisted only of blank tab(s)
+
 ## 2.8.2 - 2020-08-05
 
 ### Changed
