@@ -438,19 +438,6 @@ class Block extends Element implements BlockElementInterface
 
     /**
      * @inheritdoc
-     */
-    public function getHasFreshContent(): bool
-    {
-        // Defer to the owner element
-        try {
-            return $this->getOwner()->getHasFreshContent();
-        } catch (InvalidConfigException $e) {
-            return false;
-        }
-    }
-
-    /**
-     * @inheritdoc
      * @throws Exception if the block ID is invalid.
      */
     public function afterSave(bool $isNew)
