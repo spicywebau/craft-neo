@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed an error that occurred with Craft 3.5 / Neo 2.8 when rebuilding the project config, if any Neo block type field layout consisted only of blank tab(s)
 - Fixed a bug with previous Neo 2.8 releases where default values on dropdown fields were not being applied to new Neo blocks
+- Fixed a potential GraphQL "Failed to validate the GQL Schema" error when querying for Neo field data
 - Replaced the usage of various deprecated Twig classes
 
 ## 2.8.2 - 2020-08-05

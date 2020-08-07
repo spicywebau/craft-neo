@@ -57,12 +57,18 @@ class BlockType implements GeneratorInterface
 
                 $blockTypeFields = array_merge(NeoBlockInterface::getFieldDefinitions(), $contentFieldGqlTypes);
 
-                $entity = GqlEntityRegistry::createEntity($typeName, new Block([
-                    'name' => $typeName,
-                    'fields' => static function () use ($blockTypeFields) {
-                        return $blockTypeFields;
-                    }
-                ]));
+                $entity = GqlEntityRegistry::getEntity($typeName);
+
+                if (!$entity) {
+                    $entity = new Block([
+                        'name' => $typeName,
+                        'fields' => function() use ($blockTypeFields) {
+                            return $blockTypeFields;
+                        }
+                    ]);
+
+                    $entity = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, $entity);
+                }
             }
 
             $gqlTypes[$typeName] = $entity;
