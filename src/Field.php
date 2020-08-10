@@ -286,11 +286,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         $newBlockTypeGroups = [];
         
-        foreach ($blockTypeGroups as $blockTypeGroup) {
+        foreach ($blockTypeGroups as $id => $blockTypeGroup) {
             $newBlockTypeGroup = $blockTypeGroup;
             
             if (!($blockTypeGroup instanceof BlockTypeGroup)) {
                 $newBlockTypeGroup = new BlockTypeGroup();
+                $newBlockTypeGroup->id = $id;
                 $newBlockTypeGroup->fieldId = $this->id;
                 $newBlockTypeGroup->name = $blockTypeGroup['name'];
                 $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];

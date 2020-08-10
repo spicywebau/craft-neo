@@ -12,6 +12,7 @@ import '../twig-extensions'
 
 const _defaults = {
 	namespace: [],
+	id: null,
 	sortOrder: 0,
 	name: ''
 }
@@ -30,6 +31,7 @@ export default Settings.extend({
 		settings = Object.assign({}, _defaults, settings)
 
 		this._templateNs = NS.parse(settings.namespace)
+		this._id = settings.id
 
 		this.setSortOrder(settings.sortOrder)
 		this.setName(settings.name)
@@ -37,6 +39,7 @@ export default Settings.extend({
 		NS.enter(this._templateNs)
 
 		this.$container = $(renderTemplate({
+			id:        this.getId(),
 			sortOrder: this.getSortOrder(),
 			name:      this.getName()
 		}))
@@ -55,6 +58,11 @@ export default Settings.extend({
 	getFocusInput()
 	{
 		return this.$nameInput
+	},
+
+	getId()
+	{
+		return this._id
 	},
 
 	setSortOrder(sortOrder)
@@ -80,5 +88,13 @@ export default Settings.extend({
 				newValue: this._name
 			})
 		}
+	}
+},
+{
+	_totalNewGroups: 0,
+
+	getNewId()
+	{
+		return `new${this._totalNewGroups++}`
 	}
 })

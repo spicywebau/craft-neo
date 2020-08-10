@@ -284,7 +284,22 @@ class BlockTypes extends Component
         
         return true;
     }
-    
+
+    /**
+     * Deletes a block type group.
+     *
+     * @since 2.8.3
+     * @param BlockTypeGroup $blockTypeGroup
+     * @return bool whether deletion was successful
+     * @throws \Throwable
+     */
+    public function deleteGroup(BlockTypeGroup $blockTypeGroup): bool
+    {
+        Craft::$app->getProjectConfig()->remove('neoBlockTypeGroups.' . $blockTypeGroup->uid);
+
+        return true;
+    }
+
     /**
      * Deletes Neo block type groups associated with a given field ID.
      *
@@ -294,14 +309,11 @@ class BlockTypes extends Component
      */
     public function deleteGroupsByFieldId($fieldId): bool
     {
-        $projectConfigService = Craft::$app->getProjectConfig();
-        $fieldsService = Craft::$app->getFields();
-        $field = $fieldsService->getFieldById($fieldId);
-        
+        $field = Craft::$app->getFields()->getFieldById($fieldId);
         $allGroups = $field->getGroups();
         
         foreach ($allGroups as $group) {
-            $projectConfigService->remove('neoBlockTypeGroups.' . $group->uid);
+            $this->deleteGroup($group);
         }
         
         return true;

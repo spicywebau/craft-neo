@@ -1,13 +1,13 @@
 {% import '../../macros.twig' as macros %}
-{% set id = uniqueId() %}
 
 <div>
-	<input type="hidden" name="{{ (id ~ '[sortOrder]')|ns }}" value="{{ sortOrder }}" data-neo-gs="input.sortOrder">
+	<input type="hidden" name="{{ 'sortOrder'|ns }}" value="{{ sortOrder }}" data-neo-gs="input.sortOrder">
 
 	<div>
 		{{ macros.input({
 			type: 'text',
-			name: (id ~ '[name]')|ns,
+			id: 'name'|ns('id'),
+			name: 'name'|ns,
 			label: "Name"|t,
 			instructions: "This can be left blank if you just want an unlabeled separator."|t,
 			value: name,

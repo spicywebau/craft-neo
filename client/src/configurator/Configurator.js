@@ -106,8 +106,9 @@ export default Garnish.Base.extend({
 		for(let gInfo of settings.groups)
 		{
 			let gSettings = new GroupSettings({
-				namespace: gNamespace,
+				namespace: [...gNamespace, gInfo.id],
 				sortOrder: gInfo.sortOrder,
+				id: gInfo.id,
 				name: gInfo.name
 			})
 
@@ -339,10 +340,12 @@ export default Garnish.Base.extend({
 	'@newGroup'()
 	{
 		const namespace = [...this._templateNs, 'groups']
+		const id = GroupSettings.getNewId()
 
 		const settings = new GroupSettings({
-			namespace: namespace,
-			sortOrder: this._items.length
+			namespace: [...namespace, id],
+			sortOrder: this._items.length,
+			id: id
 		})
 
 		const group = new Group({

@@ -98,10 +98,25 @@ class Fields extends Component
                 foreach ($oldBlockTypesById as $blockType) {
                     Neo::$plugin->blockTypes->delete($blockType);
                 }
-                
-                // Delete all groups to be replaced with what's new
-                Neo::$plugin->blockTypes->deleteGroupsByFieldId($field->id);
-                
+
+                // Delete any old groups that were removed
+                $oldGroups = Neo::$plugin->blockTypes->getGroupsByFieldId($field->id);
+                $oldGroupsById = [];
+
+                foreach ($oldGroups as $blockTypeGroup) {
+                    $oldGroupsById[$blockTypeGroup->id] = $blockTypeGroup;
+                }
+
+                foreach ($field->getGroups() as $blockTypeGroup) {
+                    if (!$blockTypeGroup->getIsNew()) {
+                        unset($oldGroupsById[$blockTypeGroup->id]);
+                    }
+                }
+
+                foreach ($oldGroupsById as $blockTypeGroup) {
+                    Neo::$plugin->blockTypes->deleteGroup($blockTypeGroup);
+                }
+
                 // Save the new block types and groups
                 foreach ($field->getBlockTypes() as $blockType) {
                     $blockType->fieldId = $field->id;
@@ -109,11 +124,8 @@ class Fields extends Component
                 }
                 
                 foreach ($field->getGroups() as $blockTypeGroup) {
-                    // since the old groups was deleted, we make sure to add in the new ones only and ignore writing the old groups to the project.yaml file.
-                    if (empty($blockTypeGroup->id)) {
-                        $blockTypeGroup->fieldId = $field->id;
-                        Neo::$plugin->blockTypes->saveGroup($blockTypeGroup);
-                    }
+                    $blockTypeGroup->fieldId = $field->id;
+                    Neo::$plugin->blockTypes->saveGroup($blockTypeGroup);
                 }
                 
                 $transaction->commit();
