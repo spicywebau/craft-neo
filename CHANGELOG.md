@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.3 - 2020-08-10
 
 ### Changed
 - When saving a Neo field's settings, existing block type groups are now properly resaved, not just deleted and recreated
