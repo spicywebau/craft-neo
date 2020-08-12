@@ -397,6 +397,14 @@ const BlockSort = Garnish.Drag.extend({
 
 			const draggeeBlockType = draggeeBlock.getBlockType()
 			const maxSiblingBlocks = draggeeBlockType.getMaxSiblingBlocks()
+
+			// Also don't bother checking for max sibling block type violations if max sibling
+			// blocks hasn't been set
+			if(maxSiblingBlocks === 0)
+			{
+				continue
+			}
+
 			const draggeeBlocksOfType = this._draggeeBlocks.filter(b => b.getBlockType().getHandle() === draggeeBlockType.getHandle())
 			const siblingBlocksOfType = blockChildrenWithoutDraggees.filter(b => b.getBlockType().getHandle() === draggeeBlockType.getHandle())
 
