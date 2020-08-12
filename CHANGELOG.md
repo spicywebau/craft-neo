@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.4 - 2020-08-12
 
 ### Fixed
 - Fixed an issue where child blocks could not be dragged if `Max Sibling Blocks of This Type` was not set on the block type
