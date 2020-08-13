@@ -127,7 +127,7 @@ class Plugin extends BasePlugin
             $blockTypeGroupData = [];
             $layoutIds = [];
 
-            $blockTypeQuery = (new Query)
+            $blockTypeQuery = (new Query())
                 ->select([
                     // We require querying for the layout ID, rather than performing an inner join and getting the
                     // layout UID that way, because Neo allows block types not to have field layouts

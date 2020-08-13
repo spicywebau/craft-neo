@@ -235,7 +235,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                     
                     // Ensure the field layout ID is set, if it exists
                     if (is_int($blockTypeId)) {
-                        $layoutIdResult = (new Query)
+                        $layoutIdResult = (new Query())
                             ->select(['fieldLayoutId'])
                             ->from('{{%neoblocktypes}}')
                             ->where(['id' => $blockTypeId])
