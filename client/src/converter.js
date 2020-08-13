@@ -5,17 +5,60 @@ const $fieldId = $('input[name="fieldId"]')
 
 if($fieldType.val() === 'benf\\neo\\Field' && $fieldId.length > 0)
 {
-	const settingsObserver = new MutationObserver(applyHtml)
-	settingsObserver.observe(document.getElementById('settings'), { childList: true, subtree: true })
-
 	const $form = Craft.cp.$primaryForm
 	const $formButton = $form.find('input[type="submit"]')
 	let $convert = $('#Matrix-convert_button')
 	let $spinner = $('#Matrix-convert_spinner')
 	let enabled = true
 
-	function applyHtml()
-	{
+	const toggleState = state => {
+		enabled = !!state
+
+		$convert.toggleClass('disabled', !enabled)
+		$formButton.toggleClass('disabled', !enabled)
+
+		if(enabled)
+		{
+			$form.off('submit.neo')
+		}
+		else
+		{
+			$form.on('submit.neo', e => e.preventDefault())
+		}
+	}
+
+	const perform = () => {
+		toggleState(false)
+
+		$spinner.removeClass('hidden')
+
+		Craft.postActionRequest('neo/conversion/convert-to-matrix', { fieldId: $fieldId.val() }, (response, textStatus) =>
+		{
+			if(response.success)
+			{
+				// Prevent the "Do you want to reload this site?" prompt from showing
+				Craft.cp.removeListener(Garnish.$win, 'beforeunload')
+
+				window.location.reload()
+			}
+			else
+			{
+				toggleState(true)
+
+				Craft.cp.displayError(Craft.t('neo', "Could not convert Neo field to Matrix"))
+
+				if(response.errors && response.errors.length > 0)
+				{
+					for(let error of response.errors)
+					{
+						Craft.cp.displayError(error)
+					}
+				}
+			}
+		})
+	}
+
+	const applyHtml = () => {
 		const $matrixSettings = $('#craft-fields-Matrix')
 
 		if ($matrixSettings.find('#conversion-prompt').length > 0) {
@@ -53,52 +96,6 @@ if($fieldType.val() === 'benf\\neo\\Field' && $fieldId.length > 0)
 		})
 	}
 
-	function toggleState(state)
-	{
-		enabled = !!state
-
-		$convert.toggleClass('disabled', !enabled)
-		$formButton.toggleClass('disabled', !enabled)
-
-		if(enabled)
-		{
-			$form.off('submit.neo')
-		}
-		else
-		{
-			$form.on('submit.neo', e => e.preventDefault())
-		}
-	}
-
-	function perform()
-	{
-		toggleState(false)
-
-		$spinner.removeClass('hidden')
-
-		Craft.postActionRequest('neo/conversion/convert-to-matrix', { fieldId: $fieldId.val() }, (response, textStatus) =>
-		{
-			if(response.success)
-			{
-				// Prevent the "Do you want to reload this site?" prompt from showing
-				Craft.cp.removeListener(Garnish.$win, 'beforeunload')
-
-				window.location.reload()
-			}
-			else
-			{
-				toggleState(true)
-
-				Craft.cp.displayError(Craft.t('neo', "Could not convert Neo field to Matrix"))
-
-				if(response.errors && response.errors.length > 0)
-				{
-					for(let error of response.errors)
-					{
-						Craft.cp.displayError(error)
-					}
-				}
-			}
-		})
-	}
+	const settingsObserver = new MutationObserver(applyHtml)
+	settingsObserver.observe(document.getElementById('settings'), { childList: true, subtree: true })
 }

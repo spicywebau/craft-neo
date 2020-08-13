@@ -91,13 +91,8 @@ export default Garnish.Base.extend({
 		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
 
 		const that = this
-		let totalTopBlocks = 0;
 
-		for(let block of blocks)
-		{
-			block.getLevel() > 0 || totalTopBlocks++
-		}
-
+		const totalTopBlocks = blocks.filter(block => block.getLevel() === 0).length
 		const maxBlocksMet = this._maxBlocks > 0 && blocks.length >= this._maxBlocks
 		const maxTopBlocksMet = this._maxTopBlocks > 0 && totalTopBlocks >= this._maxTopBlocks
 

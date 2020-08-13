@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Some minor changes to JavaScript code related to new block button enabling/disabling, block dragging, and Neo-to-Matrix conversion
+
 ## 2.8.4 - 2020-08-12
 
 ### Fixed
