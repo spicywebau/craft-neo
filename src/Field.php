@@ -78,7 +78,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     
     /**
      * @var bool Whether this field is translatable.
-     * @deprecated in 3.2. Use [[$propagationMethod]] instead
+     * @deprecated in 2.4.0. Use [[$propagationMethod]] instead
      */
     public $localizeBlocks = false;
     
