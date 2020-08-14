@@ -7,6 +7,7 @@ use benf\neo\elements\Block;
 use Craft;
 use craft\db\Migration;
 use craft\db\Query;
+use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 
 /**
@@ -61,6 +62,32 @@ class m181022_123749_craft3_upgrade extends Migration
 
         // Rename `neogroups` table to `neoblocktypegroups`
         MigrationHelper::renameTable('{{%neogroups}}', '{{%neoblocktypegroups}}', $this);
+
+        // Update Neo fields' propagation methods
+        $fields = (new Query())
+            ->select(['id', 'type', 'translationMethod', 'settings'])
+            ->from(['{{%fields}}'])
+            ->where(['type' => Field::class])
+            ->all();
+
+        foreach ($fields as $field) {
+            $settings = Json::decodeIfJson($field['settings']);
+
+            if (!is_array($settings)) {
+                echo 'Field ' . $field['id'] . ' (' . $field['type'] . ') settings were invalid JSON: ' . $field['settings'] . "\n";
+                $settings = [];
+            }
+
+            $settings['propagationMethod'] = $field['translationMethod'] === 'site' ? 'none' : 'all';
+
+            $this->update(
+                '{{%fields}}',
+                ['translationMethod' => 'none', 'settings' => Json::encode($settings)],
+                ['id' => $field['id']],
+                [],
+                false
+            );
+        }
     }
 
     /**
