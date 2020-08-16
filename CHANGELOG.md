@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Neo now requires Craft 3.5.4 or later
+
 ### Fixed
 - Fixed a bug where Neo fields which were set to translatable on a Craft 2 install would not have their propagation method properly set when upgrading to Craft 3
 - Fixed a bug when editing a Neo field's settings, where the Field Layout tab would display and be selectable if a block type group was selected
