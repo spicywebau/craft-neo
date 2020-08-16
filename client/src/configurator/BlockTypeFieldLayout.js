@@ -110,8 +110,15 @@ export default Garnish.Base.extend({
 			const $unusedField = this._fld.$fields.filter(`[data-id="${element.id}"]`)
 			$element = $unusedField.clone().toggleClass('fld-required', !!element.config.required)
 
+			// If `element.config.label` isn't set, this just means the field label hasn't been
+			// overridden in any way, so we don't need to do anything to it
 			if (element.config.label) {
-				$element.find('.field-name > h4').text(element.config.label)
+				// Do we need to hide the label?
+				if (element.config.label === '__blank__') {
+					$element.find('.fld-element-label').remove()
+				} else {
+					$element.find('.fld-element-label').text(element.config.label)
+				}
 			}
 
 			$unusedField.addClass('hidden')
