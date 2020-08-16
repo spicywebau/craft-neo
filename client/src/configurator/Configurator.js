@@ -258,7 +258,12 @@ export default Garnish.Base.extend({
 
 		for(let i of this._items)
 		{
-			i.toggleSelect(i === item)
+			const thisIsTheItem = i === item
+			i.toggleSelect(thisIsTheItem)
+
+			if (thisIsTheItem) {
+				this.toggleFieldLayoutTabVisibility(i instanceof BlockType)
+			}
 		}
 
 		if(focusInput && settings && !Garnish.isMobileBrowser())
@@ -284,6 +289,15 @@ export default Garnish.Base.extend({
 
 		this.$settingsButton.toggleClass('is-selected', tab === 'settings')
 		this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout')
+	},
+
+	toggleFieldLayoutTabVisibility(show)
+	{
+		if (!show) {
+			this.selectTab('settings')
+		}
+
+		this.$fieldLayoutButton.toggleClass('hidden', !show)
 	},
 
 	_updateItemOrder()
