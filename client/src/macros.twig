@@ -12,19 +12,19 @@
 
 	<div class="field">
 		{% if label or instructions %}
-			<div class="heading">
-				{% if label %}
+			{% if label %}
+				<div class="heading">
 					<label{% if required %} class="required"{% endif %}{% if id %} for="{{ id }}"{% endif %}>
 						{{ label|raw }}
 						{% if locale %}
 							<span class="locale">{{ locale }}</span>
 						{% endif %}
 					</label>
-				{% endif %}
-				{% if instructions %}
-					<div class="instructions">{{ instructions|raw }}</div>
-				{% endif %}
-			</div>
+				</div>
+			{% endif %}
+			{% if instructions %}
+				<div class="instructions">{{ instructions|raw }}</div>
+			{% endif %}
 		{% endif %}
 		<div class="input {{ orientation }}{% if errors %} errors{% endif %}">
 			{{ input|raw }}
