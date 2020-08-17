@@ -60,7 +60,7 @@ class Input extends Controller
             }
             
             $renderedBlocks[] = [
-                'type' => $type->id,
+                'type' => (int)$type->id,
                 'level' => $block->level,
                 'enabled' => $block->enabled,
                 'collapsed' => $block->getCollapsed(),
