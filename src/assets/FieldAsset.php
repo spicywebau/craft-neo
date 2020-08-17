@@ -238,7 +238,11 @@ class FieldAsset extends AssetBundle
                     foreach ($tabElements as $element) {
                         $elementData = [
                             'config' => $element->toArray(),
-                            'settings-html' => $element->settingsHtml(),
+                            'settings-html' => preg_replace(
+                                '/(id|for)="(.+)"/',
+                                '\1="element-' . uniqid() . '-\2"',
+                                $element->settingsHtml()
+                            ),
                             'type' => get_class($element),
                         ];
 
