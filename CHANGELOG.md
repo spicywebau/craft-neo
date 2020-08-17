@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Removed all cases of loose equality comparisons in Neo's JavaScript source
+
 ## 2.8.5 - 2020-08-17
 
 ### Changed

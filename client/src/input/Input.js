@@ -359,12 +359,12 @@ export default Garnish.Base.extend({
 
 	getBlockTypeById(id)
 	{
-		return this._blockTypes.find(bt => bt.getId() == id)
+		return this._blockTypes.find(bt => bt.getId() === id)
 	},
 
 	getBlockTypeByHandle(handle)
 	{
-		return this._blockTypes.find(bt => bt.getHandle() == handle)
+		return this._blockTypes.find(bt => bt.getHandle() === handle)
 	},
 
 	getBlockTypes(topLevelOnly)
@@ -519,7 +519,7 @@ export default Garnish.Base.extend({
 				this.getMaxBlocks(),
 				this._checkMaxChildren(parentBlock),
 				allowedBlockTypes,
-				block.getLevel() == 0 ? this.getMaxTopBlocks() : 0
+				block.getLevel() === 0 ? this.getMaxTopBlocks() : 0
 			)
 
 			if(buttons)
@@ -902,7 +902,7 @@ export default Garnish.Base.extend({
 
 		this._updateButtons()
 
-		const notice = blockCount == 1 ? "1 block copied" : "{n} blocks copied"
+		const notice = blockCount === 1 ? "1 block copied" : "{n} blocks copied"
 		Craft.cp.displayNotice(Craft.t('neo', notice, { n: blockCount }))
 	},
 

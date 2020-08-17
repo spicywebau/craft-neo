@@ -176,7 +176,7 @@ const BlockSort = Garnish.Drag.extend({
 
 		for(let block of this.blocks)
 		{
-			if(block.$container.closest(this.$draggee).length == 0)
+			if(block.$container.closest(this.$draggee).length === 0)
 			{
 				const midpoints = this._getBlockMidpoints(block)
 
@@ -253,7 +253,7 @@ const BlockSort = Garnish.Drag.extend({
 		{
 			case BlockSort.TYPE_CHILDREN:
 			{
-				if(this.$draggee.closest(block.$container).length == 0)
+				if(this.$draggee.closest(block.$container).length === 0)
 				{
 					block.$blocksContainer.append(this.$draggee)
 				}
@@ -424,7 +424,7 @@ const BlockSort = Garnish.Drag.extend({
 		for(let $helper of this.helpers)
 		{
 			const id = $helper.data('neo-b-id')
-			const block = this.blocks.find(b => b.$container.data('neo-b-id') == id)
+			const block = this.blocks.find(b => b.$container.data('neo-b-id') === id)
 
 			$helper.css({
 				width: block.$container.width() + 1,

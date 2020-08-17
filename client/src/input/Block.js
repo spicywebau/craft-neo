@@ -945,7 +945,7 @@ export default Garnish.Base.extend({
 				// Test to see if the top level paste blocks have a block type that is allowed to be pasted here
 				if(pasteBlock.level === 0)
 				{
-					const allowedBlockType = allowedBlockTypes.find(bt => bt.getId() == pasteBlock.type);
+					const allowedBlockType = allowedBlockTypes.find(bt => bt.getId() === pasteBlock.type);
 
 					pasteDisabled = pasteDisabled || !allowedBlockType
 				}
