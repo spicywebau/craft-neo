@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.6 - 2020-08-18
 
 ### Fixed
 - Fixed an error that could occur when simultaneously upgrading Craft to 3.5, Neo to 2.8 and Field Labels to 1.3
