@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed an error that could occur when simultaneously upgrading Craft to 3.5, Neo to 2.8 and Field Labels to 1.3
 - Removed all cases of loose equality comparisons in Neo's JavaScript source
 
 ## 2.8.5 - 2020-08-17

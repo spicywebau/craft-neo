@@ -126,23 +126,35 @@ class Plugin extends BasePlugin
             $blockTypeData = [];
             $blockTypeGroupData = [];
             $layoutIds = [];
+            $selectColumns = [
+                // We require querying for the layout ID, rather than performing an inner join and getting the
+                // layout UID that way, because Neo allows block types not to have field layouts
+                'types.fieldLayoutId',
+                'types.name',
+                'types.handle',
+                'types.maxBlocks',
+                'types.maxChildBlocks',
+                'types.childBlocks',
+                'types.topLevel',
+                'types.sortOrder',
+                'types.uid',
+                'fields.uid AS field',
+            ];
+
+            // We need to check for `maxSiblingBlocks` because if Field Labels 1.3's migrations (which execute a project
+            // config rebuild) run before Neo 2.8's, then `maxSiblingBlocks` won't exist yet
+            // TODO: remove this in Neo 2.9
+            $maxSiblingBlocks = Craft::$app->getDb()
+                ->getSchema()
+                ->getTableSchema('{{%neoblocktypes}}')
+                ->getColumn('maxSiblingBlocks');
+
+            if ($maxSiblingBlocks !== null) {
+                $selectColumns[] = 'types.maxSiblingBlocks';
+            }
 
             $blockTypeQuery = (new Query())
-                ->select([
-                    // We require querying for the layout ID, rather than performing an inner join and getting the
-                    // layout UID that way, because Neo allows block types not to have field layouts
-                    'types.fieldLayoutId',
-                    'types.name',
-                    'types.handle',
-                    'types.maxBlocks',
-                    'types.maxSiblingBlocks',
-                    'types.maxChildBlocks',
-                    'types.childBlocks',
-                    'types.topLevel',
-                    'types.sortOrder',
-                    'types.uid',
-                    'fields.uid AS field',
-                ])
+                ->select($selectColumns)
                 ->from(['{{%neoblocktypes}} types'])
                 ->innerJoin('{{%fields}} fields', '[[types.fieldId]] = [[fields.id]]')
                 ->all();
@@ -160,11 +172,14 @@ class Plugin extends BasePlugin
                     'handle' => $blockType['handle'],
                     'sortOrder' => (int)$blockType['sortOrder'],
                     'maxBlocks' => (int)$blockType['maxBlocks'],
-                    'maxSiblingBlocks' => (int)$blockType['maxSiblingBlocks'],
                     'maxChildBlocks' => (int)$blockType['maxChildBlocks'],
                     'childBlocks' => $childBlocks,
                     'topLevel' => (bool)$blockType['topLevel'],
                 ];
+
+                if ($maxSiblingBlocks !== null) {
+                    $blockTypeData[$blockType['uid']]['maxSiblingBlocks'] = (int)$blockType['maxSiblingBlocks'];
+                }
 
                 if ($blockType['fieldLayoutId'] !== null) {
                     $layoutIds[] = $blockType['fieldLayoutId'];
