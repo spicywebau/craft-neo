@@ -36,7 +36,7 @@ const BlockSort = Garnish.Drag.extend({
 	{
 		const magnet = this.settings.magnetStrength
 
-		if(magnet != 1)
+		if(magnet !== 1)
 		{
 			const draggeeOffsetY = this.$draggee.offset().top
 			return draggeeOffsetY + ((this.mouseY - this.mouseOffsetY - draggeeOffsetY) / magnet)

@@ -152,7 +152,7 @@ export default Settings.extend({
 			const oldName = this._name
 			this._name = name
 
-			if(this.$nameInput.val() != this._name)
+			if(this.$nameInput.val() !== this._name)
 			{
 				this.$nameInput.val(this._name)
 			}
@@ -173,7 +173,7 @@ export default Settings.extend({
 			const oldHandle = this._handle
 			this._handle = handle
 
-			if(this.$handleInput.val() != this._handle)
+			if(this.$handleInput.val() !== this._handle)
 			{
 				this.$handleInput.val(this._handle)
 			}
@@ -201,7 +201,7 @@ export default Settings.extend({
 		{
 			this._maxBlocks = newMaxBlocks
 
-			if(this._maxBlocks > 0 && this.$maxBlocksInput.val() != this._maxBlocks)
+			if(this._maxBlocks > 0 && parseInt(this.$maxBlocksInput.val()) !== this._maxBlocks)
 			{
 				this.$maxBlocksInput.val(this._maxBlocks)
 			}
@@ -229,7 +229,7 @@ export default Settings.extend({
 		{
 			this._maxSiblingBlocks = newMaxSiblingBlocks
 
-			if(this._maxSiblingBlocks > 0 && this.$maxSiblingBlocksInput.val() != this._maxSiblingBlocks)
+			if(this._maxSiblingBlocks > 0 && parseInt(this.$maxSiblingBlocksInput.val()) !== this._maxSiblingBlocks)
 			{
 				this.$maxSiblingBlocksInput.val(this._maxSiblingBlocks)
 			}
@@ -257,7 +257,7 @@ export default Settings.extend({
 		{
 			this._maxChildBlocks = newMaxChildBlocks
 
-			if(this._maxChildBlocks > 0 && this.$maxChildBlocksInput.val() != this._maxChildBlocks)
+			if(this._maxChildBlocks > 0 && parseInt(this.$maxChildBlocksInput.val()) !== this._maxChildBlocks)
 			{
 				this.$maxChildBlocksInput.val(this._maxChildBlocks)
 			}
