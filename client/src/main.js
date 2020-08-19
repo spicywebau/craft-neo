@@ -7,25 +7,23 @@ const configurators = []
 const inputs = []
 
 context.Neo = {
-	Configurator,
-	Input,
+  Configurator,
+  Input,
 
-	configurators,
-	inputs,
+  configurators,
+  inputs,
 
-	createConfigurator(settings = {})
-	{
-		const configurator = new Configurator(settings)
-		configurators.push(configurator)
+  createConfigurator (settings = {}) {
+    const configurator = new Configurator(settings)
+    configurators.push(configurator)
 
-		return configurator
-	},
+    return configurator
+  },
 
-	createInput(settings = {})
-	{
-		const input = new Input(settings)
-		inputs.push(input)
+  createInput (settings = {}) {
+    const input = new Input(settings)
+    inputs.push(input)
 
-		return input
-	},
+    return input
+  }
 }

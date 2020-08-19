@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-### Fixed
-- Removed all cases of loose inequality comparisons in Neo's JavaScript source
+### Changed
+- Neo's JavaScript source has been converted to use the Standard JS style
 
 ## 2.8.6 - 2020-08-18
 

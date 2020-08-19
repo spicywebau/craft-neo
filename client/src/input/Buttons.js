@@ -8,173 +8,152 @@ import renderTemplate from './templates/buttons.twig'
 import '../twig-extensions'
 
 const _defaults = {
-	blockTypes: [],
-	groups: [],
-	items: null,
-	maxBlocks: 0,
-	maxTopBlocks: 0,
-	blocks: null
+  blockTypes: [],
+  groups: [],
+  items: null,
+  maxBlocks: 0,
+  maxTopBlocks: 0,
+  blocks: null
 }
 
 export default Garnish.Base.extend({
 
-	_blockTypes: [],
-	_groups: [],
-	_maxBlocks: 0,
-	_maxTopBlocks: 0,
+  _blockTypes: [],
+  _groups: [],
+  _maxBlocks: 0,
+  _maxTopBlocks: 0,
 
-	init(settings = {})
-	{
-		settings = Object.assign({}, _defaults, settings)
+  init (settings = {}) {
+    settings = Object.assign({}, _defaults, settings)
 
-		if(settings.items)
-		{
-			this._items = Array.from(settings.items)
-			this._blockTypes = this._items.filter(i => i.getType() === 'blockType')
-			this._groups = this._items.filter(i => i.getType() === 'group')
-		}
-		else
-		{
-			this._blockTypes = Array.from(settings.blockTypes)
-			this._groups = Array.from(settings.groups)
-			this._items = [...this._blockTypes, ...this._groups].sort((a, b) => a.getSortOrder() - b.getSortOrder())
-		}
+    if (settings.items) {
+      this._items = Array.from(settings.items)
+      this._blockTypes = this._items.filter(i => i.getType() === 'blockType')
+      this._groups = this._items.filter(i => i.getType() === 'group')
+    } else {
+      this._blockTypes = Array.from(settings.blockTypes)
+      this._groups = Array.from(settings.groups)
+      this._items = [...this._blockTypes, ...this._groups].sort((a, b) => a.getSortOrder() - b.getSortOrder())
+    }
 
-		this._maxBlocks = settings.maxBlocks|0
-		this._maxTopBlocks = settings.maxTopBlocks|0
+    this._maxBlocks = settings.maxBlocks | 0
+    this._maxTopBlocks = settings.maxTopBlocks | 0
 
-		this.$container = $(renderTemplate({
-			blockTypes: this._blockTypes,
-			groups: this._groups,
-			items: this._items,
-			maxBlocks: this._maxBlocks,
-			maxTopBlocks: this._maxTopBlocks
-		}))
+    this.$container = $(renderTemplate({
+      blockTypes: this._blockTypes,
+      groups: this._groups,
+      items: this._items,
+      maxBlocks: this._maxBlocks,
+      maxTopBlocks: this._maxTopBlocks
+    }))
 
-		const $neo = this.$container.find('[data-neo-bn]')
-		this.$buttonsContainer = $neo.filter('[data-neo-bn="container.buttons"]')
-		this.$menuContainer = $neo.filter('[data-neo-bn="container.menu"]')
-		this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]')
-		this.$groupButtons = $neo.filter('[data-neo-bn="button.group"]')
+    const $neo = this.$container.find('[data-neo-bn]')
+    this.$buttonsContainer = $neo.filter('[data-neo-bn="container.buttons"]')
+    this.$menuContainer = $neo.filter('[data-neo-bn="container.menu"]')
+    this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]')
+    this.$groupButtons = $neo.filter('[data-neo-bn="button.group"]')
 
-		if(settings.blocks)
-		{
-			this.updateButtonStates(settings.blocks)
-		}
+    if (settings.blocks) {
+      this.updateButtonStates(settings.blocks)
+    }
 
-		this.addListener(this.$blockButtons, 'activate', '@newBlock')
-	},
+    this.addListener(this.$blockButtons, 'activate', '@newBlock')
+  },
 
-	initUi()
-	{
-		Craft.initUiElements(this.$container)
-		this.updateResponsiveness()
-	},
+  initUi () {
+    Craft.initUiElements(this.$container)
+    this.updateResponsiveness()
+  },
 
-	getBlockTypes()
-	{
-		return Array.from(this._blockTypes)
-	},
+  getBlockTypes () {
+    return Array.from(this._blockTypes)
+  },
 
-	getGroups()
-	{
-		return Array.from(this._groups)
-	},
+  getGroups () {
+    return Array.from(this._groups)
+  },
 
-	getMaxBlocks()
-	{
-		return this._maxBlocks
-	},
+  getMaxBlocks () {
+    return this._maxBlocks
+  },
 
-	updateButtonStates(blocks = [], additionalCheck = null, block = null)
-	{
-		additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
+  updateButtonStates (blocks = [], additionalCheck = null, block = null) {
+    additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
 
-		const that = this
+    const that = this
 
-		const totalTopBlocks = blocks.filter(block => block.getLevel() === 0).length
-		const maxBlocksMet = this._maxBlocks > 0 && blocks.length >= this._maxBlocks
-		const maxTopBlocksMet = this._maxTopBlocks > 0 && totalTopBlocks >= this._maxTopBlocks
+    const totalTopBlocks = blocks.filter(block => block.getLevel() === 0).length
+    const maxBlocksMet = this._maxBlocks > 0 && blocks.length >= this._maxBlocks
+    const maxTopBlocksMet = this._maxTopBlocks > 0 && totalTopBlocks >= this._maxTopBlocks
 
-		const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
+    const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
 
-		this.$blockButtons.each(function()
-		{
-			const $button = $(this)
-			let disabled = allDisabled
+    this.$blockButtons.each(function () {
+      const $button = $(this)
+      let disabled = allDisabled
 
-			if(!disabled)
-			{
-				const blockHasSameType = b => b.getBlockType().getHandle() === blockType.getHandle()
-				const blockType = that.getBlockTypeByButton($button)
-				const blocksOfType = blocks.filter(blockHasSameType)
-				const maxBlocksOfType = blockType.getMaxBlocks()
+      if (!disabled) {
+        const blockHasSameType = b => b.getBlockType().getHandle() === blockType.getHandle()
+        const blockType = that.getBlockTypeByButton($button)
+        const blocksOfType = blocks.filter(blockHasSameType)
+        const maxBlocksOfType = blockType.getMaxBlocks()
 
-				const maxSiblingBlocks = blockType.getMaxSiblingBlocks()
-				let siblingBlocksOfType = null
+        const maxSiblingBlocks = blockType.getMaxSiblingBlocks()
+        let siblingBlocksOfType = null
 
-				if(block !== null)
-				{
-					siblingBlocksOfType = block.getChildren(blocks).filter(blockHasSameType)
-				}
-				else
-				{
-					// This is at the top level
-					siblingBlocksOfType = blocks.filter(b => b.getLevel() === 0 && b.getBlockType().getHandle() === blockType.getHandle())
-				}
+        if (block !== null) {
+          siblingBlocksOfType = block.getChildren(blocks).filter(blockHasSameType)
+        } else {
+          // This is at the top level
+          siblingBlocksOfType = blocks.filter(b => b.getLevel() === 0 && b.getBlockType().getHandle() === blockType.getHandle())
+        }
 
-				disabled = disabled ||
-					(maxBlocksOfType > 0 && blocksOfType.length >= maxBlocksOfType) ||
-					(maxSiblingBlocks > 0 && siblingBlocksOfType.length >= maxSiblingBlocks)
-			}
+        disabled = disabled ||
+          (maxBlocksOfType > 0 && blocksOfType.length >= maxBlocksOfType) ||
+          (maxSiblingBlocks > 0 && siblingBlocksOfType.length >= maxSiblingBlocks)
+      }
 
-			$button.toggleClass('disabled', disabled)
-		})
+      $button.toggleClass('disabled', disabled)
+    })
 
-		this.$groupButtons.each(function()
-		{
-			const $button = $(this)
-			const menu = $button.data('menubtn')
-			let disabled = allDisabled
+    this.$groupButtons.each(function () {
+      const $button = $(this)
+      const menu = $button.data('menubtn')
+      let disabled = allDisabled
 
-			if(!disabled && menu)
-			{
-				const $menuButtons = menu.menu.$options
-				disabled = ($menuButtons.length === $menuButtons.filter('.disabled').length)
-			}
+      if (!disabled && menu) {
+        const $menuButtons = menu.menu.$options
+        disabled = ($menuButtons.length === $menuButtons.filter('.disabled').length)
+      }
 
-			$button.toggleClass('disabled', disabled)
-		})
-	},
+      $button.toggleClass('disabled', disabled)
+    })
+  },
 
-	updateResponsiveness()
-	{
-		if(!this._buttonsContainerWidth)
-		{
-			this._buttonsContainerWidth = this.$buttonsContainer.width()
-		}
+  updateResponsiveness () {
+    if (!this._buttonsContainerWidth) {
+      this._buttonsContainerWidth = this.$buttonsContainer.width()
+    }
 
-		const isMobile = (this.$container.width() < this._buttonsContainerWidth)
+    const isMobile = (this.$container.width() < this._buttonsContainerWidth)
 
-		this.$buttonsContainer.toggleClass('hidden', isMobile)
-		this.$menuContainer.toggleClass('hidden', !isMobile)
-	},
+    this.$buttonsContainer.toggleClass('hidden', isMobile)
+    this.$menuContainer.toggleClass('hidden', !isMobile)
+  },
 
-	getBlockTypeByButton($button)
-	{
-		const btHandle = $button.attr('data-neo-bn-info')
+  getBlockTypeByButton ($button) {
+    const btHandle = $button.attr('data-neo-bn-info')
 
-		return this._blockTypes.find(bt => bt.getHandle() === btHandle)
-	},
+    return this._blockTypes.find(bt => bt.getHandle() === btHandle)
+  },
 
-	'@newBlock'(e)
-	{
-		const $button = $(e.currentTarget)
-		const blockTypeHandle = $button.attr('data-neo-bn-info')
-		const blockType = this._blockTypes.find(bt => bt.getHandle() === blockTypeHandle)
+  '@newBlock' (e) {
+    const $button = $(e.currentTarget)
+    const blockTypeHandle = $button.attr('data-neo-bn-info')
+    const blockType = this._blockTypes.find(bt => bt.getHandle() === blockTypeHandle)
 
-		this.trigger('newBlock', {
-			blockType: blockType
-		})
-	}
+    this.trigger('newBlock', {
+      blockType: blockType
+    })
+  }
 })
