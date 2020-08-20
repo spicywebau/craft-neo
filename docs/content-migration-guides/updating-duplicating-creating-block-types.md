@@ -9,6 +9,7 @@ Block types have the following properties:
 - `name`
 - `handle`
 - `maxBlocks`
+- `maxSiblingBlocks`
 - `maxChildBlocks`
 - `childBlocks` (an array of handles)
 - `topLevel`
@@ -29,6 +30,7 @@ $result = (new \craft\db\Query())
         'name',
         'handle',
         'maxBlocks',
+        'maxSiblingBlocks',
         'maxChildBlocks',
         'childBlocks',
         'topLevel',
@@ -44,7 +46,7 @@ $result = (new \craft\db\Query())
 
 $blockType = new \benf\neo\models\BlockType($result);
 
-// Ensure `childBlocks` is actually an array before updating it; if it has no child blocks, it may be an empty string
+// Ensure `childBlocks` is actually an array before updating it; if it has no child blocks, it could be an empty string
 // If you're not updating that property, don't worry about it
 if (empty($blockType->childBlocks)) {
     $blockType->childBlocks = [];
@@ -61,7 +63,7 @@ Any other block type property could be updated in this way -- a block type could
 
 ## Duplicating a block type
 
-Duplicating a block type to another field could be achieved by doing something like this after getting the block type model:
+Duplicating a block type to another field (or within the same field) could be achieved by doing something like this after getting the block type model:
 
 ```php
 $newField = \Craft::$app->getFields()->getFieldById($targetFieldId);
@@ -108,7 +110,10 @@ if ($newField) {
     $blockType->id = null;
     $blockType->uid = null;
     $blockType->fieldId = $newField->id;
-    $blockType->sortOrder = count($newField->getBlockTypes()) + 1;
+    $blockType->sortOrder = count($newField->getBlockTypes()) + count($newField->getGroups()) + 1;
+
+    // If you're duplicating within the same field, make sure to set a new handle
+    $blockType->handle .= uniqid();
 
     return \benf\neo\Plugin::$plugin->blockTypes->save($blockType);
 }
@@ -120,7 +125,7 @@ As mentioned previously, creating and saving a new block type -- whether it's a 
 
 Now, the tricky situation with this is that the block type groups are positioned based on the same sort order, so order positions are unique across block types and groups.  If your field has no block type groups, then you could loop over the block types array after you've inserted your new block types where they need to be, and set their sort order values accordingly.  In all likelihood, though, unless this is a pretty basic Neo field, you'll probably be using block type groups, so you'd need to implement a solution that would update both block types and groups.
 
-Example code follows, in which one new block type is created and saved, and the other block types and groups are updated accordingly.  Note that this example will skip the field layout creation -- Neo uses regular Craft field layouts, the same that you'd apply to a section, category group, etc. so you should refer to the Craft documentation for more details on that.
+Example code follows, in which one new block type is created and saved, and the other block types and groups are updated accordingly.  Note that this example skips the field layout creation; Neo uses regular Craft field layouts, the same that you'd apply to a section, category group, etc. so you should refer to the Craft documentation for more details on that.
 
 ```php
 // This example assumes the Neo field to be updated has ID 1; update yours as necessary
@@ -182,10 +187,6 @@ foreach ($blockTypes as $blockType) {
         }
     }
 }
-
-// When saving a Neo field's settings, Neo actually deletes the old block type groups
-// and saves new ones, so that needs to be done here, too
-\benf\neo\Plugin::$plugin->blockTypes->deleteGroupsByFieldId($fieldId);
 
 // Save everything
 foreach ($blockTypes as $blockType) {
