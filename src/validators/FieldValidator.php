@@ -29,12 +29,9 @@ class FieldValidator extends Validator
      */
     public function validateAttribute($model, $attribute)
     {
-        $value = $model->$attribute;
+        $this->_setDefaultErrorMessages();
 
-        // Set default error messages
-        if ($this->tooManyTopBlocks === null) {
-            $this->tooManyTopBlocks = Craft::t('neo', '{attribute} should contain at most {maxTopBlocks, number} top-level {maxTopBlocks, plural, one{block} other{blocks}}.');
-        }
+        $value = $model->$attribute;
 
         // Check for max top-level blocks
         if ($this->maxTopBlocks !== null) {
@@ -45,6 +42,16 @@ class FieldValidator extends Validator
             if (count($topBlocks) > $this->maxTopBlocks) {
                 $this->addError($model, $attribute, $this->tooManyTopBlocks, ['maxTopBlocks' => $this->maxTopBlocks]);
             }
+        }
+    }
+
+    /**
+     * Sets default error messages for any error messages that have not already been set.
+     */
+    private function _setDefaultErrorMessages()
+    {
+        if ($this->tooManyTopBlocks === null) {
+            $this->tooManyTopBlocks = Craft::t('neo', '{attribute} should contain at most {maxTopBlocks, number} top-level {maxTopBlocks, plural, one{block} other{blocks}}.');
         }
     }
 }
