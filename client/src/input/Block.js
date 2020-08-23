@@ -763,7 +763,7 @@ export default Garnish.Base.extend({
     let cloneDisabled = allDisabled || typeDisabled
 
     const pasteData = JSON.parse(window.localStorage.getItem('neo:copy') || '{}')
-    let pasteDisabled = (!pasteData.blocks || !pasteData.field || pasteData.field !== field)
+    let pasteDisabled = allDisabled || !pasteData.blocks || !pasteData.field || pasteData.field !== field
 
     // Test to see if pasting would exceed the parent's max child blocks
     const parentBlock = this.getParent(blocks)
