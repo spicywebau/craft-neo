@@ -14,7 +14,7 @@ In short, replace `{slug}` with `{{ object is neoblock ? object.owner.slug : obj
 
 ### How do I get support for Neo?
 
-The primary method of support is to post an issue here on the GitHub repository. Besides that, many other experienced developers are active on [Craft's Slack](https://craftcms.slack.com), as well as the [Stack Exchange](http://craftcms.stackexchange.com/).
+The primary method of support is to post an issue here on the GitHub repository. Besides that, many other experienced developers are active on [Craft's Discord](https://craftcms.com/discord), as well as the [Stack Exchange](http://craftcms.stackexchange.com/).
 
 --
 
@@ -22,4 +22,4 @@ The primary method of support is to post an issue here on the GitHub repository.
 
 That sucks 👎
 
-First, check to make sure the issue hasn't already been documented in the [issues section](https://github.com/spicywebau/craft-neo/issues). If it hasn't, the best course of action is to then open an issue. If you require more of a discussion, head on over to the Slack's `#help` channel.
+First, check to make sure the issue hasn't already been documented in the [issues section](https://github.com/spicywebau/craft-neo/issues). If it hasn't, the best course of action is to then open an issue.
