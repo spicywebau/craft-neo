@@ -6,6 +6,7 @@
 - Neo's JavaScript source has been converted to use the Standard JS style
 
 ### Fixed
+- Fixed a bug where some GraphQL queries of Neo field data could return duplicate block data
 - Fixed a bug where Neo block pasting was not being disabled at the top level if a field had reached its max top level blocks
 
 ## 2.8.6 - 2020-08-18
