@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.7 - 2020-08-26
 
 ### Changed
 - Neo's JavaScript source has been converted to use the Standard JS style
