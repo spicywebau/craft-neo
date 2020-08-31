@@ -73,30 +73,11 @@ class Plugin extends BasePlugin
 
         Craft::$app->view->registerTwigExtension(new TwigExtension());
 
-        Event::on(
-            Fields::class,
-            Fields::EVENT_REGISTER_FIELD_TYPES,
-            function(RegisterComponentTypesEvent $event)
-            {
-                $event->types[] = Field::class;
-            }
-        );
-
-        Event::on(
-            CraftVariable::class,
-            CraftVariable::EVENT_INIT,
-            function(Event $event)
-            {
-                $event->sender->set('neo', Variable::class);
-            }
-        );
-
-        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
-            // Add my GraphQL types
-            $event->types[] = NeoGqlInterface::class;
-        });
-
-        $this->_setupProjectConfig();
+        $this->_registerFieldType();
+        $this->_registerTwigVariable();
+        $this->_registerGqlType();
+        $this->_registerProjectConfigApply();
+        $this->_registerProjectConfigRebuild();
         $this->_setupBlocksHasSortOrder();
     }
 
@@ -108,9 +89,41 @@ class Plugin extends BasePlugin
         return new Settings();
     }
 
-    private function _setupProjectConfig()
+    /**
+     * Registers the Neo field type.
+     */
+    private function _registerFieldType()
     {
-        // Listen for Neo updates in the project config to apply them to the database
+        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event){
+            $event->types[] = Field::class;
+        });
+    }
+
+    /**
+     * Registers the `craft.neo` Twig variable.
+     */
+    private function _registerTwigVariable()
+    {
+        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
+            $event->sender->set('neo', Variable::class);
+        });
+    }
+
+    /**
+     * Registers Neo's GraphQL type.
+     */
+    private function _registerGqlType()
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
+            $event->types[] = NeoGqlInterface::class;
+        });
+    }
+
+    /**
+     * Listens for Neo updates in the project config to apply them to the database.
+     */
+    private function _registerProjectConfigApply()
+    {
         Craft::$app->getProjectConfig()
             ->onAdd('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
             ->onUpdate('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
@@ -118,8 +131,13 @@ class Plugin extends BasePlugin
             ->onAdd('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
             ->onUpdate('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
             ->onRemove('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleDeletedBlockTypeGroup']);
+    }
 
-        // Listen for a project config rebuild, and provide the Neo data from the database
+    /**
+     * Registers an event listener for a project config rebuild, and provides the Neo data from the database.
+     */
+    private function _registerProjectConfigRebuild()
+    {
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event)
         {
             $fieldsService = Craft::$app->getFields();
