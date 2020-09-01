@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added server-side validation of whether any Neo field block type's max blocks setting has been exceeded, rather than relying on it to be enforced by client-side JavaScript
+
 ## 2.8.7 - 2020-08-26
 
 ### Changed
