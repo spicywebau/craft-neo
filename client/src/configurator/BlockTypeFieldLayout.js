@@ -101,16 +101,26 @@ export default Garnish.Base.extend({
     if (element.type === 'craft\\fieldlayoutelements\\CustomField') {
       const $unusedField = this._fld.$fields.filter(`[data-id="${element.id}"]`)
       $element = $unusedField.clone().toggleClass('fld-required', !!element.config.required)
+      const $required = $(`<span class="fld-required-indicator" title="${Craft.t('app', 'This field is required')}"></span>`)
+      let $requiredAppendee = $element.find('.fld-element-label')
 
       // If `element.config.label` isn't set, this just means the field label hasn't been
       // overridden in any way, so we don't need to do anything to it
       if (element.config.label) {
         // Do we need to hide the label?
         if (element.config.label === '__blank__') {
-          $element.find('.fld-element-label').remove()
+          $requiredAppendee.remove()
+
+          if (element.config.required) {
+            $requiredAppendee = $element.find('.fld-attribute')
+          }
         } else {
-          $element.find('.fld-element-label').text(element.config.label)
+          $requiredAppendee.children('h4').text(element.config.label)
         }
+      }
+
+      if (element.config.required) {
+        $requiredAppendee.append($required)
       }
 
       $unusedField.addClass('hidden')

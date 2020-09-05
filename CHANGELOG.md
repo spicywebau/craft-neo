@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Neo now requires Craft 3.5.8 or later
+
+### Fixed
+- Fixed a compatibility issue introduced with Craft 3.5.8, where required Neo sub-fields would not appear as required in the field layout designer
+
 ## 2.8.7 - 2020-08-26
 
 ### Changed
