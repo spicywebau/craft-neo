@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a compatibility issue introduced with Craft 3.5.8, where required Neo sub-fields would not appear as required in the field layout designer
+- Fixed an issue where saving an otherwise-unmodified Neo block with a newly-added Super Table field, that has either a minimum number or rows or a static row, would cause an "Attempting to duplicate an unsaved element" error
 
 ## 2.8.7 - 2020-08-26
 
