@@ -89,7 +89,7 @@ class Block extends Element
 				'name' => 'level',
 				'type' => Type::int(),
 				'description' => 'The block’s level within its field'
-            ],
+			],
 		]);
 	}
 }
