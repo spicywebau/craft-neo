@@ -84,7 +84,7 @@ class Block extends Element
 				'name' => 'typeHandle',
 				'type' => Type::string(),
 				'description' => 'The handle of the neo block\'s type.'
-			],
+			]
 		]);
 	}
 }
