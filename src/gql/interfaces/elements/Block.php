@@ -26,7 +26,7 @@ class Block extends Element
 	{
 		return BlockType::class;
 	}
-	
+
 	/**
 	 * @inheritdoc
 	 */
@@ -35,7 +35,7 @@ class Block extends Element
 		if ($type = GqlEntityRegistry::getEntity(self::class)) {
 			return $type;
 		}
-		
+
 		$type = GqlEntityRegistry::createEntity(self::class, new InterfaceType([
 			'name' => static::getName(),
 			'fields' => self::class . '::getFieldDefinitions',
@@ -44,14 +44,14 @@ class Block extends Element
 				return $value->getGqlTypeName();
 			}
 		]));
-		
+
 		foreach (BlockType::generateTypes() as $typeName => $generatedType) {
 			TypeLoader::registerType($typeName, function () use ($generatedType) { return $generatedType ;});
 		}
-		
+
 		return $type;
 	}
-	
+
 	/**
 	 * @inheritdoc
 	 */
@@ -59,7 +59,7 @@ class Block extends Element
 	{
 		return 'NeoBlockInterface';
 	}
-	
+
 	/**
 	 * @inheritdoc
 	 */
@@ -84,7 +84,12 @@ class Block extends Element
 				'name' => 'typeHandle',
 				'type' => Type::string(),
 				'description' => 'The handle of the neo block\'s type.'
-			]
+			],
+            'level' => [
+                'name' => 'level',
+                'type' => Type::int(),
+                'description' => 'The block’s level within its field'
+            ],
 		]);
 	}
 }
