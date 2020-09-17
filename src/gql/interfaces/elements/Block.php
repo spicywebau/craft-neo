@@ -85,11 +85,6 @@ class Block extends Element
 				'type' => Type::string(),
 				'description' => 'The handle of the neo block\'s type.'
 			],
-			'level' => [
-				'name' => 'level',
-				'type' => Type::int(),
-				'description' => 'The block’s level within its field'
-			],
 		]);
 	}
 }

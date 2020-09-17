@@ -32,6 +32,11 @@ class Block extends ElementArguments
 				'type' => Type::listOf(Type::string()),
 				'description' => 'Narrows the query results based on the neo blocks’ block type handles.'
 			],
+			'level' => [
+				'name' => 'level',
+				'type' => Type::int(),
+				'description' => 'The block’s level within its field'
+			],
 		]);
 	}
 }
