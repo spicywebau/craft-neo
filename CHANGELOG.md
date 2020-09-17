@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug with editing a Neo field's settings where, when clicking to delete a block type but then clicking cancel on the confirmation window, that block type would be removed from the Child Blocks settings field on all block types
+
 ## 2.8.8 - 2020-09-05
 
 ### Changed
