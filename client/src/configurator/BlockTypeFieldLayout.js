@@ -100,7 +100,12 @@ export default Garnish.Base.extend({
 
     if (element.type === 'craft\\fieldlayoutelements\\CustomField') {
       const $unusedField = this._fld.$fields.filter(`[data-id="${element.id}"]`)
-      $element = $unusedField.clone().toggleClass('fld-required', !!element.config.required)
+
+      // If a field's not required, `element.config.required` should either be `false` or
+      // an empty string, but it seems there was a bug in earlier Craft 3.5 that caused it
+      // to be saved as the string `'0'`
+      const isRequired = element.config.required && element.config.required !== '0'
+      $element = $unusedField.clone().toggleClass('fld-required', isRequired)
       const $required = $(`<span class="fld-required-indicator" title="${Craft.t('app', 'This field is required')}"></span>`)
       let $requiredAppendee = $element.find('.fld-element-label')
 
@@ -111,7 +116,7 @@ export default Garnish.Base.extend({
         if (element.config.label === '__blank__') {
           $requiredAppendee.remove()
 
-          if (element.config.required) {
+          if (isRequired) {
             $requiredAppendee = $element.find('.fld-attribute')
           }
         } else {
@@ -119,7 +124,7 @@ export default Garnish.Base.extend({
         }
       }
 
-      if (element.config.required) {
+      if (isRequired) {
         $requiredAppendee.append($required)
       }
 
