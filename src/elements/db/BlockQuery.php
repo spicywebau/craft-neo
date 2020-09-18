@@ -2,20 +2,18 @@
 
 namespace benf\neo\elements\db;
 
-use yii\base\Exception;
-use yii\db\Connection;
-
+use benf\neo\Plugin as Neo;
+use benf\neo\elements\Block;
+use benf\neo\models\BlockType;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQuery;
-use craft\models\Site;
 use craft\helpers\Db;
-
-use benf\neo\Plugin as Neo;
-use benf\neo\elements\Block;
-use benf\neo\models\BlockType;
+use craft\models\Site;
+use yii\base\Exception;
+use yii\db\Connection;
 
 /**
  * Class BlockQuery
@@ -32,47 +30,46 @@ class BlockQuery extends ElementQuery
      * @var int|array|null The field ID(s) to query for.
      */
     public $fieldId;
-    
+
     /**
      * @var int|array|null The owner ID(s) to query for.
      */
     public $ownerId;
-    
+
     /**
      * @var int|array|null The owner site ID to query for.
      * @deprecated in 2.4.0. Use [[$siteId]] instead.
      */
     public $ownerSiteId;
-    
+
     /**
      * @var int|array|null The block type ID(s) to query for.
      */
     public $typeId;
-    
+
     // Private properties
-    
+
     /**
      * @var array|null The block data to be filtered in live preview mode.
      */
     private $_allElements;
-    
+
     /**
      * @var bool Whether to operate on a memoized data set.
      */
     private $_useMemoized = false;
-    
+
     private $blockLevel = null;
-    
-    
+
     // Public methods
-    
+
     /**
      * @inheritdoc
      */
     public function __set($name, $value)
     {
         $deprecatorService = Craft::$app->getDeprecator();
-        
+
         switch ($name) {
             case 'ownerSite':
                 {
@@ -97,7 +94,7 @@ class BlockQuery extends ElementQuery
             }
         }
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -106,7 +103,7 @@ class BlockQuery extends ElementQuery
         $this->withStructure = true;
         parent::init();
     }
-    
+
     /**
      * Filters the query results based on the field ID.
      *
@@ -116,10 +113,10 @@ class BlockQuery extends ElementQuery
     public function fieldId($value)
     {
         $this->fieldId = $value;
-        
+
         return $this;
     }
-    
+
     /**
      * Filters the query results based on the owner ID.
      *
@@ -129,10 +126,10 @@ class BlockQuery extends ElementQuery
     public function ownerId($value)
     {
         $this->ownerId = $value;
-        
+
         return $this;
     }
-    
+
     /**
      * Filters the query results based on the owner's site ID.
      *
@@ -143,10 +140,10 @@ class BlockQuery extends ElementQuery
     {
         Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()',
             'The “ownerSiteId” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
-        
+
         return $this;
     }
-    
+
     /**
      * Filters the query results based on the owner's site.
      *
@@ -158,10 +155,10 @@ class BlockQuery extends ElementQuery
     {
         Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()',
             'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
-        
+
         return $this;
     }
-    
+
     /**
      * Filters the query results based on the owner's site.
      *
@@ -173,11 +170,10 @@ class BlockQuery extends ElementQuery
     {
         Craft::$app->getDeprecator()->log('ElementQuery::ownerLocale()',
             "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
-        //		$this->ownerSite($value);
-        
+
         return $this;
     }
-    
+
     /**
      * Filters the query results based on the owner.
      *
@@ -188,10 +184,10 @@ class BlockQuery extends ElementQuery
     {
         $this->ownerId = $owner->id;
         $this->siteId = $owner->siteId;
-        
+
         return $this;
     }
-    
+
     /**
      * Filters the query results based on the block type.
      *
@@ -213,10 +209,10 @@ class BlockQuery extends ElementQuery
                 $this->typeId = null;
             }
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Filters the query results based on the block type IDs.
      *
@@ -226,24 +222,24 @@ class BlockQuery extends ElementQuery
     public function typeId($value)
     {
         $this->typeId = $value;
-        
+
         return $this;
     }
-    
+
     /**
      * @inheritdoc
      */
     public function count($q = '*', $db = null)
     {
         $isUsingMemoized = $this->isUsingMemoized();
-        
+
         if ($isUsingMemoized && isset($this->_allElements)) {
             $this->setCachedResult($this->_getFilteredResult());
         }
-        
+
         return parent::count($q, $db);
     }
-    
+
     /**
      * @inheritdoc
      * @return Block[]|array
@@ -251,14 +247,14 @@ class BlockQuery extends ElementQuery
     public function all($db = null)
     {
         $isUsingMemoized = $this->isUsingMemoized();
-        
+
         if ($isUsingMemoized && isset($this->_allElements)) {
             $this->setCachedResult($this->_getFilteredResult());
         }
-        
+
         return parent::all($db);
     }
-    
+
     /**
      * @inheritdoc
      * @return Block|array|null
@@ -266,14 +262,14 @@ class BlockQuery extends ElementQuery
     public function one($db = null)
     {
         $isUsingMemoized = $this->isUsingMemoized();
-        
+
         if ($isUsingMemoized && isset($this->_allElements)) {
             $this->setCachedResult($this->_getFilteredResult());
         }
-        
+
         return parent::one($db);
     }
-    
+
     /**
      * @inheritdoc
      * @return Block|array|null
@@ -281,14 +277,14 @@ class BlockQuery extends ElementQuery
     public function nth(int $n, Connection $db = null)
     {
         $isUsingMemoized = $this->isUsingMemoized();
-        
+
         if ($isUsingMemoized && isset($this->_allElements)) {
             $this->setCachedResult($this->_getFilteredResult());
         }
-        
+
         return parent::nth($n, $db);
     }
-    
+
     /**
      * Sets all the elements (blocks) to be filtered against in Live Preview mode.
      * This becomes the main data source for Live Preview, instead of the database.
@@ -299,7 +295,7 @@ class BlockQuery extends ElementQuery
     {
         $this->_allElements = $elements;
     }
-    
+
     /**
      * Whether the block query is operating on a memoized data set.
      *
@@ -309,7 +305,7 @@ class BlockQuery extends ElementQuery
     {
         return $this->_useMemoized;
     }
-    
+
     /**
      * Sets whether the block query operates on a memoized data set.
      *
@@ -321,24 +317,20 @@ class BlockQuery extends ElementQuery
             $this->setAllElements($use);
             $use = true;
         }
-        
+    
         $this->_useMemoized = $use;
     }
-    
-    
+
     // Protected methods
-    
+
     /**
      * @inheritdoc
      */
     protected function beforePrepare(): bool
     {
-        // $dbService = Craft::$app->getDb();
-        
         $this->joinElementTable('neoblocks');
-        
         $isSaved = $this->id && is_numeric($this->id);
-        
+
         if ($isSaved) {
             foreach (['fieldId', 'ownerId'] as $idProperty) {
                 if (!$this->$idProperty) {
@@ -350,66 +342,54 @@ class BlockQuery extends ElementQuery
                 }
             }
         }
-        
+
         // add the structureId so it doesn't retrieve all blocks for every site.
-        if (!$this->structureId && $this->fieldId && $this->ownerId)
-        {
+        if (!$this->structureId && $this->fieldId && $this->ownerId) {
             $blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, (int)$this->siteId);
-        
-            if ($blockStructure)
-            {
+
+            if ($blockStructure) {
                 $this->structureId = $blockStructure->structureId;
             }
         }
-        
+
         $select = [
             'neoblocks.fieldId',
             'neoblocks.ownerId',
             'neoblocks.typeId'
         ];
-        
+
         if (Neo::$plugin->blockHasSortOrder) {
             $select[] = 'neoblocks.sortOrder';
-    
+
             if (isset($this->select[0]) && $this->select[0] !== 'COUNT(*)') {
                 $this->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
             }
         }
-        
+
         $this->query->select($select);
-        
+
         if ($this->fieldId) {
             $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $this->fieldId));
         }
-        
+
         if ($this->ownerId) {
             $this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $this->ownerId));
         }
-        
+
         if ($this->typeId !== null) {
             // If typeId is an empty array, it's because type() was called but no valid type handles were passed in
             if (is_array($this->typeId) && empty($this->typeId)) {
                 return false;
             }
-            
+
             $this->subQuery->andWhere(Db::parseParam('neoblocks.typeId', $this->typeId));
         }
         
-        // Ignore revision/draft blocks by default
-        // if (!$this->id && !$this->ownerId) {
-        // 	$this->subQuery
-        // 		->innerJoin(Table::ELEMENTS . ' owners', '[[owners.id]] = [[neoblocks.ownerId]]')
-        // 		->andWhere([
-        // 			'owners.draftId' => null,
-        // 			'owners.revisionId' => null,
-        // 		]);
-        // }
-        
         return parent::beforePrepare();
     }
-    
+
     // Private methods
-    
+
     /**
      * Returns the filtered blocks in live preview mode.
      *
@@ -419,24 +399,24 @@ class BlockQuery extends ElementQuery
     {
         $result = $this->_allElements ?? [];
         $criteria = $this->getCriteria();
-        
+
         foreach (['limit', 'offset'] as $limitParam) {
             if ($this->$limitParam) {
                 $criteria[$limitParam] = $this->$limitParam;
             }
         }
-        
+
         foreach ($criteria as $param => $value) {
             $method = '__' . $param;
-            
+
             if (method_exists($this, $method)) {
                 $result = $this->$method($result, $value);
             }
         }
-        
+
         return $result;
     }
-    
+
     /**
      * Compares an integer against a criteria model integer comparison string, or integer.
      * Takes in comparison inputs such as `1`, `'>=23'`, and `'< 4'`.
@@ -450,39 +430,27 @@ class BlockQuery extends ElementQuery
         if (is_int($comparison)) {
             return $value === $comparison;
         }
-        
+
         if (is_string($comparison)) {
             $matches = [];
             preg_match('/([><]=?)\\s*([0-9]+)/', $comparison, $matches);
-            
+
             if (count($matches) === 3) {
                 $comparator = $matches[1];
                 $comparison = (int)$matches[2];
-                
+
                 switch ($comparator) {
-                    case '>':
-                    {
-                        return $value > $comparison;
-                    }
-                    case '<':
-                    {
-                        return $value < $comparison;
-                    }
-                    case '>=':
-                    {
-                        return $value >= $comparison;
-                    }
-                    case '<=':
-                    {
-                        return $value <= $comparison;
-                    }
+                    case '>': return $value > $comparison;
+                    case '<': return $value < $comparison;
+                    case '>=': return $value >= $comparison;
+                    case '<=': return $value <= $comparison;
                 }
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Returns a block given an ID, or an actual block.
      * Saves having to check if some value is an integer or a block instance.
@@ -500,14 +468,14 @@ class BlockQuery extends ElementQuery
                 }
             }
         }
-        
+
         if ($block instanceof Block) {
             return $block;
         }
-        
+
         return null;
     }
-    
+
     /**
      * Finds the position of a block inside a list of blocks.
      * It checks using the block's ID, so the passed block doesn't have to be strictly the same instance it matches to.
@@ -524,10 +492,10 @@ class BlockQuery extends ElementQuery
                 return $i;
             }
         }
-        
+
         return -1;
     }
-    
+
     /**
      * Returns the previous siblings of a given block.
      *
@@ -541,28 +509,28 @@ class BlockQuery extends ElementQuery
         if ($index === null) {
             $index = $this->_indexOfBlock($elements, $block);
         }
-        
+
         if ($index < 0) {
             return [];
         }
-        
+
         $prevSiblings = [];
-        
+
         for ($i = $index - 1; $i >= 0; $i--) {
             $element = $elements[$i];
-            
+
             if ($element->level < $block->level) {
                 break;
             }
-            
+
             if ($element->level == $block->level) {
                 array_unshift($prevSiblings, $element);
             }
         }
-        
+
         return $prevSiblings;
     }
-    
+
     /**
      * Returns the next siblings of a given block.
      *
@@ -576,33 +544,32 @@ class BlockQuery extends ElementQuery
         if ($index === null) {
             $index = $this->_indexOfBlock($elements, $block);
         }
-        
+
         if ($index < 0) {
             return [];
         }
-        
+
         $nextSiblings = [];
-        
+
         $elementsCount = count($elements);
         for ($i = $index + 1; $i < $elementsCount; $i++) {
             $element = $elements[$i];
-            
+
             if ($element->level < $block->level) {
                 break;
             }
-            
+
             if ($element->level == $block->level) {
                 $nextSiblings[] = $element;
             }
         }
-        
+
         return $nextSiblings;
     }
-    
-    
+
     // Live Preview methods
     // These methods must be prefixed with two underscores. They will automatically be detected and used when filtering.
-    
+
     /**
      * @param array $elements
      * @param int $value
@@ -613,14 +580,14 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-        
+
         $newElements = array_filter($elements, function ($element) use ($value) {
             return in_array($element->typeId, $value);
         });
-        
+
         return array_values($newElements);
     }
-    
+
     /**
      * @param array $elements
      * @param int $value
@@ -631,14 +598,14 @@ class BlockQuery extends ElementQuery
         if (!$value || !$this->ancestorOf) {
             return $elements;
         }
-        
+
         $ancestors = array_filter($elements, function ($element) use ($value) {
             return $element->level >= $this->ancestorOf->level - $value;
         });
-        
+
         return array_values($ancestors);
     }
-    
+
     /**
      * @param array $elements
      * @param Block $value
@@ -649,31 +616,27 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-        
+
         $ancestors = [];
         $found = false;
         $level = $value->level - 1;
-        
+
         foreach (array_reverse($elements) as $element) {
             if ($level < 1) {
                 break;
             } else {
                 if ($element === $value) {
                     $found = true;
-                } else {
-                    if ($found) {
-                        if ($element->level == $level) {
-                            $ancestors[] = $element;
-                            $level--;
-                        }
-                    }
+                } else if ($found && $element->level == $level) {
+                    $ancestors[] = $element;
+                    $level--;
                 }
             }
         }
-        
+
         return array_reverse($ancestors);
     }
-    
+
     /**
      * @param array $elements
      * @param int $value
@@ -684,14 +647,14 @@ class BlockQuery extends ElementQuery
         if (!$value || !$this->descendantOf) {
             return $elements;
         }
-        
+
         $descendants = array_filter($elements, function ($element) use ($value) {
             return $element->level <= $this->descendantOf->level + $value;
         });
-        
+
         return array_values($descendants);
     }
-    
+
     /**
      * @param array $elements
      * @param Block $value
@@ -702,27 +665,25 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-        
+
         $descendants = [];
         $found = false;
-        
+
         foreach ($elements as $element) {
             if ($element === $value) {
                 $found = true;
-            } else {
-                if ($found) {
-                    if ($element->level > $value->level) {
-                        $descendants[] = $element;
-                    } else {
-                        break;
-                    }
+            } else if ($found) {
+                if ($element->level > $value->level) {
+                    $descendants[] = $element;
+                } else {
+                    break;
                 }
             }
         }
-        
+
         return $descendants;
     }
-    
+
     /**
      * @param array $elements
      * @param int $value
@@ -733,14 +694,14 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-        
+
         $newElements = array_filter($elements, function ($element) use ($value) {
             return $element->id == $value;
         });
-        
+
         return array_values($newElements);
     }
-    
+
     /**
      * @param array $elements
      * @param bool $value
@@ -751,10 +712,10 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-        
+    
         return array_reverse($elements);
     }
-    
+
     /**
      * @param array $elements
      * @param int $value
@@ -765,14 +726,14 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-        
+
         $newElements = array_filter($elements, function ($block) use ($value) {
             return $this->_compareInt($block->level, $value);
         });
-        
+
         return array_values($newElements);
     }
-    
+
     /**
      * @param array $elements
      * @param int $value
@@ -783,10 +744,10 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-        
+
         return array_slice($elements, 0, $value);
     }
-    
+
     /**
      * @param array $elements
      * @param Block|int $value
@@ -795,20 +756,20 @@ class BlockQuery extends ElementQuery
     private function __nextSiblingOf(array $elements, $value): array
     {
         $value = $this->_getBlock($value);
-        
+
         if (!$value) {
             return $elements;
         }
-        
+
         $nextSiblings = $this->_getNextSiblings($elements, $value);
-        
+
         if (empty($nextSiblings)) {
             return [];
         }
-        
+
         return [$nextSiblings[0]];
     }
-    
+
     /**
      * @param array $elements
      * @param int $value
@@ -819,10 +780,10 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-        
+
         return array_slice($elements, $value);
     }
-    
+
     /**
      * @param array $elements
      * @param Block|int $value
@@ -831,16 +792,16 @@ class BlockQuery extends ElementQuery
     private function __positionedAfter(array $elements, $value): array
     {
         $value = $this->_getBlock($value);
-        
+
         if (!$value) {
             return $elements;
         }
-        
+
         $index = $this->_indexOfBlock($elements, $value);
-        
+
         return array_slice($elements, $index + 1);
     }
-    
+
     /**
      * @param array $elements
      * @param Block|int $value
@@ -849,23 +810,23 @@ class BlockQuery extends ElementQuery
     private function __positionedBefore(array $elements, $value): array
     {
         $value = $this->_getBlock($value);
-        
+
         if (!$value) {
             return $elements;
         }
-        
+
         $newElements = [];
         $ancestors = $this->__ancestorOf($elements, $value);
         $ancestors = array_merge([$value], $ancestors);
-        
+
         foreach (array_reverse($ancestors) as $ancestor) {
             $ancestorPrevSiblings = $this->_getPrevSiblings($elements, $ancestor);
             $newElements = array_merge($newElements, $ancestorPrevSiblings);
         }
-        
+
         return $newElements;
     }
-    
+
     /**
      * @param array $elements
      * @param Block|int $value
@@ -874,20 +835,20 @@ class BlockQuery extends ElementQuery
     private function __prevSiblingOf(array $elements, $value)
     {
         $value = $this->_getBlock($value);
-        
+
         if (!$value) {
             return $elements;
         }
-        
+
         $prevSiblings = $this->_getPrevSiblings($elements, $value);
-        
+
         if (empty($prevSiblings)) {
             return [];
         }
-        
+
         return [end($prevSiblings)];
     }
-    
+
     /**
      * @param array $elements
      * @param Block|int $value
@@ -896,18 +857,18 @@ class BlockQuery extends ElementQuery
     private function __siblingOf(array $elements, $value): array
     {
         $value = $this->_getBlock($value);
-        
+
         if (!$value) {
             return $elements;
         }
-        
+
         $mid = $this->_indexOfBlock($elements, $value);
         $prevSiblings = $this->_getPrevSiblings($elements, $value, $mid);
         $nextSiblings = $this->_getNextSiblings($elements, $value, $mid);
-        
+
         return array_merge($prevSiblings, $nextSiblings);
     }
-    
+
     /**
      * @param array $elements
      * @param string $value
@@ -918,11 +879,11 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-        
+    
         $newElements = array_filter($elements, function ($element) use ($value) {
             return $element->status == $value;
         });
-        
+
         return array_values($newElements);
     }
 }
