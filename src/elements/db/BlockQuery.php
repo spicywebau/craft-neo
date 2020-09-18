@@ -343,9 +343,12 @@ class BlockQuery extends ElementQuery
             }
         }
 
+        $fieldId = is_array($this->fieldId) && count($this->fieldId) === 1 ? $this->fieldId[0] : $this->fieldId;
+        $ownerId = is_array($this->ownerId) && count($this->ownerId) === 1 ? $this->ownerId[0] : $this->ownerId;
+
         // add the structureId so it doesn't retrieve all blocks for every site.
-        if (!$this->structureId && $this->fieldId && $this->ownerId) {
-            $blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, (int)$this->siteId);
+        if (!$this->structureId && is_numeric($fieldId) && is_numeric($ownerId)) {
+            $blockStructure = Neo::$plugin->blocks->getStructure($fieldId, $ownerId, (int)$this->siteId);
 
             if ($blockStructure) {
                 $this->structureId = $blockStructure->structureId;
@@ -368,12 +371,12 @@ class BlockQuery extends ElementQuery
 
         $this->query->select($select);
 
-        if ($this->fieldId) {
-            $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $this->fieldId));
+        if ($fieldId) {
+            $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $fieldId));
         }
 
-        if ($this->ownerId) {
-            $this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $this->ownerId));
+        if ($ownerId) {
+            $this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $ownerId));
         }
 
         if ($this->typeId !== null) {
