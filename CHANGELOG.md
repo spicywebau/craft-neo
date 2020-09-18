@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.9 - 2020-09-18
 
 ### Fixed
 - Fixed a bug when editing a Neo field's settings where, in some cases, sub-fields could incorrectly display as required in the field layout designer
