@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the ability in GraphQL queries to query Neo field data according to the block level (thanks @smcyr)
+
 ### Fixed
 - Fixed a bug where some eager loading queries of Neo field data could return duplicate block data
 - Fixed an error that occurred when executing a Neo block query in which the `fieldId` and `ownerId` properties were both arrays
