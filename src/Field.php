@@ -3,6 +3,16 @@
 namespace benf\neo;
 
 use benf\neo\Plugin as Neo;
+use benf\neo\assets\FieldAsset;
+use benf\neo\elements\Block;
+use benf\neo\elements\db\BlockQuery;
+use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
+use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
+use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
+use benf\neo\models\BlockStructure;
+use benf\neo\models\BlockType;
+use benf\neo\models\BlockTypeGroup;
+use benf\neo\validators\FieldValidator;
 use Craft;
 use craft\base\EagerLoadingFieldInterface;
 use craft\base\Element;
@@ -14,23 +24,12 @@ use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
-use craft\validators\ArrayValidator;
+use craft\helpers\Gql as GqlHelper;
+use craft\gql\GqlEntityRegistry;
 use craft\queue\jobs\ResaveElements;
 use craft\services\Elements;
-use craft\gql\GqlEntityRegistry;
-use craft\helpers\Gql as GqlHelper;
+use craft\validators\ArrayValidator;
 use GraphQL\Type\Definition\Type;
-
-use benf\neo\assets\FieldAsset;
-use benf\neo\elements\Block;
-use benf\neo\elements\db\BlockQuery;
-use benf\neo\models\BlockStructure;
-use benf\neo\models\BlockType;
-use benf\neo\models\BlockTypeGroup;
-use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
-use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
-use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
-use benf\neo\validators\FieldValidator;
 use yii\base\UnknownPropertyException;
 use yii\db\Exception;
 use yii\base\InvalidArgumentException;
@@ -49,15 +48,15 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     const PROPAGATION_METHOD_SITE_GROUP = 'siteGroup';
     const PROPAGATION_METHOD_LANGUAGE = 'language';
     const PROPAGATION_METHOD_ALL = 'all';
-    
+
     /**
      * @inheritdoc
      */
     public static function displayName(): string
     {
-        return Craft::t('neo', "Neo");
+        return Craft::t('neo', 'Neo');
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -65,7 +64,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         return false;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -75,40 +74,40 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             self::TRANSLATION_METHOD_SITE,
         ];
     }
-    
+
     /**
      * @var bool Whether this field is translatable.
      * @deprecated in 2.4.0. Use [[$propagationMethod]] instead
      */
     public $localizeBlocks = false;
-    
+
     /**
      * @var int|null The minimum number of blocks this field can have.
      */
     public $minBlocks;
-    
+
     /**
      * @var int|null The maximum number of blocks this field can have.
      */
     public $maxBlocks;
-    
+
     /**
      * @var int|null The maximum number of top-level blocks this field can have.
      */
     public $maxTopBlocks;
-    
+
     public $wasModified = false;
-    
+
     /**
      * @var array|null The block types associated with this field.
      */
     private $_blockTypes;
-    
+
     /**
      * @var array|null The block type groups associated with this field.
      */
     private $_blockTypeGroups;
-    
+
     /**
      * @var string Propagation method
      *
@@ -122,14 +121,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      * @since 2.4.0
      */
     public $propagationMethod = self::PROPAGATION_METHOD_ALL;
-    
+
     /**
      * @var string The old propagation method for this field
      */
     private $_oldPropagationMethod;
-    
-    // Public Methods
-    // =========================================================================
+
     /**
      * @inheritdoc
      */
@@ -141,7 +138,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
         parent::__construct($config);
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -151,7 +148,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $this->localizeBlocks = $this->propagationMethod === self::PROPAGATION_METHOD_NONE;
         parent::init();
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -159,7 +156,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         return ArrayHelper::withoutValue(parent::settingsAttributes(), 'localizeBlocks');
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -177,10 +174,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             ]
         ];
         $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks'], 'integer', 'min' => 0];
-        
+
         return $rules;
     }
-    
+
     /**
      * Returns this field's block types.
      *
@@ -189,7 +186,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function getBlockTypes(): array
     {
         $blockTypes = $this->_blockTypes;
-        
+
         if ($blockTypes === null) {
             if ($this->getIsNew()) {
                 $blockTypes = [];
@@ -198,10 +195,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $this->_blockTypes = $blockTypes;
             }
         }
-        
+
         return $blockTypes;
     }
-    
+
     /**
      * Sets this field's block types.
      *
@@ -210,10 +207,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function setBlockTypes($blockTypes)
     {
         $newBlockTypes = [];
-        
+
         foreach ($blockTypes as $blockTypeId => $blockType) {
             $newBlockType = $blockType;
-            
+
             if (!($blockType instanceof BlockType)) {
                 $newBlockType = new BlockType();
                 $newBlockType->id = $blockTypeId;
@@ -226,13 +223,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
                 $newBlockType->childBlocks = $blockType['childBlocks'];
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
-                
+
                 if (!empty($blockType['fieldLayout'])) {
                     $fieldLayoutPost = $blockType['fieldLayout'];
                     $requiredFieldPost = empty($blockType['requiredFields']) ? [] : $blockType['requiredFields'];
                     $fieldLayout = Craft::$app->getFields()->assembleLayout($fieldLayoutPost, $requiredFieldPost);
                     $fieldLayout->type = Block::class;
-                    
+
                     // Ensure the field layout ID is set, if it exists
                     if (is_int($blockTypeId)) {
                         $layoutIdResult = (new Query())
@@ -240,22 +237,22 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                             ->from('{{%neoblocktypes}}')
                             ->where(['id' => $blockTypeId])
                             ->one();
-                        
+
                         if ($layoutIdResult !== null) {
                             $fieldLayout->id = $layoutIdResult['fieldLayoutId'];
                         }
                     }
-                    
+
                     $newBlockType->setFieldLayout($fieldLayout);
                 }
             }
-            
+
             $newBlockTypes[] = $newBlockType;
         }
-        
+
         $this->_blockTypes = $newBlockTypes;
     }
-    
+
     /**
      * Returns this field's block type groups.
      *
@@ -264,7 +261,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function getGroups(): array
     {
         $blockTypeGroups = $this->_blockTypeGroups;
-        
+
         if ($blockTypeGroups === null) {
             if ($this->getIsNew()) {
                 $blockTypeGroups = [];
@@ -273,10 +270,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $this->_blockTypeGroups = $blockTypeGroups;
             }
         }
-        
+
         return $blockTypeGroups;
     }
-    
+
     /**
      * Sets this field's block type groups.
      *
@@ -285,7 +282,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function setGroups($blockTypeGroups)
     {
         $newBlockTypeGroups = [];
-        
+
         foreach ($blockTypeGroups as $id => $blockTypeGroup) {
             $newBlockTypeGroup = $blockTypeGroup;
             
@@ -296,13 +293,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockTypeGroup->name = $blockTypeGroup['name'];
                 $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
             }
-            
+
             $newBlockTypeGroups[] = $newBlockTypeGroup;
         }
-        
+
         $this->_blockTypeGroups = $newBlockTypeGroups;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -310,32 +307,31 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         $validates = parent::validate($attributeNames, $clearErrors);
         $validates = $validates && Neo::$plugin->fields->validate($this);
-        
+
         return $validates;
     }
-    
+
     /**
      * @inheritdoc
      */
     public function getSettingsHtml()
     {
         $viewService = Craft::$app->getView();
-        
         $html = '';
-        
-        // Disable creating Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
+
+        // Disable creating Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
         if ($this->_getNamespaceDepth() >= 1) {
             $html = $this->_getNestingErrorHtml();
         } else {
             $viewService->registerAssetBundle(FieldAsset::class);
             $viewService->registerJs(FieldAsset::createSettingsJs($this));
-            
+
             $html = $viewService->renderTemplate('neo/settings', ['neoField' => $this]);
         }
-        
+
         return $html;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -343,7 +339,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         return $this->_getInputHtml($value, $element);
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -351,7 +347,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         return $this->_getInputHtml($value, $element, true);
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -363,24 +359,24 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         $query = Block::find();
         $this->_populateQuery($query, $element);
-        
+
         // Set the initially matched elements if $value is already set, which is the case if there was a validation
         // error or we're loading an entry revision.
         $elements = null;
-        
+
         if ($value === '') {
             $elements = [];
         } elseif ($element && is_array($value)) {
             $elements = $this->_createBlocksFromSerializedData($value, $element);
         }
-        
+
         if ($elements !== null) {
             if (!Craft::$app->getRequest()->getIsLivePreview()) {
                 $query->anyStatus();
             } else {
                 $query->status = Element::STATUS_ENABLED;
             }
-            
+
             $query->limit = null;
             // don't set the cached result if element is a draft initially.
             // on draft creation the all other sites (in a multisite) uses the cached result from the element (where the draft came from)
@@ -388,10 +384,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $query->setCachedResult($elements);
             $query->useMemoized($elements);
         }
-        
+
         return $query;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -399,7 +395,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         $serialized = [];
         $new = 0;
-        
+
         foreach ($value->all() as $block) {
             $blockId = $block->id ?? 'new' . ++$new;
             $serialized[$blockId] = [
@@ -410,10 +406,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 'fields' => $block->getSerializedFieldValues(),
             ];
         }
-        
+
         return $serialized;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -422,11 +418,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         if ($value === 'not :empty:') {
             $value = ':notempty:';
         }
-        
+
         if ($value === ':notempty:' || $value === ':empty:') {
             $alias = 'neoblocks_' . $this->handle;
             $operator = $value === ':notempty:' ? '!=' : '=';
-            
+
             $query->subQuery->andWhere(
                 "(select count([[{$alias}.id]]) from {{%neoblocks}} {{{$alias}}} where [[{$alias}.ownerId]] = [[elements.id]] and [[{$alias}.fieldId]] = :fieldId) {$operator} 0",
                 [':fieldId' => $this->id]
@@ -434,10 +430,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         } elseif ($value !== null) {
             return false;
         }
-        
+
         return null;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -445,7 +441,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         return $this->propagationMethod !== self::PROPAGATION_METHOD_ALL;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -471,7 +467,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             ],
         ];
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -479,7 +475,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         return $value->count() === 0;
     }
-    
+
     /**
      * Perform validation on blocks belonging to this field for a given element.
      *
@@ -490,12 +486,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $value = $element->getFieldValue($this->handle);
         $blocks = $value->all();
         $allBlocksValidate = true;
-        
+
         foreach ($blocks as $key => $block) {
             if ($element->getScenario() === Element::SCENARIO_LIVE) {
                 $block->setScenario(Element::SCENARIO_LIVE);
             }
-            
+
             if (!$block->validate()) {
                 $element->addModelErrors($block, "{$this->handle}[{$key}]");
 
@@ -509,32 +505,32 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $value->setCachedResult($blocks);
         }
     }
-    
+
     /**
      * @inheritdoc
      */
     public function getSearchKeywords($value, ElementInterface $element): string
     {
         $keywords = [];
-        
+
         foreach ($value->all() as $block) {
             $keywords[] = Neo::$plugin->blocks->getSearchKeywords($block);
         }
-        
+
         return parent::getSearchKeywords($keywords, $element);
     }
-    
+
     /**
      * @inheritdoc
      */
     public function getEagerLoadingMap(array $sourceElements)
     {
         $sourceElementIds = [];
-        
+
         foreach ($sourceElements as $sourceElement) {
             $sourceElementIds[] = $sourceElement->id;
         }
-        
+
         // Return any relation data on these elements, defined with this field.
         $map = (new Query())
             ->select(['[[neoblocks.ownerId]] as source', '[[neoblocks.id]] as target'])
@@ -563,14 +559,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             )
             ->orderBy(['[[neoblocks.sortOrder]]' => SORT_ASC])
             ->all();
-        
+
         return [
             'elementType' => Block::class,
             'map' => $map,
             'criteria' => ['fieldId' => $this->id],
         ];
     }
-    
+
     /**
      * @inheritdoc
      * removed as this is causing issues when changing propagation method.
@@ -608,14 +604,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         return true;
     }
-    
+
     /**
      * @inheritdoc
      */
     public function afterSave(bool $isNew)
     {
         Neo::$plugin->fields->save($this);
-        
+
         // If the propagation method just changed, resave all the neo blocks
         // TODO - fix the issue when automatically resaving neo fields.
         // if ($this->_oldPropagationMethod && $this->propagationMethod !== $this->_oldPropagationMethod) {
@@ -631,17 +627,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         //     ]));
         //     $this->_oldPropagationMethod = null;
         // }
-        
+
         parent::afterSave($isNew);
     }
-    
+
     /**
      * @inheritdoc
      */
     public function beforeDelete(): bool
     {
         Neo::$plugin->fields->delete($this);
-        
+
         return parent::beforeDelete();
     }
 
@@ -677,17 +673,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         if (!parent::beforeElementDelete($element)) {
             return false;
         }
-        
+
         $sitesService = Craft::$app->getSites();
         $elementsService = Craft::$app->getElements();
-        
+
         // Craft hard-deletes element structure nodes even when soft-deleting an element, which means we lose all Neo
         // field structure data (i.e. block order, levels) when its owner is soft-deleted.  We need to get all block
         // structures for this field/owner before soft-deleting the blocks, and re-save them after the blocks are
         // soft-deleted, so the blocks can be restored correctly if the owner element is restored.
         $blockStructures = [];
         $blocksBySite = [];
-        
+
         // Get the structures for each site
         $structureRows = (new Query())
             ->select([
@@ -703,27 +699,27 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 'ownerId' => $element->id,
             ])
             ->all();
-        
+
         foreach ($structureRows as $row) {
             $blockStructures[] = new BlockStructure($row);
         }
-        
+
         // Get the blocks for each structure
         foreach ($blockStructures as $blockStructure) {
             // Site IDs start from 1 -- let's treat non-localized blocks as site 0
             $key = $blockStructure->ownerSiteId ?? 0;
-            
+
             $allBlocks = Block::find()
                 ->anyStatus()
                 ->fieldId($this->id)
                 ->owner($element)
                 ->all();
-            
+
             $allBlocksCount = count($allBlocks);
-            
+
             // if the neo block structure doesn't have the ownerSiteId set and has blocks
             // set the ownerSiteId of the neo block structure.
-            
+
             // it's set from the first block because we got all blocks related to this structure beforehand
             // so the siteId should be the same for all blocks.
             if (empty($blockStructure->ownerSiteId) && $allBlocksCount > 0) {
@@ -731,10 +727,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 // need to set the new key since the ownersiteid is now set
                 $key = $blockStructure->ownerSiteId;
             }
-            
+
             $blocksBySite[$key] = $allBlocks;
         }
-        
+
         // Delete all Neo blocks for this element and field
         foreach ($sitesService->getAllSiteIds() as $siteId) {
             $blocks = Block::find()
@@ -744,23 +740,23 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->owner($element)
                 ->inReverse()
                 ->all();
-            
+
             foreach ($blocks as $block) {
                 $block->deletedWithOwner = true;
                 $elementsService->deleteElement($block);
             }
         }
-        
+
         // Recreate the block structures with the original block data
         foreach ($blockStructures as $blockStructure) {
             $key = $blockStructure->ownerSiteId ?? 0;
             Neo::$plugin->blocks->saveStructure($blockStructure);
             Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
         }
-        
+
         return true;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -768,7 +764,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         $elementsService = Craft::$app->getElements();
         $supportedSites = ElementHelper::supportedSitesForElement($element);
-        
+
         // Restore the Neo blocks that were deleted with $element
         foreach ($supportedSites as $supportedSite) {
             $blocks = Block::find()
@@ -778,16 +774,15 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->trashed()
                 ->andWhere(['neoblocks.deletedWithOwner' => true])
                 ->all();
-            
+
             foreach ($blocks as $block) {
                 $elementsService->restoreElement($block);
             }
         }
-        
+
         parent::afterElementRestore($element);
     }
-    
-    
+
     /**
      * @inheritdoc
      */
@@ -798,7 +793,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $resolver = static function (Block $value) {
             return $value->getGqlTypeName();
         };
-        
+
         return [
             'name' => $this->handle,
             'type' => Type::listOf(GqlHelper::getUnionType($typeName, $typeArray, $resolver)),
@@ -806,7 +801,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             'resolve' => NeoBlockResolver::class . '::resolve',
         ];
     }
-    
+
     /**
      * @inheritdoc
      * @throws InvalidArgumentException
@@ -816,21 +811,20 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         if (!preg_match('/^(?P<fieldHandle>[\w]+)_(?P<blockTypeHandle>[\w]+)_BlockType$/i', $fragmentName, $matches)) {
             throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
         }
-        
+
         if ($this->handle !== $matches['fieldHandle']) {
             throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
         }
-        
+
         $blockType = ArrayHelper::firstWhere($this->getBlockTypes(), 'handle', $matches['blockTypeHandle']);
-        
+
         if (!$blockType) {
             throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
         }
-        
+
         return $blockType;
     }
-    
-    
+
     /**
      * Returns what current depth the field is nested.
      * For example, if a Neo field was being rendered inside a Matrix block, its depth will be 2.
@@ -842,7 +836,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $namespace = Craft::$app->getView()->getNamespace();
         return preg_match_all('/\\bfields\\b/', $namespace);
     }
-    
+
     /**
      * Returns the error HTML associated with attempts to nest a Neo field within some other field.
      *
@@ -850,9 +844,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     private function _getNestingErrorHtml(): string
     {
-        return '<span class="error">' . Craft::t('neo', "Unable to nest Neo fields.") . '</span>';
+        return '<span class="error">' . Craft::t('neo', 'Unable to nest Neo fields.') . '</span>';
     }
-    
+
     /**
      * Returns the input HTML for a Neo field.
      *
@@ -865,27 +859,26 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     private function _getInputHtml($value, ElementInterface $element = null, bool $static = false): string
     {
         $viewService = Craft::$app->getView();
-        
+
         if ($element !== null && $element->hasEagerLoadedElements($this->handle)) {
             $value = $element->getEagerLoadedElements($this->handle);
         }
-        
+
         if ($value instanceof BlockQuery) {
             $query = $value;
             $value = $query->getCachedResult() ?? $query->limit(null)->anyStatus()->all();
         }
-        
+
         $siteId = $element->siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
-        
         $html = '';
-        
-        // Disable Neo fields inside Matrix, SuperTable and potentially other field-grouping field types.
+
+        // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
         if ($this->_getNamespaceDepth() > 1) {
             $html = $this->_getNestingErrorHtml();
         } else {
             $viewService->registerAssetBundle(FieldAsset::class);
             $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $element));
-            
+
             $html = $viewService->renderTemplate('neo/input', [
                 'neoField' => $this,
                 'id' => $viewService->formatInputId($this->handle),
@@ -894,10 +887,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 'static' => $static,
             ]);
         }
-        
+
         return $html;
     }
-    
+
     /**
      * Creates Neo blocks out of the given serialized data.
      *
@@ -908,7 +901,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     private function _createBlocksFromSerializedData(array $value, ElementInterface $element): array
     {
         $blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getByFieldId($this->id), 'handle');
-        
+
         // Get the old blocks
         if ($element->id) {
             $oldBlocksById = Block::find()
@@ -922,10 +915,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         } else {
             $oldBlocksById = [];
         }
-        
+
         $fieldNamespace = $element->getFieldParamNamespace();
         $baseBlockFieldNamespace = $fieldNamespace ? "{$fieldNamespace}.{$this->handle}" : null;
-        
+
         // Was the value posted in the new (delta) format?
         if (isset($value['blocks']) || isset($value['sortOrder'])) {
             $newBlockData = $value['blocks'] ?? [];
@@ -937,18 +930,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $newBlockData = $value;
             $newSortOrder = array_keys($value);
         }
-        
+
         /** @var Block[] $blocks */
         $blocks = [];
         $prevBlock = null;
-        
+
         foreach ($newSortOrder as $blockId) {
             $blockData = $newBlockData[$blockId] ?? [];
-            
+
             $isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
             $isCollapsed = isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false;
             $isModified = isset($blockData['modified']) ? (bool)$blockData['modified'] : false;
-            
+
             // If this is a preexisting block but we don't have a record of it,
             // check to see if it was recently duplicated.
             if (
@@ -959,86 +952,84 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             ) {
                 $blockId = Elements::$duplicatedElementIds[$blockId];
             }
-            
+
             // Existing block?
             if (isset($oldBlocksById[$blockId])) {
                 $block = $oldBlocksById[$blockId];
                 $block->dirty = $isModified;
-                // $block->dirty = !empty($blockData);
             } else {
                 // Make sure it's a valid block type
                 if (!isset($blockData['type']) || !isset($blockTypes[$blockData['type']])) {
                     continue;
                 }
+
                 $block = new Block();
                 $block->fieldId = $this->id;
                 $block->typeId = $blockTypes[$blockData['type']]->id;
                 $block->ownerId = $element->id;
                 $block->siteId = $element->siteId;
             }
-            
+
             $blockLevel = (int)($blockData['level'] ?? $block->level);
-            
+
             $block->setOwner($element);
             $block->setCollapsed($isCollapsed);
             $block->setModified($isModified);
             $block->enabled = $isEnabled;
             $block->oldLevel = $block->level;
             $block->level = $blockLevel;
-            
+
             // Set the content post location on the block if we can
             if ($baseBlockFieldNamespace) {
                 $block->setFieldParamNamespace("{$baseBlockFieldNamespace}.{$blockId}.fields");
             }
-            
+
             $oldBlockData = $block->getBehaviors('customFields');
-            
+
             if (isset($blockData['fields'])) {
-                
                 // checking if the fields are actually changed
                 $fieldData = [];
                 $fieldKeys = array_keys($blockData['fields']);
-                
+
                 foreach ($fieldKeys as $key) {
                     if ($oldBlockData['customFields']->$key !== $blockData['fields'][$key]) {
                         $fieldData += [$key => $blockData['fields'][$key]];
                     }
                 }
-                
+
                 if ($fieldData) {
                     $block->setFieldValues($fieldData);
                 }
-                // $block->setFieldValues($blockData['fields']);
             }
-            
+
             if ($prevBlock) {
                 $prevBlock->setNext($block);
                 $block->setPrev($prevBlock);
             }
-            
+
             $prevBlock = $block;
             $blocks[] = $block;
         }
-        
+
         if (!empty($blocks)) {
             // Generally, block data will be received with levels starting from 0, so they need to be adjusted up by 1.
             // For entry revisions and new entry drafts, though, the block data will have levels starting from 1.
             // Because the first block in a field will always be level 1, we can use that to check whether the count is
             // starting from 0 or 1 and thus ensure that all blocks display at the correct level.
             $adjustLevels = (int)$blocks[0]->level === 0;
-            
+
             foreach ($blocks as $block) {
                 $block->setAllElements($blocks);
-                
+
                 if ($adjustLevels) {
                     $block->level++;
                 }
             }
         }
-        
+
         return $blocks;
     }
-    
+
     /**
      * Checks if the blocks has sortOrder
      * Returns the true if it has sortOrder else it'll be false.
@@ -1049,14 +1040,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     private function _checkSortOrderOfBlocks(array $blocks): bool
     {
         $isNull = false;
-        
+
         foreach ($blocks as $block) {
             if ($block->sortOrder === null) {
                 $$isNull = true;
                 break;
             }
         }
-        
+
         return !$isNull;
     }
 
