@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.10 - 2020-09-21
 
 ### Added
 - Added the ability in GraphQL queries to query Neo field data according to the block level (thanks @smcyr)
