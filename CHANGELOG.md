@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug where some eager loading queries of Neo field data could return duplicate block data
 - Fixed an error that occurred when executing a Neo block query in which the `fieldId` and `ownerId` properties were both arrays
 
 ## 2.8.9 - 2020-09-18

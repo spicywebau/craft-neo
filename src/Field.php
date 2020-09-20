@@ -563,7 +563,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         return [
             'elementType' => Block::class,
             'map' => $map,
-            'criteria' => ['fieldId' => $this->id],
+            'criteria' => [
+                'fieldId' => $this->id,
+                'ownerId' => $sourceElementIds,
+            ],
         ];
     }
 
