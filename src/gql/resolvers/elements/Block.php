@@ -35,7 +35,7 @@ class Block extends ElementResolver
             // if it's preloaded, return the first level of the neo field only (child elements will be retrieved using `children`.
             $newQuery = [];
 
-            foreach ($query as $q) {
+            foreach (array_unique($query) as $q) {
                 if ((int)$q->level === 1) {
                     $newQuery[] = $q;
                 }
