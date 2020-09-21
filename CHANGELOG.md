@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.10.1 - 2020-09-21
 
 ### Fixed
 - Fixed an issue introduced in Neo 2.8.10 where some more complex GraphQL queries could produce duplicate results
