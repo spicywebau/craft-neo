@@ -1,4 +1,5 @@
 import $ from 'jquery'
+import Craft from 'craft'
 import NS from '../namespace'
 import Settings from './Settings'
 import renderTemplate from './templates/group_settings.twig'
