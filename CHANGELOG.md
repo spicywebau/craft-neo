@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where asset thumbnails on hidden block tabs would not be loaded when the tab was selected
+
 ## 2.8.10.1 - 2020-09-21
 
 ### Fixed
