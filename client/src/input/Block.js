@@ -737,10 +737,9 @@ export default Garnish.Base.extend({
       .add(this.$tabContainer)
 
     $tabs.removeClass('is-selected')
-
     const $tab = $tabs.filter(`[data-neo-b-info="${name}"]`).addClass('is-selected')
-
     this.$tabsButton.text(name)
+    Craft.ElementThumbLoader.retryAll();
 
     this.trigger('selectTab', {
       tabName: name,
