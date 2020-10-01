@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.8.11 - 2020-10-01
 
 ### Fixed
-- Fixed a bug where asset thumbnails on hidden block tabs would not be loaded when the tab was selected
+- Fixed a bug where asset thumbnails on a Neo block's hidden tabs would not be loaded when the tab was selected
 
 ## 2.8.10.1 - 2020-09-21
 
