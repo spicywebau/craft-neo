@@ -68,6 +68,7 @@ export default Garnish.Base.extend({
   _modified: true,
   _static: false,
   _initialState: null,
+  _forceModified: false,
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -199,6 +200,16 @@ export default Garnish.Base.extend({
         this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea, div.redactor-in', detectChange)
 
         this._detectChangeObserver = observer
+
+        if (this.$contentContainer.length > 0 && this.$contentContainer.html().match(/\[blocks\]\[new/)) {
+          this._forceModified = true
+          this.setModified(true)
+          const fieldInputName = this._templateNs[0] + '[' + this._templateNs[1] + ']'
+
+          if (!Craft.modifiedDeltaNames.includes(fieldInputName)) {
+            Craft.modifiedDeltaNames.push(fieldInputName)
+          }
+        }
       }
 
       addFieldLinks(this.$contentContainer)
@@ -244,6 +255,11 @@ export default Garnish.Base.extend({
     this.$levelInput.val(`0${this._level}`)
     this.$container.toggleClass('is-level-odd', !!(this._level % 2))
     this.$container.toggleClass('is-level-even', !(this._level % 2))
+  },
+
+  setModified (isModified) {
+    this.$modifiedInput.val(isModified ? 1 : 0)
+    this._modified = isModified
   },
 
   getButtons () {
@@ -721,10 +737,9 @@ export default Garnish.Base.extend({
       .add(this.$tabContainer)
 
     $tabs.removeClass('is-selected')
-
     const $tab = $tabs.filter(`[data-neo-b-info="${name}"]`).addClass('is-selected')
-
     this.$tabsButton.text(name)
+    Craft.ElementThumbLoader.retryAll();
 
     this.trigger('selectTab', {
       tabName: name,
@@ -839,6 +854,10 @@ export default Garnish.Base.extend({
   },
 
   _detectChange () {
+    if (this._forceModified) {
+      return
+    }
+
     const initial = this._initialState
     const content = Garnish.getPostData(this.$contentContainer)
 
@@ -847,8 +866,7 @@ export default Garnish.Base.extend({
       initial.level !== this._level
 
     if (modified !== this._modified) {
-      this.$modifiedInput.val(modified ? 1 : 0)
-      this._modified = modified
+      this.setModified(modified)
     }
   },
 

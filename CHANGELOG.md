@@ -5,6 +5,40 @@
 ### Added
 - Added server-side validation of whether any Neo field block type's max blocks setting has been exceeded, rather than relying on it to be enforced by client-side JavaScript
 
+## 2.8.11 - 2020-10-01
+
+### Fixed
+- Fixed a bug where asset thumbnails on a Neo block's hidden tabs would not be loaded when the tab was selected
+
+## 2.8.10.1 - 2020-09-21
+
+### Fixed
+- Fixed an issue introduced in Neo 2.8.10 where some more complex GraphQL queries could produce duplicate results
+
+## 2.8.10 - 2020-09-21
+
+### Added
+- Added the ability in GraphQL queries to query Neo field data according to the block level (thanks @smcyr)
+
+### Fixed
+- Fixed a bug where some eager loading queries of Neo field data could return duplicate block data
+- Fixed an error that occurred when executing a Neo block query in which the `fieldId` and `ownerId` properties were both arrays
+
+## 2.8.9 - 2020-09-18
+
+### Fixed
+- Fixed a bug when editing a Neo field's settings where, in some cases, sub-fields could incorrectly display as required in the field layout designer
+- Fixed a bug with editing a Neo field's settings where, when clicking to delete a block type but then clicking cancel on the confirmation window, that block type would be removed from the Child Blocks settings field on all block types
+
+## 2.8.8 - 2020-09-05
+
+### Changed
+- Neo now requires Craft 3.5.8 or later
+
+### Fixed
+- Fixed a compatibility issue introduced with Craft 3.5.8, where required Neo sub-fields would not appear as required in the field layout designer
+- Fixed an issue where saving an otherwise-unmodified Neo block with a newly-added Super Table field, that has either a minimum number or rows or a static row, would cause an "Attempting to duplicate an unsaved element" error
+
 ## 2.8.7 - 2020-08-26
 
 ### Changed
