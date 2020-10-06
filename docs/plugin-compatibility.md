@@ -2,7 +2,6 @@
 
 Neo is officially compatible with some other Craft plugins, listed below:
 
-- [Schematic](https://github.com/nerds-and-company/schematic)
 - [CP Field Inspect](https://github.com/mmikkel/CpFieldInspect-Craft)
 - [Embedded Assets](https://github.com/spicywebau/craft-embedded-assets) (field content is displayed in Neo's collapsed block previews)
 - [Super Table](https://github.com/verbb/super-table) (field content is displayed in Neo's collapsed block previews)
