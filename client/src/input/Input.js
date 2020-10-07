@@ -241,6 +241,8 @@ export default Garnish.Base.extend({
     })
     block.on('toggleEnabled.input', e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
     block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
+    block.on('moveUpBlock.input', e => this._moveBlock(block, 'up'))
+    block.on('moveDownBlock.input', e => this._moveBlock(block, 'down'))
     block.on('newBlock.input', e => this['@newBlock'](Object.assign(e, { index: this._getNextBlockIndex(block) })))
     block.on('addBlockAbove.input', e => this['@addBlockAbove'](e))
     block.on('copyBlock.input', e => this['@copyBlock'](e))
@@ -313,6 +315,69 @@ export default Garnish.Base.extend({
     this.trigger('removeBlock', {
       block: block
     })
+  },
+
+  _moveBlock (block, direction, animate = true) {
+    if (!['up', 'down'].includes(direction)) {
+      return
+    }
+
+    const siblings = block.getSiblings(this.getBlocks())
+    const index = siblings.indexOf(block)
+    const moveUp = index > 0 && direction === 'up'
+    const moveDown = index < siblings.length - 1 && direction === 'down'
+
+    if (index === -1 || moveUp === moveDown) {
+      return
+    }
+
+    const animateMove = (typeof animate === 'boolean' ? animate : true)
+    const $block = block.$container
+
+    if (animateMove) {
+      $block
+        .css({
+          opacity: 1,
+          marginBottom: 10
+        })
+        .velocity({
+          opacity: 0,
+          marginBottom: -($block.outerHeight())
+        }, 'fast', _ => {
+          $block.detach()
+
+          if (moveUp) {
+            siblings[index - 1].$container.before($block)
+          } else {
+            siblings[index + 1].$container.after($block)
+          }
+
+          $block
+            .css({
+              opacity: 0,
+              marginBottom: -($block.outerHeight())
+            })
+            .velocity({
+              opacity: 1,
+              marginBottom: 10
+            }, 'fast', _ => {
+              this._updateBlockOrder()
+              this._updateButtons()
+              Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement($block))
+            })
+        })
+    } else {
+      $block.detach()
+
+      if (moveUp) {
+        siblings[index - 1].$container.before($block)
+      } else {
+        siblings[index + 1].$container.after($block)
+      }
+
+      this._updateBlockOrder()
+      this._updateButtons()
+    }
   },
 
   getBlockByElement ($block) {

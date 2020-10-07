@@ -767,6 +767,7 @@ export default Garnish.Base.extend({
     const blockType = this.getBlockType()
     const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
     const maxBlockTypes = blockType.getMaxBlocks()
+    const siblingBlocks = this.getSiblings(blocks)
 
     const totalTopBlocks = blocks.filter(block => block.getLevel() === 0).length
 
@@ -807,7 +808,7 @@ export default Garnish.Base.extend({
           return false
         }
 
-        const siblingBlockCount = this.getSiblings(blocks).filter(hasSameBlockType, this).length
+        const siblingBlockCount = siblingBlocks.filter(hasSameBlockType, this).length
         const pasteSiblingBlockCount = pasteData.blocks ? pasteData.blocks.filter(hasSameBlockType, this).length : 0
         pasteDisabled = pasteDisabled || siblingBlockCount + pasteSiblingBlockCount > maxSiblingBlocks
         cloneDisabled = cloneDisabled || siblingBlockCount >= maxSiblingBlocks
@@ -848,6 +849,12 @@ export default Garnish.Base.extend({
       }
     }
 
+    const siblingIndex = siblingBlocks.indexOf(this)
+    const disableMoveUp = siblingIndex <= 0
+    const disableMoveDown = [-1, siblingBlocks.length - 1].includes(siblingIndex)
+
+    this.$menuContainer.find('[data-action="moveUp"]').parent().toggleClass('hidden', disableMoveUp)
+    this.$menuContainer.find('[data-action="moveDown"]').parent().toggleClass('hidden', disableMoveDown)
     this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
     this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', cloneDisabled)
     this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
@@ -888,6 +895,12 @@ export default Garnish.Base.extend({
         case 'enable':
           this.enable()
           this.expand()
+          break
+        case 'moveUp':
+          this.trigger('moveUpBlock', { block: this })
+          break
+        case 'moveDown':
+          this.trigger('moveDownBlock', { block: this })
           break
         case 'delete':
           this.trigger('removeBlock', { block: this })
