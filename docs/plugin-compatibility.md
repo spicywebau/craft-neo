@@ -1,20 +1,18 @@
 # Plugin Compatibility
 
-Neo supports the functionality of some other Craft plugins, listed below:
+Neo is officially compatible with some other Craft plugins, listed below:
 
-- [Schematic](https://github.com/nerds-and-company/schematic)
 - [CP Field Inspect](https://github.com/mmikkel/CpFieldInspect-Craft)
+- [Embedded Assets](https://github.com/spicywebau/craft-embedded-assets) (field content is displayed in Neo's collapsed block previews)
+- [Super Table](https://github.com/verbb/super-table) (field content is displayed in Neo's collapsed block previews)
+- [Typed Link Field](https://github.com/sebastian-lenz/craft-linkfield) (field content is displayed in Neo's collapsed block previews)
+- [Linkit](https://github.com/fruitstudios/craft-linkit) (field content is displayed in Neo's collapsed block previews)
+- [Category Groups Field](https://github.com/ttempleton/craft-category-groups-field) (field content is displayed in Neo's collapsed block previews)
 
-In addition, Neo supports displaying the content of the following plugins in Neo's collapsed block previews:
+The following plugins are known to be incompatible with Neo:
 
-- [Embedded Assets](https://github.com/spicywebau/craft-embedded-assets)
-- [Super Table](https://github.com/verbb/super-table)
-- [Typed Link Field](https://github.com/sebastian-lenz/craft-linkfield)
-- [Linkit](https://github.com/fruitstudios/craft-linkit)
-- [Category Groups Field](https://github.com/ttempleton/craft-category-groups-field)
+- [CraftQL](https://github.com/markhuot/craftql)
+- [Reasons](https://github.com/mmikkel/Reasons-Craft3)
+- [Preparse Field](https://github.com/aelvan/Preparse-Field-Craft) (may cause issues with Neo blocks disappearing on save)
 
-The following is a list of plugins that could conflict with Neo in some way.  If you know of a plugin that could conflict with Neo that isn't listed here, please let us know by [submitting an issue on GitHub](https://github.com/spicywebau/craft-neo/issues/new) so we can investigate the issue and resolve it if possible.
-
-- [Preparse Field](https://github.com/aelvan/Preparse-Field-Craft) -- may cause issues with Neo blocks disappearing on save
-
-The above list doesn't include plugins that Neo doesn't support but that don't conflict with Neo's functionality.  If you'd like a plugin to be supported by Neo, please [submit an issue on GitHub](https://github.com/spicywebau/craft-neo/issues/new).
+If you know of a plugin not listed above that's incompatible with Neo, and no issue already exists for Neo or the other plugin, please let us know by [opening an issue on GitHub](https://github.com/spicywebau/craft-neo/issues/new).
