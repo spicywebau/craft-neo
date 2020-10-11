@@ -9,6 +9,7 @@ use benf\neo\models\BlockType;
 use Craft;
 use craft\db\Query;
 use craft\elements\MatrixBlock;
+use craft\fieldlayoutelements\CustomField;
 use craft\fields\Matrix as MatrixField;
 use craft\models\MatrixBlockType;
 use yii\base\Component;
@@ -59,7 +60,7 @@ class Conversion extends Component
             $matrixField->groupId = $neoField->groupId;
             $matrixField->name = $neoField->name;
             $matrixField->handle = $neoField->handle;
-            $matrixBlockTypes = $this->convertBlockTypesToMatrix($neoBlockTypes);
+            $matrixBlockTypes = $this->getMatrixBlockTypesData($neoBlockTypes);
             $matrixField->setBlockTypes($matrixBlockTypes);
             $matrixField->minBlocks = $neoField->minBlocks;
             $matrixField->maxBlocks = $neoField->maxBlocks;
@@ -114,8 +115,11 @@ class Conversion extends Component
 
                 // Create mapping from newly saved block type field handles to their IDs.
                 // This is so that relations can be updated later on with the new field ID.
-                $matrixFieldLayout = $matrixBlockType->getFieldLayout();
-                $matrixFields = $matrixFieldLayout->getFields();
+                $matrixFields = array_map(function ($field) {
+                    return $field->getField();
+                }, array_filter($matrixBlockType->getFieldLayout()->getTabs()[0]->elements, function ($field) {
+                    return $field instanceof CustomField;
+                }));
                 $fieldIds = [];
 
                 foreach ($matrixFields as $matrixFieldLayoutField) {
@@ -280,5 +284,62 @@ class Conversion extends Component
         }
 
         return $matrixBlock;
+    }
+
+    /**
+     * Creates Matrix block type data from Neo block types.
+     *
+     * @param array $neoBlockTypes
+     * @return array The Matrix block types.
+     */
+    private function getMatrixBlockTypesData(array $neoBlockTypes): array
+    {
+        $matrixBlockTypes = [];
+        $ids = 1;
+
+        foreach ($neoBlockTypes as $neoBlockType) {
+            $matrixBlockTypes['new' . ($ids++)] = $this->getMatrixBlockTypeData($neoBlockType);
+        }
+
+        return $matrixBlockTypes;
+    }
+
+    /**
+     * Creates Matrix block type data from a Neo block type.
+     *
+     * @param array $neoBlockTypes
+     * @return array The Matrix block types.
+     */
+    private function getMatrixBlockTypeData(BlockType $neoBlockType): array
+    {
+        $ids = 1;
+        $neoFieldLayout = $neoBlockType->getFieldLayout();
+        $matrixBlockType = [
+            'name' => $neoBlockType->name,
+            'handle' => $neoBlockType->handle,
+        ];
+
+        if ($neoFieldLayout !== null) {
+            foreach ($neoFieldLayout->getFields() as $field) {
+                $fieldType = get_class($field);
+
+                if (!in_array($fieldType, [MatrixField::class, Field::class])) {
+                    $matrixBlockType['fields']['new' . ($ids++)] = [
+                        'name' => $field->name,
+                        'handle' => $field->handle,
+                        'instructions' => $field->instructions,
+                        'required' => $field->required,
+                        'searchable' => $field->searchable,
+                        'type' => $fieldType,
+                        'translationMethod' => $field->translationMethod,
+                        'translationKeyFormat' => $field->translationKeyFormat,
+                        'typesettings' => $field->getSettings(),
+                        'width' => '100',
+                    ];
+                }
+            }
+        }
+
+        return $matrixBlockType;
     }
 }

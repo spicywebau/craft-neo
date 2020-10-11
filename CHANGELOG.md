@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed some Neo-to-Matrix conversion errors
+
 ## 2.8.11 - 2020-10-01
 
 ### Fixed
