@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.12 - 2020-10-12
 
 ### Fixed
 - Fixed a bug when editing a Neo block type's field layout, where non-required fields that had custom labels or instructions were incorrectly showing as required on the field settings modal
