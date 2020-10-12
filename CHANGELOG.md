@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug when editing a Neo block type's field layout, where non-required fields that had custom labels or instructions were incorrectly showing as required on the field settings modal
 - Fixed some Neo-to-Matrix conversion errors
 
 ## 2.8.11 - 2020-10-01

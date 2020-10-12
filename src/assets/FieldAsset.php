@@ -250,6 +250,13 @@ class FieldAsset extends AssetBundle
                             $elementData['id'] = $element->getField()->id;
                         }
 
+                        // Reset required to false if it was '' (which is getting interpreted as true in the field
+                        // settings modal for some reason) or '0' (which required was getting set to in the project
+                        // config in some cases in earlier Craft 3.5 releases)
+                        if (isset($elementData['config']['required']) && in_array($elementData['config']['required'], ['', '0'])) {
+                            $elementData['config']['required'] = false;
+                        }
+
                         $jsTabElements[] = $elementData;
 
                         // $fieldTypes[$element->attribute()] = $field->className();
