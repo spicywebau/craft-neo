@@ -6,6 +6,12 @@
 - Added move up/down options to Neo blocks' actions menus
 - Added server-side validation of whether any Neo field block type's max blocks setting has been exceeded, rather than relying on it to be enforced by client-side JavaScript
 
+## 2.8.12 - 2020-10-12
+
+### Fixed
+- Fixed a bug when editing a Neo block type's field layout, where non-required fields that had custom labels or instructions were incorrectly showing as required on the field settings modal
+- Fixed some Neo-to-Matrix conversion errors
+
 ## 2.8.11 - 2020-10-01
 
 ### Fixed
