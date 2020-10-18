@@ -181,6 +181,9 @@ class BlockTypes extends Component
         $fieldsService = Craft::$app->getFields();
         $field = $fieldsService->getFieldById($blockType->fieldId);
         $fieldLayout = $blockType->getFieldLayout();
+
+        // Field layout ID might not be set even if the block type already had one -- just grab it from the block type
+        $fieldLayout->id = $fieldLayout->id ?? $blockType->fieldLayoutId;
         $fieldLayoutConfig = $fieldLayout->getConfig();
         $isNew = $blockType->getIsNew();
         
@@ -206,7 +209,7 @@ class BlockTypes extends Component
         
         // No need to bother with the field layout if it has no tabs
         if ($fieldLayoutConfig !== null) {
-            $fieldLayoutUid = $fieldLayout->uid ?? ($fieldLayout->id ? Craft::$app->getFields()->getLayoutById($fieldLayout->id)->uid : false) ?? StringHelper::UUID();
+            $fieldLayoutUid = $fieldLayout->uid ?? ($fieldLayout->id ? Db::uidById('{{%fieldlayouts}}', $fieldLayout->id) : null) ?? StringHelper::UUID();
             
             if (!$fieldLayout->uid) {
                 $fieldLayout->uid = $fieldLayoutUid;

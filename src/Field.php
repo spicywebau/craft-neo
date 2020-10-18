@@ -206,6 +206,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function setBlockTypes($blockTypes)
     {
+        $fieldsService = Craft::$app->getFields();
         $newBlockTypes = [];
 
         foreach ($blockTypes as $blockTypeId => $blockType) {
@@ -224,26 +225,30 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->childBlocks = $blockType['childBlocks'];
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
 
-                if (!empty($blockType['fieldLayout'])) {
-                    $fieldLayoutPost = $blockType['fieldLayout'];
-                    $requiredFieldPost = empty($blockType['requiredFields']) ? [] : $blockType['requiredFields'];
-                    $fieldLayout = Craft::$app->getFields()->assembleLayout($fieldLayoutPost, $requiredFieldPost);
+                if (!empty($blockType['elementPlacements'])) {
+                    $fieldLayout = $fieldsService->assembleLayoutFromPost('types.' . self::class . ".blockTypes.{$blockTypeId}");
                     $fieldLayout->type = Block::class;
 
-                    // Ensure the field layout ID is set, if it exists
+                    // Ensure the field layout ID and UID are set, if they exist
                     if (is_int($blockTypeId)) {
-                        $layoutIdResult = (new Query())
-                            ->select(['fieldLayoutId'])
-                            ->from('{{%neoblocktypes}}')
-                            ->where(['id' => $blockTypeId])
+                        $layoutResult = (new Query())
+                            ->select([
+                                'bt.fieldLayoutId',
+                                'fl.uid',
+                            ])
+                            ->from('{{%neoblocktypes}} bt')
+                            ->innerJoin('{{%fieldlayouts}} fl', '[[fl.id]] = [[bt.fieldLayoutId]]')
+                            ->where(['bt.id' => $blockTypeId])
                             ->one();
 
-                        if ($layoutIdResult !== null) {
-                            $fieldLayout->id = $layoutIdResult['fieldLayoutId'];
+                        if ($layoutResult !== null) {
+                            $fieldLayout->id = $layoutResult['fieldLayoutId'];
+                            $fieldLayout->uid = $layoutResult['uid'];
                         }
                     }
 
                     $newBlockType->setFieldLayout($fieldLayout);
+                    $newBlockType->fieldLayoutId = $fieldLayout->id;
                 }
             }
 
