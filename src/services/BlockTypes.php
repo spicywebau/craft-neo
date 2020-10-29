@@ -39,13 +39,13 @@ class BlockTypes extends Component
      * @since 2.3.0
      */
     const EVENT_BEFORE_SAVE_BLOCK_TYPE = 'beforeSaveNeoBlockType';
-    
+
     /**
      * @event BlockTypeEvent The event that is triggered after saving a block type.
      * @since 2.3.0
      */
     const EVENT_AFTER_SAVE_BLOCK_TYPE = 'afterSaveNeoBlockType';
-    
+
     /**
      * Gets a Neo block type given its ID.
      *
@@ -55,23 +55,23 @@ class BlockTypes extends Component
     public function getById($id)
     {
         $blockType = null;
-        
+
         if (isset(Memoize::$blockTypesById[$id])) {
             $blockType = Memoize::$blockTypesById[$id];
         } else {
             $result = $this->_createQuery()
                 ->where(['id' => $id])
                 ->one();
-            
+
             if ($result) {
                 $blockType = new BlockType($result);
                 Memoize::$blockTypesById[$id] = $blockType;
             }
         }
-        
+
         return $blockType;
     }
-    
+
     /**
      * Gets block types associated with a given field ID.
      *
@@ -81,26 +81,26 @@ class BlockTypes extends Component
     public function getByFieldId($fieldId): array
     {
         $blockTypes = [];
-        
+
         if (isset(Memoize::$blockTypesByFieldId[$fieldId])) {
             $blockTypes = Memoize::$blockTypesByFieldId[$fieldId];
         } else {
             $results = $this->_createQuery()
                 ->where(['fieldId' => $fieldId])
                 ->all();
-            
+
             foreach ($results as $result) {
                 $blockType = new BlockType($result);
                 $blockTypes[] = $blockType;
                 Memoize::$blockTypesById[$blockType->id] = $blockType;
             }
-            
+
             Memoize::$blockTypesByFieldId[$fieldId] = $blockTypes;
         }
-        
+
         return $blockTypes;
     }
-    
+
     /**
      * Gets block type groups associated with a given field ID.
      *
@@ -110,26 +110,26 @@ class BlockTypes extends Component
     public function getGroupsByFieldId($fieldId): array
     {
         $blockTypeGroups = [];
-        
+
         if (isset(Memoize::$blockTypeGroupsByFieldId[$fieldId])) {
             $blockTypeGroups = Memoize::$blockTypeGroupsByFieldId[$fieldId];
         } else {
             $results = $this->_createGroupQuery()
                 ->where(['fieldId' => $fieldId])
                 ->all();
-            
+
             foreach ($results as $result) {
                 $blockTypeGroup = new BlockTypeGroup($result);
                 $blockTypeGroups[] = $blockTypeGroup;
                 Memoize::$blockTypeGroupsById[$blockTypeGroup->id] = $blockTypeGroup;
             }
-            
+
             Memoize::$blockTypeGroupsByFieldId[$fieldId] = $blockTypeGroups;
         }
-        
+
         return $blockTypeGroups;
     }
-    
+
     /**
      * Performs validation on a given Neo block type.
      *
@@ -140,7 +140,7 @@ class BlockTypes extends Component
     public function validate(BlockType $blockType, bool $validateUniques = true): bool
     {
         $record = $this->_getRecord($blockType);
-        
+
         $record->fieldId = $blockType->fieldId;
         $record->fieldLayoutId = $blockType->fieldLayoutId;
         $record->name = $blockType->name;
@@ -151,17 +151,17 @@ class BlockTypes extends Component
         $record->maxChildBlocks = $blockType->maxChildBlocks;
         $record->childBlocks = $blockType->childBlocks;
         $record->topLevel = $blockType->topLevel;
-        
+
         $record->validateUniques = $validateUniques;
         $isValid = (bool)$record->validate();
-        
+
         if (!$isValid) {
             $blockType->addErrors($record->getErrors());
         }
-        
+
         return $isValid;
     }
-    
+
     /**
      * Saves a Neo block type.
      *
@@ -176,7 +176,7 @@ class BlockTypes extends Component
         if ($validate && !$this->validate($blockType)) {
             return false;
         }
-        
+
         $projectConfigService = Craft::$app->getProjectConfig();
         $fieldsService = Craft::$app->getFields();
         $field = $fieldsService->getFieldById($blockType->fieldId);
@@ -186,15 +186,15 @@ class BlockTypes extends Component
         $fieldLayout->id = $fieldLayout->id ?? $blockType->fieldLayoutId;
         $fieldLayoutConfig = $fieldLayout->getConfig();
         $isNew = $blockType->getIsNew();
-        
+
         if ($isNew) {
             $blockType->uid = StringHelper::UUID();
         }
-        
+
         if ($blockType->uid === null) {
             $blockType->uid = Db::uidById('{{%neoblocktypes}}', $blockType->id);
         }
-        
+
         $data = [
             'field' => $field->uid,
             'name' => $blockType->name,
@@ -206,36 +206,36 @@ class BlockTypes extends Component
             'childBlocks' => $blockType->childBlocks,
             'topLevel' => (bool)$blockType->topLevel,
         ];
-        
+
         // No need to bother with the field layout if it has no tabs
         if ($fieldLayoutConfig !== null) {
             $fieldLayoutUid = $fieldLayout->uid ?? ($fieldLayout->id ? Db::uidById('{{%fieldlayouts}}', $fieldLayout->id) : null) ?? StringHelper::UUID();
-            
+
             if (!$fieldLayout->uid) {
                 $fieldLayout->uid = $fieldLayoutUid;
             }
-            
+
             $data['fieldLayouts'] = [
                 $fieldLayoutUid => $fieldLayoutConfig,
             ];
         }
-        
+
         $event = new BlockTypeEvent([
             'blockType' => $blockType,
             'isNew' => $isNew,
         ]);
-        
+
         $this->trigger(self::EVENT_BEFORE_SAVE_BLOCK_TYPE, $event);
-        
+
         $path = 'neoBlockTypes.' . $blockType->uid;
-        
+
         if (!$projectConfigService->readOnly) {
             $projectConfigService->set($path, $data);
         }
-        
+
         return true;
     }
-    
+
     /**
      * Saves a Neo block type group.
      *
@@ -248,32 +248,32 @@ class BlockTypes extends Component
         $projectConfigService = Craft::$app->getProjectConfig();
         $fieldsService = Craft::$app->getFields();
         $field = $fieldsService->getFieldById($blockTypeGroup->fieldId);
-        
+
         if ($blockTypeGroup->getIsNew()) {
             $blockTypeGroup->uid = StringHelper::UUID();
         } elseif (!$blockTypeGroup->uid) {
             $blockTypeGroup->uid = Db::uidById('{{%neoblocktypegroups}}', $blockTypeGroup->id);
         }
-        
+
         $data = [
             'field' => $field->uid,
             'name' => $blockTypeGroup->name,
             'sortOrder' => $blockTypeGroup->sortOrder,
         ];
-        
+
         $path = 'neoBlockTypeGroups.' . $blockTypeGroup->uid;
-        
+
         if (!$projectConfigService->readOnly) {
             $projectConfigService->set($path, $data);
         }
-        
+
         if ($blockTypeGroup->getIsNew()) {
             $blockTypeGroup->id = Db::idByUid('{{%neoblocktypegroups}}', $blockTypeGroup->uid);
         }
-        
+
         return true;
     }
-    
+
     /**
      * Deletes a Neo block type and all associated Neo blocks.
      *
@@ -284,7 +284,7 @@ class BlockTypes extends Component
     public function delete(BlockType $blockType): bool
     {
         Craft::$app->getProjectConfig()->remove('neoBlockTypes.' . $blockType->uid);
-        
+
         return true;
     }
 
@@ -314,14 +314,14 @@ class BlockTypes extends Component
     {
         $field = Craft::$app->getFields()->getFieldById($fieldId);
         $allGroups = $field->getGroups();
-        
+
         foreach ($allGroups as $group) {
             $this->deleteGroup($group);
         }
-        
+
         return true;
     }
-    
+
     /**
      * Handles a Neo block type change.
      *
@@ -335,45 +335,45 @@ class BlockTypes extends Component
         $projectConfigService = Craft::$app->getProjectConfig();
         $uid = $event->tokenMatches[0];
         $data = $event->newValue;
-        
+
         // Make sure the fields have been synced
         ProjectConfigHelper::ensureAllFieldsProcessed();
-        
+
         $fieldId = Db::idByUid('{{%fields}}', $data['field']);
-        
+
         $transaction = $dbService->beginTransaction();
-        
+
         try {
             $record = $this->_getRecordByUid($uid);
             $fieldLayoutConfig = isset($data['fieldLayouts']) ? reset($data['fieldLayouts']) : null;
             $fieldLayout = null;
             $isNew = false;
             $blockType = null;
-            
+
             if ($record->id !== null) {
                 $result = $this->_createQuery()
                     ->where(['id' => $record->id])
                     ->one();
-                
+
                 $blockType = new BlockType($result);
             } else {
                 $blockType = new BlockType();
                 $isNew = true;
             }
-            
+
             if ($fieldLayoutConfig === null && $record->id !== null && $blockType->fieldLayoutId !== null) {
                 $fieldsService->deleteLayoutById($blockType->fieldLayoutId);
             }
-            
+
             if ($fieldLayoutConfig !== null) {
                 $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
                 $fieldLayout->id = $record->fieldLayoutId;
                 $fieldLayout->type = Block::class;
                 $fieldLayout->uid = key($data['fieldLayouts']);
-                
+
                 $fieldsService->saveLayout($fieldLayout);
             }
-            
+
             $record->fieldId = $fieldId;
             $record->name = $data['name'];
             $record->handle = $data['handle'];
@@ -386,7 +386,7 @@ class BlockTypes extends Component
             $record->uid = $uid;
             $record->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
             $record->save(false);
-            
+
             $blockType->id = $record->id;
             $blockType->fieldId = $fieldId;
             $blockType->name = $data['name'];
@@ -399,22 +399,22 @@ class BlockTypes extends Component
             $blockType->topLevel = $data['topLevel'];
             $blockType->uid = $uid;
             $blockType->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
-            
+
             $event = new BlockTypeEvent([
                 'blockType' => $blockType,
                 'isNew' => $isNew,
             ]);
-            
+
             $this->trigger(self::EVENT_AFTER_SAVE_BLOCK_TYPE, $event);
-            
+
             $transaction->commit();
         } catch (\Throwable $e) {
             $transaction->rollBack();
-            
+
             throw $e;
         }
     }
-    
+
     /**
      * Handles deleting a Neo block type and all associated Neo blocks.
      *
@@ -425,25 +425,25 @@ class BlockTypes extends Component
     {
         $uid = $event->tokenMatches[0];
         $record = $this->_getRecordByUid($uid);
-        
+
         if ($record->id === null) {
             return;
         }
-        
+
         $dbService = Craft::$app->getDb();
         $transaction = $dbService->beginTransaction();
-        
+
         try {
             $blockType = $this->getById($record->id);
-            
+
             if ($blockType === null) {
                 return;
             }
-            
+
             $sitesService = Craft::$app->getSites();
             $elementsService = Craft::$app->getElements();
             $fieldsService = Craft::$app->getFields();
-            
+
             // Delete all blocks of this type
             foreach ($sitesService->getAllSiteIds() as $siteId) {
                 $blocks = Block::find()
@@ -451,26 +451,27 @@ class BlockTypes extends Component
                     ->typeId($blockType->id)
                     ->inReverse()
                     ->all();
-                
+
                 foreach ($blocks as $block) {
                     $elementsService->deleteElement($block);
                 }
             }
+
             // Delete the block type's field layout
             $fieldsService->deleteLayoutById($blockType->fieldLayoutId);
-            
+
             // Delete the block type
             $affectedRows = $dbService->createCommand()
                 ->delete('{{%neoblocktypes}}', ['id' => $blockType->id])
                 ->execute();
-            
+
             $transaction->commit();
         } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
     }
-    
+
     /**
      * Handles a Neo block type group change.
      *
@@ -480,18 +481,18 @@ class BlockTypes extends Component
     public function handleChangedBlockTypeGroup(ConfigEvent $event)
     {
         $uid = $event->tokenMatches[0];
-        
+
         $data = $event->newValue;
         $dbService = Craft::$app->getDb();
         $transaction = $dbService->beginTransaction();
-        
+
         try {
             $record = BlockTypeGroupRecord::findOne(['uid' => $uid]);
-            
+
             if ($record === null) {
                 $record = new BlockTypeGroupRecord();
             }
-            
+
             if ($record) {
                 if ($data) {
                     $record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
@@ -504,15 +505,15 @@ class BlockTypes extends Component
                     $record->delete();
                 }
             }
-            
+
             $transaction->commit();
         } catch (\Throwable $e) {
             $transaction->rollBack();
-            
+
             throw $e;
         }
     }
-    
+
     /**
      * Handles deleting a Neo block type group.
      *
@@ -524,20 +525,20 @@ class BlockTypes extends Component
         $uid = $event->tokenMatches[0];
         $dbService = Craft::$app->getDb();
         $transaction = $dbService->beginTransaction();
-        
+
         try {
             $affectedRows = $dbService->createCommand()
                 ->delete('{{%neoblocktypegroups}}', ['uid' => $uid])
                 ->execute();
-            
+
             $transaction->commit();
         } catch (\Throwable $e) {
             $transaction->rollBack();
-            
+
             throw $e;
         }
     }
-    
+
     /**
      * Renders a Neo block type's tabs.
      *
@@ -575,7 +576,7 @@ class BlockTypes extends Component
 
         return Neo::$plugin->blocks->renderTabs($block, $static, $namespace);
     }
-    
+
     /**
      * Returns all the block types.
      */
@@ -583,14 +584,14 @@ class BlockTypes extends Component
     {
         $results = $this->_createQuery()
             ->all();
-        
+
         foreach ($results as $key => $result) {
             $results[$key] = new BlockType($result);
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Creates a basic Neo block type query.
      *
@@ -630,7 +631,7 @@ class BlockTypes extends Component
             ->from(['{{%neoblocktypes}}'])
             ->orderBy(['sortOrder' => SORT_ASC]);
     }
-    
+
     /**
      * Creates a basic Neo block type group query.
      *
@@ -649,7 +650,7 @@ class BlockTypes extends Component
             ->from(['{{%neoblocktypegroups}}'])
             ->orderBy(['sortOrder' => SORT_ASC]);
     }
-    
+
     /**
      * Gets the block type record associated with the given block type.
      *
@@ -660,28 +661,28 @@ class BlockTypes extends Component
     private function _getRecord(BlockType $blockType): BlockTypeRecord
     {
         $record = null;
-        
+
         if ($blockType->getIsNew()) {
             $record = new BlockTypeRecord();
         } else {
             $id = $blockType->id;
-            
+
             if (isset(Memoize::$blockTypeRecordsById[$id])) {
                 $record = Memoize::$blockTypeRecordsById[$id];
             } else {
                 $record = BlockTypeRecord::findOne($id);
-                
+
                 if (!$record) {
                     throw new BlockTypeNotFoundException("Invalid Neo block type ID: $id");
                 }
-                
+
                 Memoize::$blockTypeRecordsById[$id] = $record;
             }
         }
-        
+
         return $record;
     }
-    
+
     /**
      * Returns the block type record with the given UUID, if it exists; otherwise returns a new block type record.
      *
@@ -691,13 +692,13 @@ class BlockTypes extends Component
     private function _getRecordByUid(string $uid): BlockTypeRecord
     {
         $record = BlockTypeRecord::findOne(['uid' => $uid]);
-        
+
         if ($record !== null) {
             Memoize::$blockTypeRecordsById[$record->id] = $record;
         } else {
             $record = new BlockTypeRecord();
         }
-        
+
         return $record;
     }
 }
