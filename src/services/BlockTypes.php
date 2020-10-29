@@ -2,8 +2,6 @@
 
 namespace benf\neo\services;
 
-use yii\base\Component;
-
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
@@ -23,6 +21,9 @@ use benf\neo\records\BlockType as BlockTypeRecord;
 use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
 use benf\neo\errors\BlockTypeNotFoundException;
 use benf\neo\helpers\Memoize;
+
+use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Class BlockTypes
@@ -340,6 +341,11 @@ class BlockTypes extends Component
         ProjectConfigHelper::ensureAllFieldsProcessed();
 
         $fieldId = Db::idByUid('{{%fields}}', $data['field']);
+
+        // Not much else we can do if the field doesn't actually exist
+        if ($fieldId === null) {
+            throw new Exception('Tried to save a Neo block type for a field with UID ' . $data['field'] . ', which was not found');
+        }
 
         $transaction = $dbService->beginTransaction();
 
