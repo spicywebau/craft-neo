@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.13 - 2020-11-02
 
 ### Changed
 - Attempts to apply project config changes that include a Neo block type that belongs to an invalid field UID will now throw an exception immediately on the failure to get the field's ID, rather than still trying (and failing) to insert the block type into the database
