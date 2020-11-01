@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed an issue where Neo block types' field layout UIDs were not being saved in the project config, which could cause attempts to apply project config YAML file changes to fail to apply the correct block type settings on Craft 3.5 releases prior to Craft 3.5.13
+- Fixed an issue when performing a project config rebuild, where Neo field layouts could lose their custom labels and UI elements
 
 ## 2.8.12 - 2020-10-12
 
