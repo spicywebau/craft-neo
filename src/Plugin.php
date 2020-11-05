@@ -204,24 +204,13 @@ class Plugin extends BasePlugin
                 }
             }
 
-            $layoutIdUidMap = (new Query())
-                    ->select(['id', 'uid'])
-                    ->from(Table::FIELDLAYOUTS)
-                    ->where(['id' => $layoutIds])
-                    ->pairs();
-
-            $layoutsData = $this->_getFieldLayoutsData($layoutIds);
-
             foreach ($blockTypeQuery as $blockType) {
                 $layoutId = $blockType['fieldLayoutId'];
 
-                // We need to check if `$layoutsData[$layoutId]` exists: `$this->_getFieldLayoutsData($layoutIds)` won't
-                // contain field layouts that only contained blank tab(s), which might be the case if a Craft install
-                // was upgraded from Craft 3.4 / Neo 2.7 or earlier (when Neo was able to support blank tabs) or if the
-                // field(s) that belonged to the blank tab(s) were deleted.
-                if ($layoutId !== null && isset($layoutsData[$layoutId])) {
+                if ($layoutId !== null) {
+                    $fieldLayout = $fieldsService->getLayoutById($layoutId);
                     $blockTypeData[$blockType['uid']]['fieldLayouts'] = [
-                        $layoutIdUidMap[$layoutId] => $layoutsData[$layoutId],
+                        $fieldLayout->uid => $fieldLayout->getConfig(),
                     ];
 
                     unset($blockTypeData[$blockType['uid']]['fieldLayoutId']);
@@ -260,51 +249,5 @@ class Plugin extends BasePlugin
         } catch (NotSupportedException $e) {
             $this->blockHasSortOrder = true;
         }
-    }
-
-    private function _getFieldLayoutsData(array $layoutIds)
-    {
-        $layoutData = [];
-        $layoutFields = (new Query())
-            ->select([
-                'lf.required',
-                'lf.sortOrder AS fieldSortOrder',
-                'f.uid AS fieldUid',
-                't.uid AS tabUid',
-                't.name',
-                't.sortOrder AS tabSortOrder',
-                'l.id AS layoutId',
-            ])
-            ->from(['lf' => Table::FIELDLAYOUTFIELDS])
-            ->innerJoin(['f' => Table::FIELDS], '[[f.id]] = [[lf.fieldId]]')
-            ->innerJoin(['t' => Table::FIELDLAYOUTTABS], '[[lf.tabId]] = [[t.id]]')
-            ->innerJoin(['l' => Table::FIELDLAYOUTS], '[[l.id]] = [[t.layoutId]]')
-            ->where([
-                'l.id' => $layoutIds,
-                'l.dateDeleted' => null,
-            ])
-            ->orderBy([
-                'tabSortOrder' => SORT_ASC,
-                'fieldSortOrder' => SORT_ASC,
-            ])
-            ->all();
-
-        foreach ($layoutFields as $layoutField) {
-            $layoutId = $layoutField['layoutId'];
-            $tabUid = $layoutField['tabUid'];
-
-            $layoutData[$layoutId]['tabs'][$tabUid]['name'] = $layoutField['name'];
-            $layoutData[$layoutId]['tabs'][$tabUid]['sortOrder'] = (int)$layoutField['tabSortOrder'];
-            $layoutData[$layoutId]['tabs'][$tabUid]['fields'][$layoutField['fieldUid']] = [
-                'required' => (bool)$layoutField['required'],
-                'sortOrder' => (int)$layoutField['fieldSortOrder'],
-            ];
-        }
-
-        foreach ($layoutData as &$layout) {
-            $layout['tabs'] = array_values($layout['tabs']);
-        }
-
-        return $layoutData;
     }
 }

@@ -6,6 +6,15 @@
 - Added move up/down options to Neo blocks' actions menus
 - Added server-side validation of whether any Neo field block type's max blocks setting has been exceeded, rather than relying on it to be enforced by client-side JavaScript
 
+## 2.8.13 - 2020-11-02
+
+### Changed
+- Attempts to apply project config changes that include a Neo block type that belongs to an invalid field UID will now throw an exception immediately on the failure to get the field's ID, rather than still trying (and failing) to insert the block type into the database
+
+### Fixed
+- Fixed an issue where Neo block types' field layout UIDs were not being saved in the project config, which could cause attempts to apply project config YAML file changes to fail to apply the correct block type settings on Craft 3.5 releases prior to Craft 3.5.13
+- Fixed an issue when performing a project config rebuild, where Neo field layouts could lose their custom labels and UI elements
+
 ## 2.8.12 - 2020-10-12
 
 ### Fixed

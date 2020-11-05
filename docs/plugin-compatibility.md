@@ -12,6 +12,7 @@ Neo is officially compatible with some other Craft plugins, listed below:
 The following plugins are known to be incompatible with Neo:
 
 - [CraftQL](https://github.com/markhuot/craftql)
+- [Feed Me](https://github.com/craftcms/feed-me)
 - [Reasons](https://github.com/mmikkel/Reasons-Craft3)
 - [Preparse Field](https://github.com/aelvan/Preparse-Field-Craft) (may cause issues with Neo blocks disappearing on save)
 
