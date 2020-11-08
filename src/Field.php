@@ -25,7 +25,9 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Gql as GqlHelper;
+use craft\helpers\Queue;
 use craft\gql\GqlEntityRegistry;
+use craft\queue\jobs\ApplyNewPropagationMethod;
 use craft\queue\jobs\ResaveElements;
 use craft\services\Elements;
 use craft\validators\ArrayValidator;
@@ -620,21 +622,19 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         Neo::$plugin->fields->save($this);
 
-        // If the propagation method just changed, resave all the neo blocks
-        // TODO - fix the issue when automatically resaving neo fields.
-        // if ($this->_oldPropagationMethod && $this->propagationMethod !== $this->_oldPropagationMethod) {
-        //     Craft::$app->getQueue()->push(new ResaveElements([
-        //         'elementType' => Block::class,
-        //         'criteria' => [
-        //             'fieldId' => $this->id,
-        //             'siteId' => '*',
-        //             'unique' => true,
-        //             'status' => null,
-        //             'enabledForSite' => false,
-        //         ]
-        //     ]));
-        //     $this->_oldPropagationMethod = null;
-        // }
+        if ($this->oldSettings !== null) {
+            $oldPropagationMethod = $this->oldSettings['propagationMethod'] ?? self::PROPAGATION_METHOD_ALL;
+
+            if ($this->propagationMethod !== $oldPropagationMethod) {
+                Queue::push(new ApplyNewPropagationMethod([
+                    'description' => Craft::t('neo', 'Applying new propagation method to Neo blocks'),
+                    'elementType' => Block::class,
+                    'criteria' => [
+                        'fieldId' => $this->id,
+                    ],
+                ]));
+            }
+        }
 
         parent::afterSave($isNew);
     }

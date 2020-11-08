@@ -22,6 +22,26 @@
 		],
 		value: neoField.propagationMethod
 	}) }}
+
+    {% if neoField.id and neoField.propagationMethod != 'none' %}
+        {% js %}
+            (function() {
+                var showingWarning = false;
+                $("#{{ 'propagationMethod'|namespaceInputId }}").on('change', function() {
+                    if ($(this).val() !== '{{ neoField.propagationMethod }}') {
+                        if (!showingWarning) {
+                            $('<p/>', {'class': 'warning', text: "{{ 'Applying this change to existing blocks can take some time.'|t('app')|e('js') }}"})
+                                .appendTo($("#{{ 'propagationMethod-field'|namespaceInputId }}"));
+                            showingWarning = true;
+                        }
+                    } else if (showingWarning) {
+                        $("#{{ 'propagationMethod-field'|namespaceInputId }} .warning").remove();
+                        showingWarning = false;
+                    }
+                });
+            })();
+        {% endjs %}
+    {% endif %}
 {% endif %}
 
 {{ forms.textField({

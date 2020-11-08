@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an issue on multi-site Craft installs where, when a Neo field's propagation method was changed, the field's blocks were not having the new propagation method applied
+
 ## 2.8.13 - 2020-11-02
 
 ### Changed
