@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.8.14 - 2020-11-09
+
+> {warning} This release includes a migration affecting multi-site Craft installations, which reapplies propagation methods to blocks belonging to Neo fields with propagation methods other than "save blocks to all sites the owner element is saved in", due to a bug where changes to a field's propagation method were not being applied to their blocks.  If your Craft install is multi-site, make sure to backup your database before updating Neo.
 
 ### Added
 - In Neo's JavaScript code, added the `afterInit` event to `Neo.Input`
