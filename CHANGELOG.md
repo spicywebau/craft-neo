@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- In Neo's JavaScript code, added the `afterInit` event to `Neo.Input`
+
 ### Fixed
 - Fixed an issue on multi-site Craft installs where, when a Neo field's propagation method was changed, the field's blocks were not having the new propagation method applied
 
