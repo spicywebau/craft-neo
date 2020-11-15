@@ -6,6 +6,9 @@
 - Added move up/down options to Neo blocks' actions menus
 - Added server-side validation of whether any Neo field block type's max blocks setting has been exceeded, rather than relying on it to be enforced by client-side JavaScript
 
+### Changed
+- Neo-to-Matrix conversion now supports converting Neo fields that have Super Table sub-field(s)
+
 ## 2.8.13 - 2020-11-02
 
 ### Changed
