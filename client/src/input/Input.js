@@ -179,6 +179,8 @@ export default Garnish.Base.extend({
         block.updatePreview()
       }
     })
+
+    this.trigger('afterInit');
   },
 
   updateResponsiveness () {
