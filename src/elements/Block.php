@@ -238,6 +238,19 @@ class Block extends Element implements BlockElementInterface
 
     /**
      * @inheritdoc
+     * @since 2.9.0
+     */
+    public function getCacheTags(): array
+    {
+        return [
+            "field-owner:$this->fieldId-$this->ownerId",
+            "field:$this->fieldId",
+            "owner:$this->ownerId",
+        ];
+    }
+
+    /**
+     * @inheritdoc
      */
     public function getFieldLayout()
     {

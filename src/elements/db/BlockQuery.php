@@ -13,6 +13,7 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 use craft\models\Site;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 use yii\db\Connection;
 
 /**
@@ -343,8 +344,11 @@ class BlockQuery extends ElementQuery
             }
         }
 
-        $fieldId = is_array($this->fieldId) && count($this->fieldId) === 1 ? $this->fieldId[0] : $this->fieldId;
-        $ownerId = is_array($this->ownerId) && count($this->ownerId) === 1 ? $this->ownerId[0] : $this->ownerId;
+        $this->_normalizeProp('fieldId');
+        $this->_normalizeProp('ownerId');
+
+        $fieldId = $this->fieldId !== null && count($this->fieldId) === 1 ? $this->fieldId[0] : $this->fieldId;
+        $ownerId = $this->ownerId !== null && count($this->ownerId) === 1 ? $this->ownerId[0] : $this->ownerId;
 
         // add the structureId so it doesn't retrieve all blocks for every site.
         if (!$this->structureId && is_numeric($fieldId) && is_numeric($ownerId)) {
@@ -391,7 +395,56 @@ class BlockQuery extends ElementQuery
         return parent::beforePrepare();
     }
 
+    /**
+     * @inheritdoc
+     * @since 2.9.0
+     */
+    protected function cacheTags(): array
+    {
+        $tags = [];
+
+        if ($this->fieldId && $this->ownerId) {
+            foreach ($this->fieldId as $fieldId) {
+                foreach ($this->ownerId as $ownerId) {
+                    $tags[] = "field-owner:$fieldId-$ownerId";
+                }
+            }
+        } else {
+            if ($this->fieldId) {
+                foreach ($this->fieldId as $fieldId) {
+                    $tags[] = "field:$fieldId";
+                }
+            }
+            if ($this->ownerId) {
+                foreach ($this->ownerId as $ownerId) {
+                    $tags[] = "owner:$ownerId";
+                }
+            }
+        }
+
+        return $tags;
+    }
+
     // Private methods
+
+    /**
+     * Converts a property into an array if it's numeric, or null if it's empty.
+     *
+     * @param string $prop The property to convert.
+     * @throws InvalidArgumentException if the property doesn't exist.
+     */
+    private function _normalizeProp(string $prop)
+    {
+        if (!property_exists($this, $prop)) {
+            throw new InvalidArgumentException('Tried to access invalid Neo block query property ' . $prop);
+        }
+
+        if (is_numeric($this->$prop)) {
+            $this->$prop = [$this->$prop];
+        } else if (empty($this->$prop)) {
+            $this->$prop = null;
+        }
+    }
 
     /**
      * Returns the filtered blocks in live preview mode.

@@ -419,6 +419,8 @@ class BlockTypes extends Component
 
             throw $e;
         }
+
+        Craft::$app->getElements()->invalidateCachesForElementType(Block::class);
     }
 
     /**
@@ -476,6 +478,8 @@ class BlockTypes extends Component
             $transaction->rollBack();
             throw $e;
         }
+
+        Craft::$app->getElements()->invalidateCachesForElementType(Block::class);
     }
 
     /**
