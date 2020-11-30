@@ -99,6 +99,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public $maxTopBlocks;
 
+    /**
+     * @var int|null The maximum level that blocks in this field can be nested.
+     * @since 2.9.0
+     */
+    public $maxLevel;
+
     public $wasModified = false;
 
     /**
@@ -176,7 +182,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 self::PROPAGATION_METHOD_ALL
             ]
         ];
-        $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks'], 'integer', 'min' => 0];
+        $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks, maxLevel'], 'integer', 'min' => 0];
 
         return $rules;
     }
@@ -471,6 +477,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             [
                 FieldValidator::class,
                 'maxTopBlocks' => $this->maxTopBlocks ?: null,
+                'maxLevel' => $this->maxLevel ?: null,
                 'on' => Element::SCENARIO_LIVE,
             ],
         ];
