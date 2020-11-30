@@ -95,6 +95,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
     /**
      * @var int|null The maximum number of top-level blocks this field can have.
+     * @since 2.3.0
      */
     public $maxTopBlocks;
 
