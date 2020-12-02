@@ -182,7 +182,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 self::PROPAGATION_METHOD_ALL
             ]
         ];
-        $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks, maxLevel'], 'integer', 'min' => 0];
+        $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks', 'maxLevel'], 'integer', 'min' => 0];
 
         return $rules;
     }
