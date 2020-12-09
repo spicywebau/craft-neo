@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+> {warning} This release includes a migration to soft-delete old Neo block data, no longer associated with any block structure, that may cause errors when setting a new propagation method for their fields.  Make sure to backup your database before updating Neo.
+
+### Fixed
+- Runs a migration to soft-delete any Neo blocks without a `sortOrder`, which could have occurred if any blocks were no longer associated with a block structure prior to Neo 2.7.0; fixes an "Attempting to save an element in an unsupported site" error when setting a new propagation method for the fields those blocks belong to
+
 ## 2.8.14 - 2020-11-09
 
 > {warning} This release includes a migration affecting multi-site Craft installations, which reapplies propagation methods to blocks belonging to Neo fields with propagation methods other than "save blocks to all sites the owner element is saved in", due to a bug where changes to a field's propagation method were not being applied to their blocks.  If your Craft install is multi-site, make sure to backup your database before updating Neo.
