@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.15 - 2020-12-09
 
 > {warning} This release includes a migration to soft-delete old Neo block data, no longer associated with any block structure, that may cause errors when setting a new propagation method for their fields.  Make sure to backup your database before updating Neo.
 
