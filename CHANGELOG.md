@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.15.1 - 2020-12-10
+
+### Fixed
+- Fixed a PostgreSQL error with the migration in Neo 2.8.15 (thanks @boboldehampsink)
+
 ## 2.8.15 - 2020-12-09
 
 > {warning} This release includes a migration to soft-delete old Neo block data, no longer associated with any block structure, that may cause errors when setting a new propagation method for their fields.  Make sure to backup your database before updating Neo.
