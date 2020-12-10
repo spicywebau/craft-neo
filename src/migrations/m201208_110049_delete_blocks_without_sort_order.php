@@ -35,7 +35,7 @@ class m201208_110049_delete_blocks_without_sort_order extends Migration
         $neoBlockIds = (new Query())
             ->select(['id'])
             ->from('{{%neoblocks}}')
-            ->where('sortOrder IS NULL')
+            ->where('[[sortOrder]] IS NULL')
             ->column();
         $neoBlocks = Block::find()
             ->id($neoBlockIds)
