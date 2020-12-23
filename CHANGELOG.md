@@ -2,7 +2,10 @@
 
 ## Unreleased
 
+> {warning} This release includes a migration to hard-delete old Neo block data, no longer associated with an owner element, that may cause errors when setting a new propagation method for their fields.  Make sure to backup your database before updating Neo.
+
 ### Fixed
+- Runs a migration to hard-delete any Neo blocks with an `ownerId` that doesn't exist in the `elements` table; fixes potential issues when setting a new propagation method for the fields those blocks belong to
 - Fixed an issue where, in some cases, Neo blocks could remain in the database when they should have been hard-deleted
 
 ## 2.8.15.1 - 2020-12-10
