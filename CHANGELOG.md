@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an issue where, in some cases, Neo blocks could remain in the database when they should have been hard-deleted
+
 ## 2.8.15.1 - 2020-12-10
 
 ### Fixed

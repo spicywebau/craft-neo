@@ -13,6 +13,7 @@ use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\validators\SiteIdValidator;
 use yii\base\Exception;
@@ -497,6 +498,13 @@ class Block extends Element implements BlockElementInterface
     {
         // Remove this block's collapsed state from the cache
         $this->forgetCollapsed();
+
+        // If the block was hard-deleted, make sure its row in the `neoblocks` table is deleted, if it wasn't already
+        if ($this->hardDelete) {
+            Db::delete('{{%neoblocks}}', [
+                'id' => $this->id,
+            ]);
+        }
 
         parent::afterDelete();
     }
