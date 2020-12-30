@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.16 - 2020-12-30
 
 > {warning} This release includes a migration to hard-delete old Neo block data, no longer associated with an owner element, that may cause errors when setting a new propagation method for their fields.  Make sure to backup your database before updating Neo.
 
