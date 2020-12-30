@@ -7,6 +7,7 @@
 ### Fixed
 - Runs a migration to hard-delete any Neo blocks with an `ownerId` that doesn't exist in the `elements` table; fixes potential issues when setting a new propagation method for the fields those blocks belong to
 - Fixed an issue where, in some cases, Neo blocks could remain in the database when they should have been hard-deleted
+- Rewrote the Neo 2.8.14 migration to fix the "There was a problem getting the parent element" error that could occur in some cases
 
 ## 2.8.15.1 - 2020-12-10
 
