@@ -12,6 +12,27 @@
 - Neo-to-Matrix conversion now supports converting Neo fields that have Super Table sub-field(s)
 - Updated Neo's project config rebuild code to no longer account for a potential lack of `maxSiblingBlocks` block type setting, which had been required for the Field Labels 1.3 migration which has since been rewritten
 
+## 2.8.16 - 2020-12-30
+
+> {warning} This release includes a migration to hard-delete old Neo block data, no longer associated with an owner element, that may cause errors when setting a new propagation method for their fields.  Make sure to backup your database before updating Neo.
+
+### Fixed
+- Runs a migration to hard-delete any Neo blocks with an `ownerId` that doesn't exist in the `elements` table; fixes potential issues when setting a new propagation method for the fields those blocks belong to
+- Fixed an issue where, in some cases, Neo blocks could remain in the database when they should have been hard-deleted
+- Rewrote the Neo 2.8.14 migration to fix the "There was a problem getting the parent element" error that could occur in some cases
+
+## 2.8.15.1 - 2020-12-10
+
+### Fixed
+- Fixed a PostgreSQL error with the migration in Neo 2.8.15 (thanks @boboldehampsink)
+
+## 2.8.15 - 2020-12-09
+
+> {warning} This release includes a migration to soft-delete old Neo block data, no longer associated with any block structure, that may cause errors when setting a new propagation method for their fields.  Make sure to backup your database before updating Neo.
+
+### Fixed
+- Runs a migration to soft-delete any Neo blocks without a `sortOrder`, which could have occurred if any blocks were no longer associated with a block structure prior to Neo 2.7.0; fixes an "Attempting to save an element in an unsupported site" error when setting a new propagation method for the fields those blocks belong to
+
 ## 2.8.14 - 2020-11-09
 
 > {warning} This release includes a migration affecting multi-site Craft installations, which reapplies propagation methods to blocks belonging to Neo fields with propagation methods other than "save blocks to all sites the owner element is saved in", due to a bug where changes to a field's propagation method were not being applied to their blocks.  If your Craft install is multi-site, make sure to backup your database before updating Neo.

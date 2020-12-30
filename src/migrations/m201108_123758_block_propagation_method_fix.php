@@ -6,6 +6,7 @@ use benf\neo\Field;
 use benf\neo\elements\Block;
 use Craft;
 use craft\db\Migration;
+use craft\db\Query;
 use craft\helpers\Queue;
 use craft\queue\jobs\ApplyNewPropagationMethod;
 
@@ -28,18 +29,37 @@ class m201108_123758_block_propagation_method_fix extends Migration
             return true;
         }
 
-        $neoFields = array_filter(Craft::$app->getFields()->getAllFields(), function($field) {
-            return $field instanceof Field && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL;
-        });
+        $fieldsService = Craft::$app->getFields();
+        $fieldPropagationMethod = [];
+        $blockStructures = (new Query())
+            ->from('{{%neoblockstructures}}')
+            ->all();
 
-        foreach ($neoFields as $neoField) {
-            Queue::push(new ApplyNewPropagationMethod([
-                'description' => Craft::t('neo', 'Applying new propagation method to Neo blocks'),
-                'elementType' => Block::class,
-                'criteria' => [
-                    'fieldId' => $neoField->id,
-                ],
-            ]));
+        foreach ($blockStructures as $blockStructure) {
+            $fieldId = $blockStructure['fieldId'];
+
+            if (!isset($fieldPropagationMethod[$fieldId])) {
+                $field = $fieldsService->getFieldById($fieldId);
+
+                if (!($field instanceof Field)) {
+                    continue;
+                }
+
+                $fieldPropagationMethod[$fieldId] = $field->propagationMethod;
+            }
+
+            if ($fieldPropagationMethod[$fieldId] !== Field::PROPAGATION_METHOD_ALL) {
+                Queue::push(new ApplyNewPropagationMethod([
+                    'description' => Craft::t('neo', 'Applying new propagation method to Neo blocks'),
+                    'elementType' => Block::class,
+                    'criteria' => [
+                        'ownerId' => $blockStructure['ownerId'],
+                        'ownerSiteId' => $blockStructure['ownerSiteId'],
+                        'fieldId' => $fieldId,
+                        'structureId' => $blockStructure['structureId'],
+                    ],
+                ]));
+            }
         }
     }
 

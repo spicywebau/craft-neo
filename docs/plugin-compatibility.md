@@ -3,6 +3,7 @@
 Neo is officially compatible with some other Craft plugins, listed below:
 
 - [CP Field Inspect](https://github.com/mmikkel/CpFieldInspect-Craft)
+- [Matrix Field Preview](https://github.com/weareferal/craft-matrix-field-preview) (Neo support added in version 1.2.0)
 - [Embedded Assets](https://github.com/spicywebau/craft-embedded-assets) (field content is displayed in Neo's collapsed block previews)
 - [Super Table](https://github.com/verbb/super-table) (field content is displayed in Neo's collapsed block previews)
 - [Typed Link Field](https://github.com/sebastian-lenz/craft-linkfield) (field content is displayed in Neo's collapsed block previews)
