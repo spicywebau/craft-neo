@@ -61,4 +61,9 @@ return [
     'The maximum level that blocks in this field can be nested.' => 'The maximum level that blocks in this field can be nested.',
     '{attribute} has a max level of {maxLevel, number}, but has blocks exceeding that level.' => '{attribute} has a max level of {maxLevel, number}, but has blocks exceeding that level.',
     '{attribute} should contain at most {maxBlockTypeBlocks, number} {maxBlockTypeBlocks, plural, one{block} other{blocks}} of type {blockType}.' => '{attribute} should contain at most {maxBlockTypeBlocks, number} {maxBlockTypeBlocks, plural, one{block} other{blocks}} of type {blockType}.',
+    'This field is currently of the Neo type. You may automatically convert it to Matrix along with all of its content.' => 'This field is currently of the Neo type. You may automatically convert it to Matrix along with all of its content.',
+    'Convert' => 'Convert',
+    'By converting to Matrix, structural information will be lost.' => 'By converting to Matrix, structural information will be lost.',
+    'Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.' => 'Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.',
+    'Could not convert Neo field to Matrix' => 'Could not convert Neo field to Matrix',
 ];
