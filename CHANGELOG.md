@@ -6,6 +6,7 @@
 - Added move up/down options to Neo blocks' actions menus
 - Added the Max Level field setting
 - Added support for the tag-based cache invalidation introduced in Craft 3.5
+- Added a default English translation file
 - Added server-side validation of whether any Neo field block type's max blocks setting has been exceeded, rather than relying on it to be enforced by client-side JavaScript
 
 ### Changed
