@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.17 - 2020-01-12
 
 ### Fixed
 - Fixed a GraphQL bug where, when a query included more than one reference to the same Neo field and did not specify a block level, the returned data would include blocks of all levels, rather than just the top level
