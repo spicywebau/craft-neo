@@ -50,6 +50,9 @@ class Block extends ElementResolver
             return $query;
         }
 
+        // We require level 1 unless the arguments say otherwise
+        $query->level(1);
+
         foreach ($arguments as $key => $value) {
             $query->$key($value);
         }
