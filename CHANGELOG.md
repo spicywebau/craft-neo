@@ -13,6 +13,11 @@
 - Neo-to-Matrix conversion now supports converting Neo fields that have Super Table sub-field(s)
 - Updated Neo's project config rebuild code to no longer account for a potential lack of `maxSiblingBlocks` block type setting, which had been required for the Field Labels 1.3 migration which has since been rewritten
 
+## 2.8.17 - 2020-01-12
+
+### Fixed
+- Fixed a GraphQL bug where, when a query included more than one reference to the same Neo field and did not specify a block level, the returned data would include blocks of all levels, rather than just the top level
+
 ## 2.8.16 - 2020-12-30
 
 > {warning} This release includes a migration to hard-delete old Neo block data, no longer associated with an owner element, that may cause errors when setting a new propagation method for their fields.  Make sure to backup your database before updating Neo.
