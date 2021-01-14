@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Updated the `standard` JavaScript dev dependency to 16.0.3
+
 ## 2.8.17 - 2020-01-12
 
 ### Fixed
