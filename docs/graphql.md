@@ -170,20 +170,3 @@ body {
     }
 ]
 ```
-
-----
-
-## Issues
-
-If you're seeing errors like `Schema must contain unique named types but contains multiple types named...`. Check the schema by adding the below to the query.
-
-```
-__schema {
-    types {
-        name
-        description
-    }
-}
-```
-
-For some reason it'll fix the error above. If it doesn't then submit an issue and we'll have a look at it further.
