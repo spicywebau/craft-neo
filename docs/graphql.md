@@ -170,3 +170,12 @@ body {
     }
 ]
 ```
+
+----
+
+## Mutations
+
+As of Neo 2.9, Neo supports GraphQL mutations which were introduced in Craft 3.5.  Mutating Neo fields is largely the same process as with [Matrix fields](https://craftcms.com/docs/3.x/graphql.html#matrix-fields-in-mutations), but with two differences:
+
+- Neo-related input types have Neo in their name, rather than Matrix; e.g. the input type for a Neo field with the handle `yourNeoField` is `yourNeoField_NeoInput`.
+- Neo block data can include a `level` field for setting the block's level.  If `level` isn't specified, it will default to 1.

@@ -9,6 +9,7 @@ use benf\neo\elements\db\BlockQuery;
 use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
 use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
 use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
+use benf\neo\gql\types\input\Block as NeoBlockInputType;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
@@ -816,6 +817,15 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             'args' => NeoBlockArguments::getArguments(),
             'resolve' => NeoBlockResolver::class . '::resolve',
         ];
+    }
+
+    /**
+     * @inheritdoc
+     * @since 2.9.0
+     */
+    public function getContentGqlMutationArgumentType()
+    {
+        return NeoBlockInputType::getType($this);
     }
 
     /**
