@@ -5,6 +5,9 @@
 ### Changed
 - Updated the `standard` JavaScript dev dependency to 16.0.3
 
+### Fixed
+- Fixed a bug when using a Neo block's `useMemoized()` method and accessing a block's children, where a disabled block's enabled descendants would be attached to the previous enabled block existing at the same level as the disabled block
+
 ## 2.8.17 - 2020-01-12
 
 ### Fixed
