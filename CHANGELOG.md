@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.19 - 2021-02-10
+
+### Fixed
+- Fixed a bug where, for revisions of entries on sections that were not enabled for the primary site, Neo fields' block structures were not being saved, resulting in all blocks being treated as top-level blocks
+
 ## 2.8.18 - 2021-02-02
 
 ### Changed

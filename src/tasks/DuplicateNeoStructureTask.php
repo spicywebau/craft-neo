@@ -45,7 +45,7 @@ class DuplicateNeoStructureTask extends BaseJob
         
         $this->setProgress($queue, 0.6);
         
-        if (count($blocks) > 0 && Craft::$app->getElements()->getElementById($this->owner['id'])) {
+        if (!empty($blocks)) {
             $blockStructure = new BlockStructure();
             $blockStructure->fieldId = (int)$this->field;
             $blockStructure->ownerId = (int)$this->owner['id'];
