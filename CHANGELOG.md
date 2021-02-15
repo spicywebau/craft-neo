@@ -15,6 +15,7 @@
 - Updated Neo's project config rebuild code to no longer account for a potential lack of `maxSiblingBlocks` block type setting, which had been required for the Field Labels 1.3 migration which has since been rewritten
 
 ### Fixed
+- Fixed a display issue with the tab dropdown button icon on Neo input blocks on mobile devices
 - Fixed some padding issues with Neo input blocks
 
 ## 2.8.19 - 2021-02-10
