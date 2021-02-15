@@ -14,6 +14,9 @@
 - Neo-to-Matrix conversion now supports converting Neo fields that have Super Table sub-field(s)
 - Updated Neo's project config rebuild code to no longer account for a potential lack of `maxSiblingBlocks` block type setting, which had been required for the Field Labels 1.3 migration which has since been rewritten
 
+### Fixed
+- Fixed some padding issues with Neo input blocks
+
 ## 2.8.19 - 2021-02-10
 
 ### Fixed

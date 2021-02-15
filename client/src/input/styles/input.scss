@@ -60,7 +60,7 @@ $preview-reduction: 70px;
         border-radius: 4px;
         border: 1px solid #e3e5e8;
         background-color: #f3f7fc;
-        padding: 0 14px 14px;
+        padding: 0;
 
         &:focus {
             outline: 0;
@@ -72,6 +72,7 @@ $preview-reduction: 70px;
             line-height: 30px;
             color: #8f98a3;
             transition: background-color 0.5s;
+            padding: 0 14px;
 
             &_left,
             &_right {
@@ -83,11 +84,11 @@ $preview-reduction: 70px;
             &_left {
 
                 body.ltr & {
-                    left:  0;
+                    left:  14px;
                 }
 
                 body.rtl & {
-                    right: 0;
+                    right: 14px;
                 }
             }
 
@@ -96,11 +97,11 @@ $preview-reduction: 70px;
                 min-width: 100px;
 
                 body.ltr & {
-                    right: 0;
+                    right: 14px;
                 }
 
                 body.rtl & {
-                    left:  0;
+                    left:  14px;
                 }
             }
 
@@ -305,9 +306,11 @@ $preview-reduction: 70px;
 
         &_body {
             overflow: hidden;
+            padding: 0 14px 14px;
         }
 
         &_content {
+            border-top: 1px solid #e3e5e8;
 
             &:empty {
                 display: none;
@@ -315,7 +318,6 @@ $preview-reduction: 70px;
 
             &_tab {
                 padding: 14px 0 0;
-                border-top: 1px solid #e3e5e8;
 
                 &.is-blank {
                     padding: 0;
