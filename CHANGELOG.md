@@ -13,6 +13,7 @@
 ### Changed
 - Neo-to-Matrix conversion now supports converting Neo fields that have Super Table sub-field(s)
 - Updated Neo's project config rebuild code to no longer account for a potential lack of `maxSiblingBlocks` block type setting, which had been required for the Field Labels 1.3 migration which has since been rewritten
+- Neo blocks' tab names will now display in red when a field in that tab has had a validation error
 
 ### Fixed
 - Fixed a display issue with the tab dropdown button icon on Neo input blocks on mobile devices

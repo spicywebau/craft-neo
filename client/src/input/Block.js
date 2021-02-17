@@ -128,9 +128,11 @@ export default Garnish.Base.extend({
     let hasErrors = false
     if (this._blockType) {
       for (const tab of this._blockType.getTabs()) {
-        if (tab.getErrors().length > 0) {
+        const selector = `[data-neo-b-info="${tab.getName()}"]`
+
+        if (this.$tabContainer.filter(selector).find('ul.errors').length > 0) {
           hasErrors = true
-          break
+          this.$tabButton.filter(selector).addClass('error')
         }
       }
     }
