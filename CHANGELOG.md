@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.20 - 2021-02-19
 
 ### Fixed
 - Fixed a bug when editing drafts, where a Neo block could sometimes fail to resave if its subfield values were set back to the same values it had on page load
