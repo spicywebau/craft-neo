@@ -861,6 +861,7 @@ export default Garnish.Base.extend({
       window.draftEditor.enableAutosave &&
       window.draftEditor.settings.draftId
     ) {
+      this.setModified(true)
       this._forceModified = true
     }
 

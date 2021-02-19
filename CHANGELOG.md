@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug in Neo 2.8.20 when loading a previously-saved draft, where Neo blocks would fail to resave when changing subfield values
+
 ## 2.8.20 - 2021-02-19
 
 ### Fixed
