@@ -19,6 +19,16 @@
 - Fixed a display issue with the tab dropdown button icon on Neo input blocks on mobile devices
 - Fixed some padding issues with Neo input blocks
 
+## 2.8.21 - 2021-02-19
+
+### Fixed
+- Fixed a bug in Neo 2.8.20 when loading a previously-saved draft, where Neo blocks would fail to resave when changing subfield values
+
+## 2.8.20 - 2021-02-19
+
+### Fixed
+- Fixed a bug when editing drafts, where a Neo block could sometimes fail to resave if its subfield values were set back to the same values it had on page load
+
 ## 2.8.19 - 2021-02-10
 
 ### Fixed

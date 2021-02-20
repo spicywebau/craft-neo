@@ -865,6 +865,17 @@ export default Garnish.Base.extend({
   },
 
   _detectChange () {
+    // When editing a draft and autosave is enabled, we need to force modified to be set, or
+    // returning the block to its original values will cause it not to be resaved.
+    if (
+      window.draftEditor &&
+      window.draftEditor.enableAutosave &&
+      window.draftEditor.settings.draftId
+    ) {
+      this.setModified(true)
+      this._forceModified = true
+    }
+
     if (this._forceModified) {
       return
     }
