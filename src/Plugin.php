@@ -202,22 +202,8 @@ class Plugin extends BasePlugin
                 }
             }
 
-            $blockTypeGroupQuery = (new Query())
-                ->select([
-                    'groups.name',
-                    'groups.sortOrder',
-                    'groups.uid',
-                    'fields.uid AS field',
-                ])
-                ->from(['{{%neoblocktypegroups}} groups'])
-                ->innerJoin('{{%fields}} fields', '[[groups.fieldId]] = [[fields.id]]');
-
-            foreach ($blockTypeGroupQuery->all() as $blockTypeGroup) {
-                $blockTypeGroupData[$blockTypeGroup['uid']] = [
-                    'field' => $blockTypeGroup['field'],
-                    'name' => $blockTypeGroup['name'],
-                    'sortOrder' => (int)$blockTypeGroup['sortOrder'],
-                ];
+            foreach ($this->blockTypes->getAllBlockTypeGroups() as $blockTypeGroup) {
+                $blockTypeGroupData[$blockTypeGroup['uid']] = $blockTypeGroup->getConfig();
             }
 
             $event->config['neoBlockTypes'] = $blockTypeData;

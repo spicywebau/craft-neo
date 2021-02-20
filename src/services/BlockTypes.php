@@ -564,6 +564,23 @@ class BlockTypes extends Component
     }
 
     /**
+     * Returns all block type groups belonging to all Neo fields.
+     *
+     * @return array of BlockTypeGroups
+     * @since 2.9.0
+     */
+    public function getAllBlockTypeGroups(): array
+    {
+        $groups = [];
+
+        foreach ($this->_createGroupQuery()->all() as $key => $result) {
+            $groups[$key] = new BlockTypeGroup($result);
+        }
+
+        return $groups;
+    }
+
+    /**
      * Creates a basic Neo block type query.
      *
      * @return Query
