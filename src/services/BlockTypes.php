@@ -216,8 +216,6 @@ class BlockTypes extends Component
     public function saveGroup(BlockTypeGroup $blockTypeGroup): bool
     {
         $projectConfigService = Craft::$app->getProjectConfig();
-        $fieldsService = Craft::$app->getFields();
-        $field = $fieldsService->getFieldById($blockTypeGroup->fieldId);
 
         if ($blockTypeGroup->getIsNew()) {
             $blockTypeGroup->uid = StringHelper::UUID();
@@ -225,16 +223,10 @@ class BlockTypes extends Component
             $blockTypeGroup->uid = Db::uidById('{{%neoblocktypegroups}}', $blockTypeGroup->id);
         }
 
-        $data = [
-            'field' => $field->uid,
-            'name' => $blockTypeGroup->name,
-            'sortOrder' => $blockTypeGroup->sortOrder,
-        ];
-
         $path = 'neoBlockTypeGroups.' . $blockTypeGroup->uid;
 
         if (!$projectConfigService->readOnly) {
-            $projectConfigService->set($path, $data);
+            $projectConfigService->set($path, $blockTypeGroup->getConfig());
         }
 
         if ($blockTypeGroup->getIsNew()) {

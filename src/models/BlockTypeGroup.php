@@ -1,6 +1,7 @@
 <?php
 namespace benf\neo\models;
 
+use Craft;
 use craft\base\Model;
 
 /**
@@ -66,5 +67,20 @@ class BlockTypeGroup extends Model
 	public function getIsNew(): bool
 	{
 		return (!$this->id || strpos($this->id, 'new') === 0);
+	}
+
+    /**
+     * Returns the block type group config.
+     *
+     * @return array
+     * @since 2.9.0
+     */
+	public function getConfig(): array
+	{
+		return [
+            'field' => Craft::$app->getFields()->getFieldById($this->fieldId)->uid,
+            'name' => $this->name,
+            'sortOrder' => (int)$this->sortOrder,
+        ];
 	}
 }
