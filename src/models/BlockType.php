@@ -7,6 +7,9 @@ use Craft;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\base\GqlInlineFragmentInterface;
+use craft\db\Table;
+use craft\helpers\Db;
+use craft\helpers\StringHelper;
 
 /**
  * Class BlockType
@@ -163,5 +166,46 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public function getEagerLoadingPrefix(): string
     {
         return $this->handle;
+    }
+
+    /**
+     * Returns the block type config.
+     *
+     * @return array
+     * @since 2.9.0
+     */
+    public function getConfig(): array
+    {
+        $config = [
+            'childBlocks' => $this->childBlocks,
+            'field' => $this->getField()->uid,
+            'handle' => $this->handle,
+            'maxBlocks' => (int)$this->maxBlocks,
+            'maxChildBlocks' => (int)$this->maxChildBlocks,
+            'maxSiblingBlocks' => (int)$this->maxSiblingBlocks,
+            'name' => $this->name,
+            'sortOrder' => (int)$this->sortOrder,
+            'topLevel' => (bool)$this->topLevel,
+        ];
+        $fieldLayout = $this->getFieldLayout();
+
+        // Field layout ID might not be set even if the block type already had one -- just grab it from the block type
+        $fieldLayout->id = $fieldLayout->id ?? $this->fieldLayoutId;
+        $fieldLayoutConfig = $fieldLayout->getConfig();
+
+        // No need to bother with the field layout if it has no tabs
+        if ($fieldLayoutConfig !== null) {
+            $fieldLayoutUid = $fieldLayout->uid ??
+                ($fieldLayout->id ? Db::uidById(Table::FIELDLAYOUTS, $fieldLayout->id) : null) ??
+                StringHelper::UUID();
+
+            if (!$fieldLayout->uid) {
+                $fieldLayout->uid = $fieldLayoutUid;
+            }
+
+            $config['fieldLayouts'][$fieldLayoutUid] = $fieldLayoutConfig;
+        }
+
+        return $config;
     }
 }
