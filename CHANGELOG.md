@@ -19,6 +19,16 @@
 - Fixed a display issue with the tab dropdown button icon on Neo input blocks on mobile devices
 - Fixed some padding issues with Neo input blocks
 
+## 2.8.23 - 2021-02-22
+
+### Fixed
+- Fixed a bug in Neo 2.8.22, where an exception could occur when editing a Neo field if one of its block types allows all of the field's block types as child block types
+
+## 2.8.22 - 2021-02-22
+
+### Fixed
+- Fixed a bug when saving a Neo field, where a Neo block type's `childBlocks` property could mistakenly be set as a string representing an array, rather than an array, which could cause project config formatting issues
+
 ## 2.8.21 - 2021-02-19
 
 ### Fixed
@@ -600,7 +610,7 @@
 ## 2.4.1 - 2019-08-08
 
 ### Fixed
-- Fixed issue #239  
+- Fixed issue #239
 - Fixed indentation, swapped to tabs.
 
 ### Changed
