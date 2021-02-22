@@ -7,6 +7,7 @@ use Craft;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\base\GqlInlineFragmentInterface;
+use craft\helpers\Json;
 
 /**
  * Class BlockType
@@ -88,6 +89,19 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * @var Field|null The Neo field associated with this block type.
      */
     private $_field;
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct($config = [])
+    {
+        // `childBlocks` might be a string
+        if (isset($config['childBlocks']) && !is_array($config['childBlocks'])) {
+            $config['childBlocks'] = Json::decode($config['childBlocks']);
+        }
+
+        parent::__construct($config);
+    }
 
     /**
      * @inheritdoc
