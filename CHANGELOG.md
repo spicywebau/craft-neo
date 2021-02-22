@@ -3,7 +3,7 @@
 ## 2.8.22 - 2021-02-22
 
 ### Fixed
-- Fixed a bug when saving a Neo field, where a Neo block type's `childBlocks` property could mistakenly be set as a string, rather than an array, which could cause project config formatting issues
+- Fixed a bug when saving a Neo field, where a Neo block type's `childBlocks` property could mistakenly be set as a string representing an array, rather than an array, which could cause project config formatting issues
 
 ## 2.8.21 - 2021-02-19
 
