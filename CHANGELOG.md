@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.8.23 - 2021-02-22
 
 ### Fixed
 - Fixed a bug in Neo 2.8.22, where an exception could occur when editing a Neo field if one of its block types allows all of the field's block types as child block types
