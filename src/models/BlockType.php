@@ -64,7 +64,8 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public $maxChildBlocks;
 
     /**
-     * @var array|null The child blocks.
+     * @var array|string|null The child block types of this block type, either as an array of block type handles, the
+     * string '*' representing all of the Neo field's block types, or null if no child block types.
      */
     public $childBlocks;
 
@@ -98,7 +99,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      */
     public function __construct($config = [])
     {
-        // `childBlocks` might be a string
+        // `childBlocks` might be a string representing an array
         if (isset($config['childBlocks']) && !is_array($config['childBlocks'])) {
             $config['childBlocks'] = Json::decodeIfJson($config['childBlocks']);
         }
