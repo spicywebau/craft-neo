@@ -586,7 +586,7 @@
 ## 2.4.1 - 2019-08-08
 
 ### Fixed
-- Fixed issue #239  
+- Fixed issue #239
 - Fixed indentation, swapped to tabs.
 
 ### Changed
