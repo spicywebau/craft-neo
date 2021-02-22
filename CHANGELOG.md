@@ -8,11 +8,12 @@
 - Added support for the tag-based cache invalidation introduced in Craft 3.5
 - Added support for GraphQL mutations introduced in Craft 3.5
 - Added a default English translation file
+- Added `getConfig()` methods for the `BlockType` and `BlockTypeGroup` models
 - Added server-side validation of whether any Neo field block type's max blocks setting has been exceeded, rather than relying on it to be enforced by client-side JavaScript
 
 ### Changed
 - Neo-to-Matrix conversion now supports converting Neo fields that have Super Table sub-field(s)
-- Updated Neo's project config rebuild code to no longer account for a potential lack of `maxSiblingBlocks` block type setting, which had been required for the Field Labels 1.3 migration which has since been rewritten
+- Updated Neo's project config rebuild code to rebuild based on the `BlockType` and `BlockTypeGroup` `getConfig()` methods
 - Neo blocks' tab names will now display in red when a field in that tab has had a validation error
 
 ### Fixed
