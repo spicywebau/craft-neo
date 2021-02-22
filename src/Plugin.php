@@ -140,66 +140,11 @@ class Plugin extends BasePlugin
     {
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event)
         {
-            $fieldsService = Craft::$app->getFields();
             $blockTypeData = [];
             $blockTypeGroupData = [];
-            $layoutIds = [];
 
-            $blockTypeQuery = (new Query())
-                ->select([
-                    // We require querying for the layout ID, rather than performing an inner join and getting the
-                    // layout UID that way, because Neo allows block types not to have field layouts
-                    'types.fieldLayoutId',
-                    'types.name',
-                    'types.handle',
-                    'types.maxBlocks',
-                    'types.maxSiblingBlocks',
-                    'types.maxChildBlocks',
-                    'types.childBlocks',
-                    'types.topLevel',
-                    'types.sortOrder',
-                    'types.uid',
-                    'fields.uid AS field',
-                ])
-                ->from(['{{%neoblocktypes}} types'])
-                ->innerJoin('{{%fields}} fields', '[[types.fieldId]] = [[fields.id]]')
-                ->all();
-
-            foreach ($blockTypeQuery as $blockType) {
-                $childBlocks = $blockType['childBlocks'];
-
-                if (!empty($childBlocks)) {
-                    $childBlocks = json_decode($childBlocks);
-                }
-
-                $blockTypeData[$blockType['uid']] = [
-                    'field' => $blockType['field'],
-                    'name' => $blockType['name'],
-                    'handle' => $blockType['handle'],
-                    'sortOrder' => (int)$blockType['sortOrder'],
-                    'maxBlocks' => (int)$blockType['maxBlocks'],
-                    'maxSiblingBlocks' => (int)$blockType['maxSiblingBlocks'],
-                    'maxChildBlocks' => (int)$blockType['maxChildBlocks'],
-                    'childBlocks' => $childBlocks,
-                    'topLevel' => (bool)$blockType['topLevel'],
-                ];
-
-                if ($blockType['fieldLayoutId'] !== null) {
-                    $layoutIds[] = $blockType['fieldLayoutId'];
-                }
-            }
-
-            foreach ($blockTypeQuery as $blockType) {
-                $layoutId = $blockType['fieldLayoutId'];
-
-                if ($layoutId !== null) {
-                    $fieldLayout = $fieldsService->getLayoutById($layoutId);
-                    $blockTypeData[$blockType['uid']]['fieldLayouts'] = [
-                        $fieldLayout->uid => $fieldLayout->getConfig(),
-                    ];
-
-                    unset($blockTypeData[$blockType['uid']]['fieldLayoutId']);
-                }
+            foreach ($this->blockTypes->getAllBlockTypes() as $blockType) {
+                $blockTypeData[$blockType['uid']] = $blockType->getConfig();
             }
 
             foreach ($this->blockTypes->getAllBlockTypeGroups() as $blockTypeGroup) {
