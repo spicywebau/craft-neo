@@ -9,7 +9,6 @@
 - Added support for GraphQL mutations introduced in Craft 3.5
 - Added a default English translation file
 - Added `getConfig()` methods for the `BlockType` and `BlockTypeGroup` models
-- Added server-side validation of whether any Neo field block type's max blocks setting has been exceeded, rather than relying on it to be enforced by client-side JavaScript
 
 ### Changed
 - Neo-to-Matrix conversion now supports converting Neo fields that have Super Table sub-field(s)
