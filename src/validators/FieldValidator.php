@@ -21,6 +21,7 @@ class FieldValidator extends Validator
 
     /**
      * @var int|null The maximum level blocks can be nested in the field.  If not set, there is no limit.
+     * @since 2.9.0
      */
     public $maxLevel;
 
@@ -31,6 +32,7 @@ class FieldValidator extends Validator
 
     /**
      * @var string|null A user-defined error message to be used if the field's `maxLevel` is exceeded.
+     * @since 2.9.0
      */
     public $exceedsMaxLevel;
 
