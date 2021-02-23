@@ -9,7 +9,7 @@ use yii\validators\Validator;
  * Class FieldValidator
  *
  * @package benf\neo\validators
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @since 2.3.0
  */
 class FieldValidator extends Validator
