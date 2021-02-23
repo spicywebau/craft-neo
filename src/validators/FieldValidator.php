@@ -100,7 +100,7 @@ class FieldValidator extends Validator
         }
 
         if ($this->exceedsMaxLevels === null) {
-            $this->exceedsMaxLevels = Craft::t('neo', '{attribute} has a max level of {maxLevel, number}, but has blocks exceeding that level.');
+            $this->exceedsMaxLevels = Craft::t('neo', '{attribute} blocks must not be nested deeper than level {maxLevels, number}.');
         }
     }
 }
