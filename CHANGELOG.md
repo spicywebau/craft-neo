@@ -4,7 +4,7 @@
 
 ### Added
 - Added move up/down options to Neo blocks' actions menus
-- Added the Max Level field setting
+- Added the Max Levels field setting
 - Added support for the tag-based cache invalidation introduced in Craft 3.5
 - Added support for GraphQL mutations introduced in Craft 3.5
 - Added a default English translation file

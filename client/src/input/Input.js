@@ -25,7 +25,7 @@ const _defaults = {
   inputId: null,
   maxBlocks: 0,
   maxTopBlocks: 0,
-  maxLevel: 0,
+  maxLevels: 0,
   static: false
 }
 
@@ -45,7 +45,7 @@ export default Garnish.Base.extend({
     this._name = settings.name
     this._maxBlocks = settings.maxBlocks
     this._maxTopBlocks = settings.maxTopBlocks
-    this._maxLevel = settings.maxLevel
+    this._maxLevels = settings.maxLevels
     this._static = settings.static
     this._ownerId = null
 
@@ -155,7 +155,7 @@ export default Garnish.Base.extend({
         items: blockType.getChildBlockItems(this.getItems()),
         maxBlocks: this.getMaxBlocks()
       })
-      bInfo.showButtons = !this.atMaxLevel(bInfo.level)
+      bInfo.showButtons = !this.atMaxLevels(bInfo.level)
 
       const block = new Block(bInfo)
       this.addBlock(block, -1, bInfo.level | 0, false)
@@ -425,12 +425,12 @@ export default Garnish.Base.extend({
     return this._maxTopBlocks
   },
 
-  getMaxLevel () {
-    return this._maxLevel
+  getMaxLevels () {
+    return this._maxLevels
   },
 
-  atMaxLevel (level) {
-    return this._maxLevel && level + 1 >= this._maxLevel
+  atMaxLevels (level) {
+    return this._maxLevels && level + 1 >= this._maxLevels
   },
 
   getSelectedBlocks () {
@@ -721,7 +721,7 @@ export default Garnish.Base.extend({
             buttons: newButtons,
             enabled: !!renderedBlock.enabled,
             collapsed: !!renderedBlock.collapsed,
-            showButtons: !this.atMaxLevel(renderedBlock.level | 0)
+            showButtons: !this.atMaxLevels(renderedBlock.level | 0)
           })
 
           newBlocks.push(newBlock)
@@ -767,7 +767,7 @@ export default Garnish.Base.extend({
         items: e.blockType.getChildBlockItems(this.getItems()),
         maxBlocks: this.getMaxBlocks()
       }),
-      showButtons: !this.atMaxLevel(e.level)
+      showButtons: !this.atMaxLevels(e.level)
     })
 
     this.addBlock(block, e.index, e.level)

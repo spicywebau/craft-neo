@@ -23,7 +23,7 @@ class FieldValidator extends Validator
      * @var int|null The maximum level blocks can be nested in the field.  If not set, there is no limit.
      * @since 2.9.0
      */
-    public $maxLevel;
+    public $maxLevels;
 
     /**
      * @var string|null A user-defined error message to be used if the field's `maxTopBlocks` is exceeded.
@@ -31,10 +31,10 @@ class FieldValidator extends Validator
     public $tooManyTopBlocks;
 
     /**
-     * @var string|null A user-defined error message to be used if the field's `maxLevel` is exceeded.
+     * @var string|null A user-defined error message to be used if the field's `maxLevels` is exceeded.
      * @since 2.9.0
      */
-    public $exceedsMaxLevel;
+    public $exceedsMaxLevels;
 
     /**
      * @var array of Neo blocks
@@ -53,7 +53,7 @@ class FieldValidator extends Validator
         $this->_blocks = $value->all();
 
         $this->_checkMaxTopLevelBlocks($model, $attribute);
-        $this->_checkMaxLevel($model, $attribute);
+        $this->_checkMaxLevels($model, $attribute);
     }
 
     /**
@@ -73,19 +73,19 @@ class FieldValidator extends Validator
     }
 
     /**
-     * Adds an error if the field exceeds its max level.
+     * Adds an error if the field exceeds its max levels.
      */
-    private function _checkMaxLevel($model, $attribute)
+    private function _checkMaxLevels($model, $attribute)
     {
-        $maxLevel = $this->maxLevel;
+        $maxLevels = $this->maxLevels;
 
-        if ($maxLevel !== null) {
-            $tooHighBlocks = array_filter($this->_blocks, function($block) use($maxLevel) {
-                return ((int)$block->level) > $maxLevel;
+        if ($maxLevels !== null) {
+            $tooHighBlocks = array_filter($this->_blocks, function($block) use($maxLevels) {
+                return ((int)$block->level) > $maxLevels;
             });
 
             if (!empty($tooHighBlocks)) {
-                $this->addError($model, $attribute, $this->exceedsMaxLevel, ['maxLevel' => $this->maxLevel]);
+                $this->addError($model, $attribute, $this->exceedsMaxLevels, ['maxLevels' => $this->maxLevels]);
             }
         }
     }
@@ -99,8 +99,8 @@ class FieldValidator extends Validator
             $this->tooManyTopBlocks = Craft::t('neo', '{attribute} should contain at most {maxTopBlocks, number} top-level {maxTopBlocks, plural, one{block} other{blocks}}.');
         }
 
-        if ($this->exceedsMaxLevel === null) {
-            $this->exceedsMaxLevel = Craft::t('neo', '{attribute} has a max level of {maxLevel, number}, but has blocks exceeding that level.');
+        if ($this->exceedsMaxLevels === null) {
+            $this->exceedsMaxLevels = Craft::t('neo', '{attribute} has a max level of {maxLevel, number}, but has blocks exceeding that level.');
         }
     }
 }
