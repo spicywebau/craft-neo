@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.9.0 - 2021-02-23
 
 ### Added
 - Added move up/down options to Neo blocks' actions menus
