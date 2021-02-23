@@ -199,7 +199,7 @@ class Blocks extends Component
     {
         $dbService = Craft::$app->getDb();
         $structuresService = Craft::$app->getStructures();
-        $fieldMaxLevels = Craft::$app->getFields()->getFieldById($blockStructure->fieldId)->maxLevel ?: null;
+        $fieldMaxLevels = Craft::$app->getFields()->getFieldById($blockStructure->fieldId)->maxLevels ?: null;
         $record = new BlockStructureRecord();
 
         $transaction = $dbService->beginTransaction();
