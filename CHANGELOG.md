@@ -4,6 +4,7 @@
 
 ### Changed
 - Neo now requires Craft 3.6.6 or later
+- When Craft runs garbage collection, incomplete Neo element data will now be deleted
 
 ## 2.9.0 - 2021-02-23
 

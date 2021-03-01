@@ -10,6 +10,7 @@ use craft\db\Table;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\services\Fields;
+use craft\services\Gc;
 use craft\services\ProjectConfig;
 use craft\web\twig\variables\CraftVariable;
 use craft\events\RegisterGqlTypesEvent;
@@ -17,6 +18,7 @@ use craft\services\Gql;
 
 use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;
+use benf\neo\elements\Block;
 use benf\neo\models\Settings;
 use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\BlockTypes as BlockTypesService;
@@ -79,6 +81,7 @@ class Plugin extends BasePlugin
         $this->_registerProjectConfigApply();
         $this->_registerProjectConfigRebuild();
         $this->_setupBlocksHasSortOrder();
+        $this->_registerGarbageCollection();
     }
 
     /**
@@ -165,5 +168,14 @@ class Plugin extends BasePlugin
         } catch (NotSupportedException $e) {
             $this->blockHasSortOrder = true;
         }
+    }
+
+    private function _registerGarbageCollection()
+    {
+        Event::on(Gc::class, Gc::EVENT_RUN, function() {
+            $gc = Craft::$app->getGc();
+            $gc->deletePartialElements(Block::class, '{{%neoblocks}}', 'id');
+            $gc->deletePartialElements(Block::class, Table::CONTENT, 'elementId');
+        });
     }
 }
