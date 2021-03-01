@@ -18,7 +18,7 @@ composer require spicyweb/craft-neo
 Neo requires Craft CMS 3.6.6 or later.
 
 ### PHP version
-Neo requires PHP 7.0 or greater.
+Neo has the same PHP version requirement as Craft CMS 3.6.6: PHP 7.2.5 or later.
 
 ### Browser support
 Neo officially supports the same browsers and versions that Craft CMS supports:
