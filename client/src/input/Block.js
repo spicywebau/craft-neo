@@ -62,6 +62,7 @@ function _limit (s, l = 40) {
 export default Garnish.Base.extend({
 
   _templateNs: [],
+  _field: null,
   _blockType: null,
   _initialised: false,
   _expanded: true,
@@ -75,6 +76,7 @@ export default Garnish.Base.extend({
     settings = Object.assign({}, _defaults, settings)
 
     this._templateNs = NS.parse(settings.namespace)
+    this._field = settings.field
     this._blockType = settings.blockType
     this._id = settings.id
     this._buttons = settings.buttons
@@ -360,6 +362,10 @@ export default Garnish.Base.extend({
     }
 
     return this.getParent(blocks).getChildren(blocks)
+  },
+
+  getField () {
+    return this._field
   },
 
   updatePreview (condensed = null) {

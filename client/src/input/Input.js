@@ -135,6 +135,7 @@ export default Garnish.Base.extend({
         bInfo.id = Block.getNewId()
       }
 
+      bInfo.field = this
       bInfo.modified = !!bInfo.modified
       bInfo.static = this._static
       bInfo.namespace = [...this._templateNs, bInfo.id]
@@ -715,6 +716,7 @@ export default Garnish.Base.extend({
 
           const newBlock = new Block({
             namespace: [...this._templateNs, newId],
+            field: this,
             blockType: newBlockType,
             id: newId,
             level: renderedBlock.level | 0,
@@ -760,6 +762,7 @@ export default Garnish.Base.extend({
     const blockId = Block.getNewId()
     const block = new Block({
       namespace: [...this._templateNs, blockId],
+      field: this,
       static: this._static,
       blockType: e.blockType,
       id: blockId,

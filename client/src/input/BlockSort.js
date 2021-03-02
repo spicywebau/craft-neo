@@ -259,6 +259,25 @@ const BlockSort = Garnish.Drag.extend({
   },
 
   _validateDraggeeChildren (block) {
+    // If any of the draggee blocks would exceed the field's max levels, we can't allow the move
+    const field = (block ? block : this._draggeeBlocks[0]).getField()
+    const maxLevels = field.getMaxLevels()
+
+    if (maxLevels > 0) {
+      const parentLevel = block ? block.getLevel() : -1
+      const firstDraggeeLevel = this._draggeeBlocks[0].getLevel()
+      const blockExceedsMax = b => b.getLevel() - firstDraggeeLevel + parentLevel + 1 >= maxLevels
+      const blockOrDescendantExceedsMax = b => {
+        const descendants = b.getChildren(field.getBlocks(), true)
+
+        return blockExceedsMax(b) || descendants.some(blockOrDescendantExceedsMax)
+      }
+
+      if (this._draggeeBlocks.filter(blockOrDescendantExceedsMax).length > 0) {
+        return false
+      }
+    }
+
     // If no block, then we're checking at the top level
     if (!block) {
       const that = this

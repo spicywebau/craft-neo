@@ -6,6 +6,9 @@
 - Neo now requires Craft 3.6.6 or later
 - When Craft runs garbage collection, incomplete Neo element data will now be deleted
 
+### Fixed
+- Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
+
 ## 2.9.0 - 2021-02-23
 
 ### Added
