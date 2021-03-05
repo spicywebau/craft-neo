@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that occurred when a Neo field's Max Levels setting is used, where a Neo block's child block buttons and max levels warnings would not show or hide when the block was dragged to or from the max level
+
 ## 2.9.0 - 2021-02-23
 
 ### Added

@@ -546,6 +546,14 @@ export default Garnish.Base.extend({
       if (buttons) {
         buttons.updateButtonStates(blocks, this._checkMaxChildren(block), block)
       }
+
+      // TODO: better fix in Neo 2.10
+      const showButtons = block.getLevel() + 1 < this.getMaxLevels()
+      block.$buttonsContainer.toggleClass('hidden', !showButtons)
+      block.$container
+        .find('[data-neo-b]')
+        .filter('[data-neo-b="container.childrenWarnings"]')
+        .toggleClass('hidden', showButtons)
     }
   },
 
