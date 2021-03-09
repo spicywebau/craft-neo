@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.9.2 - 2021-03-09
 
 ### Fixed
 - Fixed a bug with Neo 2.9.1 where the max levels warning would display in some cases where it shouldn't display
