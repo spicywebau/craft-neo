@@ -745,6 +745,7 @@ export default Garnish.Base.extend({
 
   toggleShowButtons (show = !this._showButtons) {
     this.$buttonsContainer.toggleClass('hidden', !show)
+    this.$childrenWarningsContainer.toggleClass('hidden', show)
   },
 
   selectTab (name) {

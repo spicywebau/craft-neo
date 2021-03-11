@@ -548,9 +548,7 @@ export default Garnish.Base.extend({
         buttons.updateButtonStates(blocks, this._checkMaxChildren(block), block)
       }
 
-      const showButtons = this._maxLevels === 0 || block.getLevel() + 1 < this.getMaxLevels()
-      block.toggleShowButtons(showButtons)
-      block.$childrenWarningsContainer.toggleClass('hidden', showButtons)
+      block.toggleShowButtons(this._maxLevels === 0 || block.getLevel() + 1 < this.getMaxLevels())
     }
   },
 
