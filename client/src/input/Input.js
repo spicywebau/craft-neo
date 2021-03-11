@@ -526,6 +526,7 @@ export default Garnish.Base.extend({
       const parentBlock = this._findParentBlock(block)
       const parentBlockType = parentBlock ? parentBlock.getBlockType() : null
       const buttons = block.getButtons()
+      const blockLevel = block.getLevel()
 
       let allowedBlockTypes = parentBlockType ? parentBlockType.getChildBlocks() : this.getBlockTypes(true)
 
@@ -541,14 +542,14 @@ export default Garnish.Base.extend({
         this.getMaxBlocks(),
         this._checkMaxChildren(parentBlock),
         allowedBlockTypes,
-        block.getLevel() === 0 ? this.getMaxTopBlocks() : 0
+        blockLevel === 0 ? this.getMaxTopBlocks() : 0
       )
 
       if (buttons) {
         buttons.updateButtonStates(blocks, this._checkMaxChildren(block), block)
       }
 
-      block.toggleShowButtons(this._maxLevels === 0 || block.getLevel() + 1 < this.getMaxLevels())
+      block.toggleShowButtons(!this.atMaxLevels(blockLevel))
     }
   },
 
