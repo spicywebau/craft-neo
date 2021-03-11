@@ -156,7 +156,7 @@ class FieldAsset extends AssetBundle
             'minBlocks' => $field->minBlocks,
             'maxBlocks' => $field->maxBlocks,
             'maxTopBlocks' => $field->maxTopBlocks,
-            'maxLevels' => $field->maxLevels,
+            'maxLevels' => (int)$field->maxLevels,
             'blocks' => self::_getBlocksJsSettings($value, $static),
             'static' => $static,
         ];

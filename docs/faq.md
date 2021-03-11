@@ -10,6 +10,8 @@ The second is to use a little bit of Twig logic in your upload location. To begi
 
 In short, replace `{slug}` with `{{ object is neoblock ? object.owner.slug : object.slug }}`.
 
+If your asset field is on a Matrix or Super Table field which is being used on a Neo block, you would instead need to check whether the owner of the Matrix block or Super Table row is a Neo block: `{{ owner is neoblock ? owner.owner.slug : owner.slug }}`.
+
 --
 
 ### How do I get support for Neo?

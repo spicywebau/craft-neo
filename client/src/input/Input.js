@@ -431,7 +431,7 @@ export default Garnish.Base.extend({
   },
 
   atMaxLevels (level) {
-    return this._maxLevels && level + 1 >= this._maxLevels
+    return this._maxLevels > 0 && level + 1 >= this._maxLevels
   },
 
   getSelectedBlocks () {
@@ -547,6 +547,14 @@ export default Garnish.Base.extend({
       if (buttons) {
         buttons.updateButtonStates(blocks, this._checkMaxChildren(block), block)
       }
+
+      // TODO: better fix in Neo 2.10
+      const showButtons = this._maxLevels === 0 || block.getLevel() + 1 < this.getMaxLevels()
+      block.$buttonsContainer.toggleClass('hidden', !showButtons)
+      block.$container
+        .find('[data-neo-b]')
+        .filter('[data-neo-b="container.childrenWarnings"]')
+        .toggleClass('hidden', showButtons)
     }
   },
 

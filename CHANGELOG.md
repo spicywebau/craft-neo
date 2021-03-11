@@ -9,6 +9,16 @@
 ### Fixed
 - Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
 
+## 2.9.2 - 2021-03-09
+
+### Fixed
+- Fixed a bug with Neo 2.9.1 where the max levels warning would display in some cases where it shouldn't display
+
+## 2.9.1 - 2021-03-09
+
+### Fixed
+- Fixed a bug that occurred when a Neo field's Max Levels setting is used, where a Neo block's child block buttons and max levels warnings would not show or hide when the block was dragged to or from the max level
+
 ## 2.9.0 - 2021-02-23
 
 ### Added
