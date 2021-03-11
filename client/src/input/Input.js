@@ -550,10 +550,7 @@ export default Garnish.Base.extend({
 
       const showButtons = this._maxLevels === 0 || block.getLevel() + 1 < this.getMaxLevels()
       block.toggleShowButtons(showButtons)
-      block.$container
-        .find('[data-neo-b]')
-        .filter('[data-neo-b="container.childrenWarnings"]')
-        .toggleClass('hidden', showButtons)
+      block.$childrenWarningsContainer.toggleClass('hidden', showButtons)
     }
   },
 

@@ -102,6 +102,7 @@ export default Garnish.Base.extend({
     this.$bodyContainer = $neo.filter('[data-neo-b="container.body"]')
     this.$contentContainer = $neo.filter('[data-neo-b="container.content"]')
     this.$childrenContainer = $neo.filter('[data-neo-b="container.children"]')
+    this.$childrenWarningsContainer = $neo.filter('[data-neo-b="container.childrenWarnings"]')
     this.$collapsedChildrenContainer = $neo.filter('[data-neo-b="container.collapsedChildren"]')
     this.$blocksContainer = $neo.filter('[data-neo-b="container.blocks"]')
     this.$buttonsContainer = $neo.filter('[data-neo-b="container.buttons"]')
