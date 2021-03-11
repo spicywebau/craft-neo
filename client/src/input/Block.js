@@ -81,6 +81,7 @@ export default Garnish.Base.extend({
     this._id = settings.id
     this._buttons = settings.buttons
     this._modified = settings.static ? true : settings.modified
+    this._showButtons = settings.showButtons
 
     NS.enter(this._templateNs)
 
@@ -92,7 +93,7 @@ export default Garnish.Base.extend({
       level: settings.level,
       modified: this._modified,
       sortOrder: this._id,
-      showButtons: settings.showButtons
+      showButtons: this._showButtons
     }))
 
     NS.leave()
@@ -739,6 +740,10 @@ export default Garnish.Base.extend({
 
   isEnabled () {
     return this._enabled
+  },
+
+  toggleShowButtons (show = !this._showButtons) {
+    this.$buttonsContainer.toggleClass('hidden', !show)
   },
 
   selectTab (name) {
