@@ -26,6 +26,15 @@ const _defaults = {
 
 const _resources = {}
 
+const _escapeMap = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;'
+}
+
 function _resourceFilter () {
   let url = this.href || this.src
 
@@ -44,14 +53,7 @@ function _resourceFilter () {
 }
 
 function _escapeHTML (str) {
-  return str ? str.replace(/[&<>"'/]/g, s => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-    '/': '&#x2F;'
-  })[s]) : ''
+  return str ? str.replace(/[&<>"'/]/g, s => _escapeMap[s]) : ''
 }
 
 function _limit (s, l = 40) {
@@ -743,7 +745,7 @@ export default Garnish.Base.extend({
     $tabs.removeClass('is-selected')
     const $tab = $tabs.filter(`[data-neo-b-info="${name}"]`).addClass('is-selected')
     this.$tabsButton.text(name)
-    Craft.ElementThumbLoader.retryAll();
+    Craft.ElementThumbLoader.retryAll()
 
     this.trigger('selectTab', {
       tabName: name,

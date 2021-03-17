@@ -183,7 +183,7 @@ export default Garnish.Base.extend({
       }
     })
 
-    this.trigger('afterInit');
+    this.trigger('afterInit')
   },
 
   updateResponsiveness () {
