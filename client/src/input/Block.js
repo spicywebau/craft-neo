@@ -160,7 +160,7 @@ export default Garnish.Base.extend({
       Garnish.$bod.siblings('head').append(this.$head)
       Garnish.$bod.append(this.$foot)
 
-      Craft.initUiElements(this.$contentContainer)
+      this._initUiElements()
 
       this.$tabsButton.menubtn()
 
@@ -892,6 +892,20 @@ export default Garnish.Base.extend({
     if (modified !== this._modified) {
       this.setModified(modified)
     }
+  },
+
+  _initUiElements () {
+    // TODO: remove this in Neo 3.
+    $('.grid', this.$contentContainer).grid()
+    $('.info', this.$contentContainer).infoicon()
+    $('.checkbox-select', this.$contentContainer).checkboxselect()
+    $('.fieldtoggle', this.$contentContainer).fieldtoggle()
+    $('.lightswitch', this.$contentContainer).lightswitch()
+    $('.nicetext', this.$contentContainer).nicetext()
+    $('.pill', this.$contentContainer).pill()
+    $('.formsubmit', this.$contentContainer).formsubmit()
+    $('.menubtn', this.$contentContainer).menubtn()
+    $('.datetimewrapper', this.$contentContainer).datetime()
   },
 
   '@settingSelect' (e) {

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an issue that occurred on Craft installs running Craft 3.6.7 or later, on which the control panel is accessible on a separate subdomain, where links to an entry in a Redactor field on a Neo block would have unwanted attributes added
+
 ## 2.9.2 - 2021-03-09
 
 ### Fixed
