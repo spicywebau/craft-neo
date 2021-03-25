@@ -525,20 +525,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public function getSearchKeywords($value, ElementInterface $element): string
-    {
-        $keywords = [];
-
-        foreach ($value->all() as $block) {
-            $keywords[] = Neo::$plugin->blocks->getSearchKeywords($block);
-        }
-
-        return parent::getSearchKeywords($keywords, $element);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getEagerLoadingMap(array $sourceElements)
     {
         $sourceElementIds = [];
@@ -849,6 +835,32 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         return $blockType;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function searchKeywords($value, ElementInterface $element): string
+    {
+        $allFields = Craft::$app->getFields()->getAllFields();
+        $keywords = [];
+
+        foreach ($value->all() as $block) {
+            $fieldLayout = $block->getFieldLayout();
+
+            if ($fieldLayout === null) {
+                continue;
+            }
+
+            foreach ($allFields as $field) {
+                if ($field->searchable && in_array($field->id, $fieldLayout->getFieldIds())) {
+                    $fieldValue = $block->getFieldValue($field->handle);
+                    $keywords[] = $field->getSearchKeywords($fieldValue, $element);
+                }
+            }
+        }
+
+        return parent::searchKeywords($keywords, $element);
     }
 
     /**

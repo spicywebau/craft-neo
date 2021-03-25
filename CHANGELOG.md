@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that occurred when generating search keywords for a Neo field, where a sub-field's search keywords would be included even if the sub-field was set not to be searchable
+
 ## 2.9.3 - 2021-03-17
 
 ### Fixed
