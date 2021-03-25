@@ -42,6 +42,7 @@ class Blocks extends Component
      *
      * Checks the fields associated with the given Neo block, finds their search keywords and concatenates them.
      *
+     * @deprecated in 2.9.4
      * @param Block $block The Neo block.
      * @param ElementInterface|null $element The element the Neo block is associated with, if any.
      * @return string The search keywords.
