@@ -652,10 +652,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         /** @var Element $element */
         if ($element->duplicateOf !== null) {
             Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true);
-        } else {
-            if ($element->isFieldDirty($this->handle) || !empty($element->newSiteIds)) {
-                Neo::$plugin->fields->saveValue($this, $element);
-            }
+            $resetValue = true;
+        } else if ($element->isFieldDirty($this->handle) || !empty($element->newSiteIds)) {
+            Neo::$plugin->fields->saveValue($this, $element);
         }
 
         // Repopulate the Neo block query if this is a new element
