@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a potential 'Invalid owner ID' error when changing a Neo field's propagation method
+- Fixed a potential 'Attempting to save an element in an unsupported site' error when resaving entries
 
 ## 2.9.4 - 2021-03-25
 
