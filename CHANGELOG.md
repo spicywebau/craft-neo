@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.9.5 - 2021-03-30
 
 ### Fixed
 - Fixed a potential 'Invalid owner ID' error when changing a Neo field's propagation method
