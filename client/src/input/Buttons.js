@@ -2,7 +2,6 @@ import $ from 'jquery'
 import '../jquery-extensions'
 
 import Garnish from 'garnish'
-import Craft from 'craft'
 
 import renderTemplate from './templates/buttons.twig'
 import '../twig-extensions'
@@ -61,7 +60,7 @@ export default Garnish.Base.extend({
   },
 
   initUi () {
-    Craft.initUiElements(this.$container)
+    $('.menubtn', this.$container).menubtn()
     this.updateResponsiveness()
   },
 

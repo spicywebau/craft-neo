@@ -331,6 +331,7 @@ class BlockQuery extends ElementQuery
     {
         $this->joinElementTable('neoblocks');
         $isSaved = $this->id && is_numeric($this->id);
+        $hadFieldAndOwnerSet = $this->fieldId && $this->ownerId;
 
         if ($isSaved) {
             foreach (['fieldId', 'ownerId'] as $idProperty) {
@@ -350,8 +351,8 @@ class BlockQuery extends ElementQuery
         $fieldId = $this->fieldId !== null && count($this->fieldId) === 1 ? $this->fieldId[0] : $this->fieldId;
         $ownerId = $this->ownerId !== null && count($this->ownerId) === 1 ? $this->ownerId[0] : $this->ownerId;
 
-        // add the structureId so it doesn't retrieve all blocks for every site.
-        if (!$this->structureId && is_numeric($fieldId) && is_numeric($ownerId)) {
+        // If no field or owner IDs were set in the query, we don't really care about the structureId
+        if (!$this->structureId && $hadFieldAndOwnerSet && is_numeric($fieldId) && is_numeric($ownerId)) {
             $blockStructure = Neo::$plugin->blocks->getStructure($fieldId, $ownerId, (int)$this->siteId);
 
             if ($blockStructure) {

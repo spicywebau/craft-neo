@@ -525,20 +525,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public function getSearchKeywords($value, ElementInterface $element): string
-    {
-        $keywords = [];
-
-        foreach ($value->all() as $block) {
-            $keywords[] = Neo::$plugin->blocks->getSearchKeywords($block);
-        }
-
-        return parent::getSearchKeywords($keywords, $element);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getEagerLoadingMap(array $sourceElements)
     {
         $sourceElementIds = [];
@@ -663,17 +649,24 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function afterElementPropagate(ElementInterface $element, bool $isNew)
     {
+        $resetValue = false;
+
         /** @var Element $element */
         if ($element->duplicateOf !== null) {
             Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true);
-        } else {
-            if ($element->isFieldDirty($this->handle) || !empty($element->newSiteIds)) {
-                Neo::$plugin->fields->saveValue($this, $element);
-            }
+            $resetValue = true;
+        } else if ($element->isFieldDirty($this->handle) || !empty($element->newSiteIds)) {
+            Neo::$plugin->fields->saveValue($this, $element);
+        } else if (
+            ($status = $element->getFieldStatus($this->handle)) !== null &&
+            $status[0] === Element::ATTR_STATUS_OUTDATED
+        ) {
+            Neo::$plugin->fields->duplicateBlocks($this, ElementHelper::sourceElement($element), $element, true);
+            $resetValue = true;
         }
 
         // Repopulate the Neo block query if this is a new element
-        if ($element->duplicateOf || $isNew) {
+        if ($resetValue || $isNew) {
             $query = $element->getFieldValue($this->handle);
             $this->_populateQuery($query, $element);
             $query->clearCachedResult();
@@ -849,6 +842,32 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         return $blockType;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function searchKeywords($value, ElementInterface $element): string
+    {
+        $allFields = Craft::$app->getFields()->getAllFields();
+        $keywords = [];
+
+        foreach ($value->all() as $block) {
+            $fieldLayout = $block->getFieldLayout();
+
+            if ($fieldLayout === null) {
+                continue;
+            }
+
+            foreach ($allFields as $field) {
+                if ($field->searchable && in_array($field->id, $fieldLayout->getFieldIds())) {
+                    $fieldValue = $block->getFieldValue($field->handle);
+                    $keywords[] = $field->getSearchKeywords($fieldValue, $element);
+                }
+            }
+        }
+
+        return parent::searchKeywords($keywords, $element);
     }
 
     /**

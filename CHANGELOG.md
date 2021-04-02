@@ -9,6 +9,23 @@
 ### Fixed
 - Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
 
+## 2.9.5 - 2021-03-30
+
+### Fixed
+- Fixed a potential 'Invalid owner ID' error when changing a Neo field's propagation method
+- Fixed a potential 'Attempting to save an element in an unsupported site' error when resaving entries
+- Fixed an error that occurred when publishing a draft with an outdated Neo field (thanks @brandonkelly)
+
+## 2.9.4 - 2021-03-25
+
+### Fixed
+- Fixed a bug that occurred when generating search keywords for a Neo field, where a sub-field's search keywords would be included even if the sub-field was set not to be searchable
+
+## 2.9.3 - 2021-03-17
+
+### Fixed
+- Fixed an issue that occurred on Craft installs running Craft 3.6.7 or later, on which the control panel is accessible on a separate subdomain, where links to an entry in a Redactor field on a Neo block would have unwanted attributes added
+
 ## 2.9.2 - 2021-03-09
 
 ### Fixed

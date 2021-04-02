@@ -26,6 +26,15 @@ const _defaults = {
 
 const _resources = {}
 
+const _escapeMap = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;'
+}
+
 function _resourceFilter () {
   let url = this.href || this.src
 
@@ -44,14 +53,7 @@ function _resourceFilter () {
 }
 
 function _escapeHTML (str) {
-  return str ? str.replace(/[&<>"'/]/g, s => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-    '/': '&#x2F;'
-  })[s]) : ''
+  return str ? str.replace(/[&<>"'/]/g, s => _escapeMap[s]) : ''
 }
 
 function _limit (s, l = 40) {
@@ -162,7 +164,7 @@ export default Garnish.Base.extend({
       Garnish.$bod.siblings('head').append(this.$head)
       Garnish.$bod.append(this.$foot)
 
-      Craft.initUiElements(this.$contentContainer)
+      this._initUiElements()
 
       this.$tabsButton.menubtn()
 
@@ -756,7 +758,7 @@ export default Garnish.Base.extend({
     $tabs.removeClass('is-selected')
     const $tab = $tabs.filter(`[data-neo-b-info="${name}"]`).addClass('is-selected')
     this.$tabsButton.text(name)
-    Craft.ElementThumbLoader.retryAll();
+    Craft.ElementThumbLoader.retryAll()
 
     this.trigger('selectTab', {
       tabName: name,
@@ -903,6 +905,20 @@ export default Garnish.Base.extend({
     if (modified !== this._modified) {
       this.setModified(modified)
     }
+  },
+
+  _initUiElements () {
+    // TODO: remove this in Neo 3.
+    $('.grid', this.$contentContainer).grid()
+    $('.info', this.$contentContainer).infoicon()
+    $('.checkbox-select', this.$contentContainer).checkboxselect()
+    $('.fieldtoggle', this.$contentContainer).fieldtoggle()
+    $('.lightswitch', this.$contentContainer).lightswitch()
+    $('.nicetext', this.$contentContainer).nicetext()
+    $('.pill', this.$contentContainer).pill()
+    $('.formsubmit', this.$contentContainer).formsubmit()
+    $('.menubtn', this.$contentContainer).menubtn()
+    $('.datetimewrapper', this.$contentContainer).datetime()
   },
 
   '@settingSelect' (e) {
