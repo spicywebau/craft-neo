@@ -23,12 +23,18 @@ class Settings extends Model
 	public $collapseAllBlocks = false;
 
 	/**
+	 * @var bool
+	 * @since 2.10.0
+	 */
+	public $enableChildBlocksUiElement = false;
+
+	/**
 	 * @inheritdoc
 	 */
 	public function rules()
 	{
 		return [
-			[['saveModifiedBlocksOnly', 'collapseAllBlocks'], 'boolean'],
+			[['saveModifiedBlocksOnly', 'collapseAllBlocks', 'enableChildBlocksUiElement'], 'boolean'],
 		];
 	}
 }
