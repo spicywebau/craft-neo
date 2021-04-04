@@ -94,8 +94,7 @@ export default Garnish.Base.extend({
       collapsed: !!settings.collapsed,
       level: settings.level,
       modified: this._modified,
-      sortOrder: this._id,
-      showButtons: this._showButtons
+      sortOrder: this._id
     }))
 
     NS.leave()
@@ -147,6 +146,7 @@ export default Garnish.Base.extend({
     this.setLevel(settings.level)
     this.toggleEnabled(settings.enabled)
     this.toggleExpansion(hasErrors ? true : !settings.collapsed, false, false)
+    this.toggleShowButtons(this._showButtons)
 
     this.addListener(this.$topbarContainer, 'dblclick', '@doubleClickTitle')
     this.addListener(this.$tabButton, 'click', '@setTab')

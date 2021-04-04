@@ -103,8 +103,8 @@
             {% if isParent %}
                 <div class="ni_block_children" data-neo-b="container.children">
                     <div class="ni_blocks" data-neo-b="container.blocks"></div>
-                    <div data-neo-b="container.buttons"{% if not showButtons %} class="hidden"{% endif %}></div>
-                    <div data-neo-b="container.childrenWarnings"{% if showButtons %} class="hidden"{% endif %}>
+                    <div data-neo-b="container.buttons" class="hidden"></div>
+                    <div data-neo-b="container.childrenWarnings" class="hidden">
                         <p class="first warning with-icon">{{ "This Neo field's maximum number of levels has been reached, so no child blocks can be added here."|t('neo') }}</p>
                     </div>
                 </div>
