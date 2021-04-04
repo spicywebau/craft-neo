@@ -88,11 +88,10 @@ export default Garnish.Base.extend({
 
     fld.initTab($tab)
 
-    const that = this
     const tabObserver = new window.MutationObserver(function () {
       const selector = '[data-type=benf\\\\neo\\\\fieldlayoutelements\\\\ChildBlocksUiElement]'
-      const $uiLibraryElement = that._fld.$uiLibraryElements.filter(selector)
-      const $tabUiElement = that._fld.$tabContainer.find(selector)
+      const $uiLibraryElement = fld.$uiLibraryElements.filter(selector)
+      const $tabUiElement = fld.$tabContainer.find(selector)
       $uiLibraryElement.toggleClass(
         'hidden',
         $tabUiElement.length > 0 || $('body.dragging .draghelper' + selector).length > 0
