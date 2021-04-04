@@ -6,6 +6,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
+use craft\models\FieldLayout;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 
@@ -107,7 +108,7 @@ class FieldAsset extends AssetBundle
         // Render the field layout designer HTML, but disregard any Javascript it outputs, as that'll be handled by Neo.
         $viewService->startJsBuffer();
         $fieldLayoutHtml = $viewService->renderTemplate('_includes/fieldlayoutdesigner', [
-            'fieldLayout' => false,
+            'fieldLayout' => new FieldLayout(['type' => Block::class]),
             'customizableUi' => true,
         ]);
         $viewService->clearJsBuffer();
