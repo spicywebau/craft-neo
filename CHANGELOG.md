@@ -3,7 +3,7 @@
 ## 2.9.6 - 2021-04-14
 
 ### Fixed
-- Fixed a potential JavaScript error on Craft 3.6.11 and later
+- Fixed a JavaScript error on Craft 3.6.11 and later
 
 ## 2.9.5 - 2021-03-30
 
