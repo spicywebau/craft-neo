@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.9.6 - 2021-04-14
 
 ### Fixed
 - Fixed a potential JavaScript error on Craft 3.6.11 and later
