@@ -5,6 +5,7 @@
 ### Changed
 - Neo now requires Craft 3.6.6 or later
 - When Craft runs garbage collection, incomplete Neo element data will now be deleted
+- When saving a Neo block that doesn't have a field layout, doesn't have any searchable sub-fields or belongs to a non-searchable Neo field, Neo will now opt out of updating search indexes for that block
 - Changed Neo's JavaScript dependency package management from Yarn to NPM
 
 ### Fixed
