@@ -11,6 +11,11 @@
 ### Fixed
 - Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
 
+## 2.9.6 - 2021-04-14
+
+### Fixed
+- Fixed a JavaScript error on Craft 3.6.11 and later
+
 ## 2.9.5 - 2021-03-30
 
 ### Fixed
