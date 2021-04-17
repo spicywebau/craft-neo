@@ -178,11 +178,9 @@ export default Garnish.Base.extend({
     this._setMatrixClassErrors()
     this._setBlockTypeClassErrors()
 
-    this._blocks.forEach(function (block) {
-      if (!block.isExpanded()) {
-        block.updatePreview()
-      }
-    })
+    this._blocks
+      .filter(block => !block.isExpanded())
+      .forEach(block => block.updatePreview())
 
     this.trigger('afterInit')
   },
