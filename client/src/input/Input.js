@@ -611,16 +611,9 @@ export default Garnish.Base.extend({
     }
 
     descendants = (typeof descendants === 'boolean' ? descendants : false)
+    const block = this._blocks[index]
 
-    const blocks = this._blocks
-    const block = blocks[index]
-    let childBlocks = []
-
-    if (block) {
-      childBlocks = block.getChildren(blocks, descendants)
-    }
-
-    return childBlocks
+    return block ? block.getChildren(this._blocks, descendants) : []
   },
 
   _findParentBlock (index) {
