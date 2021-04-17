@@ -164,14 +164,7 @@ export default Garnish.Base.extend({
 
     this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
 
-    let serialized
-
-    if (typeof $form.data('serializer') === 'function') {
-      serialized = $form.data('serializer')()
-    } else {
-      serialized = $form.serialize()
-    }
-
+    const serialized = typeof $form.data('serializer') === 'function' ? $form.data('serializer')() : $form.serialize()
     $form.data('initialSerializedValue', serialized)
 
     // add error highlight for matrix fields within neo
