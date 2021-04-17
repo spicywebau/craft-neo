@@ -770,33 +770,21 @@ export default Garnish.Base.extend({
     const index = this._blocks.indexOf(block)
     const parent = this._findParentBlock(index)
     const blocks = this.getBlocks()
-    let buttons
-
-    if (parent) {
-      const parentType = parent.getBlockType()
-      buttons = new Buttons({
-        items: parentType.getChildBlockItems(this.getItems()),
-        maxBlocks: this.getMaxBlocks(),
-        blocks: blocks
-      })
-    } else {
-      buttons = new Buttons({
-        blockTypes: this.getBlockTypes(true),
-        groups: this.getGroups(),
-        maxBlocks: this.getMaxBlocks(),
-        blocks: blocks
-      })
-    }
+    const buttons = new Buttons({
+      blockTypes: !parent ? this.getBlockTypes(true) : [],
+      blocks: blocks,
+      groups: !parent ? this.getGroups() : [],
+      items: parent ? parent.getBlockType().getChildBlockItems(this.getItems()) : null,
+      maxBlocks: this.getMaxBlocks()
+    })
 
     block.$container.before(buttons.$container)
 
-    buttons.on('newBlock', e => {
-      this['@newBlock']({
-        blockType: e.blockType,
-        index: this._blocks.indexOf(block),
-        level: block.getLevel()
-      })
-    })
+    buttons.on('newBlock', e => this['@newBlock']({
+      blockType: e.blockType,
+      index: index,
+      level: block.getLevel()
+    }))
 
     buttons.initUi()
 
@@ -809,7 +797,7 @@ export default Garnish.Base.extend({
         .velocity({
           opacity: 1,
           marginBottom: 10
-        }, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(buttons.$container)))
+        }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(buttons.$container)))
     }
 
     this._tempButtons = buttons
