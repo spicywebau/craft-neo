@@ -894,50 +894,29 @@ export default Garnish.Base.extend({
     const subBlocks = this._findChildBlocks(blockIndex, true)
     const ownerId = this._ownerId
 
+    const getBlockData = block => {
+      return {
+        collapsed: !block.isExpanded() | 0,
+        content: block.getContent(),
+        enabled: block.isEnabled() | 0,
+        level: block.getLevel(),
+        ownerId: ownerId,
+        type: block.getBlockType().getId()
+      }
+    }
+
     NS.enter(this._templateNs)
 
     const data = {
       namespace: NS.toFieldName(),
       locale: this._locale,
-      blocks: []
+      blocks: [
+        getBlockData(block),
+        ...subBlocks.map(getBlockData)
+      ]
     }
 
     NS.leave()
-
-    let blockData = {
-      type: block.getBlockType().getId(),
-      level: block.getLevel(),
-      content: block.getContent(),
-      ownerId: ownerId
-    }
-
-    if (block.isEnabled()) {
-      blockData.enabled = 1
-    }
-
-    if (!block.isExpanded()) {
-      blockData.collapsed = 1
-    }
-
-    data.blocks.push(blockData)
-
-    for (const subBlock of subBlocks) {
-      blockData = {
-        type: subBlock.getBlockType().getId(),
-        level: subBlock.getLevel(),
-        content: subBlock.getContent()
-      }
-
-      if (subBlock.isEnabled()) {
-        blockData.enabled = 1
-      }
-
-      if (!subBlock.isExpanded()) {
-        blockData.collapsed = 1
-      }
-
-      data.blocks.push(blockData)
-    }
 
     this._duplicate(data, block)
   }
