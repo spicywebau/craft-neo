@@ -915,7 +915,6 @@ export default Garnish.Base.extend({
     $('.fieldtoggle', this.$contentContainer).fieldtoggle()
     $('.lightswitch', this.$contentContainer).lightswitch()
     $('.nicetext', this.$contentContainer).nicetext()
-    $('.pill', this.$contentContainer).pill()
     $('.formsubmit', this.$contentContainer).formsubmit()
     $('.menubtn', this.$contentContainer).menubtn()
     $('.datetimewrapper', this.$contentContainer).datetime()

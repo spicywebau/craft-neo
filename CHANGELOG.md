@@ -5,10 +5,17 @@
 ### Changed
 - Neo now requires Craft 3.6.6 or later
 - When Craft runs garbage collection, incomplete Neo element data will now be deleted
+- When saving a Neo block that doesn't have a field layout, doesn't have any searchable sub-fields or belongs to a non-searchable Neo field, Neo will now opt out of updating search indexes for that block
 - Changed Neo's JavaScript dependency package management from Yarn to NPM
 
 ### Fixed
 - Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
+- Fixed a bug where Neo blocks' enabled and collapsed states weren't retained in some cases when cloning them
+
+## 2.9.6 - 2021-04-14
+
+### Fixed
+- Fixed a JavaScript error on Craft 3.6.11 and later
 
 ## 2.9.5 - 2021-03-30
 

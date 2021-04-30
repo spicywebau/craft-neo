@@ -164,25 +164,16 @@ export default Garnish.Base.extend({
 
     this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
 
-    let serialized
-
-    if (typeof $form.data('serializer') === 'function') {
-      serialized = $form.data('serializer')()
-    } else {
-      serialized = $form.serialize()
-    }
-
+    const serialized = typeof $form.data('serializer') === 'function' ? $form.data('serializer')() : $form.serialize()
     $form.data('initialSerializedValue', serialized)
 
     // add error highlight for matrix fields within neo
     this._setMatrixClassErrors()
     this._setBlockTypeClassErrors()
 
-    this._blocks.forEach(function (block) {
-      if (!block.isExpanded()) {
-        block.updatePreview()
-      }
-    })
+    this._blocks
+      .filter(block => !block.isExpanded())
+      .forEach(block => block.updatePreview())
 
     this.trigger('afterInit')
   },
@@ -620,16 +611,9 @@ export default Garnish.Base.extend({
     }
 
     descendants = (typeof descendants === 'boolean' ? descendants : false)
+    const block = this._blocks[index]
 
-    const blocks = this._blocks
-    const block = blocks[index]
-    let childBlocks = []
-
-    if (block) {
-      childBlocks = block.getChildren(blocks, descendants)
-    }
-
-    return childBlocks
+    return block ? block.getChildren(this._blocks, descendants) : []
   },
 
   _findParentBlock (index) {
@@ -786,33 +770,21 @@ export default Garnish.Base.extend({
     const index = this._blocks.indexOf(block)
     const parent = this._findParentBlock(index)
     const blocks = this.getBlocks()
-    let buttons
-
-    if (parent) {
-      const parentType = parent.getBlockType()
-      buttons = new Buttons({
-        items: parentType.getChildBlockItems(this.getItems()),
-        maxBlocks: this.getMaxBlocks(),
-        blocks: blocks
-      })
-    } else {
-      buttons = new Buttons({
-        blockTypes: this.getBlockTypes(true),
-        groups: this.getGroups(),
-        maxBlocks: this.getMaxBlocks(),
-        blocks: blocks
-      })
-    }
+    const buttons = new Buttons({
+      blockTypes: !parent ? this.getBlockTypes(true) : [],
+      blocks: blocks,
+      groups: !parent ? this.getGroups() : [],
+      items: parent ? parent.getBlockType().getChildBlockItems(this.getItems()) : null,
+      maxBlocks: this.getMaxBlocks()
+    })
 
     block.$container.before(buttons.$container)
 
-    buttons.on('newBlock', e => {
-      this['@newBlock']({
-        blockType: e.blockType,
-        index: this._blocks.indexOf(block),
-        level: block.getLevel()
-      })
-    })
+    buttons.on('newBlock', e => this['@newBlock']({
+      blockType: e.blockType,
+      index: index,
+      level: block.getLevel()
+    }))
 
     buttons.initUi()
 
@@ -825,7 +797,7 @@ export default Garnish.Base.extend({
         .velocity({
           opacity: 1,
           marginBottom: 10
-        }, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(buttons.$container)))
+        }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(buttons.$container)))
     }
 
     this._tempButtons = buttons
@@ -922,50 +894,29 @@ export default Garnish.Base.extend({
     const subBlocks = this._findChildBlocks(blockIndex, true)
     const ownerId = this._ownerId
 
+    const getBlockData = block => {
+      return {
+        collapsed: !block.isExpanded() | 0,
+        content: block.getContent(),
+        enabled: block.isEnabled() | 0,
+        level: block.getLevel(),
+        ownerId: ownerId,
+        type: block.getBlockType().getId()
+      }
+    }
+
     NS.enter(this._templateNs)
 
     const data = {
       namespace: NS.toFieldName(),
       locale: this._locale,
-      blocks: []
+      blocks: [
+        getBlockData(block),
+        ...subBlocks.map(getBlockData)
+      ]
     }
 
     NS.leave()
-
-    let blockData = {
-      type: block.getBlockType().getId(),
-      level: block.getLevel(),
-      content: block.getContent(),
-      ownerId: ownerId
-    }
-
-    if (block.isEnabled()) {
-      blockData.enabled = 1
-    }
-
-    if (!block.isExpanded()) {
-      blockData.collapsed = 1
-    }
-
-    data.blocks.push(blockData)
-
-    for (const subBlock of subBlocks) {
-      blockData = {
-        type: subBlock.getBlockType().getId(),
-        level: subBlock.getLevel(),
-        content: subBlock.getContent()
-      }
-
-      if (subBlock.isEnabled()) {
-        blockData.enabled = 1
-      }
-
-      if (!subBlock.isExpanded()) {
-        blockData.collapsed = 1
-      }
-
-      data.blocks.push(blockData)
-    }
 
     this._duplicate(data, block)
   }

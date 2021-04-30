@@ -5,6 +5,7 @@ namespace benf\neo\services;
 use benf\neo\elements\db\BlockQuery;
 use benf\neo\models\BlockStructure;
 use yii\base\Component;
+use yii\base\InvalidArgumentException;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -32,6 +33,8 @@ class Fields extends Component
 {
     
     private $_rebuildIfDeleted = false;
+
+    private $_searchableBlockTypes = [];
     
     /**
      * Performs validation on a Neo field.
@@ -219,7 +222,7 @@ class Fields extends Component
                 if ($saveAll || !$block->id || $block->dirty) {
                     $block->ownerId = (int)$owner->id;
                     $block->sortOrder = $sortOrder;
-                    $elementsService->saveElement($block, false);
+                    $elementsService->saveElement($block, false, true, $this->_hasSearchableBlockType($field, $block));
                     
                     if (!$neoSettings->collapseAllBlocks) {
                         $block->cacheCollapsed();
@@ -618,5 +621,29 @@ class Fields extends Component
                 Neo::$plugin->blocks->saveStructure($multiBlockStructure);
             }
         }
+    }
+
+    private function _hasSearchableBlockType(Field $field, Block $block): bool
+    {
+        if ($block->fieldId !== $field->id) {
+            throw new InvalidArgumentException('Incompatible Neo field and block');
+        }
+
+        $typeId = $block->typeId;
+
+        if (!isset($this->_searchableBlockTypes[$typeId])) {
+            $fieldLayout = $block->getType()->getFieldLayout();
+
+            // A Neo block type should only be searchable if all of the following apply:
+            // 1. the Neo field it belongs to is searchable
+            // 2. it has a field layout
+            // 3. the field layout has any searchable sub-fields
+            $this->_searchableBlockTypes[$typeId] = $field->searchable && $fieldLayout &&
+                !empty(array_filter($fieldLayout->getFields(), function($subField) {
+                    return $subField->searchable;
+                }));
+        }
+
+        return $this->_searchableBlockTypes[$typeId];
     }
 }
