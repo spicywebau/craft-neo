@@ -48,6 +48,16 @@ class BlockQuery extends ElementQuery
      */
     public $typeId;
 
+    /**
+     * @var bool|null Whether the owner elements can be drafts.
+     */
+    public $allowOwnerDrafts;
+
+    /**
+     * @var bool|null Whether the owner elements can be revisions.
+     */
+    public $allowOwnerRevisions;
+
     // Private properties
 
     /**
@@ -318,8 +328,33 @@ class BlockQuery extends ElementQuery
             $this->setAllElements($use);
             $use = true;
         }
-    
+
         $this->_useMemoized = $use;
+    }
+
+
+    /**
+     * Narrows the query results based on whether the Neo blocks owners are drafts.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     */
+    public function allowOwnerDrafts($value = true)
+    {
+        $this->allowOwnerDrafts = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on whether the Neo blocks owners are revisions.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     */
+    public function allowOwnerRevisions($value = true)
+    {
+        $this->allowOwnerRevisions = $value;
+        return $this;
     }
 
     // Protected methods
@@ -392,7 +427,23 @@ class BlockQuery extends ElementQuery
 
             $this->subQuery->andWhere(Db::parseParam('neoblocks.typeId', $this->typeId));
         }
-        
+
+        // Ignore revision/draft blocks by default
+        $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->ownerId);
+        $allowOwnerRevisions = $this->allowOwnerRevisions ?? ($this->id || $this->ownerId);
+
+        if (!$allowOwnerDrafts || !$allowOwnerRevisions) {
+            $this->subQuery->innerJoin(['owners' => Table::ELEMENTS], '[[owners.id]] = [[neoblocks.ownerId]]');
+
+            if (!$allowOwnerDrafts) {
+                $this->subQuery->andWhere(['owners.draftId' => null]);
+            }
+
+            if (!$allowOwnerRevisions) {
+                $this->subQuery->andWhere(['owners.revisionId' => null]);
+            }
+        }
+
         return parent::beforePrepare();
     }
 
@@ -769,7 +820,7 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-    
+
         return array_reverse($elements);
     }
 
@@ -936,7 +987,7 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-    
+
         $newElements = array_filter($elements, function ($element) use ($value) {
             return $element->status == $value;
         });
