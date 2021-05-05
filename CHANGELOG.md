@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.9.7 - 2021-05-05
 
 ### Added
 - Added the `allowOwnerDrafts` and `allowOwnerRevisions` parameters for Neo block queries (thanks @nickdunn)
