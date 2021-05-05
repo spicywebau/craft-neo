@@ -50,11 +50,13 @@ class BlockQuery extends ElementQuery
 
     /**
      * @var bool|null Whether the owner elements can be drafts.
+     * @since 2.9.7
      */
     public $allowOwnerDrafts;
 
     /**
      * @var bool|null Whether the owner elements can be revisions.
+     * @since 2.9.7
      */
     public $allowOwnerRevisions;
 
@@ -338,6 +340,7 @@ class BlockQuery extends ElementQuery
      *
      * @param bool|null $value The property value
      * @return static self reference
+     * @since 2.9.7
      */
     public function allowOwnerDrafts($value = true)
     {
@@ -350,6 +353,7 @@ class BlockQuery extends ElementQuery
      *
      * @param bool|null $value The property value
      * @return static self reference
+     * @since 2.9.7
      */
     public function allowOwnerRevisions($value = true)
     {
