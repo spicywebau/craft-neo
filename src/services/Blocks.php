@@ -2,7 +2,9 @@
 
 namespace benf\neo\services;
 
+use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
+use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\records\BlockStructure as BlockStructureRecord;
@@ -82,6 +84,7 @@ class Blocks extends Component
     public function renderTabs(Block $block, bool $static = false, $namespace = null): array
     {
         $viewService = Craft::$app->getView();
+        $enableChildBlocksUiElement = Neo::$plugin->getSettings()->enableChildBlocksUiElement;
 
         $blockType = $block->getType();
         $field = $blockType->getField();
@@ -115,6 +118,12 @@ class Blocks extends Component
             $fieldsHtml = [];
 
             foreach ($elements as $tabElement) {
+                // Any child blocks UI element added to a field layout will still exist on the field layout after the
+                // plugin setting is disabled, so we need to ignore it in that case
+                if ($tabElement instanceof ChildBlocksUiElement && !$enableChildBlocksUiElement) {
+                    continue;
+                }
+
                 if ($tabElement instanceof CustomField && $isNewBlock) {
                     $tabElement->getField()->setIsFresh(true);
                 }
