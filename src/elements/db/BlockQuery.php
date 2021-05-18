@@ -433,8 +433,8 @@ class BlockQuery extends ElementQuery
         }
 
         // Ignore revision/draft blocks by default
-        $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->ownerId);
-        $allowOwnerRevisions = $this->allowOwnerRevisions ?? ($this->id || $this->ownerId);
+        $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->ownerId || Craft::$app->getRequest()->getIsPreview());
+        $allowOwnerRevisions = $this->allowOwnerRevisions ?? ($this->id || $this->ownerId || $this->_isRevisionRequest());
 
         if (!$allowOwnerDrafts || !$allowOwnerRevisions) {
             $this->subQuery->innerJoin(['owners' => Table::ELEMENTS], '[[owners.id]] = [[neoblocks.ownerId]]');
@@ -482,6 +482,19 @@ class BlockQuery extends ElementQuery
     }
 
     // Private methods
+
+    /**
+     * Whether the current request is a revision.
+     *
+     * @return bool
+     */
+    private function _isRevisionRequest(): bool
+    {
+        $token = Craft::$app->request->getParam('token');
+        $route = !empty($token) ? Craft::$app->tokens->getTokenRoute($token) : null;
+
+        return $route && $route[1]['revisionId'] !== null;
+    }
 
     /**
      * Converts a property into an array if it's numeric, or null if it's empty.
