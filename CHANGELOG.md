@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.9.8 - 2021-05-18
 
 ### Fixed
 - Fixed a bug when viewing the preview of an entry draft or revision, where querying for a Neo block's children or other relatives wouldn't return any blocks
