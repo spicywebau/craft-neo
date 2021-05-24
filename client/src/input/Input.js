@@ -757,7 +757,8 @@ export default Garnish.Base.extend({
         items: e.blockType.getChildBlockItems(this.getItems()),
         maxBlocks: this.getMaxBlocks()
       }),
-      showButtons: !this.atMaxLevels(e.level)
+      showButtons: !this.atMaxLevels(e.level),
+      renderOldChildBlocksContainer: !e.blockType.getTabs().some(tab => tab.getBodyHtml(blockId).match(/data-neo-b="container.children"/))
     })
 
     this.addBlock(block, e.index, e.level)

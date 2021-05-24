@@ -21,7 +21,8 @@ const _defaults = {
   collapsed: false,
   modified: true,
   static: false,
-  showButtons: true
+  showButtons: true,
+  renderOldChildBlocksContainer: true
 }
 
 const _resources = {}
@@ -94,7 +95,8 @@ export default Garnish.Base.extend({
       collapsed: !!settings.collapsed,
       level: settings.level,
       modified: this._modified,
-      sortOrder: this._id
+      sortOrder: this._id,
+      renderOldChildBlocksContainer: settings.renderOldChildBlocksContainer
     }))
 
     NS.leave()

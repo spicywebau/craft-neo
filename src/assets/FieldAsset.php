@@ -12,6 +12,7 @@ use craft\web\assets\cp\CpAsset;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\Field;
+use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\elements\Block;
@@ -186,7 +187,13 @@ class FieldAsset extends AssetBundle
         foreach ($blocks as $block) {
             if ($block instanceof Block) {
                 $blockType = $block->getType();
-                
+                $renderOldChildBlocksContainer = !Neo::$plugin->getSettings()->enableChildBlocksUiElement ||
+                    empty(array_filter($blockType->getFieldLayout()->getTabs(), function($tab) {
+                        return !empty(array_filter($tab->elements, function($element) {
+                            return $element instanceof ChildBlocksUiElement;
+                        }));
+                    }));
+
                 $jsBlocks[] = [
                     'id' => $block->id,
                     'blockType' => $blockType->handle,
@@ -196,6 +203,7 @@ class FieldAsset extends AssetBundle
                     'enabled' => (bool)$block->enabled,
                     'level' => max(0, (int)$block->level - 1),
                     'tabs' => Neo::$plugin->blocks->renderTabs($block, $static),
+                    'renderOldChildBlocksContainer' => $renderOldChildBlocksContainer,
                 ];
             } elseif (is_array($block)) {
                 $jsBlocks[] = $block;
