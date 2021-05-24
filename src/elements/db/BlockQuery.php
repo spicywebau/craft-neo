@@ -48,6 +48,18 @@ class BlockQuery extends ElementQuery
      */
     public $typeId;
 
+    /**
+     * @var bool|null Whether the owner elements can be drafts.
+     * @since 2.9.7
+     */
+    public $allowOwnerDrafts;
+
+    /**
+     * @var bool|null Whether the owner elements can be revisions.
+     * @since 2.9.7
+     */
+    public $allowOwnerRevisions;
+
     // Private properties
 
     /**
@@ -318,8 +330,35 @@ class BlockQuery extends ElementQuery
             $this->setAllElements($use);
             $use = true;
         }
-    
+
         $this->_useMemoized = $use;
+    }
+
+
+    /**
+     * Narrows the query results based on whether the Neo blocks owners are drafts.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     * @since 2.9.7
+     */
+    public function allowOwnerDrafts($value = true)
+    {
+        $this->allowOwnerDrafts = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on whether the Neo blocks owners are revisions.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     * @since 2.9.7
+     */
+    public function allowOwnerRevisions($value = true)
+    {
+        $this->allowOwnerRevisions = $value;
+        return $this;
     }
 
     // Protected methods
@@ -392,7 +431,23 @@ class BlockQuery extends ElementQuery
 
             $this->subQuery->andWhere(Db::parseParam('neoblocks.typeId', $this->typeId));
         }
-        
+
+        // Ignore revision/draft blocks by default
+        $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->ownerId || Craft::$app->getRequest()->getIsPreview());
+        $allowOwnerRevisions = $this->allowOwnerRevisions ?? ($this->id || $this->ownerId || $this->_isRevisionRequest());
+
+        if (!$allowOwnerDrafts || !$allowOwnerRevisions) {
+            $this->subQuery->innerJoin(['owners' => Table::ELEMENTS], '[[owners.id]] = [[neoblocks.ownerId]]');
+
+            if (!$allowOwnerDrafts) {
+                $this->subQuery->andWhere(['owners.draftId' => null]);
+            }
+
+            if (!$allowOwnerRevisions) {
+                $this->subQuery->andWhere(['owners.revisionId' => null]);
+            }
+        }
+
         return parent::beforePrepare();
     }
 
@@ -427,6 +482,19 @@ class BlockQuery extends ElementQuery
     }
 
     // Private methods
+
+    /**
+     * Whether the current request is a revision.
+     *
+     * @return bool
+     */
+    private function _isRevisionRequest(): bool
+    {
+        $token = Craft::$app->request->getParam('token');
+        $route = !empty($token) ? Craft::$app->tokens->getTokenRoute($token) : null;
+
+        return $route && $route[1]['revisionId'] !== null;
+    }
 
     /**
      * Converts a property into an array if it's numeric, or null if it's empty.
@@ -769,7 +837,7 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-    
+
         return array_reverse($elements);
     }
 
@@ -936,7 +1004,7 @@ class BlockQuery extends ElementQuery
         if (!$value) {
             return $elements;
         }
-    
+
         $newElements = array_filter($elements, function ($element) use ($value) {
             return $element->status == $value;
         });
