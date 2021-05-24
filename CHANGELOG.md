@@ -12,6 +12,16 @@
 - Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
 - Fixed a bug where Neo blocks' enabled and collapsed states weren't retained in some cases when cloning them
 
+## 2.9.8 - 2021-05-18
+
+### Fixed
+- Fixed a bug when viewing the preview of an entry draft or revision, where querying for a Neo block's children or other relatives wouldn't return any blocks
+
+## 2.9.7 - 2021-05-05
+
+### Added
+- Added the `allowOwnerDrafts` and `allowOwnerRevisions` parameters for Neo block queries (thanks @nickdunn)
+
 ## 2.9.6 - 2021-04-14
 
 ### Fixed
