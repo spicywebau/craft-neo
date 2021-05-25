@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where an error could occur when attempting to apply a project config
+
 ## 2.9.8 - 2021-05-18
 
 ### Fixed

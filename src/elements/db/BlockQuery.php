@@ -490,7 +490,8 @@ class BlockQuery extends ElementQuery
      */
     private function _isRevisionRequest(): bool
     {
-        $token = Craft::$app->request->getParam('token');
+        $request = Craft::$app->getRequest();
+        $token = !$request->getIsConsoleRequest() ? $request->getParam('token') : '';
         $route = !empty($token) ? Craft::$app->tokens->getTokenRoute($token) : null;
 
         return $route && $route[1]['revisionId'] !== null;
