@@ -43,37 +43,20 @@ class Block extends ObjectType
         }
         
         if ($fieldName === 'children') {
-            
-            $newBlocks = [];
-            $blocks = $source->$fieldName;
             $sourceLevel = (int)$source->level + 1;
-            
-            // blocks array cannot be trusted. it will most likely be out of order and cached.
-            // we should retrieve the children blocks by query instead so it'll always be in the correct order.
-            
-            // -- old comment --
-            // because of how the children is retrieve the blocks are located in the parent,
-            // which is why we now have to retrieve them by query
-            // if there's none return the default.
-            // -- old comment --
+
+            // The blocks at `$source->$fieldName` cannot be trusted, it will most likely be out of order and cached.
+            // We should retrieve the children blocks by query instead, so it'll always be in the correct order.
             $children = $source->getDescendants()->level($sourceLevel)->all();
-            
-            if(count($children) and is_array($children)) {
-                
-                foreach ($children as $block) {
-                    if ((int)$block->level === $sourceLevel) {
-                        $newBlocks[] = $block;
-                    }
-                }
-            }
-            
-            if (count($newBlocks)) {
+            $newBlocks = array_filter($children, function($block) use($sourceLevel) {
+                return (int)$block->level === $sourceLevel;
+            });
+
+            if (!empty($newBlocks)) {
                 return $newBlocks;
             }
-            
         }
-        
+
         return $source->$fieldName;
     }
-    
 }
