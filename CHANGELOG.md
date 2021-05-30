@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Neo blocks' children could not be retrieved in GraphQL entry queries when the `draftId` or `revisionId` arguments were used
+
 ## 2.9.9 - 2021-05-25
 
 ### Fixed
