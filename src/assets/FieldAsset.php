@@ -226,74 +226,68 @@ class FieldAsset extends AssetBundle
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
-            if ($blockType instanceof BlockType) {
-                $fieldLayout = $blockType->getFieldLayout();
-                $fieldLayoutTabs = $fieldLayout->getTabs();
-                $jsFieldLayout = [];
-                $fieldTypes = [];
+            $fieldLayout = $blockType->getFieldLayout();
+            $fieldLayoutTabs = $fieldLayout->getTabs();
+            $jsFieldLayout = [];
+            $fieldTypes = [];
 
-                foreach ($fieldLayoutTabs as $tab) {
-                    $tabElements = $tab->elements;
-                    $jsTabElements = [];
+            foreach ($fieldLayoutTabs as $tab) {
+                $tabElements = $tab->elements;
+                $jsTabElements = [];
 
-                    foreach ($tabElements as $element) {
-                        $elementData = [
-                            'config' => $element->toArray(),
-                            'settings-html' => preg_replace(
-                                '/(id|for)="(.+)"/',
-                                '\1="element-' . uniqid() . '-\2"',
-                                $element->settingsHtml()
-                            ),
-                            'type' => get_class($element),
-                        ];
+                foreach ($tabElements as $element) {
+                    $elementData = [
+                        'config' => $element->toArray(),
+                        'settings-html' => preg_replace(
+                            '/(id|for)="(.+)"/',
+                            '\1="element-' . uniqid() . '-\2"',
+                            $element->settingsHtml()
+                        ),
+                        'type' => get_class($element),
+                    ];
 
-                        if ($element instanceof CustomField) {
-                            $elementData['id'] = $element->getField()->id;
-                        }
-
-                        // Reset required to false if it was '' (which is getting interpreted as true in the field
-                        // settings modal for some reason) or '0' (which required was getting set to in the project
-                        // config in some cases in earlier Craft 3.5 releases)
-                        if (isset($elementData['config']['required']) && in_array($elementData['config']['required'], ['', '0'])) {
-                            $elementData['config']['required'] = false;
-                        }
-
-                        $jsTabElements[] = $elementData;
-
-                        // $fieldTypes[$element->attribute()] = $field->className();
+                    if ($element instanceof CustomField) {
+                        $elementData['id'] = $element->getField()->id;
                     }
 
-                    $jsFieldLayout[] = [
-                        'name' => $tab->name,
-                        'elements' => $jsTabElements,
-                    ];
+                    // Reset required to false if it was '' (which is getting interpreted as true in the field
+                    // settings modal for some reason) or '0' (which required was getting set to in the project
+                    // config in some cases in earlier Craft 3.5 releases)
+                    if (isset($elementData['config']['required']) && in_array($elementData['config']['required'], ['', '0'])) {
+                        $elementData['config']['required'] = false;
+                    }
+
+                    $jsTabElements[] = $elementData;
                 }
 
-                $jsBlockType = [
-                    'id' => $blockType->id,
-                    'sortOrder' => $blockType->sortOrder,
-                    'name' => Craft::t('neo', $blockType->name),
-                    'handle' => $blockType->handle,
-                    'maxBlocks' => $blockType->maxBlocks,
-                    'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
-                    'maxChildBlocks' => $blockType->maxChildBlocks,
-                    'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
-                    'topLevel' => (bool)$blockType->topLevel,
-                    'errors' => $blockType->getErrors(),
-                    'fieldLayout' => $jsFieldLayout,
-                    'fieldLayoutId' => $fieldLayout->id,
-                    'fieldTypes' => $fieldTypes,
+                $jsFieldLayout[] = [
+                    'name' => $tab->name,
+                    'elements' => $jsTabElements,
                 ];
-
-                if ($renderTabs) {
-                    $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $owner);
-                    $jsBlockType['tabs'] = $tabsHtml;
-                }
-
-                $jsBlockTypes[] = $jsBlockType;
-            } elseif (is_array($blockType)) {
-                $jsBlockTypes[] = $blockType;
             }
+
+            $jsBlockType = [
+                'id' => $blockType->id,
+                'sortOrder' => $blockType->sortOrder,
+                'name' => Craft::t('neo', $blockType->name),
+                'handle' => $blockType->handle,
+                'maxBlocks' => $blockType->maxBlocks,
+                'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
+                'maxChildBlocks' => $blockType->maxChildBlocks,
+                'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
+                'topLevel' => (bool)$blockType->topLevel,
+                'errors' => $blockType->getErrors(),
+                'fieldLayout' => $jsFieldLayout,
+                'fieldLayoutId' => $fieldLayout->id,
+                'fieldTypes' => $fieldTypes,
+            ];
+
+            if ($renderTabs) {
+                $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $owner);
+                $jsBlockType['tabs'] = $tabsHtml;
+            }
+
+            $jsBlockTypes[] = $jsBlockType;
         }
 
         return $jsBlockTypes;
