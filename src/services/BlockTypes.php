@@ -67,6 +67,7 @@ class BlockTypes extends Component
             if ($result) {
                 $blockType = new BlockType($result);
                 Memoize::$blockTypesById[$id] = $blockType;
+                Memoize::$blockTypesByHandle[$blockType->handle] = $blockType;
             }
         }
 
@@ -94,6 +95,7 @@ class BlockTypes extends Component
                 $blockType = new BlockType($result);
                 $blockTypes[] = $blockType;
                 Memoize::$blockTypesById[$blockType->id] = $blockType;
+                Memoize::$blockTypesByHandle[$blockType->handle] = $blockType;
             }
 
             Memoize::$blockTypesByFieldId[$fieldId] = $blockTypes;

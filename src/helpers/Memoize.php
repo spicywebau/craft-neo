@@ -13,6 +13,7 @@ class Memoize
 {
 	public static $blockTypeRecordsById = [];
 	public static $blockTypesById = [];
+	public static $blockTypesByHandle = [];
 	public static $blockTypesByFieldId = [];
 	public static $blockTypeGroupsById = [];
 	public static $blockTypeGroupsByFieldId = [];
