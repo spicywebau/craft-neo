@@ -15,6 +15,16 @@
 - Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
 - Fixed a bug where Neo blocks' enabled and collapsed states weren't retained in some cases when cloning them
 
+## 2.9.10 - 2021-05-31
+
+### Fixed
+- Fixed a bug where Neo blocks' children could not be retrieved in GraphQL entry queries when the `draftId` or `revisionId` arguments were used
+
+## 2.9.9 - 2021-05-25
+
+### Fixed
+- Fixed a bug where an error could occur when attempting to apply a project config
+
 ## 2.9.8 - 2021-05-18
 
 ### Fixed
