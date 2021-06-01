@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the `getByHandle()` method to the `BlockTypes` service
+
 ### Changed
 - Neo now requires Craft 3.6.6 or later
 - When Craft runs garbage collection, incomplete Neo element data will now be deleted
