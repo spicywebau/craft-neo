@@ -35,7 +35,7 @@
   "extra": {
     "handle": "neo",
     "name": "Neo",
-    "schemaVersion": "2.8.16",
+    "schemaVersion": "2.9.11",
     "class": "benf\\neo\\Plugin",
     "changelogUrl": "https://github.com/spicywebau/craft-neo/blob/master/CHANGELOG.md",
     "downloadUrl": "https://github.com/spicywebau/craft-neo/archive/master.zip"

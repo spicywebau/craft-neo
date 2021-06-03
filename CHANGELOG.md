@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Runs a migration to remove empty strings from child block type arrays, which can cause JavaScript errors in the Craft control panel
+
 ## 2.9.10 - 2021-05-31
 
 ### Fixed
