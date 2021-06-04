@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug when editing a Neo field's settings, where a new block type's handle would not be updated in the child block type checkbox values if the handle was auto-updated as a result of the block type name being updated; if the new block type was then used as a child block type, the child block types array would store an empty string instead of the block type's handle
 - Runs a migration to remove empty strings from child block type arrays, which can cause JavaScript errors in the Craft control panel
 
 ## 2.9.10 - 2021-05-31
