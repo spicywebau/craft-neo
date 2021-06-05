@@ -214,6 +214,8 @@ export default Garnish.Base.extend({
 
       this._detectChangeObserver = observer
 
+      // If there's a Super Table field with a static row or min rows set, we need to check for new
+      // rows and force this block's modified state so it saves the new rows
       if (this.$contentContainer.length > 0 && this.$contentContainer.html().match(/\[blocks\]\[new/)) {
         this._forceModified = true
         this.setModified(true)
