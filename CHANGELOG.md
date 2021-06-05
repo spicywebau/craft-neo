@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the `getByHandle()` method to the `BlockTypes` service
+
 ### Changed
 - Neo now requires Craft 3.6.6 or later
 - When Craft runs garbage collection, incomplete Neo element data will now be deleted
@@ -11,6 +14,22 @@
 ### Fixed
 - Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
 - Fixed a bug where Neo blocks' enabled and collapsed states weren't retained in some cases when cloning them
+
+## 2.9.11 - 2021-06-04
+
+### Fixed
+- Fixed a bug when editing a Neo field's settings, where a new block type's handle would not be updated in the child block type checkbox values if the handle was auto-updated as a result of the block type name being updated; if the new block type was then used as a child block type, the child block types array would store an empty string instead of the block type's handle
+- Runs a migration to remove empty strings from child block type arrays, which can cause JavaScript errors in the Craft control panel
+
+## 2.9.10 - 2021-05-31
+
+### Fixed
+- Fixed a bug where Neo blocks' children could not be retrieved in GraphQL entry queries when the `draftId` or `revisionId` arguments were used
+
+## 2.9.9 - 2021-05-25
+
+### Fixed
+- Fixed a bug where an error could occur when attempting to apply a project config
 
 ## 2.9.8 - 2021-05-18
 

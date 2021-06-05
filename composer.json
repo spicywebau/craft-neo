@@ -1,7 +1,7 @@
 {
   "name": "spicyweb/craft-neo",
   "description": "A Matrix-like field type that uses existing fields",
-  "version": "2.9.8",
+  "version": "2.9.11",
   "type": "craft-plugin",
   "keywords": [
     "cms",
@@ -35,7 +35,7 @@
   "extra": {
     "handle": "neo",
     "name": "Neo",
-    "schemaVersion": "2.8.16",
+    "schemaVersion": "2.9.11",
     "class": "benf\\neo\\Plugin",
     "changelogUrl": "https://github.com/spicywebau/craft-neo/blob/master/CHANGELOG.md",
     "downloadUrl": "https://github.com/spicywebau/craft-neo/archive/master.zip"

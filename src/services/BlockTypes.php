@@ -67,7 +67,39 @@ class BlockTypes extends Component
             if ($result) {
                 $blockType = new BlockType($result);
                 Memoize::$blockTypesById[$id] = $blockType;
+                Memoize::$blockTypesByHandle[$blockType->handle] = $blockType;
             }
+        }
+
+        return $blockType;
+    }
+
+    /**
+     * Gets a Neo block type, given its handle.
+     *
+     * @param $handle The block type handle to check.
+     * @return BlockType|null
+     * @throws BlockTypeNotFoundException if there is no Neo block type with the handle
+     * @since 2.10.0
+     */
+    public function getByHandle(string $handle): BlockType
+    {
+        $blockType = null;
+
+        if (isset(Memoize::$blockTypesByHandle[$handle])) {
+            $blockType = Memoize::$blockTypesByHandle[$handle];
+        } else {
+            $result = $this->_createQuery()
+                ->where(['handle' => $handle])
+                ->one();
+
+            if (!$result) {
+                throw new BlockTypeNotFoundException('Neo block type with handle ' . $handle . ' not found');
+            }
+
+            $blockType = new BlockType($result);
+            Memoize::$blockTypesById[$blockType->id] = $blockType;
+            Memoize::$blockTypesByHandle[$handle] = $blockType;
         }
 
         return $blockType;
@@ -94,6 +126,7 @@ class BlockTypes extends Component
                 $blockType = new BlockType($result);
                 $blockTypes[] = $blockType;
                 Memoize::$blockTypesById[$blockType->id] = $blockType;
+                Memoize::$blockTypesByHandle[$blockType->handle] = $blockType;
             }
 
             Memoize::$blockTypesByFieldId[$fieldId] = $blockTypes;

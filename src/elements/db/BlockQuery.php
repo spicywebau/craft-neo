@@ -74,6 +74,8 @@ class BlockQuery extends ElementQuery
 
     private $blockLevel = null;
 
+    private static $ownersById = [];
+
     // Public methods
 
     /**
@@ -433,7 +435,7 @@ class BlockQuery extends ElementQuery
         }
 
         // Ignore revision/draft blocks by default
-        $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->ownerId || Craft::$app->getRequest()->getIsPreview());
+        $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->ownerId || $this->_isDraftRequest());
         $allowOwnerRevisions = $this->allowOwnerRevisions ?? ($this->id || $this->ownerId || $this->_isRevisionRequest());
 
         if (!$allowOwnerDrafts || !$allowOwnerRevisions) {
@@ -483,6 +485,50 @@ class BlockQuery extends ElementQuery
 
     // Private methods
 
+    private function _tokenRouteHasProp(string $prop): bool
+    {
+        $request = Craft::$app->getRequest();
+        $token = !$request->getIsConsoleRequest() ? $request->getParam('token') : '';
+        $route = !empty($token) ? Craft::$app->tokens->getTokenRoute($token) : null;
+
+        return $route && $route[1][$prop] !== null;
+    }
+
+    private function _ownerElementHasProp(string $prop): bool
+    {
+        $ownerId = null;
+
+        if (is_numeric($this->ownerId)) {
+            $ownerId = $this->ownerId;
+        } else if ($this->descendantOf instanceof Block) {
+            $ownerId = $this->descendantOf->ownerId;
+        } else if ($this->ancestorOf instanceof Block) {
+            $ownerId = $this->ancestorOf->ownerId;
+        } else {
+            return false;
+        }
+
+        if (!isset(self::$ownersById[$ownerId])) {
+            self::$ownersById[$ownerId] = Craft::$app->getElements()->getElementById($ownerId);
+        }
+
+        $owner = self::$ownersById[$ownerId];
+
+        return property_exists($owner, $prop) && $owner->$prop !== null;
+    }
+
+    /**
+     * Whether the current request is a draft.
+     *
+     * @return bool
+     */
+    private function _isDraftRequest(): bool
+    {
+        return Craft::$app->getRequest()->getIsPreview()
+            || $this->_tokenRouteHasProp('draftId')
+            || $this->_ownerElementHasProp('draftId');
+    }
+
     /**
      * Whether the current request is a revision.
      *
@@ -490,10 +536,8 @@ class BlockQuery extends ElementQuery
      */
     private function _isRevisionRequest(): bool
     {
-        $token = Craft::$app->request->getParam('token');
-        $route = !empty($token) ? Craft::$app->tokens->getTokenRoute($token) : null;
-
-        return $route && $route[1]['revisionId'] !== null;
+        return $this->_tokenRouteHasProp('revisionId')
+            || $this->_ownerElementHasProp('revisionId');
     }
 
     /**

@@ -100,7 +100,15 @@ export default Settings.extend({
     // LightSwitch accidentally overrides the `on()` method by using `on` as a property...
     Garnish.Base.prototype.on.call(this._topLevelLightswitch, 'change', () => this.setTopLevel(this._topLevelLightswitch.on))
 
-    this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
+    this.addListener(this.$nameInput, 'keyup change', () => {
+      this.setName(this.$nameInput.val())
+
+      if (this._handleGenerator.listening) {
+        // Make sure the handle is updated internally, so the child block type checkbox values can be updated
+        this.setHandle(this.$handleInput.val())
+      }
+    })
+
     this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
     this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
     this.addListener(this.$maxSiblingBlocksInput, 'keyup change', () => this.setSiblingMaxBlocks(this.$maxSiblingBlocksInput.val()))
