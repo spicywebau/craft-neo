@@ -153,79 +153,81 @@ export default Garnish.Base.extend({
   },
 
   initUi () {
-    if (!this._initialised) {
-      const tabs = this._blockType.getTabs()
+    if (this._initialised) {
+      // Nothing to do here
+      return
+    }
 
-      const headList = tabs.map(tab => tab.getHeadHtml(this._id))
-      const footList = tabs.map(tab => tab.getFootHtml(this._id))
-      this.$head = $(headList.join('')).filter(_resourceFilter)
-      this.$foot = $(footList.join('')).filter(_resourceFilter)
+    const tabs = this._blockType.getTabs()
+    const headList = tabs.map(tab => tab.getHeadHtml(this._id))
+    const footList = tabs.map(tab => tab.getFootHtml(this._id))
+    this.$head = $(headList.join('')).filter(_resourceFilter)
+    this.$foot = $(footList.join('')).filter(_resourceFilter)
 
-      Garnish.$bod.siblings('head').append(this.$head)
-      Garnish.$bod.append(this.$foot)
+    Garnish.$bod.siblings('head').append(this.$head)
+    Garnish.$bod.append(this.$foot)
 
-      this._initUiElements()
+    this._initUiElements()
 
-      this.$tabsButton.menubtn()
+    this.$tabsButton.menubtn()
 
-      this._settingsMenu = new Garnish.MenuBtn(this.$settingsButton)
-      this._settingsMenu.on('optionSelect', e => this['@settingSelect'](e))
+    this._settingsMenu = new Garnish.MenuBtn(this.$settingsButton)
+    this._settingsMenu.on('optionSelect', e => this['@settingSelect'](e))
 
-      this._initialised = true
+    this._initialised = true
 
-      if (this._buttons) {
-        this._buttons.initUi()
+    if (this._buttons) {
+      this._buttons.initUi()
+    }
+
+    Garnish.requestAnimationFrame(() => this.updateResponsiveness())
+
+    // For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
+    // Neo applies its own styles to Matrix blocks in an effort to improve the visibility of them, however
+    // when dragging a Matrix block these styles get lost (since a dragged Matrix block loses its context of
+    // being inside a Neo block). Adding this class name to blocks before they are dragged means that the
+    // dragged Matrix block can still have the Neo-specific styles.
+    this.$container.on('mousedown', '.matrixblock', function (e) {
+      $(this).addClass('neo-matrixblock')
+    })
+
+    // Setting up field and block property watching
+    if (!this._modified && !this.isNew()) {
+      this._initialState = {
+        enabled: this._enabled,
+        level: this._level,
+        content: Garnish.getPostData(this.$contentContainer)
       }
 
-      Garnish.requestAnimationFrame(() => this.updateResponsiveness())
+      const detectChange = () => this._detectChange()
+      const observer = new window.MutationObserver(() => setTimeout(detectChange, 200))
 
-      // For Matrix blocks inside a Neo block, this listener adds a class name to the block for Neo to style.
-      // Neo applies its own styles to Matrix blocks in an effort to improve the visibility of them, however
-      // when dragging a Matrix block these styles get lost (since a dragged Matrix block loses its context of
-      // being inside a Neo block). Adding this class name to blocks before they are dragged means that the
-      // dragged Matrix block can still have the Neo-specific styles.
-      this.$container.on('mousedown', '.matrixblock', function (e) {
-        $(this).addClass('neo-matrixblock')
+      observer.observe(this.$container[0], {
+        attributes: true,
+        childList: true,
+        characterData: true,
+        subtree: true
       })
 
-      // Setting up field and block property watching
-      if (!this._modified && !this.isNew()) {
-        this._initialState = {
-          enabled: this._enabled,
-          level: this._level,
-          content: Garnish.getPostData(this.$contentContainer)
-        }
+      this.$contentContainer.on('propertychange change click', 'input, textarea, select, div.redactor-in', detectChange)
+      this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea, div.redactor-in', detectChange)
 
-        const detectChange = () => this._detectChange()
-        const observer = new window.MutationObserver(() => setTimeout(detectChange, 200))
+      this._detectChangeObserver = observer
 
-        observer.observe(this.$container[0], {
-          attributes: true,
-          childList: true,
-          characterData: true,
-          subtree: true
-        })
+      if (this.$contentContainer.length > 0 && this.$contentContainer.html().match(/\[blocks\]\[new/)) {
+        this._forceModified = true
+        this.setModified(true)
+        const fieldInputName = this._templateNs[0] + '[' + this._templateNs[1] + ']'
 
-        this.$contentContainer.on('propertychange change click', 'input, textarea, select, div.redactor-in', detectChange)
-        this.$contentContainer.on('paste input keyup', 'input:not([type="hidden"]), textarea, div.redactor-in', detectChange)
-
-        this._detectChangeObserver = observer
-
-        if (this.$contentContainer.length > 0 && this.$contentContainer.html().match(/\[blocks\]\[new/)) {
-          this._forceModified = true
-          this.setModified(true)
-          const fieldInputName = this._templateNs[0] + '[' + this._templateNs[1] + ']'
-
-          if (!Craft.modifiedDeltaNames.includes(fieldInputName)) {
-            Craft.modifiedDeltaNames.push(fieldInputName)
-          }
+        if (!Craft.modifiedDeltaNames.includes(fieldInputName)) {
+          Craft.modifiedDeltaNames.push(fieldInputName)
         }
       }
-
-      addFieldLinks(this.$contentContainer)
-
-      this.trigger('initUi')
     }
+
+    addFieldLinks(this.$contentContainer)
+
+    this.trigger('initUi')
   },
 
   destroy () {
