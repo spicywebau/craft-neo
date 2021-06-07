@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed incompatibility with Field Manager (thanks @engram-design)
+- Fixed a bug that could sometimes cause Neo blocks to appear out of order
 
 ## 2.9.11 - 2021-06-04
 
