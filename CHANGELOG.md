@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.9.12 - 2021-06-08
 
 ### Fixed
 - Fixed incompatibility with Field Manager (thanks @engram-design)
