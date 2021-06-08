@@ -410,7 +410,7 @@ class BlockQuery extends ElementQuery
         if (Neo::$plugin->blockHasSortOrder) {
             $select[] = 'neoblocks.sortOrder';
 
-            if (isset($this->select[0]) && $this->select[0] !== 'COUNT(*)') {
+            if ((!isset($this->select[0]) || $this->select[0] !== 'COUNT(*)') && $this->structureId !== null) {
                 $this->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
             }
         }

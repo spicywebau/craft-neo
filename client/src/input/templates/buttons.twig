@@ -51,9 +51,15 @@
     <div class="menu">
         <ul>
         {% set currentGroup = false %}
+        {% set lastGroupHadBlockTypes = false %}
         {% for item in items %}
             {% set type = item.getType() %}
             {% if type == 'blockType' %}
+                {% if currentGroup and not lastGroupHadBlockTypes %}
+                    {% set lastGroupHadBlockTypes = true %}
+                    <h6>{{ currentGroup.getName() }}</h6>
+                    {{ '<ul class="padded">' }}
+                {% endif %}
                 <li>
                     <a data-neo-bn="button.addBlock"
                        data-neo-bn-info="{{ item.getHandle() }}">
@@ -61,12 +67,11 @@
                     </a>
                 </li>
             {% elseif type == 'group' %}
-                {{ '</ul>' }}
+                {% if not currentGroup or lastGroupHadBlockTypes %}
+                    {{ '</ul>' }}
+                {% endif %}
                 {% set currentGroup = item.isBlank() ? false : item %}
-                {% if currentGroup %}
-                    <h6>{{ item.getName() }}</h6>
-                    {{ '<ul class="padded">' }}
-                {% else %}
+                {% if not currentGroup %}
                     {{ '<ul>' }}
                 {% endif %}
             {% endif %}

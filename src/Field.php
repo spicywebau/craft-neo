@@ -602,9 +602,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         // Set each block type's field layout based on the data from Craft 3.5's field layout designer
         foreach ($this->getBlockTypes() as $blockType) {
-            $fieldLayout = $fieldsService->assembleLayoutFromPost("types.{$class}.blockTypes.{$blockType->id}");
-            $fieldLayout->type = $class;
-            $blockType->setFieldLayout($fieldLayout);
+            // Check if the block type already has a field layout set - no need to set it again
+            if (!$blockType->fieldLayout) {
+                $fieldLayout = $fieldsService->assembleLayoutFromPost("types.{$class}.blockTypes.{$blockType->id}");
+                $fieldLayout->type = $class;
+                $blockType->setFieldLayout($fieldLayout);
+            }
         }
 
         return true;
