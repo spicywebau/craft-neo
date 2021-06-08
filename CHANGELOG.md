@@ -14,6 +14,7 @@
 ### Fixed
 - Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
 - Fixed a bug where Neo blocks' enabled and collapsed states weren't retained in some cases when cloning them
+- Fixed a bug where, if a Neo field was showing the "Add a block" dropdown, the headings of block type groups would always show, even if none of that group's block types could be added in that position in the field
 
 ## 2.9.12 - 2021-06-08
 
