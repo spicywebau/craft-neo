@@ -15,6 +15,12 @@
 - Fixed a bug where Neo input blocks could be dragged to positions where they would exceed their field's Max Levels setting
 - Fixed a bug where Neo blocks' enabled and collapsed states weren't retained in some cases when cloning them
 
+## 2.9.12 - 2021-06-08
+
+### Fixed
+- Fixed incompatibility with Field Manager (thanks @engram-design)
+- Fixed a bug that could sometimes cause Neo blocks to appear out of order
+
 ## 2.9.11 - 2021-06-04
 
 ### Fixed
