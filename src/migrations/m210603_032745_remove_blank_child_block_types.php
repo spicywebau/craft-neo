@@ -4,6 +4,7 @@ namespace benf\neo\migrations;
 
 use Craft;
 use craft\db\Migration;
+use craft\helpers\Json;
 
 /**
  * Removes empty strings from child block type arrays, which were caused by a Neo field configurator bug where the
@@ -30,12 +31,18 @@ class m210603_032745_remove_blank_child_block_types extends Migration
 
         foreach (($projectConfig->get('neoBlockTypes') ?? []) as $uid => $data) {
             if (isset($data['childBlocks']) && !empty($data['childBlocks'])) {
-                $childBlocks = array_filter($data['childBlocks'], function($cbHandle) {
+                $childBlocks = Json::decodeIfJson($data['childBlocks']);
+
+                if (!is_array($childBlocks)) {
+                    continue;
+                }
+
+                $filteredChildBlocks = array_filter($childBlocks, function($cbHandle) {
                     return !empty($cbHandle);
                 });
 
-                if (count($childBlocks) < count($data['childBlocks'])) {
-                    $projectConfig->set("neoBlockTypes.$uid.childBlocks", array_values($childBlocks));
+                if (count($filteredChildBlocks) < count($childBlocks)) {
+                    $projectConfig->set("neoBlockTypes.$uid.childBlocks", array_values($filteredChildBlocks));
                 }
             }
         }
