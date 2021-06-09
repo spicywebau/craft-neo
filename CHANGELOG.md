@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.9.13 - 2021-06-09
 
 ### Fixed
 - Fixed a potential migration error when updating to Neo 2.9.11 or 2.9.12
