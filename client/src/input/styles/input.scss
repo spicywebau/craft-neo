@@ -342,6 +342,10 @@ $preview-reduction: 70px;
             padding: 14px 0 7px;
             border-top: 1px solid #e3e5e8;
             transition: background-color 0.5s;
+
+            .ni_block_body > &:not(:first-child) {
+                margin-top: 14px;
+            }
         }
 
         &_collapsed-children {
@@ -462,10 +466,6 @@ $preview-reduction: 70px;
             &.is-level-odd {
                 background-color: white;
             }
-        }
-
-        &.is-parent .ni_block_content {
-            padding-bottom: 14px;
         }
     }
 }
