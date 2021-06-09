@@ -192,13 +192,17 @@ const BlockSort = Garnish.Drag.extend({
 
       const blockHeight = block.$container.height()
       const topbarHeight = block.$topbarContainer.height()
-      const contentHeight = isExpanded && block.$contentContainer.length > 0 ? block.$contentContainer.height() : 0
       const childrenHeight = isExpanded ? block.$childrenContainer.height() : 0
+      const preChildrenContentHeight = !(isExpanded && block.$contentContainer.length > 0)
+        ? 0
+        : block.$childrenContainer.length > 0
+          ? block.$childrenContainer.offset().top - block.$contentContainer.offset().top
+          : block.$contentContainer.height()
 
       const parentBlock = this.getParentBlock(block)
 
       if (!parentBlock || this._validateDraggeeChildren(parentBlock)) {
-        midpoints[BlockSort.TYPE_CONTENT] = offset + (topbarHeight + contentHeight) / 2
+        midpoints[BlockSort.TYPE_CONTENT] = offset + (topbarHeight + preChildrenContentHeight) / 2
       }
 
       if (childrenHeight > 0 && block.isExpanded() && this._validateDraggeeChildren(block)) {
