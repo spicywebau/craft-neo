@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- Added the Child Blocks UI element, which allows for putting the child blocks in a single place anywhere in a block type's field layout, rather than displaying them at the bottom of every tab
+- Added the `enableChildBlocksUiElement` plugin setting for enabling the new Child Blocks UI element (disabled by default)
 - Added the `getByHandle()` method to the `BlockTypes` service
 
 ### Changed
