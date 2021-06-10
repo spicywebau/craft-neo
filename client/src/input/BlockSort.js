@@ -248,12 +248,7 @@ const BlockSort = Garnish.Drag.extend({
     }
 
     this._updateHelperAppearance()
-
-    // On scroll up we need to check if the $draggee is still in view or else it'll calculate the midpoint prematurely
-    // and causes the direction to be set DIRECTION_UP and DIRECTION_DOWN rapidly and causes a glitching effect.
-    if (direction === BlockSort.DIRECTION_DOWN || this.$draggee.offset().top > window.scrollY) {
-      this._calculateMidpoints()
-    }
+    this._calculateMidpoints()
   },
 
   _validateDraggeeChildren (block) {
