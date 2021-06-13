@@ -187,12 +187,11 @@ class FieldAsset extends AssetBundle
         foreach ($blocks as $block) {
             if ($block instanceof Block) {
                 $blockType = $block->getType();
-                $renderOldChildBlocksContainer = !Neo::$plugin->getSettings()->enableChildBlocksUiElement ||
-                    empty(array_filter($blockType->getFieldLayout()->getTabs(), function($tab) {
-                        return !empty(array_filter($tab->elements, function($element) {
-                            return $element instanceof ChildBlocksUiElement;
-                        }));
+                $renderOldChildBlocksContainer = empty(array_filter($blockType->getFieldLayout()->getTabs(), function($tab) {
+                    return !empty(array_filter($tab->elements, function($element) {
+                        return $element instanceof ChildBlocksUiElement;
                     }));
+                }));
 
                 $jsBlocks[] = [
                     'id' => $block->id,

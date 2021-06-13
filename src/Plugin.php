@@ -185,12 +185,10 @@ class Plugin extends BasePlugin
 
     private function _registerChildBlocksUiElement()
     {
-        if ($this->getSettings()->enableChildBlocksUiElement) {
-            Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_UI_ELEMENTS, function(DefineFieldLayoutElementsEvent $event) {
-                if ($event->sender->type === Block::class) {
-                    $event->elements[] = ChildBlocksUiElement::class;
-                }
-            });
-        }
+        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_UI_ELEMENTS, function(DefineFieldLayoutElementsEvent $event) {
+            if ($event->sender->type === Block::class) {
+                $event->elements[] = ChildBlocksUiElement::class;
+            }
+        });
     }
 }
