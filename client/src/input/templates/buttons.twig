@@ -13,7 +13,7 @@
                         </a>
                     </li>
                 {% else %}
-                    <div class="btn{% if firstButton %} add icon{% endif %}"
+                    <div class="btn dashed{% if firstButton %} add icon{% endif %}"
                          data-neo-bn="button.addBlock"
                          data-neo-bn-info="{{ item.getHandle() }}">
                         {{ item.getName() }}
@@ -31,7 +31,7 @@
                         false :
                         item  %}
                 {% if currentGroup %}
-                    <div class="btn{% if firstButton %} add icon{% endif %} menubtn"
+                    <div class="btn dashed{% if firstButton %} add icon{% endif %} menubtn"
                          data-neo-bn="button.group">
                         {{ item.getName() }}
                     </div>
@@ -44,7 +44,7 @@
             {{ '</ul></div>' }}
         {% endif %}
     </div>
-    <div class="btn add icon menubtn hidden"
+    <div class="btn dashed add icon menubtn hidden"
          data-neo-bn="container.menu">
         {{ "Add a block"|t }}
     </div>
