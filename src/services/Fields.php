@@ -629,6 +629,11 @@ class Fields extends Component
             throw new InvalidArgumentException('Incompatible Neo field and block');
         }
 
+        // Just say yes if the setting is disabled
+        if (!Neo::$plugin->getSettings()->optimiseSearchIndexing) {
+            return true;
+        }
+
         $typeId = $block->typeId;
 
         if (!isset($this->_searchableBlockTypes[$typeId])) {

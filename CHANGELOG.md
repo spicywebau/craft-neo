@@ -4,12 +4,13 @@
 
 ### Added
 - Added the Child Blocks UI element, which allows for putting the child blocks in a single place anywhere in a block type's field layout, rather than displaying them at the bottom of every tab
+- Added the `optimiseSearchIndexing` plugin setting (enabled by default)
 - Added the `getByHandle()` method to the `BlockTypes` service
 
 ### Changed
 - Neo now requires Craft 3.6.6 or later
 - When Craft runs garbage collection, incomplete Neo element data will now be deleted
-- When saving a Neo block that doesn't have a field layout, doesn't have any searchable sub-fields or belongs to a non-searchable Neo field, Neo will now opt out of updating search indexes for that block
+- When saving a Neo block that doesn't have a field layout, doesn't have any searchable sub-fields or belongs to a non-searchable Neo field, Neo will now opt out of updating search indexes for that block unless the `optimiseSearchIndexing` plugin setting is disabled
 - Changed Neo's JavaScript dependency package management from Yarn to NPM
 
 ### Fixed

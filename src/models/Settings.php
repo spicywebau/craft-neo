@@ -24,12 +24,18 @@ class Settings extends Model
     public $collapseAllBlocks = false;
 
     /**
+     * @var bool
+     * @since 2.10.0
+     */
+    public $optimiseSearchIndexing = true;
+
+    /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['saveModifiedBlocksOnly', 'collapseAllBlocks'], 'boolean'],
+            [['saveModifiedBlocksOnly', 'collapseAllBlocks', 'optimiseSearchIndexing'], 'boolean'],
         ];
     }
 }
