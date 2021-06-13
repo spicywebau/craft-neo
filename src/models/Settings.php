@@ -1,4 +1,5 @@
 <?php
+
 namespace benf\neo\models;
 
 use craft\base\Model;
@@ -12,23 +13,23 @@ use craft\base\Model;
  */
 class Settings extends Model
 {
-	/**
-	 * @var bool
-	 */
-	public $saveModifiedBlocksOnly = true;
+    /**
+     * @var bool
+     */
+    public $saveModifiedBlocksOnly = true;
 
-	/**
-	 * @var bool
-	 */
-	public $collapseAllBlocks = false;
+    /**
+     * @var bool
+     */
+    public $collapseAllBlocks = false;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function rules()
-	{
-		return [
-			[['saveModifiedBlocksOnly', 'collapseAllBlocks'], 'boolean'],
-		];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['saveModifiedBlocksOnly', 'collapseAllBlocks'], 'boolean'],
+        ];
+    }
 }
