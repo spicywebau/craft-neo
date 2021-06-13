@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.10.0 - 2021-06-14
 
 ### Added
 - Added the Child Blocks UI element, which allows for putting the child blocks in a single place anywhere in a block type's field layout, rather than displaying them at the bottom of every tab
