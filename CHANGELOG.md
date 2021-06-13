@@ -18,6 +18,11 @@
 - Fixed a bug where Neo blocks' enabled and collapsed states weren't retained in some cases when cloning them
 - Fixed a bug where, if a Neo field was showing the "Add a block" dropdown, the headings of block type groups would always show, even if none of that group's block types could be added in that position in the field
 
+## 2.9.13 - 2021-06-09
+
+### Fixed
+- Fixed a potential migration error when updating to Neo 2.9.11 or 2.9.12
+
 ## 2.9.12 - 2021-06-08
 
 ### Fixed
