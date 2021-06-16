@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.10.1 - 2021-06-16
 
 ### Fixed
 - Fixed a bug where, when trying to delete all block type group(s) belonging to a Neo field, they would fail to be deleted
