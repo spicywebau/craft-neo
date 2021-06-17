@@ -592,7 +592,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // will be `null`, `getGroups()` will return `Neo::$plugin->blockTypes->getGroupsByFieldId($this->id)` and the
         // groups won't be deleted.  By detecting this here, we can set an empty array of groups, so the to-be-deleted
         // groups will actually be deleted.
-        if ($requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.groups") === null) {
+        if (!$requestService->isConsoleRequest && $requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.groups") === null) {
             $this->setGroups([]);
         }
 
