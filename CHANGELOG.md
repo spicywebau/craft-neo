@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.10.2 - 2021-06-17
+
+### Fixed
+- Fixed an error when saving Neo fields from console commands (thanks @nstCactus)
+
 ## 2.10.1 - 2021-06-16
 
 ### Fixed
