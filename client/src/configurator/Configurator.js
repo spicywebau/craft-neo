@@ -296,21 +296,6 @@ export default Garnish.Base.extend({
     const namespace = [...this._templateNs, 'blockTypes']
     const id = BlockTypeSettings.getNewId()
     const blockTypeSettings = oldBlockType ? oldBlockType.getSettings() : null
-
-    /* const settings = new BlockTypeSettings({
-      childBlocks: blockTypeSettings ? blockTypeSettings.getChildBlocks() : null,
-      childBlockTypes: this.getBlockTypes(),
-      // Set a timestamp on the handle so it doesn't clash with the old one
-      handle: blockTypeSettings ? `${blockTypeSettings.getHandle()}_${Date.now()}` : '',
-      id: id,
-      maxBlocks: blockTypeSettings ? blockTypeSettings.getMaxBlocks() : 0,
-      maxChildBlocks: blockTypeSettings ? blockTypeSettings.getMaxChildBlocks() : 0,
-      maxSiblingBlocks: blockTypeSettings ? blockTypeSettings.getMaxSiblingBlocks() : 0,
-      name: blockTypeSettings ? blockTypeSettings.getName() : '',
-      namespace: [...namespace, id],
-      sortOrder: this._items.length,
-      topLevel: blockTypeSettings ? blockTypeSettings.getTopLevel() : true
-    }) */
     const settings = blockTypeSettings
       ? new BlockTypeSettings({
           childBlocks: blockTypeSettings.getChildBlocks(),
