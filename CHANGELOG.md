@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the ability to clone a Neo field's block types within that field
+
 ### Changed
 - Neo now requires Craft 3.7.0 beta 1 or later
 

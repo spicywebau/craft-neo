@@ -5,4 +5,10 @@
 <div class="nc_sidebar_list_item {{ errors is not empty ? 'has-errors' : '' }}">
     <div class="label" data-neo-bt="text.name">{{ name }}</div>
     <a class="move icon" title="{{ "Reorder"|t }}" role="button" data-neo-bt="button.move"></a>
+    <a class="settings icon menubtn" title="{{ "Actions"|t('neo') }}" role="button" data-neo-bt="button.actions"></a>
+    <div class="menu" data-neo-b="container.menu">
+        <ul class="padded">
+            <li><a data-icon="share" data-action="clone">{{ "Clone"|t('neo') }}</a></li>
+        </ul>
+    </div>
 </div>

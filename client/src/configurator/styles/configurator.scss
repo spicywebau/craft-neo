@@ -32,7 +32,7 @@
                 cursor: default;
                 position: relative;
                 margin-top: -1px;
-                padding: 10px 14px 10px 40px;
+                padding: 10px 40px;
                 border: 1px solid #ebebeb;
                 background-color: #fcfcfc;
                 transition: margin-left 0.15s;
@@ -63,13 +63,28 @@
                     }
                 }
 
-                > .move {
-                    display: block;
+                > .move,
+                > .settings {
                     position: absolute;
-                    top: 10px;
-                    left: 7px;
                     width: 24px;
                     text-align: center;
+                }
+
+                > .move {
+                    display: block;
+                    top: 10px;
+                    left: 7px;
+                }
+
+                > .settings {
+                    display: inline-flex;
+                    top: 13px;
+                    right: 7px;
+                    color: rgba(#29323d, 0.25);
+
+                    &:hover {
+                        color: #0d78f2;
+                    }
                 }
 
                 &.is-selected {

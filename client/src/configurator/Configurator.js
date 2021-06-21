@@ -98,6 +98,7 @@ export default Garnish.Base.extend({
         fieldLayout: btFieldLayout
       })
 
+      blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType))
       existingItems.push(blockType)
     }
 
@@ -291,21 +292,52 @@ export default Garnish.Base.extend({
     this._items = items
   },
 
-  '@newBlockType' () {
+  _createBlockTypeFrom (oldBlockType) {
     const namespace = [...this._templateNs, 'blockTypes']
     const id = BlockTypeSettings.getNewId()
+    const blockTypeSettings = oldBlockType ? oldBlockType.getSettings() : null
 
-    const settings = new BlockTypeSettings({
+    /* const settings = new BlockTypeSettings({
+      childBlocks: blockTypeSettings ? blockTypeSettings.getChildBlocks() : null,
+      childBlockTypes: this.getBlockTypes(),
+      // Set a timestamp on the handle so it doesn't clash with the old one
+      handle: blockTypeSettings ? `${blockTypeSettings.getHandle()}_${Date.now()}` : '',
+      id: id,
+      maxBlocks: blockTypeSettings ? blockTypeSettings.getMaxBlocks() : 0,
+      maxChildBlocks: blockTypeSettings ? blockTypeSettings.getMaxChildBlocks() : 0,
+      maxSiblingBlocks: blockTypeSettings ? blockTypeSettings.getMaxSiblingBlocks() : 0,
+      name: blockTypeSettings ? blockTypeSettings.getName() : '',
       namespace: [...namespace, id],
       sortOrder: this._items.length,
-      id: id,
-      childBlockTypes: this.getBlockTypes()
-    })
+      topLevel: blockTypeSettings ? blockTypeSettings.getTopLevel() : true
+    }) */
+    const settings = blockTypeSettings
+      ? new BlockTypeSettings({
+          childBlocks: blockTypeSettings.getChildBlocks(),
+          childBlockTypes: this.getBlockTypes(),
+          // Set a timestamp on the handle so it doesn't clash with the old one
+          handle: `${blockTypeSettings.getHandle()}_${Date.now()}`,
+          id: id,
+          maxBlocks: blockTypeSettings.getMaxBlocks(),
+          maxChildBlocks: blockTypeSettings.getMaxChildBlocks(),
+          maxSiblingBlocks: blockTypeSettings.getMaxSiblingBlocks(),
+          name: blockTypeSettings.getName(),
+          namespace: [...namespace, id],
+          sortOrder: this._items.length,
+          topLevel: blockTypeSettings.getTopLevel()
+        })
+      : new BlockTypeSettings({
+        childBlockTypes: this.getBlockTypes(),
+        id: id,
+        namespace: [...namespace, id],
+        sortOrder: this._items.length
+      })
 
     const fieldLayout = new BlockTypeFieldLayout({
-      namespace: [...namespace, id],
+      blockId: id,
       html: this._fieldLayoutHtml,
-      blockId: id
+      layout: oldBlockType ? oldBlockType.getFieldLayout().getLayoutStructure() : [],
+      namespace: [...namespace, id]
     })
 
     const blockType = new BlockType({
@@ -319,6 +351,11 @@ export default Garnish.Base.extend({
 
     this.addItem(blockType, index)
     this.selectItem(blockType)
+    blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType))
+  },
+
+  '@newBlockType' () {
+    this._createBlockTypeFrom(null)
   },
 
   '@newGroup' () {

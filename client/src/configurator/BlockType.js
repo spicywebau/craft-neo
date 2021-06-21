@@ -1,4 +1,5 @@
 import $ from 'jquery'
+import Garnish from 'garnish'
 import Item from './Item'
 import NS from '../namespace'
 import renderTemplate from './templates/blocktype.twig'
@@ -34,6 +35,13 @@ export default Item.extend({
     const $neo = this.$container.find('[data-neo-bt]')
     this.$nameText = $neo.filter('[data-neo-bt="text.name"]')
     this.$moveButton = $neo.filter('[data-neo-bt="button.move"]')
+    this.$actionsButton = $neo.filter('[data-neo-bt="button.actions"]')
+
+    this._actionsMenu = new Garnish.MenuBtn(this.$actionsButton)
+    this._actionsMenu.on('optionSelect', e => this['@actionSelect'](e))
+
+    // Stop the actions button click from selecting the block type and closing the menu
+    this.addListener(this.$actionsButton, 'click', e => e.stopPropagation())
 
     if (settingsObj) {
       settingsObj.on('change', () => this._updateTemplate())
@@ -78,6 +86,19 @@ export default Item.extend({
       if (fieldLayout) {
         fieldLayout.setBlockName(settings.getName())
       }
+    }
+  },
+
+  '@actionSelect' (e) {
+    const $option = $(e.option)
+
+    if ($option.hasClass('disabled')) {
+      return
+    }
+
+    switch ($option.attr('data-action')) {
+      case 'clone':
+        this.trigger('clone')
     }
   }
 })

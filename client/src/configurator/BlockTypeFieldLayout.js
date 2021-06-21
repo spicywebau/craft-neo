@@ -180,5 +180,39 @@ export default Garnish.Base.extend({
     $element.data('settings-html', element['settings-html'])
     this._fld.initElement($element)
     this._fld.elementDrag.addItems($element)
+  },
+
+  getLayoutStructure () {
+    const tabs = []
+    const elementProperties = ['config', 'id', 'type']
+
+    this._fld.$tabContainer.children('.fld-tab').each(function () {
+      const $tab = $(this)
+      const tabName = $tab.find('.tab span').text()
+      const tabElements = []
+
+      $tab.find('.fld-element').each(function () {
+        const $element = $(this)
+        const elementData = {}
+
+        elementProperties
+          .filter(prop => typeof $element.data(prop) !== 'undefined')
+          .forEach(prop => { elementData[prop] = $element.data(prop) })
+
+        // Do settings-html separately so we can replace the IDs
+        if ($element.data('settings-html')) {
+          elementData['settings-html'] = $element.data('settings-html').replace(
+            /(id|for)="element-([0-9a-z]+)-([a-z-]+)/g,
+            `$1="element-$2-${Date.now()}-$3`
+          )
+        }
+
+        tabElements.push(elementData)
+      })
+
+      tabs.push({ name: tabName, elements: tabElements })
+    })
+
+    return tabs
   }
 })
