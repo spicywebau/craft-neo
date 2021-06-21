@@ -70,6 +70,7 @@
                 {% if not currentGroup or lastGroupHadBlockTypes %}
                     {{ '</ul>' }}
                 {% endif %}
+                {% set lastGroupHadBlockTypes = false %}
                 {% set currentGroup = item.isBlank() ? false : item %}
                 {% if not currentGroup %}
                     {{ '<ul>' }}
