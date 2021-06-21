@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.10.3 - 2021-06-21
 
 ### Fixed
 - Fixed a bug where, if a Neo field was showing the "Add a block" dropdown and a non-empty block type group followed a non-empty block type group, some HTML would fail to be output, causing styling issues
