@@ -8,6 +8,21 @@
 ### Changed
 - Neo now requires Craft 3.7.0 beta 1 or later
 
+## 2.10.3 - 2021-06-21
+
+### Fixed
+- Fixed a bug where, if a Neo field was showing the "Add a block" dropdown and a non-empty block type group followed a non-empty block type group, some HTML would fail to be output, causing styling issues
+
+## 2.10.2 - 2021-06-17
+
+### Fixed
+- Fixed an error when saving Neo fields from console commands (thanks @nstCactus)
+
+## 2.10.1 - 2021-06-16
+
+### Fixed
+- Fixed a bug where, when trying to delete all block type group(s) belonging to a Neo field, they would fail to be deleted
+
 ## 2.10.0 - 2021-06-14
 
 ### Added

@@ -584,7 +584,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         $fieldsService = Craft::$app->getFields();
+        $requestService = Craft::$app->getRequest();
         $class = Self::class;
+
+        // Later on, the field saving process will call `getGroups()` when trying to delete old groups.  If this request
+        // is coming from the field settings page and all groups were deleted by the user, `$this->_blockTypeGroups`
+        // will be `null`, `getGroups()` will return `Neo::$plugin->blockTypes->getGroupsByFieldId($this->id)` and the
+        // groups won't be deleted.  By detecting this here, we can set an empty array of groups, so the to-be-deleted
+        // groups will actually be deleted.
+        if (!$requestService->isConsoleRequest && $requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.groups") === null) {
+            $this->setGroups([]);
+        }
 
         // TODO: need to further modify so it checks if there's changes to the field. current it's just a quick fix for #310
         if ($this->uid) {
