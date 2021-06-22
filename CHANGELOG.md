@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a GraphQL error that could occur when accessing a Neo block's children on a query for entries from a non-default site
+
 ## 2.10.3 - 2021-06-21
 
 ### Fixed

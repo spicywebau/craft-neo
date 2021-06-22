@@ -510,7 +510,7 @@ class BlockQuery extends ElementQuery
         }
 
         if (!isset(self::$ownersById[$ownerId])) {
-            self::$ownersById[$ownerId] = Craft::$app->getElements()->getElementById($ownerId);
+            self::$ownersById[$ownerId] = Craft::$app->getElements()->getElementById($ownerId, null, $this->siteId);
         }
 
         $owner = self::$ownersById[$ownerId];
