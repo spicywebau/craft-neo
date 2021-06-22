@@ -14,6 +14,7 @@ use craft\helpers\Db;
 use craft\models\Site;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
 /**
@@ -513,6 +514,10 @@ class BlockQuery extends ElementQuery
         }
 
         $owner = self::$ownersById[$ownerId];
+
+        if ($owner === null) {
+            throw new InvalidConfigException('Invalid Neo block owner ID: ' . $ownerId);
+        }
 
         return property_exists($owner, $prop) && $owner->$prop !== null;
     }
