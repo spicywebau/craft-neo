@@ -74,6 +74,9 @@ class BlockQuery extends ElementQuery
 
     private $blockLevel = null;
 
+    /**
+     * @var (ElementInterface|null)[]
+     */
     private static $ownersById = [];
 
     // Public methods
@@ -514,7 +517,7 @@ class BlockQuery extends ElementQuery
 
         $owner = self::$ownersById[$ownerId];
 
-        return property_exists($owner, $prop) && $owner->$prop !== null;
+        return isset($owner) && property_exists($owner, $prop) && $owner->$prop !== null;
     }
 
     /**
