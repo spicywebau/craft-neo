@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Neo now requires Craft 3.7.0 beta 3 or later
+
 ## 2.10.5 - 2021-06-25
 
 ### Added
