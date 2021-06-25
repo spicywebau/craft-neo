@@ -1,4 +1,5 @@
 import $ from 'jquery'
+import Craft from 'craft'
 import Garnish from 'garnish'
 import Item from './Item'
 import NS from '../namespace'
@@ -99,6 +100,11 @@ export default Item.extend({
     switch ($option.attr('data-action')) {
       case 'clone':
         this.trigger('clone')
+        break
+      case 'delete':
+        if (window.confirm(Craft.t('neo', 'Are you sure you want to delete this block type?'))) {
+          this.getSettings().destroy()
+        }
     }
   }
 })

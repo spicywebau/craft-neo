@@ -6,6 +6,7 @@
 - Added the ability to clone a Neo field's block types within that field when editing the field's settings, from dropdown menus on the block types sidebar
 
 ### Changed
+- When editing a Neo field's settings, block types can now be deleted from the new dropdown menus on the block types sidebar
 
 ## 2.10.4 - 2021-06-22
 
