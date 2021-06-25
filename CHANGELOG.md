@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.10.5 - 2021-06-25
 
 ### Added
 - Added the ability to clone a Neo field's block types within that field when editing the field's settings, from dropdown menus on the block types sidebar
