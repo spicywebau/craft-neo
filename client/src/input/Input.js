@@ -12,7 +12,6 @@ import Group from './Group'
 import Block from './Block'
 import Buttons from './Buttons'
 
-import renderTemplate from './templates/input.twig'
 import '../twig-extensions'
 import './styles/input.scss'
 
@@ -54,16 +53,8 @@ export default Garnish.Base.extend({
       this._ownerId = ownerIdElement.val()
     }
 
-    NS.enter(this._templateNs)
-
-    this.$container = $('#' + settings.inputId).append(renderTemplate({
-      blockTypes: settings.blockTypes,
-      static: this._static
-    }))
-
+    this.$container = $('#' + settings.inputId)
     this.$container.find('#' + settings.inputId + '--spinner').remove()
-
-    NS.leave()
 
     const tempBlockTypes = []
 
