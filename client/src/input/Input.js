@@ -54,7 +54,6 @@ export default Garnish.Base.extend({
     }
 
     this.$container = $('#' + settings.inputId)
-    this.$container.find('#' + settings.inputId + '--spinner').remove()
 
     const tempBlockTypes = []
 
