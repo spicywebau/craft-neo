@@ -98,14 +98,10 @@ export default Garnish.Base.extend({
         const maxBlocksOfType = blockType.getMaxBlocks()
 
         const maxSiblingBlocks = blockType.getMaxSiblingBlocks()
-        let siblingBlocksOfType = null
-
-        if (block !== null) {
-          siblingBlocksOfType = block.getChildren(blocks).filter(blockHasSameType)
-        } else {
+        const siblingBlocksOfType = block !== null
+          ? block.getChildren(blocks).filter(blockHasSameType)
           // This is at the top level
-          siblingBlocksOfType = blocks.filter(b => b.getLevel() === 0 && b.getBlockType().getHandle() === blockType.getHandle())
-        }
+          : blocks.filter(b => b.getLevel() === 0 && b.getBlockType().getHandle() === blockType.getHandle())
 
         disabled = disabled ||
           (maxBlocksOfType > 0 && blocksOfType.length >= maxBlocksOfType) ||
