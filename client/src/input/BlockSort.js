@@ -319,11 +319,8 @@ const BlockSort = Garnish.Drag.extend({
     })
 
     // Check whether the move would make the potential parent block exceed its max child blocks
-    if (maxChildBlocks > 0) {
-      // Exceeds max child blocks?  Can't move it here, then
-      if (blockChildCount >= maxChildBlocks) {
-        return false
-      }
+    if (maxChildBlocks > 0 && blockChildCount >= maxChildBlocks) {
+      return false
     }
 
     const checkedDraggeeBlocks = []
