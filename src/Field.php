@@ -994,11 +994,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $prevBlock = null;
 
         foreach ($newSortOrder as $blockId) {
-            $blockData = $newBlockData[$blockId] ?? [];
-
-            $isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
-            $isCollapsed = isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false;
-            $isModified = isset($blockData['modified']) ? (bool)$blockData['modified'] : false;
+            $blockData = $newBlockData[$blockId] ?? (
+                isset(Elements::$duplicatedElementSourceIds[$blockId]) && isset($newBlockData[Elements::$duplicatedElementSourceIds[$blockId]])
+                    ? $newBlockData[Elements::$duplicatedElementSourceIds[$blockId]]
+                    : []
+                );
 
             // If this is a preexisting block but we don't have a record of it,
             // check to see if it was recently duplicated.
@@ -1014,7 +1014,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             // Existing block?
             if (isset($oldBlocksById[$blockId])) {
                 $block = $oldBlocksById[$blockId];
-                $block->dirty = $isModified;
+                $block->dirty = !empty($blockData);
             } else {
                 // Make sure it's a valid block type
                 if (!isset($blockData['type']) || !isset($blockTypes[$blockData['type']])) {
@@ -1031,11 +1031,16 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $blockLevel = (int)($blockData['level'] ?? $block->level);
 
             $block->setOwner($element);
-            $block->setCollapsed($isCollapsed);
-            $block->setModified($isModified);
-            $block->enabled = $isEnabled;
             $block->oldLevel = $block->level;
             $block->level = $blockLevel;
+
+            if (isset($blockData['collapsed'])) {
+                $block->setCollapsed((bool)$blockData['collapsed']);
+            }
+
+            if (isset($blockData['enabled'])) {
+                $block->enabled = (bool)$blockData['enabled'];
+            }
 
             // Set the content post location on the block if we can
             if ($baseBlockFieldNamespace) {
@@ -1045,19 +1050,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $oldBlockData = $block->getBehaviors('customFields');
 
             if (isset($blockData['fields'])) {
-                // checking if the fields are actually changed
-                $fieldData = [];
-                $fieldKeys = array_keys($blockData['fields']);
-
-                foreach ($fieldKeys as $key) {
-                    if ($oldBlockData['customFields']->$key !== $blockData['fields'][$key]) {
-                        $fieldData += [$key => $blockData['fields'][$key]];
-                    }
-                }
-
-                if ($fieldData) {
-                    $block->setFieldValues($fieldData);
-                }
+                $block->setFieldValues($blockData['fields']);
             }
 
             if ($prevBlock) {

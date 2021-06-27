@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added compatibility with provisional drafts in Craft 3.7
+
 ### Changed
 - Neo now requires Craft 3.7.0 beta 3 or later
 

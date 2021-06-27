@@ -99,6 +99,20 @@ export default Garnish.Base.extend({
       renderOldChildBlocksContainer: settings.renderOldChildBlocksContainer
     }))
 
+    // Add this block's subfields to Craft's delta names
+    // Short-term solution to set these in JS until Neo issue #298 is resolved
+    if (!this.isNew()) {
+      const blockNamespace = NS.toFieldName().replace(/(\[|\])/g, '\\$1')
+      const propsNamespace = `${blockNamespace}\\[[a-zA-Z]+\\]`
+      const subFieldsMatch = new RegExp(`${propsNamespace}(\\[[a-zA-Z][a-zA-Z0-9_]*\\])?`, 'g')
+
+      this._blockType.getTabs().forEach(tab => {
+        // Use a set to remove duplicate matches, e.g. when there's a Matrix field
+        const subFields = new Set(tab.getBodyHtml(this._id).match(subFieldsMatch))
+        subFields.forEach(subField => Craft.deltaNames.push(subField))
+      })
+    }
+
     NS.leave()
 
     const $neo = this.$container.find('[data-neo-b]')
@@ -123,7 +137,6 @@ export default Garnish.Base.extend({
     this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
     this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
     this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
-    this.$modifiedInput = $neo.filter('[data-neo-b="input.modified"]')
     this.$status = $neo.filter('[data-neo-b="status"]')
     this.$sortOrder = $neo.filter('[data-neo-b="sortOrder"]')
 
@@ -274,7 +287,6 @@ export default Garnish.Base.extend({
   },
 
   setModified (isModified) {
-    this.$modifiedInput.val(isModified ? 1 : 0)
     this._modified = isModified
   },
 

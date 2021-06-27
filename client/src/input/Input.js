@@ -63,6 +63,11 @@ export default Garnish.Base.extend({
 
     this.$container.find('#' + settings.inputId + '--spinner').remove()
 
+    // Remove some junk Neo data that ends up in Craft's delta names
+    // Short-term solution until Neo issue #298 is resolved
+    const placeholder = `${NS.toFieldName()}[__NEOBLOCK__]`
+    Craft.deltaNames = Craft.deltaNames.filter(name => !name.startsWith(placeholder))
+
     NS.leave()
 
     const tempBlockTypes = []
