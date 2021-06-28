@@ -8,6 +8,9 @@
 ### Changed
 - Neo now requires Craft 3.7.0 beta 3 or later
 
+### Deprecated
+- Deprecated Neo blocks' `getModified()` and `setModified()` methods
+
 ## 2.10.5 - 2021-06-25
 
 ### Added

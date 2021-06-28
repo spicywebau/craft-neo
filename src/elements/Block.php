@@ -167,6 +167,7 @@ class Block extends Element implements BlockElementInterface
 
     /**
      * @var bool|null Whether this block has been modified.
+     * @deprecated in 2.11.0
      */
     private $_modified;
 
@@ -377,8 +378,9 @@ class Block extends Element implements BlockElementInterface
 
     /**
      * Returns whether this block has been modified.
-     * 
+     *
      * @return bool|null
+     * @deprecated in 2.11.0
      */
     public function getModified()
     {
@@ -387,8 +389,9 @@ class Block extends Element implements BlockElementInterface
 
     /**
      * Sets whether this block has been modified.
-     * 
+     *
      * @param bool $value
+     * @deprecated in 2.11.0
      */
     public function setModified(bool $value = true)
     {
