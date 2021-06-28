@@ -37,6 +37,7 @@ export default Item.extend({
     this.$nameText = $neo.filter('[data-neo-bt="text.name"]')
     this.$moveButton = $neo.filter('[data-neo-bt="button.move"]')
     this.$actionsButton = $neo.filter('[data-neo-bt="button.actions"]')
+    this.$actionsMenu = $neo.filter('[data-neo-bt="container.menu"]')
 
     this._actionsMenu = new Garnish.MenuBtn(this.$actionsButton)
     this._actionsMenu.on('optionSelect', e => this['@actionSelect'](e))
@@ -98,6 +99,12 @@ export default Item.extend({
     }
 
     switch ($option.attr('data-action')) {
+      case 'copy':
+        this.trigger('copy')
+        break
+      case 'paste':
+        this.trigger('paste')
+        break
       case 'clone':
         this.trigger('clone')
         break

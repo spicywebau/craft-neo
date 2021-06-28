@@ -98,6 +98,12 @@ export default Garnish.Base.extend({
         fieldLayout: btFieldLayout
       })
 
+      if (window.localStorage.getItem('neo:copyBlockType')) {
+        blockType.$actionsMenu.find('[data-action="paste"]').parent().removeClass('disabled')
+      }
+
+      blockType.on('copy.configurator', () => this._copyBlockType(blockType))
+      blockType.on('paste.configurator', () => this._pasteBlockType())
       blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType))
       existingItems.push(blockType)
     }
@@ -336,7 +342,62 @@ export default Garnish.Base.extend({
 
     this.addItem(blockType, index)
     this.selectItem(blockType)
+
+    blockType.on('copy.configurator', () => this._copyBlockType(blockType))
+    blockType.on('paste.configurator', () => this._pasteBlockType())
     blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType))
+  },
+
+  _copyBlockType (blockType) {
+    const settings = blockType.getSettings()
+    const data = {
+      childBlocks: settings.getChildBlocks(),
+      handle: settings.getHandle(),
+      layout: blockType.getFieldLayout().getLayoutStructure(),
+      maxBlocks: settings.getMaxBlocks(),
+      maxChildBlocks: settings.getMaxChildBlocks(),
+      maxSiblingBlocks: settings.getMaxSiblingBlocks(),
+      name: settings.getName(),
+      topLevel: settings.getTopLevel()
+    }
+
+    window.localStorage.setItem('neo:copyBlockType', JSON.stringify(data))
+    this.getBlockTypes().forEach(bt => bt.$actionsMenu.find('[data-action="paste"]').parent().removeClass('disabled'))
+  },
+
+  _pasteBlockType () {
+    const encodedData = window.localStorage.getItem('neo:copyBlockType')
+
+    if (!encodedData) {
+      return
+    }
+
+    const data = JSON.parse(encodedData)
+    const childBlocks = data.childBlocks
+      ? data.childBlocks.filter(cb => this.getBlockTypes().map(bt => bt.getSettings().getHandle()).includes(cb))
+      : []
+    const settings = new BlockTypeSettings({
+      childBlocks: childBlocks,
+      childBlockTypes: this.getBlockTypes(),
+      handle: data.handle,
+      maxBlocks: data.maxBlocks,
+      maxChildBlocks: data.maxChildBlocks,
+      maxSiblingBlocks: data.maxSiblingBlocks,
+      name: data.name,
+      topLevel: data.topLevel
+    })
+
+    const fieldLayout = new BlockTypeFieldLayout({
+      html: this._fieldLayoutHtml,
+      layout: data.layout
+    })
+
+    const blockType = new BlockType({
+      settings: settings,
+      fieldLayout: fieldLayout
+    })
+
+    this._createBlockTypeFrom(blockType)
   },
 
   '@newBlockType' () {

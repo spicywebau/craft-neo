@@ -6,8 +6,10 @@
     <div class="label" data-neo-bt="text.name">{{ name }}</div>
     <a class="move icon" title="{{ "Reorder"|t }}" role="button" data-neo-bt="button.move"></a>
     <a class="settings icon menubtn" title="{{ "Actions"|t('neo') }}" role="button" data-neo-bt="button.actions"></a>
-    <div class="menu" data-neo-b="container.menu">
+    <div class="menu" data-neo-bt="container.menu">
         <ul class="padded">
+            <li><a data-icon="field" data-action="copy">{{ "Copy"|t('neo') }}</a></li>
+            <li class="disabled"><a data-icon="brush" data-action="paste">{{ "Paste"|t('neo') }}</a></li>
             <li><a data-icon="share" data-action="clone">{{ "Clone"|t('neo') }}</a></li>
             <li><a class="error" data-icon="remove" data-action="delete">{{ "Delete"|t('app') }}</a></li>
         </ul>
