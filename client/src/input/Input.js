@@ -40,7 +40,7 @@ export default Garnish.Base.extend({
 
     this._templateNs = NS.parse(settings.namespace)
     this._blockTypes = []
-    this._groups = []
+    this._groups = settings.groups.map(gInfo => new Group(gInfo))
     this._blocks = []
     this._name = settings.name
     this._maxBlocks = settings.maxBlocks
@@ -77,12 +77,6 @@ export default Garnish.Base.extend({
 
       this._blockTypes.push(blockType)
       tempBlockTypes[blockType.getHandle()] = blockType
-    }
-
-    for (const gInfo of settings.groups) {
-      const group = new Group(gInfo)
-
-      this._groups.push(group)
     }
 
     const $form = this.$container.closest('form')
