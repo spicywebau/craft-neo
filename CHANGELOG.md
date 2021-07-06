@@ -8,7 +8,7 @@
 - Added the ability to copy and paste block types between fields
 
 ### Changed
-- Neo now requires Craft 3.7.0 beta 3 or later
+- Neo now requires Craft 3.7.0 beta 5 or later
 
 ### Deprecated
 - Deprecated Neo blocks' `getModified()` and `setModified()` methods
