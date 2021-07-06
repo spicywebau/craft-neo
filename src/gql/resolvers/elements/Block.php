@@ -33,21 +33,15 @@ class Block extends ElementResolver
         if (is_array($query)) {
             $query = array_unique($query);
 
-            // if it's preloaded, return the first level of the neo field only (child elements will be retrieved using `children`.
-            $newQuery = [];
+            // Return level 1 blocks only, unless the `level` argument says otherwise
+            $level = isset($arguments['level'])
+                ? ($arguments['level'] !== 0 ? $arguments['level'] : null)
+                : 1;
+            $newBlocks = $level === null
+                ? $query
+                : array_filter($query, function($block) use ($level) { return (int)$block->level === $level; });
 
-            foreach ($query as $q) {
-                if ((int)$q->level === 1) {
-                    $newQuery[] = $q;
-                }
-            }
-
-            // if any level 1 blocks
-            if (count($newQuery)) {
-                return $newQuery;
-            }
-
-            return $query;
+            return !empty($newBlocks) ? $newBlocks : $query;
         }
 
         // We require level 1 unless the arguments say otherwise
