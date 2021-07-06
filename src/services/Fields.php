@@ -653,7 +653,7 @@ class Fields extends Component
     {
         $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner);
         $supportedSitesCount = count($supportedSites);
-        // throw new \Exception(print_r($supportedSitesCount, true));
+
         if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
             foreach ($supportedSites as $site) {
                 $this->_deleteNeoBlocksAndStructures($field, $owner, $except, $site);
@@ -661,7 +661,6 @@ class Fields extends Component
         } else {
             $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
         }
-        // $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
     }
     
     private function _checkSupportedSitesAndPropagation($field, $supportedSites)
