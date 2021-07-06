@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where GraphQL queries for a Neo field's contents with the field's `level` argument set to `0` would only return level 1 blocks, rather than all blocks belonging to the field
+
 ## 2.10.5 - 2021-06-25
 
 ### Added
