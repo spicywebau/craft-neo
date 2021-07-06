@@ -949,6 +949,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
         if ($this->_getNamespaceDepth() > 1) {
             $html = $this->_getNestingErrorHtml();
+        } else if ($static && empty($value)) {
+            $html = '<p class="light">' . Craft::t('app', 'No blocks.') . '</p>';
         } else {
             $viewService->registerAssetBundle(FieldAsset::class);
             $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $element));
