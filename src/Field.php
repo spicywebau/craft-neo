@@ -428,6 +428,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
+    public function copyValue(ElementInterface $from, ElementInterface $to): void
+    {
+        // Much like Matrix fields, we'll be doing this in afterElementPropagate()
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function modifyElementsQuery(ElementQueryInterface $query, $value)
     {
         if ($value === 'not :empty:') {
@@ -455,6 +463,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function getIsTranslatable(ElementInterface $element = null): bool
     {
         return $this->propagationMethod !== self::PROPAGATION_METHOD_ALL;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStatus(ElementInterface $element): ?array
+    {
+        return $element->isFieldOutdated($this->handle) ? [
+            Element::ATTR_STATUS_OUTDATED,
+            Craft::t('app', 'This field was updated in the Current revision.'),
+        ] : null;
     }
 
     /**
@@ -670,11 +689,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $resetValue = true;
         } else if ($element->isFieldDirty($this->handle) || !empty($element->newSiteIds)) {
             Neo::$plugin->fields->saveValue($this, $element);
-        } else if (
-            ($status = $element->getFieldStatus($this->handle)) !== null &&
-            $status[0] === Element::ATTR_STATUS_OUTDATED
-        ) {
-            Neo::$plugin->fields->duplicateBlocks($this, ElementHelper::sourceElement($element), $element, true);
+        } else if ($element->mergingCanonicalChanges) {
+            Neo::$plugin->fields->mergeCanonicalChanges($this, $element);
             $resetValue = true;
         }
 

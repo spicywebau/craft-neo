@@ -4,6 +4,7 @@
 
 ### Added
 - Added compatibility with provisional drafts in Craft 3.7
+- Added compatibility with canonical/derivative element merging in Craft 3.7
 - Added the ability to copy and paste block types between fields
 
 ### Changed

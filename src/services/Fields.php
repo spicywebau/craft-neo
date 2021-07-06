@@ -344,16 +344,20 @@ class Fields extends Component
             $newBlocksTaskData = [];
             
             foreach ($blocks as $block) {
-                /** @var Block $newBlock */
+                // Temporarily remove the `structureId`, otherwise `updateCanonicalElement()` won't update the correct block
+                $oldStructureId = $block->structureId;
+                $block->structureId = null;
                 $collapsed = $block->getCollapsed();
-                
-                $newBlock = $elementsService->duplicateElement($block, [
+                $elementMethod = $target->updatingFromDerivative && $block->getIsDerivative() ? 'updateCanonicalElement' : 'duplicateElement';
+                $newBlock = $elementsService->$elementMethod($block, [
+                    'canonicalId' => $target->getIsDerivative() ? $block->id : null,
                     'ownerId' => $target->id,
                     'owner' => $target,
                     'siteId' => $target->siteId,
                     'structureId' => null,
                     'propagating' => false,
                 ]);
+                $block->structureId = $oldStructureId;
 
                 // Levels not applying properly when saving drafts, so do it manually
                 $newBlock->level = $block->level;
@@ -415,7 +419,7 @@ class Fields extends Component
                 /** @var Element[] $otherTargets */
                 $otherTargets = $target::find()
                     ->drafts($target->getIsDraft())
-                    ->provisionalDrafts($source->getIsProvisionalDraft())
+                    ->provisionalDrafts($target->getIsProvisionalDraft())
                     ->revisions($target->getIsRevision())
                     ->id($target->id)
                     ->siteId($otherSiteIds)
@@ -446,7 +450,115 @@ class Fields extends Component
             }
         }
     }
-    
+
+    /**
+     * Merges recent canonical Neo block changes into the given Neo field’s blocks.
+     *
+     * @param Field $field The Neo field
+     * @param ElementInterface $owner The element the field is associated with
+     * @return void
+     * @since 2.11.0
+     * @see \craft\services\Matrix::mergeCanonicalChanges()
+     */
+    public function mergeCanonicalChanges(Field $field, ElementInterface $owner): void
+    {
+        $canonicalOwners = $owner::find()
+            ->id($owner->getCanonicalId())
+            ->siteId('*')
+            ->anyStatus()
+            ->ignorePlaceholders()
+            ->all();
+
+        $elementsService = Craft::$app->getElements();
+        $handledSiteIds = [];
+
+        foreach ($canonicalOwners as $canonicalOwner) {
+            if (isset($handledSiteIds[$canonicalOwner->siteId])) {
+                continue;
+            }
+
+            $newBlocks = [];
+            $nextBlockSortOrder = 1;
+            $structureModified = false;
+
+            $canonicalBlocks = Block::find()
+                ->fieldId($field->id)
+                ->ownerId($canonicalOwner->id)
+                ->siteId($canonicalOwner->siteId)
+                ->status(null)
+                ->trashed(null)
+                ->ignorePlaceholders()
+                ->indexBy('id')
+                ->orderBy(['sortOrder' => SORT_ASC])
+                ->all();
+
+            $derivativeBlocks = Block::find()
+                ->fieldId($field->id)
+                ->ownerId($owner->id)
+                ->siteId($canonicalOwner->siteId)
+                ->status(null)
+                ->trashed(null)
+                ->ignorePlaceholders()
+                ->indexBy('canonicalId')
+                ->all();
+
+            foreach ($canonicalBlocks as $canonicalBlock) {
+                $newBlock = null;
+
+                if (isset($derivativeBlocks[$canonicalBlock->id])) {
+                    $derivativeBlock = $derivativeBlocks[$canonicalBlock->id];
+
+                    if ($canonicalBlock->trashed) {
+                        if ($derivativeBlock->dateUpdated == $derivativeBlock->dateCreated) {
+                            $elementsService->deleteElement($derivativeBlock);
+
+                            if (!$owner->getIsProvisionalDraft()) {
+                                $structureModified = true;
+                            }
+                        }
+                    } else if (!$derivativeBlock->trashed) {
+                        if (!$owner->getIsProvisionalDraft() && $derivativeBlock->sortOrder !== $nextBlockSortOrder) {
+                            $derivativeBlock->sortOrder = $nextBlockSortOrder;
+                            $structureModified = true;
+                        }
+
+                        $elementsService->mergeCanonicalChanges($derivativeBlock);
+                        $newBlock = $derivativeBlock;
+                    }
+                } else if (!$canonicalBlock->trashed && $canonicalBlock->dateCreated > $owner->dateCreated) {
+                    $newBlock = $elementsService->duplicateElement($canonicalBlock, [
+                        'canonicalId' => $canonicalBlock->id,
+                        'level' => $canonicalBlock->level,
+                        'ownerId' => $owner->id,
+                        'owner' => $owner,
+                        'propagating' => false,
+                        'siteId' => $canonicalOwner->siteId,
+                        'sortOrder' => $nextBlockSortOrder,
+                    ]);
+
+                    if (!$owner->getIsProvisionalDraft()) {
+                        $structureModified = true;
+                    }
+                }
+
+                if ($newBlock !== null) {
+                    $newBlocks[] = $newBlock;
+                    $nextBlockSortOrder++;
+                }
+            }
+
+            if ($structureModified) {
+                $this->_saveNeoStructuresForSites($field, $owner, $newBlocks, $canonicalOwner->siteId);
+            }
+
+            $siteIds = $this->getSupportedSiteIds($field->propagationMethod, $canonicalOwner);
+
+            foreach ($siteIds as $siteId) {
+                $handledSiteIds[$siteId] = true;
+            }
+        }
+    }
+
     /**
      * Returns the site IDs that are supported by neo blocks for the given neo field and owner element.
      *

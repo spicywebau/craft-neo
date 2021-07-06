@@ -56,6 +56,14 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
+    public static function trackChanges(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function hasContent(): bool
     {
         return true;
@@ -218,6 +226,30 @@ class Block extends Element implements BlockElementInterface
         $rules[] = [['fieldId', 'ownerId', 'typeId'], 'number', 'integerOnly' => true];
 
         return $rules;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCanonical(bool $anySite = false): ElementInterface
+    {
+        // Element::getCanonical() will fail to find a Neo block's canonical block because it sets the structure ID on
+        // the element query, but the canonical block belongs to a different structure, so let's try it without setting
+        // the structure ID
+        $canonical = $this->getIsCanonical() ? null : Block::find()
+            ->id($this->getCanonicalId())
+            ->siteId($anySite ? '*' : $this->siteId)
+            ->preferSites([$this->siteId])
+            ->unique()
+            ->anyStatus()
+            ->ignorePlaceholders()
+            ->one();
+
+        if ($canonical !== null) {
+            $this->setCanonical($canonical);
+        }
+
+        return $canonical ?? $this;
     }
 
     /**

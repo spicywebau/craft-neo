@@ -335,6 +335,10 @@ $preview-reduction: 70px;
                 > .field {
                     margin: 15px 0 0 0;
                 }
+
+                &.flex-fields > .field > .status-badge {
+                    left: -16px;
+                }
             }
         }
 

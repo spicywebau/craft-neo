@@ -390,18 +390,6 @@ class BlockQuery extends ElementQuery
         $this->_normalizeProp('fieldId');
         $this->_normalizeProp('ownerId');
 
-        $fieldId = $this->fieldId !== null && count($this->fieldId) === 1 ? $this->fieldId[0] : $this->fieldId;
-        $ownerId = $this->ownerId !== null && count($this->ownerId) === 1 ? $this->ownerId[0] : $this->ownerId;
-
-        // If no field or owner IDs were set in the query, we don't really care about the structureId
-        if (!$this->structureId && $hadFieldAndOwnerSet && is_numeric($fieldId) && is_numeric($ownerId)) {
-            $blockStructure = Neo::$plugin->blocks->getStructure($fieldId, $ownerId, (int)$this->siteId);
-
-            if ($blockStructure) {
-                $this->structureId = $blockStructure->structureId;
-            }
-        }
-
         $select = [
             'neoblocks.fieldId',
             'neoblocks.ownerId',
@@ -411,19 +399,19 @@ class BlockQuery extends ElementQuery
         if (Neo::$plugin->blockHasSortOrder) {
             $select[] = 'neoblocks.sortOrder';
 
-            if ((!isset($this->select[0]) || $this->select[0] !== 'COUNT(*)') && $this->structureId !== null) {
+            if (!isset($this->select[0]) || $this->select[0] !== 'COUNT(*)') {
                 $this->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
             }
         }
 
         $this->query->select($select);
 
-        if ($fieldId) {
-            $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $fieldId));
+        if ($this->fieldId) {
+            $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $this->fieldId));
         }
 
-        if ($ownerId) {
-            $this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $ownerId));
+        if ($this->ownerId) {
+            $this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $this->ownerId));
         }
 
         if ($this->typeId !== null) {
