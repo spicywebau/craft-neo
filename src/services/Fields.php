@@ -666,16 +666,6 @@ class Fields extends Component
         }
     }
 
-    private function _checkSupportedSitesAndPropagation($field, $supportedSites)
-    {
-        // get the supported sites
-        $supportedSitesCount = count($supportedSites);
-
-        // if more than 1 supported sites and propagation method is not PROPAGATION_METHOD_NONE
-        // then save the neo structures for each site.
-        return $supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE;
-    }
-
     /**
      * Deletes Neo blocks and block structures for a given field, owner and site.
      *
