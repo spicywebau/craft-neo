@@ -31,8 +31,16 @@ use benf\neo\tasks\DuplicateNeoStructureTask;
  */
 class Fields extends Component
 {
+    /**
+     * @var bool
+     * @since 2.7.1.1
+     */
     private $_rebuildIfDeleted = false;
 
+    /**
+     * @var bool[]
+     * @since 2.10.0
+     */
     private $_searchableBlockTypes = [];
 
     /**
@@ -668,6 +676,15 @@ class Fields extends Component
         return $supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE;
     }
 
+    /**
+     * Deletes Neo blocks and block structures for a given field, owner and site.
+     *
+     * @param Field $field
+     * @param ElementInterface $owner
+     * @param int[] $except Block IDs that should be left alone
+     * @param int|null $sId the site ID; if this is null, the owner's site ID will be used
+     * @since 2.4.3
+     */
     private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null)
     {
         $siteId = $sId ?? $owner->siteId;
@@ -695,6 +712,15 @@ class Fields extends Component
         }
     }
 
+    /**
+     * Saves Neo block structures for a given field, owner and site.
+     *
+     * @param Field $field
+     * @param ElementInterface $owner
+     * @param Block[] $blocks Block IDs that should be left alone
+     * @param int|null $sId the site ID; if this is null, the owner's site ID will be used
+     * @since 2.4.3
+     */
     private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null)
     {
         $siteId = $sId ?? $owner->siteId;
@@ -732,6 +758,15 @@ class Fields extends Component
         }
     }
 
+    /**
+     * Checks whether a block should be considered searchable.
+     *
+     * @param Field $field
+     * @param Block $block
+     * @return bool
+     * @throws InvalidArgumentException if $block doesn't belong to $field
+     * @since 2.10.0
+     */
     private function _hasSearchableBlockType(Field $field, Block $block): bool
     {
         if ($block->fieldId !== $field->id) {
