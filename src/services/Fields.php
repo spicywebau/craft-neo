@@ -31,11 +31,10 @@ use benf\neo\tasks\DuplicateNeoStructureTask;
  */
 class Fields extends Component
 {
-    
     private $_rebuildIfDeleted = false;
 
     private $_searchableBlockTypes = [];
-    
+
     /**
      * Performs validation on a Neo field.
      *
@@ -45,28 +44,27 @@ class Fields extends Component
     public function validate(Field $field): bool
     {
         $isValid = true;
-        
         $handles = [];
-        
+
         foreach ($field->getBlockTypes() as $blockType) {
             $isBlockTypeValid = Neo::$plugin->blockTypes->validate($blockType, false);
             $isValid = $isValid && $isBlockTypeValid;
-            
+
             if (isset($handles[$blockType->handle])) {
                 $blockType->addError('handle', Craft::t('neo', "{label} \"{value}\" has already been taken.", [
                     'label' => $blockType->getAttributeLabel('handle'),
                     'value' => Html::encode($blockType->handle),
                 ]));
-                
+
                 $isValid = false;
             } else {
                 $handles[$blockType->handle] = true;
             }
         }
-        
+
         return $isValid;
     }
-    
+
     /**
      * Saves a Neo field's settings.
      *
@@ -78,26 +76,25 @@ class Fields extends Component
     public function save(Field $field, bool $validate = true): bool
     {
         $dbService = Craft::$app->getDb();
-        
         $isValid = !$validate || $this->validate($field);
-        
+
         if ($isValid) {
             $transaction = $dbService->beginTransaction();
             try {
                 // Delete the old block types first, in case there's a handle conflict with one of the new ones
                 $oldBlockTypes = Neo::$plugin->blockTypes->getByFieldId($field->id);
                 $oldBlockTypesById = [];
-                
+
                 foreach ($oldBlockTypes as $blockType) {
                     $oldBlockTypesById[$blockType->id] = $blockType;
                 }
-                
+
                 foreach ($field->getBlockTypes() as $blockType) {
                     if (!$blockType->getIsNew()) {
                         unset($oldBlockTypesById[$blockType->id]);
                     }
                 }
-                
+
                 foreach ($oldBlockTypesById as $blockType) {
                     Neo::$plugin->blockTypes->delete($blockType);
                 }
@@ -125,26 +122,26 @@ class Fields extends Component
                     $blockType->fieldId = $field->id;
                     Neo::$plugin->blockTypes->save($blockType, false);
                 }
-                
+
                 foreach ($field->getGroups() as $blockTypeGroup) {
                     $blockTypeGroup->fieldId = $field->id;
                     Neo::$plugin->blockTypes->saveGroup($blockTypeGroup);
                 }
-                
+
                 $transaction->commit();
-                
+
                 Memoize::$blockTypesByFieldId[$field->id] = $field->getBlockTypes();
                 Memoize::$blockTypeGroupsByFieldId[$field->id] = $field->getGroups();
             } catch (\Throwable $e) {
                 $transaction->rollBack();
-                
+
                 throw $e;
             }
         }
-        
+
         return $isValid;
     }
-    
+
     /**
      * Deletes a Neo field.
      *
@@ -155,37 +152,37 @@ class Fields extends Component
     public function delete(Field $field): bool
     {
         $dbService = Craft::$app->getDb();
-        
+
         $transaction = $dbService->beginTransaction();
         try {
             $blockTypes = Neo::$plugin->blockTypes->getByFieldId($field->id);
-            
+
             // sort block types so the sort order is descending
             // need to reverse to multi level blocks get deleted before the parent
             usort($blockTypes, function ($a, $b) {
                 if ((int)$a->sortOrder === (int)$b->sortOrder) {
                     return 0;
                 }
-                
+
                 return (int)$a->sortOrder > (int)$b->sortOrder ? -1 : 1;
             });
-            
+
             foreach ($blockTypes as $blockType) {
                 Neo::$plugin->blockTypes->delete($blockType);
             }
-            
+
             Neo::$plugin->blockTypes->deleteGroupsByFieldId($field->id);
-            
+
             $transaction->commit();
         } catch (\Throwable $e) {
             $transaction->rollBack();
-            
+
             throw $e;
         }
-        
+
         return true;
     }
-    
+
     /**
      * Saves a Neo field's value for a given element.
      *
@@ -199,23 +196,23 @@ class Fields extends Component
         $dbService = Craft::$app->getDb();
         $elementsService = Craft::$app->getElements();
         $neoSettings = Neo::$plugin->getSettings();
-        
+
         $this->_rebuildIfDeleted = false;
         $query = $owner->getFieldValue($field->handle);
-        
+
         if (($blocks = $query->getCachedResult()) !== null) {
             $saveAll = false;
         } else {
             $blocks = (clone $query)->anyStatus()->all();
             $saveAll = true;
         }
-        
+
         $blockIds = [];
         $sortOrder = 0;
         $structureModified = false;
-        
+
         $transaction = $dbService->beginTransaction();
-        
+
         try {
             foreach ($blocks as $block) {
                 $sortOrder++;
@@ -223,7 +220,7 @@ class Fields extends Component
                     $block->ownerId = (int)$owner->id;
                     $block->sortOrder = $sortOrder;
                     $elementsService->saveElement($block, false, true, $this->_hasSearchableBlockType($field, $block));
-                    
+
                     if (!$neoSettings->collapseAllBlocks) {
                         $block->cacheCollapsed();
                     }
@@ -234,29 +231,29 @@ class Fields extends Component
                         ['sortOrder' => $sortOrder],
                         ['id' => $block->id], [], false)
                         ->execute();
-                    
+
                     $structureModified = true;
                 }
-                
+
                 // check if block level has been changed
                 if ((!$structureModified && $block->level !== (int)$block->oldLevel) || !$block->structureId || !$block->id) {
                     $structureModified = true;
                 }
-                
+
                 $blockIds[] = $block->id;
             }
-            
+
             $this->_deleteOtherBlocks($field, $owner, $blockIds);
-            
+
             // need to check if the blocks is different e.g any deletions so we can rebuild the structure.
             if ($this->_rebuildIfDeleted) {
                 $structureModified = true;
             }
-            
+
             if ($structureModified) {
                 $this->_saveNeoStructuresForSites($field, $owner, $blocks);
             }
-            
+
             if (
                 $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL &&
                 ($owner->propagateAll || !empty($owner->newSiteIds))
@@ -264,11 +261,11 @@ class Fields extends Component
                 $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
                 $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $owner);
                 $otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
-                
+
                 if (!$owner->propagateAll) {
                     $otherSiteIds = array_intersect($otherSiteIds, $owner->newSiteIds);
                 }
-                
+
                 if (!empty($otherSiteIds)) {
                     // Get the original element and duplicated element for each of those sites
                     /** @var Element[] $otherTargets */
@@ -280,15 +277,15 @@ class Fields extends Component
                         ->siteId($otherSiteIds)
                         ->anyStatus()
                         ->all();
-                    
+
                     // Duplicate neo blocks, ensuring we don't process the same blocks more than once
                     $handledSiteIds = [];
-                    
+
                     $cachedQuery = clone $query;
                     $cachedQuery->anyStatus();
                     $cachedQuery->setCachedResult($blocks);
                     $owner->setFieldValue($field->handle, $cachedQuery);
-                    
+
                     foreach ($otherTargets as $otherTarget) {
                         // Make sure we haven't already duplicated blocks for this site, via propagation from another site
                         if (isset($handledSiteIds[$otherTarget->siteId])) {
@@ -302,15 +299,14 @@ class Fields extends Component
                     $owner->setFieldValue($field->handle, $query);
                 }
             }
-            
+
             $transaction->commit();
-            
         } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
     }
-    
+
     /**
      * Duplicates Neo blocks from one owner element to another.
      *
@@ -337,12 +333,12 @@ class Fields extends Component
             $blocks = $blocksQuery->anyStatus()->all();
         }
         $newBlockIds = [];
-        
+
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
             $newBlocks = [];
             $newBlocksTaskData = [];
-            
+
             foreach ($blocks as $block) {
                 // Temporarily remove the `structureId`, otherwise `updateCanonicalElement()` won't update the correct block
                 $oldStructureId = $block->structureId;
@@ -361,10 +357,10 @@ class Fields extends Component
 
                 // Levels not applying properly when saving drafts, so do it manually
                 $newBlock->level = $block->level;
-                
+
                 $newBlock->setCollapsed($collapsed);
                 $newBlock->cacheCollapsed();
-                
+
                 $newBlockIds[] = $newBlock->id;
                 $newBlocksTaskData[] = [
                     'id' => $newBlock->id,
@@ -377,7 +373,7 @@ class Fields extends Component
             }
             // Delete any blocks that shouldn't be there anymore
             $this->_deleteOtherBlocks($field, $target, $newBlockIds);
-            
+
             if ($this->_shouldCreateStructureWithJob($target)) {
                 Craft::$app->queue->push(new DuplicateNeoStructureTask([
                     'field' => $field->id,
@@ -392,7 +388,7 @@ class Fields extends Component
             } else {
                 $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
             }
-            
+
             $transaction->commit();
         } catch (\Throwable $e) {
             $transaction->rollBack();
@@ -404,7 +400,7 @@ class Fields extends Component
             $targetSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($target), 'siteId');
             $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $target);
             $otherSiteIds = array_diff($targetSiteIds, $fieldSiteIds);
-            
+
             if (!empty($otherSiteIds)) {
                 // Get the original element and duplicated element for each of those sites
                 /** @var Element[] $otherSources */
@@ -426,23 +422,23 @@ class Fields extends Component
                     ->anyStatus()
                     ->indexBy('siteId')
                     ->all();
-                
+
                 // Duplicate neo blocks, ensuring we don't process the same blocks more than once
                 $handledSiteIds = [];
-                
+
                 foreach ($otherSources as $otherSource) {
                     // Make sure the target actually exists for this site
                     if (!isset($otherTargets[$otherSource->siteId])) {
                         continue;
                     }
-                    
+
                     // Make sure we haven't already duplicated blocks for this site, via propagation from another site
                     if (in_array($otherSource->siteId, $handledSiteIds, false)) {
                         continue;
                     }
-                    
+
                     $this->duplicateBlocks($field, $otherSource, $otherTargets[$otherSource->siteId]);
-                    
+
                     // Make sure we don't duplicate blocks for any of the sites that were just propagated to
                     $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherSource);
                     $handledSiteIds = array_merge($handledSiteIds, $sourceSupportedSiteIds);
@@ -572,7 +568,7 @@ class Fields extends Component
     {
         return $this->getSupportedSiteIds($field->propagationMethod, $owner);
     }
-    
+
     /**
      * Returns the site IDs that are supported by neo blocks for the given propagation method and owner element.
      *
@@ -589,7 +585,7 @@ class Fields extends Component
         $allSites = ArrayHelper::index(Craft::$app->getSites()->getAllSites(), 'id');
         $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
         $siteIds = [];
-        
+
         foreach ($ownerSiteIds as $siteId) {
             switch ($propagationMethod) {
                 case Field::PROPAGATION_METHOD_NONE:
@@ -605,42 +601,41 @@ class Fields extends Component
                     $include = true;
                     break;
             }
-            
+
             if ($include) {
                 $siteIds[] = $siteId;
             }
         }
-        
+
         return $siteIds;
     }
-    
+
     public function getSupportedSiteIdsExCurrent($field, $owner)
     {
         // we need to setup the structure for the other supported sites too.
         // must be immediate to show changes on the front end.
         $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner);
-        
+
         // remove the current
         if (($key = array_search($owner->siteId, $supported)) !== false) {
             array_splice($supported, $key, 1);
         }
-        
+
         return $supported;
     }
-    
+
     // Private Methods
     // =========================================================================
     private function _shouldCreateStructureWithJob($target): bool
     {
         // if target is not a draft or revision
         $duplicate = $target->duplicateOf;
-        
+
         // return true if creating a revision
         return $duplicate && $duplicate->draftId === null &&
             $duplicate->revisionId === null && $target->revisionId;
     }
-    
-    
+
     /**
      * Deletes blocks from an owner element
      *
@@ -662,21 +657,21 @@ class Fields extends Component
             $this->_deleteNeoBlocksAndStructures($field, $owner, $except);
         }
     }
-    
+
     private function _checkSupportedSitesAndPropagation($field, $supportedSites)
     {
         // get the supported sites
         $supportedSitesCount = count($supportedSites);
-        
+
         // if more than 1 supported sites and propagation method is not PROPAGATION_METHOD_NONE
         // then save the neo structures for each site.
         return $supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE;
     }
-    
+
     private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null)
     {
         $siteId = $sId ?? $owner->siteId;
-        
+
         /** @var Element $owner */
         $deleteBlocks = Block::find()
             ->anyStatus()
@@ -686,52 +681,52 @@ class Fields extends Component
             ->inReverse()
             ->andWhere(['not', ['elements.id' => $except]])
             ->all();
-        
+
         $elementsService = Craft::$app->getElements();
-        
+
         foreach ($deleteBlocks as $deleteBlock) {
             $deleteBlock->forgetCollapsed();
             $elementsService->deleteElement($deleteBlock);
         }
-        
+
         // if there are blocks to delete then we need to rebuild the structure.
         if (count($deleteBlocks) >= 1) {
             $this->_rebuildIfDeleted = true;
         }
     }
-    
+
     private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null)
     {
         $siteId = $sId ?? $owner->siteId;
-        
+
         // Delete any existing block structures associated with this field/owner/site combination
         while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null) {
             Neo::$plugin->blocks->deleteStructure($blockStructure);
         }
-        
+
         $blockStructure = new BlockStructure();
         $blockStructure->fieldId = (int)$field->id;
         $blockStructure->ownerId = (int)$owner->id;
         $blockStructure->ownerSiteId = (int)$siteId;
-        
+
         Neo::$plugin->blocks->saveStructure($blockStructure);
         Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
-        
+
         // if multi site then save the structure for it. since it's all the same then we can use the same structure.
         $supported = $this->getSupportedSiteIdsExCurrent($field, $owner);
         $supportedCount = count($supported);
-        
+
         if ($supportedCount > 0) {
             // if has more than 3 sites then use a job instead to lighten the load.
             foreach ($supported as $s) {
                 while (($mBlockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $s)) !== null) {
                     Neo::$plugin->blocks->deleteStructure($mBlockStructure);
                 }
-                
+
                 $multiBlockStructure = $blockStructure;
                 $multiBlockStructure->id = null;
                 $multiBlockStructure->ownerSiteId = $s;
-                
+
                 Neo::$plugin->blocks->saveStructure($multiBlockStructure);
             }
         }
