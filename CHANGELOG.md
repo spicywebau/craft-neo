@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.0-beta.1 - 2021-07-08
 
 ### Added
 - Added compatibility with provisional drafts in Craft 3.7
