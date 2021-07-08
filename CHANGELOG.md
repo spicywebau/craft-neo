@@ -13,6 +13,11 @@
 ### Deprecated
 - Deprecated Neo blocks' `getModified()` and `setModified()` methods
 
+## 2.10.7 - 2021-07-08
+
+### Fixed
+- Fixed a bug when cloning or pasting a Neo block that uses the child blocks UI element, where two child block containers would appear
+
 ## 2.10.6 - 2021-07-06
 
 ### Fixed
