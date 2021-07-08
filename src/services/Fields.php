@@ -279,7 +279,7 @@ class Fields extends Component
                     /** @var Element[] $otherTargets */
                     $otherTargets = $owner::find()
                         ->drafts($owner->getIsDraft())
-                        ->provisionalDrafts($owner->getIsProvisionalDraft())
+                        ->provisionalDrafts($owner->isProvisionalDraft)
                         ->revisions($owner->getIsRevision())
                         ->id($owner->id)
                         ->siteId($otherSiteIds)
@@ -414,7 +414,7 @@ class Fields extends Component
                 /** @var Element[] $otherSources */
                 $otherSources = $target::find()
                     ->drafts($source->getIsDraft())
-                    ->provisionalDrafts($source->getIsProvisionalDraft())
+                    ->provisionalDrafts($source->isProvisionalDraft)
                     ->revisions($source->getIsRevision())
                     ->id($source->id)
                     ->siteId($otherSiteIds)
@@ -423,7 +423,7 @@ class Fields extends Component
                 /** @var Element[] $otherTargets */
                 $otherTargets = $target::find()
                     ->drafts($target->getIsDraft())
-                    ->provisionalDrafts($target->getIsProvisionalDraft())
+                    ->provisionalDrafts($target->isProvisionalDraft)
                     ->revisions($target->getIsRevision())
                     ->id($target->id)
                     ->siteId($otherSiteIds)
@@ -516,12 +516,12 @@ class Fields extends Component
                         if ($derivativeBlock->dateUpdated == $derivativeBlock->dateCreated) {
                             $elementsService->deleteElement($derivativeBlock);
 
-                            if (!$owner->getIsProvisionalDraft()) {
+                            if (!$owner->isProvisionalDraft) {
                                 $structureModified = true;
                             }
                         }
                     } else if (!$derivativeBlock->trashed) {
-                        if (!$owner->getIsProvisionalDraft() && $derivativeBlock->sortOrder !== $nextBlockSortOrder) {
+                        if (!$owner->isProvisionalDraft && $derivativeBlock->sortOrder !== $nextBlockSortOrder) {
                             $derivativeBlock->sortOrder = $nextBlockSortOrder;
                             $structureModified = true;
                         }
@@ -540,7 +540,7 @@ class Fields extends Component
                         'sortOrder' => $nextBlockSortOrder,
                     ]);
 
-                    if (!$owner->getIsProvisionalDraft()) {
+                    if (!$owner->isProvisionalDraft) {
                         $structureModified = true;
                     }
                 }
