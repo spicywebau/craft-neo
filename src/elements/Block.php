@@ -320,7 +320,8 @@ class Block extends Element implements BlockElementInterface
      */
     public function getOwner(): ElementInterface
     {
-        if ($this->_owner === null) {
+        // Sometimes the owner has a different site ID...
+        if ($this->_owner === null || $this->_owner->siteId !== $this->siteId) {
             if ($this->ownerId === null) {
                 throw new InvalidConfigException('Neo block is missing its owner ID');
             }
