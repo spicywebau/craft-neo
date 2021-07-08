@@ -78,5 +78,9 @@ export default Garnish.Base.extend({
 
   isValidChildBlock (block) {
     return this.hasChildBlock(block.getBlockType().getHandle())
+  },
+
+  hasChildBlocksUiElement () {
+    return this.getTabs().some(tab => tab.getBodyHtml().match(/data-neo-b="container.children"/))
   }
 })

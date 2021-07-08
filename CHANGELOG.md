@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when cloning or pasting a Neo block that uses the child blocks UI element, where two child block containers would appear
+
 ## 2.10.6 - 2021-07-06
 
 ### Fixed

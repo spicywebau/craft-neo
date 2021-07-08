@@ -710,7 +710,8 @@ export default Garnish.Base.extend({
             buttons: newButtons,
             enabled: !!renderedBlock.enabled,
             collapsed: !!renderedBlock.collapsed,
-            showButtons: !this.atMaxLevels(renderedBlock.level | 0)
+            showButtons: !this.atMaxLevels(renderedBlock.level | 0),
+            renderOldChildBlocksContainer: !newBlockType.hasChildBlocksUiElement()
           })
 
           newBlocks.push(newBlock)
@@ -758,7 +759,7 @@ export default Garnish.Base.extend({
         maxBlocks: this.getMaxBlocks()
       }),
       showButtons: !this.atMaxLevels(e.level),
-      renderOldChildBlocksContainer: !e.blockType.getTabs().some(tab => tab.getBodyHtml(blockId).match(/data-neo-b="container.children"/))
+      renderOldChildBlocksContainer: !e.blockType.hasChildBlocksUiElement()
     })
 
     this.addBlock(block, e.index, e.level)
