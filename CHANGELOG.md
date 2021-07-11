@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Neo now requires Craft 3.7.0 beta 6 or later
+
 ### Fixed
 - Fixed a bug where drafts wouldn't autosave after deleting, cloning or pasting Neo blocks, or when collapsing or expanding blocks by double-clicking the top bar
 
