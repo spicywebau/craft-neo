@@ -269,6 +269,10 @@ export default Garnish.Base.extend({
   },
 
   removeBlock (block, animate = null, _delayAnimate = null) {
+    if (window.draftEditor) {
+      window.draftEditor.pause()
+    }
+
     animate = (typeof animate === 'boolean' ? animate : true)
     _delayAnimate = (typeof _delayAnimate === 'boolean' ? _delayAnimate : false)
 
@@ -286,6 +290,15 @@ export default Garnish.Base.extend({
     this._destroyTempButtons()
     this._updateButtons()
 
+    const finishTheRemoval = () => {
+      block.$container.remove()
+      this._updateBlockChildren()
+
+      if (window.draftEditor) {
+        window.draftEditor.resume()
+      }
+    }
+
     if (animate) {
       block.$container
         .css({
@@ -295,15 +308,9 @@ export default Garnish.Base.extend({
         .velocity({
           opacity: 0,
           marginBottom: _delayAnimate ? 10 : -(block.$container.outerHeight())
-        }, 'fast', e => {
-          block.$container.remove()
-
-          this._updateBlockChildren()
-        })
+        }, 'fast', _ => finishTheRemoval())
     } else {
-      block.$container.remove()
-
-      this._updateBlockChildren()
+      finishTheRemoval()
     }
 
     block.destroy()
@@ -653,6 +660,10 @@ export default Garnish.Base.extend({
   },
 
   _duplicate (data, block) {
+    if (window.draftEditor) {
+      window.draftEditor.pause()
+    }
+
     const $spinner = $('<div class="ni_spinner"><div class="spinner"></div></div>')
 
     block.$container.after($spinner)
@@ -736,6 +747,10 @@ export default Garnish.Base.extend({
             }, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
 
           $spinner.remove()
+
+          if (window.draftEditor) {
+            window.draftEditor.resume()
+          }
         }
 
         if (spinnerComplete) {

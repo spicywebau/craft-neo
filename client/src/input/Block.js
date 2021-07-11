@@ -991,7 +991,15 @@ export default Garnish.Base.extend({
     const isRight = ($checkFrom.closest(this.$topbarRightContainer).length > 0)
 
     if (!isLeft && !isRight) {
+      if (window.draftEditor) {
+        window.draftEditor.pause()
+      }
+
       this.toggleExpansion()
+
+      if (window.draftEditor) {
+        window.draftEditor.resume()
+      }
     }
   },
 

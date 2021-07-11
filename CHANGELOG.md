@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where drafts wouldn't autosave after deleting, cloning or pasting Neo blocks, or when collapsing or expanding blocks by double-clicking the top bar
+
 ## 2.11.0-beta.1 - 2021-07-08
 
 ### Added
