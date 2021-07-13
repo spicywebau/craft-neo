@@ -1,14 +1,6 @@
 # Changelog
 
-## 2.11.0-beta.2 - 2021-07-11
-
-### Changed
-- Neo now requires Craft 3.7.0 beta 6 or later
-
-### Fixed
-- Fixed a bug where drafts wouldn't autosave after deleting, cloning or pasting Neo blocks, or when collapsing or expanding blocks by double-clicking the top bar
-
-## 2.11.0-beta.1 - 2021-07-08
+## 2.11.0 - 2021-07-13
 
 ### Added
 - Added compatibility with provisional drafts in Craft 3.7
@@ -16,10 +8,13 @@
 - Added the ability to copy and paste block types between fields
 
 ### Changed
-- Neo now requires Craft 3.7.0 beta 5 or later
+- Neo now requires Craft 3.7.0-beta.6 or later
 
 ### Deprecated
 - Deprecated Neo blocks' `getModified()` and `setModified()` methods
+
+### Fixed
+- Fixed a bug where drafts wouldn't autosave after deleting, cloning or pasting Neo blocks, or when collapsing or expanding blocks by double-clicking the top bar
 
 ## 2.10.7 - 2021-07-08
 
