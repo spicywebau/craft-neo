@@ -805,7 +805,7 @@ export default Garnish.Base.extend({
     this._tempButtons = buttons
     this._tempButtonsBlock = this._findParentBlock(block)
 
-    this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
+    this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock), this._tempButtonsBlock)
   },
 
   '@copyBlock' (e) {
