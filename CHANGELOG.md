@@ -21,6 +21,11 @@
 ### Fixed
 - Fixed a bug where drafts wouldn't autosave after deleting, cloning or pasting Neo blocks, or when collapsing or expanding blocks by double-clicking the top bar
 
+## 2.10.8 - 2021-07-14
+
+### Fixed
+- Fixed a bug where, when using the 'Add block above' action on a child block, new block buttons for block types that had reached their 'Max Sibling Blocks of This Type' limit were not being disabled
+
 ## 2.10.7 - 2021-07-08
 
 ### Fixed
