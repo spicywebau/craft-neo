@@ -5,6 +5,9 @@
 ### Changed
 - Neo now requires Craft 3.7.0 or later
 
+### Fixed
+- Fixed a bug where Neo field data could be lost when saving an entry, if a new Neo block had been created, and the entry was saved before the provisional draft could autosave after a content change
+
 ## 2.11.0 - 2021-07-13
 
 ### Added

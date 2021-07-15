@@ -699,6 +699,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $query = $element->getFieldValue($this->handle);
             $this->_populateQuery($query, $element);
             $query->clearCachedResult();
+            $query->useMemoized(false);
         }
 
         parent::afterElementPropagate($element, $isNew);
