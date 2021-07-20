@@ -325,6 +325,10 @@ export default Garnish.Base.extend({
       return
     }
 
+    if (window.draftEditor) {
+      window.draftEditor.pause()
+    }
+
     const siblings = block.getSiblings(this.getBlocks())
     const index = siblings.indexOf(block)
     const moveUp = index > 0 && direction === 'up'
@@ -337,6 +341,25 @@ export default Garnish.Base.extend({
     const animateMove = (typeof animate === 'boolean' ? animate : true)
     const $block = block.$container
 
+    const startTheMove = () => {
+      $block.detach()
+
+      if (moveUp) {
+        siblings[index - 1].$container.before($block)
+      } else {
+        siblings[index + 1].$container.after($block)
+      }
+    }
+
+    const finishTheMove = () => {
+      this._updateBlockOrder()
+      this._updateButtons()
+
+      if (window.draftEditor) {
+        window.draftEditor.resume()
+      }
+    }
+
     if (animateMove) {
       $block
         .css({
@@ -347,13 +370,7 @@ export default Garnish.Base.extend({
           opacity: 0,
           marginBottom: -($block.outerHeight())
         }, 'fast', _ => {
-          $block.detach()
-
-          if (moveUp) {
-            siblings[index - 1].$container.before($block)
-          } else {
-            siblings[index + 1].$container.after($block)
-          }
+          startTheMove()
 
           $block
             .css({
@@ -364,22 +381,13 @@ export default Garnish.Base.extend({
               opacity: 1,
               marginBottom: 10
             }, 'fast', _ => {
-              this._updateBlockOrder()
-              this._updateButtons()
+              finishTheMove()
               Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement($block))
             })
         })
     } else {
-      $block.detach()
-
-      if (moveUp) {
-        siblings[index - 1].$container.before($block)
-      } else {
-        siblings[index + 1].$container.after($block)
-      }
-
-      this._updateBlockOrder()
-      this._updateButtons()
+      startTheMove()
+      finishTheMove()
     }
   },
 
