@@ -719,7 +719,9 @@ class Block extends Element implements BlockElementInterface
             return $this->_liveQueries['descendants'];
         }
 
-        return parent::getDescendants($dist);
+        $descendants = parent::getDescendants($dist);
+
+        return is_array($descendants) ? $descendants : $descendants->descendantOf($this);
     }
 
     /**
@@ -746,7 +748,9 @@ class Block extends Element implements BlockElementInterface
             return $this->_liveQueries['children'];
         }
 
-        return parent::getChildren();
+        $children = parent::getChildren();
+
+        return is_array($children) ? $children : $children->descendantOf($this);
     }
 
     /**

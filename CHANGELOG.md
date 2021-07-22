@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug where block children/descendant queries weren't working on draft/revision previews
 - Fixed a bug where drafts wouldn't autosave after using the 'move up' or 'move down' Neo block actions
 
 ## 2.11.1 - 2021-07-15
