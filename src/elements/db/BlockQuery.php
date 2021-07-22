@@ -73,8 +73,6 @@ class BlockQuery extends ElementQuery
      */
     private $_useMemoized = false;
 
-    private $blockLevel = null;
-
     private static $ownersById = [];
 
     // Public methods
