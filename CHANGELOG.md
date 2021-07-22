@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.2 - 2021-07-22
 
 ### Fixed
 - Fixed a bug where block children/descendant queries weren't working on draft/revision previews
