@@ -719,6 +719,10 @@ class Block extends Element implements BlockElementInterface
             return $this->_liveQueries['descendants'];
         }
 
+        // As of Craft 3.7, `Element::getDescendants()` looks for descendants of the canonical element. If this Neo
+        // block belongs to an entry draft or revision, its canonical block on the live entry belongs to a different
+        // block structure, so the query would return no results. We need to ensure we do look for descendants of *this*
+        // block so we get the child blocks.
         $descendants = parent::getDescendants($dist);
 
         return is_array($descendants) ? $descendants : $descendants->descendantOf($this);
@@ -748,6 +752,10 @@ class Block extends Element implements BlockElementInterface
             return $this->_liveQueries['children'];
         }
 
+        // As of Craft 3.7, `Element::getChildren()` looks for descendants of the canonical element. If this Neo block
+        // belongs to an entry draft or revision, its canonical block on the live entry belongs to a different block
+        // structure, so the query would return no results. We need to ensure we do look for descendants of *this* block
+        // so we get the child blocks.
         $children = parent::getChildren();
 
         return is_array($children) ? $children : $children->descendantOf($this);
