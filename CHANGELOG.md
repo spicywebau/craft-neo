@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Fixed a bug where new draft blocks could be lost in some cases when merging updated entry content into drafts
+- Fixed a bug where Neo sub-fields' status indicators were not positioned correctly
 
 ## 2.11.2 - 2021-07-22
 
