@@ -14,6 +14,7 @@ use craft\fields\BaseRelationField;
 use craft\helpers\Html;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
+use craft\services\Structures;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\Field;
@@ -474,6 +475,7 @@ class Fields extends Component
             ->all();
 
         $elementsService = Craft::$app->getElements();
+        $structuresService = Craft::$app->getStructures();
         $handledSiteIds = [];
 
         foreach ($canonicalOwners as $canonicalOwner) {
@@ -483,7 +485,6 @@ class Fields extends Component
 
             $newBlocks = [];
             $nextBlockSortOrder = 1;
-            $structureModified = false;
 
             $canonicalBlocks = Block::find()
                 ->fieldId($field->id)
@@ -506,8 +507,19 @@ class Fields extends Component
                 ->indexBy('canonicalId')
                 ->all();
 
+            $derivativeStructureId = (new Query())
+                ->select(['structureId'])
+                ->from(['{{%neoblockstructures}}'])
+                ->where([
+                    'fieldId' => $field->id,
+                    'ownerId' => $owner->id,
+                    'ownerSiteId' => $canonicalOwner->siteId,
+                ])
+                ->scalar();
+
             foreach ($canonicalBlocks as $canonicalBlock) {
                 $newBlock = null;
+                $structureMode = null;
 
                 if (isset($derivativeBlocks[$canonicalBlock->id])) {
                     $derivativeBlock = $derivativeBlocks[$canonicalBlock->id];
@@ -515,15 +527,11 @@ class Fields extends Component
                     if ($canonicalBlock->trashed) {
                         if ($derivativeBlock->dateUpdated == $derivativeBlock->dateCreated) {
                             $elementsService->deleteElement($derivativeBlock);
-
-                            if (!$owner->isProvisionalDraft) {
-                                $structureModified = true;
-                            }
                         }
                     } else if (!$derivativeBlock->trashed) {
-                        if (!$owner->isProvisionalDraft && $derivativeBlock->sortOrder !== $nextBlockSortOrder) {
+                        if (!$owner->isProvisionalDraft && $derivativeBlock->sortOrder != $nextBlockSortOrder) {
                             $derivativeBlock->sortOrder = $nextBlockSortOrder;
-                            $structureModified = true;
+                            $structureMode = Structures::MODE_AUTO;
                         }
 
                         $elementsService->mergeCanonicalChanges($derivativeBlock);
@@ -537,11 +545,33 @@ class Fields extends Component
                         'owner' => $owner,
                         'propagating' => false,
                         'siteId' => $canonicalOwner->siteId,
-                        'sortOrder' => $nextBlockSortOrder,
+                        'structureId' => null,
                     ]);
+                    $structureMode = Structures::MODE_INSERT;
+                }
 
-                    if (!$owner->isProvisionalDraft) {
-                        $structureModified = true;
+                if ($derivativeStructureId && $structureMode !== null) {
+                    if (!empty($newBlocks)) {
+                        $prevBlock = $newBlocks[count($newBlocks) - 1];
+
+                        // If $prevBlock->level is lower, $newBlock is a child block and we need to append
+                        $method = $prevBlock->level < $newBlock->level ? 'append' : 'moveAfter';
+
+                        // If $prevBlock->level is higher, then $newBlock is a sibling of one of $prevBlock's ancestors,
+                        // so we'll need to move $newBlock after that ancestor
+                        if ($prevBlock->level > $newBlock->level) {
+                            for ($i = count($newBlocks) - 2; $i >= 0; $i--) {
+                                if ($newBlocks[$i]->level == $newBlock->level) {
+                                    $prevBlock = $newBlocks[$i];
+                                    break;
+                                }
+                            }
+                        }
+
+                        $structuresService->$method($derivativeStructureId, $newBlock, $prevBlock, $structureMode);
+                    } else {
+                        // Put it at the top
+                        $structuresService->prependToRoot($derivativeStructureId, $newBlock, $structureMode);
                     }
                 }
 
@@ -551,7 +581,8 @@ class Fields extends Component
                 }
             }
 
-            if ($structureModified) {
+            if (!$derivativeStructureId && !empty($newBlocks)) {
+                // No derivative structure exists, and these blocks have to go somewhere, so create one
                 $this->_saveNeoStructuresForSites($field, $owner, $newBlocks, $canonicalOwner->siteId);
             }
 

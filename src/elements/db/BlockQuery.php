@@ -61,6 +61,13 @@ class BlockQuery extends ElementQuery
      */
     public $allowOwnerRevisions;
 
+    // Protected properties
+
+    /**
+     * @inheritdoc
+     */
+    protected $defaultOrderBy = ['neoblocks.sortOrder' => SORT_ASC];
+
     // Private properties
 
     /**
@@ -371,7 +378,6 @@ class BlockQuery extends ElementQuery
     {
         $this->joinElementTable('neoblocks');
         $isSaved = $this->id && is_numeric($this->id);
-        $hadFieldAndOwnerSet = $this->fieldId && $this->ownerId;
 
         if ($isSaved) {
             foreach (['fieldId', 'ownerId'] as $idProperty) {
@@ -388,21 +394,15 @@ class BlockQuery extends ElementQuery
         $this->_normalizeProp('fieldId');
         $this->_normalizeProp('ownerId');
 
-        $select = [
+        $this->query->select([
             'neoblocks.fieldId',
             'neoblocks.ownerId',
             'neoblocks.typeId'
-        ];
+        ]);
 
         if (Neo::$plugin->blockHasSortOrder) {
-            $select[] = 'neoblocks.sortOrder';
-
-            if (!isset($this->select[0]) || $this->select[0] !== 'COUNT(*)') {
-                $this->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
-            }
+            $this->query->addSelect(['neoblocks.sortOrder']);
         }
-
-        $this->query->select($select);
 
         if ($this->fieldId) {
             $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $this->fieldId));

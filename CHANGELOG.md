@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Fixed a bug where new draft blocks could be lost in some cases when merging updated entry content into drafts
+
 ## 2.11.2 - 2021-07-22
 
 ### Fixed
