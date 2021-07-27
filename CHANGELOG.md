@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.11.3 - 2021-07-27
+
+### Fixed
 - Fixed a bug where new draft blocks could be lost in some cases when merging updated entry content into drafts
 - Fixed a bug where a revision could lose blocks when reverting the entry to that revision
 - Fixed a bug where Neo sub-fields' status indicators were not positioned correctly
