@@ -145,7 +145,6 @@ class Blocks extends Component
      * @param int $fieldId The field ID to look for.
      * @param int $ownerId The owner ID to look for.
      * @return BlockStructure|null The block structure found, if any.
-     * @deprecated since 2.7.0
      */
     public function getStructure(int $fieldId, int $ownerId, int $siteId = null)
     {
@@ -172,7 +171,6 @@ class Blocks extends Component
      *
      * @param int $id The block structure ID to look for.
      * @return BlockStructure|null The block structure found, if any.
-     * @deprecated since 2.7.0
      */
     public function getStructureById(int $id)
     {
@@ -194,7 +192,6 @@ class Blocks extends Component
      *
      * @param BlockStructure $blockStructure The block structure to save.
      * @throws \Throwable
-     * @deprecated since 2.7.0
      */
     public function saveStructure(BlockStructure $blockStructure)
     {
@@ -287,7 +284,6 @@ class Blocks extends Component
      * @param BlockStructure $blockStructure The Neo block structure.
      * @return bool Whether building the block structure was successful.
      * @throws \Throwable
-     * @deprecated since 2.7.0
      */
     public function buildStructure(array $blocks, BlockStructure $blockStructure): bool
     {
