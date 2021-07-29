@@ -307,11 +307,11 @@ class Blocks extends Component
                         array_pop($parentStack);
                     }
 
-                    // If there are no blocks in our stack, it must be a root level block
                     if (empty($parentStack)) {
+                        // If there are no blocks in our stack, it must be a root level block
                         $structuresService->appendToRoot($structure->id, $block);
-                    } // Otherwise, the block at the top of the stack will be the parent
-                    else {
+                    } else {
+                        // Otherwise, the block at the top of the stack will be the parent
                         $parentBlock = $parentStack[count($parentStack) - 1];
                         $structuresService->append($structure->id, $block, $parentBlock);
                     }
