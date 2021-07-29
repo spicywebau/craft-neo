@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where changing the sort order of Neo blocks without otherwise modifying the Neo field's block structure would cause the new sort order not to be saved
+
 ## 2.11.3 - 2021-07-27
 
 ### Fixed

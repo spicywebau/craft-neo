@@ -226,6 +226,11 @@ class Fields extends Component
             foreach ($blocks as $block) {
                 $sortOrder++;
                 if ($saveAll || !$block->id || $block->dirty) {
+                    // Check if the sortOrder has changed and we need to resave the block structure
+                    if ((int)$block->sortOrder !== $sortOrder) {
+                        $structureModified = true;
+                    }
+
                     $block->ownerId = (int)$owner->id;
                     $block->sortOrder = $sortOrder;
                     $elementsService->saveElement($block, false, true, $this->_hasSearchableBlockType($field, $block));
