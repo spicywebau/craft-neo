@@ -237,7 +237,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 
                 // Allow the `fieldLayoutId` to be set in the blockType settings
                 if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
-                    if ($fieldLayout = Craft::$app->getFields()->getLayoutById($fieldLayoutId)) {
+                    if ($fieldLayout = $fieldsService->getLayoutById($fieldLayoutId)) {
                         $newBlockType->setFieldLayout($fieldLayout);
                         $newBlockType->fieldLayoutId = $fieldLayout->id;
                     }
