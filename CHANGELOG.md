@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.11.5 - 2021-08-04
+
+### Fixed
+- Fixed a compatibility issue with Field Manager (thanks @engram-design)
+
 ## 2.11.4 - 2021-07-29
 
 ### Fixed
