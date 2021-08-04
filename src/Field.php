@@ -234,6 +234,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
                 $newBlockType->childBlocks = $blockType['childBlocks'];
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
+                
+                // Allow the `fieldLayoutId` to be set in the blockType settings
+                if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
+                    if ($fieldLayout = Craft::$app->getFields()->getLayoutById($fieldLayoutId)) {
+                        $newBlockType->setFieldLayout($fieldLayout);
+                        $newBlockType->fieldLayoutId = $fieldLayout->id;
+                    }
+                }
 
                 if (!empty($blockType['elementPlacements'])) {
                     $fieldLayout = $fieldsService->assembleLayoutFromPost('types.' . self::class . ".blockTypes.{$blockTypeId}");
