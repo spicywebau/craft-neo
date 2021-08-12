@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.6.1 - 2021-08-12
 
 ### Fixed
 - Fixed an error with the Neo 2.11.6 migration on PHP 7.x
