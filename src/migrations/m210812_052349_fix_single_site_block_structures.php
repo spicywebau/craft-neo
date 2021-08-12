@@ -45,7 +45,7 @@ class m210812_052349_fix_single_site_block_structures extends Migration
                     '[[d.fieldId]] = [[k.fieldId]]',
                     '[[d.ownerId]] = [[k.ownerId]]',
                     '[[d.id]] <> [[k.id]]',
-                ],
+                ]
             )
             ->where(['[[d.ownerSiteId]]' => null])
             ->all();

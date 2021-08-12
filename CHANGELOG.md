@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error with the Neo 2.11.6 migration on PHP 7.x
+
 ## 2.11.6 - 2021-08-12
 
 > {warning} This release includes a migration to delete old Neo block structure data on single-site Craft installs that could cause duplicate blocks to appear when eager loading or using GraphQL. If your Craft install is single-site, make sure to backup your database before updating Neo.
