@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+> {warning} This release includes a migration to delete old Neo block structure data on single-site Craft installs that could cause duplicate blocks to appear when eager loading or using GraphQL. If your Craft install is single-site, make sure to backup your database before updating Neo.
+
+### Fixed
+- Fixed an issue affecting single-site Craft installs, where two Neo block structures could exist for a given field/owner, causing duplicate blocks to appear when eager loading or using GraphQL
+
 ## 2.11.5 - 2021-08-04
 
 ### Fixed
