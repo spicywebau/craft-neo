@@ -619,6 +619,17 @@ export default Garnish.Base.extend({
             value = _escapeHTML(values.join(', '))
           }
           break
+        case 'luwes\\codemirror\\fields\\CodeMirrorField':
+        {
+          const lines = []
+
+          $field.find('.CodeMirror-line > span').each(function () {
+            lines.push($(this).text())
+          })
+
+          value = _escapeHTML(lines.join(' '))
+          break
+        }
         case 'rias\\positionfieldtype\\fields\\Position':
         {
           const $selected = $input.find('.btn.active')
