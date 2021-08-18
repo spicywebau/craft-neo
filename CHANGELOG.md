@@ -4,6 +4,7 @@
 
 ### Added
 - Collapsed block previews can now display CodeMirror field content
+- Collapsed block previews can now display oEmbed field input content
 
 ## 2.11.6.1 - 2021-08-12
 

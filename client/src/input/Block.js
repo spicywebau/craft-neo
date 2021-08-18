@@ -635,7 +635,10 @@ export default Garnish.Base.extend({
           const $selected = $input.find('.btn.active')
 
           value = _escapeHTML($selected.prop('title'))
+          break
         }
+        case 'wrav\\oembed\\fields\\OembedField':
+          value = _escapeHTML(_limit($input.children('input').val()))
       }
 
       if (value && previewText.length < 10) {
