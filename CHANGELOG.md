@@ -6,6 +6,12 @@
 - Collapsed block previews can now display CodeMirror field content
 - Collapsed block previews can now display oEmbed field input content
 
+### Changed
+- Changed the "Move Up" and "Move Down" Neo block action button text to "Move up" and "Move down"
+
+### Fixed
+- Fixed a bug where the "Move up" and "Move down" Neo block action button text couldn't be translated
+
 ## 2.11.6.1 - 2021-08-12
 
 ### Fixed

@@ -67,6 +67,8 @@ class FieldAsset extends AssetBundle
             'Delete',
             'Reorder',
             'Add a block',
+            'Move up',
+            'Move down',
             'Name',
             'What this block type will be called in the CP.',
             'Handle',

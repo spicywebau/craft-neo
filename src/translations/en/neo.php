@@ -15,6 +15,8 @@ return [
     'Delete' => 'Delete',
     'Reorder' => 'Reorder',
     'Add a block' => 'Add a block',
+    'Move up' => 'Move up',
+    'Move down' => 'Move down',
     'Name' => 'Name',
     'What this block type will be called in the CP.' => 'What this block type will be called in the CP.',
     'Handle' => 'Handle',
