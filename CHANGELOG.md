@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.7 - 2021-08-20
 
 ### Added
 - Collapsed block previews can now display CodeMirror field content
