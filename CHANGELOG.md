@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a CSS issue with Neo fields in element editor slideouts, where unselected Neo block tab content would still be displayed along with the selected tab's content
+
 ## 2.11.13 - 2021-09-15
 
 ### Changed
