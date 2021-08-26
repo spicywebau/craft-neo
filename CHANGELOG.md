@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.8 - 2021-08-26
 
 ### Fixed
 - Fixed a bug affecting element types using the old Craft Live Preview system (e.g. categories) where querying for the children of unsaved blocks would return no results
