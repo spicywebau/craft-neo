@@ -478,7 +478,7 @@ class BlockQuery extends ElementQuery
         $token = !$request->getIsConsoleRequest() ? $request->getParam('token') : '';
         $route = !empty($token) ? Craft::$app->tokens->getTokenRoute($token) : null;
 
-        return $route && $route[1][$prop] !== null;
+        return $route && isset($route[1][$prop]) && $route[1][$prop] !== null;
     }
 
     private function _ownerElementHasProp(string $prop): bool
