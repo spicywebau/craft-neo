@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.9 - 2021-08-30
 
 ### Fixed
 - Fixed a bug where Neo block queries could cause errors in preview mode, if the preview request token had no `draftId` or `revisionId` properties set
