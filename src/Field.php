@@ -531,7 +531,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $allBlocksValidate = true;
 
         foreach ($blocks as $key => $block) {
-            if ($element->getScenario() === Element::SCENARIO_LIVE) {
+            if ($element->getScenario() === Element::SCENARIO_LIVE && $block->enabled) {
                 $block->setScenario(Element::SCENARIO_LIVE);
             }
 

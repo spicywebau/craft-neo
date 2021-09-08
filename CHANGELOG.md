@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that could cause disabled Neo blocks to be validated when saving
+
 ## 2.11.9 - 2021-08-30
 
 ### Fixed
