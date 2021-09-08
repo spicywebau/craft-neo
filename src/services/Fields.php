@@ -358,15 +358,28 @@ class Fields extends Component
                 $oldStructureId = $block->structureId;
                 $block->structureId = null;
                 $collapsed = $block->getCollapsed();
-                $elementMethod = $target->updatingFromDerivative && $block->getIsDerivative() ? 'updateCanonicalElement' : 'duplicateElement';
-                $newBlock = $elementsService->$elementMethod($block, [
+                $newAttributes = [
                     'canonicalId' => $target->getIsDerivative() ? $block->id : null,
                     'ownerId' => $target->id,
                     'owner' => $target,
                     'siteId' => $target->siteId,
                     'structureId' => null,
                     'propagating' => false,
-                ]);
+                ];
+
+                if ($target->updatingFromDerivative && $block->getIsDerivative()) {
+                    if ($block->getOwner()->isFieldModified($field->handle)) {
+                        $newBlock = $elementsService->updateCanonicalElement($block, $newAttributes);
+                        $newBlockId = $newBlock->id;
+                    } else {
+                        $newBlockId = $block->getCanonicalId();
+                    }
+                } else {
+                    $newBlock = $elementsService->duplicateElement($block, $newAttributes);
+                    $newBlockId = $newBlock->id;
+                }
+
+                $newBlockIds[] = $newBlockId;
                 $block->structureId = $oldStructureId;
 
                 // Make sure `dateDeleted`, `deletedWithOwner` etc. aren't retained if they shouldn't be
@@ -538,7 +551,7 @@ class Fields extends Component
                         if ($derivativeBlock->dateUpdated == $derivativeBlock->dateCreated) {
                             $elementsService->deleteElement($derivativeBlock);
                         }
-                    } else if (!$derivativeBlock->trashed) {
+                    } else if (!$derivativeBlock->trashed && ElementHelper::isOutdated($derivativeBlock)) {
                         if (!$owner->isProvisionalDraft && $derivativeBlock->sortOrder != $nextBlockSortOrder) {
                             $derivativeBlock->sortOrder = $nextBlockSortOrder;
                             $structureMode = Structures::MODE_AUTO;

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Improved the performance of applying drafts with Neo content, in combination with draft performance improvements in Craft 3.7.12
+
 ### Fixed
 - Fixed a bug that could cause disabled Neo blocks to be validated when saving
 
