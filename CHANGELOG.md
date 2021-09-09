@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.11 - 2021-09-09
 
 ### Fixed
 - Fixed a potential error when saving an entry
