@@ -1,10 +1,14 @@
 # Changelog
 
+## 2.11.11.1 - 2021-09-09
+
+### Fixed
+- Fixed an error that could occur with the Gatsby Helper and Gatsby Source plugins
+
 ## 2.11.11 - 2021-09-09
 
 ### Fixed
 - Fixed a potential error when saving an entry
-- Fixed an error that could occur with the Gatsby Helper and Gatsby Source plugins
 
 ## 2.11.10 - 2021-09-09
 

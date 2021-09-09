@@ -199,7 +199,7 @@ class Plugin extends BasePlugin
     {
         if (class_exists(Deltas::class)) {
             Event::on(Deltas::class, Deltas::EVENT_REGISTER_IGNORED_TYPES, function(RegisterIgnoredTypesEvent $event) {
-                $event->types[] = SuperTableBlockElement::class;
+                $event->types[] = Block::class;
             });
         }
     }
