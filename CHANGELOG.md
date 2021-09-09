@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a potential error when saving an entry
+- Fixed an error that could occur with the Gatsby Helper and Gatsby Source plugins
 
 ## 2.11.10 - 2021-09-09
 

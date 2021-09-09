@@ -10,6 +10,8 @@ use craft\db\Table;
 use craft\events\DefineFieldLayoutElementsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
+use craft\gatsbyhelper\services\Deltas;
 use craft\models\FieldLayout;
 use craft\services\Fields;
 use craft\services\Gc;
@@ -86,6 +88,7 @@ class Plugin extends BasePlugin
         $this->_setupBlocksHasSortOrder();
         $this->_registerGarbageCollection();
         $this->_registerChildBlocksUiElement();
+        $this->_registerGatsbyHelper();
     }
 
     /**
@@ -190,5 +193,14 @@ class Plugin extends BasePlugin
                 $event->elements[] = ChildBlocksUiElement::class;
             }
         });
+    }
+
+    private function _registerGatsbyHelper()
+    {
+        if (class_exists(Deltas::class)) {
+            Event::on(Deltas::class, Deltas::EVENT_REGISTER_IGNORED_TYPES, function(RegisterIgnoredTypesEvent $event) {
+                $event->types[] = SuperTableBlockElement::class;
+            });
+        }
     }
 }
