@@ -371,20 +371,18 @@ class Fields extends Component
                 if ($target->updatingFromDerivative && $block->getIsDerivative()) {
                     if ($block->getOwner()->isFieldModified($field->handle)) {
                         $newBlock = $elementsService->updateCanonicalElement($block, $newAttributes);
-                        $newBlockId = $newBlock->id;
                     } else {
-                        $newBlockId = $block->getCanonicalId();
+                        $newBlock = $block->getCanonical();
                     }
                 } else {
                     $newBlock = $elementsService->duplicateElement($block, $newAttributes);
-                    $newBlockId = $newBlock->id;
                 }
 
-                $newBlockIds[] = $newBlockId;
+                $newBlockIds[] = $newBlock->id;
                 $block->structureId = $oldStructureId;
 
                 // Make sure `dateDeleted`, `deletedWithOwner` etc. aren't retained if they shouldn't be
-                if ($newBlock !== null && !$newBlock->trashed) {
+                if (!$newBlock->trashed) {
                     $elementsService->restoreElement($newBlock);
                 }
 
