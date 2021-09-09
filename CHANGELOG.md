@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Changed
+- Neo now requires Craft 3.7.12 or later
 - Improved the performance of applying drafts with Neo content, in combination with draft performance improvements in Craft 3.7.12
 
 ### Fixed
