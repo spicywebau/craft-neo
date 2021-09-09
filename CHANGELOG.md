@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a potential error when saving an entry
+
 ## 2.11.10 - 2021-09-09
 
 ### Changed

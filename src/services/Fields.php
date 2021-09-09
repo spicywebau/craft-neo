@@ -358,6 +358,7 @@ class Fields extends Component
                 $oldStructureId = $block->structureId;
                 $block->structureId = null;
                 $collapsed = $block->getCollapsed();
+                $newBlock = null;
                 $newAttributes = [
                     'canonicalId' => $target->getIsDerivative() ? $block->id : null,
                     'ownerId' => $target->id,
@@ -383,7 +384,7 @@ class Fields extends Component
                 $block->structureId = $oldStructureId;
 
                 // Make sure `dateDeleted`, `deletedWithOwner` etc. aren't retained if they shouldn't be
-                if (!$newBlock->trashed) {
+                if ($newBlock !== null && !$newBlock->trashed) {
                     $elementsService->restoreElement($newBlock);
                 }
 
@@ -393,7 +394,6 @@ class Fields extends Component
                 $newBlock->setCollapsed($collapsed);
                 $newBlock->cacheCollapsed();
 
-                $newBlockIds[] = $newBlock->id;
                 $newBlocksTaskData[] = [
                     'id' => $newBlock->id,
                     'sortOrder' => $newBlock->sortOrder,
