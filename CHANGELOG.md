@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where disabled Neo blocks could disappear if validation errors occurred elsewhere in the Neo field
+
 ## 2.11.12 - 2021-09-09
 
 ### Fixed

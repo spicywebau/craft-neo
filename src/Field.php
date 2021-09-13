@@ -527,7 +527,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function validateBlocks(ElementInterface $element)
     {
         $value = $element->getFieldValue($this->handle);
-        $blocks = $value->all();
+        $blocks = $value->anyStatus()->all();
         $allBlocksValidate = true;
 
         foreach ($blocks as $key => $block) {
