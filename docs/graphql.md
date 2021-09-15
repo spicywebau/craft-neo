@@ -9,7 +9,7 @@ As of version 2.5.0, Neo supports GraphQL that's now a feature within Craft CMS.
 
 In the following example we'll be using a Neo field with the handle `body`.
 
-### Single Level Queries
+### Single level queries
 
 Example on how to query the text block type that has a text field within:
 ```
@@ -59,7 +59,7 @@ Returned Data example:
 
 ------
 
-### Multi level Queries
+### Multi level queries
 
 Multi level block types will have a field called `children`. These will return the children blocks within the parent block type.
 
@@ -87,7 +87,7 @@ body {
 }
 ```
 
-#### Returned Data example:
+#### Returned data example:
 
 ```
 "body": [
@@ -175,7 +175,7 @@ body {
 
 ## Mutations
 
-As of Neo 2.9, Neo supports GraphQL mutations which were introduced in Craft 3.5. Mutating Neo fields is largely the same process as with [Matrix fields](https://craftcms.com/docs/3.x/graphql.html#matrix-fields-in-mutations), but with two differences:
+Mutating Neo fields is largely the same process as with [Matrix fields](https://craftcms.com/docs/3.x/graphql.html#matrix-fields-in-mutations), but with two differences:
 
 - Neo-related input types have Neo in their name, rather than Matrix; e.g. the input type for a Neo field with the handle `yourNeoField` is `yourNeoField_NeoInput`.
 - Neo block data can include a `level` argument for setting the block's level. If `level` isn't specified for new blocks, it will default to 1.
