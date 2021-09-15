@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Removed
+- Removed `benf\neo\integrations\fieldlabels\FieldLabels`
+
 ## 2.11.13 - 2021-09-15
 
 ### Changed
