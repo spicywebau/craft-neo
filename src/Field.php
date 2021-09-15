@@ -232,7 +232,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->maxSiblingBlocks = (int)$blockType['maxSiblingBlocks'];
                 $newBlockType->maxChildBlocks = (int)$blockType['maxChildBlocks'];
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
-                $newBlockType->childBlocks = $blockType['childBlocks'];
+                $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
                 
                 // Allow the `fieldLayoutId` to be set in the blockType settings
