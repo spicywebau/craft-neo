@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where disabled Neo blocks could disappear if validation errors occurred elsewhere in the Neo field
 - Fixed a bug where, when saving a Neo field, Neo block types with no child block types could have their `childBlocks` value stored as an empty string in the project config, rather than `null`
+- Fixed a bug with GraphQL mutations, where mutating an existing Neo block without specifying a level argument would cause it to be moved to level 1 if it was at a different level
 
 ## 2.11.12 - 2021-09-09
 
