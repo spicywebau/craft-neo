@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.13 - 2021-09-15
 
 ### Changed
 - In GraphQL queries, Neo blocks now have a `level` field
