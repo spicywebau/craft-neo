@@ -171,6 +171,40 @@ body {
 ]
 ```
 
+### Returning all blocks
+
+By default, a Neo field query will return only the blocks at the top level of the field. Other levels can be targeted using the `level` argument, and setting `level` to `0` will return all blocks. Blocks' levels can be returned using the `level` field.
+
+#### Returning all blocks example:
+
+```
+body(level: 0) {
+    ... on body_text_BlockType {
+        level
+        text
+    }
+}
+```
+
+#### Returned data example:
+
+```
+"body": [
+    {
+        "level": 1,
+        "text": "Parent text block"
+    },
+    {
+        "level": 2,
+        "text": "Child text block"
+    },
+    {
+        "level": 1,
+        "text": "Another top-level text block"
+    }
+]
+```
+
 ----
 
 ## Mutations

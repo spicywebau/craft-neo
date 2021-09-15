@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- In GraphQL queries, Neo blocks now have a `level` field
+
 ### Fixed
 - Fixed a bug where disabled Neo blocks could disappear if validation errors occurred elsewhere in the Neo field
 - Fixed a bug where, when saving a Neo field, Neo block types with no child block types could have their `childBlocks` value stored as an empty string in the project config, rather than `null`
