@@ -39,39 +39,6 @@ class Blocks extends Component
     }
 
     /**
-     * Gets the search keywords to be associated with the given Neo block.
-     *
-     * Checks the fields associated with the given Neo block, finds their search keywords and concatenates them.
-     *
-     * @deprecated in 2.9.4
-     * @param Block $block The Neo block.
-     * @param ElementInterface|null $element The element the Neo block is associated with, if any.
-     * @return string The search keywords.
-     */
-    public function getSearchKeywords(Block $block, ElementInterface $element = null): string
-    {
-        $fieldsService = Craft::$app->getFields();
-
-        if ($element === null) {
-            $element = $block;
-        }
-
-        $keywords = [];
-
-        $fieldLayout = $block->getFieldLayout();
-        $fieldIds = $fieldLayout->getFieldIds();
-
-        foreach ($fieldsService->getAllFields() as $field) {
-            if (in_array($field->id, $fieldIds)) {
-                $fieldValue = $block->getFieldValue($field->handle);
-                $keywords[] = $field->getSearchKeywords($fieldValue, $element);
-            }
-        }
-
-        return StringHelper::toString($keywords, ' ');
-    }
-
-    /**
      * Renders a Neo block's tabs.
      *
      * @param Block $block The Neo block having its tabs rendered.
