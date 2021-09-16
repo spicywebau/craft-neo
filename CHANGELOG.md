@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Removed
+- Removed the unused `saveModifiedBlocksOnly` setting
 - Removed `benf\neo\integrations\fieldlabels\FieldLabels`
 - Removed `benf\neo\converters\Field` (Neo Field Converter for Schematic)
 - Removed `benf\neo\converters\models\BlockType` (Neo BlockType Converter for Schematic)
