@@ -8,6 +8,7 @@
 - Removed `benf\neo\converters\Field` (Neo Field Converter for Schematic)
 - Removed `benf\neo\converters\models\BlockType` (Neo BlockType Converter for Schematic)
 - Removed `benf\neo\converters\models\BlockTypeGroup` (Neo BlockTypeGroup Converter for Schematic)
+- Removed `benf\neo\services\Fields::getSupportedSiteIdsForField()`
 
 ## 2.11.13 - 2021-09-15
 

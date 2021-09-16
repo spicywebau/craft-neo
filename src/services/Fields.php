@@ -616,20 +616,6 @@ class Fields extends Component
     }
 
     /**
-     * Returns the site IDs that are supported by neo blocks for the given neo field and owner element.
-     *
-     * @param Field $field
-     * @param ElementInterface $owner
-     * @return int[]
-     * @throws \Throwable if reasons
-     * @deprecated in 2.5.10. Use [[getSupportedSiteIds()]] instead.
-     */
-    public function getSupportedSiteIdsForField(Field $field, ElementInterface $owner): array
-    {
-        return $this->getSupportedSiteIds($field->propagationMethod, $owner);
-    }
-
-    /**
      * Returns the site IDs that are supported by neo blocks for the given propagation method and owner element.
      *
      * @param string $propagationMethod
