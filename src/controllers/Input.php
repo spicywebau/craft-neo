@@ -45,7 +45,6 @@ class Input extends Controller
         foreach ($blocks as $rawBlock) {
             $type = Neo::$plugin->blockTypes->getById((int)$rawBlock['type']);
             $block = new Block();
-            //$block->modified = true;
             if (isset($rawBlock['ownerId']) && $rawBlock['ownerId']) {
                 $block->ownerId = $rawBlock['ownerId'];
             }
