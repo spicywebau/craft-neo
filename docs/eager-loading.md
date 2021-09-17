@@ -44,7 +44,7 @@ The problem shows up when you output a block's children &mdash; it'll end up cre
 
 ```twig
 {% for block in entry.neoField if block.level == 1 %}
-    {% for child in block.children %}
+    {% for child in block.children.all() %}
         {# `block.children` is an element query
            which will cause an unnecessary database call #}
     {% endfor %}
