@@ -368,11 +368,18 @@ class Fields extends Component
                     'propagating' => false,
                 ];
 
-                if ($target->updatingFromDerivative && $block->getIsDerivative()) {
-                    if ($block->getOwner()->isFieldModified($field->handle)) {
+                if (
+                    $target->updatingFromDerivative &&
+                    $block->getCanonical() !== $block // in case the canonical block is soft-deleted
+                ) {
+                    if (!empty($target->newSiteIds) || $source->isFieldModified($field->handle)) {
                         $newBlock = $elementsService->updateCanonicalElement($block, $newAttributes);
                     } else {
                         $newBlock = $block->getCanonical();
+
+                        if ($newBlock->trashed && !$block->trashed) {
+                            $newBlock->trashed = false;
+                        }
                     }
                 } else {
                     $newBlock = $elementsService->duplicateElement($block, $newAttributes);
