@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.14 - 2021-10-06
 
 ### Fixed
 - Fixed a bug when reverting an entry to a previous revision, where Neo blocks that had since been soft-deleted couldn't be restored
