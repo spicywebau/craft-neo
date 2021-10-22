@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an issue where getting a Neo block's children in a GraphQL query could cause a deprecation warning to be logged if the block had no children
+
 ## 2.11.14 - 2021-10-06
 
 ### Fixed
