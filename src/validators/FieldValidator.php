@@ -37,6 +37,12 @@ class FieldValidator extends Validator
     public $exceedsMaxLevels;
 
     /**
+     * @var string|null A user-defined error message to be used if a block type's `maxBlocks` is exceeded.
+     * @since 3.0.0
+     */
+    public $tooManyBlocksOfType;
+
+    /**
      * @var array of Neo blocks
      */
     private $_blocks = [];
@@ -54,6 +60,35 @@ class FieldValidator extends Validator
 
         $this->_checkMaxTopLevelBlocks($model, $attribute);
         $this->_checkMaxLevels($model, $attribute);
+
+        // Check for max blocks by block type
+        $blockTypesCount = [];
+        $blockTypesById = [];
+
+        foreach ($field->getBlockTypes() as $blockType) {
+            $blockTypesCount[$blockType->id] = 0;
+            $blockTypesById[$blockType->id] = $blockType;
+        }
+
+        foreach ($this->_blocks as $block) {
+            $blockTypesCount[$block->typeId] += 1;
+        }
+
+        foreach ($blockTypesCount as $blockTypeId => $blockTypeCount) {
+            $blockType = $blockTypesById[$blockTypeId];
+
+            if ($blockType->maxBlocks > 0 && $blockTypeCount > $blockType->maxBlocks) {
+                $this->addError(
+                    $model,
+                    $attribute,
+                    $this->tooManyBlocksOfType,
+                    [
+                        'maxBlockTypeBlocks' => $blockType->maxBlocks,
+                        'blockType' => $blockType->name
+                    ]
+                );
+            }
+        }
     }
 
     /**
@@ -101,6 +136,10 @@ class FieldValidator extends Validator
 
         if ($this->exceedsMaxLevels === null) {
             $this->exceedsMaxLevels = Craft::t('neo', '{attribute} blocks must not be nested deeper than level {maxLevels, number}.');
+        }
+
+        if ($this->tooManyBlocksOfType === null) {
+            $this->tooManyBlocksOfType = Craft::t('neo', '{attribute} should contain at most {maxBlockTypeBlocks, number} {maxBlockTypeBlocks, plural, one{block} other{blocks}} of type {blockType}.');
         }
     }
 }

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Whether a Neo block type's max blocks setting has been exceeded will now be validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
+
 ### Removed
 - Removed the unused `saveModifiedBlocksOnly` setting
 - Removed `benf\neo\integrations\fieldlabels\FieldLabels`
