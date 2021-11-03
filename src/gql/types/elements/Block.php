@@ -52,9 +52,7 @@ class Block extends ObjectType
                 return (int)$block->level === $sourceLevel;
             });
 
-            if (!empty($newBlocks)) {
-                return $newBlocks;
-            }
+            return $newBlocks;
         }
 
         return $source->$fieldName;

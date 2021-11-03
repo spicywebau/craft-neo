@@ -325,7 +325,8 @@ $preview-reduction: 70px;
                 }
 
                 #content &,
-                .lp-editor & {
+                .lp-editor &,
+                .element-editor & {
 
                     &:not(.is-selected) {
                         display: none;

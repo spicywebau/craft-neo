@@ -13,6 +13,17 @@
 - Removed `benf\neo\services\Blocks::getSearchKeywords()`
 - Removed `benf\neo\services\Fields::getSupportedSiteIdsForField()`
 
+## 2.11.15 - 2021-10-22
+
+### Fixed
+- Fixed an issue where getting a Neo block's children in a GraphQL query could cause a deprecation warning to be logged if the block had no children
+
+## 2.11.14 - 2021-10-06
+
+### Fixed
+- Fixed a bug when reverting an entry to a previous revision, where Neo blocks that had since been soft-deleted couldn't be restored
+- Fixed a CSS issue with Neo fields in element editor slideouts, where unselected Neo block tab content would still be displayed along with the selected tab's content
+
 ## 2.11.13 - 2021-09-15
 
 ### Changed
