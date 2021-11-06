@@ -511,6 +511,7 @@ class Fields extends Component
                 continue;
             }
 
+            $allBlocks = [];
             $newBlocks = [];
             $nextBlockSortOrder = 1;
 
@@ -522,7 +523,7 @@ class Fields extends Component
                 ->trashed(null)
                 ->ignorePlaceholders()
                 ->indexBy('id')
-                ->orderBy(['sortOrder' => SORT_ASC])
+                ->orderBy(['lft' => SORT_ASC])
                 ->all();
 
             $derivativeBlocks = Block::find()
@@ -563,10 +564,12 @@ class Fields extends Component
                         }
 
                         $elementsService->mergeCanonicalChanges($derivativeBlock);
-                        $newBlock = $derivativeBlock;
+                        $allBlocks[] = $newBlock = $derivativeBlock;
+                    } else {
+                        $allBlocks[] = $derivativeBlock;
                     }
                 } else if (!$canonicalBlock->trashed && $canonicalBlock->dateCreated > $owner->dateCreated) {
-                    $newBlock = $elementsService->duplicateElement($canonicalBlock, [
+                    $allBlocks[] = $newBlock = $elementsService->duplicateElement($canonicalBlock, [
                         'canonicalId' => $canonicalBlock->id,
                         'level' => $canonicalBlock->level,
                         'ownerId' => $owner->id,
@@ -579,18 +582,18 @@ class Fields extends Component
                 }
 
                 if ($derivativeStructureId && $structureMode !== null) {
-                    if (!empty($newBlocks)) {
-                        $prevBlock = $newBlocks[count($newBlocks) - 1];
+                    if (count($allBlocks) > 1) {
+                        $prevBlock = $allBlocks[count($allBlocks) - 2];
 
-                        // If $prevBlock->level is lower, $newBlock is a child block and we need to append
-                        $method = $prevBlock->level < $newBlock->level ? 'append' : 'moveAfter';
+                        // If $prevBlock->level is lower, $newBlock is the first child block and we need to prepend
+                        $method = $prevBlock->level < $newBlock->level ? 'prepend' : 'moveAfter';
 
                         // If $prevBlock->level is higher, then $newBlock is a sibling of one of $prevBlock's ancestors,
                         // so we'll need to move $newBlock after that ancestor
                         if ($prevBlock->level > $newBlock->level) {
-                            for ($i = count($newBlocks) - 2; $i >= 0; $i--) {
-                                if ($newBlocks[$i]->level == $newBlock->level) {
-                                    $prevBlock = $newBlocks[$i];
+                            for ($i = count($allBlocks) - 3; $i >= 0; $i--) {
+                                if ($allBlocks[$i]->level == $newBlock->level) {
+                                    $prevBlock = $allBlocks[$i];
                                     break;
                                 }
                             }

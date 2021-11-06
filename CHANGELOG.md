@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where new entry blocks (e.g. from a newly-applied draft) could be merged into the incorrect position of an already existing provisional draft
+
 ## 2.11.15 - 2021-10-22
 
 ### Fixed
