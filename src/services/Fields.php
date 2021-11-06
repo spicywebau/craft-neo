@@ -495,9 +495,21 @@ class Fields extends Component
      */
     public function mergeCanonicalChanges(Field $field, ElementInterface $owner): void
     {
+        $localizedOwners = $owner::find()
+            ->id($owner->id ?: false)
+            ->siteId(['not', $owner->siteId])
+            ->drafts($owner->getIsDraft())
+            ->provisionalDrafts($owner->isProvisionalDraft)
+            ->revisions($owner->getIsRevision())
+            ->anyStatus()
+            ->ignorePlaceholders()
+            ->indexBy('siteId')
+            ->all();
+        $localizedOwners[$owner->siteId] = $owner;
+
         $canonicalOwners = $owner::find()
             ->id($owner->getCanonicalId())
-            ->siteId('*')
+            ->siteId(array_keys($localizedOwners))
             ->anyStatus()
             ->ignorePlaceholders()
             ->all();
@@ -573,9 +585,9 @@ class Fields extends Component
                         'canonicalId' => $canonicalBlock->id,
                         'level' => $canonicalBlock->level,
                         'ownerId' => $owner->id,
-                        'owner' => $owner,
+                        'owner' => $localizedOwners[$canonicalBlock->siteId],
                         'propagating' => false,
-                        'siteId' => $canonicalOwner->siteId,
+                        'siteId' => $canonicalBlock->siteId,
                         'structureId' => null,
                     ]);
                     $structureMode = Structures::MODE_INSERT;

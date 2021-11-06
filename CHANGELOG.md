@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where new entry blocks (e.g. from a newly-applied draft) could be merged into the incorrect position of an already existing provisional draft
+- Fixed an error that could occur on a multi-site Craft install when saving a new entry from changes to an existing entry, if the entry had a Neo field with a propagation method other than "Only save blocks to the site they were created in" and the entry's section was disabled for any site
 
 ## 2.11.15 - 2021-10-22
 
