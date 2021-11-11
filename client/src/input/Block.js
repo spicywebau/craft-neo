@@ -329,6 +329,12 @@ export default Garnish.Base.extend({
     for (const rawName of Object.keys(rawContent)) {
       const fullName = NS.parse(rawName)
       const name = fullName.slice(this._templateNs.length + 1) // Adding 1 because content is NS'd under [fields]
+
+      // Make sure empty arrays (which can happen with level, enabled, etc. when using the child blocks UI element) are ignored
+      if (!name.length) {
+        continue
+      }
+
       const value = rawContent[rawName]
 
       setValue(name, value)

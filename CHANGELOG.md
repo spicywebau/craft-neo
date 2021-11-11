@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug when adding new blocks to a Neo field using GraphQL mutations, where queries for the returned data to include child blocks would not return the child blocks
+- Fixed an error that occurred when cloning or pasting a Neo block that uses the child blocks UI element
 
 ## 2.11.16 - 2021-11-08
 
