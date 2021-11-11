@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.17 - 2021-11-11
 
 ### Fixed
 - Fixed a bug when adding new blocks to a Neo field using GraphQL mutations, where queries for the returned data to include child blocks would not return the child blocks
