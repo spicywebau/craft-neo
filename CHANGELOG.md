@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where GraphQL queries wouldn't return Neo child blocks in some cases
+
 ## 2.11.17 - 2021-11-11
 
 ### Fixed
