@@ -3,7 +3,6 @@
 <div class="ni_block ni_block--{{ type.getHandle() }} {{ collapsed ? 'is-collapsed' : 'is-expanded' }} {{ not hasTabs and not isParent ? 'is-empty' : '' }} {{ isParent ? 'is-parent' : '' }}" data-neo-b-id="{{ uniqueId() }}">
     <input type="hidden" name="{{ 'type'|ns }}" value="{{ type.getHandle() }}">
     <input type="hidden" name="{{ 'enabled'|ns }}" value="{{ enabled ? 1 : 0 }}" data-neo-b="input.enabled">
-    <input type="hidden" name="{{ 'collapsed'|ns }}" value="{{ collapsed ? 1 : 0 }}" data-neo-b="input.collapsed">
     <input type="hidden" name="{{ 'level'|ns }}" value="{{ level }}" data-neo-b="input.level">
     <input type="hidden" name="{{ 'sortOrder'|ns }}" value="{{ sortOrder }}" data-neo-b="sortOrder">
     <div class="ni_block_topbar" data-neo-b="container.topbar">

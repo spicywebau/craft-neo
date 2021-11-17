@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where GraphQL queries wouldn't return Neo child blocks in some cases
+- Fixed a bug where an entry's provisional draft would be created or updated if a Neo block was expanded or collapsed
 
 ## 2.11.17 - 2021-11-11
 

@@ -135,7 +135,6 @@ export default Garnish.Base.extend({
     this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
     this.$tabsButton = $neo.filter('[data-neo-b="button.tabs"]')
     this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
-    this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
     this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
     this.$status = $neo.filter('[data-neo-b="status"]')
     this.$sortOrder = $neo.filter('[data-neo-b="sortOrder"]')
@@ -720,8 +719,6 @@ export default Garnish.Base.extend({
       } else {
         this.$bodyContainer.css(this._expanded ? clearCss : collapsedCss)
       }
-
-      this.$collapsedInput.val(this._expanded ? 0 : 1)
 
       if (save) {
         this.saveExpansion()
