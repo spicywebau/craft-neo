@@ -1,10 +1,8 @@
 {% set hasTabs = (type.getTabs() is not empty) %}
 {% set isParent = type.isParent() %}
 <div class="ni_block ni_block--{{ type.getHandle() }} {{ collapsed ? 'is-collapsed' : 'is-expanded' }} {{ not hasTabs and not isParent ? 'is-empty' : '' }} {{ isParent ? 'is-parent' : '' }}" data-neo-b-id="{{ uniqueId() }}">
-    <input type="hidden" name="{{ 'modified'|ns }}" value="{{ modified ? 1 : 0 }}" data-neo-b="input.modified">
     <input type="hidden" name="{{ 'type'|ns }}" value="{{ type.getHandle() }}">
     <input type="hidden" name="{{ 'enabled'|ns }}" value="{{ enabled ? 1 : 0 }}" data-neo-b="input.enabled">
-    <input type="hidden" name="{{ 'collapsed'|ns }}" value="{{ collapsed ? 1 : 0 }}" data-neo-b="input.collapsed">
     <input type="hidden" name="{{ 'level'|ns }}" value="{{ level }}" data-neo-b="input.level">
     <input type="hidden" name="{{ 'sortOrder'|ns }}" value="{{ sortOrder }}" data-neo-b="sortOrder">
     <div class="ni_block_topbar" data-neo-b="container.topbar">
@@ -66,8 +64,8 @@
                         {% endif %}
                         <li><a data-icon="disabled" data-action="disable">{{ "Disable"|t }}</a></li>
                         <li class="hidden"><a data-icon="enabled" data-action="enable">{{ "Enable"|t }}</a></li>
-                        <li class="hidden"><a data-icon="uarr" data-action="moveUp">{{ "Move Up"|t('app') }}</a></li>
-                        <li class="hidden"><a data-icon="darr" data-action="moveDown">{{ "Move Down"|t('app') }}</a></li>
+                        <li class="hidden"><a data-icon="uarr" data-action="moveUp">{{ "Move up"|t }}</a></li>
+                        <li class="hidden"><a data-icon="darr" data-action="moveDown">{{ "Move down"|t }}</a></li>
                     </ul>
                     <hr>
                     <ul class="padded">

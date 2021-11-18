@@ -56,6 +56,14 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
+    public static function trackChanges(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function hasContent(): bool
     {
         return true;
@@ -167,6 +175,7 @@ class Block extends Element implements BlockElementInterface
 
     /**
      * @var bool|null Whether this block has been modified.
+     * @deprecated in 2.11.0
      */
     private $_modified;
 
@@ -217,6 +226,31 @@ class Block extends Element implements BlockElementInterface
         $rules[] = [['fieldId', 'ownerId', 'typeId'], 'number', 'integerOnly' => true];
 
         return $rules;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCanonical(bool $anySite = false): ElementInterface
+    {
+        // Element::getCanonical() will fail to find a Neo block's canonical block because it sets the structure ID on
+        // the element query, but the canonical block belongs to a different structure, so let's try it without setting
+        // the structure ID
+        $canonical = $this->getIsCanonical() ? null : Block::find()
+            ->id($this->getCanonicalId())
+            ->siteId($anySite ? '*' : $this->siteId)
+            ->preferSites([$this->siteId])
+            ->unique()
+            ->anyStatus()
+            ->trashed(null)
+            ->ignorePlaceholders()
+            ->one();
+
+        if ($canonical !== null) {
+            $this->setCanonical($canonical);
+        }
+
+        return $canonical ?? $this;
     }
 
     /**
@@ -377,8 +411,9 @@ class Block extends Element implements BlockElementInterface
 
     /**
      * Returns whether this block has been modified.
-     * 
+     *
      * @return bool|null
+     * @deprecated in 2.11.0
      */
     public function getModified()
     {
@@ -387,8 +422,9 @@ class Block extends Element implements BlockElementInterface
 
     /**
      * Sets whether this block has been modified.
-     * 
+     *
      * @param bool $value
+     * @deprecated in 2.11.0
      */
     public function setModified(bool $value = true)
     {
@@ -683,7 +719,13 @@ class Block extends Element implements BlockElementInterface
             return $this->_liveQueries['descendants'];
         }
 
-        return parent::getDescendants($dist);
+        // As of Craft 3.7, `Element::getDescendants()` looks for descendants of the canonical element. If this Neo
+        // block belongs to an entry draft or revision, its canonical block on the live entry belongs to a different
+        // block structure, so the query would return no results. We need to ensure we do look for descendants of *this*
+        // block so we get the child blocks.
+        $descendants = parent::getDescendants($dist);
+
+        return is_array($descendants) ? $descendants : $descendants->descendantOf($this);
     }
 
     /**
@@ -710,7 +752,13 @@ class Block extends Element implements BlockElementInterface
             return $this->_liveQueries['children'];
         }
 
-        return parent::getChildren();
+        // As of Craft 3.7, `Element::getChildren()` looks for descendants of the canonical element. If this Neo block
+        // belongs to an entry draft or revision, its canonical block on the live entry belongs to a different block
+        // structure, so the query would return no results. We need to ensure we do look for descendants of *this* block
+        // so we get the child blocks.
+        $children = parent::getChildren();
+
+        return is_array($children) ? $children : $children->descendantOf($this);
     }
 
     /**

@@ -39,7 +39,7 @@ export default Garnish.Base.extend({
 
     this._templateNs = NS.parse(settings.namespace)
     this._blockTypes = []
-    this._groups = []
+    this._groups = settings.groups.map(gInfo => new Group(gInfo))
     this._blocks = []
     this._name = settings.name
     this._maxBlocks = settings.maxBlocks
@@ -62,12 +62,6 @@ export default Garnish.Base.extend({
 
       this._blockTypes.push(blockType)
       tempBlockTypes[blockType.getHandle()] = blockType
-    }
-
-    for (const gInfo of settings.groups) {
-      const group = new Group(gInfo)
-
-      this._groups.push(group)
     }
 
     const $form = this.$container.closest('form')
@@ -260,6 +254,10 @@ export default Garnish.Base.extend({
   },
 
   removeBlock (block, animate = null, _delayAnimate = null) {
+    if (window.draftEditor) {
+      window.draftEditor.pause()
+    }
+
     animate = (typeof animate === 'boolean' ? animate : true)
     _delayAnimate = (typeof _delayAnimate === 'boolean' ? _delayAnimate : false)
 
@@ -277,6 +275,15 @@ export default Garnish.Base.extend({
     this._destroyTempButtons()
     this._updateButtons()
 
+    const finishTheRemoval = () => {
+      block.$container.remove()
+      this._updateBlockChildren()
+
+      if (window.draftEditor) {
+        window.draftEditor.resume()
+      }
+    }
+
     if (animate) {
       block.$container
         .css({
@@ -286,15 +293,9 @@ export default Garnish.Base.extend({
         .velocity({
           opacity: 0,
           marginBottom: _delayAnimate ? 10 : -(block.$container.outerHeight())
-        }, 'fast', e => {
-          block.$container.remove()
-
-          this._updateBlockChildren()
-        })
+        }, 'fast', _ => finishTheRemoval())
     } else {
-      block.$container.remove()
-
-      this._updateBlockChildren()
+      finishTheRemoval()
     }
 
     block.destroy()
@@ -309,6 +310,10 @@ export default Garnish.Base.extend({
       return
     }
 
+    if (window.draftEditor) {
+      window.draftEditor.pause()
+    }
+
     const siblings = block.getSiblings(this.getBlocks())
     const index = siblings.indexOf(block)
     const moveUp = index > 0 && direction === 'up'
@@ -321,6 +326,25 @@ export default Garnish.Base.extend({
     const animateMove = (typeof animate === 'boolean' ? animate : true)
     const $block = block.$container
 
+    const startTheMove = () => {
+      $block.detach()
+
+      if (moveUp) {
+        siblings[index - 1].$container.before($block)
+      } else {
+        siblings[index + 1].$container.after($block)
+      }
+    }
+
+    const finishTheMove = () => {
+      this._updateBlockOrder()
+      this._updateButtons()
+
+      if (window.draftEditor) {
+        window.draftEditor.resume()
+      }
+    }
+
     if (animateMove) {
       $block
         .css({
@@ -331,13 +355,7 @@ export default Garnish.Base.extend({
           opacity: 0,
           marginBottom: -($block.outerHeight())
         }, 'fast', _ => {
-          $block.detach()
-
-          if (moveUp) {
-            siblings[index - 1].$container.before($block)
-          } else {
-            siblings[index + 1].$container.after($block)
-          }
+          startTheMove()
 
           $block
             .css({
@@ -348,22 +366,13 @@ export default Garnish.Base.extend({
               opacity: 1,
               marginBottom: 10
             }, 'fast', _ => {
-              this._updateBlockOrder()
-              this._updateButtons()
+              finishTheMove()
               Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement($block))
             })
         })
     } else {
-      $block.detach()
-
-      if (moveUp) {
-        siblings[index - 1].$container.before($block)
-      } else {
-        siblings[index + 1].$container.after($block)
-      }
-
-      this._updateBlockOrder()
-      this._updateButtons()
+      startTheMove()
+      finishTheMove()
     }
   },
 
@@ -644,6 +653,10 @@ export default Garnish.Base.extend({
   },
 
   _duplicate (data, block) {
+    if (window.draftEditor) {
+      window.draftEditor.pause()
+    }
+
     const $spinner = $('<div class="ni_spinner"><div class="spinner"></div></div>')
 
     block.$container.after($spinner)
@@ -700,7 +713,8 @@ export default Garnish.Base.extend({
             buttons: newButtons,
             enabled: !!renderedBlock.enabled,
             collapsed: !!renderedBlock.collapsed,
-            showButtons: !this.atMaxLevels(renderedBlock.level | 0)
+            showButtons: !this.atMaxLevels(renderedBlock.level | 0),
+            renderOldChildBlocksContainer: !newBlockType.hasChildBlocksUiElement()
           })
 
           newBlocks.push(newBlock)
@@ -726,6 +740,10 @@ export default Garnish.Base.extend({
             }, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
 
           $spinner.remove()
+
+          if (window.draftEditor) {
+            window.draftEditor.resume()
+          }
         }
 
         if (spinnerComplete) {
@@ -748,7 +766,7 @@ export default Garnish.Base.extend({
         maxBlocks: this.getMaxBlocks()
       }),
       showButtons: !this.atMaxLevels(e.level),
-      renderOldChildBlocksContainer: !e.blockType.getTabs().some(tab => tab.getBodyHtml(blockId).match(/data-neo-b="container.children"/))
+      renderOldChildBlocksContainer: !e.blockType.hasChildBlocksUiElement()
     })
 
     this.addBlock(block, e.index, e.level)
@@ -794,7 +812,7 @@ export default Garnish.Base.extend({
     this._tempButtons = buttons
     this._tempButtonsBlock = this._findParentBlock(block)
 
-    this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
+    this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock), this._tempButtonsBlock)
   },
 
   '@copyBlock' (e) {

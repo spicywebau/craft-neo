@@ -1,15 +1,15 @@
-# Graphql
+# GraphQL
 
 As of version 2.5.0, Neo supports GraphQL that's now a feature within Craft CMS.
 
 ## Fragment syntax
 `{neo field handle}_{neo block type handle}_BlockType`
 
-## How it use
+## How to use
 
-In the following example we'll be using a neo field with the handle `body`.
+In the following example we'll be using a Neo field with the handle `body`.
 
-### Single Level Queries
+### Single level queries
 
 Example on how to query the text block type that has a text field within:
 ```
@@ -59,7 +59,7 @@ Returned Data example:
 
 ------
 
-### Multi level Queries
+### Multi level queries
 
 Multi level block types will have a field called `children`. These will return the children blocks within the parent block type.
 
@@ -87,7 +87,7 @@ body {
 }
 ```
 
-#### Returned Data example:
+#### Returned data example:
 
 ```
 "body": [
@@ -171,11 +171,45 @@ body {
 ]
 ```
 
+### Returning all blocks
+
+By default, a Neo field query will return only the blocks at the top level of the field. Other levels can be targeted using the `level` argument, and setting `level` to `0` will return all blocks. Blocks' levels can be returned using the `level` field.
+
+#### Returning all blocks example:
+
+```
+body(level: 0) {
+    ... on body_text_BlockType {
+        level
+        text
+    }
+}
+```
+
+#### Returned data example:
+
+```
+"body": [
+    {
+        "level": 1,
+        "text": "Parent text block"
+    },
+    {
+        "level": 2,
+        "text": "Child text block"
+    },
+    {
+        "level": 1,
+        "text": "Another top-level text block"
+    }
+]
+```
+
 ----
 
 ## Mutations
 
-As of Neo 2.9, Neo supports GraphQL mutations which were introduced in Craft 3.5.  Mutating Neo fields is largely the same process as with [Matrix fields](https://craftcms.com/docs/3.x/graphql.html#matrix-fields-in-mutations), but with two differences:
+Mutating Neo fields is largely the same process as with [Matrix fields](https://craftcms.com/docs/3.x/graphql.html#matrix-fields-in-mutations), but with two differences:
 
 - Neo-related input types have Neo in their name, rather than Matrix; e.g. the input type for a Neo field with the handle `yourNeoField` is `yourNeoField_NeoInput`.
-- Neo block data can include a `level` field for setting the block's level.  If `level` isn't specified, it will default to 1.
+- Neo block data can include a `level` argument for setting the block's level. If `level` isn't specified for new blocks, it will default to 1.

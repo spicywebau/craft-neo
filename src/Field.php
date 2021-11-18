@@ -232,8 +232,16 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->maxSiblingBlocks = (int)$blockType['maxSiblingBlocks'];
                 $newBlockType->maxChildBlocks = (int)$blockType['maxChildBlocks'];
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
-                $newBlockType->childBlocks = $blockType['childBlocks'];
+                $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
+                
+                // Allow the `fieldLayoutId` to be set in the blockType settings
+                if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
+                    if ($fieldLayout = $fieldsService->getLayoutById($fieldLayoutId)) {
+                        $newBlockType->setFieldLayout($fieldLayout);
+                        $newBlockType->fieldLayoutId = $fieldLayout->id;
+                    }
+                }
 
                 if (!empty($blockType['elementPlacements'])) {
                     $fieldLayout = $fieldsService->assembleLayoutFromPost('types.' . self::class . ".blockTypes.{$blockTypeId}");
@@ -428,6 +436,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
+    public function copyValue(ElementInterface $from, ElementInterface $to): void
+    {
+        // Much like Matrix fields, we'll be doing this in afterElementPropagate()
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function modifyElementsQuery(ElementQueryInterface $query, $value)
     {
         if ($value === 'not :empty:') {
@@ -455,6 +471,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function getIsTranslatable(ElementInterface $element = null): bool
     {
         return $this->propagationMethod !== self::PROPAGATION_METHOD_ALL;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStatus(ElementInterface $element): ?array
+    {
+        return $element->isFieldOutdated($this->handle) ? [
+            Element::ATTR_STATUS_OUTDATED,
+            Craft::t('app', 'This field was updated in the Current revision.'),
+        ] : null;
     }
 
     /**
@@ -500,11 +527,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function validateBlocks(ElementInterface $element)
     {
         $value = $element->getFieldValue($this->handle);
-        $blocks = $value->all();
+        $blocks = $value->anyStatus()->all();
         $allBlocksValidate = true;
 
         foreach ($blocks as $key => $block) {
-            if ($element->getScenario() === Element::SCENARIO_LIVE) {
+            if ($element->getScenario() === Element::SCENARIO_LIVE && $block->enabled) {
                 $block->setScenario(Element::SCENARIO_LIVE);
             }
 
@@ -670,11 +697,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $resetValue = true;
         } else if ($element->isFieldDirty($this->handle) || !empty($element->newSiteIds)) {
             Neo::$plugin->fields->saveValue($this, $element);
-        } else if (
-            ($status = $element->getFieldStatus($this->handle)) !== null &&
-            $status[0] === Element::ATTR_STATUS_OUTDATED
-        ) {
-            Neo::$plugin->fields->duplicateBlocks($this, ElementHelper::sourceElement($element), $element, true);
+        } else if ($element->mergingCanonicalChanges) {
+            Neo::$plugin->fields->mergeCanonicalChanges($this, $element);
             $resetValue = true;
         }
 
@@ -683,6 +707,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $query = $element->getFieldValue($this->handle);
             $this->_populateQuery($query, $element);
             $query->clearCachedResult();
+            $query->useMemoized(false);
         }
 
         parent::afterElementPropagate($element, $isNew);
@@ -933,6 +958,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
         if ($this->_getNamespaceDepth() > 1) {
             $html = $this->_getNestingErrorHtml();
+        } else if ($static && empty($value)) {
+            $html = '<p class="light">' . Craft::t('app', 'No blocks.') . '</p>';
         } else {
             $viewService->registerAssetBundle(FieldAsset::class);
             $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $element));
@@ -994,11 +1021,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $prevBlock = null;
 
         foreach ($newSortOrder as $blockId) {
-            $blockData = $newBlockData[$blockId] ?? [];
-
-            $isEnabled = isset($blockData['enabled']) ? (bool)$blockData['enabled'] : true;
-            $isCollapsed = isset($blockData['collapsed']) ? (bool)$blockData['collapsed'] : false;
-            $isModified = isset($blockData['modified']) ? (bool)$blockData['modified'] : false;
+            $blockData = $newBlockData[$blockId] ?? (
+                isset(Elements::$duplicatedElementSourceIds[$blockId]) && isset($newBlockData[Elements::$duplicatedElementSourceIds[$blockId]])
+                    ? $newBlockData[Elements::$duplicatedElementSourceIds[$blockId]]
+                    : []
+                );
 
             // If this is a preexisting block but we don't have a record of it,
             // check to see if it was recently duplicated.
@@ -1014,7 +1041,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             // Existing block?
             if (isset($oldBlocksById[$blockId])) {
                 $block = $oldBlocksById[$blockId];
-                $block->dirty = $isModified;
+                $block->dirty = !empty($blockData);
             } else {
                 // Make sure it's a valid block type
                 if (!isset($blockData['type']) || !isset($blockTypes[$blockData['type']])) {
@@ -1031,11 +1058,16 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $blockLevel = (int)($blockData['level'] ?? $block->level);
 
             $block->setOwner($element);
-            $block->setCollapsed($isCollapsed);
-            $block->setModified($isModified);
-            $block->enabled = $isEnabled;
             $block->oldLevel = $block->level;
             $block->level = $blockLevel;
+
+            if (isset($blockData['collapsed'])) {
+                $block->setCollapsed((bool)$blockData['collapsed']);
+            }
+
+            if (isset($blockData['enabled'])) {
+                $block->enabled = (bool)$blockData['enabled'];
+            }
 
             // Set the content post location on the block if we can
             if ($baseBlockFieldNamespace) {
@@ -1045,19 +1077,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $oldBlockData = $block->getBehaviors('customFields');
 
             if (isset($blockData['fields'])) {
-                // checking if the fields are actually changed
-                $fieldData = [];
-                $fieldKeys = array_keys($blockData['fields']);
-
-                foreach ($fieldKeys as $key) {
-                    if ($oldBlockData['customFields']->$key !== $blockData['fields'][$key]) {
-                        $fieldData += [$key => $blockData['fields'][$key]];
-                    }
-                }
-
-                if ($fieldData) {
-                    $block->setFieldValues($fieldData);
-                }
+                $block->setFieldValues($blockData['fields']);
             }
 
             if ($prevBlock) {

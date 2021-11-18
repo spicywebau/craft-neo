@@ -1,9 +1,159 @@
 # Changelog
 
-## Unreleased
+## 2.11.18 - 2021-11-17
+
+### Fixed
+- Fixed a bug where GraphQL queries wouldn't return Neo child blocks in some cases
+- Fixed a bug where an entry's provisional draft would be created or updated if a Neo block was expanded or collapsed
+- Fixed a bug where expanding or collapsing a Neo block on a provisional draft wouldn't also set the expanded/collapsed state on the canonical block
+
+## 2.11.17 - 2021-11-11
+
+### Fixed
+- Fixed a bug when adding new blocks to a Neo field using GraphQL mutations, where queries for the returned data to include child blocks would not return the child blocks
+- Fixed an error that occurred when cloning or pasting a Neo block that uses the child blocks UI element
+
+## 2.11.16 - 2021-11-08
+
+### Fixed
+- Fixed a bug where new entry blocks (e.g. from a newly-applied draft) could be merged into the incorrect position of an already existing provisional draft
+- Fixed an error that could occur on a multi-site Craft install when saving a new entry from changes to an existing entry, if the entry had a Neo field with a propagation method other than "Only save blocks to the site they were created in" and the entry's section was disabled for any site
+
+## 2.11.15 - 2021-10-22
+
+### Fixed
+- Fixed an issue where getting a Neo block's children in a GraphQL query could cause a deprecation warning to be logged if the block had no children
+
+## 2.11.14 - 2021-10-06
+
+### Fixed
+- Fixed a bug when reverting an entry to a previous revision, where Neo blocks that had since been soft-deleted couldn't be restored
+- Fixed a CSS issue with Neo fields in element editor slideouts, where unselected Neo block tab content would still be displayed along with the selected tab's content
+
+## 2.11.13 - 2021-09-15
 
 ### Changed
-- Neo now requires Craft 3.7.0 beta 3 or later
+- In GraphQL queries, Neo blocks now have a `level` field
+
+### Fixed
+- Fixed a bug where disabled Neo blocks could disappear if validation errors occurred elsewhere in the Neo field
+- Fixed a bug where, when saving a Neo field, Neo block types with no child block types could have their `childBlocks` value stored as an empty string in the project config, rather than `null`
+- Fixed a bug with GraphQL mutations, where mutating an existing Neo block without specifying a level argument would cause it to be moved to level 1 if it was at a different level
+
+## 2.11.12 - 2021-09-09
+
+### Fixed
+- Fixed a potential error when saving an entry
+
+## 2.11.11.1 - 2021-09-09
+
+### Fixed
+- Fixed an error that could occur with the Gatsby Helper and Gatsby Source plugins
+
+## 2.11.10 - 2021-09-09
+
+### Changed
+- Neo now requires Craft 3.7.12 or later
+- Improved the performance of applying drafts with Neo content, in combination with draft performance improvements in Craft 3.7.12
+
+### Fixed
+- Fixed a bug that could cause disabled Neo blocks to be validated when saving
+
+## 2.11.9 - 2021-08-30
+
+### Fixed
+- Fixed a bug where Neo block queries could cause errors in preview mode, if the preview request token had no `draftId` or `revisionId` properties set
+
+## 2.11.8 - 2021-08-26
+
+### Fixed
+- Fixed a bug affecting element types using the old Craft Live Preview system (e.g. categories) where querying for the children of unsaved blocks would return no results
+
+## 2.11.7 - 2021-08-20
+
+### Added
+- Collapsed block previews can now display CodeMirror field content
+- Collapsed block previews can now display oEmbed field input content
+
+### Changed
+- Changed the "Move Up" and "Move Down" Neo block action button text to "Move up" and "Move down"
+
+### Fixed
+- Fixed a bug where the "Move up" and "Move down" Neo block action button text couldn't be translated
+
+## 2.11.6.1 - 2021-08-12
+
+### Fixed
+- Fixed an error with the Neo 2.11.6 migration on PHP 7.x
+
+## 2.11.6 - 2021-08-12
+
+> {warning} This release includes a migration to delete old Neo block structure data on single-site Craft installs that could cause duplicate blocks to appear when eager loading or using GraphQL. If your Craft install is single-site, make sure to backup your database before updating Neo.
+
+### Fixed
+- Fixed an issue affecting single-site Craft installs, where two Neo block structures could exist for a given field/owner, causing duplicate blocks to appear when eager loading or using GraphQL
+
+## 2.11.5 - 2021-08-04
+
+### Fixed
+- Fixed a compatibility issue with Field Manager (thanks @engram-design)
+
+## 2.11.4 - 2021-07-29
+
+### Fixed
+- Fixed a bug where changing the sort order of Neo blocks without otherwise modifying the Neo field's block structure would cause the new sort order not to be saved
+
+## 2.11.3 - 2021-07-27
+
+### Fixed
+- Fixed a bug where new draft blocks could be lost in some cases when merging updated entry content into drafts
+- Fixed a bug where a revision could lose blocks when reverting the entry to that revision
+- Fixed a bug where Neo sub-fields' status indicators were not positioned correctly
+
+## 2.11.2 - 2021-07-22
+
+### Fixed
+- Fixed a bug where block children/descendant queries weren't working on draft/revision previews
+- Fixed a bug where drafts wouldn't autosave after using the 'move up' or 'move down' Neo block actions
+
+## 2.11.1 - 2021-07-15
+
+### Changed
+- Neo now requires Craft 3.7.0 or later
+
+### Fixed
+- Fixed a bug where Neo field data could be lost when saving an entry, if a new Neo block had been created, and the entry was saved before the provisional draft could autosave after a content change
+
+## 2.11.0 - 2021-07-13
+
+### Added
+- Added compatibility with provisional drafts in Craft 3.7
+- Added compatibility with canonical/derivative element merging in Craft 3.7
+- Added the ability to copy and paste block types between fields
+
+### Changed
+- Neo now requires Craft 3.7.0-beta.6 or later
+
+### Deprecated
+- Deprecated Neo blocks' `getModified()` and `setModified()` methods
+
+### Fixed
+- Fixed a bug where drafts wouldn't autosave after deleting, cloning or pasting Neo blocks, or when collapsing or expanding blocks by double-clicking the top bar
+
+## 2.10.8 - 2021-07-14
+
+### Fixed
+- Fixed a bug where, when using the 'Add block above' action on a child block, new block buttons for block types that had reached their 'Max Sibling Blocks of This Type' limit were not being disabled
+
+## 2.10.7 - 2021-07-08
+
+### Fixed
+- Fixed a bug when cloning or pasting a Neo block that uses the child blocks UI element, where two child block containers would appear
+
+## 2.10.6 - 2021-07-06
+
+### Fixed
+- Fixed a bug where GraphQL queries for a Neo field's contents with the field's `level` argument set to `0` would only return level 1 blocks, rather than all blocks belonging to the field
 
 ## 2.10.5 - 2021-06-25
 

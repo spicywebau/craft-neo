@@ -61,6 +61,13 @@ class BlockQuery extends ElementQuery
      */
     public $allowOwnerRevisions;
 
+    // Protected properties
+
+    /**
+     * @inheritdoc
+     */
+    protected $defaultOrderBy = ['neoblocks.sortOrder' => SORT_ASC];
+
     // Private properties
 
     /**
@@ -72,8 +79,6 @@ class BlockQuery extends ElementQuery
      * @var bool Whether to operate on a memoized data set.
      */
     private $_useMemoized = false;
-
-    private $blockLevel = null;
 
     private static $ownersById = [];
 
@@ -373,7 +378,6 @@ class BlockQuery extends ElementQuery
     {
         $this->joinElementTable('neoblocks');
         $isSaved = $this->id && is_numeric($this->id);
-        $hadFieldAndOwnerSet = $this->fieldId && $this->ownerId;
 
         if ($isSaved) {
             foreach (['fieldId', 'ownerId'] as $idProperty) {
@@ -390,40 +394,22 @@ class BlockQuery extends ElementQuery
         $this->_normalizeProp('fieldId');
         $this->_normalizeProp('ownerId');
 
-        $fieldId = $this->fieldId !== null && count($this->fieldId) === 1 ? $this->fieldId[0] : $this->fieldId;
-        $ownerId = $this->ownerId !== null && count($this->ownerId) === 1 ? $this->ownerId[0] : $this->ownerId;
-
-        // If no field or owner IDs were set in the query, we don't really care about the structureId
-        if (!$this->structureId && $hadFieldAndOwnerSet && is_numeric($fieldId) && is_numeric($ownerId)) {
-            $blockStructure = Neo::$plugin->blocks->getStructure($fieldId, $ownerId, (int)$this->siteId);
-
-            if ($blockStructure) {
-                $this->structureId = $blockStructure->structureId;
-            }
-        }
-
-        $select = [
+        $this->query->select([
             'neoblocks.fieldId',
             'neoblocks.ownerId',
             'neoblocks.typeId'
-        ];
+        ]);
 
         if (Neo::$plugin->blockHasSortOrder) {
-            $select[] = 'neoblocks.sortOrder';
-
-            if ((!isset($this->select[0]) || $this->select[0] !== 'COUNT(*)') && $this->structureId !== null) {
-                $this->orderBy(['neoblocks.sortOrder' => SORT_ASC]);
-            }
+            $this->query->addSelect(['neoblocks.sortOrder']);
         }
 
-        $this->query->select($select);
-
-        if ($fieldId) {
-            $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $fieldId));
+        if ($this->fieldId) {
+            $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $this->fieldId));
         }
 
-        if ($ownerId) {
-            $this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $ownerId));
+        if ($this->ownerId) {
+            $this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $this->ownerId));
         }
 
         if ($this->typeId !== null) {
@@ -492,7 +478,7 @@ class BlockQuery extends ElementQuery
         $token = !$request->getIsConsoleRequest() ? $request->getParam('token') : '';
         $route = !empty($token) ? Craft::$app->tokens->getTokenRoute($token) : null;
 
-        return $route && $route[1][$prop] !== null;
+        return $route && isset($route[1][$prop]) && $route[1][$prop] !== null;
     }
 
     private function _ownerElementHasProp(string $prop): bool
@@ -847,7 +833,7 @@ class BlockQuery extends ElementQuery
             if ($element === $value) {
                 $found = true;
             } else if ($found) {
-                if ($element->rgt < $value->rgt) {
+                if (($value->rgt && $element->rgt < $value->rgt) || $element->level > $value->level) {
                     $descendants[] = $element;
                 } else {
                     break;

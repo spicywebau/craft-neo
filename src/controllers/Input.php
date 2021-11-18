@@ -107,6 +107,13 @@ class Input extends Controller
         if ($block && !Neo::$plugin->getSettings()->collapseAllBlocks) {
             $block->setCollapsed(!$expanded);
             $block->cacheCollapsed();
+
+            // Also set the canonical block to the new state if this is a derivative block owned by a provisional draft
+            if ($block->getOwner()->isProvisionalDraft && !$block->getIsCanonical()) {
+                $canonicalBlock = $block->getCanonical();
+                $canonicalBlock->setCollapsed(!$expanded);
+                $canonicalBlock->cacheCollapsed();
+            }
             
             $return = $this->asJson([
                 'success' => true,

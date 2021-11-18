@@ -99,6 +99,20 @@ export default Garnish.Base.extend({
       renderOldChildBlocksContainer: settings.renderOldChildBlocksContainer
     }))
 
+    // Add this block's subfields to Craft's delta names
+    // Short-term solution to set these in JS until Neo issue #298 is resolved
+    if (!this.isNew()) {
+      const blockNamespace = NS.toFieldName().replace(/(\[|\])/g, '\\$1')
+      const propsNamespace = `${blockNamespace}\\[[a-zA-Z]+\\]`
+      const subFieldsMatch = new RegExp(`${propsNamespace}(\\[[a-zA-Z][a-zA-Z0-9_]*\\])?`, 'g')
+
+      this._blockType.getTabs().forEach(tab => {
+        // Use a set to remove duplicate matches, e.g. when there's a Matrix field
+        const subFields = new Set(tab.getBodyHtml(this._id).match(subFieldsMatch))
+        subFields.forEach(subField => Craft.deltaNames.push(subField))
+      })
+    }
+
     NS.leave()
 
     const $neo = this.$container.find('[data-neo-b]')
@@ -121,9 +135,7 @@ export default Garnish.Base.extend({
     this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
     this.$tabsButton = $neo.filter('[data-neo-b="button.tabs"]')
     this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
-    this.$collapsedInput = $neo.filter('[data-neo-b="input.collapsed"]')
     this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
-    this.$modifiedInput = $neo.filter('[data-neo-b="input.modified"]')
     this.$status = $neo.filter('[data-neo-b="status"]')
     this.$sortOrder = $neo.filter('[data-neo-b="sortOrder"]')
 
@@ -274,7 +286,6 @@ export default Garnish.Base.extend({
   },
 
   setModified (isModified) {
-    this.$modifiedInput.val(isModified ? 1 : 0)
     this._modified = isModified
   },
 
@@ -317,6 +328,12 @@ export default Garnish.Base.extend({
     for (const rawName of Object.keys(rawContent)) {
       const fullName = NS.parse(rawName)
       const name = fullName.slice(this._templateNs.length + 1) // Adding 1 because content is NS'd under [fields]
+
+      // Make sure empty arrays (which can happen with level, enabled, etc. when using the child blocks UI element) are ignored
+      if (!name.length) {
+        continue
+      }
+
       const value = rawContent[rawName]
 
       setValue(name, value)
@@ -607,12 +624,26 @@ export default Garnish.Base.extend({
             value = _escapeHTML(values.join(', '))
           }
           break
+        case 'luwes\\codemirror\\fields\\CodeMirrorField':
+        {
+          const lines = []
+
+          $field.find('.CodeMirror-line > span').each(function () {
+            lines.push($(this).text())
+          })
+
+          value = _escapeHTML(lines.join(' '))
+          break
+        }
         case 'rias\\positionfieldtype\\fields\\Position':
         {
           const $selected = $input.find('.btn.active')
 
           value = _escapeHTML($selected.prop('title'))
+          break
         }
+        case 'wrav\\oembed\\fields\\OembedField':
+          value = _escapeHTML(_limit($input.children('input').val()))
       }
 
       if (value && previewText.length < 10) {
@@ -689,8 +720,6 @@ export default Garnish.Base.extend({
         this.$bodyContainer.css(this._expanded ? clearCss : collapsedCss)
       }
 
-      this.$collapsedInput.val(this._expanded ? 0 : 1)
-
       if (save) {
         this.saveExpansion()
       }
@@ -707,9 +736,16 @@ export default Garnish.Base.extend({
 
   saveExpansion () {
     if (!this.isNew()) {
+      // Use the duplicated block ID if we're on a new provisional draft
+      // The server-side code will also apply the new state to the canonical block
+      const thisBlockId = this.getId()
+      const duplicatedBlockId = window.draftEditor.duplicatedElements[thisBlockId]
+      const sentBlockId = window.draftEditor.settings.isProvisionalDraft && typeof duplicatedBlockId !== 'undefined'
+        ? duplicatedBlockId
+        : thisBlockId
       Craft.queueActionRequest('neo/input/save-expansion', {
         expanded: this.isExpanded() ? 1 : 0,
-        blockId: this.getId(),
+        blockId: sentBlockId,
         locale: this.getLocale()
       })
     }
@@ -979,7 +1015,15 @@ export default Garnish.Base.extend({
     const isRight = ($checkFrom.closest(this.$topbarRightContainer).length > 0)
 
     if (!isLeft && !isRight) {
+      if (window.draftEditor) {
+        window.draftEditor.pause()
+      }
+
       this.toggleExpansion()
+
+      if (window.draftEditor) {
+        window.draftEditor.resume()
+      }
     }
   },
 

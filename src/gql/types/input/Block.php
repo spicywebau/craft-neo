@@ -98,7 +98,15 @@ class Block extends InputObjectType
                     $type = array_key_first($block);
                     $block = reset($block);
                     $blockId = !empty($block['id']) ? $block['id'] : 'new:' . ($blockCounter++);
-                    $blockLevel = !empty($block['level']) ? $block['level'] : 1;
+                    $blockLevel = null;
+                    
+                    if (!empty($block['level'])) {
+                        // Set the block's new level
+                        $blockLevel = $block['level'];
+                    } else if (empty($block['id'])) {
+                        // Default new blocks to level 1
+                        $blockLevel = 1;
+                    }
 
                     unset($block['id'], $block['level']);
 

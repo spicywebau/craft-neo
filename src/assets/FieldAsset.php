@@ -67,6 +67,8 @@ class FieldAsset extends AssetBundle
             'Delete',
             'Reorder',
             'Add a block',
+            'Move up',
+            'Move down',
             'Name',
             'What this block type will be called in the CP.',
             'Handle',
@@ -196,7 +198,7 @@ class FieldAsset extends AssetBundle
                 $jsBlocks[] = [
                     'id' => $block->id,
                     'blockType' => $blockType->handle,
-                    'modified' => $block->getModified(),
+                    'modified' => false,
                     'sortOrder' => $sortOrder++,
                     'collapsed' => !$collapseAllBlocks ? $block->getCollapsed() : true,
                     'enabled' => (bool)$block->enabled,
