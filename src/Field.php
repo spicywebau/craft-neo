@@ -26,6 +26,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Gql as GqlHelper;
+use craft\helpers\StringHelper;
 use craft\helpers\Queue;
 use craft\gql\GqlEntityRegistry;
 use craft\queue\jobs\ApplyNewPropagationMethod;
@@ -865,15 +866,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function getGqlFragmentEntityByName(string $fragmentName): GqlInlineFragmentInterface
     {
-        if (!preg_match('/^(?P<fieldHandle>[\w]+)_(?P<blockTypeHandle>[\w]+)_BlockType$/i', $fragmentName, $matches)) {
-            throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
-        }
-
-        if ($this->handle !== $matches['fieldHandle']) {
-            throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
-        }
-
-        $blockType = ArrayHelper::firstWhere($this->getBlockTypes(), 'handle', $matches['blockTypeHandle']);
+        $blockTypeHandle = StringHelper::removeLeft(StringHelper::removeRight($fragmentName, '_BlockType'), $this->handle . '_');
+        $blockType = ArrayHelper::firstWhere($this->getBlockTypes(), 'handle', $blockTypeHandle);
 
         if (!$blockType) {
             throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
