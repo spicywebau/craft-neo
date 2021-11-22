@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.19 - 2021-11-22
 
 ### Fixed
 - Fixed a bug where GraphQL queries for asset fields in Neo blocks would return no results if the block type handle contained an underscore
