@@ -78,6 +78,6 @@ class DuplicateNeoStructureTask extends BaseJob
      */
     protected function defaultDescription(): string
     {
-        return Craft::t('app', 'Saving the neo structure for duplicated elements');
+        return Craft::t('neo', 'Saving the neo structure for duplicated elements');
     }
 }
