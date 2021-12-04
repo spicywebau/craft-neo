@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug involving incorrect merging of Neo block content from drafts and revisions in some cases
+
 ## 2.11.19 - 2021-11-22
 
 ### Fixed

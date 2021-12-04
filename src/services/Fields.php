@@ -372,7 +372,11 @@ class Fields extends Component
                     $target->updatingFromDerivative &&
                     $block->getCanonical() !== $block // in case the canonical block is soft-deleted
                 ) {
-                    if (!empty($target->newSiteIds) || $source->isFieldModified($field->handle)) {
+                    if (
+                        $source->getIsRevision() ||
+                        !empty($target->newSiteIds) ||
+                        $source->isFieldModified($field->handle, true)
+                    ) {
                         $newBlock = $elementsService->updateCanonicalElement($block, $newAttributes);
                     } else {
                         $newBlock = $block->getCanonical();
