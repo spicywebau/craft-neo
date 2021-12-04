@@ -109,7 +109,7 @@ class Block extends Element implements BlockElementInterface
 
         return $map;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -159,13 +159,13 @@ class Block extends Element implements BlockElementInterface
      * @var bool|null Whether this block should display as collapsed.
      */
     public $_collapsed;
-    
+
     /**
      * @since 2.7.0
      */
     public $sortOrder;
     public $oldLevel;
-    
+
     /**
      * @var bool Whether the block has changed.
      * @internal
@@ -477,7 +477,7 @@ class Block extends Element implements BlockElementInterface
             parent::setEagerLoadedElements($handle, $elements);
         }
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -509,11 +509,11 @@ class Block extends Element implements BlockElementInterface
             $record->fieldId = (int)$this->fieldId;
             $record->ownerId = (int)$this->ownerId;
             $record->typeId = (int)$this->typeId;
-            
+
             if (Neo::$plugin->blockHasSortOrder) {
                 $record->sortOrder = (int)$this->sortOrder ?: null;
             }
-            
+
             $record->save(false);
         }
 
@@ -612,7 +612,7 @@ class Block extends Element implements BlockElementInterface
         if (Craft::$app->request->getIsConsoleRequest()) {
             return false;
         }
-        
+
         // get token
         $token = Craft::$app->request->getParam('token');
 
