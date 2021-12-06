@@ -1,11 +1,13 @@
 {% import '_includes/forms' as forms %}
 
+{% set configurator %}{# TODO: put configurator HTML here instead of inserting it with JS #}{% endset %}
+
 <div id="neo-configurator" class="neo-configurator">
     {{ forms.field({
         label: "Configuration"|t('neo'),
         instructions: "Define the types of blocks that can be created within this Neo field, as well as the fields each block type is made up of."|t('neo'),
         name: 'config',
-    }) }}
+    }, configurator) }}
 </div>
 
 {% if craft.app.getIsMultiSite() %}
