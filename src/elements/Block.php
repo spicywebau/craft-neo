@@ -268,7 +268,8 @@ class Block extends Element implements BlockElementInterface
             return [Craft::$app->getSites()->getPrimarySite()->id];
         }
 
-        return Neo::$plugin->fields->getSupportedSiteIds($this->_getField()->propagationMethod, $owner);
+        $field = $this->_getField();
+        return Neo::$plugin->fields->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
     }
 
     /**

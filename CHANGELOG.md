@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added the Custom propagation method
+
 ## 2.11.20 - 2021-12-06
 
 ### Fixed
