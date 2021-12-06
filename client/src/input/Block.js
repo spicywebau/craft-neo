@@ -8,9 +8,6 @@ import NS from '../namespace'
 
 import { addFieldLinks } from '../plugins/cpfieldinspect/main'
 
-import renderTemplate from './templates/block.twig'
-import '../twig-extensions'
-
 const _defaults = {
   namespace: [],
   blockType: null,
@@ -85,35 +82,7 @@ export default Garnish.Base.extend({
     this._buttons = settings.buttons
     this._modified = settings.static ? true : settings.modified
     this._showButtons = settings.showButtons
-
-    NS.enter(this._templateNs)
-
-    this.$container = $(renderTemplate({
-      type: this._blockType,
-      id: this._id,
-      enabled: !!settings.enabled,
-      collapsed: !!settings.collapsed,
-      level: settings.level,
-      modified: this._modified,
-      sortOrder: this._id,
-      renderOldChildBlocksContainer: settings.renderOldChildBlocksContainer
-    }))
-
-    // Add this block's subfields to Craft's delta names
-    // Short-term solution to set these in JS until Neo issue #298 is resolved
-    if (!this.isNew()) {
-      const blockNamespace = NS.toFieldName().replace(/(\[|\])/g, '\\$1')
-      const propsNamespace = `${blockNamespace}\\[[a-zA-Z]+\\]`
-      const subFieldsMatch = new RegExp(`${propsNamespace}(\\[[a-zA-Z][a-zA-Z0-9_]*\\])?`, 'g')
-
-      this._blockType.getTabs().forEach(tab => {
-        // Use a set to remove duplicate matches, e.g. when there's a Matrix field
-        const subFields = new Set(tab.getBodyHtml(this._id).match(subFieldsMatch))
-        subFields.forEach(subField => Craft.deltaNames.push(subField))
-      })
-    }
-
-    NS.leave()
+    this.$container = $(`[data-neo-b-id=${this._id}]`)
 
     const $neo = this.$container.find('[data-neo-b]')
     this.$bodyContainer = $neo.filter('[data-neo-b="container.body"]')

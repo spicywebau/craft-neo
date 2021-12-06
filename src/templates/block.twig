@@ -1,17 +1,27 @@
-{% set hasTabs = (type.getTabs() is not empty) %}
-{% set isParent = type.isParent() %}
-<div class="ni_block ni_block--{{ type.getHandle() }} {{ collapsed ? 'is-collapsed' : 'is-expanded' }} {{ not hasTabs and not isParent ? 'is-empty' : '' }} {{ isParent ? 'is-parent' : '' }}" data-neo-b-id="{{ uniqueId() }}">
-    <input type="hidden" name="{{ 'type'|ns }}" value="{{ type.getHandle() }}">
-    <input type="hidden" name="{{ 'enabled'|ns }}" value="{{ enabled ? 1 : 0 }}" data-neo-b="input.enabled">
-    <input type="hidden" name="{{ 'level'|ns }}" value="{{ level }}" data-neo-b="input.level">
-    <input type="hidden" name="{{ 'sortOrder'|ns }}" value="{{ sortOrder }}" data-neo-b="sortOrder">
+{% set type = block.type %}
+{% set typeFieldLayoutForm = block.getFieldLayout().createForm(block, static) %}
+{% set typeTabs = type.getFieldLayout().getTabs() %}
+{% set hasTabs = typeTabs is not empty %}
+{% set isParent = type.childBlocks is not null and type.childBlocks is not empty %}
+{% set renderOldChildBlocksContainer = typeTabs|filter(tab => tab.elements|filter(el => className(el) == '\\benf\\neo\\fieldlayoutelements\\ChildBlocksUiElement') is not empty) is empty %}
+{% set typeTabContent = {} %}
+
+{% for tab in typeTabs %}
+    {% set typeTabContent = typeTabContent|merge({ (tab.name): typeFieldLayoutForm.tabs[loop.index0].content }) %}
+{% endfor %}
+
+<div class="ni_block ni_block--{{ type.handle }} {{ block.collapsed ? 'is-collapsed' : 'is-expanded' }} {{ not hasTabs and not isParent ? 'is-empty' : '' }} {{ isParent ? 'is-parent' : '' }}" data-neo-b-id="{{ block.id }}">
+    <input type="hidden" name="{{ 'type'|ns }}" value="{{ type.handle }}">
+    <input type="hidden" name="{{ 'enabled'|ns }}" value="{{ block.enabled ? 1 : 0 }}" data-neo-b="input.enabled">
+    <input type="hidden" name="{{ 'level'|ns }}" value="{{ block.level }}" data-neo-b="input.level">
+    <input type="hidden" name="{{ 'sortOrder'|ns }}" value="{{ block.id }}" data-neo-b="sortOrder">
     <div class="ni_block_topbar" data-neo-b="container.topbar">
         <div class="ni_block_topbar_left" data-neo-b="container.topbarLeft">
             <div class="ni_block_topbar_item" data-neo-b="select">
-                <div class="checkbox block-checkbox" title="{{ "Select"|t }}"></div>
+                <div class="checkbox block-checkbox" title="{{ "Select"|t('neo') }}"></div>
             </div>
             <div class="ni_block_topbar_item title clip-text">
-                <span class="blocktype" data-neo-b="select">{{ type.getName() }}</span>{#
+                <span class="blocktype" data-neo-b="select">{{ type.name }}</span>{#
                 #}<span class="preview" data-neo-b="container.preview">&nbsp;</span>
             </div>
         </div>
@@ -20,29 +30,29 @@
                 {% if hasTabs or isParent %}
                     <div class="tabs_trigger" data-neo-b="button.toggler"></div>
                 {% endif %}
-                {% if type.getTabs()|length > 1 %}
+                {% if typeTabs|length > 1 %}
                     {% set hasErrors = false %}
                     <div class="tabs_inner" data-neo-b="container.tabs">
-                        {%- for tab in type.getTabs() -%}
+                        {%- for tab in typeTabs -%}
                             {%- set tabHasErrors = (tab.getErrors()|length > 0) -%}
-                            <a class="tab {{ tab.isBlank() ? ' is-blank' : '' }} {{ loop.first ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
-                               data-neo-b="button.tab"
-                               data-neo-b-info="{{ tab.name }}">
+                            <a class="tab {{ loop.first ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
+                            data-neo-b="button.tab"
+                            data-neo-b-info="{{ tab.name }}">
                                 {{ tab.name }}
                             </a>
                             {%- set hasErrors = (hasErrors or tabHasErrors) -%}
                         {%- endfor -%}
                     </div>
                     <div class="tabs_btn menubtn {{ hasErrors ? ' has-errors' : '' }}" data-neo-b="button.tabs">
-                        {{ (type.getTabs()|first).name }}
+                        {{ (typeTabs|first).name }}
                     </div>
                     <div class="neo_block_tabs-menu menu">
                         <ul>
-                            {% for tab in type.getTabs() %}
+                            {% for tab in typeTabs %}
                                 <li>
                                     <a class="{{ loop.first ? ' is-selected' : '' }} {{ tab.getErrors()|length > 0 ? ' has-errors' : '' }}"
-                                       data-neo-b="button.tab"
-                                       data-neo-b-info="{{ tab.name }}">
+                                    data-neo-b="button.tab"
+                                    data-neo-b-info="{{ tab.name }}">
                                         {{ tab.name }}
                                     </a>
                                 </li>
@@ -89,18 +99,22 @@
         <div class="ni_block_body" data-neo-b="container.body">
             {% if hasTabs %}
                 <div class="ni_block_content" data-neo-b="container.content">{%
-                    for tab in type.getTabs() %}
-                        <div class="ni_block_content_tab {{ tab.isBlank() ? ' is-blank' : 'flex-fields' }} {{ loop.first ? ' is-selected' : '' }}"
-                             data-neo-b="container.tab"
-                             data-neo-b-info="{{ tab.name }}">
-                            {{ tab.getBodyHtml(id) }}
+                    for tab in typeTabs %}
+                        <div class="ni_block_content_tab flex-fields {{ loop.first ? ' is-selected' : '' }}"
+                            data-neo-b="container.tab"
+                            data-neo-b-info="{{ tab.name }}">
+                            {{ typeTabContent[tab.name]|raw }}
                         </div>
                     {% endfor
                 %}</div>
             {% endif %}
             {% if isParent and renderOldChildBlocksContainer %}
                 <div class="ni_block_children" data-neo-b="container.children">
-                    <div class="ni_blocks" data-neo-b="container.blocks"></div>
+                    <div class="ni_blocks" data-neo-b="container.blocks">
+                        {% for child in block.children.all() %}
+                            {% include 'neo/block' with { block: child, static } only %}
+                        {% endfor %}
+                    </div>
                     <div data-neo-b="container.buttons" class="hidden"></div>
                     <div data-neo-b="container.childrenWarnings" class="hidden">
                         <p class="first warning with-icon">{{ "This Neo field's maximum number of levels has been reached, so no child blocks can be added here."|t('neo') }}</p>

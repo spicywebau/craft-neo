@@ -964,12 +964,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $viewService->registerAssetBundle(FieldAsset::class);
             $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $element));
 
+            foreach ($value as $block) {
+                $block->useMemoized($value);
+            }
+
             $html = $viewService->renderTemplate('neo/input', [
-                'neoField' => $this,
+                'handle' => $this->handle,
                 'id' => $viewService->formatInputId($this->handle),
                 'name' => $this->handle,
                 'translatable' => $this->propagationMethod,
                 'static' => $static,
+                'blocks' => $value,
             ]);
         }
 
