@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.21 - 2021-12-06
 
 ### Fixed
 - Fixed an error that occurred on Craft 3.7.24 when editing a Neo field's settings
