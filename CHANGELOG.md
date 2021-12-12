@@ -5,6 +5,9 @@
 ### Added
 - Added the Custom propagation method
 
+### Fixed
+- Fixed a bug where Neo block queries that were filtering by block ID weren't working in live preview mode if they were using an array of IDs
+
 ## 2.11.21 - 2021-12-06
 
 ### Fixed

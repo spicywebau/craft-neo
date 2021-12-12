@@ -846,7 +846,7 @@ class BlockQuery extends ElementQuery
 
     /**
      * @param array $elements
-     * @param int $value
+     * @param int[]|int|null $value
      * @return array
      */
     private function __id(array $elements, $value): array
@@ -855,8 +855,18 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $newElements = array_filter($elements, function ($element) use ($value) {
-            return $element->id == $value;
+        if (!is_array($value)) {
+            return $this->__id($elements, [$value]);
+        }
+
+        $ids = [];
+
+        foreach ($value as $id) {
+            $ids[$id] = true;
+        }
+
+        $newElements = array_filter($elements, function ($element) use ($ids) {
+            return $element->id !== null && isset($ids[$element->id]);
         });
 
         return array_values($newElements);
