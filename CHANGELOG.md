@@ -8,6 +8,7 @@
 ### Fixed
 - Fixed a bug affecting element types using the old Live Preview mode (e.g. categories) where unsaved Neo blocks at the top level would be counted as children of the previous top-level block
 - Fixed a bug where Neo block queries that were filtering by block ID weren't working in live preview mode if they were using an array of IDs
+- Fixed a bug that could cause the `m201208_110049_delete_blocks_without_sort_order` migration to fail (thanks @naboo)
 
 ## 2.11.21 - 2021-12-06
 

@@ -37,15 +37,18 @@ class m201208_110049_delete_blocks_without_sort_order extends Migration
             ->from('{{%neoblocks}}')
             ->where('[[sortOrder]] IS NULL')
             ->column();
-        $neoBlocks = Block::find()
-            ->id($neoBlockIds)
-            ->siteId('*')
-            ->unique()
-            ->anyStatus()
-            ->all();
 
-        foreach ($neoBlocks as $neoBlock) {
-            $elementsService->deleteElement($neoBlock, false);
+        foreach(array_chunk($neoBlockIds, 100) as $neoBlockChunkIds) {
+            $neoBlocks = Block::find()
+                ->id($neoBlockChunkIds)
+                ->siteId('*')
+                ->unique()
+                ->anyStatus()
+                ->all();
+
+            foreach ($neoBlocks as $neoBlock) {
+                $elementsService->deleteElement($neoBlock, false);
+            }
         }
     }
 
