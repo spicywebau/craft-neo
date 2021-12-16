@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug that could cause Neo blocks to be saved out of order
 - Fixed a deprecation warning that could occur when eager loading Neo fields on Craft installs that have a custom field with the handle `order`
 
 ## 2.12.0 - 2021-12-13
