@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.12.1 - 2021-12-16
 
 ### Fixed
 - Fixed a bug that could cause Neo blocks to be saved out of order
