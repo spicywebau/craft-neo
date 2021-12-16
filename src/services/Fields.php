@@ -373,7 +373,7 @@ class Fields extends Component
                     $block->getCanonical() !== $block // in case the canonical block is soft-deleted
                 ) {
                     if (
-                        $source->getIsRevision() ||
+                        ElementHelper::isRevision($source) ||
                         !empty($target->newSiteIds) ||
                         $source->isFieldModified($field->handle, true)
                     ) {
