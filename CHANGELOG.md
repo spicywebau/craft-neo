@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a deprecation warning that could occur when eager loading Neo fields on Craft installs that have a custom field with the handle `order`
+
 ## 2.12.0 - 2021-12-13
 
 ### Added
