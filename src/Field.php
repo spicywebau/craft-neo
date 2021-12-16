@@ -618,8 +618,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
     /**
      * @inheritdoc
-     * removed as this is causing issues when changing propagation method.
-     * manually it can still be done by saving the entry
      */
     public function beforeSave(bool $isNew): bool
     {
