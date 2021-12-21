@@ -4,6 +4,7 @@ namespace benf\neo;
 
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
+use Craft;
 
 /**
  * Class Variable
@@ -27,16 +28,6 @@ class Variable
      */
     public function blocks(array $criteria = null): BlockQuery
     {
-        $query = Block::find();
-
-        if ($criteria !== null)
-        {
-            foreach ($criteria as $param => $value)
-            {
-                $query->$param = $value;
-            }
-        }
-
-        return $query;
+        return Craft::configure(Block::find(), ($criteria ?? []));
     }
 }
