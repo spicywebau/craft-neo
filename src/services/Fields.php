@@ -573,16 +573,18 @@ class Fields extends Component
                         if ($derivativeBlock->dateUpdated == $derivativeBlock->dateCreated) {
                             $elementsService->deleteElement($derivativeBlock);
                         }
-                    } else if (!$derivativeBlock->trashed && ElementHelper::isOutdated($derivativeBlock)) {
-                        if (!$owner->isProvisionalDraft && $derivativeBlock->sortOrder != $nextBlockSortOrder) {
-                            $derivativeBlock->sortOrder = $nextBlockSortOrder;
-                            $structureMode = Structures::MODE_AUTO;
-                        }
+                    } else if (!$derivativeBlock->trashed) {
+                        if (ElementHelper::isOutdated($derivativeBlock)) {
+                            if (!$owner->isProvisionalDraft && $derivativeBlock->sortOrder != $nextBlockSortOrder) {
+                                $derivativeBlock->sortOrder = $nextBlockSortOrder;
+                                $structureMode = Structures::MODE_AUTO;
+                            }
 
-                        $elementsService->mergeCanonicalChanges($derivativeBlock);
-                        $allBlocks[] = $newBlock = $derivativeBlock;
-                    } else {
-                        $allBlocks[] = $derivativeBlock;
+                            $elementsService->mergeCanonicalChanges($derivativeBlock);
+                            $allBlocks[] = $newBlock = $derivativeBlock;
+                        } else {
+                            $allBlocks[] = $derivativeBlock;
+                        }
                     }
                 } else if (!$canonicalBlock->trashed && $canonicalBlock->dateCreated > $owner->dateCreated) {
                     $allBlocks[] = $newBlock = $elementsService->duplicateElement($canonicalBlock, [
