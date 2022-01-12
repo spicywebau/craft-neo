@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.12.2 - 2022-01-12
 
 ### Fixed
 - Fixed an error that could occur when merging live entry Neo content into a draft if a live entry Neo parent block had been deleted in the draft
