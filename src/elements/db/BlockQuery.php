@@ -93,26 +93,18 @@ class BlockQuery extends ElementQuery
 
         switch ($name) {
             case 'ownerSite':
-                {
-                    Craft::$app->getDeprecator()->log('BlockQuery::ownerSite()',
-                        'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
-                }
+                Craft::$app->getDeprecator()->log('BlockQuery::ownerSite()',
+                    'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
                 break;
             case 'type':
-                {
-                    $this->type($value);
-                }
+                $this->type($value);
                 break;
             case 'ownerLocale':
-                {
-                    $deprecatorService->log('BlockQuery::ownerLocale()',
-                        "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
-                }
+                $deprecatorService->log('BlockQuery::ownerLocale()',
+                    "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
                 break;
             default:
-            {
                 parent::__set($name, $value);
-            }
         }
     }
 
