@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that occurred when using `craft.neo.blocks()`, where trying to set the Neo block query's `owner` parameter to an owner element using a criteria array would cause the `owner` parameter to be ignored
+
 ## 2.12.2 - 2022-01-12
 
 ### Fixed
