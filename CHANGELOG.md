@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.12.3 - 2022-01-25
 
 ### Fixed
-- Fixed a bug where restoring trashed entries was not properly restoring the Neo blocks/structures for that entry on multisite Craft installs
+- Fixed a bug where restoring a trashed entry was not properly restoring the Neo blocks/structures for that entry on multisite Craft installs
 - Fixed a bug that occurred when using `craft.neo.blocks()`, where trying to set the Neo block query's `owner` parameter to an owner element using a criteria array would cause the `owner` parameter to be ignored
 
 ## 2.12.2 - 2022-01-12
