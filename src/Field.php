@@ -773,20 +773,23 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             // Site IDs start from 1 -- let's treat non-localized blocks as site 0
             $key = $blockStructure->ownerSiteId ?? 0;
 
-            $allBlocks = Block::find()
+            $allBlocksQuery = Block::find()
                 ->anyStatus()
                 ->fieldId($this->id)
-                ->owner($element)
-                ->all();
+                ->ownerId($element->id);
 
-            $allBlocksCount = count($allBlocks);
+            if ($key !== 0) {
+                $allBlocksQuery->siteId($key);
+            }
+
+            $allBlocks = $allBlocksQuery->all();
 
             // if the neo block structure doesn't have the ownerSiteId set and has blocks
             // set the ownerSiteId of the neo block structure.
 
             // it's set from the first block because we got all blocks related to this structure beforehand
             // so the siteId should be the same for all blocks.
-            if (empty($blockStructure->ownerSiteId) && $allBlocksCount > 0) {
+            if (empty($blockStructure->ownerSiteId) && !empty($allBlocks)) {
                 $blockStructure->ownerSiteId = $allBlocks[0]->siteId;
                 // need to set the new key since the ownersiteid is now set
                 $key = $blockStructure->ownerSiteId;
@@ -801,7 +804,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->anyStatus()
                 ->fieldId($this->id)
                 ->siteId($siteId)
-                ->owner($element)
+                ->ownerId($element->id)
                 ->inReverse()
                 ->all();
 
@@ -834,7 +837,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $blocks = Block::find()
                 ->anyStatus()
                 ->siteId($supportedSite['siteId'])
-                ->owner($element)
+                ->ownerId($element->id)
                 ->trashed()
                 ->andWhere(['neoblocks.deletedWithOwner' => true])
                 ->all();
