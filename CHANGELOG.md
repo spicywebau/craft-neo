@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug affecting multi-site Craft installs, where applying changes to two sites from two different drafts would cause Neo blocks to be duplicated
+
 ## 2.12.3 - 2022-01-25
 
 ### Fixed
