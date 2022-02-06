@@ -10,41 +10,42 @@ Neo is a [Craft CMS](https://craftcms.com) field type that builds upon the conce
 ### Use existing fields
 In contrast to the Matrix field, block types are built using existing fields.
 
-<img src="docs/assets/feature1-1.png" width="790">
+<img src="docs/assets/feature1-1.png" width="781">
 <br>
 
 ### Organise blocks with tabs
 Sometimes block types require having a lot of fields. Using the field layout designer, you can organise fields into tabs, much like when creating entry types.
 
-<img src="docs/assets/feature2-1.png" width="622">
-<img src="docs/assets/feature2-2.png" width="622">
+<img src="docs/assets/feature2-1.png" width="754">
+<img src="docs/assets/feature2-2.png" width="754">
 <br>
 
 ### Group block buttons
 And sometimes you end up with many block types. Adding groups allows you to organise your block types into drop down menus.
 
-<img src="docs/assets/feature3-1.png" width="790">
-<img src="docs/assets/feature3-2.png" width="622">
+<img src="docs/assets/feature3-1.png" width="700">
+<img src="docs/assets/feature3-2.png" width="395">
 <br>
 
 ### Set maximum blocks by type
 Neo has the ability to set a maximum count on individual block types.
 
-<img src="docs/assets/feature4-1.png" width="622">
+<img src="docs/assets/feature4-1.png" width="754">
 <br>
 
 ### Allow blocks to contain children
 Let block types have the ability to contain child block types. You can filter what blocks are allowed within others, as well as set whether a block type can only be a child of another.
 
-<img src="docs/assets/feature5-1.png" width="790">
-<img src="docs/assets/feature5-2.png" width="622">
+<img src="docs/assets/feature5-1.png" width="750">
+<img src="docs/assets/feature5-2.png" width="754">
 
 ### Copy/Paste Blocks
 A copied block can be pasted anywhere within its field that allows that particular block type to exist. 
 Neo copies/pastes a block with descendants, all descendant blocks are copied and pasted with the ancestor block.
 
-<img src="docs/assets/feature6-1.png" width="790">
-<img src="docs/assets/feature6-2.png" width="750">
+<img src="docs/assets/feature6-1.png" width="822">
+<img src="docs/assets/feature6-2.png" width="807">
+<img src="docs/assets/feature6-3.png" width="754">
 
 ## Documentation
 - [Installation](docs/installation.md)
