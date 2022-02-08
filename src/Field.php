@@ -111,6 +111,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public $maxLevels;
 
+    /**
+     * @var bool
+     * @since 2.6.5
+     * @deprecated in 2.12.5
+     */
     public $wasModified = false;
 
     /**
@@ -636,20 +641,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // groups will actually be deleted.
         if (!$requestService->isConsoleRequest && $requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.groups") === null) {
             $this->setGroups([]);
-        }
-
-        // TODO: need to further modify so it checks if there's changes to the field. current it's just a quick fix for #310
-        if ($this->uid) {
-            $projectService = Craft::$app->getProjectConfig();
-
-            // since new uses predefined fields then we need to make sure craft knows to update the field.
-            // the new setting
-            $path = $fieldsService::CONFIG_FIELDS_KEY . '.' . $this->uid;
-            $this->wasModified = !$this->wasModified;
-            $value = $projectService->get($path);
-            if ($value && isset($value['settings']['wasModified'])) {
-                $this->wasModified = !$value['settings']['wasModified'];
-            }
         }
 
         // Set each block type's field layout based on the data from Craft 3.5's field layout designer
