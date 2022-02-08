@@ -1120,27 +1120,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     }
 
     /**
-     * Checks if the blocks has sortOrder
-     * Returns the true if it has sortOrder else it'll be false.
-     *
-     * @param array $blocks The raw field data.
-     * @return bool
-     */
-    private function _checkSortOrderOfBlocks(array $blocks): bool
-    {
-        $isNull = false;
-
-        foreach ($blocks as $block) {
-            if ($block->sortOrder === null) {
-                $$isNull = true;
-                break;
-            }
-        }
-
-        return !$isNull;
-    }
-
-    /**
      * Sets some default properties on a Neo block query on this field, given its owner element.
      *
      * @param BlockQuery $query
