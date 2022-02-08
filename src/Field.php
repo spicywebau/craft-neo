@@ -634,18 +634,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $requestService = Craft::$app->getRequest();
         $class = Self::class;
 
-        // Later on, the field saving process will call `getGroups()` when trying to delete old groups.  If this request
-        // is coming from the field settings page and all groups were deleted by the user, `$this->_blockTypeGroups`
-        // will be `null`, `getGroups()` will return `Neo::$plugin->blockTypes->getGroupsByFieldId($this->id)` and the
-        // groups won't be deleted.  By detecting this here, we can set an empty array of groups, so the to-be-deleted
-        // groups will actually be deleted.
+        // Later, the field saving process will call `getGroups()` when trying to delete old groups. If this request is
+        // coming from the field settings page and all groups were deleted by the user, `$this->_blockTypeGroups` will
+        // be `null`, `getGroups()` will return `Neo::$plugin->blockTypes->getGroupsByFieldId($this->id)` and the groups
+        // won't be deleted. By detecting this here, we can set an empty array of groups, so the groups will actually be
+        // deleted.
         if (!$requestService->isConsoleRequest && $requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.groups") === null) {
             $this->setGroups([]);
         }
 
-        // Set each block type's field layout based on the data from Craft 3.5's field layout designer
+        // If a block type doesn't already have a field layout set, check for POST data from the field layout designer
         foreach ($this->getBlockTypes() as $blockType) {
-            // Check if the block type already has a field layout set - no need to set it again
             if (!$blockType->fieldLayout) {
                 $fieldLayout = $fieldsService->assembleLayoutFromPost("types.{$class}.blockTypes.{$blockType->id}");
                 $fieldLayout->type = $class;
@@ -824,6 +823,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $supportedSites = ElementHelper::supportedSitesForElement($element);
 
         // Restore the Neo blocks that were deleted with $element
+        // No need to do anything related to block structures here since they were recreated in `beforeElementDelete()`
         foreach ($supportedSites as $supportedSite) {
             $blocks = Block::find()
                 ->anyStatus()
