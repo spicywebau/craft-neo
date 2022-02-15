@@ -55,7 +55,6 @@ $preview-reduction: 70px;
     &_block {
         box-sizing: border-box;
         width: 100%;
-        overflow: hidden;
         margin-bottom: 10px;
         border-radius: 4px;
         border: 1px solid #e3e5e8;
@@ -305,7 +304,6 @@ $preview-reduction: 70px;
         }
 
         &_body {
-            overflow: hidden;
             padding: 0 14px 14px;
         }
 
