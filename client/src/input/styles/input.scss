@@ -335,8 +335,14 @@ $preview-reduction: 70px;
                     margin: 15px 0 0 0;
                 }
 
-                &.flex-fields > .field > .status-badge {
-                    left: -14px;
+                &.flex-fields > .field {
+                    &::before {
+                        display: none;
+                    }
+
+                    > .status-badge {
+                        left: -14px;
+                    }
                 }
             }
         }
