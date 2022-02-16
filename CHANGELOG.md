@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.12.5 - 2022-02-16
 
 ### Fixed
-- Fixed a bug that prevented Matrix block menus from working properly within Neo fields. ([#541](https://github.com/spicywebau/craft-neo/issues/541))
+- Fixed a bug that prevented Matrix block menus from working properly within Neo fields (thanks @brandonkelly)
 
 ## 2.12.4 - 2022-02-01
 
