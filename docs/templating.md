@@ -42,6 +42,10 @@ This is typically the most you'd need to know. Similar to how Matrix fields work
 
 Because Neo blocks have a `level` attribute, Neo fields are compatible with the [`{% nav %}`](https://docs.craftcms.com/v3/dev/tags/nav.html) tag.
 
+### `craft.neo.blocks()`
+
+If you need to get Neo blocks in your template in a way that isn't connected to a Neo field value on a specific Craft element, you can use `craft.neo.blocks()`. This returns a [Neo block query](api.md#element-query) which can then be used in the same way as a typical [Craft element query](https://docs.craftcms.com/v3/dev/element-queries/).
+
 ### More information
 
 For a more in-depth breakdown of templating for Neo, [see this issue](https://github.com/spicywebau/craft-neo/issues/34).
