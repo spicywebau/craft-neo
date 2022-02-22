@@ -179,6 +179,7 @@ class FieldAsset extends AssetBundle
         
         $event = new FilterBlockTypesEvent([
             'field' => $field,
+            'element' => $owner,
             'blockTypes' => $blockTypes,
             'blockTypeGroups' => $blockTypeGroups
         ]);
