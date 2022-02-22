@@ -48,6 +48,7 @@ class FieldAsset extends AssetBundle
      *     }
      *
      *     $event->blockTypes = $filtered;
+     * });
      *
      */
     const EVENT_FILTER_BLOCK_TYPES = "filterBlockTypes";
