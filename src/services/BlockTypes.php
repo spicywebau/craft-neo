@@ -136,6 +136,33 @@ class BlockTypes extends Component
     }
 
     /**
+     * Gets a block type group by its ID.
+     *
+     * @param $id
+     * @return BlockTypeGroup|null
+     * @since 2.13.0
+     */
+    public function getGroupById($id): ?BlockTypeGroup
+    {
+        $group = null;
+
+        if (isset(Memoize::$blockTypeGroupsById[$id])) {
+            $group = Memoize::$blockTypeGroupsById[$id];
+        } else {
+            $result = $this->_createGroupQuery()
+                ->where(['id' => $id])
+                ->one();
+
+            if ($result) {
+                $group = new BlockTypeGroup($result);
+                Memoize::$blockTypeGroupsById[$group->id] = $group;
+            }
+        }
+
+        return $group;
+    }
+
+    /**
      * Gets block type groups associated with a given field ID.
      *
      * @param $fieldId The field ID to check for block type groups.
@@ -341,6 +368,8 @@ class BlockTypes extends Component
             throw new Exception('Tried to save a Neo block type for a field with UID ' . $data['field'] . ', which was not found');
         }
 
+        $groupId = $data['group'] ? Db::idByUid('{{%neoblocktypegroups}}', $data['group']) : null;
+
         $transaction = $dbService->beginTransaction();
 
         try {
@@ -375,6 +404,7 @@ class BlockTypes extends Component
             }
 
             $record->fieldId = $fieldId;
+            $record->groupId = $groupId;
             $record->name = $data['name'];
             $record->handle = $data['handle'];
             $record->sortOrder = $data['sortOrder'];
@@ -389,6 +419,7 @@ class BlockTypes extends Component
 
             $blockType->id = $record->id;
             $blockType->fieldId = $fieldId;
+            $blockType->groupId = $groupId;
             $blockType->name = $data['name'];
             $blockType->handle = $data['handle'];
             $blockType->sortOrder = $data['sortOrder'];
@@ -620,15 +651,16 @@ class BlockTypes extends Component
      */
     private function _createQuery(): Query
     {
-        // `maxSiblingBlocks` was added for Neo 2.8, which was also the Craft 3.5 compatibility update.  However, Craft
-        // migrations run before plugin migrations, and Craft's `m200620_230205_field_layout_changes` migration will
-        // eventually cause this method to be called if an affected entry has a Neo field.  To work around this, we need
-        // to check whether the `maxSiblingBlocks` column exists, and only add it to `$selectColumns` if it does exist.
-        $maxSiblingBlocks = Craft::$app->getDb()
+        // Only select `maxSiblingBlocks` (added in Neo 2.8) and `groupId` (added in Neo 2.13) if they exist, since the
+        // Craft migration `m200620_230205_field_layout_changes` causes this method to be called if an affected entry
+        // has a Neo field
+        $blockTypeTableSchema = Craft::$app->getDb()
             ->getSchema()
-            ->getTableSchema('{{%neoblocktypes}}')
-            ->getColumn('maxSiblingBlocks');
-
+            ->getTableSchema('{{%neoblocktypes}}');
+        $otherColumns = [
+            'groupId' => $blockTypeTableSchema->getColumn('groupId'),
+            'maxSiblingBlocks' => $blockTypeTableSchema->getColumn('maxSiblingBlocks'),
+        ];
         $selectColumns = [
             'id',
             'fieldId',
@@ -643,8 +675,10 @@ class BlockTypes extends Component
             'uid',
         ];
 
-        if ($maxSiblingBlocks !== null) {
-            $selectColumns[] = 'maxSiblingBlocks';
+        foreach ($otherColumns as $name => $exists) {
+            if ($exists !== null) {
+                $selectColumns[] = $name;
+            }
         }
 
         return (new Query())

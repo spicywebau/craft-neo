@@ -3,6 +3,7 @@
 namespace benf\neo\services;
 
 use benf\neo\elements\db\BlockQuery;
+use benf\neo\models\BlockTypeGroup;
 use benf\neo\models\BlockStructure;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
@@ -127,14 +128,23 @@ class Fields extends Component
                 }
 
                 // Save the new block types and groups
-                foreach ($field->getBlockTypes() as $blockType) {
-                    $blockType->fieldId = $field->id;
-                    Neo::$plugin->blockTypes->save($blockType, false);
-                }
+                $items = array_merge($field->getBlockTypes(), $field->getGroups());
+                usort($items, function ($a, $b) {
+                    return (int)$a->sortOrder > (int)$b->sortOrder ? 1 : -1;
+                });
 
-                foreach ($field->getGroups() as $blockTypeGroup) {
-                    $blockTypeGroup->fieldId = $field->id;
-                    Neo::$plugin->blockTypes->saveGroup($blockTypeGroup);
+                $currentGroup = null;
+
+                foreach ($items as $item) {
+                    $item->fieldId = $field->id;
+
+                    if ($item instanceof BlockTypeGroup) {
+                        $currentGroup = $item;
+                        Neo::$plugin->blockTypes->saveGroup($item);
+                    } else {
+                        $item->groupId = $currentGroup ? $currentGroup->id : null;
+                        Neo::$plugin->blockTypes->save($item, false);
+                    }
                 }
 
                 $transaction->commit();

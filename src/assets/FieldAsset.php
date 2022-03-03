@@ -290,6 +290,7 @@ class FieldAsset extends AssetBundle
                 'fieldLayout' => $jsFieldLayout,
                 'fieldLayoutId' => $fieldLayout->id,
                 'fieldTypes' => $fieldTypes,
+                'groupId' => $blockType->groupId,
             ];
 
             if ($renderTabs) {

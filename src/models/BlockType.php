@@ -2,7 +2,9 @@
 
 namespace benf\neo\models;
 
+use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
+use benf\neo\models\BlockTypeGroup;
 use Craft;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
@@ -36,6 +38,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * @var int|null The field layout ID.
      */
     public $fieldLayoutId;
+
+    /**
+     * @var int|null The ID of the block type group this block type belongs to, if any.
+     * @since 2.13.0
+     */
+    public $groupId;
 
     /**
      * @var string|null The block type's name.
@@ -93,6 +101,11 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * @var Field|null The Neo field associated with this block type.
      */
     private $_field;
+
+    /**
+     * @var BlockTypeGroup|null The block type group this block type belongs to, if any.
+     */
+    private $_group;
 
     /**
      * @inheritdoc
@@ -168,6 +181,21 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     }
 
     /**
+     * Returns the block type group this block type belongs to, if any.
+     *
+     * @return BlockTypeGroup|null
+     * @since 2.13.0
+     */
+    public function getGroup()
+    {
+        if ($this->_group === null && $this->groupId !== null) {
+            $this->_group = Neo::$plugin->blockTypes->getGroupById($this->groupId);
+        }
+
+        return $this->_group;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getFieldContext(): string
@@ -191,9 +219,11 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      */
     public function getConfig(): array
     {
+        $group = $this->getGroup();
         $config = [
             'childBlocks' => $this->childBlocks,
             'field' => $this->getField()->uid,
+            'group' => $group ? $group->uid : null,
             'handle' => $this->handle,
             'maxBlocks' => (int)$this->maxBlocks,
             'maxChildBlocks' => (int)$this->maxChildBlocks,

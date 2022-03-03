@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added the `groupId` column to the `neoblocktypes` table
+- Added the `getGroup()` method to the `BlockType` model
+- Added the `getGroupById()` method to the `BlockTypes` service
+
 ## 2.12.5 - 2022-02-16
 
 ### Fixed

@@ -63,6 +63,7 @@ class Install extends Migration
                 'id' => $this->primaryKey(),
                 'fieldId' => $this->integer()->notNull(),
                 'fieldLayoutId' => $this->integer(),
+                'groupId' => $this->integer(),
                 'name' => $this->string()->notNull(),
                 'handle' => $this->string()->notNull(),
                 'maxBlocks' => $this->smallInteger()->unsigned(),
@@ -110,6 +111,7 @@ class Install extends Migration
             $this->createIndex(null, '{{%neoblocktypes}}', ['handle', 'fieldId'], true);
             $this->createIndex(null, '{{%neoblocktypes}}', ['fieldId'], false);
             $this->createIndex(null, '{{%neoblocktypes}}', ['fieldLayoutId'], false);
+            $this->createIndex(null, '{{%neoblocktypes}}', ['groupId'], false);
         }
 
         if (!$hasBlockTypeGroupsTable) {
@@ -140,6 +142,8 @@ class Install extends Migration
         if (!$hasBlockTypesTable) {
             $this->addForeignKey(null, '{{%neoblocktypes}}', ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', null);
             $this->addForeignKey(null, '{{%neoblocktypes}}', ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL',
+                null);
+            $this->addForeignKey(null, '{{%neoblocktypes}}', ['groupId'], '{{%neoblocktypegroups}}', ['id'], 'SET NULL',
                 null);
         }
 
