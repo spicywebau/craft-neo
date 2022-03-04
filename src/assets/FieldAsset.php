@@ -2,6 +2,7 @@
 
 namespace benf\neo\assets;
 
+use benf\neo\events\FilterBlockTypesEvent;
 use Craft;
 use craft\base\ElementInterface;
 use craft\fieldlayoutelements\CustomField;
@@ -16,6 +17,7 @@ use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\elements\Block;
+use yii\base\Event;
 
 /**
  * Class FieldAsset
@@ -27,6 +29,30 @@ use benf\neo\elements\Block;
  */
 class FieldAsset extends AssetBundle
 {
+    /**
+     * Event that allows filtering what block types are available for a given field.
+     *
+     * @event FilterBlockTypesEvent
+     *
+     * ```php
+     * use benf\neo\assets\FieldAsset;
+     * use benf\neo\events\FilterBlockTypesEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(FieldAsset::class, FieldAsset::EVENT_FILTER_BLOCK_TYPES, function (FilterBlockTypesEvent $event) {
+     *     $filtered = [];
+     *     foreach ($event->blockTypes as $type) {
+     *         if ($type->handle === 'cards') {
+     *             $filtered[] = $type;
+     *         }
+     *     }
+     *
+     *     $event->blockTypes = $filtered;
+     * });
+     *
+     */
+    const EVENT_FILTER_BLOCK_TYPES = "filterBlockTypes";
+
     /**
      * @inheritdoc
      */
@@ -151,11 +177,19 @@ class FieldAsset extends AssetBundle
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
         
+        $event = new FilterBlockTypesEvent([
+            'field' => $field,
+            'element' => $owner,
+            'blockTypes' => $blockTypes,
+            'blockTypeGroups' => $blockTypeGroups
+        ]);
+        Event::trigger(self::class, self::EVENT_FILTER_BLOCK_TYPES, $event);
+
         $jsSettings = [
             'name' => $name,
             'namespace' => $viewService->namespaceInputName($name) . '[blocks]',
-            'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static, $siteId, $owner),
-            'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
+            'blockTypes' => self::_getBlockTypesJsSettings($event->blockTypes, true, $static, $siteId, $owner),
+            'groups' => self::_getBlockTypeGroupsJsSettings($event->blockTypeGroups),
             'inputId' => $viewService->namespaceInputId($id),
             'minBlocks' => $field->minBlocks,
             'maxBlocks' => $field->maxBlocks,
