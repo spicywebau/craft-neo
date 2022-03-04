@@ -6,6 +6,7 @@
 - Added the `groupId` column to the `neoblocktypes` table
 - Added the `getGroup()` method to the `BlockType` model
 - Added the `getGroupById()` method to the `BlockTypes` service
+- Added the `FilterBlockTypesEvent`, which allows filtering which block types or block type groups display on a Neo field depending on the entry or other element being edited (thanks @myleshyson)
 
 ## 2.12.5 - 2022-02-16
 
