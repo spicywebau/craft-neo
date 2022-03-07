@@ -40,9 +40,26 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
+
+    public static function lowerDisplayName(): string
+    {
+        return Craft::t('neo', 'Neo block');
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function pluralDisplayName(): string
     {
         return Craft::t('neo', 'Neo Blocks');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Craft::t('neo', 'Neo blocks');
     }
 
     /**
