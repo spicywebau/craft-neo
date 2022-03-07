@@ -84,6 +84,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     }
 
     /**
+     * @inheritdoc
+     */
+    public static function valueType(): string
+    {
+        return BlockQuery::class;
+    }
+
+    /**
      * @var bool Whether this field is translatable.
      * @deprecated in 2.4.0. Use [[$propagationMethod]] instead
      */
