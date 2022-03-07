@@ -264,7 +264,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
                 $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
-                
+
                 // Allow the `fieldLayoutId` to be set in the blockType settings
                 if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
                     if ($fieldLayout = $fieldsService->getLayoutById($fieldLayoutId)) {
@@ -338,7 +338,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         foreach ($blockTypeGroups as $id => $blockTypeGroup) {
             $newBlockTypeGroup = $blockTypeGroup;
-            
+
             if (!($blockTypeGroup instanceof BlockTypeGroup)) {
                 $newBlockTypeGroup = new BlockTypeGroup();
                 $newBlockTypeGroup->id = $id;

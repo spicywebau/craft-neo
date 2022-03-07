@@ -59,7 +59,7 @@ class Plugin extends BasePlugin
         'conversion' => ConversionController::class,
         'input' => InputController::class,
     ];
-    
+
     public $blockHasSortOrder = true;
 
     /**
@@ -169,7 +169,7 @@ class Plugin extends BasePlugin
     private function _setupBlocksHasSortOrder()
     {
         $dbService = Craft::$app->getDb();
-        
+
         try {
             $this->blockHasSortOrder = $dbService->columnExists('{{%neoblocks}}', 'sortOrder');
         } catch (NotSupportedException $e) {

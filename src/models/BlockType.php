@@ -172,11 +172,11 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public function getField()
     {
         $fieldsService = Craft::$app->getFields();
-        
+
         if (!$this->_field && $this->fieldId) {
             $this->_field = $fieldsService->getFieldById($this->fieldId);
         }
-        
+
         return $this->_field;
     }
 

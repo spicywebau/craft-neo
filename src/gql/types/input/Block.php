@@ -99,7 +99,7 @@ class Block extends InputObjectType
                     $block = reset($block);
                     $blockId = !empty($block['id']) ? $block['id'] : 'new:' . ($blockCounter++);
                     $blockLevel = null;
-                    
+
                     if (!empty($block['level'])) {
                         // Set the block's new level
                         $blockLevel = $block['level'];

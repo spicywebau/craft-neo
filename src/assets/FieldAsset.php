@@ -59,20 +59,20 @@ class FieldAsset extends AssetBundle
     public function init()
     {
         $this->sourcePath = '@benf/neo/resources';
-        
+
         $this->depends = [
             CpAsset::class,
         ];
-        
+
         $this->js = ['main.js'];
-        
+
         if ($this->_matchUriSegments(['settings', 'fields', 'edit', '*'])) {
             $this->js[] = 'converter.js';
         }
-        
+
         parent::init();
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -117,10 +117,10 @@ class FieldAsset extends AssetBundle
             'Settings',
             'Field Layout',
         ]);
-        
+
         parent::registerAssetFiles($view);
     }
-    
+
     /**
      * Sets up the field layout designer for a given Neo field.
      *
@@ -130,10 +130,10 @@ class FieldAsset extends AssetBundle
     public static function createSettingsJs(Field $field): string
     {
         $viewService = Craft::$app->getView();
-        
+
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
-        
+
         // Render the field layout designer HTML, but disregard any Javascript it outputs, as that'll be handled by Neo.
         $viewService->startJsBuffer();
         $fieldLayoutHtml = $viewService->renderTemplate('_includes/fieldlayoutdesigner', [
@@ -141,19 +141,19 @@ class FieldAsset extends AssetBundle
             'customizableUi' => true,
         ]);
         $viewService->clearJsBuffer();
-        
+
         $jsSettings = [
             'namespace' => $viewService->getNamespace(),
             'blockTypes' => self::_getBlockTypesJsSettings($blockTypes),
             'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
             'fieldLayoutHtml' => $fieldLayoutHtml,
         ];
-        
+
         $encodedJsSettings = Json::encode($jsSettings);
-        
+
         return "Neo.createConfigurator($encodedJsSettings)";
     }
-    
+
     /**
      * Sets up the field block inputs for a given Neo field.
      *
@@ -171,12 +171,12 @@ class FieldAsset extends AssetBundle
         $owner = null
     ): string {
         $viewService = Craft::$app->getView();
-        
+
         $name = $field->handle;
         $id = $viewService->formatInputId($name);
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
-        
+
         $event = new FilterBlockTypesEvent([
             'field' => $field,
             'element' => $owner,
@@ -198,12 +198,12 @@ class FieldAsset extends AssetBundle
             'blocks' => self::_getBlocksJsSettings($value, $static),
             'static' => $static,
         ];
-        
+
         $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);
-        
+
         return "Neo.createInput($encodedJsSettings)";
     }
-    
+
     /**
      * Returns the raw data from the given blocks.
      *
@@ -219,7 +219,7 @@ class FieldAsset extends AssetBundle
         $collapseAllBlocks = Neo::$plugin->getSettings()->collapseAllBlocks;
         $jsBlocks = [];
         $sortOrder = 0;
-        
+
         foreach ($blocks as $block) {
             if ($block instanceof Block) {
                 $blockType = $block->getType();
@@ -244,7 +244,7 @@ class FieldAsset extends AssetBundle
                 $jsBlocks[] = $block;
             }
         }
-        
+
         return $jsBlocks;
     }
 
@@ -349,7 +349,7 @@ class FieldAsset extends AssetBundle
     private static function _getBlockTypeGroupsJsSettings(array $blockTypeGroups): array
     {
         $jsBlockTypeGroups = [];
-        
+
         foreach ($blockTypeGroups as $blockTypeGroup) {
             if ($blockTypeGroup instanceof BlockTypeGroup) {
                 $jsBlockTypeGroups[] = [
@@ -361,10 +361,10 @@ class FieldAsset extends AssetBundle
                 $jsBlockTypeGroups[] = $blockTypeGroup;
             }
         }
-        
+
         return $jsBlockTypeGroups;
     }
-    
+
     /**
      * Helper function for matching against the URI.
      * Useful for including resources on specific pages.
@@ -375,19 +375,19 @@ class FieldAsset extends AssetBundle
     private function _matchUriSegments($matchSegments): bool
     {
         $segments = Craft::$app->getRequest()->getSegments();
-        
+
         if (count($segments) !== count($matchSegments)) {
             return false;
         }
-        
+
         foreach ($segments as $i => $segment) {
             $matchSegment = $matchSegments[$i];
-            
+
             if ($matchSegment !== '*' && $segment !== $matchSegment) {
                 return false;
             }
         }
-        
+
         return true;
     }
 }

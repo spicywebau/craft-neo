@@ -27,21 +27,21 @@ class Block extends ObjectType
             NeoBlockInterface::getType(),
             ElementInterface::getType()
         ];
-        
+
         parent::__construct($config);
     }
-    
+
     /**
      * @inheritdoc
      */
     protected function resolve($source, $arguments, $context, ResolveInfo $resolveInfo)
     {
         $fieldName = $resolveInfo->fieldName;
-        
+
         if ($fieldName === 'typeHandle') {
             return $source->getType()->handle;
         }
-        
+
         if ($fieldName === 'children') {
             $childrenLevel = (int)$source->level + 1;
 

@@ -8,7 +8,7 @@ use craft\fieldlayoutelements\BaseUiElement;
 
 /**
  * A field layout UI element for Neo child blocks.
- * 
+ *
  * @package benf\neo\fieldlayoutelements
  * @author Spicy Web <plugins@spicyweb.com.au>
  * @since 2.10.0
