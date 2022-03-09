@@ -55,6 +55,7 @@ Neo copies/pastes a block with descendants, all descendant blocks are copied and
 - [GraphQL](docs/graphql.md)
 - [Resources](docs/resources.md)
 - [API](docs/api.md)
+- [Events](docs/events.md)
 - [Plugin Compatibility](docs/plugin-compatibility.md)
 - [FAQ](docs/faq.md)
 - Content Migration Guides:
