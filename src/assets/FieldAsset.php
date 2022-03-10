@@ -2,21 +2,20 @@
 
 namespace benf\neo\assets;
 
+use benf\neo\elements\Block;
 use benf\neo\events\FilterBlockTypesEvent;
+use benf\neo\Field;
+use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
+use benf\neo\models\BlockTypeGroup;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
+
 use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
 use craft\models\FieldLayout;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
-
-use benf\neo\Plugin as Neo;
-use benf\neo\Field;
-use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
-use benf\neo\models\BlockType;
-use benf\neo\models\BlockTypeGroup;
-use benf\neo\elements\Block;
 use yii\base\Event;
 
 /**
@@ -51,7 +50,7 @@ class FieldAsset extends AssetBundle
      * });
      *
      */
-    const EVENT_FILTER_BLOCK_TYPES = "filterBlockTypes";
+    public const EVENT_FILTER_BLOCK_TYPES = "filterBlockTypes";
 
     /**
      * @inheritdoc
@@ -168,7 +167,7 @@ class FieldAsset extends AssetBundle
         $value,
         bool $static = false,
         int $siteId = null,
-        $owner = null
+        $owner = null,
     ): string {
         $viewService = Craft::$app->getView();
 
@@ -181,7 +180,7 @@ class FieldAsset extends AssetBundle
             'field' => $field,
             'element' => $owner,
             'blockTypes' => $blockTypes,
-            'blockTypeGroups' => $blockTypeGroups
+            'blockTypeGroups' => $blockTypeGroups,
         ]);
         Event::trigger(self::class, self::EVENT_FILTER_BLOCK_TYPES, $event);
 
@@ -265,7 +264,7 @@ class FieldAsset extends AssetBundle
         bool $renderTabs = false,
         bool $static = false,
         int $siteId = null,
-        $owner = null
+        $owner = null,
     ): array {
         $jsBlockTypes = [];
 

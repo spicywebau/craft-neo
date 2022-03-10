@@ -2,13 +2,12 @@
 
 namespace benf\neo\models;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
-use benf\neo\models\BlockTypeGroup;
+use benf\neo\Plugin as Neo;
 use Craft;
+use craft\base\GqlInlineFragmentInterface;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
-use craft\base\GqlInlineFragmentInterface;
 use craft\db\Table;
 use craft\helpers\Db;
 use craft\helpers\Json;

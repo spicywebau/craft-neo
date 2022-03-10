@@ -2,19 +2,15 @@
 
 namespace benf\neo\services;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
 use benf\neo\models\BlockStructure;
-use benf\neo\models\BlockType;
+use benf\neo\Plugin as Neo;
 use benf\neo\records\BlockStructure as BlockStructureRecord;
 use Craft;
-use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\fieldlayoutelements\CustomField;
-use craft\helpers\StringHelper;
 use craft\models\Structure;
 use yii\base\Component;
-
 
 /**
  * Class Blocks
@@ -121,7 +117,7 @@ class Blocks extends Component
             ->where([
                 'fieldId' => $fieldId,
                 'ownerId' => $ownerId,
-                'ownerSiteId' => $siteId
+                'ownerSiteId' => $siteId,
             ]);
 
         $result = $query->one();
@@ -178,7 +174,7 @@ class Blocks extends Component
                 $structure->maxLevels = $fieldMaxLevels;
                 $structuresService->saveStructure($structure);
                 $blockStructure->structureId = $structure->id;
-            } else if ($structure->maxLevels !== $fieldMaxLevels) {
+            } elseif ($structure->maxLevels !== $fieldMaxLevels) {
                 $structure->maxLevels = $fieldMaxLevels;
                 $structuresService->saveStructure($structure);
             }

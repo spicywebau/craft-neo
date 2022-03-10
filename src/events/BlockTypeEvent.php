@@ -1,9 +1,10 @@
 <?php
+
 namespace benf\neo\events;
 
-use yii\base\Event;
-
 use benf\neo\models\BlockType;
+
+use yii\base\Event;
 
 /**
  * Class BlockTypeEvent
@@ -11,7 +12,7 @@ use benf\neo\models\BlockType;
  * @author Spicy Web <craft@spicyweb.com.au>
  * @since 2.3.0
  */
-Class BlockTypeEvent extends Event
+class BlockTypeEvent extends Event
 {
     /**
      * @var BlockType

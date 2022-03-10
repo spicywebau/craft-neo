@@ -2,12 +2,10 @@
 
 namespace benf\neo\gql\types\elements;
 
-use benf\neo\Plugin as Neo;
-use benf\neo\elements\Block as BlockElement;
 use benf\neo\gql\interfaces\elements\Block as NeoBlockInterface;
 
-use craft\gql\interfaces\Element as ElementInterface;
 use craft\gql\base\ObjectType;
+use craft\gql\interfaces\Element as ElementInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 
 /**
@@ -25,7 +23,7 @@ class Block extends ObjectType
     {
         $config['interfaces'] = [
             NeoBlockInterface::getType(),
-            ElementInterface::getType()
+            ElementInterface::getType(),
         ];
 
         parent::__construct($config);
@@ -48,7 +46,7 @@ class Block extends ObjectType
             // The blocks at `$source->$fieldName` cannot be trusted, it will most likely be out of order and cached.
             // We should retrieve the children blocks by query instead, so it'll always be in the correct order.
             $descendants = $source->getDescendants()->all();
-            $children = array_filter($descendants, function($block) use($childrenLevel) {
+            $children = array_filter($descendants, function($block) use ($childrenLevel) {
                 return (int)$block->level === $childrenLevel;
             });
 

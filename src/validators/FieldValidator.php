@@ -84,7 +84,7 @@ class FieldValidator extends Validator
                     $this->tooManyBlocksOfType,
                     [
                         'maxBlockTypeBlocks' => $blockType->maxBlocks,
-                        'blockType' => $blockType->name
+                        'blockType' => $blockType->name,
                     ]
                 );
             }
@@ -115,7 +115,7 @@ class FieldValidator extends Validator
         $maxLevels = $this->maxLevels;
 
         if ($maxLevels !== null) {
-            $tooHighBlocks = array_filter($this->_blocks, function($block) use($maxLevels) {
+            $tooHighBlocks = array_filter($this->_blocks, function($block) use ($maxLevels) {
                 return ((int)$block->level) > $maxLevels;
             });
 

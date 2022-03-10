@@ -2,8 +2,8 @@
 
 namespace benf\neo\migrations;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\models\BlockStructure;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\db\Migration;
 use craft\db\Query;

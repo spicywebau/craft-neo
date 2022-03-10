@@ -2,26 +2,25 @@
 
 namespace benf\neo\services;
 
+use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
-use benf\neo\models\BlockTypeGroup;
+use benf\neo\Field;
+use benf\neo\helpers\Memoize;
 use benf\neo\models\BlockStructure;
-use yii\base\Component;
-use yii\base\InvalidArgumentException;
 
+use benf\neo\models\BlockTypeGroup;
+use benf\neo\Plugin as Neo;
+use benf\neo\tasks\DuplicateNeoStructureTask;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
-use craft\fields\BaseRelationField;
-use craft\helpers\Html;
 use craft\helpers\ArrayHelper;
-use craft\helpers\ElementHelper;
-use craft\services\Structures;
 
-use benf\neo\Plugin as Neo;
-use benf\neo\Field;
-use benf\neo\elements\Block;
-use benf\neo\helpers\Memoize;
-use benf\neo\tasks\DuplicateNeoStructureTask;
+use craft\helpers\ElementHelper;
+use craft\helpers\Html;
+use craft\services\Structures;
+use yii\base\Component;
+use yii\base\InvalidArgumentException;
 
 /**
  * Class Fields
@@ -129,7 +128,7 @@ class Fields extends Component
 
                 // Save the new block types and groups
                 $items = array_merge($field->getBlockTypes(), $field->getGroups());
-                usort($items, function ($a, $b) {
+                usort($items, function($a, $b) {
                     return (int)$a->sortOrder > (int)$b->sortOrder ? 1 : -1;
                 });
 
@@ -178,7 +177,7 @@ class Fields extends Component
 
             // sort block types so the sort order is descending
             // need to reverse to multi level blocks get deleted before the parent
-            usort($blockTypes, function ($a, $b) {
+            usort($blockTypes, function($a, $b) {
                 if ((int)$a->sortOrder === (int)$b->sortOrder) {
                     return 0;
                 }
@@ -344,7 +343,7 @@ class Fields extends Component
         Field $field,
         ElementInterface $source,
         ElementInterface $target,
-        bool $checkOtherSites = false
+        bool $checkOtherSites = false,
     ) {
         /** @var Element $source */
         /** @var Element $target */
@@ -430,11 +429,11 @@ class Fields extends Component
                     'field' => $field->id,
                     'owner' => [
                         'id' => $target->id,
-                        'siteId' => $target->siteId
+                        'siteId' => $target->siteId,
                     ],
                     'blocks' => $newBlocksTaskData,
                     'siteId' => null,
-                    'supportedSites' => $this->getSupportedSiteIdsExCurrent($field, $target)
+                    'supportedSites' => $this->getSupportedSiteIdsExCurrent($field, $target),
                 ]));
             } else {
                 $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
@@ -584,7 +583,7 @@ class Fields extends Component
                         if ($derivativeBlock->dateUpdated == $derivativeBlock->dateCreated) {
                             $elementsService->deleteElement($derivativeBlock);
                         }
-                    } else if (!$derivativeBlock->trashed) {
+                    } elseif (!$derivativeBlock->trashed) {
                         if (ElementHelper::isOutdated($derivativeBlock)) {
                             if (!$owner->isProvisionalDraft && $derivativeBlock->sortOrder != $nextBlockSortOrder) {
                                 $derivativeBlock->sortOrder = $nextBlockSortOrder;
@@ -597,7 +596,7 @@ class Fields extends Component
                             $allBlocks[] = $derivativeBlock;
                         }
                     }
-                } else if (!$canonicalBlock->trashed && $canonicalBlock->dateCreated > $owner->dateCreated) {
+                } elseif (!$canonicalBlock->trashed && $canonicalBlock->dateCreated > $owner->dateCreated) {
                     $allBlocks[] = $newBlock = $elementsService->duplicateElement($canonicalBlock, [
                         'canonicalId' => $canonicalBlock->id,
                         'level' => $canonicalBlock->level,

@@ -2,8 +2,8 @@
 
 namespace benf\neo\migrations;
 
-use benf\neo\Field;
 use benf\neo\elements\Block;
+use benf\neo\Field;
 use Craft;
 use craft\db\Migration;
 use craft\db\Query;

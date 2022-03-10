@@ -2,6 +2,16 @@
 
 namespace benf\neo\services;
 
+use benf\neo\elements\Block;
+use benf\neo\errors\BlockTypeNotFoundException;
+use benf\neo\events\BlockTypeEvent;
+use benf\neo\helpers\Memoize;
+use benf\neo\models\BlockType;
+use benf\neo\models\BlockTypeGroup;
+use benf\neo\Plugin as Neo;
+use benf\neo\records\BlockType as BlockTypeRecord;
+
+use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
@@ -10,17 +20,6 @@ use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
-use craft\models\FieldLayoutTab;
-
-use benf\neo\Plugin as Neo;
-use benf\neo\elements\Block;
-use benf\neo\events\BlockTypeEvent;
-use benf\neo\models\BlockType;
-use benf\neo\models\BlockTypeGroup;
-use benf\neo\records\BlockType as BlockTypeRecord;
-use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
-use benf\neo\errors\BlockTypeNotFoundException;
-use benf\neo\helpers\Memoize;
 
 use yii\base\Component;
 use yii\base\Exception;
@@ -39,13 +38,13 @@ class BlockTypes extends Component
      * @event BlockTypeEvent The event that is triggered before saving a block type.
      * @since 2.3.0
      */
-    const EVENT_BEFORE_SAVE_BLOCK_TYPE = 'beforeSaveNeoBlockType';
+    public const EVENT_BEFORE_SAVE_BLOCK_TYPE = 'beforeSaveNeoBlockType';
 
     /**
      * @event BlockTypeEvent The event that is triggered after saving a block type.
      * @since 2.3.0
      */
-    const EVENT_AFTER_SAVE_BLOCK_TYPE = 'afterSaveNeoBlockType';
+    public const EVENT_AFTER_SAVE_BLOCK_TYPE = 'afterSaveNeoBlockType';
 
     /**
      * Gets a Neo block type given its ID.
@@ -589,7 +588,7 @@ class BlockTypes extends Component
         bool $static = false,
         $namespace = null,
         int $siteId = null,
-        $owner = null
+        $owner = null,
     ): array {
         $block = new Block();
         $block->typeId = $blockType->id;

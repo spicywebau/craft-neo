@@ -1,9 +1,10 @@
 <?php
+
 namespace benf\neo\records;
 
-use yii\db\ActiveQueryInterface;
-
 use craft\db\ActiveRecord;
+
+use yii\db\ActiveQueryInterface;
 
 /**
  * Class BlockTypeGroup
@@ -15,21 +16,21 @@ use craft\db\ActiveRecord;
  */
 class BlockTypeGroup extends ActiveRecord
 {
-	/**
-	 * @inheritdoc
-	 */
-	public static function tableName(): string
-	{
-		return '{{%neoblocktypegroups}}';
-	}
+    /**
+     * @inheritdoc
+     */
+    public static function tableName(): string
+    {
+        return '{{%neoblocktypegroups}}';
+    }
 
-	/**
-	 * Returns the block type group's field.
-	 *
-	 * @return ActiveQueryInterface
-	 */
-	public function getField(): ActiveQueryInterface
-	{
-		return $this->hasOne(Field::class, [ 'id' => 'fieldId' ]);
-	}
+    /**
+     * Returns the block type group's field.
+     *
+     * @return ActiveQueryInterface
+     */
+    public function getField(): ActiveQueryInterface
+    {
+        return $this->hasOne(Field::class, [ 'id' => 'fieldId' ]);
+    }
 }

@@ -2,10 +2,10 @@
 
 namespace benf\neo\migrations;
 
-use benf\neo\Field;
-use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
+use benf\neo\Field;
 use benf\neo\models\BlockTypeGroup;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\db\Migration;
 
@@ -43,7 +43,7 @@ class m220228_081104_add_group_id_to_block_types extends Migration
             }
 
             $items = array_merge($field->getBlockTypes(), $groups);
-            usort($items, function ($a, $b) {
+            usort($items, function($a, $b) {
                 return (int)$a->sortOrder > (int)$b->sortOrder ? 1 : -1;
             });
 
@@ -52,7 +52,7 @@ class m220228_081104_add_group_id_to_block_types extends Migration
             foreach ($items as $item) {
                 if ($item instanceof BlockTypeGroup) {
                     $currentGroup = $item;
-                } else if ($currentGroup !== null) {
+                } elseif ($currentGroup !== null) {
                     $item->groupId = $currentGroup->id;
                     Neo::$plugin->blockTypes->save($item);
                 }

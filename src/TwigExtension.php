@@ -2,11 +2,11 @@
 
 namespace benf\neo;
 
+use benf\neo\elements\Block;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigTest;
 
-use benf\neo\elements\Block;
+use Twig\TwigTest;
 
 /**
  * Class TwigExtension
@@ -57,7 +57,6 @@ class TwigExtension extends AbstractExtension
      */
     public function initRuntime(Environment $environment)
     {
-
     }
 
     /**

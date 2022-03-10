@@ -2,9 +2,9 @@
 
 namespace benf\neo\elements\db;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
 use benf\neo\models\BlockType;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
@@ -16,7 +16,6 @@ use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\base\Model as BaseModel;
-use yii\db\Connection;
 
 /**
  * Class BlockQuery
@@ -310,13 +309,13 @@ class BlockQuery extends ElementQuery
         if ($this->_isLivePreviewOrEagerLoading()) {
             $supportedProperties = array_map(
                 // Remove the three underscores...
-                function ($method) {
+                function($method) {
                     return substr($method, 3);
                 },
                 // ...from the method names that represent the criteria supported in live preview / eager loading mode
                 array_filter(
                     get_class_methods(self::class),
-                    function ($method) {
+                    function($method) {
                         return strpos($method, '___') === 0;
                     }
                 )
@@ -419,7 +418,7 @@ class BlockQuery extends ElementQuery
         $this->query->select([
             'neoblocks.fieldId',
             'neoblocks.ownerId',
-            'neoblocks.typeId'
+            'neoblocks.typeId',
         ]);
 
         if (Neo::$plugin->blockHasSortOrder) {
@@ -509,9 +508,9 @@ class BlockQuery extends ElementQuery
 
         if (is_numeric($this->ownerId)) {
             $ownerId = $this->ownerId;
-        } else if ($this->descendantOf instanceof Block) {
+        } elseif ($this->descendantOf instanceof Block) {
             $ownerId = $this->descendantOf->ownerId;
-        } else if ($this->ancestorOf instanceof Block) {
+        } elseif ($this->ancestorOf instanceof Block) {
             $ownerId = $this->ancestorOf->ownerId;
         } else {
             return false;
@@ -567,7 +566,7 @@ class BlockQuery extends ElementQuery
 
         if (is_numeric($this->$prop)) {
             $this->$prop = [$this->$prop];
-        } else if (empty($this->$prop)) {
+        } elseif (empty($this->$prop)) {
             $this->$prop = null;
         }
     }
@@ -773,7 +772,7 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $newElements = array_filter($elements, function ($element) use ($value) {
+        $newElements = array_filter($elements, function($element) use ($value) {
             return in_array($element->typeId, $value);
         });
 
@@ -791,7 +790,7 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $ancestors = array_filter($elements, function ($element) use ($value) {
+        $ancestors = array_filter($elements, function($element) use ($value) {
             return $element->level >= $this->ancestorOf->level - $value;
         });
 
@@ -819,7 +818,7 @@ class BlockQuery extends ElementQuery
             } else {
                 if ($element === $value) {
                     $found = true;
-                } else if ($found && $element->level == $level) {
+                } elseif ($found && $element->level == $level) {
                     $ancestors[] = $element;
                     $level--;
                 }
@@ -840,7 +839,7 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $descendants = array_filter($elements, function ($element) use ($value) {
+        $descendants = array_filter($elements, function($element) use ($value) {
             return $element->level <= $this->descendantOf->level + $value;
         });
 
@@ -864,7 +863,7 @@ class BlockQuery extends ElementQuery
         foreach ($elements as $element) {
             if ($element === $value) {
                 $found = true;
-            } else if ($found) {
+            } elseif ($found) {
                 if (($value->rgt && $element->rgt && $element->rgt < $value->rgt) || $element->level > $value->level) {
                     $descendants[] = $element;
                 } else {
@@ -897,7 +896,7 @@ class BlockQuery extends ElementQuery
             $ids[$id] = true;
         }
 
-        $newElements = array_filter($elements, function ($element) use ($ids) {
+        $newElements = array_filter($elements, function($element) use ($ids) {
             return $element->id !== null && isset($ids[$element->id]);
         });
 
@@ -929,7 +928,7 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $newElements = array_filter($elements, function ($block) use ($value) {
+        $newElements = array_filter($elements, function($block) use ($value) {
             return $this->_compareInt($block->level, $value);
         });
 
@@ -1082,7 +1081,7 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $newElements = array_filter($elements, function ($element) use ($value) {
+        $newElements = array_filter($elements, function($element) use ($value) {
             return $element->status == $value;
         });
 

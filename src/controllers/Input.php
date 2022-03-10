@@ -2,13 +2,13 @@
 
 namespace benf\neo\controllers;
 
-use yii\web\Response;
-
-use Craft;
-use craft\web\Controller;
+use benf\neo\elements\Block;
 
 use benf\neo\Plugin as Neo;
-use benf\neo\elements\Block;
+use Craft;
+
+use craft\web\Controller;
+use yii\web\Response;
 
 /**
  * Class Input

@@ -2,7 +2,6 @@
 
 namespace benf\neo;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\assets\FieldAsset;
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
@@ -13,6 +12,7 @@ use benf\neo\gql\types\input\Block as NeoBlockInputType;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
+use benf\neo\Plugin as Neo;
 use benf\neo\validators\FieldValidator;
 use Craft;
 use craft\base\EagerLoadingFieldInterface;
@@ -26,16 +26,12 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Gql as GqlHelper;
-use craft\helpers\StringHelper;
 use craft\helpers\Queue;
-use craft\gql\GqlEntityRegistry;
+use craft\helpers\StringHelper;
 use craft\queue\jobs\ApplyNewPropagationMethod;
-use craft\queue\jobs\ResaveElements;
 use craft\services\Elements;
 use craft\validators\ArrayValidator;
 use GraphQL\Type\Definition\Type;
-use yii\base\UnknownPropertyException;
-use yii\db\Exception;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -48,14 +44,14 @@ use yii\base\InvalidArgumentException;
  */
 class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFragmentFieldInterface
 {
-    const PROPAGATION_METHOD_NONE = 'none';
-    const PROPAGATION_METHOD_SITE_GROUP = 'siteGroup';
-    const PROPAGATION_METHOD_LANGUAGE = 'language';
+    public const PROPAGATION_METHOD_NONE = 'none';
+    public const PROPAGATION_METHOD_SITE_GROUP = 'siteGroup';
+    public const PROPAGATION_METHOD_LANGUAGE = 'language';
     /**
      * @since 2.12.0
      */
-    const PROPAGATION_METHOD_CUSTOM = 'custom';
-    const PROPAGATION_METHOD_ALL = 'all';
+    public const PROPAGATION_METHOD_CUSTOM = 'custom';
+    public const PROPAGATION_METHOD_ALL = 'all';
 
     /**
      * @inheritdoc
@@ -210,8 +206,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 self::PROPAGATION_METHOD_SITE_GROUP,
                 self::PROPAGATION_METHOD_LANGUAGE,
                 self::PROPAGATION_METHOD_CUSTOM,
-                self::PROPAGATION_METHOD_ALL
-            ]
+                self::PROPAGATION_METHOD_ALL,
+            ],
         ];
         $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks', 'maxLevels'], 'integer', 'min' => 0];
 
@@ -592,7 +588,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             ->from('{{%neoblocks}} neoblocks')
             ->where([
                 '[[neoblocks.ownerId]]' => $sourceElementIds,
-                '[[neoblocks.fieldId]]' => $this->id
+                '[[neoblocks.fieldId]]' => $this->id,
             ])
             // Join structural information to get the ordering of the blocks.
             ->leftJoin(
@@ -705,9 +701,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         if ($element->duplicateOf !== null) {
             Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true);
             $resetValue = true;
-        } else if ($element->isFieldDirty($this->handle) || !empty($element->newSiteIds)) {
+        } elseif ($element->isFieldDirty($this->handle) || !empty($element->newSiteIds)) {
             Neo::$plugin->fields->saveValue($this, $element);
-        } else if ($element->mergingCanonicalChanges) {
+        } elseif ($element->mergingCanonicalChanges) {
             Neo::$plugin->fields->mergeCanonicalChanges($this, $element);
             $resetValue = true;
         }
@@ -852,7 +848,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         $typeArray = NeoBlockTypeGenerator::generateTypes($this);
         $typeName = $this->handle . '_NeoField';
-        $resolver = static function (Block $value) {
+        $resolver = static function(Block $value) {
             return $value->getGqlTypeName();
         };
 
@@ -965,7 +961,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
         if ($this->_getNamespaceDepth() > 1) {
             $html = $this->_getNestingErrorHtml();
-        } else if ($static && empty($value)) {
+        } elseif ($static && empty($value)) {
             $html = '<p class="light">' . Craft::t('app', 'No blocks.') . '</p>';
         } else {
             $viewService->registerAssetBundle(FieldAsset::class);

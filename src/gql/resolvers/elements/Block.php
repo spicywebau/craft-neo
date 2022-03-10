@@ -2,7 +2,6 @@
 
 namespace benf\neo\gql\resolvers\elements;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block as BlockElement;
 use benf\neo\elements\db\BlockQuery;
 use craft\gql\base\ElementResolver;
@@ -48,7 +47,7 @@ class Block extends ElementResolver
             // get the first level
             $query = BlockElement::find()->level(1);
 
-            // If not, get the prepared element query
+        // If not, get the prepared element query
         } else {
             $query = $source->$fieldName;
         }
@@ -63,7 +62,9 @@ class Block extends ElementResolver
                 : 1;
             $newBlocks = $level === null
                 ? $query
-                : array_filter($query, function($block) use ($level) { return (int)$block->level === $level; });
+                : array_filter($query, function($block) use ($level) {
+                    return (int)$block->level === $level;
+                });
 
             return !empty($newBlocks) ? $newBlocks : $query;
         }

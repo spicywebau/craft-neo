@@ -1,10 +1,11 @@
 <?php
+
 namespace benf\neo\tasks;
 
+use benf\neo\models\BlockStructure;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\queue\BaseJob;
-use benf\neo\Plugin as Neo;
-use benf\neo\models\BlockStructure;
 
 class DuplicateNeoStructureTask extends BaseJob
 {
@@ -23,8 +24,7 @@ class DuplicateNeoStructureTask extends BaseJob
         $blocks = [];
         $siteId = $this->siteId ?? $this->owner['siteId'];
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($this->field, $this->owner['id'], (int)$siteId)) !== null)
-        {
+        while (($blockStructure = Neo::$plugin->blocks->getStructure($this->field, $this->owner['id'], (int)$siteId)) !== null) {
             Neo::$plugin->blocks->deleteStructure($blockStructure);
         }
 

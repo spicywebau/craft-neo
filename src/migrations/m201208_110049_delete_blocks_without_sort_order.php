@@ -7,7 +7,6 @@ use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
-use craft\helpers\Db;
 
 /**
  * Deletes any Neo blocks that do not have a `sortOrder`.
@@ -38,7 +37,7 @@ class m201208_110049_delete_blocks_without_sort_order extends Migration
             ->where('[[sortOrder]] IS NULL')
             ->column();
 
-        foreach(array_chunk($neoBlockIds, 100) as $neoBlockChunkIds) {
+        foreach (array_chunk($neoBlockIds, 100) as $neoBlockChunkIds) {
             $neoBlocks = Block::find()
                 ->id($neoBlockChunkIds)
                 ->siteId('*')

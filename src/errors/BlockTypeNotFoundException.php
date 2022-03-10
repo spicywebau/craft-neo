@@ -1,4 +1,5 @@
 <?php
+
 namespace benf\neo\errors;
 
 use yii\base\Exception;
@@ -13,11 +14,11 @@ use yii\base\Exception;
  */
 class BlockTypeNotFoundException extends Exception
 {
-	/**
-	 * @inheritdoc
-	 */
-	public function getName()
-	{
-		return "Neo block type not found";
-	}
+    /**
+     * @inheritdoc
+     */
+    public function getName()
+    {
+        return "Neo block type not found";
+    }
 }

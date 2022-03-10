@@ -1,35 +1,35 @@
 <?php
+
 namespace benf\neo;
 
-use yii\base\Event;
-
-use Craft;
-use craft\base\Plugin as BasePlugin;
-use craft\db\Query;
-use craft\db\Table;
-use craft\events\DefineFieldLayoutElementsEvent;
-use craft\events\RebuildConfigEvent;
-use craft\events\RegisterComponentTypesEvent;
-use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
-use craft\gatsbyhelper\services\Deltas;
-use craft\models\FieldLayout;
-use craft\services\Fields;
-use craft\services\Gc;
-use craft\services\ProjectConfig;
-use craft\web\twig\variables\CraftVariable;
-use craft\events\RegisterGqlTypesEvent;
-use craft\services\Gql;
-
 use benf\neo\controllers\Conversion as ConversionController;
+
 use benf\neo\controllers\Input as InputController;
 use benf\neo\elements\Block;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
+use benf\neo\gql\interfaces\elements\Block as NeoGqlInterface;
 use benf\neo\models\Settings;
 use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\BlockTypes as BlockTypesService;
 use benf\neo\services\Conversion as ConversionService;
 use benf\neo\services\Fields as FieldsService;
-use benf\neo\gql\interfaces\elements\Block as NeoGqlInterface;
+use Craft;
+use craft\base\Plugin as BasePlugin;
+use craft\db\Table;
+use craft\events\DefineFieldLayoutElementsEvent;
+use craft\events\RebuildConfigEvent;
+use craft\events\RegisterComponentTypesEvent;
+
+use craft\events\RegisterGqlTypesEvent;
+use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
+use craft\gatsbyhelper\services\Deltas;
+use craft\models\FieldLayout;
+use craft\services\Fields;
+use craft\services\Gc;
+use craft\services\Gql;
+use craft\services\ProjectConfig;
+use craft\web\twig\variables\CraftVariable;
+use yii\base\Event;
 use yii\base\NotSupportedException;
 
 /**
@@ -104,7 +104,7 @@ class Plugin extends BasePlugin
      */
     private function _registerFieldType()
     {
-        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event){
+        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Field::class;
         });
     }
@@ -148,8 +148,7 @@ class Plugin extends BasePlugin
      */
     private function _registerProjectConfigRebuild()
     {
-        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event)
-        {
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $blockTypeData = [];
             $blockTypeGroupData = [];
 
