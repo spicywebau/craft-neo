@@ -88,12 +88,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     }
 
     /**
-     * @var bool Whether this field is translatable.
-     * @deprecated in 2.4.0. Use [[$propagationMethod]] instead
-     */
-    public $localizeBlocks = false;
-
-    /**
      * @var int|null The minimum number of blocks this field can have.
      */
     public $minBlocks;
@@ -114,13 +108,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      * @since 2.9.0
      */
     public $maxLevels;
-
-    /**
-     * @var bool
-     * @since 2.6.5
-     * @deprecated in 2.12.5
-     */
-    public $wasModified = false;
 
     /**
      * @var array|null The block types associated with this field.
@@ -179,8 +166,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $this->propagationKeyFormat = null;
         }
 
-        // Set localizeBlocks in case anything is still checking it
-        $this->localizeBlocks = $this->propagationMethod === self::PROPAGATION_METHOD_NONE;
         parent::init();
     }
 

@@ -68,7 +68,6 @@ class Conversion extends Component
             $matrixField->setBlockTypes($matrixBlockTypes);
             $matrixField->minBlocks = $neoField->minBlocks;
             $matrixField->maxBlocks = $neoField->maxBlocks;
-            $matrixField->localizeBlocks = $neoField->localizeBlocks;
             $matrixField->propagationMethod = $neoField->propagationMethod;
             $matrixField->uid = $neoField->uid;
 
