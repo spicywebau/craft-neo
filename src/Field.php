@@ -26,6 +26,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Gql as GqlHelper;
+use craft\helpers\StringHelper;
 use craft\helpers\Queue;
 use craft\gql\GqlEntityRegistry;
 use craft\queue\jobs\ApplyNewPropagationMethod;
@@ -50,6 +51,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     const PROPAGATION_METHOD_NONE = 'none';
     const PROPAGATION_METHOD_SITE_GROUP = 'siteGroup';
     const PROPAGATION_METHOD_LANGUAGE = 'language';
+    /**
+     * @since 2.12.0
+     */
+    const PROPAGATION_METHOD_CUSTOM = 'custom';
     const PROPAGATION_METHOD_ALL = 'all';
 
     /**
@@ -76,6 +81,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         return [
             self::TRANSLATION_METHOD_SITE,
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function valueType(): string
+    {
+        return BlockQuery::class;
     }
 
     /**
@@ -106,6 +119,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public $maxLevels;
 
+    /**
+     * @var bool
+     * @since 2.6.5
+     * @deprecated in 2.12.5
+     */
     public $wasModified = false;
 
     /**
@@ -123,10 +141,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      *
      * This will be set to one of the following:
      *
-     * - `none` – Only save b locks in the site they were created in
-     * - `siteGroup` – Save  blocks to other sites in the same site group
+     * - `none` – Only save blocks in the site they were created in
+     * - `siteGroup` – Save blocks to other sites in the same site group
      * - `language` – Save blocks to other sites with the same language
      * - `all` – Save blocks to all sites supported by the owner element
+     * - `custom` – Save blocks to sites depending on the [[propagationKeyFormat]] value
      *
      * @since 2.4.0
      */
@@ -136,6 +155,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      * @var string The old propagation method for this field
      */
     private $_oldPropagationMethod;
+
+    /**
+     * @var string|null The field’s propagation key format, if [[propagationMethod]] is `custom`
+     * @since 2.12.0
+     */
+    public $propagationKeyFormat;
 
     /**
      * @inheritdoc
@@ -154,6 +179,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function init()
     {
+        if ($this->propagationKeyFormat === '') {
+            $this->propagationKeyFormat = null;
+        }
+
         // Set localizeBlocks in case anything is still checking it
         $this->localizeBlocks = $this->propagationMethod === self::PROPAGATION_METHOD_NONE;
         parent::init();
@@ -180,6 +209,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 self::PROPAGATION_METHOD_NONE,
                 self::PROPAGATION_METHOD_SITE_GROUP,
                 self::PROPAGATION_METHOD_LANGUAGE,
+                self::PROPAGATION_METHOD_CUSTOM,
                 self::PROPAGATION_METHOD_ALL
             ]
         ];
@@ -234,7 +264,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
                 $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
-                
+
                 // Allow the `fieldLayoutId` to be set in the blockType settings
                 if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
                     if ($fieldLayout = $fieldsService->getLayoutById($fieldLayoutId)) {
@@ -308,7 +338,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         foreach ($blockTypeGroups as $id => $blockTypeGroup) {
             $newBlockTypeGroup = $blockTypeGroup;
-            
+
             if (!($blockTypeGroup instanceof BlockTypeGroup)) {
                 $newBlockTypeGroup = new BlockTypeGroup();
                 $newBlockTypeGroup->id = $id;
@@ -601,8 +631,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
     /**
      * @inheritdoc
-     * removed as this is causing issues when changing propagation method.
-     * manually it can still be done by saving the entry
      */
     public function beforeSave(bool $isNew): bool
     {
@@ -614,32 +642,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $requestService = Craft::$app->getRequest();
         $class = Self::class;
 
-        // Later on, the field saving process will call `getGroups()` when trying to delete old groups.  If this request
-        // is coming from the field settings page and all groups were deleted by the user, `$this->_blockTypeGroups`
-        // will be `null`, `getGroups()` will return `Neo::$plugin->blockTypes->getGroupsByFieldId($this->id)` and the
-        // groups won't be deleted.  By detecting this here, we can set an empty array of groups, so the to-be-deleted
-        // groups will actually be deleted.
+        // Later, the field saving process will call `getGroups()` when trying to delete old groups. If this request is
+        // coming from the field settings page and all groups were deleted by the user, `$this->_blockTypeGroups` will
+        // be `null`, `getGroups()` will return `Neo::$plugin->blockTypes->getGroupsByFieldId($this->id)` and the groups
+        // won't be deleted. By detecting this here, we can set an empty array of groups, so the groups will actually be
+        // deleted.
         if (!$requestService->isConsoleRequest && $requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.groups") === null) {
             $this->setGroups([]);
         }
 
-        // TODO: need to further modify so it checks if there's changes to the field. current it's just a quick fix for #310
-        if ($this->uid) {
-            $projectService = Craft::$app->getProjectConfig();
-
-            // since new uses predefined fields then we need to make sure craft knows to update the field.
-            // the new setting
-            $path = $fieldsService::CONFIG_FIELDS_KEY . '.' . $this->uid;
-            $this->wasModified = !$this->wasModified;
-            $value = $projectService->get($path);
-            if ($value && isset($value['settings']['wasModified'])) {
-                $this->wasModified = !$value['settings']['wasModified'];
-            }
-        }
-
-        // Set each block type's field layout based on the data from Craft 3.5's field layout designer
+        // If a block type doesn't already have a field layout set, check for POST data from the field layout designer
         foreach ($this->getBlockTypes() as $blockType) {
-            // Check if the block type already has a field layout set - no need to set it again
             if (!$blockType->fieldLayout) {
                 $fieldLayout = $fieldsService->assembleLayoutFromPost("types.{$class}.blockTypes.{$blockType->id}");
                 $fieldLayout->type = $class;
@@ -659,8 +672,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         if ($this->oldSettings !== null) {
             $oldPropagationMethod = $this->oldSettings['propagationMethod'] ?? self::PROPAGATION_METHOD_ALL;
+            $oldPropagationKeyFormat = $this->oldSettings['propagationKeyFormat'] ?? null;
 
-            if ($this->propagationMethod !== $oldPropagationMethod) {
+            if ($this->propagationMethod !== $oldPropagationMethod || $this->propagationKeyFormat !== $oldPropagationKeyFormat) {
                 Queue::push(new ApplyNewPropagationMethod([
                     'description' => Craft::t('neo', 'Applying new propagation method to Neo blocks'),
                     'elementType' => Block::class,
@@ -757,20 +771,23 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             // Site IDs start from 1 -- let's treat non-localized blocks as site 0
             $key = $blockStructure->ownerSiteId ?? 0;
 
-            $allBlocks = Block::find()
+            $allBlocksQuery = Block::find()
                 ->anyStatus()
                 ->fieldId($this->id)
-                ->owner($element)
-                ->all();
+                ->ownerId($element->id);
 
-            $allBlocksCount = count($allBlocks);
+            if ($key !== 0) {
+                $allBlocksQuery->siteId($key);
+            }
+
+            $allBlocks = $allBlocksQuery->all();
 
             // if the neo block structure doesn't have the ownerSiteId set and has blocks
             // set the ownerSiteId of the neo block structure.
 
             // it's set from the first block because we got all blocks related to this structure beforehand
             // so the siteId should be the same for all blocks.
-            if (empty($blockStructure->ownerSiteId) && $allBlocksCount > 0) {
+            if (empty($blockStructure->ownerSiteId) && !empty($allBlocks)) {
                 $blockStructure->ownerSiteId = $allBlocks[0]->siteId;
                 // need to set the new key since the ownersiteid is now set
                 $key = $blockStructure->ownerSiteId;
@@ -785,7 +802,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->anyStatus()
                 ->fieldId($this->id)
                 ->siteId($siteId)
-                ->owner($element)
+                ->ownerId($element->id)
                 ->inReverse()
                 ->all();
 
@@ -814,11 +831,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $supportedSites = ElementHelper::supportedSitesForElement($element);
 
         // Restore the Neo blocks that were deleted with $element
+        // No need to do anything related to block structures here since they were recreated in `beforeElementDelete()`
         foreach ($supportedSites as $supportedSite) {
             $blocks = Block::find()
                 ->anyStatus()
                 ->siteId($supportedSite['siteId'])
-                ->owner($element)
+                ->ownerId($element->id)
                 ->trashed()
                 ->andWhere(['neoblocks.deletedWithOwner' => true])
                 ->all();
@@ -865,15 +883,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function getGqlFragmentEntityByName(string $fragmentName): GqlInlineFragmentInterface
     {
-        if (!preg_match('/^(?P<fieldHandle>[\w]+)_(?P<blockTypeHandle>[\w]+)_BlockType$/i', $fragmentName, $matches)) {
-            throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
-        }
-
-        if ($this->handle !== $matches['fieldHandle']) {
-            throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
-        }
-
-        $blockType = ArrayHelper::firstWhere($this->getBlockTypes(), 'handle', $matches['blockTypeHandle']);
+        $blockTypeHandle = StringHelper::removeLeft(StringHelper::removeRight($fragmentName, '_BlockType'), $this->handle . '_');
+        $blockType = ArrayHelper::firstWhere($this->getBlockTypes(), 'handle', $blockTypeHandle);
 
         if (!$blockType) {
             throw new InvalidArgumentException('Invalid fragment name: ' . $fragmentName);
@@ -995,6 +1006,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->limit(null)
                 ->anyStatus()
                 ->siteId($element->siteId)
+                ->orderBy(['sortOrder' => SORT_ASC])
                 ->indexBy('id')
                 ->all();
         } else {
@@ -1074,8 +1086,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->setFieldParamNamespace("{$baseBlockFieldNamespace}.{$blockId}.fields");
             }
 
-            $oldBlockData = $block->getBehaviors('customFields');
-
             if (isset($blockData['fields'])) {
                 $block->setFieldValues($blockData['fields']);
             }
@@ -1106,27 +1116,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         return $blocks;
-    }
-
-    /**
-     * Checks if the blocks has sortOrder
-     * Returns the true if it has sortOrder else it'll be false.
-     *
-     * @param array $blocks The raw field data.
-     * @return bool
-     */
-    private function _checkSortOrderOfBlocks(array $blocks): bool
-    {
-        $isNull = false;
-
-        foreach ($blocks as $block) {
-            if ($block->sortOrder === null) {
-                $$isNull = true;
-                break;
-            }
-        }
-
-        return !$isNull;
     }
 
     /**

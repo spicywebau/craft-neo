@@ -1,11 +1,13 @@
 {% import '_includes/forms' as forms %}
 
+{% set configurator %}{# TODO: put configurator HTML here instead of inserting it with JS #}{% endset %}
+
 <div id="neo-configurator" class="neo-configurator">
     {{ forms.field({
         label: "Configuration"|t('neo'),
         instructions: "Define the types of blocks that can be created within this Neo field, as well as the fields each block type is made up of."|t('neo'),
         name: 'config',
-    }) }}
+    }, configurator) }}
 </div>
 
 {% if craft.app.getIsMultiSite() %}
@@ -19,9 +21,27 @@
             { value: 'siteGroup', label: 'Save blocks to other sites in the same site group' | t('neo') },
             { value: 'language', label: 'Save blocks to other sites with the same language' | t('neo') },
             { value: 'all', label: 'Save blocks to all sites the owner element is saved in' | t('neo') },
+            { value: 'custom', label: 'Custom…'|t('app') },
         ],
-        value: neoField.propagationMethod
+        value: neoField.propagationMethod,
+        toggle: true,
+        targetPrefix: 'propagation-method-',
     }) }}
+
+    {% tag 'div' with {
+        id: 'propagation-method-custom',
+        class: neoField.propagationMethod != 'custom' ? 'hidden' : null,
+    } %}
+        {{ forms.textField({
+            label: 'Propagation Key Format'|t('app'),
+            instructions: 'Template that defines the field’s custom “propagation key” format. Blocks will be saved to all sites that produce the same key.'|t('app'),
+            id: 'propagation-key-format',
+            class: 'code',
+            name: 'propagationKeyFormat',
+            value: neoField.propagationKeyFormat,
+            errors: neoField.getErrors('propagationKeyFormat'),
+        }) }}
+    {% endtag %}
 
     {% if neoField.id and neoField.propagationMethod != 'none' %}
         {% js %}

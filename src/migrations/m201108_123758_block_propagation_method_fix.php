@@ -24,7 +24,7 @@ class m201108_123758_block_propagation_method_fix extends Migration
      */
     public function safeUp()
     {
-        // Not multi-site?  Nothing to do here.
+        // Nothing to do here if the Craft install isn't multi-site
         if (!Craft::$app->getIsMultiSite()) {
             return true;
         }

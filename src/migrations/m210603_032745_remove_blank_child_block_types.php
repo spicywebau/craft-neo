@@ -8,7 +8,7 @@ use craft\helpers\Json;
 
 /**
  * Removes empty strings from child block type arrays, which were caused by a Neo field configurator bug where the
- * handle of a new block type would not be updated in the child block type checkboxes if the handle was being auto-
+ * handle of a new block type wasn't being updated in the child block type checkboxes if the handle was being auto-
  * updated as a result of the block type's name being updated.
  *
  * @package benf\neo\migrations

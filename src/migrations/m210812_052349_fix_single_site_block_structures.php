@@ -31,23 +31,23 @@ class m210812_052349_fix_single_site_block_structures extends Migration
         // and ownerId but a non-null ownerSiteId
         $haveNullSiteId = (new Query())
             ->select([
-                '[[d.id]] as id',
-                '[[d.structureId]] as structureId',
-                '[[d.ownerSiteId]] as ownerSiteId',
-                '[[d.ownerId]] as ownerId',
-                '[[d.fieldId]] as fieldId',
+                '[[del.id]] as id',
+                '[[del.structureId]] as structureId',
+                '[[del.ownerSiteId]] as ownerSiteId',
+                '[[del.ownerId]] as ownerId',
+                '[[del.fieldId]] as fieldId',
             ])
-            ->from(['{{%neoblockstructures}} d'])
+            ->from(['{{%neoblockstructures}} del'])
             ->innerJoin(
-                ['k' => '{{%neoblockstructures}}'],
+                ['keep' => '{{%neoblockstructures}}'],
                 [
                     'and',
-                    '[[d.fieldId]] = [[k.fieldId]]',
-                    '[[d.ownerId]] = [[k.ownerId]]',
-                    '[[d.id]] <> [[k.id]]',
+                    '[[del.fieldId]] = [[keep.fieldId]]',
+                    '[[del.ownerId]] = [[keep.ownerId]]',
+                    '[[del.id]] <> [[keep.id]]',
                 ]
             )
-            ->where(['[[d.ownerSiteId]]' => null])
+            ->where(['[[del.ownerSiteId]]' => null])
             ->all();
 
         // Delete block structures with null ownerSiteId where the other block structure exists

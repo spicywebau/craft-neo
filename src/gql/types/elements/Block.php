@@ -27,32 +27,32 @@ class Block extends ObjectType
             NeoBlockInterface::getType(),
             ElementInterface::getType()
         ];
-        
+
         parent::__construct($config);
     }
-    
+
     /**
      * @inheritdoc
      */
     protected function resolve($source, $arguments, $context, ResolveInfo $resolveInfo)
     {
         $fieldName = $resolveInfo->fieldName;
-        
+
         if ($fieldName === 'typeHandle') {
             return $source->getType()->handle;
         }
-        
+
         if ($fieldName === 'children') {
-            $sourceLevel = (int)$source->level + 1;
+            $childrenLevel = (int)$source->level + 1;
 
             // The blocks at `$source->$fieldName` cannot be trusted, it will most likely be out of order and cached.
             // We should retrieve the children blocks by query instead, so it'll always be in the correct order.
-            $children = $source->getDescendants()->level($sourceLevel)->all();
-            $newBlocks = array_filter($children, function($block) use($sourceLevel) {
-                return (int)$block->level === $sourceLevel;
+            $descendants = $source->getDescendants()->all();
+            $children = array_filter($descendants, function($block) use($childrenLevel) {
+                return (int)$block->level === $childrenLevel;
             });
 
-            return $newBlocks;
+            return $children;
         }
 
         return $source->$fieldName;

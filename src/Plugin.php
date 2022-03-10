@@ -50,7 +50,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public $schemaVersion = '2.11.6';
+    public $schemaVersion = '2.13.0';
 
     /**
      * @inheritdoc
@@ -59,7 +59,7 @@ class Plugin extends BasePlugin
         'conversion' => ConversionController::class,
         'input' => InputController::class,
     ];
-    
+
     public $blockHasSortOrder = true;
 
     /**
@@ -169,7 +169,7 @@ class Plugin extends BasePlugin
     private function _setupBlocksHasSortOrder()
     {
         $dbService = Craft::$app->getDb();
-        
+
         try {
             $this->blockHasSortOrder = $dbService->columnExists('{{%neoblocks}}', 'sortOrder');
         } catch (NotSupportedException $e) {

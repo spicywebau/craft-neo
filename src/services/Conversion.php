@@ -343,7 +343,6 @@ class Conversion extends Component
         $ids = 0;
         $oldFieldLayout = $oldBlockType->getFieldLayout();
         $newBlockType = [];
-        
 
         if (property_exists($oldBlockType, 'name')) {
             $newBlockType['name'] = $oldBlockType->name;

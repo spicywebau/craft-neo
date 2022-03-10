@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## Unreleased (3.x)
 
 ### Changed
 - Whether a Neo block type's max blocks setting has been exceeded will now be validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
@@ -15,6 +15,85 @@
 - Removed `benf\neo\elements\Block::setModified()`; use `$dirty` instead
 - Removed `benf\neo\services\Blocks::getSearchKeywords()`
 - Removed `benf\neo\services\Fields::getSupportedSiteIdsForField()`
+
+## Unreleased (2.x)
+
+### Added
+- Added the `groupId` column to the `neoblocktypes` table
+- Added the `getGroup()` method to the `BlockType` model
+- Added the `getGroupById()` method to the `BlockTypes` service
+- Added the `FilterBlockTypesEvent`, which allows filtering which block types or block type groups display on a Neo field depending on the entry or other element being edited (thanks @myleshyson)
+
+## 2.12.5 - 2022-02-16
+
+### Fixed
+- Fixed a bug that prevented Matrix block menus from working properly within Neo fields (thanks @brandonkelly)
+
+## 2.12.4 - 2022-02-01
+
+### Fixed
+- Fixed a bug affecting multi-site Craft installs, where applying changes to two sites from two different drafts would cause Neo blocks to be duplicated
+
+## 2.12.3 - 2022-01-25
+
+### Fixed
+- Fixed a bug where restoring a trashed entry was not properly restoring the Neo blocks/structures for that entry on multisite Craft installs
+- Fixed a bug that occurred when using `craft.neo.blocks()`, where trying to set the Neo block query's `owner` parameter to an owner element using a criteria array would cause the `owner` parameter to be ignored
+
+## 2.12.2 - 2022-01-12
+
+### Fixed
+- Fixed an error that could occur when merging live entry Neo content into a draft if a live entry Neo parent block had been deleted in the draft
+
+## 2.12.1 - 2021-12-16
+
+### Fixed
+- Fixed a bug that could cause Neo blocks to be saved out of order
+- Fixed a deprecation warning that could occur when eager loading Neo fields on Craft installs that have a custom field with the handle `order`
+
+## 2.12.0 - 2021-12-13
+
+### Added
+- Added the Custom propagation method
+
+### Fixed
+- Fixed a bug affecting element types using the old Live Preview mode (e.g. categories) where unsaved Neo blocks at the top level would be counted as children of the previous top-level block
+- Fixed a bug where Neo block queries that were filtering by block ID weren't working in the old Live Preview mode if they were using an array of IDs
+- Fixed a bug that could cause the `m201208_110049_delete_blocks_without_sort_order` migration to fail (thanks @naboo)
+
+## 2.11.21 - 2021-12-06
+
+### Fixed
+- Fixed an error that occurred on Craft 3.7.24 when editing a Neo field's settings
+
+## 2.11.20 - 2021-12-06
+
+### Fixed
+- Fixed a bug involving incorrect merging of Neo block content from drafts and revisions in some cases
+
+## 2.11.19 - 2021-11-22
+
+### Fixed
+- Fixed a bug where GraphQL queries for asset fields in Neo blocks would return no results if the block type handle contained an underscore
+
+## 2.11.18 - 2021-11-17
+
+### Fixed
+- Fixed a bug where GraphQL queries wouldn't return Neo child blocks in some cases
+- Fixed a bug where an entry's provisional draft would be created or updated if a Neo block was expanded or collapsed
+- Fixed a bug where expanding or collapsing a Neo block on a provisional draft wouldn't also set the expanded/collapsed state on the canonical block
+
+## 2.11.17 - 2021-11-11
+
+### Fixed
+- Fixed a bug when adding new blocks to a Neo field using GraphQL mutations, where queries for the returned data to include child blocks would not return the child blocks
+- Fixed an error that occurred when cloning or pasting a Neo block that uses the child blocks UI element
+
+## 2.11.16 - 2021-11-08
+
+### Fixed
+- Fixed a bug where new entry blocks (e.g. from a newly-applied draft) could be merged into the incorrect position of an already existing provisional draft
+- Fixed an error that could occur on a multi-site Craft install when saving a new entry from changes to an existing entry, if the entry had a Neo field with a propagation method other than "Only save blocks to the site they were created in" and the entry's section was disabled for any site
 
 ## 2.11.15 - 2021-10-22
 

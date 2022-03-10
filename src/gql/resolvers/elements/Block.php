@@ -4,7 +4,10 @@ namespace benf\neo\gql\resolvers\elements;
 
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block as BlockElement;
+use benf\neo\elements\db\BlockQuery;
 use craft\gql\base\ElementResolver;
+use craft\helpers\Gql as GqlHelper;
+use GraphQL\Type\Definition\ResolveInfo;
 
 /**
  * Class Block
@@ -14,6 +17,27 @@ use craft\gql\base\ElementResolver;
  */
 class Block extends ElementResolver
 {
+    /**
+     * @inheritdoc
+     */
+    public static function resolve($source, array $arguments, $context, ResolveInfo $resolveInfo)
+    {
+        $query = self::prepareElementQuery($source, $arguments, $context, $resolveInfo);
+        $blocks = $query instanceof BlockQuery ? $query->all() : $query;
+
+        if ($query instanceof BlockQuery && $query->level == 0) {
+            // If we have all blocks, memoize them to avoid database calls for child block queries.
+            // This also allows child block queries after mutations to return results... not sure if
+            // there's some caching going on causing it to otherwise return no child blocks, need to
+            // look into it further.
+            foreach ($blocks as $block) {
+                $block->useMemoized($blocks);
+            }
+        }
+
+        return GqlHelper::applyDirectives($source, $resolveInfo, $blocks);
+    }
+
     /**
      * @inheritdoc
      */

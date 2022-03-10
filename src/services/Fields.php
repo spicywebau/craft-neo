@@ -3,6 +3,7 @@
 namespace benf\neo\services;
 
 use benf\neo\elements\db\BlockQuery;
+use benf\neo\models\BlockTypeGroup;
 use benf\neo\models\BlockStructure;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
@@ -127,14 +128,23 @@ class Fields extends Component
                 }
 
                 // Save the new block types and groups
-                foreach ($field->getBlockTypes() as $blockType) {
-                    $blockType->fieldId = $field->id;
-                    Neo::$plugin->blockTypes->save($blockType, false);
-                }
+                $items = array_merge($field->getBlockTypes(), $field->getGroups());
+                usort($items, function ($a, $b) {
+                    return (int)$a->sortOrder > (int)$b->sortOrder ? 1 : -1;
+                });
 
-                foreach ($field->getGroups() as $blockTypeGroup) {
-                    $blockTypeGroup->fieldId = $field->id;
-                    Neo::$plugin->blockTypes->saveGroup($blockTypeGroup);
+                $currentGroup = null;
+
+                foreach ($items as $item) {
+                    $item->fieldId = $field->id;
+
+                    if ($item instanceof BlockTypeGroup) {
+                        $currentGroup = $item;
+                        Neo::$plugin->blockTypes->saveGroup($item);
+                    } else {
+                        $item->groupId = $currentGroup ? $currentGroup->id : null;
+                        Neo::$plugin->blockTypes->save($item, false);
+                    }
                 }
 
                 $transaction->commit();
@@ -273,7 +283,7 @@ class Fields extends Component
                 ($owner->propagateAll || !empty($owner->newSiteIds))
             ) {
                 $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
-                $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $owner);
+                $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
                 $otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
 
                 if (!$owner->propagateAll) {
@@ -307,7 +317,7 @@ class Fields extends Component
                         }
                         $this->duplicateBlocks($field, $owner, $otherTarget);
                         // Make sure we don't duplicate blocks for any of the sites that were just propagated to
-                        $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherTarget);
+                        $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherTarget, $field->propagationKeyFormat);
                         $handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
                     }
                     $owner->setFieldValue($field->handle, $query);
@@ -372,7 +382,11 @@ class Fields extends Component
                     $target->updatingFromDerivative &&
                     $block->getCanonical() !== $block // in case the canonical block is soft-deleted
                 ) {
-                    if (!empty($target->newSiteIds) || $source->isFieldModified($field->handle)) {
+                    if (
+                        ElementHelper::isRevision($source) ||
+                        !empty($target->newSiteIds) ||
+                        $source->isFieldModified($field->handle, true)
+                    ) {
                         $newBlock = $elementsService->updateCanonicalElement($block, $newAttributes);
                     } else {
                         $newBlock = $block->getCanonical();
@@ -435,7 +449,7 @@ class Fields extends Component
         if ($checkOtherSites && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
             // Find the target's site IDs that *aren't* supported by this site's neo blocks
             $targetSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($target), 'siteId');
-            $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $target);
+            $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $target, $field->propagationKeyFormat);
             $otherSiteIds = array_diff($targetSiteIds, $fieldSiteIds);
 
             if (!empty($otherSiteIds)) {
@@ -474,10 +488,11 @@ class Fields extends Component
                         continue;
                     }
 
+                    $otherTargets[$otherSource->siteId]->updatingFromDerivative = $target->updatingFromDerivative;
                     $this->duplicateBlocks($field, $otherSource, $otherTargets[$otherSource->siteId]);
 
                     // Make sure we don't duplicate blocks for any of the sites that were just propagated to
-                    $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherSource);
+                    $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherSource, $field->propagationKeyFormat);
                     $handledSiteIds = array_merge($handledSiteIds, $sourceSupportedSiteIds);
                 }
             }
@@ -495,9 +510,21 @@ class Fields extends Component
      */
     public function mergeCanonicalChanges(Field $field, ElementInterface $owner): void
     {
+        $localizedOwners = $owner::find()
+            ->id($owner->id ?: false)
+            ->siteId(['not', $owner->siteId])
+            ->drafts($owner->getIsDraft())
+            ->provisionalDrafts($owner->isProvisionalDraft)
+            ->revisions($owner->getIsRevision())
+            ->anyStatus()
+            ->ignorePlaceholders()
+            ->indexBy('siteId')
+            ->all();
+        $localizedOwners[$owner->siteId] = $owner;
+
         $canonicalOwners = $owner::find()
             ->id($owner->getCanonicalId())
-            ->siteId('*')
+            ->siteId(array_keys($localizedOwners))
             ->anyStatus()
             ->ignorePlaceholders()
             ->all();
@@ -511,6 +538,7 @@ class Fields extends Component
                 continue;
             }
 
+            $allBlocks = [];
             $newBlocks = [];
             $nextBlockSortOrder = 1;
 
@@ -522,7 +550,7 @@ class Fields extends Component
                 ->trashed(null)
                 ->ignorePlaceholders()
                 ->indexBy('id')
-                ->orderBy(['sortOrder' => SORT_ASC])
+                ->orderBy(['lft' => SORT_ASC])
                 ->all();
 
             $derivativeBlocks = Block::find()
@@ -556,41 +584,45 @@ class Fields extends Component
                         if ($derivativeBlock->dateUpdated == $derivativeBlock->dateCreated) {
                             $elementsService->deleteElement($derivativeBlock);
                         }
-                    } else if (!$derivativeBlock->trashed && ElementHelper::isOutdated($derivativeBlock)) {
-                        if (!$owner->isProvisionalDraft && $derivativeBlock->sortOrder != $nextBlockSortOrder) {
-                            $derivativeBlock->sortOrder = $nextBlockSortOrder;
-                            $structureMode = Structures::MODE_AUTO;
-                        }
+                    } else if (!$derivativeBlock->trashed) {
+                        if (ElementHelper::isOutdated($derivativeBlock)) {
+                            if (!$owner->isProvisionalDraft && $derivativeBlock->sortOrder != $nextBlockSortOrder) {
+                                $derivativeBlock->sortOrder = $nextBlockSortOrder;
+                                $structureMode = Structures::MODE_AUTO;
+                            }
 
-                        $elementsService->mergeCanonicalChanges($derivativeBlock);
-                        $newBlock = $derivativeBlock;
+                            $elementsService->mergeCanonicalChanges($derivativeBlock);
+                            $allBlocks[] = $newBlock = $derivativeBlock;
+                        } else {
+                            $allBlocks[] = $derivativeBlock;
+                        }
                     }
                 } else if (!$canonicalBlock->trashed && $canonicalBlock->dateCreated > $owner->dateCreated) {
-                    $newBlock = $elementsService->duplicateElement($canonicalBlock, [
+                    $allBlocks[] = $newBlock = $elementsService->duplicateElement($canonicalBlock, [
                         'canonicalId' => $canonicalBlock->id,
                         'level' => $canonicalBlock->level,
                         'ownerId' => $owner->id,
-                        'owner' => $owner,
+                        'owner' => $localizedOwners[$canonicalBlock->siteId],
                         'propagating' => false,
-                        'siteId' => $canonicalOwner->siteId,
+                        'siteId' => $canonicalBlock->siteId,
                         'structureId' => null,
                     ]);
                     $structureMode = Structures::MODE_INSERT;
                 }
 
                 if ($derivativeStructureId && $structureMode !== null) {
-                    if (!empty($newBlocks)) {
-                        $prevBlock = $newBlocks[count($newBlocks) - 1];
+                    if (count($allBlocks) > 1) {
+                        $prevBlock = $allBlocks[count($allBlocks) - 2];
 
-                        // If $prevBlock->level is lower, $newBlock is a child block and we need to append
-                        $method = $prevBlock->level < $newBlock->level ? 'append' : 'moveAfter';
+                        // If $prevBlock->level is lower, $newBlock is the first child block and we need to prepend
+                        $method = $prevBlock->level < $newBlock->level ? 'prepend' : 'moveAfter';
 
                         // If $prevBlock->level is higher, then $newBlock is a sibling of one of $prevBlock's ancestors,
                         // so we'll need to move $newBlock after that ancestor
                         if ($prevBlock->level > $newBlock->level) {
-                            for ($i = count($newBlocks) - 2; $i >= 0; $i--) {
-                                if ($newBlocks[$i]->level == $newBlock->level) {
-                                    $prevBlock = $newBlocks[$i];
+                            for ($i = count($allBlocks) - 3; $i >= 0; $i--) {
+                                if ($allBlocks[$i]->level == $newBlock->level) {
+                                    $prevBlock = $allBlocks[$i];
                                     break;
                                 }
                             }
@@ -614,7 +646,7 @@ class Fields extends Component
                 $this->_saveNeoStructuresForSites($field, $owner, $newBlocks, $canonicalOwner->siteId);
             }
 
-            $siteIds = $this->getSupportedSiteIds($field->propagationMethod, $canonicalOwner);
+            $siteIds = $this->getSupportedSiteIds($field->propagationMethod, $canonicalOwner, $field->propagationKeyFormat);
 
             foreach ($siteIds as $siteId) {
                 $handledSiteIds[$siteId] = true;
@@ -627,17 +659,24 @@ class Fields extends Component
      *
      * @param string $propagationMethod
      * @param ElementInterface $owner
+     * @param string|null $propagationKeyFormat
      * @return int[]
      * @throws
      * @since 2.5.10
      */
-    public function getSupportedSiteIds(string $propagationMethod, ElementInterface $owner): array
+    public function getSupportedSiteIds(string $propagationMethod, ElementInterface $owner, ?string $propagationKeyFormat = null): array
     {
         /** @var Element $owner */
         /** @var Site[] $allSites */
         $allSites = ArrayHelper::index(Craft::$app->getSites()->getAllSites(), 'id');
         $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
         $siteIds = [];
+
+        if ($propagationMethod === Field::PROPAGATION_METHOD_CUSTOM && $propagationKeyFormat !== null) {
+            $view = Craft::$app->getView();
+            $elementsService = Craft::$app->getElements();
+            $propagationKey = $view->renderObjectTemplate($propagationKeyFormat, $owner);
+        }
 
         foreach ($ownerSiteIds as $siteId) {
             switch ($propagationMethod) {
@@ -649,6 +688,14 @@ class Fields extends Component
                     break;
                 case Field::PROPAGATION_METHOD_LANGUAGE:
                     $include = $allSites[$siteId]->language == $allSites[$owner->siteId]->language;
+                    break;
+                case Field::PROPAGATION_METHOD_CUSTOM:
+                    if (!isset($propagationKey)) {
+                        $include = true;
+                    } else {
+                        $siteOwner = $elementsService->getElementById($owner->id, get_class($owner), $siteId);
+                        $include = $siteOwner && $propagationKey === $view->renderObjectTemplate($propagationKeyFormat, $siteOwner);
+                    }
                     break;
                 default:
                     $include = true;
@@ -667,7 +714,7 @@ class Fields extends Component
     {
         // we need to setup the structure for the other supported sites too.
         // must be immediate to show changes on the front end.
-        $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner);
+        $supported = $this->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
 
         // remove the current
         if (($key = array_search($owner->siteId, $supported)) !== false) {
@@ -699,7 +746,7 @@ class Fields extends Component
      */
     private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
     {
-        $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner);
+        $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
         $supportedSitesCount = count($supportedSites);
 
         if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
@@ -774,7 +821,7 @@ class Fields extends Component
         Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
 
         // if multi site then save the structure for it. since it's all the same then we can use the same structure.
-        $supported = $this->getSupportedSiteIdsExCurrent($field, $owner);
+        $supported = $this->getSupportedSiteIdsExCurrent($field, $owner, $field->propagationKeyFormat);
         $supportedCount = count($supported);
 
         if ($supportedCount > 0) {

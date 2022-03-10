@@ -40,9 +40,26 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
+
+    public static function lowerDisplayName(): string
+    {
+        return Craft::t('neo', 'Neo block');
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function pluralDisplayName(): string
     {
         return Craft::t('neo', 'Neo Blocks');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Craft::t('neo', 'Neo blocks');
     }
 
     /**
@@ -109,7 +126,7 @@ class Block extends Element implements BlockElementInterface
 
         return $map;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -159,13 +176,13 @@ class Block extends Element implements BlockElementInterface
      * @var bool|null Whether this block should display as collapsed.
      */
     public $_collapsed;
-    
+
     /**
      * @since 2.7.0
      */
     public $sortOrder;
     public $oldLevel;
-    
+
     /**
      * @var bool Whether the block has changed.
      * @internal
@@ -262,7 +279,8 @@ class Block extends Element implements BlockElementInterface
             return [Craft::$app->getSites()->getPrimarySite()->id];
         }
 
-        return Neo::$plugin->fields->getSupportedSiteIds($this->_getField()->propagationMethod, $owner);
+        $field = $this->_getField();
+        return Neo::$plugin->fields->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
     }
 
     /**
@@ -315,8 +333,7 @@ class Block extends Element implements BlockElementInterface
      */
     public function getOwner(): ElementInterface
     {
-        // Sometimes the owner has a different site ID...
-        if ($this->_owner === null || $this->_owner->siteId !== $this->siteId) {
+        if ($this->_owner === null) {
             if ($this->ownerId === null) {
                 throw new InvalidConfigException('Neo block is missing its owner ID');
             }
@@ -450,7 +467,7 @@ class Block extends Element implements BlockElementInterface
             parent::setEagerLoadedElements($handle, $elements);
         }
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -482,11 +499,11 @@ class Block extends Element implements BlockElementInterface
             $record->fieldId = (int)$this->fieldId;
             $record->ownerId = (int)$this->ownerId;
             $record->typeId = (int)$this->typeId;
-            
+
             if (Neo::$plugin->blockHasSortOrder) {
                 $record->sortOrder = (int)$this->sortOrder ?: null;
             }
-            
+
             $record->save(false);
         }
 
@@ -585,7 +602,7 @@ class Block extends Element implements BlockElementInterface
         if (Craft::$app->request->getIsConsoleRequest()) {
             return false;
         }
-        
+
         // get token
         $token = Craft::$app->request->getParam('token');
 
