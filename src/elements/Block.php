@@ -114,7 +114,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|false|null
     {
         $map = false;
         $separatedHandle = explode(':', $handle);

@@ -15,6 +15,7 @@ use craft\models\Site;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\base\Model as BaseModel;
 use yii\db\Connection;
 
 /**
@@ -245,7 +246,7 @@ class BlockQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function count($q = '*', $db = null)
+    public function count($q = '*', $db = null): string|int|bool|null
     {
         $isUsingMemoized = $this->isUsingMemoized();
 
@@ -275,7 +276,7 @@ class BlockQuery extends ElementQuery
      * @inheritdoc
      * @return Block|array|null
      */
-    public function one($db = null)
+    public function one($db = null): BaseModel|array|null
     {
         $isUsingMemoized = $this->isUsingMemoized();
 
@@ -290,7 +291,7 @@ class BlockQuery extends ElementQuery
      * @inheritdoc
      * @return Block|array|null
      */
-    public function nth(int $n, ?\yii\db\Connection $db = null)
+    public function nth(int $n, ?\yii\db\Connection $db = null): BaseModel|array|null
     {
         $isUsingMemoized = $this->isUsingMemoized();
 

@@ -488,11 +488,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 "(select count([[{$alias}.id]]) from {{%neoblocks}} {{{$alias}}} where [[{$alias}.ownerId]] = [[elements.id]] and [[{$alias}.fieldId]] = :fieldId) {$operator} 0",
                 [':fieldId' => $this->id]
             );
-        } elseif ($value !== null) {
-            return false;
         }
-
-        return null;
     }
 
     /**
@@ -582,7 +578,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public function getEagerLoadingMap(array $sourceElements)
+    public function getEagerLoadingMap(array $sourceElements): array|false|null
     {
         $sourceElementIds = [];
 
