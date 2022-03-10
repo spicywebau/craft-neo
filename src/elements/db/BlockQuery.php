@@ -39,12 +39,6 @@ class BlockQuery extends ElementQuery
     public $ownerId;
 
     /**
-     * @var int|array|null The owner site ID to query for.
-     * @deprecated in 2.4.0. Use [[$siteId]] instead.
-     */
-    public $ownerSiteId;
-
-    /**
      * @var int|array|null The block type ID(s) to query for.
      */
     public $typeId;
@@ -96,16 +90,6 @@ class BlockQuery extends ElementQuery
             case 'type':
                 $this->type($value);
                 break;
-            // Deprecated properties
-            // TODO: remove these in Neo 3
-            case 'ownerLocale':
-                Craft::$app->getDeprecator()->log('BlockQuery::ownerLocale()',
-                    "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
-                break;
-            case 'ownerSite':
-                Craft::$app->getDeprecator()->log('BlockQuery::ownerSite()',
-                    'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
-                break;
             default:
                 parent::__set($name, $value);
         }
@@ -142,50 +126,6 @@ class BlockQuery extends ElementQuery
     public function ownerId($value)
     {
         $this->ownerId = $value;
-
-        return $this;
-    }
-
-    /**
-     * Filters the query results based on the owner's site ID.
-     *
-     * @param int|string|null $value The site ID.
-     * @return $this
-     */
-    public function ownerSiteId()
-    {
-        Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()',
-            'The “ownerSiteId” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
-
-        return $this;
-    }
-
-    /**
-     * Filters the query results based on the owner's site.
-     *
-     * @param string|\craft\models\Site $value The site, specified either by a handle or a site model.
-     * @return $this
-     * @throws Exception if the site handle is invalid.
-     */
-    public function ownerSite()
-    {
-        Craft::$app->getDeprecator()->log('BlockQuery::ownerSiteId()',
-            'The “ownerSite” Neo block query param has been deprecated. Use “site” or “siteId” instead.');
-
-        return $this;
-    }
-
-    /**
-     * Filters the query results based on the owner's site.
-     *
-     * @param string $value The site handle.
-     * @return $this
-     * @deprecated in 2.0.0.  Use `ownerSite()` or `ownerSiteId()` instead.
-     */
-    public function ownerLocale()
-    {
-        Craft::$app->getDeprecator()->log('ElementQuery::ownerLocale()',
-            "The “ownerLocale” Neo block query param has been deprecated. Use “site” or “siteId” instead.");
 
         return $this;
     }
