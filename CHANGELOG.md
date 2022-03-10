@@ -15,6 +15,7 @@
 - Removed `benf\neo\converters\models\BlockTypeGroup` (Neo BlockTypeGroup Converter for Schematic)
 - Removed `benf\neo\elements\Block::getModified()`; use `$dirty` instead
 - Removed `benf\neo\elements\Block::setModified()`; use `$dirty` instead
+- Removed `benf\neo\elements\Block::$ownerSiteId`; use `$siteId` instead
 - Removed `benf\neo\elements\db\BlockQuery::ownerLocale()`; use `site()` or `siteId()` instead
 - Removed `benf\neo\elements\db\BlockQuery::ownerSite()`; use `site()` or `siteId()` instead
 - Removed `benf\neo\elements\db\BlockQuery::ownerSiteId()`; use `site()` or `siteId()` instead

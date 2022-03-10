@@ -144,12 +144,6 @@ class Block extends Element implements BlockElementInterface
     public $ownerId;
 
     /**
-     * @var int|null The owner site ID.
-     * @deprecated in 2.4.0. Use [[$siteId]] instead.
-     */
-    public $ownerSiteId;
-
-    /**
      * @var int|null The block type ID.
      */
     public $typeId;
