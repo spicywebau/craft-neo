@@ -47,7 +47,7 @@ class BlockStructure extends Model
 	/**
 	 * @inheritdoc
 	 */
-	public function rules()
+	public function rules(): array
 	{
 		return [
 			[['id', 'structureId', 'fieldId', 'ownerId', 'ownerSiteId'], 'number', 'integerOnly' => true],

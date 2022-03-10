@@ -42,7 +42,7 @@ class BlockTypeGroup extends Model
 	/**
 	 * @inheritdoc
 	 */
-	public function rules()
+	public function rules(): array
 	{
 		return [
 			[['id', 'fieldId', 'sortOrder' ], 'number', 'integerOnly' => true],

@@ -18,7 +18,7 @@ class DuplicateNeoStructureTask extends BaseJob
 
     public $supportedSites;
 
-    public function execute($queue)
+    public function execute($queue): void
     {
         $blocks = [];
         $siteId = $this->siteId ?? $this->owner['siteId'];
@@ -76,7 +76,7 @@ class DuplicateNeoStructureTask extends BaseJob
     /**
      * @inheritdoc
      */
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return Craft::t('neo', 'Saving the neo structure for duplicated elements');
     }

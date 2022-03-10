@@ -123,7 +123,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     /**
      * @inheritdoc
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'fieldLayout' => [
@@ -136,7 +136,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['id', 'fieldId', 'sortOrder'], 'number', 'integerOnly' => true],

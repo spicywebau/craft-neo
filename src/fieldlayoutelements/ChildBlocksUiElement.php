@@ -26,7 +26,7 @@ class ChildBlocksUiElement extends BaseUiElement
     /**
      * @inheritdoc
      */
-    protected function selectorIcon()
+    protected function selectorIcon(): ?string
     {
         return '@benf/neo/icon.svg';
     }
@@ -34,7 +34,7 @@ class ChildBlocksUiElement extends BaseUiElement
     /**
      * @inheritdoc
      */
-    public function formHtml(ElementInterface $element = null, bool $static = false)
+    public function formHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         return Craft::$app->getView()->renderTemplate('neo/child-blocks', []);
     }

@@ -23,7 +23,7 @@ class BlockType implements GeneratorInterface
     /**
      * @inheritdoc
      */
-    public static function generateTypes($context = null): array
+    public static function generateTypes(mixed $context = null): array
     {
         if ($context) {
             $blockTypes = $context->getBlockTypes();

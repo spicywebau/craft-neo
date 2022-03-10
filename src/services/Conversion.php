@@ -350,7 +350,7 @@ class Conversion extends Component
         }
 
         if ($oldFieldLayout !== null) {
-            foreach ($oldFieldLayout->getFields() as $field) {
+            foreach ($oldFieldLayout->getCustomFields() as $field) {
                 $fieldType = get_class($field);
                 $neoContainsMatrix = $oldBlockType instanceof NeoBlockType && $field instanceof MatrixField;
                 $containsNeo = $field instanceof Field;

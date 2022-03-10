@@ -66,7 +66,7 @@ class BlockQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected $defaultOrderBy = ['neoblocks.sortOrder' => SORT_ASC];
+    protected array $defaultOrderBy = ['neoblocks.sortOrder' => SORT_ASC];
 
     // Private properties
 
@@ -114,7 +114,7 @@ class BlockQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->withStructure = true;
         parent::init();
@@ -260,7 +260,7 @@ class BlockQuery extends ElementQuery
      * @inheritdoc
      * @return Block[]|array
      */
-    public function all($db = null)
+    public function all($db = null): array
     {
         $isUsingMemoized = $this->isUsingMemoized();
 
@@ -290,7 +290,7 @@ class BlockQuery extends ElementQuery
      * @inheritdoc
      * @return Block|array|null
      */
-    public function nth(int $n, Connection $db = null)
+    public function nth(int $n, ?\yii\db\Connection $db = null)
     {
         $isUsingMemoized = $this->isUsingMemoized();
 
