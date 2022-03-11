@@ -150,10 +150,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function __construct($config = [])
     {
+        // Convert `localizeBlocks` to `propagationMethod`
         if (array_key_exists('localizeBlocks', $config)) {
             $config['propagationMethod'] = $config['localizeBlocks'] ? 'none' : 'all';
             unset($config['localizeBlocks']);
         }
+
+        // Ignore `wasModified`
+        if (array_key_exists('wasModified', $config)) {
+            unset($config['wasModified']);
+        }
+
         parent::__construct($config);
     }
 
