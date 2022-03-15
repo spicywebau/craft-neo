@@ -212,6 +212,7 @@ class BlockTypes extends Component
         $record->maxChildBlocks = $blockType->maxChildBlocks;
         $record->childBlocks = $blockType->childBlocks;
         $record->topLevel = $blockType->topLevel;
+        $record->groupId = $blockType->groupId;
 
         $record->validateUniques = $validateUniques;
         $isValid = (bool)$record->validate();
