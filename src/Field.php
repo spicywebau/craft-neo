@@ -259,10 +259,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                         $newBlockType->setFieldLayout($fieldLayout);
                         $newBlockType->fieldLayoutId = $fieldLayout->id;
                     }
-                }
-
-                if (!empty($blockType['elementPlacements'])) {
-                    $fieldLayout = $fieldsService->assembleLayoutFromPost('types.' . self::class . ".blockTypes.{$blockTypeId}");
+                } else {
+                    // Otherwise, check for a field layout in the POST data
+                    $fieldLayout = $fieldsService->assembleLayoutFromPost('neoBlockType' . (string)$blockTypeId);
                     $fieldLayout->type = Block::class;
 
                     // Ensure the field layout ID and UID are set, if they exist
