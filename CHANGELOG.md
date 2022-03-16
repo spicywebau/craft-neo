@@ -25,13 +25,19 @@
 - Removed `benf\neo\services\Blocks::getSearchKeywords()`
 - Removed `benf\neo\services\Fields::getSupportedSiteIdsForField()`
 
-## Unreleased (2.x)
+## 2.13.0 - 2022-03-16
+
+> {warning} If you're updating from a Neo version prior to 2.8.16, you're running a multi-site Craft install, and you've ever changed your Neo fields' propagation methods, run the `php craft neo/fields/reapply-propagation-method` command after updating to potentially fix a bug from prior to Neo 2.8.14 where changes to a field's propagation method weren't being applied to their blocks. If that command causes an error, run `php craft neo/fields/reapply-propagation-method --by-block-structure` instead (be aware that this may create many jobs in the queue).
 
 ### Added
 - Added the `groupId` column to the `neoblocktypes` table
 - Added the `getGroup()` method to the `BlockType` model
 - Added the `getGroupById()` method to the `BlockTypes` service
 - Added the `FilterBlockTypesEvent`, which allows filtering which block types or block type groups display on a Neo field depending on the entry or other element being edited (thanks @myleshyson)
+- Added the `php craft neo/fields/reapply-propagation-method` command with options `--field-id=<your comma-separated Neo field IDs here>` and `--by-block-structure`
+
+### Changed
+- Code from a migration added in Neo 2.8.14 and updated in 2.8.16 to reapply Neo fields' propagation methods to their blocks has been moved to the `php craft neo/fields/reapply-propagation-method` command
 
 ## 2.12.5 - 2022-02-16
 

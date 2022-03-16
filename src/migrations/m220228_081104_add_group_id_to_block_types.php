@@ -30,31 +30,33 @@ class m220228_081104_add_group_id_to_block_types extends Migration
         }
 
         // Set group IDs where necessary
-        foreach (Craft::$app->getFields()->getAllFields() as $field) {
-            if (!($field instanceof Field)) {
-                continue;
-            }
+        if (version_compare(Craft::$app->getProjectConfig()->get('plugins.neo.schemaVersion', true), '2.13.0', '<')) {
+            foreach (Craft::$app->getFields()->getAllFields() as $field) {
+                if (!($field instanceof Field)) {
+                    continue;
+                }
 
-            $groups = $field->getGroups();
+                $groups = $field->getGroups();
 
-            // If the field had no groups, then clearly no group IDs to set
-            if (empty($groups)) {
-                continue;
-            }
+                // If the field had no groups, then clearly no group IDs to set
+                if (empty($groups)) {
+                    continue;
+                }
 
-            $items = array_merge($field->getBlockTypes(), $groups);
-            usort($items, function($a, $b) {
-                return (int)$a->sortOrder > (int)$b->sortOrder ? 1 : -1;
-            });
+                $items = array_merge($field->getBlockTypes(), $groups);
+                usort($items, function ($a, $b) {
+                    return (int)$a->sortOrder > (int)$b->sortOrder ? 1 : -1;
+                });
 
-            $currentGroup = null;
+                $currentGroup = null;
 
-            foreach ($items as $item) {
-                if ($item instanceof BlockTypeGroup) {
-                    $currentGroup = $item;
-                } elseif ($currentGroup !== null) {
-                    $item->groupId = $currentGroup->id;
-                    Neo::$plugin->blockTypes->save($item);
+                foreach ($items as $item) {
+                    if ($item instanceof BlockTypeGroup) {
+                        $currentGroup = $item;
+                    } else if ($currentGroup !== null) {
+                        $item->groupId = $currentGroup->id;
+                        Neo::$plugin->blockTypes->save($item);
+                    }
                 }
             }
         }
