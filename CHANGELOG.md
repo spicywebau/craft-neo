@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.0 - 2022-03-16
 
 > {warning} If you're updating from a Neo version prior to 2.8.16, you're running a multi-site Craft install, and you've ever changed your Neo fields' propagation methods, run the `php craft neo/fields/reapply-propagation-method` command after updating to potentially fix a bug from prior to Neo 2.8.14 where changes to a field's propagation method weren't being applied to their blocks. If that command causes an error, run `php craft neo/fields/reapply-propagation-method --by-block-structure` instead (be aware that this may create many jobs in the queue).
 
