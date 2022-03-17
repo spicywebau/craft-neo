@@ -369,7 +369,7 @@ class BlockTypes extends Component
             throw new Exception('Tried to save a Neo block type for a field with UID ' . $data['field'] . ', which was not found');
         }
 
-        $groupId = $data['group'] ? Db::idByUid('{{%neoblocktypegroups}}', $data['group']) : null;
+        $groupId = isset($data['group']) ? Db::idByUid('{{%neoblocktypegroups}}', $data['group']) : null;
 
         $transaction = $dbService->beginTransaction();
 
