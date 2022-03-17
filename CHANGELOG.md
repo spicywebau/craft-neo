@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.1 - 2022-03-17
 
 ### Fixed
 - Fixed an error that occurred when applying a project config from prior to Neo 2.13.0
