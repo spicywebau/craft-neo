@@ -927,7 +927,7 @@ export default Garnish.Base.extend({
     $('.lightswitch', this.$contentContainer).lightswitch()
     $('.nicetext', this.$contentContainer).nicetext()
     $('.formsubmit', this.$contentContainer).formsubmit()
-    $('.menubtn', this.$contentContainer).menubtn()
+    $('.menubtn:not([data-disclosure-trigger])', this.$contentContainer).menubtn()
     $('.datetimewrapper', this.$contentContainer).datetime()
   },
 

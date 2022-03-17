@@ -2,7 +2,6 @@
 
 namespace benf\neo\gql\resolvers\elements;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block as BlockElement;
 use benf\neo\elements\db\BlockQuery;
 use craft\gql\base\ElementResolver;
@@ -20,7 +19,7 @@ class Block extends ElementResolver
     /**
      * @inheritdoc
      */
-    public static function resolve($source, array $arguments, $context, ResolveInfo $resolveInfo)
+    public static function resolve(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): mixed
     {
         $query = self::prepareElementQuery($source, $arguments, $context, $resolveInfo);
         $blocks = $query instanceof BlockQuery ? $query->all() : $query;
@@ -41,14 +40,14 @@ class Block extends ElementResolver
     /**
      * @inheritdoc
      */
-    public static function prepareQuery($source, array $arguments, $fieldName = null)
+    public static function prepareQuery(mixed $source, array $arguments, $fieldName = null): mixed
     {
         // If this is the beginning of a resolver chain, start fresh
         if ($source === null) {
             // get the first level
             $query = BlockElement::find()->level(1);
 
-            // If not, get the prepared element query
+        // If not, get the prepared element query
         } else {
             $query = $source->$fieldName;
         }
@@ -63,7 +62,9 @@ class Block extends ElementResolver
                 : 1;
             $newBlocks = $level === null
                 ? $query
-                : array_filter($query, function($block) use ($level) { return (int)$block->level === $level; });
+                : array_filter($query, function($block) use ($level) {
+                    return (int)$block->level === $level;
+                });
 
             return !empty($newBlocks) ? $newBlocks : $query;
         }

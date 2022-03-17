@@ -1,14 +1,14 @@
 <?php
+
 namespace benf\neo\migrations;
 
-use Craft;
 use craft\db\Migration;
 
 /**
  * m190127_023247_soft_delete_compatibility migration.
  *
  * @package benf\neo\migrations
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @since 2.2.0
  */
 class m190127_023247_soft_delete_compatibility extends Migration

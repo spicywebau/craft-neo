@@ -1,9 +1,10 @@
 <?php
+
 namespace benf\neo\records;
 
-use yii\db\ActiveQueryInterface;
-
 use craft\db\ActiveRecord;
+
+use yii\db\ActiveQueryInterface;
 
 /**
  * Class Block
@@ -15,51 +16,51 @@ use craft\db\ActiveRecord;
  */
 class Block extends ActiveRecord
 {
-	/**
-	 * @inheritdoc
-	 */
-	public static function tableName(): string
-	{
-		return '{{%neoblocks}}';
-	}
+    /**
+     * @inheritdoc
+     */
+    public static function tableName(): string
+    {
+        return '{{%neoblocks}}';
+    }
 
-	/**
-	 * Returns the block's element.
-	 *
-	 * @return ActiveQueryInterface
-	 */
-	public function getElement(): ActiveQueryInterface
-	{
-		return $this->hasOne(Element::class, ['id' => 'id']);
-	}
+    /**
+     * Returns the block's element.
+     *
+     * @return ActiveQueryInterface
+     */
+    public function getElement(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id' => 'id']);
+    }
 
-	/**
-	 * Returns the block's owner.
-	 *
-	 * @return ActiveQueryInterface
-	 */
-	public function getOwner(): ActiveQueryInterface
-	{
-		return $this->hasOne(Element::class, ['id' => 'ownerId']);
-	}
+    /**
+     * Returns the block's owner.
+     *
+     * @return ActiveQueryInterface
+     */
+    public function getOwner(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id' => 'ownerId']);
+    }
 
-	/**
-	 * Returns the block's field.
-	 *
-	 * @return ActiveQueryInterface
-	 */
-	public function getField(): ActiveQueryInterface
-	{
-		return $this->hasOne(Element::class, ['id' => 'fieldId']);
-	}
+    /**
+     * Returns the block's field.
+     *
+     * @return ActiveQueryInterface
+     */
+    public function getField(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id' => 'fieldId']);
+    }
 
-	/**
-	 * Returns the block's type.
-	 *
-	 * @return ActiveQueryInterface
-	 */
-	public function getType(): ActiveQueryInterface
-	{
-		return $this->hasOne(Element::class, ['id' => 'typeId']);
-	}
+    /**
+     * Returns the block's type.
+     *
+     * @return ActiveQueryInterface
+     */
+    public function getType(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id' => 'typeId']);
+    }
 }

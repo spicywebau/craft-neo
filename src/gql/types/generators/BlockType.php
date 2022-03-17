@@ -2,11 +2,10 @@
 
 namespace benf\neo\gql\types\generators;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block as BlockElement;
 use benf\neo\gql\interfaces\elements\Block as NeoBlockInterface;
 use benf\neo\gql\types\elements\Block;
-use Craft;
+use benf\neo\Plugin as Neo;
 use craft\base\Field;
 use craft\gql\base\GeneratorInterface;
 use craft\gql\GqlEntityRegistry;
@@ -23,7 +22,7 @@ class BlockType implements GeneratorInterface
     /**
      * @inheritdoc
      */
-    public static function generateTypes($context = null): array
+    public static function generateTypes(mixed $context = null): array
     {
         if ($context) {
             $blockTypes = $context->getBlockTypes();
@@ -64,7 +63,7 @@ class BlockType implements GeneratorInterface
                         'name' => $typeName,
                         'fields' => function() use ($blockTypeFields) {
                             return $blockTypeFields;
-                        }
+                        },
                     ]);
 
                     $entity = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, $entity);

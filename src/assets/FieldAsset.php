@@ -2,20 +2,21 @@
 
 namespace benf\neo\assets;
 
+use benf\neo\elements\Block;
+use benf\neo\events\FilterBlockTypesEvent;
+use benf\neo\Field;
+use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
+use benf\neo\models\BlockTypeGroup;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
+
 use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
 use craft\models\FieldLayout;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
-
-use benf\neo\Plugin as Neo;
-use benf\neo\Field;
-use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
-use benf\neo\models\BlockType;
-use benf\neo\models\BlockTypeGroup;
-use benf\neo\elements\Block;
+use yii\base\Event;
 
 /**
  * Class FieldAsset
@@ -28,25 +29,49 @@ use benf\neo\elements\Block;
 class FieldAsset extends AssetBundle
 {
     /**
+     * Event that allows filtering what block types are available for a given field.
+     *
+     * @event FilterBlockTypesEvent
+     *
+     * ```php
+     * use benf\neo\assets\FieldAsset;
+     * use benf\neo\events\FilterBlockTypesEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(FieldAsset::class, FieldAsset::EVENT_FILTER_BLOCK_TYPES, function (FilterBlockTypesEvent $event) {
+     *     $filtered = [];
+     *     foreach ($event->blockTypes as $type) {
+     *         if ($type->handle === 'cards') {
+     *             $filtered[] = $type;
+     *         }
+     *     }
+     *
+     *     $event->blockTypes = $filtered;
+     * });
+     *
+     */
+    public const EVENT_FILTER_BLOCK_TYPES = "filterBlockTypes";
+
+    /**
      * @inheritdoc
      */
     public function init()
     {
         $this->sourcePath = '@benf/neo/resources';
-        
+
         $this->depends = [
             CpAsset::class,
         ];
-        
+
         $this->js = ['main.js'];
-        
+
         if ($this->_matchUriSegments(['settings', 'fields', 'edit', '*'])) {
             $this->js[] = 'converter.js';
         }
-        
+
         parent::init();
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -91,10 +116,10 @@ class FieldAsset extends AssetBundle
             'Settings',
             'Field Layout',
         ]);
-        
+
         parent::registerAssetFiles($view);
     }
-    
+
     /**
      * Sets up the field layout designer for a given Neo field.
      *
@@ -104,10 +129,10 @@ class FieldAsset extends AssetBundle
     public static function createSettingsJs(Field $field): string
     {
         $viewService = Craft::$app->getView();
-        
+
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
-        
+
         // Render the field layout designer HTML, but disregard any Javascript it outputs, as that'll be handled by Neo.
         $viewService->startJsBuffer();
         $fieldLayoutHtml = $viewService->renderTemplate('_includes/fieldlayoutdesigner', [
@@ -115,19 +140,19 @@ class FieldAsset extends AssetBundle
             'customizableUi' => true,
         ]);
         $viewService->clearJsBuffer();
-        
+
         $jsSettings = [
             'namespace' => $viewService->getNamespace(),
             'blockTypes' => self::_getBlockTypesJsSettings($blockTypes),
             'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
             'fieldLayoutHtml' => $fieldLayoutHtml,
         ];
-        
+
         $encodedJsSettings = Json::encode($jsSettings);
-        
+
         return "Neo.createConfigurator($encodedJsSettings)";
     }
-    
+
     /**
      * Sets up the field block inputs for a given Neo field.
      *
@@ -142,20 +167,28 @@ class FieldAsset extends AssetBundle
         $value,
         bool $static = false,
         int $siteId = null,
-        $owner = null
+        $owner = null,
     ): string {
         $viewService = Craft::$app->getView();
-        
+
         $name = $field->handle;
         $id = $viewService->formatInputId($name);
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
-        
+
+        $event = new FilterBlockTypesEvent([
+            'field' => $field,
+            'element' => $owner,
+            'blockTypes' => $blockTypes,
+            'blockTypeGroups' => $blockTypeGroups,
+        ]);
+        Event::trigger(self::class, self::EVENT_FILTER_BLOCK_TYPES, $event);
+
         $jsSettings = [
             'name' => $name,
             'namespace' => $viewService->namespaceInputName($name) . '[blocks]',
-            'blockTypes' => self::_getBlockTypesJsSettings($blockTypes, true, $static, $siteId, $owner),
-            'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
+            'blockTypes' => self::_getBlockTypesJsSettings($event->blockTypes, true, $static, $siteId, $owner),
+            'groups' => self::_getBlockTypeGroupsJsSettings($event->blockTypeGroups),
             'inputId' => $viewService->namespaceInputId($id),
             'minBlocks' => $field->minBlocks,
             'maxBlocks' => $field->maxBlocks,
@@ -164,12 +197,12 @@ class FieldAsset extends AssetBundle
             'blocks' => self::_getBlocksJsSettings($value, $static),
             'static' => $static,
         ];
-        
+
         $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);
-        
+
         return "Neo.createInput($encodedJsSettings)";
     }
-    
+
     /**
      * Returns the raw data from the given blocks.
      *
@@ -185,7 +218,7 @@ class FieldAsset extends AssetBundle
         $collapseAllBlocks = Neo::$plugin->getSettings()->collapseAllBlocks;
         $jsBlocks = [];
         $sortOrder = 0;
-        
+
         foreach ($blocks as $block) {
             if ($block instanceof Block) {
                 $blockType = $block->getType();
@@ -210,7 +243,7 @@ class FieldAsset extends AssetBundle
                 $jsBlocks[] = $block;
             }
         }
-        
+
         return $jsBlocks;
     }
 
@@ -231,7 +264,7 @@ class FieldAsset extends AssetBundle
         bool $renderTabs = false,
         bool $static = false,
         int $siteId = null,
-        $owner = null
+        $owner = null,
     ): array {
         $jsBlockTypes = [];
 
@@ -248,11 +281,11 @@ class FieldAsset extends AssetBundle
                 foreach ($tabElements as $element) {
                     $elementData = [
                         'config' => $element->toArray(),
-                        'settings-html' => preg_replace(
+                        /*'settings-html' => preg_replace(
                             '/(id|for)="(.+)"/',
                             '\1="element-' . uniqid() . '-\2"',
                             $element->settingsHtml()
-                        ),
+                        ),*/
                         'type' => get_class($element),
                     ];
 
@@ -290,6 +323,7 @@ class FieldAsset extends AssetBundle
                 'fieldLayout' => $jsFieldLayout,
                 'fieldLayoutId' => $fieldLayout->id,
                 'fieldTypes' => $fieldTypes,
+                'groupId' => $blockType->groupId,
             ];
 
             if ($renderTabs) {
@@ -314,7 +348,7 @@ class FieldAsset extends AssetBundle
     private static function _getBlockTypeGroupsJsSettings(array $blockTypeGroups): array
     {
         $jsBlockTypeGroups = [];
-        
+
         foreach ($blockTypeGroups as $blockTypeGroup) {
             if ($blockTypeGroup instanceof BlockTypeGroup) {
                 $jsBlockTypeGroups[] = [
@@ -326,10 +360,10 @@ class FieldAsset extends AssetBundle
                 $jsBlockTypeGroups[] = $blockTypeGroup;
             }
         }
-        
+
         return $jsBlockTypeGroups;
     }
-    
+
     /**
      * Helper function for matching against the URI.
      * Useful for including resources on specific pages.
@@ -340,19 +374,19 @@ class FieldAsset extends AssetBundle
     private function _matchUriSegments($matchSegments): bool
     {
         $segments = Craft::$app->getRequest()->getSegments();
-        
+
         if (count($segments) !== count($matchSegments)) {
             return false;
         }
-        
+
         foreach ($segments as $i => $segment) {
             $matchSegment = $matchSegments[$i];
-            
+
             if ($matchSegment !== '*' && $segment !== $matchSegment) {
                 return false;
             }
         }
-        
+
         return true;
     }
 }

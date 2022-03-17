@@ -89,7 +89,7 @@ export default Garnish.Base.extend({
         html: this._fieldLayoutHtml,
         layout: btInfo.fieldLayout,
         id: btInfo.fieldLayoutId,
-        blockId: btInfo.id
+        blockTypeId: btInfo.id
       })
 
       const blockType = new BlockType({
@@ -325,7 +325,7 @@ export default Garnish.Base.extend({
       })
 
     const fieldLayout = new BlockTypeFieldLayout({
-      blockId: id,
+      blockTypeId: id,
       html: this._fieldLayoutHtml,
       layout: oldBlockType ? oldBlockType.getFieldLayout().getLayoutStructure() : [],
       namespace: [...namespace, id]

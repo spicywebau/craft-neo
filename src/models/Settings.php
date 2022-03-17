@@ -16,11 +16,6 @@ class Settings extends Model
     /**
      * @var bool
      */
-    public $saveModifiedBlocksOnly = true;
-
-    /**
-     * @var bool
-     */
     public $collapseAllBlocks = false;
 
     /**
@@ -32,10 +27,10 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['saveModifiedBlocksOnly', 'collapseAllBlocks', 'optimiseSearchIndexing'], 'boolean'],
+            [['collapseAllBlocks', 'optimiseSearchIndexing'], 'boolean'],
         ];
     }
 }

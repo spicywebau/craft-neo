@@ -1,7 +1,7 @@
 {
   "name": "spicyweb/craft-neo",
   "description": "A Matrix-like field type that uses existing fields",
-  "version": "2.11.18",
+  "version": "2.13.0",
   "type": "craft-plugin",
   "keywords": [
     "cms",
@@ -21,11 +21,12 @@
   "support": {
     "issues": "https://github.com/spicywebau/craft-neo/issues",
     "source": "https://github.com/spicywebau/craft-neo",
-    "docs": "https://github.com/spicywebau/craft-neo/blob/2.11.18/README.md",
+    "docs": "https://github.com/spicywebau/craft-neo/blob/2.13.0/README.md",
     "rss": "https://github.com/spicywebau/craft-neo/commits/master.atom"
   },
   "require": {
-    "craftcms/cms": "^3.7.12"
+    "craftcms/cms": "^4.0.0-beta.1",
+    "php": "^8.0.2"
   },
   "autoload": {
     "psr-4": {
@@ -35,9 +36,25 @@
   "extra": {
     "handle": "neo",
     "name": "Neo",
-    "schemaVersion": "2.11.6",
+    "schemaVersion": "2.13.0",
     "class": "benf\\neo\\Plugin",
     "changelogUrl": "https://github.com/spicywebau/craft-neo/blob/master/CHANGELOG.md",
     "downloadUrl": "https://github.com/spicywebau/craft-neo/archive/master.zip"
+  },
+  "config": {
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require-dev": {
+    "craftcms/rector": "dev-main",
+    "craftcms/ecs": "dev-main"
+  },
+  "scripts": {
+    "check-cs": "ecs check --ansi",
+    "fix-cs": "ecs check --ansi --fix"
   }
 }

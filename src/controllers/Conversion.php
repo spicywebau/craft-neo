@@ -1,12 +1,13 @@
 <?php
+
 namespace benf\neo\controllers;
 
-use yii\web\Response;
+use benf\neo\Plugin as Neo;
 
 use Craft;
 use craft\web\Controller;
 
-use benf\neo\Plugin as Neo;
+use yii\web\Response;
 
 /**
  * Controller for handling conversion of Neo fields to Matrix.
@@ -18,33 +19,30 @@ use benf\neo\Plugin as Neo;
  */
 class Conversion extends Controller
 {
-	/**
-	 * Converts a Neo field to a Matrix field.
-	 *
-	 * @return Response
-	 * @throws \Throwable
-	 */
-	public function actionConvertToMatrix(): Response
-	{
-		$this->requireAdmin();
-		$this->requireAcceptsJson();
-		$this->requirePostRequest();
+    /**
+     * Converts a Neo field to a Matrix field.
+     *
+     * @return Response
+     * @throws \Throwable
+     */
+    public function actionConvertToMatrix(): Response
+    {
+        $this->requireAdmin();
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
 
-		$fieldId = Craft::$app->getRequest()->getParam('fieldId');
-		$neoField = Craft::$app->getFields()->getFieldById($fieldId);
+        $fieldId = Craft::$app->getRequest()->getParam('fieldId');
+        $neoField = Craft::$app->getFields()->getFieldById($fieldId);
 
-		$return = [];
+        $return = [];
 
-		try
-		{
-			$return['success'] = Neo::$plugin->conversion->convertFieldToMatrix($neoField);
-		}
-		catch (\Throwable $e)
-		{
-			$return['success'] = false;
-			$return['errors'] = [$e->getMessage()];
-		}
+        try {
+            $return['success'] = Neo::$plugin->conversion->convertFieldToMatrix($neoField);
+        } catch (\Throwable $e) {
+            $return['success'] = false;
+            $return['errors'] = [$e->getMessage()];
+        }
 
-		return $this->asJson($return);
-	}
+        return $this->asJson($return);
+    }
 }

@@ -2,11 +2,10 @@
 
 namespace benf\neo\migrations;
 
-use Craft;
-use craft\db\Migration;
-
 use benf\neo\Field;
 use benf\neo\Plugin as Neo;
+use Craft;
+use craft\db\Migration;
 
 /**
  * Class Install
@@ -27,9 +26,9 @@ class Install extends Migration
         $hasBlockStructuresTable = $this->db->tableExists('{{%neoblockstructures}}');
         $hasBlockTypesTable = $this->db->tableExists('{{%neoblocktypes}}');
         $hasBlockTypeGroupsTable = $this->db->tableExists('{{%neoblocktypegroups}}');
-        
+
         // Create tables
-        
+
         if (!$hasBlocksTable) {
             $this->createTable('{{%neoblocks}}', [
                 'id' => $this->integer()->notNull(),
@@ -38,7 +37,6 @@ class Install extends Migration
                 'fieldId' => $this->integer()->notNull(),
                 'typeId' => $this->integer()->notNull(),
                 'sortOrder' => $this->smallInteger()->unsigned(),
-                // 'level' => $this->smallInteger()->unsigned(),
                 'deletedWithOwner' => $this->boolean()->null(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
@@ -46,7 +44,7 @@ class Install extends Migration
                 'PRIMARY KEY([[id]])',
             ]);
         }
-        
+
         if (!$hasBlockStructuresTable) {
             $this->createTable('{{%neoblockstructures}}', [
                 'id' => $this->primaryKey(),
@@ -59,12 +57,13 @@ class Install extends Migration
                 'uid' => $this->uid(),
             ]);
         }
-        
+
         if (!$hasBlockTypesTable) {
             $this->createTable('{{%neoblocktypes}}', [
                 'id' => $this->primaryKey(),
                 'fieldId' => $this->integer()->notNull(),
                 'fieldLayoutId' => $this->integer(),
+                'groupId' => $this->integer(),
                 'name' => $this->string()->notNull(),
                 'handle' => $this->string()->notNull(),
                 'maxBlocks' => $this->smallInteger()->unsigned(),
@@ -78,7 +77,7 @@ class Install extends Migration
                 'uid' => $this->uid(),
             ]);
         }
-        
+
         if (!$hasBlockTypeGroupsTable) {
             $this->createTable('{{%neoblocktypegroups}}', [
                 'id' => $this->primaryKey(),
@@ -90,37 +89,38 @@ class Install extends Migration
                 'uid' => $this->uid(),
             ]);
         }
-        
+
         // Create indexes
-        
+
         if (!$hasBlocksTable) {
             $this->createIndex(null, '{{%neoblocks}}', ['ownerId'], false);
             $this->createIndex(null, '{{%neoblocks}}', ['ownerSiteId'], false);
             $this->createIndex(null, '{{%neoblocks}}', ['fieldId'], false);
             $this->createIndex(null, '{{%neoblocks}}', ['typeId'], false);
         }
-        
+
         if (!$hasBlockStructuresTable) {
             $this->createIndex(null, '{{%neoblockstructures}}', ['structureId'], false);
             $this->createIndex(null, '{{%neoblockstructures}}', ['ownerId'], false);
             $this->createIndex(null, '{{%neoblockstructures}}', ['ownerSiteId'], false);
             $this->createIndex(null, '{{%neoblockstructures}}', ['fieldId'], false);
         }
-        
+
         if (!$hasBlockTypesTable) {
             $this->createIndex(null, '{{%neoblocktypes}}', ['name', 'fieldId'], false);
             $this->createIndex(null, '{{%neoblocktypes}}', ['handle', 'fieldId'], true);
             $this->createIndex(null, '{{%neoblocktypes}}', ['fieldId'], false);
             $this->createIndex(null, '{{%neoblocktypes}}', ['fieldLayoutId'], false);
+            $this->createIndex(null, '{{%neoblocktypes}}', ['groupId'], false);
         }
-        
+
         if (!$hasBlockTypeGroupsTable) {
             $this->createIndex(null, '{{%neoblocktypegroups}}', ['name', 'fieldId'], false);
             $this->createIndex(null, '{{%neoblocktypegroups}}', ['fieldId'], false);
         }
-        
+
         // Add foreign keys
-        
+
         if (!$hasBlocksTable) {
             $this->addForeignKey(null, '{{%neoblocks}}', ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', null);
             $this->addForeignKey(null, '{{%neoblocks}}', ['id'], '{{%elements}}', ['id'], 'CASCADE', null);
@@ -128,7 +128,7 @@ class Install extends Migration
             $this->addForeignKey(null, '{{%neoblocks}}', ['ownerSiteId'], '{{%sites}}', ['id'], 'CASCADE', 'CASCADE');
             $this->addForeignKey(null, '{{%neoblocks}}', ['typeId'], '{{%neoblocktypes}}', ['id'], 'CASCADE', null);
         }
-        
+
         if (!$hasBlockStructuresTable) {
             $this->addForeignKey(null, '{{%neoblockstructures}}', ['structureId'], '{{%structures}}', ['id'], 'CASCADE',
                 null);
@@ -138,40 +138,41 @@ class Install extends Migration
             $this->addForeignKey(null, '{{%neoblockstructures}}', ['ownerSiteId'], '{{%sites}}', ['id'], 'CASCADE',
                 'CASCADE');
         }
-        
+
         if (!$hasBlockTypesTable) {
             $this->addForeignKey(null, '{{%neoblocktypes}}', ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', null);
             $this->addForeignKey(null, '{{%neoblocktypes}}', ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL',
                 null);
+            $this->addForeignKey(null, '{{%neoblocktypes}}', ['groupId'], '{{%neoblocktypegroups}}', ['id'], 'SET NULL',
+                null);
         }
-        
+
         if (!$hasBlockTypeGroupsTable) {
             $this->addForeignKey(null, '{{%neoblocktypegroups}}', ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', null);
         }
-        
+
         return true;
     }
-    
+
     /**
      * @inheritdoc
      */
     public function safeDown()
     {
-        // Convert Neo fields to Matrix fields
+        // Convert Neo fields to Matrix fields before dropping Neo tables
         $fields = Craft::$app->getFields()->getAllFields();
-        
+
         foreach ($fields as $field) {
             if ($field instanceof Field) {
                 Neo::$plugin->conversion->convertFieldToMatrix($field);
             }
         }
-        
-        // Drop Neo tables
+
         $this->dropTableIfExists('{{%neoblocks}}');
         $this->dropTableIfExists('{{%neoblockstructures}}');
         $this->dropTableIfExists('{{%neoblocktypes}}');
         $this->dropTableIfExists('{{%neoblocktypegroups}}');
-        
+
         return true;
     }
 }

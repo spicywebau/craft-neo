@@ -2,8 +2,8 @@
 
 namespace benf\neo\migrations;
 
-use benf\neo\Field;
 use benf\neo\elements\Block;
+use benf\neo\Field;
 use Craft;
 use craft\db\Migration;
 use craft\db\Query;
@@ -14,7 +14,7 @@ use craft\helpers\MigrationHelper;
  * m181022_123749_craft3_upgrade migration.
  *
  * @package benf\neo\migrations
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @since 2.0.0
  */
 class m181022_123749_craft3_upgrade extends Migration
@@ -25,8 +25,8 @@ class m181022_123749_craft3_upgrade extends Migration
     public function safeUp()
     {
         // Due to an issue with Neo 2 installations from pre-release trying to run this migration on update to Neo 2.2,
-        // we need to ensure that this is actually an upgrade from the latest release of Neo 1.  Easy way to do this is
-        // to check whether the `neoblocks` table has a `collapsed` column.  If it doesn't, we have nothing to do here.
+        // we need to ensure that this is actually an upgrade from the latest release of Neo 1. We can determine this by
+        // checking whether the `neoblocks` table has a `collapsed` column, since new installs on Craft 3 won't have it.
         $dbService = Craft::$app->getDb();
         $hasCollapsed = $dbService->getSchema()->getTableSchema('{{%neoblocks}}')->getColumn('collapsed') !== null;
 

@@ -55,13 +55,20 @@ export default Garnish.Base.extend({
 
     this.$container = $('#' + settings.inputId)
 
+    const setGroupIds = {}
+    this._groups.forEach(group => {
+      setGroupIds[group.getId()] = true
+    })
+
     const tempBlockTypes = []
 
     for (const btInfo of settings.blockTypes) {
-      const blockType = new BlockType(btInfo)
-
-      this._blockTypes.push(blockType)
-      tempBlockTypes[blockType.getHandle()] = blockType
+      // Filter out the block type if its group isn't included
+      if (btInfo.groupId === null || typeof setGroupIds[btInfo.groupId] !== 'undefined') {
+        const blockType = new BlockType(btInfo)
+        this._blockTypes.push(blockType)
+        tempBlockTypes[blockType.getHandle()] = blockType
+      }
     }
 
     const $form = this.$container.closest('form')

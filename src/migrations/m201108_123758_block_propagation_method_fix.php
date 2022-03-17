@@ -2,8 +2,8 @@
 
 namespace benf\neo\migrations;
 
-use benf\neo\Field;
 use benf\neo\elements\Block;
+use benf\neo\Field;
 use Craft;
 use craft\db\Migration;
 use craft\db\Query;
@@ -11,7 +11,8 @@ use craft\helpers\Queue;
 use craft\queue\jobs\ApplyNewPropagationMethod;
 
 /**
- * Fixes Neo blocks that had not had their field's new propagation method applied.
+ * This migration used to fix Neo blocks that hadn't had their field's new propagation method applied.
+ * This fix is now handled by the `craft neo/fields/reapply-propagation-method --by-block-structure` command.
  *
  * @package benf\neo\migrations
  * @author Spicy Web <plugins@spicyweb.com.au>
@@ -24,43 +25,8 @@ class m201108_123758_block_propagation_method_fix extends Migration
      */
     public function safeUp()
     {
-        // Not multi-site?  Nothing to do here.
-        if (!Craft::$app->getIsMultiSite()) {
-            return true;
-        }
-
-        $fieldsService = Craft::$app->getFields();
-        $fieldPropagationMethod = [];
-        $blockStructures = (new Query())
-            ->from('{{%neoblockstructures}}')
-            ->all();
-
-        foreach ($blockStructures as $blockStructure) {
-            $fieldId = $blockStructure['fieldId'];
-
-            if (!isset($fieldPropagationMethod[$fieldId])) {
-                $field = $fieldsService->getFieldById($fieldId);
-
-                if (!($field instanceof Field)) {
-                    continue;
-                }
-
-                $fieldPropagationMethod[$fieldId] = $field->propagationMethod;
-            }
-
-            if ($fieldPropagationMethod[$fieldId] !== Field::PROPAGATION_METHOD_ALL) {
-                Queue::push(new ApplyNewPropagationMethod([
-                    'description' => Craft::t('neo', 'Applying new propagation method to Neo blocks'),
-                    'elementType' => Block::class,
-                    'criteria' => [
-                        'ownerId' => $blockStructure['ownerId'],
-                        'ownerSiteId' => $blockStructure['ownerSiteId'],
-                        'fieldId' => $fieldId,
-                        'structureId' => $blockStructure['structureId'],
-                    ],
-                ]));
-            }
-        }
+        // Moved to a console command
+        return true;
     }
 
     /**

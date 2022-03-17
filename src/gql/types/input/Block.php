@@ -3,7 +3,6 @@
 namespace benf\neo\gql\types\input;
 
 use benf\neo\Field as NeoField;
-use Craft;
 use craft\base\Field;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\types\QueryArgument;
@@ -39,7 +38,7 @@ class Block extends InputObjectType
                 'level' => [
                     'name' => 'level',
                     'type' => Type::int(),
-                ]
+                ],
             ];
 
             // Get the field input types
@@ -52,8 +51,8 @@ class Block extends InputObjectType
                 'name' => $blockType->handle,
                 'type' => GqlEntityRegistry::createEntity($blockTypeGqlName, new InputObjectType([
                     'name' => $blockTypeGqlName,
-                    'fields' => $blockTypeFields
-                ]))
+                    'fields' => $blockTypeFields,
+                ])),
             ];
         }
 
@@ -64,7 +63,7 @@ class Block extends InputObjectType
             'name' => $blockTypeContainerName,
             'fields' => function() use ($blockInputTypes) {
                 return $blockInputTypes;
-            }
+            },
         ]));
 
         $inputType = GqlEntityRegistry::createEntity($typeName, new InputObjectType([
@@ -73,15 +72,15 @@ class Block extends InputObjectType
                 return [
                     'sortOrder' => [
                         'name' => 'sortOrder',
-                        'type' => Type::listOf(QueryArgument::getType())
+                        'type' => Type::listOf(QueryArgument::getType()),
                     ],
                     'blocks' => [
                         'name' => 'blocks',
-                        'type' => Type::listOf($blockContainerInputType)
-                    ]
+                        'type' => Type::listOf($blockContainerInputType),
+                    ],
                 ];
             },
-            'normalizeValue' => [self::class, 'normalizeValue']
+            'normalizeValue' => [self::class, 'normalizeValue'],
         ]));
 
         return $inputType;
@@ -99,11 +98,11 @@ class Block extends InputObjectType
                     $block = reset($block);
                     $blockId = !empty($block['id']) ? $block['id'] : 'new:' . ($blockCounter++);
                     $blockLevel = null;
-                    
+
                     if (!empty($block['level'])) {
                         // Set the block's new level
                         $blockLevel = $block['level'];
-                    } else if (empty($block['id'])) {
+                    } elseif (empty($block['id'])) {
                         // Default new blocks to level 1
                         $blockLevel = 1;
                     }
@@ -114,7 +113,7 @@ class Block extends InputObjectType
                         'type' => $type,
                         'level' => $blockLevel,
                         'modified' => true,
-                        'fields' => $block
+                        'fields' => $block,
                     ];
                 }
             }

@@ -2,10 +2,10 @@
 
 namespace benf\neo\services;
 
-use benf\neo\Field;
-use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
+use benf\neo\Field;
 use benf\neo\models\BlockType as NeoBlockType;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\db\Query;
 use craft\elements\MatrixBlock;
@@ -68,7 +68,6 @@ class Conversion extends Component
             $matrixField->setBlockTypes($matrixBlockTypes);
             $matrixField->minBlocks = $neoField->minBlocks;
             $matrixField->maxBlocks = $neoField->maxBlocks;
-            $matrixField->localizeBlocks = $neoField->localizeBlocks;
             $matrixField->propagationMethod = $neoField->propagationMethod;
             $matrixField->uid = $neoField->uid;
 
@@ -121,9 +120,9 @@ class Conversion extends Component
 
                 // Create mapping from newly saved block type field handles to their IDs.
                 // This is so that relations can be updated later on with the new field ID.
-                $matrixFields = array_map(function ($field) {
+                $matrixFields = array_map(function($field) {
                     return $field->getField();
-                }, array_filter($matrixBlockType->getFieldLayout()->getTabs()[0]->elements, function ($field) {
+                }, array_filter($matrixBlockType->getFieldLayout()->getTabs()[0]->elements, function($field) {
                     return $field instanceof CustomField;
                 }));
                 $fieldIds = [];
@@ -282,14 +281,14 @@ class Conversion extends Component
                 // Super Table serialised blocks identify their block type by ID (since Super Table
                 // fields have exactly one block type, they don't really need handles) so if we
                 // don't have the correct field from the correct layout, we have the incorrect ID.
-                $fieldLayoutFields = array_map(function ($field) {
+                $fieldLayoutFields = array_map(function($field) {
                     return $field->getField();
-                }, array_filter($matrixBlockType->getFieldLayout()->getTabs()[0]->elements, function ($field) {
+                }, array_filter($matrixBlockType->getFieldLayout()->getTabs()[0]->elements, function($field) {
                     return $field instanceof CustomField;
                 }));
                 $superTableField = ArrayHelper::firstWhere($fieldLayoutFields, 'handle', $handle);
 
-                $value = array_map(function ($block) use ($superTableField) {
+                $value = array_map(function($block) use ($superTableField) {
                     $block['type'] = $superTableField->getBlockTypes()[0]->id;
                     return $block;
                 }, Craft::$app->getFields()->getFieldById($value->fieldId)->serializeValue($value));
@@ -343,7 +342,6 @@ class Conversion extends Component
         $ids = 0;
         $oldFieldLayout = $oldBlockType->getFieldLayout();
         $newBlockType = [];
-        
 
         if (property_exists($oldBlockType, 'name')) {
             $newBlockType['name'] = $oldBlockType->name;
@@ -351,7 +349,7 @@ class Conversion extends Component
         }
 
         if ($oldFieldLayout !== null) {
-            foreach ($oldFieldLayout->getFields() as $field) {
+            foreach ($oldFieldLayout->getCustomFields() as $field) {
                 $fieldType = get_class($field);
                 $neoContainsMatrix = $oldBlockType instanceof NeoBlockType && $field instanceof MatrixField;
                 $containsNeo = $field instanceof Field;

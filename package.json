@@ -1,6 +1,6 @@
 {
   "name": "craft-neo",
-  "version": "2.11.18",
+  "version": "2.13.0",
   "description": "A Matrix-like field type that uses existing fields",
   "main": "webpack.config.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "babel-loader": "^6.2.4",
     "babel-preset-es2015": "^6.9.0",
     "css-loader": "^0.23.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "sass-loader": "^4.0.0",
     "standard": "16.0.3",
     "style-loader": "^0.13.1",

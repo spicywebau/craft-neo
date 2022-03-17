@@ -1,5 +1,96 @@
 # Changelog
 
+## Unreleased (3.x)
+
+### Changed
+- Neo now requires Craft 4.0.0-beta.1 or later
+- Neo now requires PHP 8.0.2 or later
+- Whether a Neo block type's max blocks setting has been exceeded will now be validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
+
+### Removed
+- Removed the unused `saveModifiedBlocksOnly` setting
+- Removed `benf\neo\Field::$localizeBlocks`; use `$propagationMethod` instead
+- Removed `benf\neo\Field::$wasModified`
+- Removed `benf\neo\integrations\fieldlabels\FieldLabels`
+- Removed `benf\neo\converters\Field` (Neo Field Converter for Schematic)
+- Removed `benf\neo\converters\models\BlockType` (Neo BlockType Converter for Schematic)
+- Removed `benf\neo\converters\models\BlockTypeGroup` (Neo BlockTypeGroup Converter for Schematic)
+- Removed `benf\neo\elements\Block::getModified()`; use `$dirty` instead
+- Removed `benf\neo\elements\Block::setModified()`; use `$dirty` instead
+- Removed `benf\neo\elements\Block::$ownerSiteId`; use `$siteId` instead
+- Removed `benf\neo\elements\db\BlockQuery::ownerLocale()`; use `site()` or `siteId()` instead
+- Removed `benf\neo\elements\db\BlockQuery::ownerSite()`; use `site()` or `siteId()` instead
+- Removed `benf\neo\elements\db\BlockQuery::ownerSiteId()`; use `site()` or `siteId()` instead
+- Removed `benf\neo\elements\db\BlockQuery::$ownerSiteId`; use `$siteId` instead
+- Removed `benf\neo\services\Blocks::getSearchKeywords()`
+- Removed `benf\neo\services\Fields::getSupportedSiteIdsForField()`
+
+## 2.13.0 - 2022-03-16
+
+> {warning} If you're updating from a Neo version prior to 2.8.16, you're running a multi-site Craft install, and you've ever changed your Neo fields' propagation methods, run the `php craft neo/fields/reapply-propagation-method` command after updating to potentially fix a bug from prior to Neo 2.8.14 where changes to a field's propagation method weren't being applied to their blocks. If that command causes an error, run `php craft neo/fields/reapply-propagation-method --by-block-structure` instead (be aware that this may create many jobs in the queue).
+
+### Added
+- Added the `groupId` column to the `neoblocktypes` table
+- Added the `getGroup()` method to the `BlockType` model
+- Added the `getGroupById()` method to the `BlockTypes` service
+- Added the `FilterBlockTypesEvent`, which allows filtering which block types or block type groups display on a Neo field depending on the entry or other element being edited (thanks @myleshyson)
+- Added the `php craft neo/fields/reapply-propagation-method` command with options `--field-id=<your comma-separated Neo field IDs here>` and `--by-block-structure`
+
+### Changed
+- Code from a migration added in Neo 2.8.14 and updated in 2.8.16 to reapply Neo fields' propagation methods to their blocks has been moved to the `php craft neo/fields/reapply-propagation-method` command
+
+## 2.12.5 - 2022-02-16
+
+### Fixed
+- Fixed a bug that prevented Matrix block menus from working properly within Neo fields (thanks @brandonkelly)
+
+## 2.12.4 - 2022-02-01
+
+### Fixed
+- Fixed a bug affecting multi-site Craft installs, where applying changes to two sites from two different drafts would cause Neo blocks to be duplicated
+
+## 2.12.3 - 2022-01-25
+
+### Fixed
+- Fixed a bug where restoring a trashed entry was not properly restoring the Neo blocks/structures for that entry on multisite Craft installs
+- Fixed a bug that occurred when using `craft.neo.blocks()`, where trying to set the Neo block query's `owner` parameter to an owner element using a criteria array would cause the `owner` parameter to be ignored
+
+## 2.12.2 - 2022-01-12
+
+### Fixed
+- Fixed an error that could occur when merging live entry Neo content into a draft if a live entry Neo parent block had been deleted in the draft
+
+## 2.12.1 - 2021-12-16
+
+### Fixed
+- Fixed a bug that could cause Neo blocks to be saved out of order
+- Fixed a deprecation warning that could occur when eager loading Neo fields on Craft installs that have a custom field with the handle `order`
+
+## 2.12.0 - 2021-12-13
+
+### Added
+- Added the Custom propagation method
+
+### Fixed
+- Fixed a bug affecting element types using the old Live Preview mode (e.g. categories) where unsaved Neo blocks at the top level would be counted as children of the previous top-level block
+- Fixed a bug where Neo block queries that were filtering by block ID weren't working in the old Live Preview mode if they were using an array of IDs
+- Fixed a bug that could cause the `m201208_110049_delete_blocks_without_sort_order` migration to fail (thanks @naboo)
+
+## 2.11.21 - 2021-12-06
+
+### Fixed
+- Fixed an error that occurred on Craft 3.7.24 when editing a Neo field's settings
+
+## 2.11.20 - 2021-12-06
+
+### Fixed
+- Fixed a bug involving incorrect merging of Neo block content from drafts and revisions in some cases
+
+## 2.11.19 - 2021-11-22
+
+### Fixed
+- Fixed a bug where GraphQL queries for asset fields in Neo blocks would return no results if the block type handle contained an underscore
+
 ## 2.11.18 - 2021-11-17
 
 ### Fixed

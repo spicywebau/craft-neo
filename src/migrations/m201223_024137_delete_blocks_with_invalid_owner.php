@@ -7,7 +7,6 @@ use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
-use craft\helpers\Db;
 
 /**
  * Deletes any Neo blocks with an `ownerId` that doesn't exist in the `elements` table.

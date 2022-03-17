@@ -24,20 +24,24 @@ export default Garnish.Base.extend({
 
     this._templateNs = NS.parse(settings.namespace)
     this._id = settings.id | 0
-    this._blockId = settings.blockId
+    this._blockTypeId = settings.blockTypeId
 
     this.setBlockName(settings.blockName)
 
     this.$container = $(settings.html).find('.layoutdesigner')
     this.$container.removeAttr('id')
 
+    const nameInput = this.$container.find('input[name="fieldLayout"]')
+
+    if (nameInput.length > 0) {
+      nameInput[0].name = `neoBlockType${this._blockTypeId}[fieldLayout]`
+    }
+
     NS.enter(this._templateNs)
 
     this._fld = new Craft.FieldLayoutDesigner(this.$container, {
       customizableTabs: true,
-      customizableUi: true,
-      elementPlacementInputName: NS.fieldName('elementPlacements[__TAB_NAME__][]'),
-      elementConfigInputName: NS.fieldName('elementConfigs[__ELEMENT_KEY__]')
+      customizableUi: true
     })
 
     NS.leave()
@@ -68,8 +72,8 @@ export default Garnish.Base.extend({
     return this._id
   },
 
-  getBlockId () {
-    return this._blockId
+  getBlockTypeId () {
+    return this._blockTypeId
   },
 
   getBlockName () { return this._blockName },
@@ -178,7 +182,7 @@ export default Garnish.Base.extend({
     $elementContainer.append($element)
     $element.data('config', element.config)
     $element.data('settings-html', element['settings-html'])
-    this._fld.initElement($element)
+    // this._fld.initElement($element)
     this._fld.elementDrag.addItems($element)
   },
 

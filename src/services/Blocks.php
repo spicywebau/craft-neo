@@ -2,19 +2,15 @@
 
 namespace benf\neo\services;
 
-use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
 use benf\neo\models\BlockStructure;
-use benf\neo\models\BlockType;
+use benf\neo\Plugin as Neo;
 use benf\neo\records\BlockStructure as BlockStructureRecord;
 use Craft;
-use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\fieldlayoutelements\CustomField;
-use craft\helpers\StringHelper;
 use craft\models\Structure;
 use yii\base\Component;
-
 
 /**
  * Class Blocks
@@ -36,39 +32,6 @@ class Blocks extends Component
     public function getBlockById(int $blockId, int $siteId = null)
     {
         return Craft::$app->getElements()->getElementById($blockId, Block::class, $siteId);
-    }
-
-    /**
-     * Gets the search keywords to be associated with the given Neo block.
-     *
-     * Checks the fields associated with the given Neo block, finds their search keywords and concatenates them.
-     *
-     * @deprecated in 2.9.4
-     * @param Block $block The Neo block.
-     * @param ElementInterface|null $element The element the Neo block is associated with, if any.
-     * @return string The search keywords.
-     */
-    public function getSearchKeywords(Block $block, ElementInterface $element = null): string
-    {
-        $fieldsService = Craft::$app->getFields();
-
-        if ($element === null) {
-            $element = $block;
-        }
-
-        $keywords = [];
-
-        $fieldLayout = $block->getFieldLayout();
-        $fieldIds = $fieldLayout->getFieldIds();
-
-        foreach ($fieldsService->getAllFields() as $field) {
-            if (in_array($field->id, $fieldIds)) {
-                $fieldValue = $block->getFieldValue($field->handle);
-                $keywords[] = $field->getSearchKeywords($fieldValue, $element);
-            }
-        }
-
-        return StringHelper::toString($keywords, ' ');
     }
 
     /**
@@ -154,7 +117,7 @@ class Blocks extends Component
             ->where([
                 'fieldId' => $fieldId,
                 'ownerId' => $ownerId,
-                'ownerSiteId' => $siteId
+                'ownerSiteId' => $siteId,
             ]);
 
         $result = $query->one();
@@ -211,7 +174,7 @@ class Blocks extends Component
                 $structure->maxLevels = $fieldMaxLevels;
                 $structuresService->saveStructure($structure);
                 $blockStructure->structureId = $structure->id;
-            } else if ($structure->maxLevels !== $fieldMaxLevels) {
+            } elseif ($structure->maxLevels !== $fieldMaxLevels) {
                 $structure->maxLevels = $fieldMaxLevels;
                 $structuresService->saveStructure($structure);
             }
