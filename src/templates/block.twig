@@ -115,10 +115,13 @@
                             {% include 'neo/block' with { block: child, static } only %}
                         {% endfor %}
                     </div>
-                    <div data-neo-b="container.buttons" class="hidden"></div>
-                    <div data-neo-b="container.childrenWarnings" class="hidden">
-                        <p class="first warning with-icon">{{ "This Neo field's maximum number of levels has been reached, so no child blocks can be added here."|t('neo') }}</p>
-                    </div>
+
+                    {% if not static %}
+                        <div data-neo-b="container.buttons" class="hidden"></div>
+                        <div data-neo-b="container.childrenWarnings" class="hidden">
+                            <p class="first warning with-icon">{{ "This Neo field's maximum number of levels has been reached, so no child blocks can be added here."|t('neo') }}</p>
+                        </div>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>

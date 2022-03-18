@@ -7,5 +7,7 @@
             {% endif %}
         {% endfor %}
     </div>
-    <div data-neo="container.buttons"></div>
+    {% if not static %}
+        <div data-neo="container.buttons"></div>
+    {% endif %}
 </div>
