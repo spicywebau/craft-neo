@@ -377,9 +377,40 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public function getInputHtml(mixed $value, ?\craft\base\ElementInterface $element = null): string
+    protected function inputHtml(mixed $value, ?ElementInterface $element = null): string
     {
-        return $this->_getInputHtml($value, $element);
+        // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
+        if ($this->_getNamespaceDepth() > 1) {
+            return $this->_getNestingErrorHtml();
+        }
+
+        $viewService = Craft::$app->getView();
+
+        if ($element !== null && $element->hasEagerLoadedElements($this->handle)) {
+            $value = $element->getEagerLoadedElements($this->handle);
+        }
+
+        if ($value instanceof BlockQuery) {
+            $query = $value;
+            $value = $query->getCachedResult() ?? $query->limit(null)->anyStatus()->all();
+        }
+
+        $siteId = $element->siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
+
+        $viewService->registerAssetBundle(FieldAsset::class);
+        $viewService->registerJs(FieldAsset::createInputJs($this, $value, false, $siteId, $element));
+
+        foreach ($value as $block) {
+            $block->useMemoized($value);
+        }
+
+        return $viewService->renderTemplate('neo/input', [
+            'handle' => $this->handle,
+            'id' => $viewService->formatInputId($this->handle),
+            'name' => $this->handle,
+            'translatable' => $this->propagationMethod,
+            'static' => false,
+        ]);
     }
 
     /**
@@ -949,53 +980,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     private function _getNestingErrorHtml(): string
     {
         return '<span class="error">' . Craft::t('neo', 'Unable to nest Neo fields.') . '</span>';
-    }
-
-    /**
-     * Returns the input HTML for a Neo field.
-     *
-     * @param BlockQuery|array $value The block query or block data to render.
-     * @param ElementInterface|null $element The element associated with this field, if any.
-     * @return string
-     * @throws
-     */
-    private function _getInputHtml($value, ElementInterface $element = null, bool $static = false): string
-    {
-        $viewService = Craft::$app->getView();
-
-        if ($element !== null && $element->hasEagerLoadedElements($this->handle)) {
-            $value = $element->getEagerLoadedElements($this->handle);
-        }
-
-        if ($value instanceof BlockQuery) {
-            $query = $value;
-            $value = $query->getCachedResult() ?? $query->limit(null)->anyStatus()->all();
-        }
-
-        $siteId = $element->siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
-        $html = '';
-
-        // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
-        if ($this->_getNamespaceDepth() > 1) {
-            $html = $this->_getNestingErrorHtml();
-        } else {
-            $viewService->registerAssetBundle(FieldAsset::class);
-            $viewService->registerJs(FieldAsset::createInputJs($this, $value, false, $siteId, $element));
-
-            foreach ($value as $block) {
-                $block->useMemoized($value);
-            }
-
-            $html = $viewService->renderTemplate('neo/input', [
-                'handle' => $this->handle,
-                'id' => $viewService->formatInputId($this->handle),
-                'name' => $this->handle,
-                'translatable' => $this->propagationMethod,
-                'static' => false,
-            ]);
-        }
-
-        return $html;
     }
 
     /**
