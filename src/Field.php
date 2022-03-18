@@ -3,6 +3,7 @@
 namespace benf\neo;
 
 use benf\neo\assets\FieldAsset;
+use benf\neo\assets\InputAsset;
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
 use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
@@ -397,8 +398,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         $siteId = $element->siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
 
-        $viewService->registerAssetBundle(FieldAsset::class);
-        $viewService->registerJs(FieldAsset::createInputJs($this, $value, false, $siteId, $element));
+        $viewService->registerAssetBundle(InputAsset::class);
+        $viewService->registerJs(InputAsset::createInputJs($this, $value, false, $siteId, $element));
 
         foreach ($value as $block) {
             $block->useMemoized($value);
@@ -431,7 +432,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         $viewService = Craft::$app->getView();
-        $viewService->registerAssetBundle(FieldAsset::class);
+        $viewService->registerAssetBundle(InputAsset::class);
 
         foreach ($value as $block) {
             $block->useMemoized($value);
