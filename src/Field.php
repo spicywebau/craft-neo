@@ -26,6 +26,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Gql as GqlHelper;
+use craft\helpers\Html;
 use craft\helpers\Queue;
 use craft\helpers\StringHelper;
 use craft\queue\jobs\ApplyNewPropagationMethod;
@@ -386,7 +387,32 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function getStaticHtml(mixed $value, ElementInterface $element): string
     {
-        return $this->_getInputHtml($value, $element, true);
+        // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
+        if ($this->_getNamespaceDepth() > 1) {
+            // return $this->_getNestingErrorHtml();
+        }
+
+        $value = $value->all();
+
+        if (empty($value)) {
+            return '<p class="light">' . Craft::t('app', 'No blocks.') . '</p>';
+        }
+
+        $viewService = Craft::$app->getView();
+        $viewService->registerAssetBundle(FieldAsset::class);
+
+        foreach ($value as $block) {
+            $block->useMemoized($value);
+        }
+
+        return $viewService->renderTemplate('neo/input', [
+            'handle' => $this->handle,
+            'blocks' => $value,
+            'id' => Html::id($this->handle),
+            'name' => $this->handle,
+            'translatable' => $this->propagationMethod,
+            'static' => true,
+        ]);
     }
 
     /**
@@ -930,7 +956,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      *
      * @param BlockQuery|array $value The block query or block data to render.
      * @param ElementInterface|null $element The element associated with this field, if any.
-     * @param bool $static Whether to generate static HTML, e.g. for displaying entry revisions.
      * @return string
      * @throws
      */
@@ -953,11 +978,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
         if ($this->_getNamespaceDepth() > 1) {
             $html = $this->_getNestingErrorHtml();
-        } elseif ($static && empty($value)) {
-            $html = '<p class="light">' . Craft::t('app', 'No blocks.') . '</p>';
         } else {
             $viewService->registerAssetBundle(FieldAsset::class);
-            $viewService->registerJs(FieldAsset::createInputJs($this, $value, $static, $siteId, $element));
+            $viewService->registerJs(FieldAsset::createInputJs($this, $value, false, $siteId, $element));
 
             foreach ($value as $block) {
                 $block->useMemoized($value);
@@ -968,8 +991,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 'id' => $viewService->formatInputId($this->handle),
                 'name' => $this->handle,
                 'translatable' => $this->propagationMethod,
-                'static' => $static,
-                'blocks' => $value,
+                'static' => false,
             ]);
         }
 
