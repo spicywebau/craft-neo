@@ -406,6 +406,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         return $viewService->renderTemplate('neo/input', [
             'handle' => $this->handle,
+            'blocks' => $value,
             'id' => $viewService->formatInputId($this->handle),
             'name' => $this->handle,
             'translatable' => $this->propagationMethod,
