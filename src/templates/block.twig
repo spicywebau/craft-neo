@@ -2,7 +2,7 @@
 {% set typeFieldLayoutForm = block.getFieldLayout().createForm(block, static) %}
 {% set typeTabs = type.getFieldLayout().getTabs() %}
 {% set hasTabs = typeTabs is not empty %}
-{% set isParent = type.childBlocks is not null and type.childBlocks is not empty %}
+{% set isParent = static and block.children.exists() or not static and type.childBlocks is not null and type.childBlocks is not empty %}
 {% set renderOldChildBlocksContainer = typeTabs|filter(tab => tab.elements|filter(el => className(el) == '\\benf\\neo\\fieldlayoutelements\\ChildBlocksUiElement') is not empty) is empty %}
 {% set typeTabContent = {} %}
 
