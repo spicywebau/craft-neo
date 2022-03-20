@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.2 - 2022-03-21
 
 ### Fixed
 - Fixed a bug that could cause Neo project config data to not be applied when applying a project config to a different environment
