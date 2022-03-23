@@ -23,6 +23,8 @@ class m220228_081104_add_group_id_to_block_types extends Migration
      */
     public function safeUp()
     {
+        $projectConfig = Craft::$app->getProjectConfig();
+
         if (!$this->db->columnExists('{{%neoblocktypes}}', 'groupId')) {
             $this->addColumn('{{%neoblocktypes}}', 'groupId', $this->integer()->after('fieldLayoutId'));
             $this->createIndex(null, '{{%neoblocktypes}}', ['groupId'], false);
@@ -30,7 +32,7 @@ class m220228_081104_add_group_id_to_block_types extends Migration
         }
 
         // Set group IDs where necessary
-        if (version_compare(Craft::$app->getProjectConfig()->get('plugins.neo.schemaVersion', true), '2.13.0', '<')) {
+        if (version_compare($projectConfig->get('plugins.neo.schemaVersion', true), '2.13.0', '<')) {
             foreach (Craft::$app->getFields()->getAllFields() as $field) {
                 if (!($field instanceof Field)) {
                     continue;
@@ -53,9 +55,11 @@ class m220228_081104_add_group_id_to_block_types extends Migration
                 foreach ($items as $item) {
                     if ($item instanceof BlockTypeGroup) {
                         $currentGroup = $item;
-                    } else if ($currentGroup !== null) {
-                        $item->groupId = $currentGroup->id;
-                        Neo::$plugin->blockTypes->save($item);
+                    } else {
+                        $projectConfig->set(
+                            'neoBlockTypes.' . $item->uid . '.group',
+                            $currentGroup ? $currentGroup->uid : null
+                        );
                     }
                 }
             }
