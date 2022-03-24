@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.3 - 2022-03-24
 
 ### Changed
 - Changed the migration from Neo 2.13.0 that adds the `groupId` column to the `neoblocktypes` table, to set each block type's `group` in the project config, instead of setting the `groupId` on the block type model and resaving the block type
