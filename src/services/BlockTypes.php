@@ -349,7 +349,7 @@ class BlockTypes extends Component
     {
         $dbService = Craft::$app->getDb();
         $fieldsService = Craft::$app->getFields();
-        $projectConfigService = Craft::$app->getProjectConfig();
+        $projectConfig = Craft::$app->getProjectConfig();
         $uid = $event->tokenMatches[0];
         $data = $event->newValue;
 
@@ -391,6 +391,25 @@ class BlockTypes extends Component
 
             if ($fieldLayoutConfig !== null) {
                 $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
+
+                // If the field layout config had any blank tabs from before Neo 2.8 / Craft 3.5, make sure they're kept
+                $layoutTabs = $fieldLayout->getTabs();
+                $setNewTabs = false;
+
+                for ($i = 0; $i < count($fieldLayoutConfig['tabs']); $i++) {
+                    $tabConfig = isset($fieldLayoutConfig['tabs'][$i]) ? $fieldLayoutConfig['tabs'][$i] : null;
+
+                    if ($tabConfig && !isset($tabConfig['fields']) && !isset($tabConfig['elements'])) {
+                        $tab = FieldLayoutTab::createFromConfig($tabConfig);
+                        array_splice($layoutTabs, $i, 0, [$tab]);
+                        $setNewTabs = true;
+                    }
+                }
+
+                if ($setNewTabs) {
+                    $fieldLayout->setTabs($layoutTabs);
+                }
+
                 $fieldLayout->id = $record->fieldLayoutId;
                 $fieldLayout->type = Block::class;
                 $fieldLayout->uid = key($data['fieldLayouts']);
