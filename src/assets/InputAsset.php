@@ -6,11 +6,11 @@ use benf\neo\elements\Block;
 use benf\neo\events\FilterBlockTypesEvent;
 use benf\neo\Field;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
+use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
-
 use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
 use craft\models\FieldLayout;
@@ -120,21 +120,14 @@ class InputAsset extends AssetBundle
      *
      * @param Field $field The Neo field.
      * @param array $value The Neo blocks, associated with this field, to generate inputs for.
-     * @param bool $static Whether to generate static HTML for the blocks, e.g. for displaying entry revisions.
-     * @param ElementInterface|int|null $siteId
+     * @param ElementInterface|null $owner
      * @return string
      */
-    public static function createInputJs(
-        Field $field,
-        $value,
-        bool $static = false,
-        int $siteId = null,
-        $owner = null,
-    ): string {
-        $viewService = Craft::$app->getView();
-
+    public static function createInputJs(Field $field, $value, ?ElementInterface $owner = null): string
+    {
+        $view = Craft::$app->getView();
         $name = $field->handle;
-        $id = $viewService->formatInputId($name);
+        $id = $view->formatInputId($name);
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
 
@@ -148,16 +141,16 @@ class InputAsset extends AssetBundle
 
         $jsSettings = [
             'name' => $name,
-            'namespace' => $viewService->namespaceInputName($name) . '[blocks]',
-            'blockTypes' => self::_getBlockTypesJsSettings($event->blockTypes, true, $static, $siteId, $owner),
+            'namespace' => $view->namespaceInputName($name) . '[blocks]',
+            'blockTypes' => self::_getBlockTypesJsSettings($field, $event->blockTypes, $owner),
             'groups' => self::_getBlockTypeGroupsJsSettings($event->blockTypeGroups),
-            'inputId' => $viewService->namespaceInputId($id),
+            'inputId' => $view->namespaceInputId($id),
             'minBlocks' => $field->minBlocks,
             'maxBlocks' => $field->maxBlocks,
             'maxTopBlocks' => $field->maxTopBlocks,
             'maxLevels' => (int)$field->maxLevels,
-            'blocks' => self::_getBlocksJsSettings($value, $static),
-            'static' => $static,
+            'blocks' => self::_getBlocksJsSettings($value, false),
+            'static' => false,
         ];
 
         $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);
@@ -212,89 +205,83 @@ class InputAsset extends AssetBundle
     /**
      * Returns the raw data from the given block types.
      *
-     * This converts block types into the format used by the input generator JavaScript.
+     * This converts block types into the format used by the input JavaScript.
      *
-     * @param array $blockTypes The Neo block types.
-     * @param bool $renderTabs Whether to render the block types' tabs.
-     * @param bool $static Whether to generate static HTML for the block types, e.g. for displaying entry revisions.
-     * @param int|null $siteId
-     * @param ElementInterface|int|null $owner
+     * @param Field $field
+     * @param BlockType[] $blockTypes
+     * @param ElementInterface|null $owner
      * @return array
      */
-    private static function _getBlockTypesJsSettings(
-        array $blockTypes,
-        bool $renderTabs = false,
-        bool $static = false,
-        int $siteId = null,
-        $owner = null,
-    ): array {
+    private static function _getBlockTypesJsSettings(Field $field, array $blockTypes, ?ElementInterface $owner = null): array
+    {
         $jsBlockTypes = [];
+        $view = Craft::$app->getView();
+        $oldNamespace = $view->getNamespace();
+        $newNamespace = $view->namespaceInputName("$field->handle[blocks][__NEOBLOCK__]");
+        $view->setNamespace($newNamespace);
 
         foreach ($blockTypes as $blockType) {
-            $fieldLayout = $blockType->getFieldLayout();
-            $fieldLayoutTabs = $fieldLayout->getTabs();
-            $jsFieldLayout = [];
-            $fieldTypes = [];
+            $block = new Block();
+            $block->fieldId = $field->id;
+            $block->typeId = $blockType->id;
 
-            foreach ($fieldLayoutTabs as $tab) {
-                $tabElements = $tab->elements;
-                $jsTabElements = [];
-
-                foreach ($tabElements as $element) {
-                    $elementData = [
-                        'config' => $element->toArray(),
-                        /*'settings-html' => preg_replace(
-                            '/(id|for)="(.+)"/',
-                            '\1="element-' . uniqid() . '-\2"',
-                            $element->settingsHtml()
-                        ),*/
-                        'type' => get_class($element),
-                    ];
-
-                    if ($element instanceof CustomField) {
-                        $elementData['id'] = $element->getField()->id;
-                    }
-
-                    // Reset required to false if it was '' (which is getting interpreted as true in the field
-                    // settings modal for some reason) or '0' (which required was getting set to in the project
-                    // config in some cases in earlier Craft 3.5 releases)
-                    if (isset($elementData['config']['required']) && in_array($elementData['config']['required'], ['', '0'])) {
-                        $elementData['config']['required'] = false;
-                    }
-
-                    $jsTabElements[] = $elementData;
-                }
-
-                $jsFieldLayout[] = [
-                    'name' => $tab->name,
-                    'elements' => $jsTabElements,
-                ];
+            if ($owner) {
+                $block->setOwner($owner);
+                $block->siteId = $owner->siteId;
             }
 
-            $jsBlockType = [
+            $fieldLayout = $blockType->getFieldLayout();
+            $jsBlockTypeTabs = [];
+            $fieldTypes = [];
+
+            foreach ($fieldLayout->getTabs() as $tab) {
+                $tabData = [
+                    'name' => Craft::t('site', $tab->name),
+                    'bodyHtml' => '',
+                    'footHtml' => '',
+                    'errors' => [],
+                ];
+
+                $tabElements = $tab->elements;
+                $fieldsHtml = [];
+                $view->startJsBuffer();
+
+                foreach ($tabElements as $tabElement) {
+                    if ($tabElement instanceof CustomField) {
+                        $tabElement->getField()->setIsFresh(true);
+                    }
+
+                    $fieldsHtml[] = $tabElement->formHtml($block);
+
+                    if ($tabElement instanceof CustomField) {
+                        // Reset $_isFresh's
+                        $tabElement->getField()->setIsFresh(null);
+                    }
+                }
+
+                $tabData['bodyHtml'] = $view->namespaceInputs(implode('', $fieldsHtml));
+                $tabData['footHtml'] = $view->clearJsBuffer();
+                $jsBlockTypeTabs[] = $tabData;
+            }
+
+            $jsBlockTypes[] = [
                 'id' => $blockType->id,
                 'sortOrder' => $blockType->sortOrder,
-                'name' => Craft::t('neo', $blockType->name),
+                'name' => Craft::t('site', $blockType->name),
                 'handle' => $blockType->handle,
                 'maxBlocks' => $blockType->maxBlocks,
                 'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
                 'maxChildBlocks' => $blockType->maxChildBlocks,
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
-                'errors' => $blockType->getErrors(),
-                'fieldLayout' => $jsFieldLayout,
+                'tabs' => $jsBlockTypeTabs,
                 'fieldLayoutId' => $fieldLayout->id,
                 'fieldTypes' => $fieldTypes,
                 'groupId' => $blockType->groupId,
             ];
-
-            if ($renderTabs) {
-                $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $owner);
-                $jsBlockType['tabs'] = $tabsHtml;
-            }
-
-            $jsBlockTypes[] = $jsBlockType;
         }
+
+        $view->setNamespace($oldNamespace);
 
         return $jsBlockTypes;
     }

@@ -385,30 +385,27 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             // return $this->_getNestingErrorHtml();
         }
 
-        $viewService = Craft::$app->getView();
+        $view = Craft::$app->getView();
 
         if ($element !== null && $element->hasEagerLoadedElements($this->handle)) {
             $value = $element->getEagerLoadedElements($this->handle);
         }
 
         if ($value instanceof BlockQuery) {
-            $query = $value;
-            $value = $query->getCachedResult() ?? $query->limit(null)->anyStatus()->all();
+            $value = $value->getCachedResult() ?? $value->limit(null)->anyStatus()->all();
         }
-
-        $siteId = $element->siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
-
-        $viewService->registerAssetBundle(InputAsset::class);
-        $viewService->registerJs(InputAsset::createInputJs($this, $value, false, $siteId, $element));
 
         foreach ($value as $block) {
             $block->useMemoized($value);
         }
 
-        return $viewService->renderTemplate('neo/input', [
+        $view->registerAssetBundle(InputAsset::class);
+        $view->registerJs(InputAsset::createInputJs($this, $value, $element));
+
+        return $view->renderTemplate('neo/input', [
             'handle' => $this->handle,
             'blocks' => $value,
-            'id' => $viewService->formatInputId($this->handle),
+            'id' => $view->formatInputId($this->handle),
             'name' => $this->handle,
             'translatable' => $this->propagationMethod,
             'static' => false,

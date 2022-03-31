@@ -130,7 +130,6 @@ class FieldAsset extends AssetBundle
      * This converts block types into the format used by the input generator JavaScript.
      *
      * @param array $blockTypes The Neo block types.
-     * @param bool $renderTabs Whether to render the block types' tabs.
      * @param bool $static Whether to generate static HTML for the block types, e.g. for displaying entry revisions.
      * @param int|null $siteId
      * @param ElementInterface|int|null $owner
@@ -138,7 +137,6 @@ class FieldAsset extends AssetBundle
      */
     private static function _getBlockTypesJsSettings(
         array $blockTypes,
-        bool $renderTabs = false,
         bool $static = false,
         int $siteId = null,
         $owner = null,
@@ -202,11 +200,6 @@ class FieldAsset extends AssetBundle
                 'fieldTypes' => $fieldTypes,
                 'groupId' => $blockType->groupId,
             ];
-
-            if ($renderTabs) {
-                $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $owner);
-                $jsBlockType['tabs'] = $tabsHtml;
-            }
 
             $jsBlockTypes[] = $jsBlockType;
         }
