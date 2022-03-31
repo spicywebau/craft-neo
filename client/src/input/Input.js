@@ -60,7 +60,7 @@ export default Garnish.Base.extend({
       setGroupIds[group.getId()] = true
     })
 
-    const tempBlockTypes = []
+    const tempBlockTypes = {}
 
     for (const btInfo of settings.blockTypes) {
       // Filter out the block type if its group isn't included
@@ -119,17 +119,19 @@ export default Garnish.Base.extend({
       selectedClass: 'is-selected sel'
     })
 
-    for (const bInfo of settings.blocks) {
-      const blockType = tempBlockTypes[bInfo.blockType]
-
-      if (isNaN(parseInt(bInfo.id))) {
-        bInfo.id = Block.getNewId()
-      }
-
+    this.$blocksContainer.find('.ni_block').each((i, blockDiv) => {
+      const $block = $(blockDiv)
+      const bInfo = {}
+      bInfo.id = $block.attr('data-neo-b-id')
+      bInfo.sortOrder = i
+      // bInfo.collapsed = TODO (!$collapseAllBlocks ? $block->getCollapsed() : true)
+      bInfo.enabled = !!$block.find('[data-neo-b="input.enabled"]').val()
+      bInfo.level = parseInt($block.find('[data-neo-b="input.level"]').val())
       bInfo.field = this
-      bInfo.modified = !!bInfo.modified
-      bInfo.static = this._static
       bInfo.namespace = [...this._templateNs, bInfo.id]
+
+      const blockTypeHandle = $block.find('[data-neo-b="input.type"]').val()
+      const blockType = tempBlockTypes[blockTypeHandle]
       bInfo.blockType = new BlockType({
         id: blockType.getId(),
         fieldLayoutId: blockType.getFieldLayoutId(),
@@ -140,8 +142,7 @@ export default Garnish.Base.extend({
         maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
         maxChildBlocks: blockType.getMaxChildBlocks(),
         childBlocks: blockType.getChildBlocks(),
-        topLevel: blockType.getTopLevel(),
-        tabs: bInfo.tabs
+        topLevel: blockType.getTopLevel()
       })
       bInfo.buttons = new Buttons({
         items: blockType.getChildBlockItems(this.getItems()),
@@ -150,8 +151,13 @@ export default Garnish.Base.extend({
       bInfo.showButtons = !this.atMaxLevels(bInfo.level)
 
       const block = new Block(bInfo)
-      this.addBlock(block, -1, bInfo.level | 0, false)
-    }
+      block.initUi(false)
+      this._setBlockEvents(block)
+
+      this._blocks.push(block)
+      this._blockSort.addBlock(block)
+      this._blockSelect.addItems(block.$container)
+    })
 
     this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
 
@@ -218,25 +224,7 @@ export default Garnish.Base.extend({
     this._blockSelect.addItems(block.$container)
 
     block.initUi()
-    block.on('removeBlock.input', e => {
-      if (this.getSelectedBlocks().length > 1) {
-        if (window.confirm(Craft.t('neo', 'Are you sure you want to delete the selected blocks?'))) {
-          this._blockBatch(block, b => this.removeBlock(b))
-        }
-      } else {
-        this.removeBlock(block)
-      }
-    })
-    block.on('toggleEnabled.input', e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
-    block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
-    block.on('moveUpBlock.input', e => this._moveBlock(block, 'up'))
-    block.on('moveDownBlock.input', e => this._moveBlock(block, 'down'))
-    block.on('newBlock.input', e => this['@newBlock'](Object.assign(e, { index: this._getNextBlockIndex(block) })))
-    block.on('addBlockAbove.input', e => this['@addBlockAbove'](e))
-    block.on('copyBlock.input', e => this['@copyBlock'](e))
-    block.on('pasteBlock.input', e => this['@pasteBlock'](e))
-    block.on('duplicateBlock.input', e => this['@duplicateBlock'](e))
-
+    this._setBlockEvents(block)
     this._destroyTempButtons()
     this._updateBlockOrder()
     this._updateBlockChildren()
@@ -310,6 +298,27 @@ export default Garnish.Base.extend({
     this.trigger('removeBlock', {
       block: block
     })
+  },
+
+  _setBlockEvents (block) {
+    block.on('removeBlock.input', _ => {
+      if (this.getSelectedBlocks().length > 1) {
+        if (window.confirm(Craft.t('neo', 'Are you sure you want to delete the selected blocks?'))) {
+          this._blockBatch(block, b => this.removeBlock(b))
+        }
+      } else {
+        this.removeBlock(block)
+      }
+    })
+    block.on('toggleEnabled.input', e => this._blockBatch(block, b => b.toggleEnabled(e.enabled)))
+    block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
+    block.on('moveUpBlock.input', _ => this._moveBlock(block, 'up'))
+    block.on('moveDownBlock.input', _ => this._moveBlock(block, 'down'))
+    block.on('newBlock.input', e => this['@newBlock'](Object.assign(e, { index: this._getNextBlockIndex(block) })))
+    block.on('addBlockAbove.input', e => this['@addBlockAbove'](e))
+    block.on('copyBlock.input', e => this['@copyBlock'](e))
+    block.on('pasteBlock.input', e => this['@pasteBlock'](e))
+    block.on('duplicateBlock.input', e => this['@duplicateBlock'](e))
   },
 
   _moveBlock (block, direction, animate = true) {

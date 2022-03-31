@@ -123,7 +123,7 @@ class InputAsset extends AssetBundle
      * @param ElementInterface|null $owner
      * @return string
      */
-    public static function createInputJs(Field $field, $value, ?ElementInterface $owner = null): string
+    public static function createInputJs(Field $field, ?ElementInterface $owner = null): string
     {
         $view = Craft::$app->getView();
         $name = $field->handle;
@@ -149,57 +149,12 @@ class InputAsset extends AssetBundle
             'maxBlocks' => $field->maxBlocks,
             'maxTopBlocks' => $field->maxTopBlocks,
             'maxLevels' => (int)$field->maxLevels,
-            'blocks' => self::_getBlocksJsSettings($value, false),
             'static' => false,
         ];
 
         $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);
 
         return "Neo.createInput($encodedJsSettings)";
-    }
-
-    /**
-     * Returns the raw data from the given blocks.
-     *
-     * This converts Blocks into the format used by the input generator Javascript.
-     *
-     * @param array $blocks The Neo blocks.
-     * @param bool $static Whether to generate static HTML for the blocks, e.g. for displaying entry revisions.
-     * @throws
-     * @return array
-     */
-    private static function _getBlocksJsSettings(array $blocks, bool $static = false): array
-    {
-        $collapseAllBlocks = Neo::$plugin->getSettings()->collapseAllBlocks;
-        $jsBlocks = [];
-        $sortOrder = 0;
-
-        foreach ($blocks as $block) {
-            if ($block instanceof Block) {
-                $blockType = $block->getType();
-                $renderOldChildBlocksContainer = empty(array_filter($blockType->getFieldLayout()->getTabs(), function($tab) {
-                    return !empty(array_filter($tab->elements, function($element) {
-                        return $element instanceof ChildBlocksUiElement;
-                    }));
-                }));
-
-                $jsBlocks[] = [
-                    'id' => $block->id,
-                    'blockType' => $blockType->handle,
-                    'modified' => false,
-                    'sortOrder' => $sortOrder++,
-                    'collapsed' => !$collapseAllBlocks ? $block->getCollapsed() : true,
-                    'enabled' => (bool)$block->enabled,
-                    'level' => max(0, (int)$block->level - 1),
-                    'tabs' => Neo::$plugin->blocks->renderTabs($block, $static),
-                    'renderOldChildBlocksContainer' => $renderOldChildBlocksContainer,
-                ];
-            } elseif (is_array($block)) {
-                $jsBlocks[] = $block;
-            }
-        }
-
-        return $jsBlocks;
     }
 
     /**

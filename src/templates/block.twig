@@ -5,16 +5,21 @@
 {% set isParent = static and block.children.exists() or not static and type.childBlocks is not null and type.childBlocks is not empty %}
 {% set renderOldChildBlocksContainer = typeTabs|filter(tab => tab.elements|filter(el => className(el) == '\\benf\\neo\\fieldlayoutelements\\ChildBlocksUiElement') is not empty) is empty %}
 {% set typeTabContent = {} %}
+{% set blockId = block.id %}
+{% set name = 'neoField' %}
+{% set baseInputName = "#{name}[blocks][#{blockId}]" %}
 
 {% for tab in typeTabs %}
     {% set typeTabContent = typeTabContent|merge({ (tab.name): typeFieldLayoutForm.tabs[loop.index0].content }) %}
 {% endfor %}
 
 <div class="ni_block ni_block--{{ type.handle }} {{ block.collapsed ? 'is-collapsed' : 'is-expanded' }} {{ not hasTabs and not isParent ? 'is-empty' : '' }} {{ isParent ? 'is-parent' : '' }}" data-neo-b-id="{{ block.id }}">
-    <input type="hidden" name="{{ 'type'|ns }}" value="{{ type.handle }}">
-    <input type="hidden" name="{{ 'enabled'|ns }}" value="{{ block.enabled ? 1 : 0 }}" data-neo-b="input.enabled">
-    <input type="hidden" name="{{ 'level'|ns }}" value="{{ block.level }}" data-neo-b="input.level">
-    <input type="hidden" name="{{ 'sortOrder'|ns }}" value="{{ block.id }}" data-neo-b="sortOrder">
+    {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': 'input.type'}) }}
+    {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '0', {'data-neo-b': 'input.enabled'}) }}
+    {{ hiddenInput("#{baseInputName}[level]", block.level - 1, {'data-neo-b': 'input.level'}) }}
+    {{ hiddenInput("#{name}[sortOrder][]", blockId, {'data-neo-b': 'input.sortOrder'}) }}
+    {% do view.registerDeltaName(baseInputName) %}
+
     <div class="ni_block_topbar" data-neo-b="container.topbar">
         <div class="ni_block_topbar_left" data-neo-b="container.topbarLeft">
             <div class="ni_block_topbar_item" data-neo-b="select">

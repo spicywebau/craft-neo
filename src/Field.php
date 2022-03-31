@@ -400,7 +400,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         $view->registerAssetBundle(InputAsset::class);
-        $view->registerJs(InputAsset::createInputJs($this, $value, $element));
+        $view->registerJs(InputAsset::createInputJs($this, $element));
 
         return $view->renderTemplate('neo/input', [
             'handle' => $this->handle,

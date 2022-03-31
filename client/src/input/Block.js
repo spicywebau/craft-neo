@@ -18,8 +18,7 @@ const _defaults = {
   collapsed: false,
   modified: true,
   static: false,
-  showButtons: true,
-  renderOldChildBlocksContainer: true
+  showButtons: true
 }
 
 const _resources = {}
@@ -135,22 +134,21 @@ export default Garnish.Base.extend({
     this.addListener(this.$tabButton, 'click', '@setTab')
   },
 
-  initUi () {
+  initUi (callInitUiElements = true) {
     if (this._initialised) {
       // Nothing to do here
       return
     }
 
     const tabs = this._blockType.getTabs()
-    const headList = tabs.map(tab => tab.getHeadHtml(this._id))
     const footList = tabs.map(tab => tab.getFootHtml(this._id))
-    this.$head = $(headList.join('')).filter(_resourceFilter)
     this.$foot = $(footList.join('')).filter(_resourceFilter)
 
-    Garnish.$bod.siblings('head').append(this.$head)
     Garnish.$bod.append(this.$foot)
 
-    this._initUiElements()
+    if (callInitUiElements) {
+      Craft.initUiElements(this.$contentContainer)
+    }
 
     this.$tabsButton.menubtn()
 
@@ -217,7 +215,6 @@ export default Garnish.Base.extend({
 
   destroy () {
     if (this._initialised) {
-      this.$head.remove()
       this.$foot.remove()
 
       clearInterval(this._detectChangeInterval)
@@ -916,19 +913,6 @@ export default Garnish.Base.extend({
     if (modified !== this._modified) {
       this.setModified(modified)
     }
-  },
-
-  _initUiElements () {
-    // TODO: remove this in Neo 3.
-    $('.grid', this.$contentContainer).grid()
-    $('.info', this.$contentContainer).infoicon()
-    $('.checkbox-select', this.$contentContainer).checkboxselect()
-    $('.fieldtoggle', this.$contentContainer).fieldtoggle()
-    $('.lightswitch', this.$contentContainer).lightswitch()
-    $('.nicetext', this.$contentContainer).nicetext()
-    $('.formsubmit', this.$contentContainer).formsubmit()
-    $('.menubtn:not([data-disclosure-trigger])', this.$contentContainer).menubtn()
-    $('.datetimewrapper', this.$contentContainer).datetime()
   },
 
   '@settingSelect' (e) {
