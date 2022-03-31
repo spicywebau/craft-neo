@@ -25,6 +25,17 @@
 - Removed `benf\neo\services\Blocks::getSearchKeywords()`
 - Removed `benf\neo\services\Fields::getSupportedSiteIdsForField()`
 
+## 2.13.3 - 2022-03-24
+
+### Changed
+- Changed the migration from Neo 2.13.0 that adds the `groupId` column to the `neoblocktypes` table, to set each block type's `group` in the project config, instead of setting the `groupId` on the block type model and resaving the block type
+- When applying project config changes and when applying the `groupId` migration, if any block types still have blank tabs from before Neo 2.8 / Craft 3.5, they will now be kept (but resaving them through the control panel will still cause the blank tabs to be lost)
+
+## 2.13.2 - 2022-03-21
+
+### Fixed
+- Fixed a bug that could cause Neo project config data to not be applied when applying a project config to a different environment
+
 ## 2.13.1 - 2022-03-17
 
 ### Fixed
