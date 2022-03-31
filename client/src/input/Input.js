@@ -91,7 +91,7 @@ export default Garnish.Base.extend({
 
     this._blockSort = new BlockSort({
       container: this.$blocksContainer,
-      handle: '[data-neo-b="button.move"]',
+      handle: '[data-neo-b$=".button.move"]',
       maxTopBlocks: this.getMaxTopBlocks(),
       filter: () => {
         // Only return all the selected items if the target item is selected
@@ -114,7 +114,7 @@ export default Garnish.Base.extend({
     this._blockSelect = new Garnish.Select(this.$blocksContainer, null, {
       multi: true,
       vertical: true,
-      handle: '[data-neo-b="select"]',
+      handle: '[data-neo-b$=".select"]',
       checkboxMode: true,
       selectedClass: 'is-selected sel'
     })
@@ -125,12 +125,12 @@ export default Garnish.Base.extend({
       bInfo.id = $block.attr('data-neo-b-id')
       bInfo.sortOrder = i
       // bInfo.collapsed = TODO (!$collapseAllBlocks ? $block->getCollapsed() : true)
-      bInfo.enabled = !!$block.find('[data-neo-b="input.enabled"]').val()
-      bInfo.level = parseInt($block.find('[data-neo-b="input.level"]').val())
+      bInfo.enabled = !!$block.find(`[data-neo-b="${bInfo.id}.input.enabled"]`).val()
+      bInfo.level = parseInt($block.find(`[data-neo-b="${bInfo.id}.input.level"]`).val())
       bInfo.field = this
       bInfo.namespace = [...this._templateNs, bInfo.id]
 
-      const blockTypeHandle = $block.find('[data-neo-b="input.type"]').val()
+      const blockTypeHandle = $block.find(`[data-neo-b="${bInfo.id}.input.type"]`).val()
       const blockType = tempBlockTypes[blockTypeHandle]
       bInfo.blockType = new BlockType({
         id: blockType.getId(),

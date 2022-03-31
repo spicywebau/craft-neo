@@ -14,41 +14,41 @@
 {% endfor %}
 
 <div class="ni_block ni_block--{{ type.handle }} {{ block.collapsed ? 'is-collapsed' : 'is-expanded' }} {{ not hasTabs and not isParent ? 'is-empty' : '' }} {{ isParent ? 'is-parent' : '' }}" data-neo-b-id="{{ block.id }}">
-    {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': 'input.type'}) }}
-    {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '0', {'data-neo-b': 'input.enabled'}) }}
-    {{ hiddenInput("#{baseInputName}[level]", block.level - 1, {'data-neo-b': 'input.level'}) }}
-    {{ hiddenInput("#{name}[sortOrder][]", blockId, {'data-neo-b': 'input.sortOrder'}) }}
+    {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': blockId ~ '.input.type'}) }}
+    {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '0', {'data-neo-b': blockId ~ '.input.enabled'}) }}
+    {{ hiddenInput("#{baseInputName}[level]", block.level - 1, {'data-neo-b': blockId ~ '.input.level'}) }}
+    {{ hiddenInput("#{name}[sortOrder][]", blockId, {'data-neo-b': blockId ~ '.input.sortOrder'}) }}
     {% do view.registerDeltaName(baseInputName) %}
 
-    <div class="ni_block_topbar" data-neo-b="container.topbar">
-        <div class="ni_block_topbar_left" data-neo-b="container.topbarLeft">
-            <div class="ni_block_topbar_item" data-neo-b="select">
+    <div class="ni_block_topbar" data-neo-b="{{ blockId }}.container.topbar">
+        <div class="ni_block_topbar_left" data-neo-b="{{ blockId }}.container.topbarLeft">
+            <div class="ni_block_topbar_item" data-neo-b="{{ blockId }}.select">
                 <div class="checkbox block-checkbox" title="{{ "Select"|t('neo') }}"></div>
             </div>
             <div class="ni_block_topbar_item title clip-text">
-                <span class="blocktype" data-neo-b="select">{{ type.name }}</span>{#
-                #}<span class="preview" data-neo-b="container.preview">&nbsp;</span>
+                <span class="blocktype" data-neo-b="{{ blockId }}.select">{{ type.name }}</span>{#
+                #}<span class="preview" data-neo-b="{{ blockId }}.container.preview">&nbsp;</span>
             </div>
         </div>
-        <div class="ni_block_topbar_right" data-neo-b="container.topbarRight">
+        <div class="ni_block_topbar_right" data-neo-b="{{ blockId }}.container.topbarRight">
             <div class="ni_block_topbar_item size-full tabs">
                 {% if hasTabs or isParent %}
-                    <div class="tabs_trigger" data-neo-b="button.toggler"></div>
+                    <div class="tabs_trigger" data-neo-b="{{ blockId }}.button.toggler"></div>
                 {% endif %}
                 {% if typeTabs|length > 1 %}
                     {% set hasErrors = false %}
-                    <div class="tabs_inner" data-neo-b="container.tabs">
+                    <div class="tabs_inner" data-neo-b="{{ blockId }}.container.tabs">
                         {%- for tab in typeTabs -%}
                             {%- set tabHasErrors = (tab.getErrors()|length > 0) -%}
                             <a class="tab {{ loop.first ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
-                            data-neo-b="button.tab"
+                            data-neo-b="{{ blockId }}.button.tab"
                             data-neo-b-info="{{ tab.name }}">
                                 {{ tab.name }}
                             </a>
                             {%- set hasErrors = (hasErrors or tabHasErrors) -%}
                         {%- endfor -%}
                     </div>
-                    <div class="tabs_btn menubtn {{ hasErrors ? ' has-errors' : '' }}" data-neo-b="button.tabs">
+                    <div class="tabs_btn menubtn {{ hasErrors ? ' has-errors' : '' }}" data-neo-b="{{ blockId }}.button.tabs">
                         {{ (typeTabs|first).name }}
                     </div>
                     <div class="neo_block_tabs-menu menu">
@@ -56,7 +56,7 @@
                             {% for tab in typeTabs %}
                                 <li>
                                     <a class="{{ loop.first ? ' is-selected' : '' }} {{ tab.getErrors()|length > 0 ? ' has-errors' : '' }}"
-                                    data-neo-b="button.tab"
+                                    data-neo-b="{{ blockId }}.button.tab"
                                     data-neo-b-info="{{ tab.name }}">
                                         {{ tab.name }}
                                     </a>
@@ -66,12 +66,12 @@
                     </div>
                 {% endif %}
             </div>
-            <div class="ni_block_topbar_item hidden" data-neo-b="status">
+            <div class="ni_block_topbar_item hidden" data-neo-b="{{ blockId }}.status">
                 <div class="status off" title="{{ "Disabled"|t }}"></div>
             </div>
             <div class="ni_block_topbar_item block-settings">
-                <a class="settings icon menubtn" title="{{ "Actions"|t }}" role="button" data-neo-b="button.actions"></a>
-                <div class="menu" data-neo-b="container.menu">
+                <a class="settings icon menubtn" title="{{ "Actions"|t }}" role="button" data-neo-b="{{ blockId }}.button.actions"></a>
+                <div class="menu" data-neo-b="{{ blockId }}.container.menu">
                     <ul class="padded">
                         {% if hasTabs or isParent %}
                             <li><a data-icon="collapse" data-action="collapse">{{ "Collapse"|t }}</a></li>
@@ -96,17 +96,17 @@
                 </div>
             </div>
             <div class="ni_block_topbar_item block-reorder">
-                <a class="move icon" title="{{ "Reorder"|t }}" role="button" data-neo-b="button.move"></a>
+                <a class="move icon" title="{{ "Reorder"|t }}" role="button" data-neo-b="{{ blockId }}.button.move"></a>
             </div>
         </div>
     </div>
     {% if hasTabs or isParent %}
-        <div class="ni_block_body" data-neo-b="container.body">
+        <div class="ni_block_body" data-neo-b="{{ blockId }}.container.body">
             {% if hasTabs %}
-                <div class="ni_block_content" data-neo-b="container.content">{%
+                <div class="ni_block_content" data-neo-b="{{ blockId }}.container.content">{%
                     for tab in typeTabs %}
                         <div class="ni_block_content_tab flex-fields {{ loop.first ? ' is-selected' : '' }}"
-                            data-neo-b="container.tab"
+                            data-neo-b="{{ blockId }}.container.tab"
                             data-neo-b-info="{{ tab.name }}">
                             {{ typeTabContent[tab.name]|raw }}
                         </div>
@@ -114,16 +114,16 @@
                 %}</div>
             {% endif %}
             {% if isParent and renderOldChildBlocksContainer %}
-                <div class="ni_block_children" data-neo-b="container.children">
-                    <div class="ni_blocks" data-neo-b="container.blocks">
+                <div class="ni_block_children" data-neo-b="{{ blockId }}.container.children">
+                    <div class="ni_blocks" data-neo-b="{{ blockId }}.container.blocks">
                         {% for child in block.children.all() %}
                             {% include 'neo/block' with { block: child, static } only %}
                         {% endfor %}
                     </div>
 
                     {% if not static %}
-                        <div data-neo-b="container.buttons" class="hidden"></div>
-                        <div data-neo-b="container.childrenWarnings" class="hidden">
+                        <div data-neo-b="{{ blockId }}.container.buttons" class="hidden"></div>
+                        <div data-neo-b="{{ blockId }}.container.childrenWarnings" class="hidden">
                             <p class="first warning with-icon">{{ "This Neo field's maximum number of levels has been reached, so no child blocks can be added here."|t('neo') }}</p>
                         </div>
                     {% endif %}
@@ -132,6 +132,6 @@
         </div>
     {% endif %}
     {% if isParent %}
-        <div class="ni_block_collapsed-children" data-neo-b="container.collapsedChildren"></div>
+        <div class="ni_block_collapsed-children" data-neo-b="{{ blockId }}.container.collapsedChildren"></div>
     {% endif %}
 </div>
