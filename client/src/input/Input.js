@@ -24,8 +24,7 @@ const _defaults = {
   inputId: null,
   maxBlocks: 0,
   maxTopBlocks: 0,
-  maxLevels: 0,
-  static: false
+  maxLevels: 0
 }
 
 export default Garnish.Base.extend({
@@ -45,7 +44,6 @@ export default Garnish.Base.extend({
     this._maxBlocks = settings.maxBlocks
     this._maxTopBlocks = settings.maxTopBlocks
     this._maxLevels = settings.maxLevels
-    this._static = settings.static
     this._ownerId = null
 
     const ownerIdElement = $('[name="setId"], [name="entryId"], [name="categoryId"]')
@@ -774,7 +772,6 @@ export default Garnish.Base.extend({
     const block = new Block({
       namespace: [...this._templateNs, blockId],
       field: this,
-      static: this._static,
       blockType: e.blockType,
       id: blockId,
       buttons: new Buttons({

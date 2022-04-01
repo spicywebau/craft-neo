@@ -149,7 +149,6 @@ class InputAsset extends AssetBundle
             'maxBlocks' => $field->maxBlocks,
             'maxTopBlocks' => $field->maxTopBlocks,
             'maxLevels' => (int)$field->maxLevels,
-            'static' => false,
         ];
 
         $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);

@@ -17,7 +17,6 @@ const _defaults = {
   enabled: true,
   collapsed: false,
   modified: true,
-  static: false,
   showButtons: true
 }
 
@@ -67,7 +66,6 @@ export default Garnish.Base.extend({
   _expanded: true,
   _enabled: true,
   _modified: true,
-  _static: false,
   _initialState: null,
   _forceModified: false,
 
@@ -79,7 +77,7 @@ export default Garnish.Base.extend({
     this._blockType = settings.blockType
     this._id = settings.id
     this._buttons = settings.buttons
-    this._modified = settings.static ? true : settings.modified
+    this._modified = settings.modified
     this._showButtons = settings.showButtons
     this.$container = $(`[data-neo-b-id=${this._id}]`)
 
