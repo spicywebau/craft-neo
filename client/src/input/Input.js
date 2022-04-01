@@ -780,7 +780,7 @@ export default Garnish.Base.extend({
       }),
       showButtons: !this.atMaxLevels(e.level),
       renderOldChildBlocksContainer: !e.blockType.hasChildBlocksUiElement()
-    })
+    }, true)
 
     this.addBlock(block, e.index, e.level)
   },

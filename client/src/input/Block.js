@@ -17,7 +17,8 @@ const _defaults = {
   enabled: true,
   collapsed: false,
   modified: true,
-  showButtons: true
+  showButtons: true,
+  hasOldChildBlocksContainer: true
 }
 
 const _resources = {}
@@ -69,7 +70,7 @@ export default Garnish.Base.extend({
   _initialState: null,
   _forceModified: false,
 
-  init (settings = {}) {
+  init (settings = {}, generateElement = false) {
     settings = Object.assign({}, _defaults, settings)
 
     this._templateNs = NS.parse(settings.namespace)
@@ -79,7 +80,8 @@ export default Garnish.Base.extend({
     this._buttons = settings.buttons
     this._modified = settings.modified
     this._showButtons = settings.showButtons
-    this.$container = $(`[data-neo-b-id=${this._id}]`)
+    this._hasOldChildBlocksContainer = settings.hasOldChildBlocksContainer
+    this.$container = generateElement ? this._generateElement() : $(`[data-neo-b-id=${this._id}]`)
 
     const $neo = this.$container.find('[data-neo-b]')
     this.$bodyContainer = $neo.filter(`[data-neo-b="${this._id}.container.body"]`)
@@ -130,6 +132,162 @@ export default Garnish.Base.extend({
 
     this.addListener(this.$topbarContainer, 'dblclick', '@doubleClickTitle')
     this.addListener(this.$tabButton, 'click', '@setTab')
+  },
+
+  _generateElement () {
+    NS.enter(this._templateNs)
+    const baseInputName = NS.toFieldName()
+    NS.leave()
+
+    const type = this._blockType
+    const typeTabs = type.getTabs()
+    const hasTabs = typeTabs.length > 0
+    const isParent = type.isParent()
+    const elementHtml = []
+    elementHtml.push(`
+      <div class="ni_block ni_block--${this._blockType.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}">
+        <input type="hidden" name="${baseInputName}[type]" value="${type.getHandle()}">
+        <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : '0'}" data-neo-b="${this._id}.input.enabled">
+        <input type="hidden" name="${baseInputName}[level]" value="${this._level}" data-neo-b="${this._id}.input.level">
+        <input type="hidden" name="${this._templateNs[0]}[${this._templateNs[1]}][sortOrder][]" value="${this._sortOrder}" data-neo-b="${this._id}.input.sortOrder">
+
+        <div class="ni_block_topbar" data-neo-b="${this._id}.container.topbar">
+          <div class="ni_block_topbar_left" data-neo-b="${this._id}.container.topbarLeft">
+            <div class="ni_block_topbar_item" data-neo-b="${this._id}.select">
+              <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')}"></div>
+            </div>
+            <div class="ni_block_topbar_item title clip-text">
+              <span class="blocktype" data-neo-b="${this._id}.select">${type.getName()}</span><span class="preview" data-neo-b="${this._id}.container.preview">&nbsp;</span>
+            </div>
+          </div>
+          <div class="ni_block_topbar_right" data-neo-b="${this._id}.container.topbarRight">
+            <div class="ni_block_topbar_item size-full tabs">`)
+
+    if (hasTabs || isParent) {
+      elementHtml.push(`
+              <div class="tabs_trigger" data-neo-b="${this._id}.button.toggler"></div>`)
+    }
+
+    if (typeTabs.length > 1) {
+      elementHtml.push(`
+              <div class="tabs_inner" data-neo-b="${this._id}.container.tabs">`)
+
+      for (let i = 0; i < typeTabs.length; i++) {
+        const tabName = typeTabs[i].getName()
+        elementHtml.push(`
+                <a class="tab${!i ? 'is-selected' : ''}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>`)
+      }
+
+      elementHtml.push(`
+              </div>
+              <div class="tabs_btn menubtn" data-neo-b="${this._id}.button.tabs">
+                ${typeTabs[0].getName()}
+              </div>
+              <div class="neo_block_tabs-menu menu">
+                <ul>`)
+
+      for (let i = 0; i < typeTabs.length; i++) {
+        const tabName = typeTabs[i].getName()
+        elementHtml.push(`
+                  <li>
+                    <a${!i ? ' class="is-selected"' : ''} data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>
+                  </li>`)
+      }
+
+      elementHtml.push(`
+                </ul>
+              </div>`)
+    }
+
+    elementHtml.push(`
+            </div>
+            <div class="ni_block_topbar_item hidden" data-neo-b="${this._id}.status">
+              <div class="status off" title="${Craft.t('neo', 'Disabled')}"></div>
+            </div>
+            <div class="ni_block_topbar_item block-settings">
+              <a class="settings icon menubtn" title="${Craft.t('neo', 'Actions')}" role="button" data-neo-b="${this._id}.button.actions"></a>
+              <div class="menu" data-neo-b="${this._id}.container.menu">
+                <ul class="padded">`)
+
+    if (hasTabs || isParent) {
+      elementHtml.push(`
+                  <li><a data-icon="collapse" data-action="collapse">${Craft.t('neo', 'Collapse')}</a></li>
+                  <li class="hidden"><a data-icon="expand" data-action="expand">${Craft.t('neo', 'Expand')}</a></li>`)
+    }
+
+    elementHtml.push(`
+                  <li><a data-icon="disabled" data-action="disable">${Craft.t('neo', 'Disable')}</a></li>
+                  <li class="hidden"><a data-icon="enabled" data-action="enable">${Craft.t('neo', 'Enable')}</a></li>
+                  <li class="hidden"><a data-icon="uarr" data-action="moveUp">${Craft.t('neo', 'Move up')}</a></li>
+                  <li class="hidden"><a data-icon="darr" data-action="moveDown">${Craft.t('neo', 'Move down')}</a></li>
+                </ul>
+                <hr>
+                <ul class="padded">
+                  <li><a data-icon="plus" data-action="add">${Craft.t('neo', 'Add block above')}</a></li>
+                  <li><a data-icon="field" data-action="copy">${Craft.t('neo', 'Copy')}</a></li>
+                  <li><a data-icon="brush" data-action="paste">${Craft.t('neo', 'Paste')}</a></li>
+                  <li><a data-icon="share" data-action="duplicate">${Craft.t('neo', 'Clone')}</a></li>
+                </ul>
+                <hr>
+                <ul class="padded">
+                  <li><a class="error" data-icon="remove" data-action="delete">${Craft.t('neo', 'Delete')}</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="ni_block_topbar_item block-reorder">
+              <a class="move icon" title="${Craft.t('neo', 'Reorder')}" role="button" data-neo-b="${this._id}.button.move"></a>
+            </div>
+          </div>
+        </div>`)
+
+    if (hasTabs || isParent) {
+      elementHtml.push(`
+        <div class="ni_block_body" data-neo-b="${this._id}.container.body">`)
+
+      if (hasTabs) {
+        elementHtml.push(`
+          <div class="ni_block_content" data-neo-b="${this._id}.container.content">`)
+
+        for (let i = 0; i < typeTabs.length; i++) {
+          const tabName = typeTabs[i].getName()
+          elementHtml.push(`
+            <div class="ni_block_content_tab flex-fields${!i ? ' is-selected' : ''}"
+                data-neo-b="${this._id}.container.tab"
+                data-neo-b-info="${tabName}">
+              ${typeTabs[i].getBodyHtml()}
+            </div>`)
+          Garnish.$bod.append(typeTabs[i].getFootHtml())
+        }
+
+        elementHtml.push(`
+          </div>`)
+      }
+
+      if (isParent && this._hasOldChildBlocksContainer) {
+        elementHtml.push(`
+          <div class="ni_block_children" data-neo-b="${this._id}.container.children">
+            <div class="ni_blocks" data-neo-b="${this._id}.container.blocks">
+            </div>
+            <div data-neo-b="${this._id}.container.buttons" class="hidden"></div>
+            <div data-neo-b="${this._id}.container.childrenWarnings" class="hidden">
+              <p class="first warning with-icon">${Craft.t('neo', "This Neo field's maximum number of levels has been reached, so no child blocks can be added here.")}</p>
+            </div>
+          </div>`)
+      }
+
+      elementHtml.push(`
+        </div>`)
+    }
+
+    if (isParent) {
+      elementHtml.push(`
+        <div class="ni_block_collapsed-children" data-neo-b="${this._id}.container.collapsedChildren"></div>`)
+    }
+
+    elementHtml.push(`
+      <div data-neo="container.buttons"></div>`)
+
+    return $(elementHtml.join(''))
   },
 
   initUi (callInitUiElements = true) {
