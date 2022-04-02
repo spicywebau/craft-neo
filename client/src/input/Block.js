@@ -150,7 +150,7 @@ export default Garnish.Base.extend({
         <input type="hidden" name="${baseInputName}[type]" value="${type.getHandle()}">
         <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : '0'}" data-neo-b="${this._id}.input.enabled">
         <input type="hidden" name="${baseInputName}[level]" value="${this._level}" data-neo-b="${this._id}.input.level">
-        <input type="hidden" name="${this._templateNs[0]}[${this._templateNs[1]}][sortOrder][]" value="${this._sortOrder}" data-neo-b="${this._id}.input.sortOrder">
+        <input type="hidden" name="${this._templateNs[0]}[${this._templateNs[1]}][sortOrder][]" value="${this._id}" data-neo-b="${this._id}.input.sortOrder">
 
         <div class="ni_block_topbar" data-neo-b="${this._id}.container.topbar">
           <div class="ni_block_topbar_left" data-neo-b="${this._id}.container.topbarLeft">
