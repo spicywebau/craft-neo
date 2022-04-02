@@ -143,6 +143,8 @@ export default Garnish.Base.extend({
     const typeTabs = type.getTabs()
     const hasTabs = typeTabs.length > 0
     const isParent = type.isParent()
+    const actionBtnLabel = `${type.getName()} ${Craft.t('neo', 'Actions')}`
+    const actionMenuId = `neoblock-action-menu-${this._id}`
     const elementHtml = []
     elementHtml.push(`
       <div class="ni_block ni_block--${this._blockType.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}">
@@ -154,7 +156,7 @@ export default Garnish.Base.extend({
         <div class="ni_block_topbar" data-neo-b="${this._id}.container.topbar">
           <div class="ni_block_topbar_left" data-neo-b="${this._id}.container.topbarLeft">
             <div class="ni_block_topbar_item" data-neo-b="${this._id}.select">
-              <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')}"></div>
+              <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')} aria-label="${Craft.t('neo', 'Select')}"></div>
             </div>
             <div class="ni_block_topbar_item title clip-text">
               <span class="blocktype" data-neo-b="${this._id}.select">${type.getName()}</span><span class="preview" data-neo-b="${this._id}.container.preview">&nbsp;</span>
@@ -205,37 +207,39 @@ export default Garnish.Base.extend({
               <div class="status off" title="${Craft.t('neo', 'Disabled')}"></div>
             </div>
             <div class="ni_block_topbar_item block-settings">
-              <a class="settings icon menubtn" title="${Craft.t('neo', 'Actions')}" role="button" data-neo-b="${this._id}.button.actions"></a>
-              <div class="menu" data-neo-b="${this._id}.container.menu">
-                <ul class="padded">`)
+              <div data-wrapper>
+                <button class="btn settings icon menubtn" type="button" role="button" title="${Craft.t('neo', 'Actions')}" aria-controls="${actionMenuId}" aria-label="${actionBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.actions"></button>
+                <div id="${actionMenuId}" class="menu menu--disclosure" data-neo-b="${this._id}.container.menu">
+                  <ul class="padded">`)
 
     if (hasTabs || isParent) {
       elementHtml.push(`
-                  <li><a data-icon="collapse" data-action="collapse">${Craft.t('neo', 'Collapse')}</a></li>
-                  <li class="hidden"><a data-icon="expand" data-action="expand">${Craft.t('neo', 'Expand')}</a></li>`)
+                    <li><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Collapse')}">${Craft.t('neo', 'Collapse')}</a></li>
+                    <li class="hidden"><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Expand')}">${Craft.t('neo', 'Expand')}</a></li>`)
     }
 
     elementHtml.push(`
-                  <li><a data-icon="disabled" data-action="disable">${Craft.t('neo', 'Disable')}</a></li>
-                  <li class="hidden"><a data-icon="enabled" data-action="enable">${Craft.t('neo', 'Enable')}</a></li>
-                  <li class="hidden"><a data-icon="uarr" data-action="moveUp">${Craft.t('neo', 'Move up')}</a></li>
-                  <li class="hidden"><a data-icon="darr" data-action="moveDown">${Craft.t('neo', 'Move down')}</a></li>
-                </ul>
-                <hr>
-                <ul class="padded">
-                  <li><a data-icon="plus" data-action="add">${Craft.t('neo', 'Add block above')}</a></li>
-                  <li><a data-icon="field" data-action="copy">${Craft.t('neo', 'Copy')}</a></li>
-                  <li><a data-icon="brush" data-action="paste">${Craft.t('neo', 'Paste')}</a></li>
-                  <li><a data-icon="share" data-action="duplicate">${Craft.t('neo', 'Clone')}</a></li>
-                </ul>
-                <hr>
-                <ul class="padded">
-                  <li><a class="error" data-icon="remove" data-action="delete">${Craft.t('neo', 'Delete')}</a></li>
-                </ul>
+                    <li><a data-icon="disabled" data-action="disable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Disable')}">${Craft.t('neo', 'Disable')}</a></li>
+                    <li class="hidden"><a data-icon="enabled" data-action="enable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Enable')}">${Craft.t('neo', 'Enable')}</a></li>
+                    <li class="hidden"><a data-icon="uarr" data-action="moveUp" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move up')}">${Craft.t('neo', 'Move up')}</a></li>
+                    <li class="hidden"><a data-icon="darr" data-action="moveDown" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move down')}">${Craft.t('neo', 'Move down')}</a></li>
+                  </ul>
+                  <hr>
+                  <ul class="padded">
+                    <li><a data-icon="plus" data-action="add" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Add block above')}">${Craft.t('neo', 'Add block above')}</a></li>
+                    <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Copy')}">${Craft.t('neo', 'Copy')}</a></li>
+                    <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Paste')}">${Craft.t('neo', 'Paste')}</a></li>
+                    <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Clone')}">${Craft.t('neo', 'Clone')}</a></li>
+                  </ul>
+                  <hr>
+                  <ul class="padded">
+                    <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Delete')}">${Craft.t('neo', 'Delete')}</a></li>
+                  </ul>
+                </div>
               </div>
             </div>
             <div class="ni_block_topbar_item block-reorder">
-              <a class="move icon" title="${Craft.t('neo', 'Reorder')}" role="button" data-neo-b="${this._id}.button.move"></a>
+              <a class="move icon" title="${Craft.t('neo', 'Reorder')}" aria-label="${Craft.t('neo', 'Reorder')}" role="button" data-neo-b="${this._id}.button.move"></a>
             </div>
           </div>
         </div>`)
@@ -308,8 +312,11 @@ export default Garnish.Base.extend({
 
     this.$tabsButton.menubtn()
 
-    this._settingsMenu = new Garnish.MenuBtn(this.$settingsButton)
-    this._settingsMenu.on('optionSelect', e => this['@settingSelect'](e))
+    this._settingsMenu = new Garnish.DisclosureMenu(this.$settingsButton)
+    this._settingsMenu.on('show', () => this.$container.addClass('active'))
+    this._settingsMenu.on('hide', () => this.$container.removeClass('active'))
+    this.addListener(this.$menuContainer.find('[data-action]'), 'click', this._handleActionClick)
+    this.addListener(this.$menuContainer.find('[data-action]'), 'keydown', this._handleActionKeydown)
 
     this._initialised = true
 
@@ -1043,6 +1050,18 @@ export default Garnish.Base.extend({
     this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
   },
 
+  _handleActionClick (e) {
+    e.preventDefault()
+    this['@settingSelect'](e)
+  },
+
+  _handleActionKeydown (e) {
+    if (e.keyCode === Garnish.SPACE_KEY) {
+      e.preventDefault()
+      this['@settingSelect'](e)
+    }
+  },
+
   _detectChange () {
     // When editing a draft and autosave is enabled, we need to force modified to be set, or
     // returning the block to its original values will cause it not to be resaved.
@@ -1072,7 +1091,8 @@ export default Garnish.Base.extend({
   },
 
   '@settingSelect' (e) {
-    const $option = $(e.option)
+    this._settingsMenu.hide()
+    const $option = $(e.target)
 
     if (!$option.hasClass('disabled')) {
       switch ($option.attr('data-action')) {

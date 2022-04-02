@@ -157,6 +157,10 @@ export default Garnish.Base.extend({
       this._blockSelect.addItems(block.$container)
     })
 
+    this._updateBlockOrder()
+    this._updateBlockChildren()
+    this._updateButtons()
+
     this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
 
     const serialized = typeof $form.data('serializer') === 'function' ? $form.data('serializer')() : $form.serialize()

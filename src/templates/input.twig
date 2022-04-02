@@ -10,6 +10,7 @@
 
 <input type="hidden" name="{{ name }}" value="">
 <div {{ attr(inputAttributes) }}>
+    <span aria-live="assertive" class="visually-hidden" data-status-message></span>
     <div class="ni_blocks" data-neo="container.blocks">
         {% for block in blocks %}
             {% if block.level == 1 %}
