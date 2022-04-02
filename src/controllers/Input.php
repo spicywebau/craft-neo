@@ -63,7 +63,7 @@ class Input extends Controller
                 'level' => $block->level,
                 'enabled' => $block->enabled,
                 'collapsed' => $block->getCollapsed(),
-                'tabs' => Neo::$plugin->blocks->renderTabs($block, false, $namespace),
+                'tabs' => Neo::$plugin->blocks->renderTabs($block, $namespace),
             ];
         }
 

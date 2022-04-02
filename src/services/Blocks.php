@@ -38,12 +38,11 @@ class Blocks extends Component
      * Renders a Neo block's tabs.
      *
      * @param Block $block The Neo block having its tabs rendered.
-     * @param bool $static Whether to generate static tab content.
      * @param string|null $namespace
      * @throws
      * @return array The tabs data.
      */
-    public function renderTabs(Block $block, bool $static = false, ?string $namespace = null): array
+    public function renderTabs(Block $block, ?string $namespace = null): array
     {
         $view = Craft::$app->getView();
         $blockType = $block->getType();
@@ -79,7 +78,7 @@ class Blocks extends Component
                     $tabElement->getField()->setIsFresh(true);
                 }
 
-                $fieldsHtml[] = $tabElement->formHtml($block, $static);
+                $fieldsHtml[] = $tabElement->formHtml($block);
 
                 if ($tabElement instanceof CustomField && $isNewBlock) {
                     // Reset $_isFresh's

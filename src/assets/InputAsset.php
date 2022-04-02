@@ -180,7 +180,7 @@ class InputAsset extends AssetBundle
                 $block->siteId = $owner->siteId;
             }
 
-            $jsBlockTypeTabs = Neo::$plugin->blocks->renderTabs($block, false);
+            $jsBlockTypeTabs = Neo::$plugin->blocks->renderTabs($block);
             $fieldTypes = [];
 
             $jsBlockTypes[] = [
