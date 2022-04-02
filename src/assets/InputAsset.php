@@ -169,10 +169,6 @@ class InputAsset extends AssetBundle
     private static function _getBlockTypesJsSettings(Field $field, array $blockTypes, ?ElementInterface $owner = null): array
     {
         $jsBlockTypes = [];
-        $view = Craft::$app->getView();
-        $oldNamespace = $view->getNamespace();
-        $newNamespace = $view->namespaceInputName("$field->handle[blocks][__NEOBLOCK__]");
-        $view->setNamespace($newNamespace);
 
         foreach ($blockTypes as $blockType) {
             $block = new Block();
@@ -184,39 +180,8 @@ class InputAsset extends AssetBundle
                 $block->siteId = $owner->siteId;
             }
 
-            $fieldLayout = $blockType->getFieldLayout();
-            $jsBlockTypeTabs = [];
+            $jsBlockTypeTabs = Neo::$plugin->blocks->renderTabs($block, false);
             $fieldTypes = [];
-
-            foreach ($fieldLayout->getTabs() as $tab) {
-                $tabData = [
-                    'name' => Craft::t('site', $tab->name),
-                    'bodyHtml' => '',
-                    'footHtml' => '',
-                    'errors' => [],
-                ];
-
-                $tabElements = $tab->elements;
-                $fieldsHtml = [];
-                $view->startJsBuffer();
-
-                foreach ($tabElements as $tabElement) {
-                    if ($tabElement instanceof CustomField) {
-                        $tabElement->getField()->setIsFresh(true);
-                    }
-
-                    $fieldsHtml[] = $tabElement->formHtml($block);
-
-                    if ($tabElement instanceof CustomField) {
-                        // Reset $_isFresh's
-                        $tabElement->getField()->setIsFresh(null);
-                    }
-                }
-
-                $tabData['bodyHtml'] = $view->namespaceInputs(implode('', $fieldsHtml));
-                $tabData['footHtml'] = $view->clearJsBuffer();
-                $jsBlockTypeTabs[] = $tabData;
-            }
 
             $jsBlockTypes[] = [
                 'id' => $blockType->id,
@@ -229,13 +194,11 @@ class InputAsset extends AssetBundle
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
                 'tabs' => $jsBlockTypeTabs,
-                'fieldLayoutId' => $fieldLayout->id,
+                'fieldLayoutId' => $blockType->fieldLayoutId,
                 'fieldTypes' => $fieldTypes,
                 'groupId' => $blockType->groupId,
             ];
         }
-
-        $view->setNamespace($oldNamespace);
 
         return $jsBlockTypes;
     }

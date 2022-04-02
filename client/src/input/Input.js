@@ -733,7 +733,7 @@ export default Garnish.Base.extend({
             collapsed: !!renderedBlock.collapsed,
             showButtons: !this.atMaxLevels(renderedBlock.level | 0),
             renderOldChildBlocksContainer: !newBlockType.hasChildBlocksUiElement()
-          })
+          }, true)
 
           newBlocks.push(newBlock)
         }
