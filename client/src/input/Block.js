@@ -258,9 +258,9 @@ export default Garnish.Base.extend({
             <div class="ni_block_content_tab flex-fields${!i ? ' is-selected' : ''}"
                 data-neo-b="${this._id}.container.tab"
                 data-neo-b-info="${tabName}">
-              ${typeTabs[i].getBodyHtml()}
+              ${typeTabs[i].getBodyHtml(this._id)}
             </div>`)
-          Garnish.$bod.append(typeTabs[i].getFootHtml())
+          Garnish.$bod.append(typeTabs[i].getFootHtml(this._id))
         }
 
         elementHtml.push(`
