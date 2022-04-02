@@ -1,5 +1,15 @@
+{% set inputAttributes = {
+    id: id,
+    class: [
+        'neo-input',
+        'neo-input--' ~ handle,
+        static ? 'is-static',
+        translatable ? 'is-translatable',
+    ],
+} %}
+
 <input type="hidden" name="{{ name }}" value="">
-<div id="{{ id }}" class="neo-input neo-input--{{ handle }}{{ static ? ' is-static' }}{{ translatable ? ' is-translatable' }}">
+<div {{ attr(inputAttributes) }}>
     <div class="ni_blocks" data-neo="container.blocks">
         {% for block in blocks %}
             {% if block.level == 1 %}
