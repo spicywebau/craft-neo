@@ -137,15 +137,17 @@
     {% if hasTabs or isParent %}
         <div class="ni_block_body" data-neo-b="{{ blockId }}.container.body">
             {% if hasTabs %}
-                <div class="ni_block_content" data-neo-b="{{ blockId }}.container.content">{%
-                    for tab in typeTabs %}
-                        <div class="ni_block_content_tab flex-fields {{ loop.first ? ' is-selected' : '' }}"
-                            data-neo-b="{{ blockId }}.container.tab"
-                            data-neo-b-info="{{ tab.name }}">
-                            {{ typeTabContent[tab.name]|raw }}
-                        </div>
-                    {% endfor
-                %}</div>
+                <div class="ni_block_content" data-neo-b="{{ blockId }}.container.content">
+                    {% namespace baseInputName %}
+                        {% for tab in typeTabs %}
+                            <div class="ni_block_content_tab flex-fields {{ loop.first ? ' is-selected' : '' }}" data-neo-b="{{ blockId }}.container.tab" data-neo-b-info="{{ tab.name }}">
+                                {% for tabElement in tab.elements %}
+                                    {{ tabElement.formHtml(block)|raw }}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% endnamespace %}
+                </div>
             {% endif %}
             {% if isParent and renderOldChildBlocksContainer %}
                 <div class="ni_block_children" data-neo-b="{{ blockId }}.container.children">
