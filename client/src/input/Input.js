@@ -12,7 +12,6 @@ import Group from './Group'
 import Block from './Block'
 import Buttons from './Buttons'
 
-import '../twig-extensions'
 import './styles/input.scss'
 
 const _defaults = {
