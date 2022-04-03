@@ -122,7 +122,7 @@ export default Garnish.Base.extend({
       const bInfo = {}
       bInfo.id = $block.attr('data-neo-b-id')
       bInfo.sortOrder = i
-      // bInfo.collapsed = TODO (!$collapseAllBlocks ? $block->getCollapsed() : true)
+      bInfo.collapsed = $block.hasClass('is-collapsed')
       bInfo.enabled = !!$block.find(`[data-neo-b="${bInfo.id}.input.enabled"]`).val()
       bInfo.level = parseInt($block.find(`[data-neo-b="${bInfo.id}.input.level"]`).val())
       bInfo.field = this

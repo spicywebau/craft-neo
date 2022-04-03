@@ -4,20 +4,16 @@
 {% set hasTabs = typeTabs is not empty %}
 {% set isParent = static and block.children.exists() or not static and type.childBlocks is not null and type.childBlocks is not empty %}
 {% set renderOldChildBlocksContainer = typeTabs|filter(tab => tab.elements|filter(el => className(el) == '\\benf\\neo\\fieldlayoutelements\\ChildBlocksUiElement') is not empty) is empty %}
-{% set typeTabContent = {} %}
+{% set collapsed = craft.app.plugins.getPlugin('neo').settings.collapseAllBlocks or block.collapsed %}
 {% set blockId = block.id %}
 {% set name = 'neoField' %}
 {% set baseInputName = "#{name}[blocks][#{blockId}]" %}
-
-{% for tab in typeTabs %}
-    {% set typeTabContent = typeTabContent|merge({ (tab.name): typeFieldLayoutForm.tabs[loop.index0].content }) %}
-{% endfor %}
 
 {% set blockAttributes = {
     class: [
         'ni_block',
         "ni_block--#{type.handle}",
-        block.collapsed ? 'is-collapsed' : 'is-expanded',
+        collapsed ? 'is-collapsed' : 'is-expanded',
         not hasTabs and not isParent ? 'is-empty',
         isParent ? 'is-parent',
     ],
@@ -135,7 +131,7 @@
         </div>
     </div>
     {% if hasTabs or isParent %}
-        <div class="ni_block_body" data-neo-b="{{ blockId }}.container.body">
+        <div class="ni_block_body"{{ collapsed ? ' style="opacity: 0; height: 0;"' }} data-neo-b="{{ blockId }}.container.body">
             {% if hasTabs %}
                 <div class="ni_block_content" data-neo-b="{{ blockId }}.container.content">
                     {% namespace baseInputName %}

@@ -861,15 +861,18 @@ export default Garnish.Base.extend({
       // Use the duplicated block ID if we're on a new provisional draft
       // The server-side code will also apply the new state to the canonical block
       const thisBlockId = this.getId()
-      const duplicatedBlockId = window.draftEditor.duplicatedElements[thisBlockId]
-      const sentBlockId = window.draftEditor.settings.isProvisionalDraft && typeof duplicatedBlockId !== 'undefined'
+      const elementEditor = $('#main-form').data('elementEditor')
+      const duplicatedBlockId = elementEditor.duplicatedElements[thisBlockId]
+      const sentBlockId = elementEditor.settings.isProvisionalDraft && typeof duplicatedBlockId !== 'undefined'
         ? duplicatedBlockId
         : thisBlockId
-      Craft.queueActionRequest('neo/input/save-expansion', {
+      const data = {
         expanded: this.isExpanded() ? 1 : 0,
         blockId: sentBlockId,
         locale: this.getLocale()
-      })
+      }
+
+      Craft.queueActionRequest(() => Craft.postActionRequest('neo/input/save-expansion', data))
     }
   },
 
