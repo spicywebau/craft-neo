@@ -23,6 +23,12 @@ const _inputDefaults = {
   fullWidth: true
 }
 
+const _lightswitchDefaults = {
+  attributes: {},
+  name: '',
+  checked: false
+}
+
 export default Garnish.Base.extend({
 
   $container: new $(),
@@ -115,23 +121,41 @@ export default Garnish.Base.extend({
   _input (settings = {}) {
     settings = Object.assign({}, _inputDefaults, settings)
 
-    const inputHtml = []
-    inputHtml.push(`
+    settings.input = `
       <input class="text${settings.fullWidth ? ' fullwidth' : ''} ${settings.class}"
              type="${settings.type}"
              id="${settings.id}"
              name="${settings.name}"
-             value="${settings.value}"`)
-
-    for (const attrName in settings.attributes) {
-      inputHtml.push(` ${attrName}="${settings.attributes[attrName]}"`)
-    }
-
-    inputHtml.push(`
-             autocomplete="off">`)
-
-    settings.input = inputHtml.join('')
+             value="${settings.value}"
+             ${this._attributes(settings.attributes)}
+             autocomplete="off">`
 
     return this._field(settings)
+  },
+
+  _lightswitch (settings = {}) {
+    settings = Object.assign({}, _lightswitchDefaults, settings)
+
+    settings.input = `
+      <div class="lightswitch${settings.checked ? ' on' : ''}" tabindex="0"${this._attributes(settings.attributes)}>
+        <div class="lightswitch-container">
+          <div class="label on"></div>
+          <div class="handle"></div>
+          <div class="label off"></div>
+        </div>
+        <input type="hidden" name="${settings.name}" value="${settings.checked ? '1' : ''}">
+      </div>`
+
+    return this._field(settings)
+  },
+
+  _attributes (attributes) {
+    const attributesHtml = []
+
+    for (const attribute in attributes) {
+      attributesHtml.push(` ${attribute}="${attributes[attribute]}"`)
+    }
+
+    return attributesHtml.join('')
   }
 })
