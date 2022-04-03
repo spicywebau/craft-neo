@@ -16,13 +16,13 @@
 {% set blockAttributes = {
     class: [
         'ni_block',
-        'ni_block--' ~ type.handle,
+        "ni_block--#{type.handle}",
         block.collapsed ? 'is-collapsed' : 'is-expanded',
         not hasTabs and not isParent ? 'is-empty',
         isParent ? 'is-parent',
     ],
     data: {
-        'neo-b-id': block.id,
+        'neo-b-id': blockId,
     },
 } %}
 

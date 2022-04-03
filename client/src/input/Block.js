@@ -146,7 +146,7 @@ export default Garnish.Base.extend({
     const actionMenuId = `neoblock-action-menu-${this._id}`
     const elementHtml = []
     elementHtml.push(`
-      <div class="ni_block ni_block--${this._blockType.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}">
+      <div class="ni_block ni_block--${type.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}">
         <input type="hidden" name="${baseInputName}[type]" value="${type.getHandle()}">
         <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : '0'}" data-neo-b="${this._id}.input.enabled">
         <input type="hidden" name="${baseInputName}[level]" value="${this._level}" data-neo-b="${this._id}.input.level">
@@ -254,9 +254,7 @@ export default Garnish.Base.extend({
         for (let i = 0; i < typeTabs.length; i++) {
           const tabName = typeTabs[i].getName()
           elementHtml.push(`
-            <div class="ni_block_content_tab flex-fields${!i ? ' is-selected' : ''}"
-                data-neo-b="${this._id}.container.tab"
-                data-neo-b-info="${tabName}">
+            <div class="ni_block_content_tab flex-fields${!i ? ' is-selected' : ''}" data-neo-b="${this._id}.container.tab" data-neo-b-info="${tabName}">
               ${typeTabs[i].getBodyHtml(this._id)}
             </div>`)
           Garnish.$bod.append(typeTabs[i].getFootHtml(this._id))
