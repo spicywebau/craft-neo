@@ -1,5 +1,5 @@
-const webpack = require('webpack')
 const path = require('path')
+const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = {
   entry: {
@@ -16,28 +16,27 @@ module.exports = {
     craft: 'Craft',
     garnish: 'Garnish'
   },
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
-    })
-  ],
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()]
+  },
   module: {
-    loaders: [
+    rules: [
       {
-        loader: 'style!css',
+        use: ['style-loader', 'css-loader'],
         test: /\.css$/
       },
       {
-        loaders: ['style', 'css', 'sass'],
+        use: ['style-loader', 'css-loader', 'sass-loader'],
         test: /\.scss$/
       },
       {
-        loader: 'babel-loader',
-        test: /\.jsx?$/,
+        use: {
+          loader: 'babel-loader',
+          options: { presets: ['@babel/preset-env'] }
+        },
         include: [path.resolve(__dirname, '../src')],
-        query: { presets: ['es2015'] }
+        test: /\.jsx?$/
       }
     ]
   }

@@ -6,6 +6,7 @@
 - Neo now requires Craft 4.0.0-beta.1 or later
 - Neo now requires PHP 8.0.2 or later
 - Whether a Neo block type's max blocks setting has been exceeded will now be validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
+- Updated JavaScript dependencies
 
 ### Removed
 - Removed the unused `saveModifiedBlocksOnly` setting
