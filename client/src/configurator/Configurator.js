@@ -11,9 +11,6 @@ import BlockTypeSettings from './BlockTypeSettings'
 import BlockTypeFieldLayout from './BlockTypeFieldLayout'
 import Group from './Group'
 import GroupSettings from './GroupSettings'
-
-import renderTemplate from './templates/configurator.twig'
-import '../twig-extensions'
 import './styles/configurator.scss'
 
 const _defaults = {
@@ -39,12 +36,8 @@ export default Garnish.Base.extend({
     this._fieldLayoutHtml = settings.fieldLayoutHtml
     this._items = []
 
-    NS.enter(this._templateNs)
-
-    this.$container = $(renderTemplate())
+    this.$container = this._generateConfigurator()
     $input.append(this.$container)
-
-    NS.leave()
 
     const $neo = this.$container.find('[data-neo]')
     this.$mainContainer = $neo.filter('[data-neo="container.main"]')
@@ -141,6 +134,26 @@ export default Garnish.Base.extend({
     this.addListener(this.$groupButton, 'click', '@newGroup')
     this.addListener(this.$settingsButton, 'click', () => this.selectTab('settings'))
     this.addListener(this.$fieldLayoutButton, 'click', () => this.selectTab('fieldLayout'))
+  },
+
+  _generateConfigurator () {
+    return $(`
+      <div class="nc_sidebar" data-neo="container.sidebar">
+        <div class="nc_sidebar_title">${Craft.t('neo', 'Block Types')}</div>
+        <div class="nc_sidebar_list" data-neo="container.blockTypes"></div>
+        <div class="nc_sidebar_buttons btngroup">
+          <a class="btn add icon" role="button" data-neo="button.blockType">${Craft.t('neo', 'Block type')}</a>
+          <a class="btn type-heading" role="button" data-neo="button.group">${Craft.t('neo', 'Group')}</a>
+        </div>
+      </div>
+      <div class="nc_main" data-neo="container.main">
+        <div class="nc_main_tabs">
+          <a class="nc_main_tabs_tab is-selected" role="button" data-neo="button.settings">${Craft.t('neo', 'Settings')}</a>
+          <a class="nc_main_tabs_tab" role="button" data-neo="button.fieldLayout">${Craft.t('neo', 'Field Layout')}</a>
+        </div>
+        <div class="nc_main_content" data-neo="container.settings"></div>
+        <div class="nc_main_content" data-neo="container.fieldLayout"></div>
+      </div>`)
   },
 
   addItem (item, index = -1) {

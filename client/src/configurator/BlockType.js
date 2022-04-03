@@ -3,8 +3,6 @@ import Craft from 'craft'
 import Garnish from 'garnish'
 import Item from './Item'
 import NS from '../namespace'
-import renderTemplate from './templates/blocktype.twig'
-import '../twig-extensions'
 
 const _defaults = {
   namespace: [],
@@ -24,14 +22,7 @@ export default Item.extend({
     this._templateNs = NS.parse(settings.namespace)
     this._fieldLayout = settings.fieldLayout
 
-    NS.enter(this._templateNs)
-
-    this.$container = $(renderTemplate({
-      settings: settingsObj,
-      fieldLayout: this._fieldLayout
-    }))
-
-    NS.leave()
+    this.$container = this._generateBlockType(settingsObj)
 
     const $neo = this.$container.find('[data-neo-bt]')
     this.$nameText = $neo.filter('[data-neo-bt="text.name"]')
@@ -53,6 +44,23 @@ export default Item.extend({
     }
 
     this.deselect()
+  },
+
+  _generateBlockType (settings) {
+    return $(`
+      <div class="nc_sidebar_list_item${settings.getErrors().length > 0 ? ' has-errors' : ''}">
+        <div class="label" data-neo-bt="text.name">${settings.getName()}</div>
+        <a class="move icon" title="${Craft.t('neo', 'Reorder')}" role="button" data-neo-bt="button.move"></a>
+        <a class="settings icon menubtn" title="${Craft.t('neo', 'Actions')}" role="button" data-neo-bt="button.actions"></a>
+        <div class="menu" data-neo-bt="container.menu">
+          <ul class="padded">
+            <li><a data-icon="field" data-action="copy">${Craft.t('neo', 'Copy')}</a></li>
+            <li class="disabled"><a data-icon="brush" data-action="paste">${Craft.t('neo', 'Paste')}</a></li>
+            <li><a data-icon="share" data-action="clone">${Craft.t('neo', 'Clone')}</a></li>
+            <li><a class="error" data-icon="remove" data-action="delete">${Craft.t('neo', 'Delete')}</a></li>
+          </ul>
+        </div>
+      </div>`)
   },
 
   getFieldLayout () {
