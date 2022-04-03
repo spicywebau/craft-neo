@@ -31,8 +31,6 @@
     "sass-loader": "^4.0.0",
     "standard": "16.0.3",
     "style-loader": "^0.13.1",
-    "twig": "0.8.9",
-    "twig-loader": "0.2.1",
     "webpack": "^1.13.1"
   },
   "standard": {
