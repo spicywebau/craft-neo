@@ -2,8 +2,6 @@ import $ from 'jquery'
 import Craft from 'craft'
 import NS from '../namespace'
 import Settings from './Settings'
-import renderTemplate from './templates/group_settings.twig'
-import '../twig-extensions'
 
 const _defaults = {
   namespace: [],
@@ -30,15 +28,7 @@ export default Settings.extend({
     this.setSortOrder(settings.sortOrder)
     this.setName(settings.name)
 
-    NS.enter(this._templateNs)
-
-    this.$container = $(renderTemplate({
-      id: this.getId(),
-      sortOrder: this.getSortOrder(),
-      name: this.getName()
-    }))
-
-    NS.leave()
+    this.$container = this._generateGroupSettings()
 
     const $neo = this.$container.find('[data-neo-gs]')
     this.$sortOrderInput = $neo.filter('[data-neo-gs="input.sortOrder"]')
@@ -51,6 +41,34 @@ export default Settings.extend({
         this.destroy()
       }
     })
+  },
+
+  _generateGroupSettings () {
+    NS.enter(this._templateNs)
+    const sortOrderName = NS.fieldName('sortOrder')
+    const inputId = NS.value('name', '-')
+    const inputName = NS.fieldName('name')
+    NS.leave()
+
+    return $(`
+      <div>
+      <input type="hidden" name="${sortOrderName}" value="${this.getSortOrder()}" data-neo-gs="input.sortOrder">
+      <div>
+        ${this._input({
+            type: 'text',
+            id: inputId,
+            name: inputName,
+            label: Craft.t('neo', 'Name'),
+            instructions: Craft.t('neo', 'This can be left blank if you just want an unlabeled separator.'),
+            value: this.getName(),
+            attributes: {
+                'data-neo-gs': 'input.name'
+            }
+        })}
+      </div>
+      <hr>
+      <a class="error delete" data-neo-gs="button.delete">${Craft.t('neo', 'Delete group')}</a>
+    </div>`)
   },
 
   getFocusInput () {
