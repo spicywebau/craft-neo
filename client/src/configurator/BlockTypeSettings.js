@@ -3,7 +3,6 @@ import Craft from 'craft'
 import Garnish from 'garnish'
 import NS from '../namespace'
 import Settings from './Settings'
-import renderCheckbox from './templates/blocktype_settings_checkbox.twig'
 import renderTemplate from './templates/blocktype_settings.twig'
 import '../twig-extensions'
 
@@ -120,6 +119,19 @@ export default Settings.extend({
     })
 
     this.$childBlocksInput.on('change', 'input', () => this._refreshMaxChildBlocks())
+  },
+
+  _generateChildBlocksCheckbox (settings) {
+    NS.enter(this._templateNs)
+    const id = NS.value('childBlock-' + settings.getId(), '-')
+    const name = NS.fieldName('childBlocks')
+    NS.leave()
+
+    return $(`
+      <div>
+        <input type="checkbox" value="${settings.getHandle()}" id="${id}" class="checkbox" name="${name}[]" data-neo-btsc="input">
+        <label for="${id}" data-neo-btsc="text.label">${settings.getName()}</label>
+      </div>`)
   },
 
   getFocusInput () {
@@ -314,17 +326,8 @@ export default Settings.extend({
 
   addChildBlockType (blockType) {
     if (!this._childBlockTypes.includes(blockType)) {
-      NS.enter(this._templateNs)
-
       const settings = blockType.getSettings()
-      const $checkbox = $(renderCheckbox({
-        id: 'childBlock-' + settings.getId(),
-        name: 'childBlocks',
-        value: settings.getHandle(),
-        label: settings.getName()
-      }))
-
-      NS.leave()
+      const $checkbox = this._generateChildBlocksCheckbox(settings)
 
       this._childBlockTypes.push(blockType)
       this.$childBlocksContainer.append($checkbox)
