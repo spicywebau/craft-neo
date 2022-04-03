@@ -38,37 +38,32 @@ class Blocks extends Component
      * Renders a Neo block's tabs.
      *
      * @param Block $block The Neo block having its tabs rendered.
-     * @param bool $static Whether to generate static tab content.
      * @param string|null $namespace
      * @throws
      * @return array The tabs data.
      */
-    public function renderTabs(Block $block, bool $static = false, $namespace = null): array
+    public function renderTabs(Block $block, ?string $namespace = null): array
     {
-        $viewService = Craft::$app->getView();
+        $view = Craft::$app->getView();
         $blockType = $block->getType();
         $field = $blockType->getField();
 
-        $namespace = $namespace ?? $viewService->namespaceInputName($field->handle);
-        $oldNamespace = $viewService->getNamespace();
+        $namespace = $namespace ?? $view->namespaceInputName($field->handle);
+        $oldNamespace = $view->getNamespace();
         $newNamespace = $namespace . '[blocks][__NEOBLOCK__]';
-        $viewService->setNamespace($newNamespace);
+        $view->setNamespace($newNamespace);
 
         // Ensure that this block is actually new, and not just a pasted or cloned block
         // New blocks won't have their levels set at this stage, whereas they will be set for pasted/cloned blocks
         $isNewBlock = $block->id === null && $block->level === null;
 
+        $fieldLayout = $blockType->getFieldLayout();
         $tabsHtml = [];
 
-        $fieldLayout = $blockType->getFieldLayout();
-        $tabs = $fieldLayout->getTabs();
-
-        foreach ($tabs as $tab) {
-            $viewService->startJsBuffer();
+        foreach ($fieldLayout->getTabs() as $tab) {
 
             $tabHtml = [
                 'name' => Craft::t('neo', $tab->name),
-                'headHtml' => '',
                 'bodyHtml' => '',
                 'footHtml' => '',
                 'errors' => [],
@@ -76,13 +71,14 @@ class Blocks extends Component
 
             $elements = $tab->elements;
             $fieldsHtml = [];
+            $view->startJsBuffer();
 
             foreach ($elements as $tabElement) {
                 if ($tabElement instanceof CustomField && $isNewBlock) {
                     $tabElement->getField()->setIsFresh(true);
                 }
 
-                $fieldsHtml[] = $tabElement->formHtml($block, $static);
+                $fieldsHtml[] = $tabElement->formHtml($block);
 
                 if ($tabElement instanceof CustomField && $isNewBlock) {
                     // Reset $_isFresh's
@@ -90,13 +86,13 @@ class Blocks extends Component
                 }
             }
 
-            $tabHtml['bodyHtml'] = $viewService->namespaceInputs(implode('', $fieldsHtml));
-            $tabHtml['footHtml'] = $viewService->clearJsBuffer();
+            $tabHtml['bodyHtml'] = $view->namespaceInputs(implode('', $fieldsHtml));
+            $tabHtml['footHtml'] = $view->clearJsBuffer();
 
             $tabsHtml[] = $tabHtml;
         }
 
-        $viewService->setNamespace($oldNamespace);
+        $view->setNamespace($oldNamespace);
 
         return $tabsHtml;
     }

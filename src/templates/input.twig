@@ -1,4 +1,24 @@
+{% set inputAttributes = {
+    id: id,
+    class: [
+        'neo-input',
+        "neo-input--#{handle}",
+        static ? 'is-static',
+        translatable ? 'is-translatable',
+    ],
+} %}
+
 <input type="hidden" name="{{ name }}" value="">
-<div id="{{ id }}" class="neo-input neo-input--{{ neoField.handle }}{{ static ? ' is-static' }}{{ translatable ? ' is-translatable' }}">
-<div id="{{ id }}--spinner" class="spinner"></div>
+<div {{ attr(inputAttributes) }}>
+    <span aria-live="assertive" class="visually-hidden" data-status-message></span>
+    <div class="ni_blocks" data-neo="container.blocks">
+        {% for block in blocks %}
+            {% if block.level == 1 %}
+                {% include 'neo/block' with { name, block, static } only %}
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% if not static %}
+        <div data-neo="container.buttons"></div>
+    {% endif %}
 </div>

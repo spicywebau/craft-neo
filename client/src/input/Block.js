@@ -8,9 +8,6 @@ import NS from '../namespace'
 
 import { addFieldLinks } from '../plugins/cpfieldinspect/main'
 
-import renderTemplate from './templates/block.twig'
-import '../twig-extensions'
-
 const _defaults = {
   namespace: [],
   blockType: null,
@@ -20,9 +17,8 @@ const _defaults = {
   enabled: true,
   collapsed: false,
   modified: true,
-  static: false,
   showButtons: true,
-  renderOldChildBlocksContainer: true
+  hasOldChildBlocksContainer: true
 }
 
 const _resources = {}
@@ -71,11 +67,10 @@ export default Garnish.Base.extend({
   _expanded: true,
   _enabled: true,
   _modified: true,
-  _static: false,
   _initialState: null,
   _forceModified: false,
 
-  init (settings = {}) {
+  init (settings = {}, generateElement = false) {
     settings = Object.assign({}, _defaults, settings)
 
     this._templateNs = NS.parse(settings.namespace)
@@ -83,61 +78,34 @@ export default Garnish.Base.extend({
     this._blockType = settings.blockType
     this._id = settings.id
     this._buttons = settings.buttons
-    this._modified = settings.static ? true : settings.modified
+    this._modified = settings.modified
     this._showButtons = settings.showButtons
-
-    NS.enter(this._templateNs)
-
-    this.$container = $(renderTemplate({
-      type: this._blockType,
-      id: this._id,
-      enabled: !!settings.enabled,
-      collapsed: !!settings.collapsed,
-      level: settings.level,
-      modified: this._modified,
-      sortOrder: this._id,
-      renderOldChildBlocksContainer: settings.renderOldChildBlocksContainer
-    }))
-
-    // Add this block's subfields to Craft's delta names
-    // Short-term solution to set these in JS until Neo issue #298 is resolved
-    if (!this.isNew()) {
-      const blockNamespace = NS.toFieldName().replace(/(\[|\])/g, '\\$1')
-      const propsNamespace = `${blockNamespace}\\[[a-zA-Z]+\\]`
-      const subFieldsMatch = new RegExp(`${propsNamespace}(\\[[a-zA-Z][a-zA-Z0-9_]*\\])?`, 'g')
-
-      this._blockType.getTabs().forEach(tab => {
-        // Use a set to remove duplicate matches, e.g. when there's a Matrix field
-        const subFields = new Set(tab.getBodyHtml(this._id).match(subFieldsMatch))
-        subFields.forEach(subField => Craft.deltaNames.push(subField))
-      })
-    }
-
-    NS.leave()
+    this._hasOldChildBlocksContainer = settings.hasOldChildBlocksContainer
+    this.$container = generateElement ? this._generateElement() : $(`[data-neo-b-id=${this._id}]`)
 
     const $neo = this.$container.find('[data-neo-b]')
-    this.$bodyContainer = $neo.filter('[data-neo-b="container.body"]')
-    this.$contentContainer = $neo.filter('[data-neo-b="container.content"]')
-    this.$childrenContainer = $neo.filter('[data-neo-b="container.children"]')
-    this.$childrenWarningsContainer = $neo.filter('[data-neo-b="container.childrenWarnings"]')
-    this.$collapsedChildrenContainer = $neo.filter('[data-neo-b="container.collapsedChildren"]')
-    this.$blocksContainer = $neo.filter('[data-neo-b="container.blocks"]')
-    this.$buttonsContainer = $neo.filter('[data-neo-b="container.buttons"]')
-    this.$topbarContainer = $neo.filter('[data-neo-b="container.topbar"]')
-    this.$topbarLeftContainer = $neo.filter('[data-neo-b="container.topbarLeft"]')
-    this.$topbarRightContainer = $neo.filter('[data-neo-b="container.topbarRight"]')
-    this.$tabsContainer = $neo.filter('[data-neo-b="container.tabs"]')
-    this.$tabContainer = $neo.filter('[data-neo-b="container.tab"]')
-    this.$menuContainer = $neo.filter('[data-neo-b="container.menu"]')
-    this.$previewContainer = $neo.filter('[data-neo-b="container.preview"]')
-    this.$tabButton = $neo.filter('[data-neo-b="button.tab"]')
-    this.$settingsButton = $neo.filter('[data-neo-b="button.actions"]')
-    this.$togglerButton = $neo.filter('[data-neo-b="button.toggler"]')
-    this.$tabsButton = $neo.filter('[data-neo-b="button.tabs"]')
-    this.$enabledInput = $neo.filter('[data-neo-b="input.enabled"]')
-    this.$levelInput = $neo.filter('[data-neo-b="input.level"]')
-    this.$status = $neo.filter('[data-neo-b="status"]')
-    this.$sortOrder = $neo.filter('[data-neo-b="sortOrder"]')
+    this.$bodyContainer = $neo.filter(`[data-neo-b="${this._id}.container.body"]`)
+    this.$contentContainer = $neo.filter(`[data-neo-b="${this._id}.container.content"]`)
+    this.$childrenContainer = $neo.filter(`[data-neo-b="${this._id}.container.children"]`)
+    this.$childrenWarningsContainer = $neo.filter(`[data-neo-b="${this._id}.container.childrenWarnings"]`)
+    this.$collapsedChildrenContainer = $neo.filter(`[data-neo-b="${this._id}.container.collapsedChildren"]`)
+    this.$blocksContainer = $neo.filter(`[data-neo-b="${this._id}.container.blocks"]`)
+    this.$buttonsContainer = $neo.filter(`[data-neo-b="${this._id}.container.buttons"]`)
+    this.$topbarContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbar"]`)
+    this.$topbarLeftContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarLeft"]`)
+    this.$topbarRightContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarRight"]`)
+    this.$tabsContainer = $neo.filter(`[data-neo-b="${this._id}.container.tabs"]`)
+    this.$tabContainer = $neo.filter(`[data-neo-b="${this._id}.container.tab"]`)
+    this.$menuContainer = $neo.filter(`[data-neo-b="${this._id}.container.menu"]`)
+    this.$previewContainer = $neo.filter(`[data-neo-b="${this._id}.container.preview"]`)
+    this.$tabButton = $neo.filter(`[data-neo-b="${this._id}.button.tab"]`)
+    this.$settingsButton = $neo.filter(`[data-neo-b="${this._id}.button.actions"]`)
+    this.$togglerButton = $neo.filter(`[data-neo-b="${this._id}.button.toggler"]`)
+    this.$tabsButton = $neo.filter(`[data-neo-b="${this._id}.button.tabs"]`)
+    this.$enabledInput = $neo.filter(`[data-neo-b="${this._id}.input.enabled"]`)
+    this.$levelInput = $neo.filter(`[data-neo-b="${this._id}.input.level"]`)
+    this.$status = $neo.filter(`[data-neo-b="${this._id}.status"]`)
+    this.$sortOrder = $neo.filter(`[data-neo-b="${this._id}.sortOrder"]`)
 
     if (this._buttons) {
       this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, { level: this.getLevel() + 1 })))
@@ -156,7 +124,6 @@ export default Garnish.Base.extend({
       }
     }
 
-    this.setSortOrderAttr()
     this.setLevel(settings.level)
     this.toggleEnabled(settings.enabled)
     this.toggleExpansion(hasErrors ? true : !settings.collapsed, false, false)
@@ -166,27 +133,187 @@ export default Garnish.Base.extend({
     this.addListener(this.$tabButton, 'click', '@setTab')
   },
 
-  initUi () {
+  _generateElement () {
+    NS.enter(this._templateNs)
+    const baseInputName = NS.toFieldName()
+    NS.leave()
+
+    const type = this._blockType
+    const typeTabs = type.getTabs()
+    const hasTabs = typeTabs.length > 0
+    const isParent = type.isParent()
+    const actionBtnLabel = `${type.getName()} ${Craft.t('neo', 'Actions')}`
+    const actionMenuId = `neoblock-action-menu-${this._id}`
+    const elementHtml = []
+    elementHtml.push(`
+      <div class="ni_block ni_block--${type.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${!hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}">
+        <input type="hidden" name="${baseInputName}[type]" value="${type.getHandle()}">
+        <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : '0'}" data-neo-b="${this._id}.input.enabled">
+        <input type="hidden" name="${baseInputName}[level]" value="${this._level}" data-neo-b="${this._id}.input.level">
+        <input type="hidden" name="${this._templateNs[0]}[${this._templateNs[1]}][sortOrder][]" value="${this._id}" data-neo-b="${this._id}.input.sortOrder">
+
+        <div class="ni_block_topbar" data-neo-b="${this._id}.container.topbar">
+          <div class="ni_block_topbar_left" data-neo-b="${this._id}.container.topbarLeft">
+            <div class="ni_block_topbar_item" data-neo-b="${this._id}.select">
+              <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')} aria-label="${Craft.t('neo', 'Select')}"></div>
+            </div>
+            <div class="ni_block_topbar_item title clip-text">
+              <span class="blocktype" data-neo-b="${this._id}.select">${type.getName()}</span><span class="preview" data-neo-b="${this._id}.container.preview">&nbsp;</span>
+            </div>
+          </div>
+          <div class="ni_block_topbar_right" data-neo-b="${this._id}.container.topbarRight">
+            <div class="ni_block_topbar_item size-full tabs">`)
+
+    if (hasTabs || isParent) {
+      elementHtml.push(`
+              <div class="tabs_trigger" data-neo-b="${this._id}.button.toggler"></div>`)
+    }
+
+    if (typeTabs.length > 1) {
+      elementHtml.push(`
+              <div class="tabs_inner" data-neo-b="${this._id}.container.tabs">`)
+
+      for (let i = 0; i < typeTabs.length; i++) {
+        const tabName = typeTabs[i].getName()
+        elementHtml.push(`
+                <a class="tab${!i ? 'is-selected' : ''}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>`)
+      }
+
+      elementHtml.push(`
+              </div>
+              <div class="tabs_btn menubtn" data-neo-b="${this._id}.button.tabs">
+                ${typeTabs[0].getName()}
+              </div>
+              <div class="neo_block_tabs-menu menu">
+                <ul>`)
+
+      for (let i = 0; i < typeTabs.length; i++) {
+        const tabName = typeTabs[i].getName()
+        elementHtml.push(`
+                  <li>
+                    <a${!i ? ' class="is-selected"' : ''} data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>
+                  </li>`)
+      }
+
+      elementHtml.push(`
+                </ul>
+              </div>`)
+    }
+
+    elementHtml.push(`
+            </div>
+            <div class="ni_block_topbar_item hidden" data-neo-b="${this._id}.status">
+              <div class="status off" title="${Craft.t('neo', 'Disabled')}"></div>
+            </div>
+            <div class="ni_block_topbar_item block-settings">
+              <div data-wrapper>
+                <button class="btn settings icon menubtn" type="button" role="button" title="${Craft.t('neo', 'Actions')}" aria-controls="${actionMenuId}" aria-label="${actionBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.actions"></button>
+                <div id="${actionMenuId}" class="menu menu--disclosure" data-neo-b="${this._id}.container.menu">
+                  <ul class="padded">`)
+
+    if (hasTabs || isParent) {
+      elementHtml.push(`
+                    <li><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Collapse')}">${Craft.t('neo', 'Collapse')}</a></li>
+                    <li class="hidden"><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Expand')}">${Craft.t('neo', 'Expand')}</a></li>`)
+    }
+
+    elementHtml.push(`
+                    <li><a data-icon="disabled" data-action="disable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Disable')}">${Craft.t('neo', 'Disable')}</a></li>
+                    <li class="hidden"><a data-icon="enabled" data-action="enable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Enable')}">${Craft.t('neo', 'Enable')}</a></li>
+                    <li class="hidden"><a data-icon="uarr" data-action="moveUp" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move up')}">${Craft.t('neo', 'Move up')}</a></li>
+                    <li class="hidden"><a data-icon="darr" data-action="moveDown" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move down')}">${Craft.t('neo', 'Move down')}</a></li>
+                  </ul>
+                  <hr>
+                  <ul class="padded">
+                    <li><a data-icon="plus" data-action="add" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Add block above')}">${Craft.t('neo', 'Add block above')}</a></li>
+                    <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Copy')}">${Craft.t('neo', 'Copy')}</a></li>
+                    <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Paste')}">${Craft.t('neo', 'Paste')}</a></li>
+                    <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Clone')}">${Craft.t('neo', 'Clone')}</a></li>
+                  </ul>
+                  <hr>
+                  <ul class="padded">
+                    <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Delete')}">${Craft.t('neo', 'Delete')}</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="ni_block_topbar_item block-reorder">
+              <a class="move icon" title="${Craft.t('neo', 'Reorder')}" aria-label="${Craft.t('neo', 'Reorder')}" role="button" data-neo-b="${this._id}.button.move"></a>
+            </div>
+          </div>
+        </div>`)
+
+    if (hasTabs || isParent) {
+      elementHtml.push(`
+        <div class="ni_block_body" data-neo-b="${this._id}.container.body">`)
+
+      if (hasTabs) {
+        elementHtml.push(`
+          <div class="ni_block_content" data-neo-b="${this._id}.container.content">`)
+
+        for (let i = 0; i < typeTabs.length; i++) {
+          const tabName = typeTabs[i].getName()
+          elementHtml.push(`
+            <div class="ni_block_content_tab flex-fields${!i ? ' is-selected' : ''}" data-neo-b="${this._id}.container.tab" data-neo-b-info="${tabName}">
+              ${typeTabs[i].getBodyHtml(this._id)}
+            </div>`)
+          Garnish.$bod.append(typeTabs[i].getFootHtml(this._id))
+        }
+
+        elementHtml.push(`
+          </div>`)
+      }
+
+      if (isParent && this._hasOldChildBlocksContainer) {
+        elementHtml.push(`
+          <div class="ni_block_children" data-neo-b="${this._id}.container.children">
+            <div class="ni_blocks" data-neo-b="${this._id}.container.blocks">
+            </div>
+            <div data-neo-b="${this._id}.container.buttons" class="hidden"></div>
+            <div data-neo-b="${this._id}.container.childrenWarnings" class="hidden">
+              <p class="first warning with-icon">${Craft.t('neo', "This Neo field's maximum number of levels has been reached, so no child blocks can be added here.")}</p>
+            </div>
+          </div>`)
+      }
+
+      elementHtml.push(`
+        </div>`)
+    }
+
+    if (isParent) {
+      elementHtml.push(`
+        <div class="ni_block_collapsed-children" data-neo-b="${this._id}.container.collapsedChildren"></div>`)
+    }
+
+    elementHtml.push(`
+      <div data-neo="container.buttons"></div>`)
+
+    return $(elementHtml.join(''))
+  },
+
+  initUi (callInitUiElements = true) {
     if (this._initialised) {
       // Nothing to do here
       return
     }
 
     const tabs = this._blockType.getTabs()
-    const headList = tabs.map(tab => tab.getHeadHtml(this._id))
     const footList = tabs.map(tab => tab.getFootHtml(this._id))
-    this.$head = $(headList.join('')).filter(_resourceFilter)
     this.$foot = $(footList.join('')).filter(_resourceFilter)
 
-    Garnish.$bod.siblings('head').append(this.$head)
     Garnish.$bod.append(this.$foot)
 
-    this._initUiElements()
+    if (callInitUiElements) {
+      Craft.initUiElements(this.$contentContainer)
+    }
 
     this.$tabsButton.menubtn()
 
-    this._settingsMenu = new Garnish.MenuBtn(this.$settingsButton)
-    this._settingsMenu.on('optionSelect', e => this['@settingSelect'](e))
+    this._settingsMenu = new Garnish.DisclosureMenu(this.$settingsButton)
+    this._settingsMenu.on('show', () => this.$container.addClass('active'))
+    this._settingsMenu.on('hide', () => this.$container.removeClass('active'))
+    this.addListener(this.$menuContainer.find('[data-action]'), 'click', this._handleActionClick)
+    this.addListener(this.$menuContainer.find('[data-action]'), 'keydown', this._handleActionKeydown)
 
     this._initialised = true
 
@@ -248,7 +375,6 @@ export default Garnish.Base.extend({
 
   destroy () {
     if (this._initialised) {
-      this.$head.remove()
       this.$foot.remove()
 
       clearInterval(this._detectChangeInterval)
@@ -271,10 +397,6 @@ export default Garnish.Base.extend({
 
   getLevel () {
     return this._level
-  },
-
-  setSortOrderAttr () {
-    this.$sortOrder.attr('name', `${this._templateNs[0]}[${this._templateNs.slice(1, -2).join('][')}][sortOrder][]`)
   },
 
   setLevel (level) {
@@ -739,15 +861,18 @@ export default Garnish.Base.extend({
       // Use the duplicated block ID if we're on a new provisional draft
       // The server-side code will also apply the new state to the canonical block
       const thisBlockId = this.getId()
-      const duplicatedBlockId = window.draftEditor.duplicatedElements[thisBlockId]
-      const sentBlockId = window.draftEditor.settings.isProvisionalDraft && typeof duplicatedBlockId !== 'undefined'
+      const elementEditor = $('#main-form').data('elementEditor')
+      const duplicatedBlockId = elementEditor.duplicatedElements[thisBlockId]
+      const sentBlockId = elementEditor.settings.isProvisionalDraft && typeof duplicatedBlockId !== 'undefined'
         ? duplicatedBlockId
         : thisBlockId
-      Craft.queueActionRequest('neo/input/save-expansion', {
+      const data = {
         expanded: this.isExpanded() ? 1 : 0,
         blockId: sentBlockId,
         locale: this.getLocale()
-      })
+      }
+
+      Craft.queueActionRequest(() => Craft.postActionRequest('neo/input/save-expansion', data))
     }
   },
 
@@ -921,6 +1046,18 @@ export default Garnish.Base.extend({
     this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
   },
 
+  _handleActionClick (e) {
+    e.preventDefault()
+    this['@settingSelect'](e)
+  },
+
+  _handleActionKeydown (e) {
+    if (e.keyCode === Garnish.SPACE_KEY) {
+      e.preventDefault()
+      this['@settingSelect'](e)
+    }
+  },
+
   _detectChange () {
     // When editing a draft and autosave is enabled, we need to force modified to be set, or
     // returning the block to its original values will cause it not to be resaved.
@@ -949,21 +1086,9 @@ export default Garnish.Base.extend({
     }
   },
 
-  _initUiElements () {
-    // TODO: remove this in Neo 3.
-    $('.grid', this.$contentContainer).grid()
-    $('.info', this.$contentContainer).infoicon()
-    $('.checkbox-select', this.$contentContainer).checkboxselect()
-    $('.fieldtoggle', this.$contentContainer).fieldtoggle()
-    $('.lightswitch', this.$contentContainer).lightswitch()
-    $('.nicetext', this.$contentContainer).nicetext()
-    $('.formsubmit', this.$contentContainer).formsubmit()
-    $('.menubtn:not([data-disclosure-trigger])', this.$contentContainer).menubtn()
-    $('.datetimewrapper', this.$contentContainer).datetime()
-  },
-
   '@settingSelect' (e) {
-    const $option = $(e.option)
+    this._settingsMenu.hide()
+    const $option = $(e.target)
 
     if (!$option.hasClass('disabled')) {
       switch ($option.attr('data-action')) {

@@ -1,4 +1,4 @@
-$preview-reduction: 70px;
+$preview-reduction: 80px;
 
 .neo-input {
 
@@ -92,7 +92,6 @@ $preview-reduction: 70px;
             }
 
             &_right {
-                z-index: 1;
                 min-width: 100px;
 
                 body.ltr & {
@@ -264,6 +263,25 @@ $preview-reduction: 70px;
                         &.has-errors {
                             color: #da5a47;
                         }
+                    }
+                }
+
+                &.block-settings {
+                    .settings {
+                        padding: 0 8px;
+                        height: 20px;
+
+                        &:not(:hover):not(:active) {
+                            background-color: transparent;
+                        }
+
+                        &::before {
+                            margin-right: 0 !important;
+                        }
+                    }
+
+                    .menu {
+                        line-height: 20px;
                     }
                 }
 

@@ -1,10 +1,7 @@
 import $ from 'jquery'
 import '../jquery-extensions'
-
+import Craft from 'craft'
 import Garnish from 'garnish'
-
-import renderTemplate from './templates/buttons.twig'
-import '../twig-extensions'
 
 const _defaults = {
   blockTypes: [],
@@ -38,13 +35,7 @@ export default Garnish.Base.extend({
     this._maxBlocks = settings.maxBlocks | 0
     this._maxTopBlocks = settings.maxTopBlocks | 0
 
-    this.$container = $(renderTemplate({
-      blockTypes: this._blockTypes,
-      groups: this._groups,
-      items: this._items,
-      maxBlocks: this._maxBlocks,
-      maxTopBlocks: this._maxTopBlocks
-    }))
+    this.$container = this._generateButtons()
 
     const $neo = this.$container.find('[data-neo-bn]')
     this.$buttonsContainer = $neo.filter('[data-neo-bn="container.buttons"]')
@@ -57,6 +48,114 @@ export default Garnish.Base.extend({
     }
 
     this.addListener(this.$blockButtons, 'activate', '@newBlock')
+  },
+
+  _generateButtons () {
+    const buttonsHtml = []
+    let currentGroup = null
+    let firstButton = true
+
+    buttonsHtml.push(`
+      <div class="ni_buttons">
+        <div class="btngroup" data-neo-bn="container.buttons">`)
+
+    for (let i = 0; i < this._items.length; i++) {
+      const item = this._items[i]
+      const type = item.getType()
+
+      if (type === 'blockType') {
+        if (currentGroup !== null) {
+          buttonsHtml.push(`
+            <li>
+              <a data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">${item.getName()}</a>
+            </li>`)
+        } else {
+          buttonsHtml.push(`
+          <div class="btn dashed${firstButton ? ' add icon' : ''}" data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">
+            ${item.getName()}
+          </div>`)
+          firstButton = false
+        }
+      } else if (type === 'group') {
+        if (currentGroup !== null) {
+          buttonsHtml.push(`
+          </ul>
+        </div>`)
+        }
+
+        currentGroup = item.isBlank() || (i + 2) > this._items.length || this._items[i + 1].getType() === 'group' ? null : item
+
+        if (currentGroup !== null) {
+          buttonsHtml.push(`
+        <div class="btn dashed${firstButton ? ' add icon' : ''} menubtn" data-neo-bn="button.group">
+          ${item.getName()}
+        </div>
+        <div class="menu">
+          <ul>`)
+          firstButton = false
+        }
+      }
+    }
+
+    if (currentGroup !== null) {
+      buttonsHtml.push(`
+            </ul>
+          </div>`)
+    }
+
+    buttonsHtml.push(`
+        </div>
+        <div class="btn dashed add icon menubtn hidden" data-neo-bn="container.menu">
+          ${Craft.t('neo', 'Add a block')}
+        </div>`)
+
+    // Menu, for views where the buttons would exceed the editor width
+    currentGroup = null
+    let lastGroupHadBlockTypes = false
+    buttonsHtml.push(`
+        <div class="menu">
+          <ul>`)
+
+    for (const item of this._items) {
+      const type = item.getType()
+
+      if (type === 'blockType') {
+        if (currentGroup !== null && !lastGroupHadBlockTypes) {
+          lastGroupHadBlockTypes = true
+
+          buttonsHtml.push(`
+              <h6>${currentGroup.getName()}</h6>
+              <ul class="padded">`)
+        }
+
+        buttonsHtml.push(`
+            <li>
+              <a data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">
+                ${item.getName()}
+              </a>
+            </li>`)
+      } else if (type === 'group') {
+        if (currentGroup === null || lastGroupHadBlockTypes) {
+          buttonsHtml.push(`
+              </ul>`)
+        }
+
+        lastGroupHadBlockTypes = false
+        currentGroup = item.isBlank() ? null : item
+
+        if (currentGroup === null) {
+          buttonsHtml.push(`
+              <ul>`)
+        }
+      }
+    }
+
+    buttonsHtml.push(`
+          </ul>
+        </div>
+      </div>`)
+
+    return $(buttonsHtml.join(''))
   },
 
   initUi () {

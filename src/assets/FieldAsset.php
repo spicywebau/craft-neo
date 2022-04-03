@@ -3,20 +3,16 @@
 namespace benf\neo\assets;
 
 use benf\neo\elements\Block;
-use benf\neo\events\FilterBlockTypesEvent;
 use benf\neo\Field;
-use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
-
 use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
 use craft\models\FieldLayout;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
-use yii\base\Event;
 
 /**
  * Class FieldAsset
@@ -29,30 +25,6 @@ use yii\base\Event;
 class FieldAsset extends AssetBundle
 {
     /**
-     * Event that allows filtering what block types are available for a given field.
-     *
-     * @event FilterBlockTypesEvent
-     *
-     * ```php
-     * use benf\neo\assets\FieldAsset;
-     * use benf\neo\events\FilterBlockTypesEvent;
-     * use yii\base\Event;
-     *
-     * Event::on(FieldAsset::class, FieldAsset::EVENT_FILTER_BLOCK_TYPES, function (FilterBlockTypesEvent $event) {
-     *     $filtered = [];
-     *     foreach ($event->blockTypes as $type) {
-     *         if ($type->handle === 'cards') {
-     *             $filtered[] = $type;
-     *         }
-     *     }
-     *
-     *     $event->blockTypes = $filtered;
-     * });
-     *
-     */
-    public const EVENT_FILTER_BLOCK_TYPES = "filterBlockTypes";
-
-    /**
      * @inheritdoc
      */
     public function init()
@@ -63,11 +35,10 @@ class FieldAsset extends AssetBundle
             CpAsset::class,
         ];
 
-        $this->js = ['main.js'];
-
-        if ($this->_matchUriSegments(['settings', 'fields', 'edit', '*'])) {
-            $this->js[] = 'converter.js';
-        }
+        $this->js = [
+            'neo-configurator.js',
+            'neo-converter.js',
+        ];
 
         parent::init();
     }
@@ -154,106 +125,11 @@ class FieldAsset extends AssetBundle
     }
 
     /**
-     * Sets up the field block inputs for a given Neo field.
-     *
-     * @param Field $field The Neo field.
-     * @param array $value The Neo blocks, associated with this field, to generate inputs for.
-     * @param bool $static Whether to generate static HTML for the blocks, e.g. for displaying entry revisions.
-     * @param ElementInterface|int|null $siteId
-     * @return string
-     */
-    public static function createInputJs(
-        Field $field,
-        $value,
-        bool $static = false,
-        int $siteId = null,
-        $owner = null,
-    ): string {
-        $viewService = Craft::$app->getView();
-
-        $name = $field->handle;
-        $id = $viewService->formatInputId($name);
-        $blockTypes = $field->getBlockTypes();
-        $blockTypeGroups = $field->getGroups();
-
-        $event = new FilterBlockTypesEvent([
-            'field' => $field,
-            'element' => $owner,
-            'blockTypes' => $blockTypes,
-            'blockTypeGroups' => $blockTypeGroups,
-        ]);
-        Event::trigger(self::class, self::EVENT_FILTER_BLOCK_TYPES, $event);
-
-        $jsSettings = [
-            'name' => $name,
-            'namespace' => $viewService->namespaceInputName($name) . '[blocks]',
-            'blockTypes' => self::_getBlockTypesJsSettings($event->blockTypes, true, $static, $siteId, $owner),
-            'groups' => self::_getBlockTypeGroupsJsSettings($event->blockTypeGroups),
-            'inputId' => $viewService->namespaceInputId($id),
-            'minBlocks' => $field->minBlocks,
-            'maxBlocks' => $field->maxBlocks,
-            'maxTopBlocks' => $field->maxTopBlocks,
-            'maxLevels' => (int)$field->maxLevels,
-            'blocks' => self::_getBlocksJsSettings($value, $static),
-            'static' => $static,
-        ];
-
-        $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);
-
-        return "Neo.createInput($encodedJsSettings)";
-    }
-
-    /**
-     * Returns the raw data from the given blocks.
-     *
-     * This converts Blocks into the format used by the input generator Javascript.
-     *
-     * @param array $blocks The Neo blocks.
-     * @param bool $static Whether to generate static HTML for the blocks, e.g. for displaying entry revisions.
-     * @throws
-     * @return array
-     */
-    private static function _getBlocksJsSettings(array $blocks, bool $static = false): array
-    {
-        $collapseAllBlocks = Neo::$plugin->getSettings()->collapseAllBlocks;
-        $jsBlocks = [];
-        $sortOrder = 0;
-
-        foreach ($blocks as $block) {
-            if ($block instanceof Block) {
-                $blockType = $block->getType();
-                $renderOldChildBlocksContainer = empty(array_filter($blockType->getFieldLayout()->getTabs(), function($tab) {
-                    return !empty(array_filter($tab->elements, function($element) {
-                        return $element instanceof ChildBlocksUiElement;
-                    }));
-                }));
-
-                $jsBlocks[] = [
-                    'id' => $block->id,
-                    'blockType' => $blockType->handle,
-                    'modified' => false,
-                    'sortOrder' => $sortOrder++,
-                    'collapsed' => !$collapseAllBlocks ? $block->getCollapsed() : true,
-                    'enabled' => (bool)$block->enabled,
-                    'level' => max(0, (int)$block->level - 1),
-                    'tabs' => Neo::$plugin->blocks->renderTabs($block, $static),
-                    'renderOldChildBlocksContainer' => $renderOldChildBlocksContainer,
-                ];
-            } elseif (is_array($block)) {
-                $jsBlocks[] = $block;
-            }
-        }
-
-        return $jsBlocks;
-    }
-
-    /**
      * Returns the raw data from the given block types.
      *
      * This converts block types into the format used by the input generator JavaScript.
      *
      * @param array $blockTypes The Neo block types.
-     * @param bool $renderTabs Whether to render the block types' tabs.
      * @param bool $static Whether to generate static HTML for the block types, e.g. for displaying entry revisions.
      * @param int|null $siteId
      * @param ElementInterface|int|null $owner
@@ -261,7 +137,6 @@ class FieldAsset extends AssetBundle
      */
     private static function _getBlockTypesJsSettings(
         array $blockTypes,
-        bool $renderTabs = false,
         bool $static = false,
         int $siteId = null,
         $owner = null,
@@ -325,11 +200,6 @@ class FieldAsset extends AssetBundle
                 'fieldTypes' => $fieldTypes,
                 'groupId' => $blockType->groupId,
             ];
-
-            if ($renderTabs) {
-                $tabsHtml = Neo::$plugin->blockTypes->renderTabs($blockType, $static, null, $siteId, $owner);
-                $jsBlockType['tabs'] = $tabsHtml;
-            }
 
             $jsBlockTypes[] = $jsBlockType;
         }
