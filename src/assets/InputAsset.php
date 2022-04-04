@@ -23,6 +23,7 @@ use yii\base\Event;
  *
  * @package benf\neo\assets
  * @author Spicy Web <plugins@spicyweb.com.au>
+ * @author Benjamin Fleming
  * @since 3.0.0
  */
 class InputAsset extends AssetBundle
@@ -33,11 +34,11 @@ class InputAsset extends AssetBundle
      * @event FilterBlockTypesEvent
      *
      * ```php
-     * use benf\neo\assets\FieldAsset;
+     * use benf\neo\assets\InputAsset;
      * use benf\neo\events\FilterBlockTypesEvent;
      * use yii\base\Event;
      *
-     * Event::on(FieldAsset::class, FieldAsset::EVENT_FILTER_BLOCK_TYPES, function (FilterBlockTypesEvent $event) {
+     * Event::on(InputAsset::class, InputAsset::EVENT_FILTER_BLOCK_TYPES, function (FilterBlockTypesEvent $event) {
      *     $filtered = [];
      *     foreach ($event->blockTypes as $type) {
      *         if ($type->handle === 'cards') {

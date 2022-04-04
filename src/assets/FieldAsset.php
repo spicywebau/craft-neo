@@ -18,8 +18,7 @@ use craft\web\assets\cp\CpAsset;
  * Class FieldAsset
  *
  * @package benf\neo\assets
- * @author Spicy Web <craft@spicyweb.com.au>
- * @author Benjamin Fleming
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @since 2.0.0
  */
 class FieldAsset extends AssetBundle
