@@ -87,7 +87,7 @@ class Fields extends Component
         $dbService = Craft::$app->getDb();
         $isValid = !$validate || $this->validate($field);
 
-        if ($isValid && !Craft::$app->getProjectConfig()->getIsApplyingYamlChanges()) {
+        if ($isValid && !Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
             $transaction = $dbService->beginTransaction();
             try {
                 // Delete the old block types first, in case there's a handle conflict with one of the new ones
