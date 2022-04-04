@@ -1,0 +1,236 @@
+<?php
+
+namespace benf\neo\assets;
+
+use benf\neo\elements\Block;
+use benf\neo\Field;
+use benf\neo\models\BlockTypeGroup;
+use benf\neo\Plugin as Neo;
+use Craft;
+use craft\base\ElementInterface;
+use craft\fieldlayoutelements\CustomField;
+use craft\helpers\Json;
+use craft\models\FieldLayout;
+use craft\web\AssetBundle;
+use craft\web\assets\cp\CpAsset;
+
+/**
+ * Class SettingsAsset
+ *
+ * @package benf\neo\assets
+ * @author Spicy Web <plugins@spicyweb.com.au>
+ * @author Benjamin Fleming
+ * @since 3.0.0
+ */
+class SettingsAsset extends AssetBundle
+{
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        $this->sourcePath = '@benf/neo/resources';
+
+        $this->depends = [
+            CpAsset::class,
+        ];
+
+        $this->js = [
+            'neo-configurator.js',
+            'neo-converter.js',
+        ];
+
+        parent::init();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function registerAssetFiles($view)
+    {
+        $view->registerTranslations('neo', [
+            'Select',
+            'Disabled',
+            'Actions',
+            'Collapse',
+            'Expand',
+            'Disable',
+            'Enable',
+            'Add block above',
+            'Copy',
+            'Paste',
+            'Clone',
+            'Delete',
+            'Reorder',
+            'Add a block',
+            'Move up',
+            'Move down',
+            'Name',
+            'What this block type will be called in the CP.',
+            'Handle',
+            'How you&#8217;ll refer to this block type in the templates.',
+            'Max Blocks',
+            'The maximum number of blocks of this type the field is allowed to have.',
+            'All',
+            'Child Blocks',
+            'Which block types do you want to allow as children?',
+            'Max Child Blocks',
+            'The maximum number of child blocks this block type is allowed to have.',
+            'Top Level',
+            'Will this block type be allowed at the top level?',
+            'Delete block type',
+            'This can be left blank if you just want an unlabeled separator.',
+            'Delete group',
+            'Block Types',
+            'Block type',
+            'Group',
+            'Settings',
+            'Field Layout',
+        ]);
+
+        parent::registerAssetFiles($view);
+    }
+
+    /**
+     * Sets up the field layout designer for a given Neo field.
+     *
+     * @param Field $field The Neo field.
+     * @return string
+     */
+    public static function createSettingsJs(Field $field): string
+    {
+        $viewService = Craft::$app->getView();
+
+        $blockTypes = $field->getBlockTypes();
+        $blockTypeGroups = $field->getGroups();
+
+        // Render the field layout designer HTML, but disregard any Javascript it outputs, as that'll be handled by Neo.
+        $viewService->startJsBuffer();
+        $fieldLayoutHtml = $viewService->renderTemplate('_includes/fieldlayoutdesigner', [
+            'fieldLayout' => new FieldLayout(['type' => Block::class]),
+            'customizableUi' => true,
+        ]);
+        $viewService->clearJsBuffer();
+
+        $jsSettings = [
+            'namespace' => $viewService->getNamespace(),
+            'blockTypes' => self::_getBlockTypesJsSettings($blockTypes),
+            'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
+            'fieldLayoutHtml' => $fieldLayoutHtml,
+        ];
+
+        $encodedJsSettings = Json::encode($jsSettings);
+
+        return "Neo.createConfigurator($encodedJsSettings)";
+    }
+
+    /**
+     * Returns the raw data from the given block types.
+     *
+     * This converts block types into the format used by the input generator JavaScript.
+     *
+     * @param array $blockTypes The Neo block types.
+     * @param bool $static Whether to generate static HTML for the block types, e.g. for displaying entry revisions.
+     * @param int|null $siteId
+     * @param ElementInterface|int|null $owner
+     * @return array
+     */
+    private static function _getBlockTypesJsSettings(
+        array $blockTypes,
+        bool $static = false,
+        int $siteId = null,
+        $owner = null,
+    ): array {
+        $jsBlockTypes = [];
+
+        foreach ($blockTypes as $blockType) {
+            $fieldLayout = $blockType->getFieldLayout();
+            $fieldLayoutTabs = $fieldLayout->getTabs();
+            $jsFieldLayout = [];
+            $fieldTypes = [];
+
+            foreach ($fieldLayoutTabs as $tab) {
+                $tabElements = $tab->elements;
+                $jsTabElements = [];
+
+                foreach ($tabElements as $element) {
+                    $elementData = [
+                        'config' => $element->toArray(),
+                        /*'settings-html' => preg_replace(
+                            '/(id|for)="(.+)"/',
+                            '\1="element-' . uniqid() . '-\2"',
+                            $element->settingsHtml()
+                        ),*/
+                        'type' => get_class($element),
+                    ];
+
+                    if ($element instanceof CustomField) {
+                        $elementData['id'] = $element->getField()->id;
+                    }
+
+                    // Reset required to false if it was '' (which is getting interpreted as true in the field
+                    // settings modal for some reason) or '0' (which required was getting set to in the project
+                    // config in some cases in earlier Craft 3.5 releases)
+                    if (isset($elementData['config']['required']) && in_array($elementData['config']['required'], ['', '0'])) {
+                        $elementData['config']['required'] = false;
+                    }
+
+                    $jsTabElements[] = $elementData;
+                }
+
+                $jsFieldLayout[] = [
+                    'name' => $tab->name,
+                    'elements' => $jsTabElements,
+                ];
+            }
+
+            $jsBlockType = [
+                'id' => $blockType->id,
+                'sortOrder' => $blockType->sortOrder,
+                'name' => Craft::t('neo', $blockType->name),
+                'handle' => $blockType->handle,
+                'maxBlocks' => $blockType->maxBlocks,
+                'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
+                'maxChildBlocks' => $blockType->maxChildBlocks,
+                'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
+                'topLevel' => (bool)$blockType->topLevel,
+                'errors' => $blockType->getErrors(),
+                'fieldLayout' => $jsFieldLayout,
+                'fieldLayoutId' => $fieldLayout->id,
+                'fieldTypes' => $fieldTypes,
+                'groupId' => $blockType->groupId,
+            ];
+
+            $jsBlockTypes[] = $jsBlockType;
+        }
+
+        return $jsBlockTypes;
+    }
+
+    /**
+     * Returns the raw data from the given block type groups.
+     *
+     * This converts block type groups into the format used by the input generator Javascript.
+     *
+     * @param array $blockTypeGroups The Neo block type groups.
+     * @return array
+     */
+    private static function _getBlockTypeGroupsJsSettings(array $blockTypeGroups): array
+    {
+        $jsBlockTypeGroups = [];
+
+        foreach ($blockTypeGroups as $blockTypeGroup) {
+            if ($blockTypeGroup instanceof BlockTypeGroup) {
+                $jsBlockTypeGroups[] = [
+                    'id' => $blockTypeGroup->id,
+                    'sortOrder' => $blockTypeGroup->sortOrder,
+                    'name' => Craft::t('neo', $blockTypeGroup->name),
+                ];
+            } elseif (is_array($blockTypeGroup)) {
+                $jsBlockTypeGroups[] = $blockTypeGroup;
+            }
+        }
+
+        return $jsBlockTypeGroups;
+    }
+}

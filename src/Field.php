@@ -2,8 +2,8 @@
 
 namespace benf\neo;
 
-use benf\neo\assets\FieldAsset;
 use benf\neo\assets\InputAsset;
+use benf\neo\assets\SettingsAsset;
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
 use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
@@ -366,8 +366,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         if ($this->_getNamespaceDepth() >= 1) {
             $html = $this->_getNestingErrorHtml();
         } else {
-            $viewService->registerAssetBundle(FieldAsset::class);
-            $viewService->registerJs(FieldAsset::createSettingsJs($this));
+            $viewService->registerAssetBundle(SettingsAsset::class);
+            $viewService->registerJs(SettingsAsset::createSettingsJs($this));
 
             $html = $viewService->renderTemplate('neo/settings', ['neoField' => $this]);
         }
