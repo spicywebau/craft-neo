@@ -340,7 +340,7 @@ export default Garnish.Base.extend({
     const fieldLayout = new BlockTypeFieldLayout({
       blockTypeId: id,
       html: this._fieldLayoutHtml,
-      layout: oldBlockType ? oldBlockType.getFieldLayout().getLayoutStructure() : [],
+      layout: oldBlockType ? oldBlockType.getFieldLayout().getLayoutStructure() : null,
       namespace: [...namespace, id]
     })
 

@@ -35,6 +35,7 @@ export default Garnish.Base.extend({
 
     if (nameInput.length > 0) {
       nameInput[0].name = `neoBlockType${this._blockTypeId}[fieldLayout]`
+      nameInput[0].value = JSON.stringify(settings.layout ? settings.layout : { tabs: [] })
     }
 
     NS.enter(this._templateNs)
@@ -59,11 +60,13 @@ export default Garnish.Base.extend({
       }
     })
 
-    for (const tab of settings.layout) {
-      const $tab = this.addTab(tab.name)
+    if (settings.layout) {
+      for (const tab of settings.layout.tabs) {
+        const $tab = this.addTab(tab.name)
 
-      for (const element of tab.elements) {
-        this.addElementToTab($tab, element)
+        for (const element of tab.elements) {
+          this.addElementToTab($tab, element)
+        }
       }
     }
   },
@@ -117,28 +120,28 @@ export default Garnish.Base.extend({
     let $element = null
 
     if (element.type === 'craft\\fieldlayoutelements\\CustomField') {
-      const $unusedField = this._fld.$fields.filter(`[data-id="${element.id}"]`)
+      const $unusedField = this._fld.$fields.filter(`[data-config*=${element.fieldUid}]`)
 
-      // If a field's not required, `element.config.required` should either be `false` or
-      // an empty string, but it seems there was a bug in earlier Craft 3.5 that caused it
-      // to be saved as the string `'0'`
-      const isRequired = element.config.required && element.config.required !== '0'
+      // If a field's not required, `element.required` should either be `false` or an empty string,
+      // but it seems there was a bug in earlier Craft 3.5 that caused it to be saved as the string
+      // `'0'`
+      const isRequired = element.required && element.required !== '0'
       $element = $unusedField.clone().toggleClass('fld-required', isRequired)
       const $required = $(`<span class="fld-required-indicator" title="${Craft.t('app', 'This field is required')}"></span>`)
       let $requiredAppendee = $element.find('.fld-element-label')
 
-      // If `element.config.label` isn't set, this just means the field label hasn't been
-      // overridden in any way, so we don't need to do anything to it
-      if (element.config.label) {
+      // If `element.label` isn't set, this just means the field label hasn't been overridden, so we
+      // don't need to do anything to it
+      if (element.label) {
         // Do we need to hide the label?
-        if (element.config.label === '__blank__') {
+        if (element.label === '__blank__') {
           $requiredAppendee.remove()
 
           if (isRequired) {
             $requiredAppendee = $element.find('.fld-attribute')
           }
         } else {
-          $requiredAppendee.children('h4').text(element.config.label)
+          $requiredAppendee.children('h4').text(element.label)
         }
       }
 
@@ -153,21 +156,21 @@ export default Garnish.Base.extend({
         const type = $this.data('type')
         const style = $this.data('config').style
 
-        return type === element.type && (!style || style === element.config.style)
+        return type === element.type.replaceAll('\\', '-') && (!style || style === element.style)
       }).clone()
       let newLabel = null
 
       switch (element.type) {
         case 'craft\\fieldlayoutelements\\Tip':
-          newLabel = element.config.tip
+          newLabel = element.tip
           break
 
         case 'craft\\fieldlayoutelements\\Heading':
-          newLabel = element.config.heading
+          newLabel = element.heading
           break
 
         case 'craft\\fieldlayoutelements\\Template':
-          newLabel = element.config.template
+          newLabel = element.template
           break
       }
 
@@ -182,7 +185,6 @@ export default Garnish.Base.extend({
     $elementContainer.append($element)
     $element.data('config', element.config)
     $element.data('settings-html', element['settings-html'])
-    // this._fld.initElement($element)
     this._fld.elementDrag.addItems($element)
   },
 
