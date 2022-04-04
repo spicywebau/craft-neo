@@ -29,12 +29,12 @@ A `FilterBlockTypesEvent` is triggered for a Neo field when loading a Craft elem
 This example removes the ability to use a block type with the handle `quote`, and a block type group with the name `Structure`, from a `contentBlocks` Neo field when loading an entry from the `blog` section.
 
 ```php
-use benf\neo\assets\FieldAsset;
+use benf\neo\assets\InputAsset;
 use benf\neo\events\FilterBlockTypesEvent;
 use craft\elements\Entry;
 use yii\base\Event;
 
-Event::on(FieldAsset::class, FieldAsset::EVENT_FILTER_BLOCK_TYPES, function (FilterBlockTypesEvent $event) {
+Event::on(InputAsset::class, InputAsset::EVENT_FILTER_BLOCK_TYPES, function (FilterBlockTypesEvent $event) {
     $element = $event->element;
     $field = $event->field;
 
