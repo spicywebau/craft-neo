@@ -14,7 +14,6 @@ use craft\base\ElementInterface;
 use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
 use craft\models\FieldLayout;
-use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use yii\base\Event;
 
@@ -26,7 +25,7 @@ use yii\base\Event;
  * @author Benjamin Fleming
  * @since 3.0.0
  */
-class InputAsset extends AssetBundle
+class InputAsset extends FieldAsset
 {
     /**
      * Event that allows filtering what block types are available for a given field.
