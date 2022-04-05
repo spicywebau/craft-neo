@@ -69,6 +69,7 @@ $preview-reduction: 80px;
             position: relative;
             height: 30px;
             line-height: 30px;
+            background-color: #ebf2fa;
             color: #8f98a3;
             transition: background-color 0.5s;
             padding: 0 14px;
@@ -250,7 +251,7 @@ $preview-reduction: 80px;
                             border-bottom-width: 1px;
                             border-bottom-style: solid;
                             margin-bottom: -1px;
-                            background-color: #fbfcfd;
+                            background-color: #f3f7fc;
                             color: #576575;
 
                             &.is-blank {
@@ -326,8 +327,6 @@ $preview-reduction: 80px;
         }
 
         &_content {
-            border-top: 1px solid #e3e5e8;
-
             &:empty {
                 display: none;
             }
@@ -394,10 +393,17 @@ $preview-reduction: 80px;
         &.is-level-odd {
             background-color: #fbfcfd;
 
-            > .ni_block_topbar > .ni_block_topbar_right {
+            > .ni_block_topbar {
+                background-color: #ebf2fa80;
 
-                > .ni_block_topbar_item.tabs .tab.is-blank {
-                    border-bottom-color: white;
+                > .ni_block_topbar_right > .ni_block_topbar_item.tabs .tab {
+                    &.is-blank {
+                        border-bottom-color: white;
+                    }
+
+                    &.is-selected {
+                        background-color: #fbfcfd;
+                    }
                 }
             }
         }
