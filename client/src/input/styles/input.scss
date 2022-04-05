@@ -353,13 +353,17 @@ $preview-reduction: 80px;
                     margin: 15px 0 0 0;
                 }
 
-                &.flex-fields > .field {
-                    &::before {
-                        display: none;
-                    }
+                &.flex-fields {
+                    --row-gap: var(--m) !important;
 
-                    > .status-badge {
-                        left: -15px;
+                    > .field {
+                        &::before {
+                            display: none;
+                        }
+
+                        > .status-badge {
+                            left: -15px;
+                        }
                     }
                 }
             }
@@ -367,11 +371,11 @@ $preview-reduction: 80px;
 
         &_children {
             padding: 14px 0 7px;
-            border-top: 1px solid #e3e5e8;
             transition: background-color 0.5s;
 
             .ni_block_body > &:not(:first-child) {
                 margin-top: 14px;
+                border-top: 1px solid #e3e5e8;
             }
         }
 
