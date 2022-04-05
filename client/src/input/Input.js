@@ -139,7 +139,8 @@ export default Garnish.Base.extend({
         maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
         maxChildBlocks: blockType.getMaxChildBlocks(),
         childBlocks: blockType.getChildBlocks(),
-        topLevel: blockType.getTopLevel()
+        topLevel: blockType.getTopLevel(),
+        hasChildBlocksUiElement: blockType.hasChildBlocksUiElement()
       })
       bInfo.buttons = new Buttons({
         items: blockType.getChildBlockItems(this.getItems()),
@@ -730,8 +731,7 @@ export default Garnish.Base.extend({
             buttons: newButtons,
             enabled: !!renderedBlock.enabled,
             collapsed: !!renderedBlock.collapsed,
-            showButtons: !this.atMaxLevels(renderedBlock.level | 0),
-            renderOldChildBlocksContainer: !newBlockType.hasChildBlocksUiElement()
+            showButtons: !this.atMaxLevels(renderedBlock.level | 0)
           }, true)
 
           newBlocks.push(newBlock)
@@ -781,8 +781,7 @@ export default Garnish.Base.extend({
         items: e.blockType.getChildBlockItems(this.getItems()),
         maxBlocks: this.getMaxBlocks()
       }),
-      showButtons: !this.atMaxLevels(e.level),
-      renderOldChildBlocksContainer: !e.blockType.hasChildBlocksUiElement()
+      showButtons: !this.atMaxLevels(e.level)
     }, true)
 
     this.addBlock(block, e.index, e.level)

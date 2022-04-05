@@ -17,8 +17,7 @@ const _defaults = {
   enabled: true,
   collapsed: false,
   modified: true,
-  showButtons: true,
-  hasOldChildBlocksContainer: true
+  showButtons: true
 }
 
 const _resources = {}
@@ -80,7 +79,7 @@ export default Garnish.Base.extend({
     this._buttons = settings.buttons
     this._modified = settings.modified
     this._showButtons = settings.showButtons
-    this._hasOldChildBlocksContainer = settings.hasOldChildBlocksContainer
+    this._renderOldChildBlocksContainer = !settings.blockType.hasChildBlocksUiElement()
     this.$container = generateElement ? this._generateElement() : $(`[data-neo-b-id=${this._id}]`)
 
     const $neo = this.$container.find('[data-neo-b]')
@@ -264,7 +263,7 @@ export default Garnish.Base.extend({
           </div>`)
       }
 
-      if (isParent && this._hasOldChildBlocksContainer) {
+      if (isParent && this._renderOldChildBlocksContainer) {
         elementHtml.push(`
           <div class="ni_block_children" data-neo-b="${this._id}.container.children">
             <div class="ni_blocks" data-neo-b="${this._id}.container.blocks">

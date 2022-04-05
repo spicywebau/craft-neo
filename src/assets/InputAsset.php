@@ -197,6 +197,7 @@ class InputAsset extends FieldAsset
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'fieldTypes' => $fieldTypes,
                 'groupId' => $blockType->groupId,
+                'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
             ];
         }
 

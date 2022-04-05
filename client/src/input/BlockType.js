@@ -14,7 +14,8 @@ const _defaults = {
   maxChildBlocks: 0,
   childBlocks: false,
   topLevel: true,
-  tabs: []
+  tabs: [],
+  hasChildBlocksUiElement: false
 }
 
 export default Garnish.Base.extend({
@@ -34,6 +35,7 @@ export default Garnish.Base.extend({
     this._childBlocks = settings.childBlocks
     this._topLevel = settings.topLevel
     this._tabs = settings.tabs.map(tab => tab instanceof Tab ? tab : new Tab(tab))
+    this._hasChildBlocksUiElement = settings.hasChildBlocksUiElement
   },
 
   getType () { return 'blockType' },
@@ -81,6 +83,6 @@ export default Garnish.Base.extend({
   },
 
   hasChildBlocksUiElement () {
-    return this.getTabs().some(tab => tab.getBodyHtml().match(/data-neo-b="container.children"/))
+    return this._hasChildBlocksUiElement
   }
 })
