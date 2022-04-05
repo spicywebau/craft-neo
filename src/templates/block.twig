@@ -3,7 +3,6 @@
 {% set typeTabs = type.getFieldLayout().getTabs() %}
 {% set hasTabs = typeTabs is not empty %}
 {% set isParent = static and block.children.exists() or not static and type.childBlocks is not null and type.childBlocks is not empty %}
-{% set renderOldChildBlocksContainer = typeTabs|filter(tab => tab.elements|filter(el => className(el) == '\\benf\\neo\\fieldlayoutelements\\ChildBlocksUiElement') is not empty) is empty %}
 {% set collapsed = craft.app.plugins.getPlugin('neo').settings.collapseAllBlocks or block.collapsed %}
 {% set blockId = block.id %}
 {% set name = 'neoField' %}
@@ -138,14 +137,14 @@
                         {% for tab in typeTabs %}
                             <div class="ni_block_content_tab flex-fields {{ loop.first ? ' is-selected' : '' }}" data-neo-b="{{ blockId }}.container.tab" data-neo-b-info="{{ tab.name }}">
                                 {% for tabElement in tab.elements %}
-                                    {{ tabElement.formHtml(block)|raw }}
+                                    {{ tabElement.formHtml(block, static)|raw }}
                                 {% endfor %}
                             </div>
                         {% endfor %}
                     {% endnamespace %}
                 </div>
             {% endif %}
-            {% if isParent and renderOldChildBlocksContainer %}
+            {% if isParent and not type.hasChildBlocksUiElement() %}
                 <div class="ni_block_children" data-neo-b="{{ blockId }}.container.children">
                     <div class="ni_blocks" data-neo-b="{{ blockId }}.container.blocks">
                         {% for child in block.children.all() %}

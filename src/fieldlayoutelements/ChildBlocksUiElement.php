@@ -36,6 +36,9 @@ class ChildBlocksUiElement extends BaseUiElement
      */
     public function formHtml(ElementInterface $element = null, bool $static = false): ?string
     {
-        return Craft::$app->getView()->renderTemplate('neo/child-blocks', []);
+        return Craft::$app->getView()->renderTemplate('neo/child-blocks', [
+            'block' => $element,
+            'static' => $static,
+        ]);
     }
 }

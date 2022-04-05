@@ -3,6 +3,7 @@
 namespace benf\neo\models;
 
 use benf\neo\elements\Block;
+use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\GqlInlineFragmentInterface;
@@ -105,6 +106,11 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * @var BlockTypeGroup|null The block type group this block type belongs to, if any.
      */
     private $_group;
+
+    /**
+     * @var bool|null
+     */
+    private ?bool $_hasChildBlocksUiElement = null;
 
     /**
      * @inheritdoc
@@ -251,5 +257,28 @@ class BlockType extends Model implements GqlInlineFragmentInterface
         }
 
         return $config;
+    }
+
+    /**
+     * Returns whether this block type's field layout contains the child blocks UI element.
+     *
+     * @return bool
+     * @since 3.0.0
+     */
+    public function hasChildBlocksUiElement(): bool
+    {
+        if ($this->_hasChildBlocksUiElement !== null) {
+            return $this->_hasChildBlocksUiElement;
+        }
+
+        foreach ($this->getFieldLayout()->getTabs() as $tab) {
+            foreach ($tab->elements as $element) {
+                if ($element instanceof ChildBlocksUiElement) {
+                    return $this->_hasChildBlocksUiElement = true;
+                }
+            }
+        }
+
+        return $this->_hasChildBlocksUiElement = false;
     }
 }
