@@ -83,7 +83,7 @@ export default Garnish.Base.extend({
         </div>`)
         }
 
-        currentGroup = item.isBlank() || (i + 2) > this._items.length || this._items[i + 1].getType() === 'group' ? null : item
+        currentGroup = item.isBlank() || (i + 2) >= this._items.length || this._items[i + 2].getType() === 'group' ? null : item
 
         if (currentGroup !== null) {
           buttonsHtml.push(`
