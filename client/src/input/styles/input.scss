@@ -355,14 +355,8 @@ $preview-reduction: 80px;
                 &.flex-fields {
                     --row-gap: var(--m) !important;
 
-                    > .field {
-                        &::before {
-                            display: none;
-                        }
-
-                        > .status-badge {
-                            left: -15px;
-                        }
+                    > .field::before {
+                        display: none;
                     }
                 }
             }
