@@ -175,7 +175,7 @@ export default Garnish.Base.extend({
       for (let i = 0; i < typeTabs.length; i++) {
         const tabName = typeTabs[i].getName()
         elementHtml.push(`
-                <a class="tab${!i ? 'is-selected' : ''}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>`)
+                <a class="tab ${!i ? 'is-selected' : ''}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>`)
       }
 
       elementHtml.push(`
