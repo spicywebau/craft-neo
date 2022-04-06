@@ -503,8 +503,10 @@ class BlockTypes extends Component
                 }
             }
 
-            // Delete the block type's field layout
-            $fieldsService->deleteLayoutById($blockType->fieldLayoutId);
+            // Delete the block type's field layout if it exists
+            if ($blockType->fieldLayoutId !== null) {
+                $fieldsService->deleteLayoutById($blockType->fieldLayoutId);
+            }
 
             // Delete the block type
             $affectedRows = $dbService->createCommand()
