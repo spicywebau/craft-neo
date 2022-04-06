@@ -423,14 +423,15 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             return '<p class="light">' . Craft::t('app', 'No blocks.') . '</p>';
         }
 
-        $viewService = Craft::$app->getView();
-        $viewService->registerAssetBundle(InputAsset::class);
+        $view = Craft::$app->getView();
+        $view->registerAssetBundle(InputAsset::class);
+        $view->registerJs(InputAsset::createInputJs($this, $element));
 
         foreach ($value as $block) {
             $block->useMemoized($value);
         }
 
-        return $viewService->renderTemplate('neo/input', [
+        return $view->renderTemplate('neo/input', [
             'handle' => $this->handle,
             'blocks' => $value,
             'id' => Html::id($this->handle),
