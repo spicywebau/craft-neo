@@ -4,7 +4,7 @@
     <div class="ni_blocks" data-neo-b="{{ blockId }}.container.blocks">
         {% if block and block.id %}
             {% for child in block.children.all() %}
-                {% include 'neo/block' with { block: child, static } only %}
+                {% include 'neo/block' with { handle, block: child, static } only %}
             {% endfor %}
         {% endif %}
     </div>

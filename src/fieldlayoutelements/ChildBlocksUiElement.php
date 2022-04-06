@@ -38,6 +38,7 @@ class ChildBlocksUiElement extends BaseUiElement
     {
         return Craft::$app->getView()->renderTemplate('neo/child-blocks', [
             'block' => $element,
+            'handle' => Craft::$app->getFields()->getFieldById($element->fieldId)->handle,
             'static' => $static,
         ]);
     }
