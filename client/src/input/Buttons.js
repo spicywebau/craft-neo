@@ -180,7 +180,7 @@ export default Garnish.Base.extend({
 
     const that = this
 
-    const totalTopBlocks = blocks.filter(block => block.getLevel() === 0).length
+    const totalTopBlocks = blocks.filter(block => block.getLevel() === 1).length
     const maxBlocksMet = this._maxBlocks > 0 && blocks.length >= this._maxBlocks
     const maxTopBlocksMet = this._maxTopBlocks > 0 && totalTopBlocks >= this._maxTopBlocks
 
@@ -200,7 +200,7 @@ export default Garnish.Base.extend({
         const siblingBlocksOfType = block !== null
           ? block.getChildren(blocks).filter(blockHasSameType)
           // This is at the top level
-          : blocks.filter(b => b.getLevel() === 0 && b.getBlockType().getHandle() === blockType.getHandle())
+          : blocks.filter(b => b.getLevel() === 1 && b.getBlockType().getHandle() === blockType.getHandle())
 
         disabled = disabled ||
           (maxBlocksOfType > 0 && blocksOfType.length >= maxBlocksOfType) ||

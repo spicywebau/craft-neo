@@ -12,7 +12,7 @@ const _defaults = {
   namespace: [],
   blockType: null,
   id: null,
-  level: 0,
+  level: 1,
   buttons: null,
   enabled: true,
   collapsed: false,
@@ -468,7 +468,7 @@ export default Garnish.Base.extend({
     let index = blocks.indexOf(this)
     let blockParent = null
 
-    if (index >= 0 && level > 0) {
+    if (index >= 0 && level > 1) {
       while (blockParent === null && index > 0) {
         const currentBlock = blocks[--index]
         const currentLevel = currentBlock.getLevel()
@@ -505,8 +505,8 @@ export default Garnish.Base.extend({
   },
 
   getSiblings (blocks) {
-    if (this._level === 0) {
-      return blocks.filter(b => b.getLevel() === 0)
+    if (this._level === 1) {
+      return blocks.filter(b => b.getLevel() === 1)
     }
 
     return this.getParent(blocks).getChildren(blocks)
@@ -1026,7 +1026,7 @@ export default Garnish.Base.extend({
         }
 
         // Test to see if the top level paste blocks have a block type that is allowed to be pasted here
-        if (pasteBlock.level === 0) {
+        if (pasteBlock.level === 1) {
           const allowedBlockType = allowedBlockTypes.find(bt => bt.getId() === pasteBlock.type)
 
           pasteDisabled = pasteDisabled || !allowedBlockType

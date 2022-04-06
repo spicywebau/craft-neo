@@ -42,7 +42,7 @@
 <div {{ attr(blockAttributes) }}>
     {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': blockId ~ '.input.type'}) }}
     {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '0', {'data-neo-b': blockId ~ '.input.enabled'}) }}
-    {{ hiddenInput("#{baseInputName}[level]", block.level - 1, {'data-neo-b': blockId ~ '.input.level'}) }}
+    {{ hiddenInput("#{baseInputName}[level]", block.level, {'data-neo-b': blockId ~ '.input.level'}) }}
     {{ hiddenInput("#{name}[sortOrder][]", blockId, {'data-neo-b': blockId ~ '.input.sortOrder'}) }}
     {% do view.registerDeltaName(baseInputName) %}
 

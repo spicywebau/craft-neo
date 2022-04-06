@@ -80,7 +80,7 @@ const BlockSort = Garnish.Drag.extend({
       const isRoot = $block.parent().is(that.$container)
 
       if (isRoot) {
-        block.setLevel(0)
+        block.setLevel(1)
       } else {
         const parentBlock = that.getParentBlock(block)
 

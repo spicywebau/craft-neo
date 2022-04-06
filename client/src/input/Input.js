@@ -194,7 +194,7 @@ export default Garnish.Base.extend({
     }
   },
 
-  addBlock (block, index = -1, level = 0, animate = null) {
+  addBlock (block, index = -1, level = 1, animate = null) {
     const blockCount = this._blocks.length
     index = (index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount)
     animate = (typeof animate === 'boolean' ? animate : true)
@@ -205,7 +205,7 @@ export default Garnish.Base.extend({
     if (!prevBlock) {
       this.$blocksContainer.prepend(block.$container)
     } else {
-      const minLevel = nextBlock ? nextBlock.getLevel() : 0
+      const minLevel = nextBlock ? nextBlock.getLevel() : 1
       const maxLevel = prevBlock.getLevel() + (prevBlock.getBlockType().isParent() ? 1 : 0)
 
       level = Math.max(minLevel, Math.min(level, maxLevel))
@@ -439,7 +439,7 @@ export default Garnish.Base.extend({
   },
 
   atMaxLevels (level) {
-    return this._maxLevels > 0 && level + 1 >= this._maxLevels
+    return this._maxLevels > 0 && level + 1 > this._maxLevels
   },
 
   getSelectedBlocks () {
@@ -550,7 +550,7 @@ export default Garnish.Base.extend({
         this.getMaxBlocks(),
         this._checkMaxChildren(parentBlock),
         allowedBlockTypes,
-        blockLevel === 0 ? this.getMaxTopBlocks() : 0
+        blockLevel === 1 ? this.getMaxTopBlocks() : 0
       )
 
       if (buttons) {
@@ -644,7 +644,7 @@ export default Garnish.Base.extend({
     if (block) {
       const level = block.getLevel()
 
-      if (level > 0) {
+      if (level > 1) {
         let i = index
         let currentBlock = block
 

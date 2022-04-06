@@ -390,7 +390,7 @@ $preview-reduction: 80px;
             }
         }
 
-        &.is-level-odd {
+        &.is-level-even {
             background-color: #fbfcfd;
 
             > .ni_block_topbar {
@@ -500,7 +500,7 @@ $preview-reduction: 80px;
         &.is-empty {
             padding: 6px 0; // Add some vertical size to blocks without fields or children so they stand out more
 
-            &.is-level-odd {
+            &.is-level-even {
                 background-color: white;
             }
         }
