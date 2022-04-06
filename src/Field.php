@@ -417,11 +417,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function getStaticHtml(mixed $value, ElementInterface $element): string
     {
-        // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
-        if ($this->_getNamespaceDepth() > 1) {
-            return $this->_getNestingErrorHtml();
-        }
-
         $value = $value->all();
 
         if (empty($value)) {
