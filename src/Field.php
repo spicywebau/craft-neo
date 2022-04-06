@@ -560,23 +560,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function getElementValidationRules(): array
     {
         return [
-            'validateBlocks',
             [
-                ArrayValidator::class,
-                'min' => $this->minBlocks ?: null,
-                'max' => $this->maxBlocks ?: null,
-                'tooFew' => Craft::t('neo',
-                    '{attribute} should contain at least {min, number} {min, plural, one{block} other{blocks}}.'),
-                'tooMany' => Craft::t('neo',
-                    '{attribute} should contain at most {max, number} {max, plural, one{block} other{blocks}}.'),
-                'skipOnEmpty' => false,
-                'on' => Element::SCENARIO_LIVE,
-            ],
-            [
-                FieldValidator::class,
-                'maxTopBlocks' => $this->maxTopBlocks ?: null,
-                'maxLevels' => $this->maxLevels ?: null,
-                'on' => Element::SCENARIO_LIVE,
+                'validateBlocks',
+                'on' => [Element::SCENARIO_ESSENTIALS, Element::SCENARIO_DEFAULT, Element::SCENARIO_LIVE],
             ],
         ];
     }
@@ -598,24 +584,55 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         $value = $element->getFieldValue($this->handle);
         $blocks = $value->anyStatus()->all();
+        $scenario = $element->getScenario();
         $allBlocksValidate = true;
 
         foreach ($blocks as $key => $block) {
-            if ($element->getScenario() === Element::SCENARIO_LIVE && $block->enabled) {
-                $block->setScenario(Element::SCENARIO_LIVE);
+            if (
+                $scenario === Element::SCENARIO_ESSENTIALS ||
+                ($block->enabled && $scenario === Element::SCENARIO_LIVE)
+            ) {
+                $block->setScenario($scenario);
             }
 
             if (!$block->validate()) {
                 $element->addModelErrors($block, "{$this->handle}[{$key}]");
-
-                if ($allBlocksValidate) {
-                    $allBlocksValidate = false;
-                }
+                $allBlocksValidate = false;
             }
         }
 
         if (!$allBlocksValidate) {
             $value->setCachedResult($blocks);
+        }
+
+        if ($scenario === Element::SCENARIO_LIVE) {
+            if ($this->minBlocks || $this->maxBlocks) {
+                $arrayValidator = new ArrayValidator([
+                    'min' => $this->minBlocks ?: null,
+                    'max' => $this->maxBlocks ?: null,
+                    'tooFew' => Craft::t('neo', '{attribute} should contain at least {min, number} {min, plural, one{block} other{blocks}}.', [
+                        'attribute' => Craft::t('site', $this->name),
+                        'min' => $this->minBlocks,
+                    ]),
+                    'tooMany' => Craft::t('neo', '{attribute} should contain at most {max, number} {max, plural, one{block} other{blocks}}.', [
+                        'attribute' => Craft::t('site', $this->name),
+                        'max' => $this->maxBlocks,
+                    ]),
+                    'skipOnEmpty' => false,
+                ]);
+
+                if (!$arrayValidator->validate($blocks, $error)) {
+                    $element->addError($this->handle, $error);
+                }
+            }
+
+            if ($this->maxTopBlocks || $this->maxLevels) {
+                $fieldValidator = new FieldValidator([
+                    'maxTopBlocks' => $this->maxTopBlocks ?: null,
+                    'maxLevels' => $this->maxLevels ?: null,
+                ]);
+                $fieldValidator->validateAttribute($element, $this->handle);
+            }
         }
     }
 

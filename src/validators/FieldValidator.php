@@ -54,7 +54,7 @@ class FieldValidator extends Validator
     {
         $this->_setDefaultErrorMessages();
 
-        $field = $model->getFieldLayout()->getFieldByHandle(substr($attribute, 6));
+        $field = $model->getFieldLayout()->getFieldByHandle($attribute);
         $value = $model->$attribute;
         $this->_blocks = $value->all();
 
