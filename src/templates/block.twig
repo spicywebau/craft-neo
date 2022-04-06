@@ -132,15 +132,19 @@
         <div class="ni_block_body"{{ collapsed ? ' style="opacity: 0; height: 0;"' }} data-neo-b="{{ blockId }}.container.body">
             {% if hasTabs %}
                 <div class="ni_block_content" data-neo-b="{{ blockId }}.container.content">
-                    {% namespace baseInputName %}
-                        {% for tab in typeTabs %}
-                            <div class="ni_block_content_tab flex-fields {{ loop.first ? ' is-selected' : '' }}" data-neo-b="{{ blockId }}.container.tab" data-neo-b-info="{{ tab.name }}">
-                                {% for tabElement in tab.elements %}
+                    {% for tab in typeTabs %}
+                        <div class="ni_block_content_tab flex-fields {{ loop.first ? ' is-selected' : '' }}" data-neo-b="{{ blockId }}.container.tab" data-neo-b-info="{{ tab.name }}">
+                            {% for tabElement in tab.elements %}
+                                {% if className(tabElement) == 'benf\\neo\\fieldlayoutelements\\ChildBlocksUiElement' %}
                                     {{ tabElement.formHtml(block, static)|raw }}
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
-                    {% endnamespace %}
+                                {% else %}
+                                    {% namespace baseInputName %}
+                                        {{ tabElement.formHtml(block, static)|raw }}
+                                    {% endnamespace %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
                 </div>
             {% endif %}
             {% if isParent and not type.hasChildBlocksUiElement() %}
