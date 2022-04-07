@@ -99,21 +99,12 @@ class SettingsAsset extends AssetBundle
      */
     public static function createSettingsJs(Field $field): string
     {
-        $viewService = Craft::$app->getView();
-
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
-
-        // Render the field layout designer HTML, but disregard any Javascript it outputs, as that'll be handled by Neo.
-        $viewService->startJsBuffer();
-        $fieldLayoutHtml = $viewService->renderTemplate('_includes/fieldlayoutdesigner', [
-            'fieldLayout' => new FieldLayout(['type' => Block::class]),
-            'customizableUi' => true,
-        ]);
-        $viewService->clearJsBuffer();
+        $fieldLayoutHtml = self::_renderFieldLayoutHtml();
 
         $jsSettings = [
-            'namespace' => $viewService->getNamespace(),
+            'namespace' => Craft::$app->getView()->getNamespace(),
             'blockTypes' => self::_getBlockTypesJsSettings($blockTypes),
             'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
             'fieldLayoutHtml' => $fieldLayoutHtml,
@@ -125,26 +116,22 @@ class SettingsAsset extends AssetBundle
     }
 
     /**
-     * Returns the raw data from the given block types.
+     * Returns the raw data from the given block types, in the format used by the settings generator JavaScript.
      *
-     * This converts block types into the format used by the input generator JavaScript.
-     *
-     * @param array $blockTypes The Neo block types.
-     * @param bool $static Whether to generate static HTML for the block types, e.g. for displaying entry revisions.
-     * @param int|null $siteId
-     * @param ElementInterface|int|null $owner
+     * @param array $blockTypes
      * @return array
      */
-    private static function _getBlockTypesJsSettings(
-        array $blockTypes,
-        bool $static = false,
-        int $siteId = null,
-        $owner = null,
-    ): array {
+    private static function _getBlockTypesJsSettings(array $blockTypes): array {
+        $view = Craft::$app->getView();
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
             $fieldLayout = $blockType->getFieldLayout();
+            $oldNamespace = $view->getNamespace();
+            $view->setNamespace('neoBlockType' . $blockType['id']);
+            $fieldLayoutHtml = self::_renderFieldLayoutHtml($fieldLayout);
+            $view->setNamespace($oldNamespace);
+
             $fieldTypes = [];
 
             $jsBlockType = [
@@ -159,6 +146,7 @@ class SettingsAsset extends AssetBundle
                 'topLevel' => (bool)$blockType->topLevel,
                 'errors' => $blockType->getErrors(),
                 'fieldLayout' => $fieldLayout->getConfig(),
+                'fieldLayoutHtml' => $fieldLayoutHtml,
                 'fieldLayoutId' => $fieldLayout->id,
                 'fieldTypes' => $fieldTypes,
                 'groupId' => $blockType->groupId,
@@ -195,5 +183,24 @@ class SettingsAsset extends AssetBundle
         }
 
         return $jsBlockTypeGroups;
+    }
+
+    /**
+     * @param FieldLayout|null $fieldLayout
+     * @return string
+     */
+    private static function _renderFieldLayoutHtml(?FieldLayout $fieldLayout = null): string
+    {
+        $view = Craft::$app->getView();
+
+        // Render the field layout designer HTML, but disregard any JavaScript it outputs, as that'll be handled by Neo
+        $view->startJsBuffer();
+        $html = Craft::$app->getView()->renderTemplate('_includes/fieldlayoutdesigner', [
+            'fieldLayout' => $fieldLayout ?? new FieldLayout(['type' => Block::class]),
+            'customizableUi' => true,
+        ]);
+        $view->clearJsBuffer();
+
+        return $html;
     }
 }

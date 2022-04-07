@@ -79,7 +79,7 @@ export default Garnish.Base.extend({
 
       const btFieldLayout = new BlockTypeFieldLayout({
         namespace: [...btNamespace, btInfo.id],
-        html: this._fieldLayoutHtml,
+        html: btInfo.fieldLayoutHtml,
         layout: btInfo.fieldLayout,
         id: btInfo.fieldLayoutId,
         blockTypeId: btInfo.id

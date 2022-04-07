@@ -35,7 +35,6 @@ export default Garnish.Base.extend({
 
     if (nameInput.length > 0) {
       nameInput[0].name = `neoBlockType${this._blockTypeId}[fieldLayout]`
-      nameInput[0].value = JSON.stringify(settings.layout ? settings.layout : { tabs: [] })
     }
 
     NS.enter(this._templateNs)
@@ -60,15 +59,7 @@ export default Garnish.Base.extend({
       }
     })
 
-    if (settings.layout) {
-      for (const tab of settings.layout.tabs) {
-        const $tab = this.addTab(tab.name)
-
-        for (const element of tab.elements) {
-          this.addElementToTab($tab, element)
-        }
-      }
-    }
+    // this._tabObserver.observe($tab.children('.fld-tabcontent')[0], { childList: true, subtree: true })
   },
 
   getId () {
@@ -82,110 +73,6 @@ export default Garnish.Base.extend({
   getBlockName () { return this._blockName },
   setBlockName (name) {
     this._blockName = name
-  },
-
-  /**
-   * @see Craft.FieldLayoutDesigner.addTab
-   */
-  addTab (name = 'Tab' + (this._fld.tabGrid.$items.length + 1)) {
-    const fld = this._fld
-    const $tab = $(`
-      <div class="fld-tab">
-        <div class="tabs">
-          <div class="tab sel draggable">
-            <span>${name}</span>
-            <a class="settings icon" title="${Craft.t('neo', 'Rename')}"></a>
-          </div>
-        </div>
-        <div class="fld-tabcontent"></div>
-      </div>
-    `).appendTo(fld.$tabContainer)
-
-    fld.tabGrid.addItems($tab)
-    fld.tabDrag.addItems($tab)
-
-    this.$container.appendTo(document.body)
-
-    fld.initTab($tab)
-    this._tabObserver.observe($tab.children('.fld-tabcontent')[0], { childList: true, subtree: true })
-
-    return $tab
-  },
-
-  /**
-   * @see Craft.FieldLayoutDesigner.ElementDrag.onDragStop
-   */
-  addElementToTab ($tab, element) {
-    const $elementContainer = $tab.find('.fld-tabcontent')
-    let $element = null
-
-    if (element.type === 'craft\\fieldlayoutelements\\CustomField') {
-      const $unusedField = this._fld.$fields.filter(`[data-config*=${element.fieldUid}]`)
-
-      // If a field's not required, `element.required` should either be `false` or an empty string,
-      // but it seems there was a bug in earlier Craft 3.5 that caused it to be saved as the string
-      // `'0'`
-      const isRequired = element.required && element.required !== '0'
-      $element = $unusedField.clone().toggleClass('fld-required', isRequired)
-      const $required = $(`<span class="fld-required-indicator" title="${Craft.t('app', 'This field is required')}"></span>`)
-      let $requiredAppendee = $element.find('.fld-element-label')
-
-      // If `element.label` isn't set, this just means the field label hasn't been overridden, so we
-      // don't need to do anything to it
-      if (element.label) {
-        // Do we need to hide the label?
-        if (element.label === '__blank__') {
-          $requiredAppendee.remove()
-
-          if (isRequired) {
-            $requiredAppendee = $element.find('.fld-attribute')
-          }
-        } else {
-          $requiredAppendee.children('h4').text(element.label)
-        }
-      }
-
-      if (isRequired) {
-        $requiredAppendee.append($required)
-      }
-
-      $unusedField.addClass('hidden')
-    } else {
-      $element = this._fld.$uiLibraryElements.filter(function () {
-        const $this = $(this)
-        const type = $this.data('type')
-        const style = $this.data('config').style
-
-        return type === element.type.replaceAll('\\', '-') && (!style || style === element.style)
-      }).clone()
-      let newLabel = null
-
-      switch (element.type) {
-        case 'craft\\fieldlayoutelements\\Tip':
-          newLabel = element.tip
-          break
-
-        case 'craft\\fieldlayoutelements\\Heading':
-          newLabel = element.heading
-          break
-
-        case 'craft\\fieldlayoutelements\\Template':
-          newLabel = element.template
-          break
-      }
-
-      if (newLabel) {
-        const $label = $element.find('.fld-element-label')
-        $label.text(newLabel)
-        $label.toggleClass('code', element.type === 'craft\\fieldlayoutelements\\Template')
-      }
-    }
-
-    $element.removeClass('unused')
-    $elementContainer.append($element)
-    $element.data('config', element.config)
-    $element.data('settings-html', element['settings-html'])
-    this._fld.elementDrag.addItems($element)
   },
 
   getLayoutStructure () {
