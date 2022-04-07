@@ -8,7 +8,7 @@ import NS from '../namespace'
 const _defaults = {
   namespace: [],
   html: '',
-  layout: [],
+  layout: null,
   id: -1,
   blockId: null,
   blockName: ''
@@ -35,6 +35,10 @@ export default Garnish.Base.extend({
 
     if (nameInput.length > 0) {
       nameInput[0].name = `neoBlockType${this._blockTypeId}[fieldLayout]`
+
+      if (settings.layout) {
+        nameInput[0].value = JSON.stringify(settings.layout)
+      }
     }
 
     NS.enter(this._templateNs)
@@ -75,37 +79,28 @@ export default Garnish.Base.extend({
     this._blockName = name
   },
 
-  getLayoutStructure () {
-    const tabs = []
-    const elementProperties = ['config', 'id', 'type']
+  getConfig () {
+    const newConfig = { tabs: [] }
 
-    this._fld.$tabContainer.children('.fld-tab').each(function () {
-      const $tab = $(this)
-      const tabName = $tab.find('.tab span').text()
-      const tabElements = []
+    for (const tab of this._fld.config.tabs) {
+      const newElements = []
 
-      $tab.find('.fld-element').each(function () {
-        const $element = $(this)
-        const elementData = {}
+      for (const element of tab.elements) {
+        const newElement = {}
 
-        elementProperties
-          .filter(prop => typeof $element.data(prop) !== 'undefined')
-          .forEach(prop => { elementData[prop] = $element.data(prop) })
-
-        // Do settings-html separately so we can replace the IDs
-        if ($element.data('settings-html')) {
-          elementData['settings-html'] = $element.data('settings-html').replace(
-            /(id|for)="element-([0-9a-z]+)-([a-z-]+)/g,
-            `$1="element-$2-${Date.now()}-$3`
-          )
+        for (const key in element) {
+          newElement[key] = element[key]
         }
 
-        tabElements.push(elementData)
+        newElements.push(newElement)
+      }
+
+      newConfig.tabs.push({
+        elements: newElements,
+        name: tab.name.slice()
       })
+    }
 
-      tabs.push({ name: tabName, elements: tabElements })
-    })
-
-    return tabs
+    return newConfig
   }
 })

@@ -2,8 +2,8 @@
 
 namespace benf\neo;
 
+use benf\neo\controllers\Configurator as ConfiguratorController;
 use benf\neo\controllers\Conversion as ConversionController;
-
 use benf\neo\controllers\Input as InputController;
 use benf\neo\elements\Block;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
@@ -56,6 +56,7 @@ class Plugin extends BasePlugin
      * @inheritdoc
      */
     public $controllerMap = [
+        'configurator' => ConfiguratorController::class,
         'conversion' => ConversionController::class,
         'input' => InputController::class,
     ];

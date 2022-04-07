@@ -80,7 +80,6 @@ export default Garnish.Base.extend({
       const btFieldLayout = new BlockTypeFieldLayout({
         namespace: [...btNamespace, btInfo.id],
         html: btInfo.fieldLayoutHtml,
-        layout: btInfo.fieldLayout,
         id: btInfo.fieldLayoutId,
         blockTypeId: btInfo.id
       })
@@ -314,42 +313,53 @@ export default Garnish.Base.extend({
   _createBlockTypeFrom (oldBlockType) {
     const namespace = [...this._templateNs, 'blockTypes']
     const id = BlockTypeSettings.getNewId()
-    const blockTypeSettings = oldBlockType ? oldBlockType.getSettings() : null
-    const settings = blockTypeSettings
-      ? new BlockTypeSettings({
-          childBlocks: blockTypeSettings.getChildBlocks(),
-          childBlockTypes: this.getBlockTypes(),
-          // Set a timestamp on the handle so it doesn't clash with the old one
-          handle: `${blockTypeSettings.getHandle()}_${Date.now()}`,
-          id: id,
-          maxBlocks: blockTypeSettings.getMaxBlocks(),
-          maxChildBlocks: blockTypeSettings.getMaxChildBlocks(),
-          maxSiblingBlocks: blockTypeSettings.getMaxSiblingBlocks(),
-          name: blockTypeSettings.getName(),
-          namespace: [...namespace, id],
-          sortOrder: this._items.length,
-          topLevel: blockTypeSettings.getTopLevel()
-        })
-      : new BlockTypeSettings({
+
+    if (oldBlockType === null) {
+      const settings = new BlockTypeSettings({
         childBlockTypes: this.getBlockTypes(),
         id: id,
         namespace: [...namespace, id],
         sortOrder: this._items.length
       })
+      const fieldLayout = new BlockTypeFieldLayout({
+        blockTypeId: id,
+        html: this._fieldLayoutHtml,
+        namespace: [...namespace, id]
+      })
 
-    const fieldLayout = new BlockTypeFieldLayout({
-      blockTypeId: id,
-      html: this._fieldLayoutHtml,
-      layout: oldBlockType ? oldBlockType.getFieldLayout().getLayoutStructure() : null,
-      namespace: [...namespace, id]
-    })
+      this._initBlockType(namespace, settings, fieldLayout)
+    } else {
+      const oldSettings = oldBlockType.getSettings()
+      const settings = new BlockTypeSettings({
+        childBlocks: oldSettings.getChildBlocks(),
+        childBlockTypes: this.getBlockTypes(),
+        // Set a timestamp on the handle so it doesn't clash with the old one
+        handle: `${oldSettings.getHandle()}_${Date.now()}`,
+        id: id,
+        maxBlocks: oldSettings.getMaxBlocks(),
+        maxChildBlocks: oldSettings.getMaxChildBlocks(),
+        maxSiblingBlocks: oldSettings.getMaxSiblingBlocks(),
+        name: oldSettings.getName(),
+        namespace: [...namespace, id],
+        sortOrder: this._items.length,
+        topLevel: oldSettings.getTopLevel()
+      })
+      const config = oldBlockType.getFieldLayout().getConfig()
 
-    const blockType = new BlockType({
-      namespace: namespace,
-      settings: settings,
-      fieldLayout: fieldLayout
-    })
+      Craft.postActionRequest('neo/configurator/render-field-layout', { layout: config }, e => {
+        const fieldLayout = new BlockTypeFieldLayout({
+          blockTypeId: id,
+          html: e.success ? e.html : this._fieldLayoutHtml,
+          namespace: [...namespace, id]
+        })
 
+        this._initBlockType(namespace, settings, fieldLayout)
+      })
+    }
+  },
+
+  _initBlockType (namespace, settings, fieldLayout) {
+    const blockType = new BlockType({ namespace, settings, fieldLayout })
     const selected = this.getSelectedItem()
     const index = selected ? selected.getSettings().getSortOrder() : -1
 
@@ -366,7 +376,7 @@ export default Garnish.Base.extend({
     const data = {
       childBlocks: settings.getChildBlocks(),
       handle: settings.getHandle(),
-      layout: blockType.getFieldLayout().getLayoutStructure(),
+      layout: blockType.getFieldLayout().getConfig(),
       maxBlocks: settings.getMaxBlocks(),
       maxChildBlocks: settings.getMaxChildBlocks(),
       maxSiblingBlocks: settings.getMaxSiblingBlocks(),
