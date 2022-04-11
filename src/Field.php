@@ -509,7 +509,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         if ($value === ':notempty:' || $value === ':empty:') {
             $ns = $this->handle . '_' . StringHelper::randomString(5);
-            $query->subQuery->andWhere(
+            $query->subQuery->andWhere([
                 $value === ':empty:' ? 'not exists' : 'exists',
                 (new Query())
                     ->from(["neoblocks_$ns" => '{{%neoblocks}}'])
@@ -524,7 +524,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                         "elements_$ns.enabled" => true,
                         "elements_$ns.dateDeleted" => null,
                     ]),
-            );
+            ]);
         }
     }
 
