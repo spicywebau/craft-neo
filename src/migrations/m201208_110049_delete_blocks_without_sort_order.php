@@ -42,7 +42,7 @@ class m201208_110049_delete_blocks_without_sort_order extends Migration
                 ->id($neoBlockChunkIds)
                 ->siteId('*')
                 ->unique()
-                ->anyStatus()
+                ->status(null)
                 ->all();
 
             foreach ($neoBlocks as $neoBlock) {

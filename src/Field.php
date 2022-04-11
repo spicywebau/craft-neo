@@ -393,7 +393,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         if ($value instanceof BlockQuery) {
-            $value = $value->getCachedResult() ?? $value->limit(null)->anyStatus()->all();
+            $value = $value->getCachedResult() ?? $value->limit(null)->status(null)->all();
         }
 
         foreach ($value as $block) {
@@ -576,7 +576,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function validateBlocks(ElementInterface $element)
     {
         $value = $element->getFieldValue($this->handle);
-        $blocks = $value->anyStatus()->all();
+        $blocks = $value->status(null)->all();
         $scenario = $element->getScenario();
         $allBlocksValidate = true;
 
@@ -833,7 +833,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $key = $blockStructure->ownerSiteId ?? 0;
 
             $allBlocksQuery = Block::find()
-                ->anyStatus()
+                ->status(null)
                 ->fieldId($this->id)
                 ->primaryOwnerId($element->id);
 
@@ -860,7 +860,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // Delete all Neo blocks for this element and field
         foreach ($sitesService->getAllSiteIds() as $siteId) {
             $blocks = Block::find()
-                ->anyStatus()
+                ->status(null)
                 ->fieldId($this->id)
                 ->siteId($siteId)
                 ->primaryOwnerId($element->id)
@@ -895,7 +895,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // No need to do anything related to block structures here since they were recreated in `beforeElementDelete()`
         foreach ($supportedSites as $supportedSite) {
             $blocks = Block::find()
-                ->anyStatus()
+                ->status(null)
                 ->siteId($supportedSite['siteId'])
                 ->primaryOwnerId($element->id)
                 ->trashed()
@@ -1022,7 +1022,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->fieldId($this->id)
                 ->ownerId($element->id)
                 ->limit(null)
-                ->anyStatus()
+                ->status(null)
                 ->siteId($element->siteId)
                 ->orderBy(['sortOrder' => SORT_ASC])
                 ->indexBy('id')

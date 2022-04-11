@@ -90,7 +90,7 @@ class Conversion extends Component
                     ->ownerId(null)
                     ->siteId($siteId)
                     ->limit(null)
-                    ->anyStatus()
+                    ->status(null)
                     ->all();
 
                 foreach ($siteBlocks as $siteBlock) {

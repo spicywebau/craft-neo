@@ -34,7 +34,7 @@ class m201223_024137_delete_blocks_with_invalid_owner extends Migration
             ->siteId('*')
             ->unique()
             ->trashed(null)
-            ->anyStatus()
+            ->status(null)
             ->all();
 
         foreach ($neoBlocks as $neoBlock) {
