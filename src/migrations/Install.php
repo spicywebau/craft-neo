@@ -34,13 +34,11 @@ class Install extends Migration
             $this->createTable('{{%neoblocks}}', [
                 'id' => $this->integer()->notNull(),
                 'primaryOwnerId' => $this->integer()->notNull(),
-                'ownerSiteId' => $this->integer(),
                 'fieldId' => $this->integer()->notNull(),
                 'typeId' => $this->integer()->notNull(),
                 'deletedWithOwner' => $this->boolean()->null(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
-                'uid' => $this->uid(),
                 'PRIMARY KEY([[id]])',
             ]);
         }
@@ -103,7 +101,6 @@ class Install extends Migration
 
         if (!$hasBlocksTable) {
             $this->createIndex(null, '{{%neoblocks}}', ['primaryOwnerId'], false);
-            $this->createIndex(null, '{{%neoblocks}}', ['ownerSiteId'], false);
             $this->createIndex(null, '{{%neoblocks}}', ['fieldId'], false);
             $this->createIndex(null, '{{%neoblocks}}', ['typeId'], false);
         }
@@ -134,7 +131,6 @@ class Install extends Migration
             $this->addForeignKey(null, '{{%neoblocks}}', ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', null);
             $this->addForeignKey(null, '{{%neoblocks}}', ['id'], '{{%elements}}', ['id'], 'CASCADE', null);
             $this->addForeignKey(null, '{{%neoblocks}}', ['primaryOwnerId'], '{{%elements}}', ['id'], 'CASCADE', null);
-            $this->addForeignKey(null, '{{%neoblocks}}', ['ownerSiteId'], '{{%sites}}', ['id'], 'CASCADE', 'CASCADE');
             $this->addForeignKey(null, '{{%neoblocks}}', ['typeId'], '{{%neoblocktypes}}', ['id'], 'CASCADE', null);
         }
 
