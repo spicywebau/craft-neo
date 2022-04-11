@@ -29,7 +29,7 @@ class Block extends InputObjectType
 
         // For all the blocktypes
         foreach ($blockTypes as $blockType) {
-            $fields = $blockType->getFields();
+            $fields = $blockType->getCustomFields();
             $blockTypeFields = [
                 'id' => [
                     'name' => 'id',

@@ -977,7 +977,7 @@ SQL
             // 2. it has a field layout
             // 3. the field layout has any searchable sub-fields
             $this->_searchableBlockTypes[$typeId] = $field->searchable && $fieldLayout &&
-                !empty(array_filter($fieldLayout->getFields(), function($subField) {
+                !empty(array_filter($fieldLayout->getCustomFields(), function($subField) {
                     return $subField->searchable;
                 }));
         }

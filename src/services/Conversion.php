@@ -234,7 +234,7 @@ class Conversion extends Component
         $matrixBlockType->handle = $neoBlockType->handle;
 
         $neoFieldLayout = $neoBlockType->getFieldLayout();
-        $neoBlockTypeFields = $neoFieldLayout->getFields();
+        $neoBlockTypeFields = $neoFieldLayout->getCustomFields();
         $matrixBlockTypeFields = [];
 
         foreach ($neoBlockTypeFields as $neoBlockTypeField) {
