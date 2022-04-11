@@ -13,6 +13,7 @@ use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Db;
+use Illuminate\Support\Collection;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
@@ -444,14 +445,12 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getEagerLoadedElements(string $handle): ?\Illuminate\Support\Collection
+    public function getEagerLoadedElements(string $handle): ?Collection
     {
-        $typeHandlePrefix = $this->_getTypeHandlePrefix();
-        $typeElementHandle = $typeHandlePrefix . $handle;
-        $hasEagerLoadedBlockTypeElements = isset($this->_eagerLoadedBlockTypeElements[$typeElementHandle]);
+        $blockTypeHandle = $this->_getTypeHandlePrefix() . $handle;
 
-        if ($hasEagerLoadedBlockTypeElements) {
-            return $this->_eagerLoadedBlockTypeElements[$typeElementHandle];
+        if (isset($this->_eagerLoadedBlockTypeElements[$blockTypeHandle])) {
+            return new Collection($this->_eagerLoadedBlockTypeElements[$blockTypeHandle]);
         }
 
         return parent::getEagerLoadedElements($handle);
