@@ -126,7 +126,7 @@ class FieldsController extends Controller
                     'elementType' => Block::class,
                     'criteria' => [
                         'ownerId' => $blockStructure['ownerId'],
-                        'ownerSiteId' => $blockStructure['ownerSiteId'],
+                        'siteId' => $blockStructure['ownerSiteId'],
                         'fieldId' => $fieldId,
                         'structureId' => $blockStructure['structureId'],
                     ],
