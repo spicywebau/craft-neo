@@ -78,10 +78,10 @@ class Block extends Element
                 'type' => Type::int(),
                 'description' => 'The Neo block\'s level.',
             ],
-            'ownerId' => [
-                'name' => 'ownerId',
+            'primaryOwnerId' => [
+                'name' => 'primaryOwnerId',
                 'type' => Type::int(),
-                'description' => 'The ID of the element that owns the neo block.',
+                'description' => 'The ID of the primary owner of the Neo block.',
             ],
             'typeId' => [
                 'name' => 'typeId',

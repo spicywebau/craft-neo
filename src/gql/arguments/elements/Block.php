@@ -21,10 +21,10 @@ class Block extends ElementArguments
                 'type' => Type::listOf(Type::int()),
                 'description' => 'Narrows the query results based on the field the neo blocks belong to, per the fields’ IDs.',
             ],
-            'ownerId' => [
-                'name' => 'ownerId',
+            'primaryOwnerId' => [
+                'name' => 'primaryOwnerId',
                 'type' => Type::listOf(Type::string()),
-                'description' => ' Narrows the query results based on the owner element of the neo blocks, per the owners’ IDs.',
+                'description' => ' Narrows the query results based on the primary owner element of the neo blocks, per the owners’ IDs.',
             ],
             'typeId' => Type::listOf(Type::int()),
             'type' => [

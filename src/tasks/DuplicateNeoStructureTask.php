@@ -34,7 +34,6 @@ class DuplicateNeoStructureTask extends BaseJob
             $neoBlock = Neo::$plugin->blocks->getBlockById($b['id'], $siteId);
 
             if ($neoBlock) {
-                $neoBlock->sortOrder = (int)$b['sortOrder'];
                 $neoBlock->lft = (int)$b['lft'];
                 $neoBlock->rgt = (int)$b['rgt'];
                 $neoBlock->level = (int)$b['level'];

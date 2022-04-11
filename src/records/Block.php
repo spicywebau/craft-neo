@@ -35,13 +35,13 @@ class Block extends ActiveRecord
     }
 
     /**
-     * Returns the block's owner.
+     * Returns the block's primary owner.
      *
      * @return ActiveQueryInterface
      */
-    public function getOwner(): ActiveQueryInterface
+    public function getPrimaryOwner(): ActiveQueryInterface
     {
-        return $this->hasOne(Element::class, ['id' => 'ownerId']);
+        return $this->hasOne(Element::class, ['id' => 'primaryOwnerId']);
     }
 
     /**

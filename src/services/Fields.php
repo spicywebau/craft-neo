@@ -15,7 +15,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
-
+use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\services\Structures;
@@ -212,6 +212,7 @@ class Fields extends Component
     public function saveValue(Field $field, ElementInterface $owner)
     {
         $dbService = Craft::$app->getDb();
+        $draftsService = Craft::$app->getDrafts();
         $elementsService = Craft::$app->getElements();
         $neoSettings = Neo::$plugin->getSettings();
 
@@ -221,7 +222,7 @@ class Fields extends Component
         if (($blocks = $query->getCachedResult()) !== null) {
             $saveAll = false;
         } else {
-            $blocks = (clone $query)->anyStatus()->all();
+            $blocks = (clone $query)->status(null)->all();
             $saveAll = true;
         }
 
@@ -240,20 +241,32 @@ class Fields extends Component
                         $structureModified = true;
                     }
 
-                    $block->ownerId = (int)$owner->id;
+                    $block->primaryOwnerId = $block->ownerId = $owner->id;
                     $block->sortOrder = $sortOrder;
                     $elementsService->saveElement($block, false, true, $this->_hasSearchableBlockType($field, $block));
 
                     if (!$neoSettings->collapseAllBlocks) {
                         $block->cacheCollapsed();
                     }
+
+                    // If this is a draft, we can shed the draft data now
+                    if ($block->getIsDraft()) {
+                        $canonicalBlockId = $block->getCanonicalId();
+                        $draftsService->removeDraftData($block);
+                        Db::delete('{{%neoblocks_owners}}', [
+                            'blockId' => $canonicalBlockId,
+                            'ownerId' => $owner->id,
+                        ]);
+                    }
                 } elseif ((int)$block->sortOrder !== $sortOrder) {
                     // Just update its sortOrder
                     $block->sortOrder = $sortOrder;
-                    $dbService->createCommand()->update('{{%neoblocks}}',
-                        ['sortOrder' => $sortOrder],
-                        ['id' => $block->id], [], false)
-                        ->execute();
+                    Db::update('{{%neoblocks_owners}}', [
+                        'sortOrder' => $sortOrder,
+                    ], [
+                        'blockId' => $block->id,
+                        'ownerId' => $owner->id,
+                    ], [], false);
 
                     $structureModified = true;
                 }
@@ -337,6 +350,7 @@ class Fields extends Component
      * @param ElementInterface $source The source element blocks should be duplicated from
      * @param ElementInterface $target The target element blocks should be duplicated to
      * @param bool $checkOtherSites Whether to duplicate blocks for the source element's other supported sites
+     * @param bool $deleteOtherBlocks Whether to delete any blocks that belong to the element, which weren't included in the duplication
      * @throws
      */
     public function duplicateBlocks(
@@ -344,13 +358,10 @@ class Fields extends Component
         ElementInterface $source,
         ElementInterface $target,
         bool $checkOtherSites = false,
+        bool $deleteOtherBlocks = true
     ) {
-        /** @var Element $source */
-        /** @var Element $target */
         $elementsService = Craft::$app->getElements();
-        /** @var BlockQuery $query */
         $query = $source->getFieldValue($field->handle);
-        /** @var Block[] $blocks */
         if (($blocks = $query->getCachedResult()) === null) {
             $blocksQuery = clone $query;
             $blocks = $blocksQuery->anyStatus()->all();
@@ -370,17 +381,14 @@ class Fields extends Component
                 $newBlock = null;
                 $newAttributes = [
                     'canonicalId' => $target->getIsDerivative() ? $block->id : null,
-                    'ownerId' => $target->id,
+                    'primaryOwnerId' => $target->id,
                     'owner' => $target,
                     'siteId' => $target->siteId,
                     'structureId' => null,
                     'propagating' => false,
                 ];
 
-                if (
-                    $target->updatingFromDerivative &&
-                    $block->getCanonical() !== $block // in case the canonical block is soft-deleted
-                ) {
+                if ($target->updatingFromDerivative && $block->getIsDerivative()) {
                     if (
                         ElementHelper::isRevision($source) ||
                         !empty($target->newSiteIds) ||
@@ -394,6 +402,12 @@ class Fields extends Component
                             $newBlock->trashed = false;
                         }
                     }
+                } elseif ($block->primaryOwnerId === $target->id) {
+                    // Only the block ownership was duplicated, so just update its sort order for the target element
+                    Db::update('{{%neoblocks_owners}}', [
+                        'sortOrder' => $block->sortOrder,
+                    ], ['blockId' => $block->id, 'ownerId' => $target->id], updateTimestamp: false);
+                    $newBlock = $block;
                 } else {
                     $newBlock = $elementsService->duplicateElement($block, $newAttributes);
                 }
@@ -422,22 +436,11 @@ class Fields extends Component
                 $newBlocks[] = $newBlock;
             }
             // Delete any blocks that shouldn't be there anymore
-            $this->_deleteOtherBlocks($field, $target, $newBlockIds);
-
-            if ($this->_shouldCreateStructureWithJob($target)) {
-                Craft::$app->queue->push(new DuplicateNeoStructureTask([
-                    'field' => $field->id,
-                    'owner' => [
-                        'id' => $target->id,
-                        'siteId' => $target->siteId,
-                    ],
-                    'blocks' => $newBlocksTaskData,
-                    'siteId' => null,
-                    'supportedSites' => $this->getSupportedSiteIdsExCurrent($field, $target),
-                ]));
-            } else {
-                $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
+            if ($deleteOtherBlocks) {
+                $this->_deleteOtherBlocks($field, $target, $newBlockIds);
             }
+
+            $this->_saveNeoStructuresForSites($field, $target, $newBlocks);
 
             $transaction->commit();
         } catch (\Throwable $e) {
@@ -499,6 +502,120 @@ class Fields extends Component
     }
 
     /**
+     * Duplicates block ownership relations for a new draft element.
+     *
+     * @param Field $field The Neo field
+     * @param ElementInterface $canonical The canonical element
+     * @param ElementInterface $draft The draft element
+     * @since 3.0.0
+     * @see \craft\services\Matrix::duplicateOwnership()
+     */
+    public function duplicateOwnership(Field $field, ElementInterface $canonical, ElementInterface $draft): void
+    {
+        if (!$canonical->getIsCanonical()) {
+            throw new InvalidArgumentException('The source element must be canonical.');
+        }
+
+        if (!$draft->getIsDraft()) {
+            throw new InvalidArgumentException('The target element must be a draft.');
+        }
+
+        $blocksTable = '{{%neoblocks}}';
+        $ownersTable = '{{%neoblocks_owners}}';
+
+        Craft::$app->getDb()->createCommand(<<<SQL
+INSERT INTO $ownersTable ([[blockId]], [[ownerId]], [[sortOrder]]) 
+SELECT [[o.blockId]], '$draft->id', [[o.sortOrder]] 
+FROM $ownersTable AS [[o]]
+INNER JOIN $blocksTable AS [[b]] ON [[b.id]] = [[o.blockId]] AND [[b.primaryOwnerId]] = '$canonical->id' AND [[b.fieldId]] = '$field->id'
+WHERE [[o.ownerId]] = '$canonical->id'
+SQL
+        )->execute();
+    }
+
+    /**
+     * Creates revisions for all the blocks that belong to the given canonical element, and assigns those
+     * revisions to the given owner revision.
+     *
+     * @param Field $field The Neo field
+     * @param ElementInterface $canonical The canonical element
+     * @param ElementInterface $revision The revision element
+     * @since 3.0.0
+     * @see \craft\services\Matrix::createRevisionBlocks()
+     */
+    public function createRevisionBlocks(Field $field, ElementInterface $canonical, ElementInterface $revision): void
+    {
+        $structureId = (new Query())
+            ->select(['nbs.structureId'])
+            ->from(['nbs' => '{{%neoblockstructures}}'])
+            ->where([
+                'ownerId' => $canonical->id,
+                'fieldId' => $field->id,
+            ])
+            ->scalar();
+
+        $blocks = Block::find()
+            ->ownerId($canonical->id)
+            ->fieldId($field->id)
+            ->siteId('*')
+            ->structureId($structureId)
+            ->unique()
+            ->status(null)
+            ->all();
+
+        $revisionsService = Craft::$app->getRevisions();
+        $ownershipData = [];
+        $jobData = [];
+
+        foreach ($blocks as $block) {
+            $blockRevisionId = $revisionsService->createRevision($block, null, null, [
+                'primaryOwnerId' => $revision->id,
+                'saveOwnership' => false,
+            ]);
+            $ownershipData[] = [$blockRevisionId, $revision->id, $block->sortOrder];
+
+            // Get the actual blocks, for block structure creation
+            if ($blockRevisionId === $block->id) {
+                $jobData[] = [
+                    'id' => $block->id,
+                    'lft' => $block->lft,
+                    'rgt' => $block->rgt,
+                    'level' => $block->level,
+                ];
+            } else {
+                // Querying the database because `getElementById()` doesn't seem to return anything at this point
+                $jobData[] = (new Query())
+                    ->select([
+                        'id' => 'elements.id',
+                        'lft' => 'structureelements.lft',
+                        'rgt' => 'structureelements.rgt',
+                        'level' => 'structureelements.level',
+                    ])
+                    ->from(['elements' => '{{%elements}}'])
+                    ->innerJoin(
+                        ['structureelements' => '{{%structureelements}}'],
+                        '[[structureelements.elementId]] = [[elements.canonicalId]]',
+                    )
+                    ->where(['elements.id' => $blockRevisionId])
+                    ->one();
+            }
+        }
+
+        Db::batchInsert('{{%neoblocks_owners}}', ['blockId', 'ownerId', 'sortOrder'], $ownershipData);
+
+        Craft::$app->getQueue()->push(new DuplicateNeoStructureTask([
+            'field' => $field->id,
+            'owner' => [
+                'id' => $revision->id,
+                'siteId' => $revision->siteId,
+            ],
+            'blocks' => $jobData,
+            'siteId' => null,
+            'supportedSites' => $this->getSupportedSiteIdsExCurrent($field, $revision),
+        ]));
+    }
+
+    /**
      * Merges recent canonical Neo block changes into the given Neo field’s blocks.
      *
      * @param Field $field The Neo field
@@ -543,7 +660,7 @@ class Fields extends Component
 
             $canonicalBlocks = Block::find()
                 ->fieldId($field->id)
-                ->ownerId($canonicalOwner->id)
+                ->primaryOwnerId($canonicalOwner->id)
                 ->siteId($canonicalOwner->siteId)
                 ->status(null)
                 ->trashed(null)
@@ -554,7 +671,7 @@ class Fields extends Component
 
             $derivativeBlocks = Block::find()
                 ->fieldId($field->id)
-                ->ownerId($owner->id)
+                ->primaryOwnerId($owner->id)
                 ->siteId($canonicalOwner->siteId)
                 ->status(null)
                 ->trashed(null)
@@ -600,7 +717,7 @@ class Fields extends Component
                     $allBlocks[] = $newBlock = $elementsService->duplicateElement($canonicalBlock, [
                         'canonicalId' => $canonicalBlock->id,
                         'level' => $canonicalBlock->level,
-                        'ownerId' => $owner->id,
+                        'primaryOwnerId' => $owner->id,
                         'owner' => $localizedOwners[$canonicalBlock->siteId],
                         'propagating' => false,
                         'siteId' => $canonicalBlock->siteId,
@@ -725,15 +842,6 @@ class Fields extends Component
 
     // Private Methods
     // =========================================================================
-    private function _shouldCreateStructureWithJob($target): bool
-    {
-        // if target is not a draft or revision
-        $duplicate = $target->duplicateOf;
-
-        // return true if creating a revision
-        return $duplicate && $duplicate->draftId === null &&
-            $duplicate->revisionId === null && $target->revisionId;
-    }
 
     /**
      * Deletes blocks from an owner element
@@ -773,7 +881,7 @@ class Fields extends Component
         /** @var Element $owner */
         $deleteBlocks = Block::find()
             ->anyStatus()
-            ->ownerId($owner->id)
+            ->primaryOwnerId($owner->id)
             ->fieldId($field->id)
             ->siteId($siteId)
             ->inReverse()

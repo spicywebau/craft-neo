@@ -66,8 +66,8 @@ class Conversion extends Component
             $matrixField->handle = $neoField->handle;
             $matrixBlockTypes = $this->getNewBlockTypesData($neoBlockTypes);
             $matrixField->setBlockTypes($matrixBlockTypes);
-            $matrixField->minBlocks = $neoField->minBlocks;
-            $matrixField->maxBlocks = $neoField->maxBlocks;
+            $matrixField->minBlocks = (int)$neoField->minBlocks;
+            $matrixField->maxBlocks = (int)$neoField->maxBlocks;
             $matrixField->propagationMethod = $neoField->propagationMethod;
             $matrixField->uid = $neoField->uid;
 

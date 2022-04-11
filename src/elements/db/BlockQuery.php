@@ -34,6 +34,12 @@ class BlockQuery extends ElementQuery
     public $fieldId;
 
     /**
+     * @var int|int[]|null The primary owner ID(s) to query for.
+     * @since 3.0.0
+     */
+    public $primaryOwnerId;
+
+    /**
      * @var int|array|null The owner ID(s) to query for.
      */
     public $ownerId;
@@ -60,7 +66,7 @@ class BlockQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected array $defaultOrderBy = ['neoblocks.sortOrder' => SORT_ASC];
+    protected array $defaultOrderBy = ['neoblocks_owners.sortOrder' => SORT_ASC];
 
     // Private properties
 
@@ -86,6 +92,9 @@ class BlockQuery extends ElementQuery
         switch ($name) {
             case 'owner':
                 $this->owner($value);
+                break;
+            case 'primaryOwner':
+                $this->primaryOwner($value);
                 break;
             case 'type':
                 $this->type($value);
@@ -114,6 +123,33 @@ class BlockQuery extends ElementQuery
     {
         $this->fieldId = $value;
 
+        return $this;
+    }
+
+    /**
+     * Filters the query results based on the primary owner ID.
+     *
+     * @param int|int[]|null $value
+     * @return self
+     * @since 3.0.0
+     */
+    public function primaryOwnerId(mixed $value): self
+    {
+        $this->primaryOwnerId = $value;
+        return $this;
+    }
+
+    /**
+     * Filters the query results based on the primary owner.
+     *
+     * @param ElementInterface $value
+     * @return self
+     * @since 3.0.0
+     */
+    public function primaryOwner(ElementInterface $primaryOwner): self
+    {
+        $this->primaryOwnerId = [$primaryOwner->id];
+        $this->siteId = $primaryOwner->siteId;
         return $this;
     }
 
@@ -242,32 +278,6 @@ class BlockQuery extends ElementQuery
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getCriteria(): array
-    {
-        if ($this->_isLivePreviewOrEagerLoading()) {
-            $supportedProperties = array_map(
-                // Remove the three underscores...
-                function($method) {
-                    return substr($method, 3);
-                },
-                // ...from the method names that represent the criteria supported in live preview / eager loading mode
-                array_filter(
-                    get_class_methods(self::class),
-                    function($method) {
-                        return strpos($method, '___') === 0;
-                    }
-                )
-            );
-
-            return $this->toArray(array_values($supportedProperties), [], false);
-        }
-
-        return parent::getCriteria();
-    }
-
-    /**
      * Sets all the elements (blocks) to be filtered against in Live Preview mode.
      * This becomes the main data source for Live Preview, instead of the database.
      *
@@ -337,40 +347,45 @@ class BlockQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
+        $this->fieldId = $this->_normalizeProp('fieldId');
+
+        try {
+            $this->primaryOwnerId = $this->_normalizeProp('primaryOwnerId');
+        } catch (InvalidArgumentException) {
+            throw new InvalidConfigException('Invalid primaryOwnerId param value');
+        }
+
+        try {
+            $this->ownerId = $this->_normalizeProp('ownerId');
+        } catch (InvalidArgumentException) {
+            throw new InvalidConfigException('Invalid ownerId param value');
+        }
+
         $this->joinElementTable('neoblocks');
-        $isSaved = $this->id && is_numeric($this->id);
 
-        if ($isSaved) {
-            foreach (['fieldId', 'ownerId'] as $idProperty) {
-                if (!$this->$idProperty) {
-                    $this->$idProperty = (new Query())
-                        ->select([$idProperty])
-                        ->from(['{{%neoblocks}}'])
-                        ->where(['id' => $this->id])
-                        ->scalar();
-                }
-            }
-        }
+        $ownersCondition = [
+            'and',
+            '[[neoblocks_owners.blockId]] = [[elements.id]]',
+            $this->ownerId ? ['neoblocks_owners.ownerId' => $this->ownerId] : '[[neoblocks_owners.ownerId]] = [[neoblocks.primaryOwnerId]]',
+        ];
 
-        $this->_normalizeProp('fieldId');
-        $this->_normalizeProp('ownerId');
+        $this->query->innerJoin(['neoblocks_owners' => '{{%neoblocks_owners}}'], $ownersCondition);
+        $this->subQuery->innerJoin(['neoblocks_owners' => '{{%neoblocks_owners}}'], $ownersCondition);
 
-        $this->query->select([
+        $this->query->addSelect([
             'neoblocks.fieldId',
-            'neoblocks.ownerId',
+            'neoblocks.primaryOwnerId',
             'neoblocks.typeId',
+            'neoblocks_owners.ownerId',
+            'neoblocks_owners.sortOrder',
         ]);
-
-        if (Neo::$plugin->blockHasSortOrder) {
-            $this->query->addSelect(['neoblocks.sortOrder']);
-        }
 
         if ($this->fieldId) {
             $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $this->fieldId));
         }
 
-        if ($this->ownerId) {
-            $this->subQuery->andWhere(Db::parseParam('neoblocks.ownerId', $this->ownerId));
+        if ($this->primaryOwnerId) {
+            $this->subQuery->andWhere(['neoblocks.primaryOwnerId' => $this->primaryOwnerId]);
         }
 
         if ($this->typeId !== null) {
@@ -383,11 +398,14 @@ class BlockQuery extends ElementQuery
         }
 
         // Ignore revision/draft blocks by default
-        $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->ownerId || $this->_isDraftRequest());
-        $allowOwnerRevisions = $this->allowOwnerRevisions ?? ($this->id || $this->ownerId || $this->_isRevisionRequest());
+        $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->primaryOwnerId || $this->ownerId || $this->_isDraftRequest());
+        $allowOwnerRevisions = $this->allowOwnerRevisions ?? ($this->id || $this->primaryOwnerId || $this->ownerId || $this->_isRevisionRequest());
 
         if (!$allowOwnerDrafts || !$allowOwnerRevisions) {
-            $this->subQuery->innerJoin(['owners' => Table::ELEMENTS], '[[owners.id]] = [[neoblocks.ownerId]]');
+            $this->subQuery->innerJoin(
+                ['owners' => Table::ELEMENTS],
+                $this->ownerId ? '[[owners.id]] = [[neoblocks_owners.ownerId]]' : '[[owners.id]] = [[neoblocks.primaryOwnerId]]'
+            );
 
             if (!$allowOwnerDrafts) {
                 $this->subQuery->andWhere(['owners.draftId' => null]);
@@ -409,10 +427,10 @@ class BlockQuery extends ElementQuery
     {
         $tags = [];
 
-        if ($this->fieldId && $this->ownerId) {
+        if ($this->fieldId && $this->primaryOwnerId) {
             foreach ($this->fieldId as $fieldId) {
-                foreach ($this->ownerId as $ownerId) {
-                    $tags[] = "field-owner:$fieldId-$ownerId";
+                foreach ($this->primaryOwnerId as $primaryOwnerId) {
+                    $tags[] = "field-owner:$fieldId-$primaryOwnerId";
                 }
             }
         } else {
@@ -421,9 +439,9 @@ class BlockQuery extends ElementQuery
                     $tags[] = "field:$fieldId";
                 }
             }
-            if ($this->ownerId) {
-                foreach ($this->ownerId as $ownerId) {
-                    $tags[] = "owner:$ownerId";
+            if ($this->primaryOwnerId) {
+                foreach ($this->primaryOwnerId as $primaryOwnerId) {
+                    $tags[] = "owner:$primaryOwnerId";
                 }
             }
         }
@@ -504,11 +522,15 @@ class BlockQuery extends ElementQuery
             throw new InvalidArgumentException('Tried to access invalid Neo block query property ' . $prop);
         }
 
-        if (is_numeric($this->$prop)) {
-            $this->$prop = [$this->$prop];
-        } elseif (empty($this->$prop)) {
-            $this->$prop = null;
+        if (empty($this->$prop)) {
+            return null;
         }
+
+        if (is_numeric($this->$prop)) {
+            return [$this->$prop];
+        }
+
+        return $this->$prop;
     }
 
     /**
@@ -1012,7 +1034,7 @@ class BlockQuery extends ElementQuery
 
     /**
      * @param array $elements
-     * @param string $value
+     * @param string|string[] $value
      * @return array
      */
     private function ___status(array $elements, $value): array
@@ -1022,7 +1044,7 @@ class BlockQuery extends ElementQuery
         }
 
         $newElements = array_filter($elements, function($element) use ($value) {
-            return $element->status == $value;
+            return is_array($value) ? in_array($element->status, $value) : $element->status == $value;
         });
 
         return array_values($newElements);

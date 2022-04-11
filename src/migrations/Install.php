@@ -23,6 +23,7 @@ class Install extends Migration
     public function safeUp()
     {
         $hasBlocksTable = $this->db->tableExists('{{%neoblocks}}');
+        $hasBlocksOwnersTable = $this->db->tableExists('{{%neoblocks_owners}}');
         $hasBlockStructuresTable = $this->db->tableExists('{{%neoblockstructures}}');
         $hasBlockTypesTable = $this->db->tableExists('{{%neoblocktypes}}');
         $hasBlockTypeGroupsTable = $this->db->tableExists('{{%neoblocktypegroups}}');
@@ -32,16 +33,24 @@ class Install extends Migration
         if (!$hasBlocksTable) {
             $this->createTable('{{%neoblocks}}', [
                 'id' => $this->integer()->notNull(),
-                'ownerId' => $this->integer()->notNull(),
+                'primaryOwnerId' => $this->integer()->notNull(),
                 'ownerSiteId' => $this->integer(),
                 'fieldId' => $this->integer()->notNull(),
                 'typeId' => $this->integer()->notNull(),
-                'sortOrder' => $this->smallInteger()->unsigned(),
                 'deletedWithOwner' => $this->boolean()->null(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
                 'PRIMARY KEY([[id]])',
+            ]);
+        }
+
+        if (!$hasBlocksOwnersTable) {
+            $this->createTable('{{%neoblocks_owners}}', [
+                'blockId' => $this->integer()->notNull(),
+                'ownerId' => $this->integer()->notNull(),
+                'sortOrder' => $this->smallInteger()->unsigned()->notNull(),
+                'PRIMARY KEY([[blockId]], [[ownerId]])',
             ]);
         }
 
@@ -93,7 +102,7 @@ class Install extends Migration
         // Create indexes
 
         if (!$hasBlocksTable) {
-            $this->createIndex(null, '{{%neoblocks}}', ['ownerId'], false);
+            $this->createIndex(null, '{{%neoblocks}}', ['primaryOwnerId'], false);
             $this->createIndex(null, '{{%neoblocks}}', ['ownerSiteId'], false);
             $this->createIndex(null, '{{%neoblocks}}', ['fieldId'], false);
             $this->createIndex(null, '{{%neoblocks}}', ['typeId'], false);
@@ -124,9 +133,14 @@ class Install extends Migration
         if (!$hasBlocksTable) {
             $this->addForeignKey(null, '{{%neoblocks}}', ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', null);
             $this->addForeignKey(null, '{{%neoblocks}}', ['id'], '{{%elements}}', ['id'], 'CASCADE', null);
-            $this->addForeignKey(null, '{{%neoblocks}}', ['ownerId'], '{{%elements}}', ['id'], 'CASCADE', null);
+            $this->addForeignKey(null, '{{%neoblocks}}', ['primaryOwnerId'], '{{%elements}}', ['id'], 'CASCADE', null);
             $this->addForeignKey(null, '{{%neoblocks}}', ['ownerSiteId'], '{{%sites}}', ['id'], 'CASCADE', 'CASCADE');
             $this->addForeignKey(null, '{{%neoblocks}}', ['typeId'], '{{%neoblocktypes}}', ['id'], 'CASCADE', null);
+        }
+
+        if (!$hasBlocksOwnersTable) {
+            $this->addForeignKey(null, '{{%neoblocks_owners}}', ['blockId'], '{{%neoblocks}}', ['id'], 'CASCADE', null);
+            $this->addForeignKey(null, '{{%neoblocks_owners}}', ['ownerId'], '{{%elements}}', ['id'], 'CASCADE', null);
         }
 
         if (!$hasBlockStructuresTable) {
@@ -168,6 +182,7 @@ class Install extends Migration
             }
         }
 
+        $this->dropTableIfExists('{{%neoblocks_owners}}');
         $this->dropTableIfExists('{{%neoblocks}}');
         $this->dropTableIfExists('{{%neoblockstructures}}');
         $this->dropTableIfExists('{{%neoblocktypes}}');

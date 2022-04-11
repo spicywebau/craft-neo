@@ -139,6 +139,12 @@ class Block extends Element implements BlockElementInterface
     public $fieldId;
 
     /**
+     * @var int|null
+     * @since 3.0.0
+     */
+    public ?int $primaryOwnerId = null;
+
+    /**
      * @var int|null The owner ID.
      */
     public $ownerId;
@@ -152,6 +158,12 @@ class Block extends Element implements BlockElementInterface
      * @var bool
      */
     public $deletedWithOwner = false;
+
+    /**
+     * @var bool
+     * @since 3.0.0
+     */
+    public bool $saveOwnership = true;
 
     /**
      * @var ElementInterface|null The owner.
@@ -222,10 +234,10 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::rules();
-        $rules[] = [['fieldId', 'ownerId', 'typeId'], 'number', 'integerOnly' => true];
+        $rules = parent::defineRules();
+        $rules[] = [['fieldId', 'primaryOwnerId', 'typeId', 'sortOrder'], 'number', 'integerOnly' => true];
 
         return $rules;
     }
@@ -281,9 +293,9 @@ class Block extends Element implements BlockElementInterface
     public function getCacheTags(): array
     {
         return [
-            "field-owner:$this->fieldId-$this->ownerId",
+            "field-owner:$this->fieldId-$this->primaryOwnerId",
             "field:$this->fieldId",
-            "owner:$this->ownerId",
+            "owner:$this->primaryOwnerId",
         ];
     }
 
@@ -345,6 +357,7 @@ class Block extends Element implements BlockElementInterface
     public function setOwner(ElementInterface $owner = null)
     {
         $this->_owner = $owner;
+        $this->ownerId = $owner->id;
     }
 
     /**
@@ -469,6 +482,18 @@ class Block extends Element implements BlockElementInterface
 
     /**
      * @inheritdoc
+     */
+    public function beforeSave(bool $isNew): bool
+    {
+        if (!$this->primaryOwnerId && !$this->ownerId) {
+            throw new InvalidConfigException('No owner ID assigned to the Neo block.');
+        }
+
+        return parent::beforeSave($isNew);
+    }
+
+    /**
+     * @inheritdoc
      * @throws Exception if the block ID is invalid.
      */
     public function afterSave(bool $isNew): void
@@ -476,6 +501,9 @@ class Block extends Element implements BlockElementInterface
         $record = null;
 
         if (!$this->propagating) {
+            $this->primaryOwnerId = $this->primaryOwnerId ?? $this->ownerId;
+            $this->ownerId = $this->ownerId ?? $this->primaryOwnerId;
+
             if ($isNew) {
                 $record = new BlockRecord();
                 $record->id = (int)$this->id;
@@ -488,7 +516,7 @@ class Block extends Element implements BlockElementInterface
             }
 
             $record->fieldId = (int)$this->fieldId;
-            $record->ownerId = (int)$this->ownerId;
+            $record->primaryOwnerId = $this->primaryOwnerId ?? $this->ownerId;
             $record->typeId = (int)$this->typeId;
 
             if (Neo::$plugin->blockHasSortOrder) {
@@ -496,6 +524,24 @@ class Block extends Element implements BlockElementInterface
             }
 
             $record->save(false);
+
+            // ownerId will be null when creating a revision
+            if ($this->saveOwnership) {
+                if ($isNew) {
+                    Db::insert('{{%neoblocks_owners}}', [
+                        'blockId' => $this->id,
+                        'ownerId' => $this->ownerId,
+                        'sortOrder' => $this->sortOrder ?? 0,
+                    ]);
+                } else {
+                    Db::update('{{%neoblocks_owners}}', [
+                        'sortOrder' => $this->sortOrder ?? 0,
+                    ], [
+                        'blockId' => $this->id,
+                        'ownerId' => $this->ownerId,
+                    ]);
+                }
+            }
         }
 
         parent::afterSave($isNew);
