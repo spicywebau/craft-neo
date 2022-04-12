@@ -9,16 +9,34 @@ use craft\queue\BaseJob;
 
 class DuplicateNeoStructureTask extends BaseJob
 {
-    public $field;
+    /**
+     * @var int
+     */
+    public int $field;
 
-    public $owner;
+    /**
+     * @var array containing the `id` and `siteId` of the owner
+     */
+    public array $owner;
 
-    public $blocks;
+    /**
+     * @var array of blocks' `id`, `lft`, `rgt`, `level`
+     */
+    public array $blocks;
 
-    public $siteId;
+    /**
+     * @var int|null
+     */
+    public ?int $siteId = null;
 
-    public $supportedSites;
+    /**
+     * @var int[]
+     */
+    public array $supportedSites;
 
+    /**
+     * @inheritdoc
+     */
     public function execute($queue): void
     {
         $blocks = [];

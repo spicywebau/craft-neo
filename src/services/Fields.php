@@ -36,13 +36,13 @@ class Fields extends Component
      * @var bool
      * @since 2.7.1.1
      */
-    private $_rebuildIfDeleted = false;
+    private bool $_rebuildIfDeleted = false;
 
     /**
      * @var bool[]
      * @since 2.10.0
      */
-    private $_searchableBlockTypes = [];
+    private array $_searchableBlockTypes = [];
 
     /**
      * Performs validation on a Neo field.
@@ -209,7 +209,7 @@ class Fields extends Component
      * @param bool $isNew
      * @throws \Throwable
      */
-    public function saveValue(Field $field, ElementInterface $owner)
+    public function saveValue(Field $field, ElementInterface $owner): void
     {
         $dbService = Craft::$app->getDb();
         $draftsService = Craft::$app->getDrafts();
@@ -353,13 +353,8 @@ class Fields extends Component
      * @param bool $deleteOtherBlocks Whether to delete any blocks that belong to the element, which weren't included in the duplication
      * @throws
      */
-    public function duplicateBlocks(
-        Field $field,
-        ElementInterface $source,
-        ElementInterface $target,
-        bool $checkOtherSites = false,
-        bool $deleteOtherBlocks = true
-    ) {
+    public function duplicateBlocks(Field $field, ElementInterface $source, ElementInterface $target, bool $checkOtherSites = false, bool $deleteOtherBlocks = true): void
+    {
         $elementsService = Craft::$app->getElements();
         $query = $source->getFieldValue($field->handle);
         if (($blocks = $query->getCachedResult()) === null) {
@@ -826,7 +821,16 @@ SQL
         return $siteIds;
     }
 
-    public function getSupportedSiteIdsExCurrent($field, $owner)
+    /**
+     * Returns the site IDs that are supported by neo blocks for the given propagation method and owner element.
+     *
+     * @param Field $field
+     * @param ElementInterface $owner
+     * @return int[]
+     * @throws
+     * @since 2.5.10
+     */
+    public function getSupportedSiteIdsExCurrent(Field $field, ElementInterface $owner): array
     {
         // we need to setup the structure for the other supported sites too.
         // must be immediate to show changes on the front end.
@@ -851,7 +855,7 @@ SQL
      * @param int[] $except Block IDs that should be left alone
      * @throws \Throwable if reasons
      */
-    private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except)
+    private function _deleteOtherBlocks(Field $field, ElementInterface $owner, array $except): void
     {
         $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
         $supportedSitesCount = count($supportedSites);
@@ -874,7 +878,7 @@ SQL
      * @param int|null $sId the site ID; if this is null, the owner's site ID will be used
      * @since 2.4.3
      */
-    private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, $except, $sId = null)
+    private function _deleteNeoBlocksAndStructures(Field $field, ElementInterface $owner, array $except, ?int $sId = null): void
     {
         $siteId = $sId ?? $owner->siteId;
 
@@ -910,7 +914,7 @@ SQL
      * @param int|null $sId the site ID; if this is null, the owner's site ID will be used
      * @since 2.4.3
      */
-    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, $sId = null)
+    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, ?int $sId = null): void
     {
         $siteId = $sId ?? $owner->siteId;
 

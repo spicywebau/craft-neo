@@ -17,7 +17,7 @@ class BlockTypeNotFoundException extends Exception
     /**
      * @inheritdoc
      */
-    public function getName()
+    public function getName(): string
     {
         return "Neo block type not found";
     }

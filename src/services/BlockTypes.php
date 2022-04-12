@@ -49,10 +49,10 @@ class BlockTypes extends Component
     /**
      * Gets a Neo block type given its ID.
      *
-     * @param $id The block type ID to check.
+     * @param int $id The block type ID to check.
      * @return BlockType|null
      */
-    public function getById($id)
+    public function getById(int $id): ?BlockType
     {
         $blockType = null;
 
@@ -77,7 +77,7 @@ class BlockTypes extends Component
      * Gets a Neo block type, given its handle.
      *
      * @param $handle The block type handle to check.
-     * @return BlockType|null
+     * @return BlockType
      * @throws BlockTypeNotFoundException if there is no Neo block type with the handle
      * @since 2.10.0
      */
@@ -107,10 +107,10 @@ class BlockTypes extends Component
     /**
      * Gets block types associated with a given field ID.
      *
-     * @param $fieldId The field ID to check for block types.
+     * @param int $fieldId The field ID to check for block types.
      * @return array The block types.
      */
-    public function getByFieldId($fieldId): array
+    public function getByFieldId(int $fieldId): array
     {
         $blockTypes = [];
 
@@ -137,11 +137,11 @@ class BlockTypes extends Component
     /**
      * Gets a block type group by its ID.
      *
-     * @param $id
+     * @param int $id
      * @return BlockTypeGroup|null
      * @since 2.13.0
      */
-    public function getGroupById($id): ?BlockTypeGroup
+    public function getGroupById(int $id): ?BlockTypeGroup
     {
         $group = null;
 
@@ -164,10 +164,10 @@ class BlockTypes extends Component
     /**
      * Gets block type groups associated with a given field ID.
      *
-     * @param $fieldId The field ID to check for block type groups.
+     * @param int $fieldId The field ID to check for block type groups.
      * @return array The block type groups.
      */
-    public function getGroupsByFieldId($fieldId): array
+    public function getGroupsByFieldId(int $fieldId): array
     {
         $blockTypeGroups = [];
 
@@ -326,7 +326,7 @@ class BlockTypes extends Component
      * @return bool Whether deleting the block type groups was successful.
      * @throws \Throwable
      */
-    public function deleteGroupsByFieldId($fieldId): bool
+    public function deleteGroupsByFieldId(int $fieldId): bool
     {
         $field = Craft::$app->getFields()->getFieldById($fieldId);
         $allGroups = $field->getGroups();
@@ -344,7 +344,7 @@ class BlockTypes extends Component
      * @param ConfigEvent $event
      * @throws \Throwable
      */
-    public function handleChangedBlockType(ConfigEvent $event)
+    public function handleChangedBlockType(ConfigEvent $event): void
     {
         $dbService = Craft::$app->getDb();
         $fieldsService = Craft::$app->getFields();
@@ -467,7 +467,7 @@ class BlockTypes extends Component
      * @param ConfigEvent $event
      * @throws \Throwable
      */
-    public function handleDeletedBlockType(ConfigEvent $event)
+    public function handleDeletedBlockType(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $record = $this->_getRecordByUid($uid);
@@ -528,7 +528,7 @@ class BlockTypes extends Component
      * @param ConfigEvent $event
      * @throws \Throwable
      */
-    public function handleChangedBlockTypeGroup(ConfigEvent $event)
+    public function handleChangedBlockTypeGroup(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
 
@@ -570,7 +570,7 @@ class BlockTypes extends Component
      * @param ConfigEvent $event
      * @throws \Throwable
      */
-    public function handleDeletedBlockTypeGroup(ConfigEvent $event)
+    public function handleDeletedBlockTypeGroup(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $dbService = Craft::$app->getDb();
@@ -591,6 +591,8 @@ class BlockTypes extends Component
 
     /**
      * Returns all the block types.
+     *
+     * @return BlockType[]
      */
     public function getAllBlockTypes(): array
     {
@@ -607,7 +609,7 @@ class BlockTypes extends Component
     /**
      * Returns all block type groups belonging to all Neo fields.
      *
-     * @return array of BlockTypeGroups
+     * @return BlockTypeGroup[]
      * @since 2.9.0
      */
     public function getAllBlockTypeGroups(): array

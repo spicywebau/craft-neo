@@ -26,7 +26,7 @@ class Variable
      * @param array|null $criteria
      * @return BlockQuery
      */
-    public function blocks(array $criteria = null): BlockQuery
+    public function blocks(?array $criteria = null): BlockQuery
     {
         return Craft::configure(Block::find(), ($criteria ?? []));
     }

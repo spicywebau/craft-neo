@@ -16,13 +16,13 @@ class Settings extends Model
     /**
      * @var bool
      */
-    public $collapseAllBlocks = false;
+    public bool $collapseAllBlocks = false;
 
     /**
      * @var bool
      * @since 2.10.0
      */
-    public $optimiseSearchIndexing = true;
+    public bool $optimiseSearchIndexing = true;
 
     /**
      * @inheritdoc

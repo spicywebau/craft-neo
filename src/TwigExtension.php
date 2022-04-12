@@ -4,7 +4,6 @@ namespace benf\neo;
 
 use benf\neo\elements\Block;
 use Twig\Extension\AbstractExtension;
-
 use Twig\TwigTest;
 
 /**
@@ -18,9 +17,9 @@ use Twig\TwigTest;
 class TwigExtension extends AbstractExtension
 {
     /**
-     * @return array|TwigTest[]
+     * @return TwigTest[]
      */
-    public function getTests()
+    public function getTests(): array
     {
         return [
             new TwigTest('neoblock', [$this, 'isNeoBlock']),
@@ -33,7 +32,7 @@ class TwigExtension extends AbstractExtension
      * @param $value
      * @return bool
      */
-    public function isNeoBlock($value)
+    public function isNeoBlock($value): bool
     {
         return $value instanceof Block;
     }

@@ -18,27 +18,27 @@ class BlockTypeGroup extends Model
     /**
      * @var int|null The block type group ID.
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var int|null The field ID.
      */
-    public $fieldId;
+    public ?int $fieldId = null;
 
     /**
      * @var string|null The block type group name.
      */
-    public $name;
+    public ?string $name = null;
 
     /**
      * @var int|null The sort order.
      */
-    public $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    public $uid;
+    public ?string $uid = null;
 
     /**
      * @inheritdoc

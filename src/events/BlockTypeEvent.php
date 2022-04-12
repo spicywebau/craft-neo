@@ -17,10 +17,10 @@ class BlockTypeEvent extends Event
     /**
      * @var BlockType
      */
-    public $blockType;
+    public BlockType $blockType;
 
     /**
      * @var bool
      */
-    public $isNew = false;
+    public bool $isNew = false;
 }

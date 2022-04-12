@@ -29,7 +29,7 @@ class Blocks extends Component
      * @param int|null $siteId The site the Neo block should belong to.
      * @return Block|null The Neo block found, if any.
      */
-    public function getBlockById(int $blockId, int $siteId = null)
+    public function getBlockById(int $blockId, ?int $siteId = null): ?Block
     {
         return Craft::$app->getElements()->getElementById($blockId, Block::class, $siteId);
     }
@@ -105,7 +105,7 @@ class Blocks extends Component
      * @param int $ownerId The owner ID to look for.
      * @return BlockStructure|null The block structure found, if any.
      */
-    public function getStructure(int $fieldId, int $ownerId, int $siteId = null)
+    public function getStructure(int $fieldId, int $ownerId, ?int $siteId = null): ?BlockStructure
     {
         $blockStructure = null;
 
@@ -131,7 +131,7 @@ class Blocks extends Component
      * @param int $id The block structure ID to look for.
      * @return BlockStructure|null The block structure found, if any.
      */
-    public function getStructureById(int $id)
+    public function getStructureById(int $id): ?BlockStructure
     {
         $blockStructure = null;
 
@@ -152,7 +152,7 @@ class Blocks extends Component
      * @param BlockStructure $blockStructure The block structure to save.
      * @throws \Throwable
      */
-    public function saveStructure(BlockStructure $blockStructure)
+    public function saveStructure(BlockStructure $blockStructure): void
     {
         $dbService = Craft::$app->getDb();
         $structuresService = Craft::$app->getStructures();
@@ -297,7 +297,7 @@ class Blocks extends Component
      *
      * @return Query
      */
-    private function _createStructureQuery()
+    private function _createStructureQuery(): Query
     {
         return (new Query())
             ->select([

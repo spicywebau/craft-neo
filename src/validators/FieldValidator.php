@@ -2,6 +2,7 @@
 
 namespace benf\neo\validators;
 
+use benf\neo\elements\Block;
 use Craft;
 use yii\validators\Validator;
 
@@ -17,40 +18,40 @@ class FieldValidator extends Validator
     /**
      * @var int|null The maximum top-level blocks the field can have.  If not set, there is no top-level block limit.
      */
-    public $maxTopBlocks;
+    public ?int $maxTopBlocks = null;
 
     /**
      * @var int|null The maximum level blocks can be nested in the field.  If not set, there is no limit.
      * @since 2.9.0
      */
-    public $maxLevels;
+    public ?int $maxLevels = null;
 
     /**
      * @var string|null A user-defined error message to be used if the field's `maxTopBlocks` is exceeded.
      */
-    public $tooManyTopBlocks;
+    public ?string $tooManyTopBlocks = null;
 
     /**
      * @var string|null A user-defined error message to be used if the field's `maxLevels` is exceeded.
      * @since 2.9.0
      */
-    public $exceedsMaxLevels;
+    public ?string $exceedsMaxLevels = null;
 
     /**
      * @var string|null A user-defined error message to be used if a block type's `maxBlocks` is exceeded.
      * @since 3.0.0
      */
-    public $tooManyBlocksOfType;
+    public ?string $tooManyBlocksOfType = null;
 
     /**
-     * @var array of Neo blocks
+     * @var Block[]
      */
-    private $_blocks = [];
+    private array $_blocks = [];
 
     /**
      * @inheritdoc
      */
-    public function validateAttribute($model, $attribute)
+    public function validateAttribute($model, $attribute): void
     {
         $this->_setDefaultErrorMessages();
 
@@ -94,7 +95,7 @@ class FieldValidator extends Validator
     /**
      * Adds an error if the field exceeds its max top-level blocks.
      */
-    private function _checkMaxTopLevelBlocks($model, $attribute)
+    private function _checkMaxTopLevelBlocks($model, $attribute): void
     {
         if ($this->maxTopBlocks !== null) {
             $topBlocks = array_filter($this->_blocks, function($block) {
@@ -110,7 +111,7 @@ class FieldValidator extends Validator
     /**
      * Adds an error if the field exceeds its max levels.
      */
-    private function _checkMaxLevels($model, $attribute)
+    private function _checkMaxLevels($model, $attribute): void
     {
         $maxLevels = $this->maxLevels;
 
@@ -128,7 +129,7 @@ class FieldValidator extends Validator
     /**
      * Sets default error messages for any error messages that have not already been set.
      */
-    private function _setDefaultErrorMessages()
+    private function _setDefaultErrorMessages(): void
     {
         if ($this->tooManyTopBlocks === null) {
             $this->tooManyTopBlocks = Craft::t('neo', '{attribute} should contain at most {maxTopBlocks, number} top-level {maxTopBlocks, plural, one{block} other{blocks}}.');

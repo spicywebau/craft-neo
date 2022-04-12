@@ -93,34 +93,34 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @var int|null The minimum number of blocks this field can have.
      */
-    public $minBlocks;
+    public ?int $minBlocks = null;
 
     /**
      * @var int|null The maximum number of blocks this field can have.
      */
-    public $maxBlocks;
+    public ?int $maxBlocks = null;
 
     /**
      * @var int|null The maximum number of top-level blocks this field can have.
      * @since 2.3.0
      */
-    public $maxTopBlocks;
+    public ?int $maxTopBlocks = null;
 
     /**
      * @var int|null The maximum number of levels that blocks in this field can be nested.
      * @since 2.9.0
      */
-    public $maxLevels;
+    public ?int $maxLevels = null;
 
     /**
-     * @var array|null The block types associated with this field.
+     * @var BlockType[]|null The block types associated with this field.
      */
-    private $_blockTypes;
+    private ?array $_blockTypes = null;
 
     /**
-     * @var array|null The block type groups associated with this field.
+     * @var BlockTypeGroup[]|null The block type groups associated with this field.
      */
-    private $_blockTypeGroups;
+    private ?array $_blockTypeGroups = null;
 
     /**
      * @var string Propagation method
@@ -135,18 +135,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      *
      * @since 2.4.0
      */
-    public $propagationMethod = self::PROPAGATION_METHOD_ALL;
+    public string $propagationMethod = self::PROPAGATION_METHOD_ALL;
 
     /**
-     * @var string The old propagation method for this field
+     * @var string|null The old propagation method for this field
      */
-    private $_oldPropagationMethod;
+    private ?string $_oldPropagationMethod = null;
 
     /**
      * @var string|null The field’s propagation key format, if [[propagationMethod]] is `custom`
      * @since 2.12.0
      */
-    public $propagationKeyFormat;
+    public ?string $propagationKeyFormat = null;
 
     /**
      * @inheritdoc
@@ -212,7 +212,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * Returns this field's block types.
      *
-     * @return array This field's block types.
+     * @return BlockType[] This field's block types.
      */
     public function getBlockTypes(): array
     {
@@ -235,7 +235,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      *
      * @param array $blockTypes The block types to associate with this field.
      */
-    public function setBlockTypes($blockTypes)
+    public function setBlockTypes(array $blockTypes)
     {
         $fieldsService = Craft::$app->getFields();
         $newBlockTypes = [];
@@ -245,7 +245,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
             if (!($blockType instanceof BlockType)) {
                 $newBlockType = new BlockType();
-                $newBlockType->id = $blockTypeId;
+                $newBlockType->id = (int)$blockTypeId;
                 $newBlockType->fieldId = $this->id;
                 $newBlockType->name = $blockType['name'];
                 $newBlockType->handle = $blockType['handle'];
@@ -300,7 +300,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * Returns this field's block type groups.
      *
-     * @return array This field's block type groups.
+     * @return BlockTypeGroup[] This field's block type groups.
      */
     public function getGroups(): array
     {
@@ -323,7 +323,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      *
      * @param array $blockTypeGroups The block type groups to associate with this field.
      */
-    public function setGroups($blockTypeGroups)
+    public function setGroups(array $blockTypeGroups)
     {
         $newBlockTypeGroups = [];
 
@@ -332,7 +332,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
             if (!($blockTypeGroup instanceof BlockTypeGroup)) {
                 $newBlockTypeGroup = new BlockTypeGroup();
-                $newBlockTypeGroup->id = $id;
+                $newBlockTypeGroup->id = (int)$id;
                 $newBlockTypeGroup->fieldId = $this->id;
                 $newBlockTypeGroup->name = $blockTypeGroup['name'];
                 $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
@@ -445,7 +445,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public function normalizeValue(mixed $value, ?\craft\base\ElementInterface $element = null): mixed
+    public function normalizeValue(mixed $value, ?ElementInterface $element = null): mixed
     {
         if ($value instanceof ElementQueryInterface) {
             return $value;
@@ -471,7 +471,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public function serializeValue(mixed $value, ?\craft\base\ElementInterface $element = null): mixed
+    public function serializeValue(mixed $value, ?ElementInterface $element = null): mixed
     {
         $serialized = [];
         $new = 0;
@@ -531,7 +531,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public function getIsTranslatable(?\craft\base\ElementInterface $element = null): bool
+    public function getIsTranslatable(?ElementInterface $element = null): bool
     {
         return $this->propagationMethod !== self::PROPAGATION_METHOD_ALL;
     }
@@ -913,7 +913,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public function getContentGqlType(): array|\GraphQL\Type\Definition\Type
+    public function getContentGqlType(): Type|array
     {
         $typeArray = NeoBlockTypeGenerator::generateTypes($this);
         $typeName = $this->handle . '_NeoField';
@@ -933,7 +933,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      * @inheritdoc
      * @since 2.9.0
      */
-    public function getContentGqlMutationArgumentType(): array|\GraphQL\Type\Definition\Type
+    public function getContentGqlMutationArgumentType(): Type|array
     {
         return NeoBlockInputType::getType($this);
     }
@@ -986,7 +986,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      *
      * @return int
      */
-    private function _getNamespaceDepth()
+    private function _getNamespaceDepth(): int
     {
         $namespace = Craft::$app->getView()->getNamespace();
         return preg_match_all('/\\bfields\\b/', $namespace);
@@ -1007,7 +1007,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      *
      * @param array $value The raw field data.
      * @param ElementInterface $element The element associated with this field
-     * @return array The Blocks created from the given data.
+     * @return Block[] The Blocks created from the given data.
      */
     private function _createBlocksFromSerializedData(array $value, ElementInterface $element): array
     {
@@ -1175,7 +1175,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      * @param BlockQuery $query
      * @param ElementInterface|null $element
      */
-    private function _populateQuery(BlockQuery $query, ElementInterface $element = null)
+    private function _populateQuery(BlockQuery $query, ?ElementInterface $element = null): void
     {
         // Existing element?
         $existingElement = $element && $element->id;

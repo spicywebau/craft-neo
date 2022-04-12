@@ -14,12 +14,12 @@ use benf\neo\services\BlockTypes as BlockTypesService;
 use benf\neo\services\Conversion as ConversionService;
 use benf\neo\services\Fields as FieldsService;
 use Craft;
+use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\db\Table;
 use craft\events\DefineFieldLayoutElementsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
-
 use craft\events\RegisterGqlTypesEvent;
 use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
 use craft\gatsbyhelper\services\Deltas;
@@ -43,9 +43,9 @@ use yii\base\NotSupportedException;
 class Plugin extends BasePlugin
 {
     /**
-     * @var Plugin
+     * @var Plugin|null
      */
-    public static $plugin;
+    public static ?Plugin $plugin = null;
 
     /**
      * @inheritdoc
@@ -64,7 +64,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -92,7 +92,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel(): ?\craft\base\Model
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
@@ -100,7 +100,7 @@ class Plugin extends BasePlugin
     /**
      * Registers the Neo field type.
      */
-    private function _registerFieldType()
+    private function _registerFieldType(): void
     {
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Field::class;
@@ -110,7 +110,7 @@ class Plugin extends BasePlugin
     /**
      * Registers the `craft.neo` Twig variable.
      */
-    private function _registerTwigVariable()
+    private function _registerTwigVariable(): void
     {
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
             $event->sender->set('neo', Variable::class);
@@ -120,7 +120,7 @@ class Plugin extends BasePlugin
     /**
      * Registers Neo's GraphQL type.
      */
-    private function _registerGqlType()
+    private function _registerGqlType(): void
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
             $event->types[] = NeoGqlInterface::class;
@@ -130,7 +130,7 @@ class Plugin extends BasePlugin
     /**
      * Listens for Neo updates in the project config to apply them to the database.
      */
-    private function _registerProjectConfigApply()
+    private function _registerProjectConfigApply(): void
     {
         Craft::$app->getProjectConfig()
             ->onAdd('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
@@ -144,7 +144,7 @@ class Plugin extends BasePlugin
     /**
      * Registers an event listener for a project config rebuild, and provides the Neo data from the database.
      */
-    private function _registerProjectConfigRebuild()
+    private function _registerProjectConfigRebuild(): void
     {
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $blockTypeData = [];
@@ -163,7 +163,7 @@ class Plugin extends BasePlugin
         });
     }
 
-    private function _registerGarbageCollection()
+    private function _registerGarbageCollection(): void
     {
         Event::on(Gc::class, Gc::EVENT_RUN, function() {
             $gc = Craft::$app->getGc();
@@ -172,7 +172,7 @@ class Plugin extends BasePlugin
         });
     }
 
-    private function _registerChildBlocksUiElement()
+    private function _registerChildBlocksUiElement(): void
     {
         Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_UI_ELEMENTS, function(DefineFieldLayoutElementsEvent $event) {
             if ($event->sender->type === Block::class) {
@@ -181,7 +181,7 @@ class Plugin extends BasePlugin
         });
     }
 
-    private function _registerGatsbyHelper()
+    private function _registerGatsbyHelper(): void
     {
         if (class_exists(Deltas::class)) {
             Event::on(Deltas::class, Deltas::EVENT_REGISTER_IGNORED_TYPES, function(RegisterIgnoredTypesEvent $event) {

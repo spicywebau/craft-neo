@@ -3,7 +3,7 @@
 namespace benf\neo\elements;
 
 use benf\neo\elements\db\BlockQuery;
-use benf\neo\Field as neoField;
+use benf\neo\Field;
 use benf\neo\models\BlockType;
 use benf\neo\Plugin as Neo;
 use benf\neo\records\Block as BlockRecord;
@@ -13,6 +13,7 @@ use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Db;
+use craft\models\FieldLayout;
 use Illuminate\Support\Collection;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -137,7 +138,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @var int|null The field ID.
      */
-    public $fieldId;
+    public ?int $fieldId = null;
 
     /**
      * @var int|null
@@ -148,17 +149,17 @@ class Block extends Element implements BlockElementInterface
     /**
      * @var int|null The owner ID.
      */
-    public $ownerId;
+    public ?int $ownerId = null;
 
     /**
      * @var int|null The block type ID.
      */
-    public $typeId;
+    public ?int $typeId = null;
 
     /**
      * @var bool
      */
-    public $deletedWithOwner = false;
+    public bool $deletedWithOwner = false;
 
     /**
      * @var bool
@@ -169,45 +170,51 @@ class Block extends Element implements BlockElementInterface
     /**
      * @var ElementInterface|null The owner.
      */
-    private $_owner;
+    private ?ElementInterface $_owner = null;
 
     /**
      * @var array|null Any eager-loaded elements for this block type.
      */
-    private $_eagerLoadedBlockTypeElements;
+    private ?array $_eagerLoadedBlockTypeElements = null;
 
     /**
      * @var bool|null Whether this block should display as collapsed.
      */
-    public $_collapsed;
+    public ?bool $_collapsed = null;
 
     /**
+     * @var int|null
      * @since 2.7.0
      */
-    public $sortOrder;
-    public $oldLevel;
+    public ?int $sortOrder = null;
+
+    /**
+     * @var int|null
+     * @since 2.7.0
+     */
+    public ?int $oldLevel = null;
 
     /**
      * @var bool Whether the block has changed.
      * @internal
      * @since 2.6.0
      */
-    public $dirty = false;
+    public bool $dirty = false;
 
     /**
-     * @var array|null All blocks belonging to the same field as this one.
+     * @var Block[]|null All blocks belonging to the same field as this one.
      */
-    private $_allElements;
+    private ?array $_allElements = null;
 
     /**
-     * @var array|null Live queries for relatives of this block in live preview mode.
+     * @var BlockQuery[] Live queries for relatives of this block in live preview mode.
      */
-    private $_liveQueries = [];
+    private array $_liveQueries = [];
 
     /**
      * @var bool Whether to operate on a memoized data set.
      */
-    private $_useMemoized = false;
+    private bool $_useMemoized = false;
 
     /**
      * @inheritdoc
@@ -303,7 +310,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): ?\craft\models\FieldLayout
+    public function getFieldLayout(): ?FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }
@@ -335,7 +342,7 @@ class Block extends Element implements BlockElementInterface
      * @return ElementInterface|null
      * @throws
      */
-    public function getOwner(): ?\craft\base\ElementInterface
+    public function getOwner(): ?ElementInterface
     {
         if ($this->_owner === null) {
             if ($this->ownerId === null) {
@@ -355,7 +362,7 @@ class Block extends Element implements BlockElementInterface
      *
      * @param ElementInterface|null $owner
      */
-    public function setOwner(ElementInterface $owner = null)
+    public function setOwner(?ElementInterface $owner = null)
     {
         $this->_owner = $owner;
         $this->ownerId = $owner->id;
@@ -398,7 +405,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * Sets this block's collapsed state in the Craft CMS cache.
      */
-    public function cacheCollapsed()
+    public function cacheCollapsed(): void
     {
         $cacheService = Craft::$app->getCache();
 
@@ -416,7 +423,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * Removes this block's collapsed state from the Craft CMS cache.
      */
-    public function forgetCollapsed()
+    public function forgetCollapsed(): void
     {
         $cacheService = Craft::$app->getCache();
 
@@ -517,7 +524,6 @@ class Block extends Element implements BlockElementInterface
             $record->fieldId = (int)$this->fieldId;
             $record->primaryOwnerId = $this->primaryOwnerId ?? $this->ownerId;
             $record->typeId = (int)$this->typeId;
-            $record->sortOrder = (int)$this->sortOrder ?: null;
 
             $record->save(false);
 
@@ -588,7 +594,7 @@ class Block extends Element implements BlockElementInterface
      *
      * @param array $elements
      */
-    public function setAllElements($elements)
+    public function setAllElements(array $elements): void
     {
         $this->_allElements = $elements;
 
@@ -604,7 +610,7 @@ class Block extends Element implements BlockElementInterface
      *
      * @return bool
      */
-    public function isUsingMemoized()
+    public function isUsingMemoized(): bool
     {
         return $this->_useMemoized;
     }
@@ -612,9 +618,9 @@ class Block extends Element implements BlockElementInterface
     /**
      * Sets whether block queries operate on a memoized data set.
      *
-     * @param bool|array $use - Either a boolean to enable/disable, or a dataset to use (which results in enabling)
+     * @param bool|Block[] $use - Either a boolean to enable/disable, or a dataset to use (which results in enabling)
      */
-    public function useMemoized($use = true)
+    public function useMemoized(bool|array $use = true): void
     {
         if (is_array($use)) {
             $this->setAllElements($use);
@@ -629,7 +635,7 @@ class Block extends Element implements BlockElementInterface
      *
      * @return bool
      */
-    public function isDraftPreview()
+    public function isDraftPreview(): bool
     {
         // if console request then ignore
         if (Craft::$app->request->getIsConsoleRequest()) {
@@ -655,7 +661,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getAncestors(?int $dist = null): \craft\elements\db\ElementQueryInterface|\Illuminate\Support\Collection
+    public function getAncestors(?int $dist = null): ElementQueryInterface|Collection
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -688,7 +694,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getParent(): ?\craft\base\ElementInterface
+    public function getParent(): ?ElementInterface
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -715,7 +721,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getDescendants(?int $dist = null): \craft\elements\db\ElementQueryInterface|\Illuminate\Support\Collection
+    public function getDescendants(?int $dist = null): ElementQueryInterface|Collection
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -754,7 +760,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getChildren(): \craft\elements\db\ElementQueryInterface|\Illuminate\Support\Collection
+    public function getChildren(): ElementQueryInterface|Collection
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -787,7 +793,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getSiblings(): \craft\elements\db\ElementQueryInterface|\Illuminate\Support\Collection
+    public function getSiblings(): ElementQueryInterface|Collection
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -813,7 +819,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getPrevSibling(): ?\craft\base\ElementInterface
+    public function getPrevSibling(): ?ElementInterface
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -839,7 +845,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getNextSibling(): ?\craft\base\ElementInterface
+    public function getNextSibling(): ?ElementInterface
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -898,9 +904,9 @@ class Block extends Element implements BlockElementInterface
     /**
      * Returns the neo field.
      *
-     * @return neoField
+     * @return Field
      */
-    private function _getField(): neoField
+    private function _getField(): Field
     {
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return Craft::$app->getFields()->getFieldById($this->fieldId);

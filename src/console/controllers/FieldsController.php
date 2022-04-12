@@ -25,12 +25,12 @@ class FieldsController extends Controller
     /**
      * @var bool Whether to reapply propagation methods on a per-block-structure basis
      */
-    public $byBlockStructure = false;
+    public bool $byBlockStructure = false;
 
     /**
      * @var string|null
      */
-    public $fieldId;
+    public ?string $fieldId = null;
 
     /**
      * @inheritdoc
@@ -49,8 +49,10 @@ class FieldsController extends Controller
 
     /**
      * Reapplies a Neo field's propagation method to its blocks if the Craft install is multi-site.
+     *
+     * @return int
      */
-    public function actionReapplyPropagationMethod()
+    public function actionReapplyPropagationMethod(): int
     {
         // Not multi-site? Nothing to do here.
         if (!Craft::$app->getIsMultiSite()) {
@@ -140,7 +142,11 @@ class FieldsController extends Controller
         return ExitCode::OK;
     }
 
-    private function _jobMessage(int $counter = 0)
+    /**
+     * @param int $counter
+     * @return string
+     */
+    private function _jobMessage(int $counter = 0): string
     {
         if ($counter === 1) {
             return '1 new job was added to the queue.';

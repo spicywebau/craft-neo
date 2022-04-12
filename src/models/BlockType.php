@@ -3,6 +3,7 @@
 namespace benf\neo\models;
 
 use benf\neo\elements\Block;
+use benf\neo\Field;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\Plugin as Neo;
 use Craft;
@@ -27,85 +28,85 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     /**
      * @var int|null The block type ID.
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var int|null The field ID.
      */
-    public $fieldId;
+    public ?int $fieldId = null;
 
     /**
      * @var int|null The field layout ID.
      */
-    public $fieldLayoutId;
+    public ?int $fieldLayoutId = null;
 
     /**
      * @var int|null The ID of the block type group this block type belongs to, if any.
      * @since 2.13.0
      */
-    public $groupId;
+    public ?int $groupId = null;
 
     /**
      * @var string|null The block type's name.
      */
-    public $name;
+    public ?string $name = null;
 
     /**
      * @var string|null The block type's handle.
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
      * @var int|null The maximum number of blocks of this type allowed in this block type's field.
      */
-    public $maxBlocks;
+    public ?int $maxBlocks = null;
 
     /**
      * @var int|null The maximum number of blocks of this type allowed under one parent block.
      * @since 2.8.0
      */
-    public $maxSiblingBlocks;
+    public ?int $maxSiblingBlocks = null;
 
     /**
      * @var int|null The maximum number of child blocks.
      */
-    public $maxChildBlocks;
+    public ?int $maxChildBlocks = null;
 
     /**
-     * @var array|string|null The child block types of this block type, either as an array of block type handles, the
+     * @var string[]|string|null The child block types of this block type, either as an array of block type handles, the
      * string '*' representing all of the Neo field's block types, or null if no child block types.
      */
-    public $childBlocks;
+    public array|string|null $childBlocks = null;
 
     /**
      * @var bool Whether this is at the top level of its field.
      */
-    public $topLevel = true;
+    public bool $topLevel = true;
 
     /**
      * @var int|null The sort order.
      */
-    public $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    public $uid;
+    public ?string $uid = null;
 
     /**
      * @var bool
      */
-    public $hasFieldErrors = false;
+    public bool $hasFieldErrors = false;
 
     /**
      * @var Field|null The Neo field associated with this block type.
      */
-    private $_field;
+    private ?Field $_field = null;
 
     /**
      * @var BlockTypeGroup|null The block type group this block type belongs to, if any.
      */
-    private $_group;
+    private ?BlockTypeGroup $_group = null;
 
     /**
      * @var bool|null
@@ -172,9 +173,9 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     /**
      * Returns the Neo field associated with this block type.
      *
-     * @return \benf\neo\Field|null
+     * @return Field|null
      */
-    public function getField()
+    public function getField(): ?Field
     {
         $fieldsService = Craft::$app->getFields();
 
@@ -191,7 +192,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * @return BlockTypeGroup|null
      * @since 2.13.0
      */
-    public function getGroup()
+    public function getGroup(): ?BlockTypeGroup
     {
         if ($this->_group === null && $this->groupId !== null) {
             $this->_group = Neo::$plugin->blockTypes->getGroupById($this->groupId);

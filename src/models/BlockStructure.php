@@ -4,6 +4,7 @@ namespace benf\neo\models;
 
 use Craft;
 use craft\base\Model;
+use craft\models\Structure;
 
 /**
  * Class BlockStructure
@@ -18,32 +19,32 @@ class BlockStructure extends Model
     /**
      * @var int|null The block structure ID.
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var int|null The structure ID.
      */
-    public $structureId;
+    public ?int $structureId = null;
 
     /**
      * @var int|null The field ID.
      */
-    public $fieldId;
+    public ?int $fieldId = null;
 
     /**
      * @var int|null The owner ID.
      */
-    public $ownerId;
+    public ?int $ownerId = null;
 
     /**
      * @var int|null The owner site ID.
      */
-    public $ownerSiteId;
+    public ?int $ownerSiteId = null;
 
     /**
-     * @var \craft\models\Structure|null The associated structure.
+     * @var Structure|null The associated structure.
      */
-    private $_structure;
+    private ?Structure $_structure = null;
 
     /**
      * @inheritdoc
@@ -58,9 +59,9 @@ class BlockStructure extends Model
     /**
      * Returns the associated structure.
      *
-     * @return \craft\models\Structure|null
+     * @return Structure|null
      */
-    public function getStructure()
+    public function getStructure(): ?Structure
     {
         $structuresService = Craft::$app->getStructures();
 

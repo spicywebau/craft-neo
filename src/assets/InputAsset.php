@@ -54,7 +54,7 @@ class InputAsset extends FieldAsset
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = '@benf/neo/resources';
 
@@ -70,7 +70,7 @@ class InputAsset extends FieldAsset
     /**
      * @inheritdoc
      */
-    public function registerAssetFiles($view)
+    public function registerAssetFiles($view): void
     {
         $view->registerTranslations('neo', [
             'Select',
@@ -119,7 +119,6 @@ class InputAsset extends FieldAsset
      * Sets up the field block inputs for a given Neo field.
      *
      * @param Field $field The Neo field.
-     * @param array $value The Neo blocks, associated with this field, to generate inputs for.
      * @param ElementInterface|null $owner
      * @return string
      */
@@ -209,7 +208,7 @@ class InputAsset extends FieldAsset
      *
      * This converts block type groups into the format used by the input generator Javascript.
      *
-     * @param array $blockTypeGroups The Neo block type groups.
+     * @param BlockTypeGroup[] $blockTypeGroups The Neo block type groups.
      * @return array
      */
     private static function _getBlockTypeGroupsJsSettings(array $blockTypeGroups): array

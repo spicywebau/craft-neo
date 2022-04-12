@@ -28,7 +28,7 @@ class BlockType extends ActiveRecord
     /**
      * @var bool Whether to ensure that the block type's handle is unique.
      */
-    public $validateUniques = true;
+    public bool $validateUniques = true;
 
     /**
      * @inheritdoc

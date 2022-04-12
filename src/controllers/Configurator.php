@@ -17,6 +17,11 @@ use yii\web\Response;
  */
 class Configurator extends Controller
 {
+    /**
+     * Renders field layout designers for pasted or cloned block types.
+     *
+     * @return Response
+     */
     public function actionRenderFieldLayout(): Response
     {
         $this->requireAcceptsJson();

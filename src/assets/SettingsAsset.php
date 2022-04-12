@@ -4,6 +4,7 @@ namespace benf\neo\assets;
 
 use benf\neo\elements\Block;
 use benf\neo\Field;
+use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use Craft;
@@ -27,7 +28,7 @@ class SettingsAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = '@benf/neo/resources';
 
@@ -46,7 +47,7 @@ class SettingsAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function registerAssetFiles($view)
+    public function registerAssetFiles($view): void
     {
         $view->registerTranslations('neo', [
             'Select',
@@ -118,7 +119,7 @@ class SettingsAsset extends AssetBundle
     /**
      * Returns the raw data from the given block types, in the format used by the settings generator JavaScript.
      *
-     * @param array $blockTypes
+     * @param BlockType[] $blockTypes
      * @return array
      */
     private static function _getBlockTypesJsSettings(array $blockTypes): array {
@@ -163,7 +164,7 @@ class SettingsAsset extends AssetBundle
      *
      * This converts block type groups into the format used by the input generator Javascript.
      *
-     * @param array $blockTypeGroups The Neo block type groups.
+     * @param BlockTypeGroup[] $blockTypeGroups The Neo block type groups.
      * @return array
      */
     private static function _getBlockTypeGroupsJsSettings(array $blockTypeGroups): array

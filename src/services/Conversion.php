@@ -38,7 +38,7 @@ class Conversion extends Component
      * @return bool
      * @throws \Throwable
      */
-    public function convertFieldToMatrix(Field $neoField)
+    public function convertFieldToMatrix(Field $neoField): bool
     {
         $fieldsService = Craft::$app->getFields();
         $globalFields = [];
@@ -201,11 +201,11 @@ class Conversion extends Component
     /**
      * Converts Neo block types into Matrix block types.
      *
-     * @param array $neoBlockTypes
+     * @param NeoBlockType[] $neoBlockTypes
      * @param Field|null $neoField
-     * @return array The Matrix block types.
+     * @return MatrixBlockType[]
      */
-    public function convertBlockTypesToMatrix(array $neoBlockTypes, Field $neoField = null): array
+    public function convertBlockTypesToMatrix(array $neoBlockTypes, ?Field $neoField = null): array
     {
         $matrixBlockTypes = [];
         $ids = 1;
@@ -226,7 +226,7 @@ class Conversion extends Component
      * @param Field|null $field
      * @return MatrixBlockType
      */
-    public function convertBlockTypeToMatrix(BlockType $neoBlockType, Field $field = null): MatrixBlockType
+    public function convertBlockTypeToMatrix(NeoBlockType $neoBlockType, Field $field = null): MatrixBlockType
     {
         $matrixBlockType = new MatrixBlockType();
         $matrixBlockType->fieldId = $field ? $field->id : $neoBlockType->fieldId;
@@ -271,7 +271,7 @@ class Conversion extends Component
      * @param MatrixBlockType|null $matrixBlockType
      * @return MatrixBlock
      */
-    public function convertBlockToMatrix(Block $neoBlock, MatrixBlockType $matrixBlockType = null): MatrixBlock
+    public function convertBlockToMatrix(Block $neoBlock, ?MatrixBlockType $matrixBlockType = null): MatrixBlock
     {
         $blockFieldValues = [];
 
@@ -316,8 +316,8 @@ class Conversion extends Component
     /**
      * Creates Matrix block type data from Neo block types.
      *
-     * @param array $oldBlockTypes
-     * @return array The Matrix block types.
+     * @param NeoBlockType[] $oldBlockTypes
+     * @return MatrixBlockType[]
      */
     private function getNewBlockTypesData(array $oldBlockTypes): array
     {
@@ -337,7 +337,7 @@ class Conversion extends Component
      * @param NeoBlockType|MatrixBlockType|SuperTableBlockType $oldBlockType
      * @return array The new block type data.
      */
-    private function getNewBlockTypeData($oldBlockType): array
+    private function getNewBlockTypeData(NeoBlockType|MatrixBlockType|SuperTableBlockType $oldBlockType): array
     {
         $ids = 0;
         $oldFieldLayout = $oldBlockType->getFieldLayout();
