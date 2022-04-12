@@ -883,9 +883,9 @@ SQL
         $siteId = $sId ?? $owner->siteId;
 
         /** @var Element $owner */
-        $deleteBlocks = Block::find()
+        $blocks = Block::find()
             ->status(null)
-            ->primaryOwnerId($owner->id)
+            ->ownerId($owner->id)
             ->fieldId($field->id)
             ->siteId($siteId)
             ->inReverse()
@@ -893,14 +893,28 @@ SQL
             ->all();
 
         $elementsService = Craft::$app->getElements();
+        $deleteOwnership = [];
 
-        foreach ($deleteBlocks as $deleteBlock) {
-            $deleteBlock->forgetCollapsed();
-            $elementsService->deleteElement($deleteBlock);
+        foreach ($blocks as $block) {
+            $block->forgetCollapsed();
+
+            if ($block->primaryOwnerId === $owner->id) {
+                $elementsService->deleteElement($block);
+            } else {
+                // Just delete the ownership relation
+                $deleteOwnership[] = $block->id;
+            }
         }
 
-        // if there are blocks to delete then we need to rebuild the structure.
-        if (count($deleteBlocks) >= 1) {
+        if ($deleteOwnership) {
+            Db::delete('{{%neoblocks_owners}}', [
+                'blockId' => $deleteOwnership,
+                'ownerId' => $owner->id,
+            ]);
+        }
+
+        // If there are blocks to delete, then we need to rebuild the block structure
+        if (!empty($blocks)) {
             $this->_rebuildIfDeleted = true;
         }
     }
