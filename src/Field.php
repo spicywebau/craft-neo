@@ -202,6 +202,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 self::PROPAGATION_METHOD_ALL,
             ],
         ];
+        $rules[] = [['blockTypes'], ArrayValidator::class, 'min' => 1, 'skipOnEmpty' => false];
         $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks', 'maxLevels'], 'integer', 'min' => 0];
 
         return $rules;

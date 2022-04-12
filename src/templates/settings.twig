@@ -7,6 +7,7 @@
         label: "Configuration"|t('neo'),
         instructions: "Define the types of blocks that can be created within this Neo field, as well as the fields each block type is made up of."|t('neo'),
         name: 'config',
+        errors: neoField.getErrors('blockTypes'),
     }, configurator) }}
 </div>
 
