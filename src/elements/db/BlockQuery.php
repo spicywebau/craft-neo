@@ -21,7 +21,7 @@ use yii\base\Model as BaseModel;
  * Class BlockQuery
  *
  * @package benf\neo\elements\db
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
  * @since 2.0.0
  */
@@ -169,7 +169,7 @@ class BlockQuery extends ElementQuery
     /**
      * Filters the query results based on the owner.
      *
-     * @param ElementInterface $value The owner.
+     * @param ElementInterface $owner
      * @return self
      */
     public function owner(ElementInterface $owner): self

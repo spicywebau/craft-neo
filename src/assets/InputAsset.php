@@ -47,7 +47,7 @@ class InputAsset extends FieldAsset
      *
      *     $event->blockTypes = $filtered;
      * });
-     *
+     * ```
      */
     public const EVENT_FILTER_BLOCK_TYPES = 'filterBlockTypes';
 
@@ -156,9 +156,7 @@ class InputAsset extends FieldAsset
     }
 
     /**
-     * Returns the raw data from the given block types.
-     *
-     * This converts block types into the format used by the input JavaScript.
+     * Returns the raw data from the given block types, in the format used by the input JavaScript.
      *
      * @param Field $field
      * @param BlockType[] $blockTypes
@@ -204,9 +202,7 @@ class InputAsset extends FieldAsset
     }
 
     /**
-     * Returns the raw data from the given block type groups.
-     *
-     * This converts block type groups into the format used by the input generator Javascript.
+     * Returns the raw data from the given block type groups, in the format used by the input Javascript.
      *
      * @param BlockTypeGroup[] $blockTypeGroups The Neo block type groups.
      * @return array

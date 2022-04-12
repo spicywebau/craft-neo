@@ -13,7 +13,7 @@ use yii\web\Response;
  * Controller for handling conversion of Neo fields to Matrix.
  *
  * @package benf\neo\controllers
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
  * @since 2.2.0
  */

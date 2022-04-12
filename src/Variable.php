@@ -10,7 +10,7 @@ use Craft;
  * Class Variable
  *
  * @package benf\neo
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
  * @since 2.0.0
  */

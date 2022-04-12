@@ -28,7 +28,7 @@ use yii\base\Exception;
  * Class BlockTypes
  *
  * @package benf\neo\services
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
  * @since 2.0.0
  */

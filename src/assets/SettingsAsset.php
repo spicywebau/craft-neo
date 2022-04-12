@@ -160,9 +160,7 @@ class SettingsAsset extends AssetBundle
     }
 
     /**
-     * Returns the raw data from the given block type groups.
-     *
-     * This converts block type groups into the format used by the input generator Javascript.
+     * Returns the raw data from the given block type groups, in the format used by the settings generator JavaScript.
      *
      * @param BlockTypeGroup[] $blockTypeGroups The Neo block type groups.
      * @return array

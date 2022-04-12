@@ -8,7 +8,7 @@ use craft\base\Model;
  * Class Settings
  *
  * @package benf\neo\models
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @since 2.3.0
  */
 class Settings extends Model

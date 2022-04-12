@@ -10,7 +10,7 @@ use yii\db\ActiveQueryInterface;
  * Class BlockStructure
  *
  * @package benf\neo\records
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
  * @since 2.0.0
  */

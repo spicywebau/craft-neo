@@ -9,7 +9,7 @@ use craft\base\Model;
  * Class BlockTypeGroup
  *
  * @package benf\neo\models
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
  * @since 2.0.0
  */

@@ -9,7 +9,7 @@ use yii\base\Event;
 /**
  * Class BlockTypeEvent
  *
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @since 2.3.0
  */
 class BlockTypeEvent extends Event

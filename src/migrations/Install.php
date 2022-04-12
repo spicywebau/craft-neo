@@ -11,7 +11,7 @@ use craft\db\Migration;
  * Class Install
  *
  * @package benf\neo\migrations
- * @author Spicy Web <craft@spicyweb.com.au>
+ * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
  * @since 2.0.0
  */
