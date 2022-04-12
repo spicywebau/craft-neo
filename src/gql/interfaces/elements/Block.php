@@ -39,7 +39,7 @@ class Block extends Element
         $type = GqlEntityRegistry::createEntity(self::class, new InterfaceType([
             'name' => static::getName(),
             'fields' => self::class . '::getFieldDefinitions',
-            'description' => 'This is the interface implemented by all neo blocks.',
+            'description' => 'This is the interface implemented by all Neo blocks.',
             'resolveType' => static function(NeoBlock $value) {
                 return $value->getGqlTypeName();
             },
@@ -71,7 +71,7 @@ class Block extends Element
             'fieldId' => [
                 'name' => 'fieldId',
                 'type' => Type::int(),
-                'description' => 'The ID of the field that owns the neo block.',
+                'description' => 'The ID of the field that owns the Neo block.',
             ],
             'level' => [
                 'name' => 'level',
@@ -86,12 +86,12 @@ class Block extends Element
             'typeId' => [
                 'name' => 'typeId',
                 'type' => Type::int(),
-                'description' => 'The ID of the neo block\'s type.',
+                'description' => 'The ID of the Neo block\'s type.',
             ],
             'typeHandle' => [
                 'name' => 'typeHandle',
                 'type' => Type::string(),
-                'description' => 'The handle of the neo block\'s type.',
+                'description' => 'The handle of the Neo block\'s type.',
             ],
         ]);
     }

@@ -314,7 +314,7 @@ class Fields extends Component
                         ->status(null)
                         ->all();
 
-                    // Duplicate neo blocks, ensuring we don't process the same blocks more than once
+                    // Duplicate Neo blocks, ensuring we don't process the same blocks more than once
                     $handledSiteIds = [];
 
                     $cachedQuery = clone $query;
@@ -444,7 +444,7 @@ class Fields extends Component
         }
         // Duplicate blocks for other sites as well?
         if ($checkOtherSites && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
-            // Find the target's site IDs that *aren't* supported by this site's neo blocks
+            // Find the target's site IDs that *aren't* supported by this site's Neo blocks
             $targetSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($target), 'siteId');
             $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $target, $field->propagationKeyFormat);
             $otherSiteIds = array_diff($targetSiteIds, $fieldSiteIds);
@@ -471,7 +471,7 @@ class Fields extends Component
                     ->indexBy('siteId')
                     ->all();
 
-                // Duplicate neo blocks, ensuring we don't process the same blocks more than once
+                // Duplicate Neo blocks, ensuring we don't process the same blocks more than once
                 $handledSiteIds = [];
 
                 foreach ($otherSources as $otherSource) {
@@ -766,7 +766,7 @@ SQL
     }
 
     /**
-     * Returns the site IDs that are supported by neo blocks for the given propagation method and owner element.
+     * Returns the site IDs that are supported by Neo blocks for the given propagation method and owner element.
      *
      * @param string $propagationMethod
      * @param ElementInterface $owner
@@ -822,7 +822,7 @@ SQL
     }
 
     /**
-     * Returns the site IDs that are supported by neo blocks for the given propagation method and owner element.
+     * Returns the site IDs that are supported by Neo blocks for the given propagation method and owner element.
      *
      * @param Field $field
      * @param ElementInterface $owner

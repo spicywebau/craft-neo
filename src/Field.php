@@ -841,8 +841,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
             $allBlocks = $allBlocksQuery->all();
 
-            // if the neo block structure doesn't have the siteId set and has blocks
-            // set the siteId of the neo block structure.
+            // if the Neo block structure doesn't have the siteId set and has blocks
+            // set the siteId of the Neo block structure.
 
             // it's set from the first block because we got all blocks related to this structure beforehand
             // so the siteId should be the same for all blocks.

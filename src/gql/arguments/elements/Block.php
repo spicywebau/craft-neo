@@ -19,18 +19,18 @@ class Block extends ElementArguments
             'fieldId' => [
                 'name' => 'fieldId',
                 'type' => Type::listOf(Type::int()),
-                'description' => 'Narrows the query results based on the field the neo blocks belong to, per the fields’ IDs.',
+                'description' => 'Narrows the query results based on the field the Neo blocks belong to, per the fields’ IDs.',
             ],
             'primaryOwnerId' => [
                 'name' => 'primaryOwnerId',
                 'type' => Type::listOf(Type::string()),
-                'description' => ' Narrows the query results based on the primary owner element of the neo blocks, per the owners’ IDs.',
+                'description' => ' Narrows the query results based on the primary owner element of the Neo blocks, per the owners’ IDs.',
             ],
             'typeId' => Type::listOf(Type::int()),
             'type' => [
                 'name' => 'type',
                 'type' => Type::listOf(Type::string()),
-                'description' => 'Narrows the query results based on the neo blocks’ block type handles.',
+                'description' => 'Narrows the query results based on the Neo blocks’ block type handles.',
             ],
             'level' => [
                 'name' => 'level',
