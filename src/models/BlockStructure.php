@@ -37,9 +37,9 @@ class BlockStructure extends Model
     public ?int $ownerId = null;
 
     /**
-     * @var int|null The owner site ID.
+     * @var int|null The site ID.
      */
-    public ?int $ownerSiteId = null;
+    public ?int $siteId = null;
 
     /**
      * @var Structure|null The associated structure.
@@ -52,7 +52,7 @@ class BlockStructure extends Model
     protected function defineRules(): array
     {
         return [
-            [['id', 'structureId', 'fieldId', 'ownerId', 'ownerSiteId'], 'number', 'integerOnly' => true],
+            [['id', 'structureId', 'fieldId', 'ownerId', 'siteId'], 'number', 'integerOnly' => true],
         ];
     }
 

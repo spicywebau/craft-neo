@@ -680,7 +680,7 @@ SQL
                 ->where([
                     'fieldId' => $field->id,
                     'ownerId' => $owner->id,
-                    'ownerSiteId' => $canonicalOwner->siteId,
+                    'siteId' => $canonicalOwner->siteId,
                 ])
                 ->scalar();
 
@@ -940,7 +940,7 @@ SQL
         $blockStructure = new BlockStructure();
         $blockStructure->fieldId = (int)$field->id;
         $blockStructure->ownerId = (int)$owner->id;
-        $blockStructure->ownerSiteId = (int)$siteId;
+        $blockStructure->siteId = (int)$siteId;
 
         Neo::$plugin->blocks->saveStructure($blockStructure);
         Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
@@ -958,7 +958,7 @@ SQL
 
                 $multiBlockStructure = $blockStructure;
                 $multiBlockStructure->id = null;
-                $multiBlockStructure->ownerSiteId = $s;
+                $multiBlockStructure->siteId = $s;
 
                 Neo::$plugin->blocks->saveStructure($multiBlockStructure);
             }

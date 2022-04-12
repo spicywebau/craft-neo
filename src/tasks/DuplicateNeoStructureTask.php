@@ -66,7 +66,7 @@ class DuplicateNeoStructureTask extends BaseJob
             $blockStructure = new BlockStructure();
             $blockStructure->fieldId = (int)$this->field;
             $blockStructure->ownerId = (int)$this->owner['id'];
-            $blockStructure->ownerSiteId = (int)$siteId;
+            $blockStructure->siteId = (int)$siteId;
 
             Neo::$plugin->blocks->saveStructure($blockStructure);
             Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
@@ -80,7 +80,7 @@ class DuplicateNeoStructureTask extends BaseJob
 
                     $multiBlockStructure = $blockStructure;
                     $multiBlockStructure->id = null;
-                    $multiBlockStructure->ownerSiteId = $s;
+                    $multiBlockStructure->siteId = $s;
 
                     Neo::$plugin->blocks->saveStructure($multiBlockStructure);
                 }

@@ -113,7 +113,7 @@ class Blocks extends Component
             ->where([
                 'fieldId' => $fieldId,
                 'ownerId' => $ownerId,
-                'ownerSiteId' => $siteId,
+                'siteId' => $siteId,
             ]);
 
         $result = $query->one();
@@ -178,7 +178,7 @@ class Blocks extends Component
             $record->structureId = (int)$blockStructure->structureId;
             $record->ownerId = (int)$blockStructure->ownerId;
             // can't be 0 need to be at least the primary site.
-            $record->ownerSiteId = (int)$blockStructure->ownerSiteId === 0 ? Craft::$app->getSites()->getPrimarySite()->id : (int)$blockStructure->ownerSiteId;
+            $record->siteId = (int)$blockStructure->siteId === 0 ? Craft::$app->getSites()->getPrimarySite()->id : (int)$blockStructure->siteId;
             $record->fieldId = (int)$blockStructure->fieldId;
 
             $record->save(false);
@@ -218,7 +218,7 @@ class Blocks extends Component
                     ->delete('{{%neoblockstructures}}', [
                         'id' => $blockStructure->id,
                         'ownerId' => $blockStructure->ownerId,
-                        'ownerSiteId' => $blockStructure->ownerSiteId,
+                        'siteId' => $blockStructure->siteId,
                         'fieldId' => $blockStructure->fieldId,
                     ])
                     ->execute();
@@ -304,7 +304,7 @@ class Blocks extends Component
                 'id',
                 'structureId',
                 'ownerId',
-                'ownerSiteId',
+                'siteId',
                 'fieldId',
             ])
             ->from(['{{%neoblockstructures}}']);

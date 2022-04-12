@@ -35,13 +35,13 @@ class BlockStructure extends ActiveRecord
     }
 
     /**
-     * Returns the block structure's owner's site.
+     * Returns the block structure's site.
      *
      * @return ActiveQueryInterface
      */
-    public function getOwnerSite(): ActiveQueryInterface
+    public function getSite(): ActiveQueryInterface
     {
-        return $this->hasOne(Element::class, [ 'id' => 'ownerSiteId' ]);
+        return $this->hasOne(Element::class, [ 'id' => 'siteId' ]);
     }
 
     /**

@@ -98,7 +98,7 @@ class FieldsController extends Controller
         $counter = 0;
         $fieldPropagationMethod = [];
         $blockStructuresQuery = (new Query())
-            ->select(['nbs.id', 'nbs.structureId', 'nbs.ownerId', 'nbs.fieldId', 'nbs.ownerSiteId'])
+            ->select(['nbs.id', 'nbs.structureId', 'nbs.ownerId', 'nbs.fieldId', 'nbs.siteId'])
             ->from('{{%neoblockstructures}} nbs')
             // Don't reapply to revision blocks
             ->innerJoin(['elements' => Table::ELEMENTS], '[[elements.id]] = [[nbs.ownerId]]')
@@ -128,7 +128,7 @@ class FieldsController extends Controller
                     'elementType' => Block::class,
                     'criteria' => [
                         'ownerId' => $blockStructure['ownerId'],
-                        'siteId' => $blockStructure['ownerSiteId'],
+                        'siteId' => $blockStructure['siteId'],
                         'fieldId' => $fieldId,
                         'structureId' => $blockStructure['structureId'],
                     ],

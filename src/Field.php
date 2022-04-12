@@ -658,7 +658,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                     'and',
                     '[[neoblockstructures.ownerId]] = [[neoblocks_owners.ownerId]]',
                     '[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
-                    '[[neoblockstructures.ownerSiteId]] = ' . Craft::$app->getSites()->getCurrentSite()->id,
+                    '[[neoblockstructures.siteId]] = ' . Craft::$app->getSites()->getCurrentSite()->id,
                 ]
             )
             ->leftJoin(
@@ -810,7 +810,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             ->select([
                 'id',
                 'structureId',
-                'ownerSiteId',
+                'siteId',
                 'ownerId',
                 'fieldId',
             ])
@@ -828,7 +828,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // Get the blocks for each structure
         foreach ($blockStructures as $blockStructure) {
             // Site IDs start from 1 -- let's treat non-localized blocks as site 0
-            $key = $blockStructure->ownerSiteId ?? 0;
+            $key = $blockStructure->siteId ?? 0;
 
             $allBlocksQuery = Block::find()
                 ->status(null)
@@ -841,15 +841,15 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
             $allBlocks = $allBlocksQuery->all();
 
-            // if the neo block structure doesn't have the ownerSiteId set and has blocks
-            // set the ownerSiteId of the neo block structure.
+            // if the neo block structure doesn't have the siteId set and has blocks
+            // set the siteId of the neo block structure.
 
             // it's set from the first block because we got all blocks related to this structure beforehand
             // so the siteId should be the same for all blocks.
-            if (empty($blockStructure->ownerSiteId) && !empty($allBlocks)) {
-                $blockStructure->ownerSiteId = $allBlocks[0]->siteId;
-                // need to set the new key since the ownersiteid is now set
-                $key = $blockStructure->ownerSiteId;
+            if (empty($blockStructure->siteId) && !empty($allBlocks)) {
+                $blockStructure->siteId = $allBlocks[0]->siteId;
+                // need to set the new key since the siteId is now set
+                $key = $blockStructure->siteId;
             }
 
             $blocksBySite[$key] = $allBlocks;
@@ -873,7 +873,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         // Recreate the block structures with the original block data
         foreach ($blockStructures as $blockStructure) {
-            $key = $blockStructure->ownerSiteId ?? 0;
+            $key = $blockStructure->siteId ?? 0;
             Neo::$plugin->blocks->saveStructure($blockStructure);
             Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
         }
