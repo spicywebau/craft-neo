@@ -142,7 +142,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    protected function defineRules(): array
     {
         return [
             [['id', 'fieldId', 'sortOrder'], 'number', 'integerOnly' => true],

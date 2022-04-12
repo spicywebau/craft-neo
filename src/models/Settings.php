@@ -27,7 +27,7 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    protected function defineRules(): array
     {
         return [
             [['collapseAllBlocks', 'optimiseSearchIndexing'], 'boolean'],
