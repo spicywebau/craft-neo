@@ -25,8 +25,10 @@ Good news! Chances are you probably don't have to change your code. Though if yo
 For an eager-loaded Neo field, the above can simply be changed to the following:
 
 ```twig
-{% for pullQuotes in entry.neoField if pullQuotes.type.handle == 'pullQuote' %}
-    ...
+{% for pullQuotes in entry.neoField %}
+    {% if pullQuotes.type.handle == 'pullQuote' %}
+        ...
+    {% endif %}
 {% endfor %}
 ```
 
@@ -35,28 +37,34 @@ For an eager-loaded Neo field, the above can simply be changed to the following:
 This is where things start to get a little hairy. Using the same approach above to select only the top-level blocks will indeed work:
 
 ```twig
-{% for block in entry.neoField if block.level == 1 %}
-    ...
+{% for block in entry.neoField %}
+    {% if block.level == 1 %}
+        ...
+    {% endif %}
 {% endfor %}
 ```
 
 The problem shows up when you output a block's children &mdash; it'll end up creating another database query, which entirely defeats the purpose of eager-loading:
 
 ```twig
-{% for block in entry.neoField if block.level == 1 %}
-    {% for child in block.children.all() %}
-        {# `block.children` is an element query
-           which will cause an unnecessary database call #}
-    {% endfor %}
+{% for block in entry.neoField %}
+    {% if block.level == 1 %}
+        {% for child in block.children.all() %}
+            {# `block.children` is an element query 
+               which will cause an unnecessary database call #}
+        {% endfor %}
+    {% endif %}
 {% endfor %}
 ```
 
 There is a feature in Neo that will allow you to avoid these database calls, and it works with or without eager loading! At the top of your loop, add the following: `{% do block.useMemoized(entry.neoField) %}`
 
 ```twig
-{% for block in entry.neoField if block.level == 1 %}
-    {% do block.useMemoized(entry.neoField) %}
-    ...
+{% for block in entry.neoField %}
+    {% if block.level == 1 %}
+        {% do block.useMemoized(entry.neoField) %}
+        ...
+    {% endif %}
 {% endfor %}
 ```
 
@@ -71,8 +79,10 @@ Be aware though, every block (include all child blocks) should have the `useMemo
 {% endfor %}
 
 {# The real-deal #}
-{% for block in entry.neoField if block.level == 1 %}
-    ...
+{% for block in entry.neoField %}
+    {% if block.level == 1 %}
+        ...
+    {% endif %}
 {% endfor %}
 ```
 
