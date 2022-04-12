@@ -517,10 +517,7 @@ class Block extends Element implements BlockElementInterface
             $record->fieldId = (int)$this->fieldId;
             $record->primaryOwnerId = $this->primaryOwnerId ?? $this->ownerId;
             $record->typeId = (int)$this->typeId;
-
-            if (Neo::$plugin->blockHasSortOrder) {
-                $record->sortOrder = (int)$this->sortOrder ?: null;
-            }
+            $record->sortOrder = (int)$this->sortOrder ?: null;
 
             $record->save(false);
 

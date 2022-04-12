@@ -61,8 +61,6 @@ class Plugin extends BasePlugin
         'input' => InputController::class,
     ];
 
-    public $blockHasSortOrder = true;
-
     /**
      * @inheritdoc
      */
@@ -86,7 +84,6 @@ class Plugin extends BasePlugin
         $this->_registerGqlType();
         $this->_registerProjectConfigApply();
         $this->_registerProjectConfigRebuild();
-        $this->_setupBlocksHasSortOrder();
         $this->_registerGarbageCollection();
         $this->_registerChildBlocksUiElement();
         $this->_registerGatsbyHelper();
@@ -164,17 +161,6 @@ class Plugin extends BasePlugin
             $event->config['neoBlockTypes'] = $blockTypeData;
             $event->config['neoBlockTypeGroups'] = $blockTypeGroupData;
         });
-    }
-
-    private function _setupBlocksHasSortOrder()
-    {
-        $dbService = Craft::$app->getDb();
-
-        try {
-            $this->blockHasSortOrder = $dbService->columnExists('{{%neoblocks}}', 'sortOrder');
-        } catch (NotSupportedException $e) {
-            $this->blockHasSortOrder = true;
-        }
     }
 
     private function _registerGarbageCollection()
