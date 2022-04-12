@@ -55,6 +55,11 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
+    public string $minVersionRequired = '2.13.0';
+
+    /**
+     * @inheritdoc
+     */
     public $controllerMap = [
         'configurator' => ConfiguratorController::class,
         'conversion' => ConversionController::class,
