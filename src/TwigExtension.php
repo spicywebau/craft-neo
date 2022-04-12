@@ -3,7 +3,6 @@
 namespace benf\neo;
 
 use benf\neo\elements\Block;
-use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 
 use Twig\TwigTest;
@@ -18,14 +17,6 @@ use Twig\TwigTest;
  */
 class TwigExtension extends AbstractExtension
 {
-    /**
-     * return string
-     */
-    public function getName()
-    {
-        return "Neo";
-    }
-
     /**
      * @return array|TwigTest[]
      */
@@ -45,28 +36,5 @@ class TwigExtension extends AbstractExtension
     public function isNeoBlock($value)
     {
         return $value instanceof Block;
-    }
-
-    // Useless methods below
-
-    /**
-     * Added this to avoid PHP error of undeclared method.
-     * This method is deprecated so it should eventually be removed when safe to do so.
-     *
-     * @param Environment $environment
-     */
-    public function initRuntime(Environment $environment)
-    {
-    }
-
-    /**
-     * Added this to avoid PHP error of undeclared method.
-     * This method is deprecated so it should eventually be removed when safe to do so.
-     *
-     * @return array
-     */
-    public function getGlobals()
-    {
-        return [];
     }
 }
