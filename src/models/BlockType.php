@@ -129,7 +129,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     /**
      * @inheritdoc
      */
-    public function behaviors(): array
+    protected function defineBehaviors(): array
     {
         return [
             'fieldLayout' => [
