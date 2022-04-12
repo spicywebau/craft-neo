@@ -194,10 +194,9 @@ class BlockTypes extends Component
      * Performs validation on a given Neo block type.
      *
      * @param BlockType $blockType The block type to perform validation on.
-     * @param bool $validateUniques Whether to ensure that the block type's handle is unique.
      * @return bool Whether validation was successful.
      */
-    public function validate(BlockType $blockType, bool $validateUniques = true): bool
+    public function validate(BlockType $blockType): bool
     {
         $record = $this->_getRecord($blockType);
 
@@ -213,7 +212,6 @@ class BlockTypes extends Component
         $record->topLevel = $blockType->topLevel;
         $record->groupId = $blockType->groupId;
 
-        $record->validateUniques = $validateUniques;
         $isValid = (bool)$record->validate();
 
         if (!$isValid) {
