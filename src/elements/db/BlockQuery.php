@@ -16,6 +16,7 @@ use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\base\Model as BaseModel;
+use yii\db\Connection;
 
 /**
  * Class BlockQuery
@@ -266,7 +267,7 @@ class BlockQuery extends ElementQuery
      * @inheritdoc
      * @return Block|array|null
      */
-    public function nth(int $n, ?\yii\db\Connection $db = null): BaseModel|array|null
+    public function nth(int $n, ?Connection $db = null): BaseModel|array|null
     {
         $isUsingMemoized = $this->isUsingMemoized();
 
@@ -380,7 +381,7 @@ class BlockQuery extends ElementQuery
         ]);
 
         if ($this->fieldId) {
-            $this->subQuery->andWhere(Db::parseParam('neoblocks.fieldId', $this->fieldId));
+            $this->subQuery->andWhere(['neoblocks.fieldId' => $this->fieldId]);
         }
 
         if ($this->primaryOwnerId) {
@@ -393,7 +394,7 @@ class BlockQuery extends ElementQuery
                 return false;
             }
 
-            $this->subQuery->andWhere(Db::parseParam('neoblocks.typeId', $this->typeId));
+            $this->subQuery->andWhere(Db::parseNumericParam('neoblocks.typeId', $this->typeId));
         }
 
         // Ignore revision/draft blocks by default
