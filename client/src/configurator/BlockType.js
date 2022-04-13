@@ -47,11 +47,14 @@ export default Item.extend({
   },
 
   _generateBlockType (settings) {
+    const errors = settings.getErrors()
+    const hasErrors = (Array.isArray(errors) ? errors : Object.keys(errors)).length > 0
+
     return $(`
-      <div class="nc_sidebar_list_item${settings.getErrors().length > 0 ? ' has-errors' : ''}">
+      <div class="nc_sidebar_list_item${hasErrors ? ' has-errors' : ''}">
         <div class="label" data-neo-bt="text.name">${settings.getName()}</div>
         <a class="move icon" title="${Craft.t('neo', 'Reorder')}" role="button" data-neo-bt="button.move"></a>
-        <a class="settings icon menubtn" title="${Craft.t('neo', 'Actions')}" role="button" data-neo-bt="button.actions"></a>
+        <button class="settings icon menubtn" title="${Craft.t('neo', 'Actions')}" role="button" type="button" data-neo-bt="button.actions"></button>
         <div class="menu" data-neo-bt="container.menu">
           <ul class="padded">
             <li><a data-icon="field" data-action="copy">${Craft.t('neo', 'Copy')}</a></li>
