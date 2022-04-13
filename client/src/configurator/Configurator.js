@@ -326,9 +326,6 @@ export default Garnish.Base.extend({
 
       this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
     } else {
-      const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
-      this._insertAt($spinner, selectedIndex)
-
       const oldSettings = oldBlockType.getSettings()
       const settings = new BlockTypeSettings({
         childBlocks: oldSettings.getChildBlocks(),
@@ -346,16 +343,29 @@ export default Garnish.Base.extend({
       })
       const config = oldBlockType.getFieldLayout().getConfig()
 
-      Craft.postActionRequest('neo/configurator/render-field-layout', { layout: config }, e => {
+      if (config.tabs.length > 0) {
+        const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
+        this._insertAt($spinner, selectedIndex)
+
+        Craft.postActionRequest('neo/configurator/render-field-layout', { layout: config }, e => {
+          const fieldLayout = new BlockTypeFieldLayout({
+            blockTypeId: id,
+            html: e.success ? e.html : this._fieldLayoutHtml,
+            namespace: [...namespace, id]
+          })
+
+          this.$blockTypesContainer.find('.type-spinner').remove()
+          this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
+        })
+      } else {
         const fieldLayout = new BlockTypeFieldLayout({
           blockTypeId: id,
-          html: e.success ? e.html : this._fieldLayoutHtml,
+          html: this._fieldLayoutHtml,
           namespace: [...namespace, id]
         })
 
-        this.$blockTypesContainer.find('.type-spinner').remove()
         this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
-      })
+      }
     }
   },
 
