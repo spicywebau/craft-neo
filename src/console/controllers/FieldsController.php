@@ -9,6 +9,7 @@ use craft\console\Controller;
 use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Queue;
+use craft\i18n\Translation;
 use craft\queue\jobs\ApplyNewPropagationMethod;
 use yii\console\ExitCode;
 use yii\helpers\Console;
@@ -80,7 +81,7 @@ class FieldsController extends Controller
 
             foreach ($neoFields as $field) {
                 Queue::push(new ApplyNewPropagationMethod([
-                    'description' => Craft::t('neo', 'Applying new propagation method to Neo blocks'),
+                    'description' => Translation::prep('neo', 'Applying new propagation method to Neo blocks'),
                     'elementType' => Block::class,
                     'criteria' => [
                         'fieldId' => $field->id,
@@ -124,7 +125,7 @@ class FieldsController extends Controller
 
             if ($fieldPropagationMethod[$fieldId] !== Field::PROPAGATION_METHOD_ALL) {
                 Queue::push(new ApplyNewPropagationMethod([
-                    'description' => Craft::t('neo', 'Applying new propagation method to Neo blocks'),
+                    'description' => Translation::prep('neo', 'Applying new propagation method to Neo blocks'),
                     'elementType' => Block::class,
                     'criteria' => [
                         'ownerId' => $blockStructure['ownerId'],

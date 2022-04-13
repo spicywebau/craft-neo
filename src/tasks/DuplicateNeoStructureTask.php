@@ -5,6 +5,7 @@ namespace benf\neo\tasks;
 use benf\neo\models\BlockStructure;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\i18n\Translation;
 use craft\queue\BaseJob;
 
 class DuplicateNeoStructureTask extends BaseJob
@@ -95,6 +96,6 @@ class DuplicateNeoStructureTask extends BaseJob
      */
     protected function defaultDescription(): ?string
     {
-        return Craft::t('neo', 'Saving the Neo structure for duplicated elements');
+        return Translation::prep('neo', 'Saving the Neo structure for duplicated elements');
     }
 }
