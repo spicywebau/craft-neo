@@ -29,6 +29,12 @@
 - Removed `benf\neo\services\Blocks::getSearchKeywords()`
 - Removed `benf\neo\services\Fields::getSupportedSiteIdsForField()`
 
+## 2.13.4 - 2022-04-13
+
+### Fixed
+- Fixed an error that occurred on a Neo field settings page when copying and pasting a block type that was set to use all of the field's block types as child block types
+- Fixed style issues with UI elements on Neo blocks
+
 ## 2.13.3 - 2022-03-24
 
 ### Changed
