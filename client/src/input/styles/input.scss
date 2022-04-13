@@ -335,13 +335,42 @@ $preview-reduction: 70px;
                     margin: 15px 0 0 0;
                 }
 
-                &.flex-fields > .field {
-                    &::before {
-                        display: none;
+                &.flex-fields {
+                    > .field {
+                        &::before {
+                            display: none;
+                        }
+
+                        > .status-badge {
+                            left: -15px;
+                        }
                     }
 
-                    > .status-badge {
-                        left: -15px;
+                    // Fixes for style issues with UI elements
+                    #content & {
+                        > :not(.field)::before {
+                            display: none;
+                        }
+
+                        > h2 {
+                            position: relative;
+                            border-top: none !important;
+
+                            &::after {
+                                content: '';
+                                position: absolute;
+                                top: -1px;
+                                left: 10px;
+                                right: 10px;
+                                height: 1px;
+                                background-color: rgba(51, 64, 77, .1);
+                            }
+                        }
+
+                        > hr {
+                            margin-left: 10px !important;
+                            margin-right: 10px !important;
+                        }
                     }
                 }
             }
