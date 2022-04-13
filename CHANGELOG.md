@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.4 - 2022-04-13
 
 ### Fixed
 - Fixed an error that occurred on a Neo field settings page when copying and pasting a block type that was set to use all of the field's block types as child block types
