@@ -1095,6 +1095,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                         'propagating' => false,
                         'markAsSaved' => false,
                         'structureId' => null,
+                        'level' => $block->level,
                     ]);
                 }
 
