@@ -10,6 +10,7 @@
 
 ### Deprecated
 - Deprecated `benf\neo\assets\FieldAsset`; users of `EVENT_FILTER_BLOCK_TYPES` should use `InputAsset` instead
+- Deprecated `benf\neo\tasks\DuplicateNeoStructureTask`; use `benf\neo\jobs\SaveBlockStructures` instead
 
 ### Removed
 - Removed the unused `saveModifiedBlocksOnly` setting

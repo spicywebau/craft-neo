@@ -10,7 +10,7 @@ use benf\neo\models\BlockStructure;
 
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
-use benf\neo\tasks\DuplicateNeoStructureTask;
+use benf\neo\jobs\SaveBlockStructures;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
@@ -598,7 +598,7 @@ SQL
 
         Db::batchInsert('{{%neoblocks_owners}}', ['blockId', 'ownerId', 'sortOrder'], $ownershipData);
 
-        Craft::$app->getQueue()->push(new DuplicateNeoStructureTask([
+        Craft::$app->getQueue()->push(new SaveBlockStructures([
             'field' => $field->id,
             'owner' => [
                 'id' => $revision->id,
