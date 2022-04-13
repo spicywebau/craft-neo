@@ -373,9 +373,10 @@ export default Garnish.Base.extend({
     }
 
     const data = JSON.parse(encodedData)
-    const childBlocks = data.childBlocks
-      ? data.childBlocks.filter(cb => this.getBlockTypes().map(bt => bt.getSettings().getHandle()).includes(cb))
-      : []
+    const blockTypeHandles = this.getBlockTypes().map(bt => bt.getSettings().getHandle())
+    const childBlocks = Array.isArray(data.childBlocks)
+      ? data.childBlocks.filter(cb => blockTypeHandles.includes(cb))
+      : (data.childBlocks ? true : [])
     const settings = new BlockTypeSettings({
       childBlocks: childBlocks,
       childBlockTypes: this.getBlockTypes(),
