@@ -158,12 +158,7 @@ export default Garnish.Base.extend({
   addItem (item, index = -1) {
     const settings = item.getSettings()
 
-    if (index >= 0 && index < this._items.length) {
-      item.$container.insertAt(index, this.$blockTypesContainer)
-    } else {
-      this.$blockTypesContainer.append(item.$container)
-    }
-
+    this._insertAt(item.$container, index)
     this._itemSort.addItems(item.$container)
 
     if (settings) this.$settingsContainer.append(settings.$container)
@@ -313,6 +308,8 @@ export default Garnish.Base.extend({
   _createBlockTypeFrom (oldBlockType) {
     const namespace = [...this._templateNs, 'blockTypes']
     const id = BlockTypeSettings.getNewId()
+    const selectedItem = this.getSelectedItem()
+    const selectedIndex = selectedItem ? selectedItem.getSettings().getSortOrder() : -1
 
     if (oldBlockType === null) {
       const settings = new BlockTypeSettings({
@@ -327,8 +324,11 @@ export default Garnish.Base.extend({
         namespace: [...namespace, id]
       })
 
-      this._initBlockType(namespace, settings, fieldLayout)
+      this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
     } else {
+      const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
+      this._insertAt($spinner, selectedIndex)
+
       const oldSettings = oldBlockType.getSettings()
       const settings = new BlockTypeSettings({
         childBlocks: oldSettings.getChildBlocks(),
@@ -353,15 +353,14 @@ export default Garnish.Base.extend({
           namespace: [...namespace, id]
         })
 
-        this._initBlockType(namespace, settings, fieldLayout)
+        this.$blockTypesContainer.find('.type-spinner').remove()
+        this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
       })
     }
   },
 
-  _initBlockType (namespace, settings, fieldLayout) {
+  _initBlockType (namespace, settings, fieldLayout, index) {
     const blockType = new BlockType({ namespace, settings, fieldLayout })
-    const selected = this.getSelectedItem()
-    const index = selected ? selected.getSettings().getSortOrder() : -1
 
     this.addItem(blockType, index)
     this.selectItem(blockType)
@@ -421,6 +420,16 @@ export default Garnish.Base.extend({
     })
 
     this._createBlockTypeFrom(blockType)
+  },
+
+  _insertAt (element, index) {
+    const $element = $(element)
+
+    if (index >= 0 && index < this._items.length) {
+      $element.insertAt(index, this.$blockTypesContainer)
+    } else {
+      this.$blockTypesContainer.append($element)
+    }
   },
 
   '@newBlockType' () {

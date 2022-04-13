@@ -137,6 +137,17 @@
                         }
                     }
                 }
+
+                &.type-spinner {
+                    height: 42px;
+
+                    .spinner {
+                        position: absolute;
+                        top: calc(50% - 17px);
+                        left: calc(50% - 12px);
+                        opacity: 1;
+                    }
+                }
             }
         }
 
