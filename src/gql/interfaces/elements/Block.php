@@ -4,7 +4,7 @@ namespace benf\neo\gql\interfaces\elements;
 
 use benf\neo\elements\Block as NeoBlock;
 use benf\neo\gql\types\generators\BlockType;
-
+use Craft;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
 use craft\gql\TypeLoader;
@@ -30,26 +30,20 @@ class Block extends Element
     /**
      * @inheritdoc
      */
-    public static function getType($fields = null): Type
+    public static function getType(): Type
     {
-        if ($type = GqlEntityRegistry::getEntity(self::class)) {
+        if ($type = GqlEntityRegistry::getEntity(self::getName())) {
             return $type;
         }
 
-        $type = GqlEntityRegistry::createEntity(self::class, new InterfaceType([
+        $type = GqlEntityRegistry::createEntity(self::getName(), new InterfaceType([
             'name' => static::getName(),
             'fields' => self::class . '::getFieldDefinitions',
             'description' => 'This is the interface implemented by all Neo blocks.',
-            'resolveType' => static function(NeoBlock $value) {
-                return $value->getGqlTypeName();
-            },
+            'resolveType' => self::class . '::resolveElementTypeName',
         ]));
 
-        foreach (BlockType::generateTypes() as $typeName => $generatedType) {
-            TypeLoader::registerType($typeName, function() use ($generatedType) {
-                return $generatedType;
-            });
-        }
+        BlockType::generateTypes();
 
         return $type;
     }
@@ -67,7 +61,7 @@ class Block extends Element
      */
     public static function getFieldDefinitions(): array
     {
-        return array_merge(parent::getFieldDefinitions(), [
+        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
             'fieldId' => [
                 'name' => 'fieldId',
                 'type' => Type::int(),
@@ -76,7 +70,7 @@ class Block extends Element
             'level' => [
                 'name' => 'level',
                 'type' => Type::int(),
-                'description' => 'The Neo block\'s level.',
+                'description' => 'The Neo block’s level.',
             ],
             'primaryOwnerId' => [
                 'name' => 'primaryOwnerId',
@@ -86,13 +80,18 @@ class Block extends Element
             'typeId' => [
                 'name' => 'typeId',
                 'type' => Type::int(),
-                'description' => 'The ID of the Neo block\'s type.',
+                'description' => 'The ID of the Neo block’s type.',
             ],
             'typeHandle' => [
                 'name' => 'typeHandle',
                 'type' => Type::string(),
-                'description' => 'The handle of the Neo block\'s type.',
+                'description' => 'The handle of the Neo block’s type.',
             ],
-        ]);
+            'sortOrder' => [
+                'name' => 'sortOrder',
+                'type' => Type::int(),
+                'description' => 'The sort order of the Neo block within the owner element field.',
+            ],
+        ]), self::getName());
     }
 }

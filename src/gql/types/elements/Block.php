@@ -3,9 +3,8 @@
 namespace benf\neo\gql\types\elements;
 
 use benf\neo\gql\interfaces\elements\Block as NeoBlockInterface;
-
 use craft\gql\base\ObjectType;
-use craft\gql\interfaces\Element as ElementInterface;
+use craft\gql\types\elements\Element;
 use GraphQL\Type\Definition\ResolveInfo;
 
 /**
@@ -14,7 +13,7 @@ use GraphQL\Type\Definition\ResolveInfo;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3.0
  */
-class Block extends ObjectType
+class Block extends Element
 {
     /**
      * @inheritdoc
@@ -23,7 +22,6 @@ class Block extends ObjectType
     {
         $config['interfaces'] = [
             NeoBlockInterface::getType(),
-            ElementInterface::getType(),
         ];
 
         parent::__construct($config);
@@ -53,6 +51,6 @@ class Block extends ObjectType
             return $children;
         }
 
-        return $source->$fieldName;
+        return parent::resolve($source, $arguments, $context, $resolveInfo);
     }
 }

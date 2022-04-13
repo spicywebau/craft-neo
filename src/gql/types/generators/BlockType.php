@@ -3,11 +3,15 @@
 namespace benf\neo\gql\types\generators;
 
 use benf\neo\elements\Block as BlockElement;
-use benf\neo\gql\interfaces\elements\Block as NeoBlockInterface;
+use benf\neo\gql\interfaces\elements\Block as BlockInterface;
 use benf\neo\gql\types\elements\Block;
 use benf\neo\Plugin as Neo;
+use Craft;
 use craft\base\Field;
+use craft\gql\base\Generator;
 use craft\gql\base\GeneratorInterface;
+use craft\gql\base\ObjectType;
+use craft\gql\base\SingleGeneratorInterface;
 use craft\gql\GqlEntityRegistry;
 use GraphQL\Type\Definition\Type;
 
@@ -17,7 +21,7 @@ use GraphQL\Type\Definition\Type;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3.0
  */
-class BlockType implements GeneratorInterface
+class BlockType extends Generator implements GeneratorInterface, SingleGeneratorInterface
 {
     /**
      * @inheritdoc
@@ -33,46 +37,56 @@ class BlockType implements GeneratorInterface
         $gqlTypes = [];
 
         foreach ($blockTypes as $blockType) {
-            $typeName = BlockElement::gqlTypeNameByContext($blockType);
-
-            if (!($entity = GqlEntityRegistry::getEntity($typeName))) {
-
-                // Generate a type for each
-                $contentFields = $blockType->getFields();
-                $contentFieldGqlTypes = [];
-
-                /** @var Field $contentField */
-                foreach ($contentFields as $contentField) {
-                    $contentFieldGqlTypes[$contentField->handle] = $contentField->getContentGqlType();
-                }
-
-                if (!empty($blockType->childBlocks)) {
-                    $contentFieldGqlTypes['children'] = [
-                        'name' => 'children',
-                        'type' => Type::listOf(NeoBlockInterface::getType()),
-                        'description' => 'The children block types for this block',
-                    ];
-                }
-
-                $blockTypeFields = array_merge(NeoBlockInterface::getFieldDefinitions(), $contentFieldGqlTypes);
-
-                $entity = GqlEntityRegistry::getEntity($typeName);
-
-                if (!$entity) {
-                    $entity = new Block([
-                        'name' => $typeName,
-                        'fields' => function() use ($blockTypeFields) {
-                            return $blockTypeFields;
-                        },
-                    ]);
-
-                    $entity = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, $entity);
-                }
-            }
-
-            $gqlTypes[$typeName] = $entity;
+            $type = static::generateType($blockType);
+            $gqlTypes[$type->name] = $type;
         }
 
         return $gqlTypes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function generateType(mixed $context): ObjectType
+    {
+        $typeName = BlockElement::gqlTypeNameByContext($context);
+
+        if (!($entity = GqlEntityRegistry::getEntity($typeName))) {
+            $contentFieldGqlTypes = self::getContentFields($context);
+            $blockTypeFields = array_merge(BlockInterface::getFieldDefinitions(), $contentFieldGqlTypes);
+
+            $entity = GqlEntityRegistry::getEntity($typeName);
+
+            if (!$entity) {
+                $entity = new Block([
+                    'name' => $typeName,
+                    'fields' => function() use ($blockTypeFields, $typeName) {
+                        return Craft::$app->getGql()->prepareFieldDefinitions($blockTypeFields, $typeName);
+                    },
+                ]);
+
+                $entity = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, $entity);
+            }
+        }
+
+        return $entity;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function getContentFields(mixed $context): array
+    {
+        $contentFieldGqlTypes = parent::getContentFields($context);
+
+        if (!empty($context->childBlocks)) {
+            $contentFieldGqlTypes['children'] = [
+                'name' => 'children',
+                'type' => Type::listOf(BlockInterface::getType()),
+                'description' => 'The child block types for this Neo block',
+            ];
+        }
+
+        return $contentFieldGqlTypes;
     }
 }

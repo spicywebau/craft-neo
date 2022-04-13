@@ -66,7 +66,7 @@ class Block extends InputObjectType
             },
         ]));
 
-        $inputType = GqlEntityRegistry::createEntity($typeName, new InputObjectType([
+        return GqlEntityRegistry::createEntity($typeName, new InputObjectType([
             'name' => $typeName,
             'fields' => function() use ($blockContainerInputType) {
                 return [
@@ -82,11 +82,9 @@ class Block extends InputObjectType
             },
             'normalizeValue' => [self::class, 'normalizeValue'],
         ]));
-
-        return $inputType;
     }
 
-    public static function normalizeValue($value)
+    public static function normalizeValue(mixed $value): mixed
     {
         $preparedBlocks = [];
         $blockCounter = 1;
@@ -112,7 +110,6 @@ class Block extends InputObjectType
                     $preparedBlocks[$blockId] = [
                         'type' => $type,
                         'level' => $blockLevel,
-                        'modified' => true,
                         'fields' => $block,
                     ];
                 }

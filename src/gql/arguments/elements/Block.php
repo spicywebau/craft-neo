@@ -3,6 +3,7 @@
 namespace benf\neo\gql\arguments\elements;
 
 use craft\gql\base\ElementArguments;
+use craft\gql\types\QueryArgument;
 use GraphQL\Type\Definition\Type;
 
 /**
@@ -18,15 +19,15 @@ class Block extends ElementArguments
         return array_merge(parent::getArguments(), [
             'fieldId' => [
                 'name' => 'fieldId',
-                'type' => Type::listOf(Type::int()),
+                'type' => Type::listOf(QueryArgument::getType()),
                 'description' => 'Narrows the query results based on the field the Neo blocks belong to, per the fields’ IDs.',
             ],
             'primaryOwnerId' => [
                 'name' => 'primaryOwnerId',
-                'type' => Type::listOf(Type::string()),
+                'type' => Type::listOf(QueryArgument::getType()),
                 'description' => ' Narrows the query results based on the primary owner element of the Neo blocks, per the owners’ IDs.',
             ],
-            'typeId' => Type::listOf(Type::int()),
+            'typeId' => Type::listOf(QueryArgument::getType()),
             'type' => [
                 'name' => 'type',
                 'type' => Type::listOf(Type::string()),
@@ -34,7 +35,7 @@ class Block extends ElementArguments
             ],
             'level' => [
                 'name' => 'level',
-                'type' => Type::int(),
+                'type' => QueryArgument::getType(),
                 'description' => 'The block’s level within its field',
             ],
         ]);

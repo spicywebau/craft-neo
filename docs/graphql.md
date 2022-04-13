@@ -209,7 +209,7 @@ body(level: 0) {
 
 ## Mutations
 
-Mutating Neo fields is largely the same process as with [Matrix fields](https://craftcms.com/docs/3.x/graphql.html#matrix-fields-in-mutations), but with two differences:
+Mutating Neo fields is largely the same process as with [Matrix fields](https://craftcms.com/docs/4.x/graphql.html#matrix-fields-in-mutations), but with two differences:
 
 - Neo-related input types have Neo in their name, rather than Matrix; e.g. the input type for a Neo field with the handle `yourNeoField` is `yourNeoField_NeoInput`.
 - Neo block data can include a `level` argument for setting the block's level. If `level` isn't specified for new blocks, it will default to 1.
