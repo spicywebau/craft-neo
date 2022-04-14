@@ -10,7 +10,7 @@
 - Added `benf\neo\jobs\SaveBlockStructures`
 
 ### Changed
-- Existing Neo input field content is no longer rendered using JavaScript
+- Existing Neo input field content is no longer rendered using JavaScript (other than new block buttons)
 - Whether a Neo block type's max blocks setting has been exceeded is now validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
 - The `neoblockstructures` table's `ownerSiteId` column has been renamed to `siteId`, and the `benf\neo\models\BlockStructure` class's `$ownerSiteId` property has been renamed to `$siteId`
 - Updated JavaScript dependencies
