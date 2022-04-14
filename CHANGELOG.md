@@ -19,9 +19,6 @@
 - Deprecated `benf\neo\assets\FieldAsset`; users of `EVENT_FILTER_BLOCK_TYPES` should use `InputAsset` instead
 - Deprecated `benf\neo\tasks\DuplicateNeoStructureTask`; use `benf\neo\jobs\SaveBlockStructures` instead
 
-### Fixed
-- Fixed a bug where it was possible to create a Neo field with no block types
-
 ### Removed
 - Removed the unused `saveModifiedBlocksOnly` setting
 - Removed the unused `ownerSiteId` column from the `neoblocks` table
@@ -42,6 +39,9 @@
 - Removed `benf\neo\services\Blocks::getSearchKeywords()`
 - Removed `benf\neo\services\BlockTypes::renderTabs()`
 - Removed `benf\neo\services\Fields::getSupportedSiteIdsForField()`
+
+### Fixed
+- Fixed a bug where it was possible to create a Neo field with no block types
 
 ## 2.13.4 - 2022-04-13
 
