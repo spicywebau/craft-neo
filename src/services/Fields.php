@@ -599,14 +599,11 @@ SQL
         Db::batchInsert('{{%neoblocks_owners}}', ['blockId', 'ownerId', 'sortOrder'], $ownershipData);
 
         Craft::$app->getQueue()->push(new SaveBlockStructures([
-            'field' => $field->id,
-            'owner' => [
-                'id' => $revision->id,
-                'siteId' => $revision->siteId,
-            ],
+            'fieldId' => $field->id,
+            'ownerId' => $revision->id,
+            'siteId' => $revision->siteId,
+            'otherSupportedSiteIds' => $this->getSupportedSiteIdsExCurrent($field, $revision),
             'blocks' => $jobData,
-            'siteId' => null,
-            'supportedSites' => $this->getSupportedSiteIdsExCurrent($field, $revision),
         ]));
     }
 

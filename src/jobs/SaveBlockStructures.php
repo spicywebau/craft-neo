@@ -19,12 +19,22 @@ class SaveBlockStructures extends BaseJob
     /**
      * @var int
      */
-    public int $field;
+    public int $fieldId;
 
     /**
-     * @var array containing the `id` and `siteId` of the owner
+     * @var int
      */
-    public array $owner;
+    public int $ownerId;
+
+    /**
+     * @var int
+     */
+    public int $siteId;
+
+    /**
+     * @var int[]
+     */
+    public array $otherSupportedSiteIds;
 
     /**
      * @var array of blocks' `id`, `lft`, `rgt`, `level`
@@ -32,31 +42,21 @@ class SaveBlockStructures extends BaseJob
     public array $blocks;
 
     /**
-     * @var int|null
-     */
-    public ?int $siteId = null;
-
-    /**
-     * @var int[]
-     */
-    public array $supportedSites;
-
-    /**
      * @inheritdoc
      */
     public function execute($queue): void
     {
         $blocks = [];
-        $siteId = $this->siteId ?? $this->owner['siteId'];
+
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($this->field, $this->owner['id'], (int)$siteId)) !== null) {
+        while (($blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->siteId)) !== null) {
             Neo::$plugin->blocks->deleteStructure($blockStructure);
         }
 
         $this->setProgress($queue, 0.3);
 
         foreach ($this->blocks as $b) {
-            $neoBlock = Neo::$plugin->blocks->getBlockById($b['id'], $siteId);
+            $neoBlock = Neo::$plugin->blocks->getBlockById($b['id'], $this->siteId);
 
             if ($neoBlock) {
                 $neoBlock->lft = (int)$b['lft'];
@@ -71,26 +71,24 @@ class SaveBlockStructures extends BaseJob
 
         if (!empty($blocks)) {
             $blockStructure = new BlockStructure();
-            $blockStructure->fieldId = (int)$this->field;
-            $blockStructure->ownerId = (int)$this->owner['id'];
-            $blockStructure->siteId = (int)$siteId;
+            $blockStructure->fieldId = $this->fieldId;
+            $blockStructure->ownerId = $this->ownerId;
+            $blockStructure->siteId = $this->siteId;
 
             Neo::$plugin->blocks->saveStructure($blockStructure);
             Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
 
-            if (count($this->supportedSites) > 0) {
-                // if has more than 3 sites then use a job instead to lighten the load.
-                foreach ($this->supportedSites as $s) {
-                    while (($mBlockStructure = Neo::$plugin->blocks->getStructure($this->field, $this->owner['id'], $s)) !== null) {
-                        Neo::$plugin->blocks->deleteStructure($mBlockStructure);
-                    }
-
-                    $multiBlockStructure = $blockStructure;
-                    $multiBlockStructure->id = null;
-                    $multiBlockStructure->siteId = $s;
-
-                    Neo::$plugin->blocks->saveStructure($multiBlockStructure);
+            // Now do the other supported sites
+            foreach ($this->otherSupportedSiteIds as $siteId) {
+                while (($mBlockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $siteId)) !== null) {
+                    Neo::$plugin->blocks->deleteStructure($mBlockStructure);
                 }
+
+                $multiBlockStructure = $blockStructure;
+                $multiBlockStructure->id = null;
+                $multiBlockStructure->siteId = $siteId;
+
+                Neo::$plugin->blocks->saveStructure($multiBlockStructure);
             }
         }
 
@@ -102,6 +100,6 @@ class SaveBlockStructures extends BaseJob
      */
     protected function defaultDescription(): ?string
     {
-        return Translation::prep('neo', 'Saving the Neo structure for duplicated elements');
+        return Translation::prep('neo', 'Saving Neo block structures for duplicated elements');
     }
 }
