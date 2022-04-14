@@ -628,38 +628,22 @@ class BlockTypes extends Component
      */
     private function _createQuery(): Query
     {
-        // Only select `maxSiblingBlocks` (added in Neo 2.8) and `groupId` (added in Neo 2.13) if they exist, since the
-        // Craft migration `m200620_230205_field_layout_changes` causes this method to be called if an affected entry
-        // has a Neo field
-        $blockTypeTableSchema = Craft::$app->getDb()
-            ->getSchema()
-            ->getTableSchema('{{%neoblocktypes}}');
-        $otherColumns = [
-            'groupId' => $blockTypeTableSchema->getColumn('groupId'),
-            'maxSiblingBlocks' => $blockTypeTableSchema->getColumn('maxSiblingBlocks'),
-        ];
-        $selectColumns = [
-            'id',
-            'fieldId',
-            'fieldLayoutId',
-            'name',
-            'handle',
-            'maxBlocks',
-            'maxChildBlocks',
-            'childBlocks',
-            'topLevel',
-            'sortOrder',
-            'uid',
-        ];
-
-        foreach ($otherColumns as $name => $exists) {
-            if ($exists !== null) {
-                $selectColumns[] = $name;
-            }
-        }
-
         return (new Query())
-            ->select($selectColumns)
+            ->select([
+                'id',
+                'fieldId',
+                'fieldLayoutId',
+                'groupId',
+                'name',
+                'handle',
+                'maxBlocks',
+                'maxSiblingBlocks',
+                'maxChildBlocks',
+                'childBlocks',
+                'topLevel',
+                'sortOrder',
+                'uid',
+            ])
             ->from(['{{%neoblocktypes}}'])
             ->orderBy(['sortOrder' => SORT_ASC]);
     }
