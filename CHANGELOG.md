@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (3.x)
+## 3.0.0-beta.1 - 2022-04-14
 
 ### Added
 - Added Craft 4 compatibility (requires Craft 4.0.0-beta.4 or later)
