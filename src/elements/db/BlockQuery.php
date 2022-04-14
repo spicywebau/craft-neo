@@ -90,19 +90,12 @@ class BlockQuery extends ElementQuery
      */
     public function __set($name, $value)
     {
-        switch ($name) {
-            case 'owner':
-                $this->owner($value);
-                break;
-            case 'primaryOwner':
-                $this->primaryOwner($value);
-                break;
-            case 'type':
-                $this->type($value);
-                break;
-            default:
-                parent::__set($name, $value);
-        }
+        match ($name) {
+            'owner' => $this->owner($value),
+            'primaryOwner' => $this->primaryOwner($value),
+            'type' => $this->type($value),
+            default => parent::__set($name, $value),
+        };
     }
 
     /**
@@ -580,24 +573,26 @@ class BlockQuery extends ElementQuery
             return $value === $comparison;
         }
 
-        if (is_string($comparison)) {
-            $matches = [];
-            preg_match('/([><]=?)\\s*([0-9]+)/', $comparison, $matches);
-
-            if (count($matches) === 3) {
-                $comparator = $matches[1];
-                $comparison = (int)$matches[2];
-
-                switch ($comparator) {
-                    case '>': return $value > $comparison;
-                    case '<': return $value < $comparison;
-                    case '>=': return $value >= $comparison;
-                    case '<=': return $value <= $comparison;
-                }
-            }
+        if (!is_string($comparison)) {
+            return false;
         }
 
-        return false;
+        $matches = [];
+        preg_match('/([><]=?)\\s*([0-9]+)/', $comparison, $matches);
+
+        if (count($matches) !== 3) {
+            return false;
+        }
+
+        $comparator = $matches[1];
+        $comparison = (int)$matches[2];
+
+        return match ($comparator) {
+            '>' => $value > $comparison,
+            '<' => $value < $comparison,
+            '>=' => $value >= $comparison,
+            '<=' => $value <= $comparison,
+        };
     }
 
     /**
@@ -877,10 +872,10 @@ class BlockQuery extends ElementQuery
 
     /**
      * @param Block[] $elements
-     * @param int|null $value
+     * @param int|string|null $value
      * @return Block[]
      */
-    private function ___level(array $elements, ?int $value): array
+    private function ___level(array $elements, int|string|null $value): array
     {
         if (!$value) {
             return $elements;
