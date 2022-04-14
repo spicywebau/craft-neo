@@ -265,6 +265,18 @@ class BlockQuery extends ElementQuery
 
     /**
      * @inheritdoc
+     */
+    public function exists($db = null): bool
+    {
+        if ($this->isUsingMemoized() && isset($this->_allElements)) {
+            $this->setCachedResult($this->_getFilteredResult());
+        }
+
+        return !empty($this->getCachedResult()) && parent::exists($db);
+    }
+
+    /**
+     * @inheritdoc
      * @return Block|array|null
      */
     public function nth(int $n, ?Connection $db = null): BaseModel|array|null
