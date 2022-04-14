@@ -3,7 +3,6 @@
 namespace benf\neo\records;
 
 use craft\db\ActiveRecord;
-
 use craft\validators\HandleValidator;
 use yii\db\ActiveQueryInterface;
 

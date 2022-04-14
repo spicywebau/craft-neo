@@ -5,15 +5,12 @@ namespace benf\neo\assets;
 use benf\neo\elements\Block;
 use benf\neo\events\FilterBlockTypesEvent;
 use benf\neo\Field;
-use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
-use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
-use craft\models\FieldLayout;
 use craft\web\assets\cp\CpAsset;
 use yii\base\Event;
 

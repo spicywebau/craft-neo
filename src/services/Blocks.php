@@ -61,7 +61,6 @@ class Blocks extends Component
         $tabsHtml = [];
 
         foreach ($fieldLayout->getTabs() as $tab) {
-
             $tabHtml = [
                 'name' => Craft::t('neo', $tab->name),
                 'bodyHtml' => '',

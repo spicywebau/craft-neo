@@ -3,14 +3,12 @@
 namespace benf\neo\services;
 
 use benf\neo\elements\Block;
-use benf\neo\elements\db\BlockQuery;
 use benf\neo\Field;
 use benf\neo\helpers\Memoize;
+use benf\neo\jobs\SaveBlockStructures;
 use benf\neo\models\BlockStructure;
-
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
-use benf\neo\jobs\SaveBlockStructures;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;

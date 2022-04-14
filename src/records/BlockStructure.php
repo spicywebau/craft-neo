@@ -3,7 +3,6 @@
 namespace benf\neo\records;
 
 use craft\db\ActiveRecord;
-
 use yii\db\ActiveQueryInterface;
 
 /**

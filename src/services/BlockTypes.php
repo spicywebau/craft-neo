@@ -10,17 +10,14 @@ use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use benf\neo\records\BlockType as BlockTypeRecord;
-
 use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
 use Craft;
-use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
-
 use yii\base\Component;
 use yii\base\Exception;
 

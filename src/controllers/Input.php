@@ -3,10 +3,8 @@
 namespace benf\neo\controllers;
 
 use benf\neo\elements\Block;
-
 use benf\neo\Plugin as Neo;
 use Craft;
-
 use craft\web\Controller;
 use yii\web\Response;
 

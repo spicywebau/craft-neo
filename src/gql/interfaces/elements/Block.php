@@ -2,12 +2,10 @@
 
 namespace benf\neo\gql\interfaces\elements;
 
-use benf\neo\elements\Block as NeoBlock;
 use benf\neo\gql\types\generators\BlockType;
 use Craft;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
-use craft\gql\TypeLoader;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 

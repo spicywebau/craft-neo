@@ -30,7 +30,6 @@ use craft\services\Gql;
 use craft\services\ProjectConfig;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
-use yii\base\NotSupportedException;
 
 /**
  * Class Plugin

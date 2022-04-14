@@ -8,8 +8,6 @@ use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use Craft;
-use craft\base\ElementInterface;
-use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
 use craft\models\FieldLayout;
 use craft\web\AssetBundle;
@@ -123,7 +121,8 @@ class SettingsAsset extends AssetBundle
      * @param BlockType[] $blockTypes
      * @return array
      */
-    private static function _getBlockTypesJsSettings(array $blockTypes): array {
+    private static function _getBlockTypesJsSettings(array $blockTypes): array
+    {
         $view = Craft::$app->getView();
         $jsBlockTypes = [];
 

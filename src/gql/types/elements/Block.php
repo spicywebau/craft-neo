@@ -3,7 +3,6 @@
 namespace benf\neo\gql\types\elements;
 
 use benf\neo\gql\interfaces\elements\Block as NeoBlockInterface;
-use craft\gql\base\ObjectType;
 use craft\gql\types\elements\Element;
 use GraphQL\Type\Definition\ResolveInfo;
 

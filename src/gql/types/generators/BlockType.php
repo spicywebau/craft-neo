@@ -7,7 +7,6 @@ use benf\neo\gql\interfaces\elements\Block as BlockInterface;
 use benf\neo\gql\types\elements\Block;
 use benf\neo\Plugin as Neo;
 use Craft;
-use craft\base\Field;
 use craft\gql\base\Generator;
 use craft\gql\base\GeneratorInterface;
 use craft\gql\base\ObjectType;

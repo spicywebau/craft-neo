@@ -2,8 +2,8 @@
 
 namespace benf\neo\console\controllers;
 
-use benf\neo\Field;
 use benf\neo\elements\Block;
+use benf\neo\Field;
 use Craft;
 use craft\console\Controller;
 use craft\db\Query;
@@ -12,7 +12,6 @@ use craft\helpers\Queue;
 use craft\i18n\Translation;
 use craft\queue\jobs\ApplyNewPropagationMethod;
 use yii\console\ExitCode;
-use yii\helpers\Console;
 
 /**
  * Actions for managing Neo fields.
@@ -73,7 +72,7 @@ class FieldsController extends Controller
                 }
             }
 
-            $neoFields = array_filter($fieldsService->getAllFields(), function($field) use($setIds) {
+            $neoFields = array_filter($fieldsService->getAllFields(), function($field) use ($setIds) {
                 return $field instanceof Field &&
                     $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL &&
                     (empty($setIds) || isset($setIds[$field->id]));

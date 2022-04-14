@@ -3,7 +3,6 @@
 namespace benf\neo\events;
 
 use benf\neo\models\BlockType;
-
 use yii\base\Event;
 
 /**
