@@ -62,6 +62,7 @@ class InputAsset extends FieldAsset
             CpAsset::class,
         ];
 
+        $this->css = ['neo-main.css'];
         $this->js = ['neo-main.js'];
 
         parent::init();

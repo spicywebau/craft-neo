@@ -36,6 +36,7 @@ class SettingsAsset extends AssetBundle
             CpAsset::class,
         ];
 
+        $this->css = ['neo-configurator.css'];
         $this->js = [
             'neo-configurator.js',
             'neo-converter.js',
