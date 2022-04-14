@@ -39,7 +39,7 @@ class Input extends Controller
         $ex = explode('][', $namespace);
         $namespace = $ex[0] . ']';
 
-        $siteId = $requestService->getParam('locale');
+        $siteId = $requestService->getParam('siteId');
         $renderedBlocks = [];
 
         foreach ($blocks as $rawBlock) {
@@ -89,14 +89,14 @@ class Input extends Controller
         $expanded = $requestService->getRequiredParam('expanded');
         $blockId = $requestService->getRequiredParam('blockId');
 
-        // If the `locale` parameter wasn't passed, then this Craft installation has only one site, thus we can just
+        // If the `siteId` parameter wasn't passed, then this Craft installation has only one site, thus we can just
         // grab the primary site ID.
-        $siteId = $requestService->getParam('locale', $sitesService->getPrimarySite()->id);
+        $siteId = $requestService->getParam('siteId', $sitesService->getPrimarySite()->id);
 
         $return = $this->asJson([
             'success' => false,
             'blockId' => $blockId,
-            'locale' => $siteId,
+            'siteId' => $siteId,
         ]);
 
         $block = $blockId ? Neo::$plugin->blocks->getBlockById($blockId, $siteId) : null;
@@ -117,7 +117,7 @@ class Input extends Controller
             $return = $this->asJson([
                 'success' => true,
                 'blockId' => $blockId,
-                'locale' => $siteId,
+                'siteId' => $siteId,
                 'expanded' => !$block->getCollapsed(),
             ]);
         }

@@ -7,7 +7,6 @@ const _fieldDefaults = {
   label: false,
   instructions: false,
   required: false,
-  locale: false,
   input: '',
   warning: false,
   errors: false
@@ -71,14 +70,7 @@ export default Garnish.Base.extend({
         fieldHtml.push(`
         <div class="heading">
           <label${settings.required ? ' class="required"' : ''}${settings.id ? ` for="${settings.id}"` : ''}>
-            ${settings.label}`)
-
-        if (settings.locale) {
-          fieldHtml.push(`
-            <span class="locale">${settings.locale}</span>`)
-        }
-
-        fieldHtml.push(`
+            ${settings.label}
           </label>
         </div>`)
       }

@@ -30,7 +30,7 @@ export default Garnish.Base.extend({
 
   _templateNs: [],
   _name: null,
-  _locale: null,
+  _siteId: null,
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -69,7 +69,7 @@ export default Garnish.Base.extend({
     }
 
     const $form = this.$container.closest('form')
-    this._locale = $form.find('input[name="siteId"]').val()
+    this._siteId = $form.find('input[name="siteId"]').val()
 
     const $neo = this.$container.find('[data-neo]')
     this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]')
@@ -902,7 +902,7 @@ export default Garnish.Base.extend({
 
       const data = {
         namespace: NS.toFieldName(),
-        locale: this._locale,
+        siteId: this._siteId,
         blocks
       }
 
@@ -933,7 +933,7 @@ export default Garnish.Base.extend({
 
     const data = {
       namespace: NS.toFieldName(),
-      locale: this._locale,
+      siteId: this._siteId,
       blocks: [
         getBlockData(block),
         ...subBlocks.map(getBlockData)
