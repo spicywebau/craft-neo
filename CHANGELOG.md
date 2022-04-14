@@ -4,19 +4,30 @@
 
 ### Added
 - Added Craft 4 compatibility (requires Craft 4.0.0-beta.4 or later)
+- Added `benf\neo\assets\InputAsset`
+- Added `benf\neo\assets\SettingsAsset`
+- Added `benf\neo\controllers\Configurator`
+- Added `benf\neo\jobs\SaveBlockStructures`
 
 ### Changed
-- Whether a Neo block type's max blocks setting has been exceeded will now be validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
+- Existing Neo input field content is no longer rendered using JavaScript
+- Whether a Neo block type's max blocks setting has been exceeded is now validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
+- The `neoblockstructures` table's `ownerSiteId` column has been renamed to `siteId`, and the `benf\neo\models\BlockStructure` class's `$ownerSiteId` property has been renamed to `$siteId`
 - Updated JavaScript dependencies
 
 ### Deprecated
 - Deprecated `benf\neo\assets\FieldAsset`; users of `EVENT_FILTER_BLOCK_TYPES` should use `InputAsset` instead
 - Deprecated `benf\neo\tasks\DuplicateNeoStructureTask`; use `benf\neo\jobs\SaveBlockStructures` instead
 
+### Fixed
+- Fixed a bug where it was possible to create a Neo field with no block types
+
 ### Removed
 - Removed the unused `saveModifiedBlocksOnly` setting
+- Removed the unused `ownerSiteId` column from the `neoblocks` table
 - Removed `benf\neo\Field::$localizeBlocks`; use `$propagationMethod` instead
 - Removed `benf\neo\Field::$wasModified`
+- Removed `benf\neo\Plugin::$blockHasSortOrder`
 - Removed `benf\neo\integrations\fieldlabels\FieldLabels`
 - Removed `benf\neo\converters\Field` (Neo Field Converter for Schematic)
 - Removed `benf\neo\converters\models\BlockType` (Neo BlockType Converter for Schematic)
@@ -29,6 +40,7 @@
 - Removed `benf\neo\elements\db\BlockQuery::ownerSiteId()`; use `site()` or `siteId()` instead
 - Removed `benf\neo\elements\db\BlockQuery::$ownerSiteId`; use `$siteId` instead
 - Removed `benf\neo\services\Blocks::getSearchKeywords()`
+- Removed `benf\neo\services\BlockTypes::renderTabs()`
 - Removed `benf\neo\services\Fields::getSupportedSiteIdsForField()`
 
 ## 2.13.4 - 2022-04-13
