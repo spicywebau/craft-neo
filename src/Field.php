@@ -970,7 +970,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             }
 
             foreach ($allFields as $field) {
-                if ($field->searchable && in_array($field->id, $fieldLayout->getFieldIds())) {
+                if ($field->searchable && $fieldLayout->isFieldIncluded($field->handle)) {
                     $fieldValue = $block->getFieldValue($field->handle);
                     $keywords[] = $field->getSearchKeywords($fieldValue, $element);
                 }
