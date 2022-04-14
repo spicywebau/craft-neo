@@ -128,9 +128,7 @@ class Fields extends Component
 
                 // Save the new block types and groups
                 $items = array_merge($field->getBlockTypes(), $field->getGroups());
-                usort($items, function($a, $b) {
-                    return (int)$a->sortOrder > (int)$b->sortOrder ? 1 : -1;
-                });
+                usort($items, fn($a, $b) => $a->sortOrder <=> $b->sortOrder);
 
                 $currentGroup = null;
 
@@ -177,13 +175,7 @@ class Fields extends Component
 
             // sort block types so the sort order is descending
             // need to reverse to multi level blocks get deleted before the parent
-            usort($blockTypes, function($a, $b) {
-                if ((int)$a->sortOrder === (int)$b->sortOrder) {
-                    return 0;
-                }
-
-                return (int)$a->sortOrder > (int)$b->sortOrder ? -1 : 1;
-            });
+            usort($blockTypes, fn($a, $b) => $b->sortOrder <=> $a->sortOrder);
 
             foreach ($blockTypes as $blockType) {
                 Neo::$plugin->blockTypes->delete($blockType);
@@ -992,9 +984,7 @@ SQL
             // 2. it has a field layout
             // 3. the field layout has any searchable sub-fields
             $this->_searchableBlockTypes[$typeId] = $field->searchable && $fieldLayout &&
-                !empty(array_filter($fieldLayout->getCustomFields(), function($subField) {
-                    return $subField->searchable;
-                }));
+                !empty(array_filter($fieldLayout->getCustomFields(), fn($subField) => $subField->searchable));
         }
 
         return $this->_searchableBlockTypes[$typeId];

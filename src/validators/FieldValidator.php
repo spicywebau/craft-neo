@@ -98,9 +98,7 @@ class FieldValidator extends Validator
     private function _checkMaxTopLevelBlocks($model, $attribute): void
     {
         if ($this->maxTopBlocks !== null) {
-            $topBlocks = array_filter($this->_blocks, function($block) {
-                return (int)$block->level === 1;
-            });
+            $topBlocks = array_filter($this->_blocks, fn($block) => (int)$block->level === 1);
 
             if (count($topBlocks) > $this->maxTopBlocks) {
                 $this->addError($model, $attribute, $this->tooManyTopBlocks, ['maxTopBlocks' => $this->maxTopBlocks]);
@@ -116,9 +114,7 @@ class FieldValidator extends Validator
         $maxLevels = $this->maxLevels;
 
         if ($maxLevels !== null) {
-            $tooHighBlocks = array_filter($this->_blocks, function($block) use ($maxLevels) {
-                return ((int)$block->level) > $maxLevels;
-            });
+            $tooHighBlocks = array_filter($this->_blocks, fn($block) => ((int)$block->level) > $maxLevels);
 
             if (!empty($tooHighBlocks)) {
                 $this->addError($model, $attribute, $this->exceedsMaxLevels, ['maxLevels' => $this->maxLevels]);
