@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.13.5 - 2022-04-16
 
 ### Added
-- Added the `craft resave/neo-blocks` console command
+- Added the `php craft resave/neo-blocks` console command
 - Added `benf\neo\elements\db\BlockQuery::field()`
 
 ## 2.13.4 - 2022-04-13
