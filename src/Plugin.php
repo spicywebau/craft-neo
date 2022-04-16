@@ -5,8 +5,11 @@ use yii\base\Event;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
+use craft\console\Controller;
+use craft\console\controllers\ResaveController;
 use craft\db\Query;
 use craft\db\Table;
+use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutElementsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -88,6 +91,7 @@ class Plugin extends BasePlugin
         $this->_setupBlocksHasSortOrder();
         $this->_registerGarbageCollection();
         $this->_registerChildBlocksUiElement();
+        $this->_registerResaveBlocksCommand();
         $this->_registerGatsbyHelper();
     }
 
@@ -192,6 +196,31 @@ class Plugin extends BasePlugin
             if ($event->sender->type === Block::class) {
                 $event->elements[] = ChildBlocksUiElement::class;
             }
+        });
+    }
+
+    private function _registerResaveBlocksCommand(): void
+    {
+        Event::on(ResaveController::class, Controller::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $event) {
+            $event->actions['neo-blocks'] = [
+                'helpSummary' => 'Re-saves Neo blocks.',
+                'options' => ['field', 'type'],
+                'optionsHelp' => [
+                    'field' => 'The field handle to save Neo blocks for.',
+                    'type' => 'The block type handle(s) of the Neo blocks to resave.',
+                ],
+                'action' => function(): int {
+                    $controller = Craft::$app->controller;
+                    $criteria = [];
+                    if ($controller->field !== null) {
+                        $criteria['field'] = explode(',', $controller->field);
+                    }
+                    if ($controller->type !== null) {
+                        $criteria['type'] = explode(',', $controller->type);
+                    }
+                    return $controller->resaveElements(Block::class, $criteria);
+                }
+            ];
         });
     }
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added the `craft resave/neo-blocks` console command
+- Added `benf\neo\elements\db\BlockQuery::field()`
+
 ## 2.13.4 - 2022-04-13
 
 ### Fixed

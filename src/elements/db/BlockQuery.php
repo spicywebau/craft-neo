@@ -2,6 +2,7 @@
 
 namespace benf\neo\elements\db;
 
+use benf\neo\Field;
 use benf\neo\Plugin as Neo;
 use benf\neo\elements\Block;
 use benf\neo\models\BlockType;
@@ -90,6 +91,9 @@ class BlockQuery extends ElementQuery
     public function __set($name, $value)
     {
         switch ($name) {
+            case 'field':
+                $this->field($value);
+                break;
             case 'owner':
                 $this->owner($value);
                 break;
@@ -118,6 +122,25 @@ class BlockQuery extends ElementQuery
     {
         $this->withStructure = true;
         parent::init();
+    }
+
+    /**
+     * Filters the query results based on the field.
+     *
+     * @param string[]|Field|null $value An array of Neo field handles, a Neo field instance, or `null`
+     * @return $this
+     * @since 2.13.5
+     */
+    public function field($value)
+    {
+        $this->fieldId = !$value ? null : ($value instanceof Field ? [$value->id] : (new Query())
+            ->select(['id'])
+            ->from([Table::FIELDS])
+            ->where(Db::parseParam('handle', $value))
+            ->andWhere(['type' => Field::class])
+            ->column());
+
+        return $this;
     }
 
     /**
