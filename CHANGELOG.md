@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-beta.2 - 2022-04-19
 
 ### Fixed
 - Fixed a bug where it was possible to add more than one child blocks UI element to a block type's field layout
