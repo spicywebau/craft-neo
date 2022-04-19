@@ -609,6 +609,7 @@ class BlockQuery extends ElementQuery
             '<' => $value < $comparison,
             '>=' => $value >= $comparison,
             '<=' => $value <= $comparison,
+            default => false
         };
     }
 
