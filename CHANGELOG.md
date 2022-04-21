@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- When editing a Neo field's block types, selecting a new block type to edit will show the settings tab, if the field layout tab was previously showing
+
 ## 3.0.0-beta.2 - 2022-04-19
 
 ### Fixed
