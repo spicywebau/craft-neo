@@ -255,11 +255,14 @@ export default Garnish.Base.extend({
       i.toggleSelect(thisIsTheItem)
 
       if (thisIsTheItem) {
-        this.$fieldLayoutButton.toggleClass('hidden', !(i instanceof BlockType))
+        const itemIsGroup = !(i instanceof BlockType)
+        this.$fieldLayoutButton.toggleClass('hidden', itemIsGroup)
+
+        if (itemIsGroup) {
+          this.selectTab('settings')
+        }
       }
     }
-
-    this.selectTab('settings')
 
     if (focusInput && settings && !Garnish.isMobileBrowser()) {
       setTimeout(() => settings.getFocusInput().focus(), 100)
@@ -375,6 +378,7 @@ export default Garnish.Base.extend({
 
     this.addItem(blockType, index)
     this.selectItem(blockType)
+    this.selectTab('settings')
 
     blockType.on('copy.configurator', () => this._copyBlockType(blockType))
     blockType.on('paste.configurator', () => this._pasteBlockType())
