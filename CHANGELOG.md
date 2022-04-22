@@ -5,6 +5,9 @@
 ### Changed
 - When editing a Neo field's block types, selecting a new block type to edit will show the settings tab, if the field layout tab was previously showing
 
+### Fixed
+- Fixed a bug where creating more than one new block type at once would cause those block types to share a field layout
+
 ## 3.0.0-beta.2 - 2022-04-19
 
 ### Fixed

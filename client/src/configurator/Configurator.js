@@ -3,7 +3,7 @@ import '../jquery-extensions'
 
 import Garnish from 'garnish'
 import Craft from 'craft'
-
+import { v4 as uuidv4 } from 'uuid'
 import NS from '../namespace'
 
 import BlockType from './BlockType'
@@ -282,6 +282,13 @@ export default Garnish.Base.extend({
     this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout')
   },
 
+  _getNewFieldLayoutHtml () {
+    return this._fieldLayoutHtml.replace(
+      /<input type="hidden" name="fieldLayout" value="{&quot;uid&quot;:&quot;([a-f0-9-]+)&quot;}" data-config-input>/,
+      `<input type="hidden" name="fieldLayout" value="{&quot;uid&quot;:&quot;${uuidv4()}&quot;}" data-config-input>`
+    )
+  },
+
   _updateItemOrder () {
     const items = []
 
@@ -314,7 +321,7 @@ export default Garnish.Base.extend({
       })
       const fieldLayout = new BlockTypeFieldLayout({
         blockTypeId: id,
-        html: this._fieldLayoutHtml,
+        html: this._getNewFieldLayoutHtml(),
         namespace: [...namespace, id]
       })
 
@@ -344,7 +351,7 @@ export default Garnish.Base.extend({
         Craft.postActionRequest('neo/configurator/render-field-layout', { layout: config }, e => {
           const fieldLayout = new BlockTypeFieldLayout({
             blockTypeId: id,
-            html: e.success ? e.html : this._fieldLayoutHtml,
+            html: e.success ? e.html : this._getNewFieldLayoutHtml(),
             namespace: [...namespace, id]
           })
 
@@ -354,7 +361,7 @@ export default Garnish.Base.extend({
       } else {
         const fieldLayout = new BlockTypeFieldLayout({
           blockTypeId: id,
-          html: this._fieldLayoutHtml,
+          html: this._getNewFieldLayoutHtml(),
           namespace: [...namespace, id]
         })
 
@@ -415,7 +422,7 @@ export default Garnish.Base.extend({
     })
 
     const fieldLayout = new BlockTypeFieldLayout({
-      html: this._fieldLayoutHtml,
+      html: this._getNewFieldLayoutHtml(),
       layout: data.layout
     })
 
