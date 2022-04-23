@@ -91,7 +91,7 @@ export default Garnish.Base.extend({
         const newElement = {}
 
         for (const key in element) {
-          newElement[key] = element[key]
+          newElement[key] = key === 'required' && !element[key] ? '' : element[key]
         }
 
         newElements.push(newElement)

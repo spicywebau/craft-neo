@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where subfields of pasted/cloned block types would all be set to required, regardless of their setting on the original block type
+
 ## 3.0.0-beta.3 - 2022-04-22
 
 ### Changed
