@@ -36,10 +36,10 @@ class ChildBlocksUiElement extends BaseUiElement
      */
     public function formHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
-        return Craft::$app->getView()->renderTemplate('neo/child-blocks', [
-            'block' => $element,
-            'handle' => Craft::$app->getFields()->getFieldById($element->fieldId)->handle,
-            'static' => $static,
-        ]);
+        $blockId = $element && $element->id ? $element->id : '__NEOBLOCK__';
+
+        // This will be replaced in `block.twig` and `benf\neo\services\Blocks::renderTabs()`; done like this so we can
+        // use `craft\models\FieldLayout::createForm()` without repeatedly namespacing the child blocks
+        return '<div data-neo-child-blocks-ui-element="' . $blockId . '"></div>';
     }
 }

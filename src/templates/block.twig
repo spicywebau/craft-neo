@@ -132,19 +132,20 @@
         <div class="ni_block_body"{{ collapsed ? ' style="opacity: 0; height: 0;"' }} data-neo-b="{{ blockId }}.container.body">
             {% if hasTabs %}
                 <div class="ni_block_content" data-neo-b="{{ blockId }}.container.content">
-                    {% for tab in typeTabs %}
-                        <div class="ni_block_content_tab flex-fields {{ loop.first ? ' is-selected' : '' }}" data-neo-b="{{ blockId }}.container.tab" data-neo-b-info="{{ tab.name }}">
-                            {% for tabElement in tab.elements %}
-                                {% if className(tabElement) == 'benf\\neo\\fieldlayoutelements\\ChildBlocksUiElement' %}
-                                    {{ tabElement.formHtml(block, static)|raw }}
-                                {% else %}
-                                    {% namespace baseInputName %}
-                                        {{ tabElement.formHtml(block, static)|raw }}
-                                    {% endnamespace %}
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
+                    {# Get the HTML, and replace the child blocks UI element placeholder with actual child blocks #}
+                    {# Done like this so we can use `createForm()` without repeatedly namespacing the child blocks #}
+                    {% set renderedForm %}
+                        {% namespace baseInputName %}
+                            {{ block.getFieldLayout().createForm(block, static).render()|raw }}
+                        {% endnamespace %}
+                    {% endset %}
+                    {% set splitOnChildBlocks = renderedForm|split('<div data-neo-child-blocks-ui-element="' ~ blockId ~ '" data-layout-element="') %}
+                    {{ splitOnChildBlocks[0]|raw }}
+                    {% if splitOnChildBlocks|length > 1 %}
+                        {% set splitAfterChildBlocks = splitOnChildBlocks[1]|split('"></div>', 2) %}
+                        {% include 'neo/child-blocks' with { block, handle, static, uid: splitAfterChildBlocks[0] } %}
+                        {{ splitAfterChildBlocks[1]|raw }}
+                    {% endif %}
                 </div>
             {% endif %}
             {% if isParent and not type.hasChildBlocksUiElement() %}

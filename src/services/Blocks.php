@@ -58,42 +58,50 @@ class Blocks extends Component
         $isNewBlock = $block->id === null && $block->level === null;
 
         $fieldLayout = $blockType->getFieldLayout();
-        $tabsHtml = [];
+        $fieldLayoutTabs = $fieldLayout->getTabs();
+        $data = [];
 
-        foreach ($fieldLayout->getTabs() as $tab) {
-            $tabHtml = [
-                'name' => Craft::t('neo', $tab->name),
-                'bodyHtml' => '',
-                'footHtml' => '',
-                'errors' => [],
-            ];
+        foreach ($fieldLayoutTabs as $tab) {
+            $data['tabNames'][] = $tab->name;
 
-            $elements = $tab->elements;
-            $fieldsHtml = [];
-            $view->startJsBuffer();
-
-            foreach ($elements as $tabElement) {
+            foreach ($tab->getElements() as $tabElement) {
                 if ($tabElement instanceof CustomField && $isNewBlock) {
                     $tabElement->getField()->setIsFresh(true);
                 }
+            }
+        }
 
-                $fieldsHtml[] = $tabElement->formHtml($block);
+        $view->startJsBuffer();
+        $html = $view->namespaceInputs($fieldLayout->createForm($block)->render());
+        $data['js'] = $view->clearJsBuffer();
 
+        if ($blockType->hasChildBlocksUiElement()) {
+            $data['html'] = preg_replace(
+                '/<div data-neo-child-blocks-ui-element="__NEOBLOCK__" data-layout-element="([a-f0-9-]+)"><\/div>/',
+                $view->renderTemplate('neo/child-blocks', [
+                    'block' => $block,
+                    'handle' => $field->handle,
+                    'static' => false,
+                    'uid' => "$1",
+                ]),
+                $html,
+            );
+        } else {
+            $data['html'] = $html;
+        }
+
+        // Reset $_isFresh's
+        foreach ($fieldLayoutTabs as $tab) {
+            foreach ($tab->getElements() as $tabElement) {
                 if ($tabElement instanceof CustomField && $isNewBlock) {
-                    // Reset $_isFresh's
                     $tabElement->getField()->setIsFresh(null);
                 }
             }
-
-            $tabHtml['bodyHtml'] = $view->namespaceInputs(implode('', $fieldsHtml));
-            $tabHtml['footHtml'] = $view->clearJsBuffer();
-
-            $tabsHtml[] = $tabHtml;
         }
 
         $view->setNamespace($oldNamespace);
 
-        return $tabsHtml;
+        return $data;
     }
 
     /**

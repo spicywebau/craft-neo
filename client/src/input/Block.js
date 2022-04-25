@@ -94,7 +94,7 @@ export default Garnish.Base.extend({
     this.$topbarLeftContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarLeft"]`)
     this.$topbarRightContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarRight"]`)
     this.$tabsContainer = $neo.filter(`[data-neo-b="${this._id}.container.tabs"]`)
-    this.$tabContainer = $neo.filter(`[data-neo-b="${this._id}.container.tab"]`)
+    this.$tabContainer = this.$contentContainer.children('[data-layout-tab]')
     this.$menuContainer = $neo.filter(`[data-neo-b="${this._id}.container.menu"]`)
     this.$previewContainer = $neo.filter(`[data-neo-b="${this._id}.container.preview"]`)
     this.$tabButton = $neo.filter(`[data-neo-b="${this._id}.button.tab"]`)
@@ -248,18 +248,8 @@ export default Garnish.Base.extend({
 
       if (hasTabs) {
         elementHtml.push(`
-          <div class="ni_block_content" data-neo-b="${this._id}.container.content">`)
-
-        for (let i = 0; i < typeTabs.length; i++) {
-          const tabName = typeTabs[i].getName()
-          elementHtml.push(`
-            <div class="ni_block_content_tab flex-fields${!i ? ' is-selected' : ''}" data-neo-b="${this._id}.container.tab" data-neo-b-info="${tabName}">
-              ${typeTabs[i].getBodyHtml(this._id)}
-            </div>`)
-          Garnish.$bod.append(typeTabs[i].getFootHtml(this._id))
-        }
-
-        elementHtml.push(`
+          <div class="ni_block_content" data-neo-b="${this._id}.container.content">
+            ${type.getHtml(this._id)}
           </div>`)
       }
 
@@ -296,10 +286,7 @@ export default Garnish.Base.extend({
       return
     }
 
-    const tabs = this._blockType.getTabs()
-    const footList = tabs.map(tab => tab.getFootHtml(this._id))
-    this.$foot = $(footList.join('')).filter(_resourceFilter)
-
+    this.$foot = $(this._blockType.getJs(this._id)).filter(_resourceFilter)
     Garnish.$bod.append(this.$foot)
 
     if (callInitUiElements) {
@@ -916,21 +903,15 @@ export default Garnish.Base.extend({
     this.$childrenWarningsContainer.toggleClass('hidden', show)
   },
 
-  selectTab (name) {
-    const $tabs = $()
-      .add(this.$tabButton)
-      .add(this.$tabContainer)
-
-    $tabs.removeClass('is-selected')
-    const $tab = $tabs.filter(`[data-neo-b-info="${name}"]`).addClass('is-selected')
-    this.$tabsButton.text(name)
+  selectTab (tabName) {
+    this.$tabButton.removeClass('is-selected')
+    this.$tabContainer.addClass('hidden')
+    const $tabButton = this.$tabButton.filter(`[data-neo-b-info="${tabName}"]`).addClass('is-selected')
+    const $tabContainer = this.$tabContainer.filter(`[data-id="tab--${tabName.toLowerCase()}"]`).removeClass('hidden')
+    this.$tabsButton.text(tabName)
     Craft.ElementThumbLoader.retryAll()
 
-    this.trigger('selectTab', {
-      tabName: name,
-      $tabButton: $tab.filter('[data-neo-b="button.tab"]'),
-      $tabContainer: $tab.filter('[data-neo-b="container.tab"]')
-    })
+    this.trigger('selectTab', { tabName, $tabButton, $tabContainer })
   },
 
   updateResponsiveness () {

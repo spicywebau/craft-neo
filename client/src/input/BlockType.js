@@ -34,7 +34,9 @@ export default Garnish.Base.extend({
     this._maxChildBlocks = settings.maxChildBlocks | 0
     this._childBlocks = settings.childBlocks
     this._topLevel = settings.topLevel
-    this._tabs = settings.tabs.map(tab => tab instanceof Tab ? tab : new Tab(tab))
+    this._tabs = typeof settings.tabs.tabNames !== 'undefined' ? settings.tabs.tabNames.map(tab => tab instanceof Tab ? tab : new Tab({ name: tab })) : []
+    this._html = typeof settings.tabs.html !== 'undefined' ? settings.tabs.html : ''
+    this._js = typeof settings.tabs.js !== 'undefined' ? settings.tabs.js : ''
     this._hasChildBlocksUiElement = settings.hasChildBlocksUiElement
   },
 
@@ -51,6 +53,18 @@ export default Garnish.Base.extend({
   getChildBlocks () { return this._childBlocks },
   getTopLevel () { return this._topLevel },
   getTabs () { return Array.from(this._tabs) },
+
+  getHtml (blockId = null) {
+    return this._replaceBlockIdPlaceholder(this._html, blockId)
+  },
+
+  getJs (blockId = null) {
+    return this._replaceBlockIdPlaceholder(this._js, blockId)
+  },
+
+  _replaceBlockIdPlaceholder (input, blockId = null) {
+    return blockId !== null ? input.replace(/__NEOBLOCK__/g, blockId) : input
+  },
 
   getFieldType (handle) {
     return this._fieldTypes[handle]

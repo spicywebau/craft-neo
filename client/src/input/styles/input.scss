@@ -324,21 +324,12 @@ $preview-reduction: 80px;
                 display: none;
             }
 
-            &_tab {
+            &:not(.is-tab-unselected) > [data-layout-tab] {
                 padding: 14px 0 0;
 
                 &.is-blank {
                     padding: 0;
                     border-top: 0;
-                }
-
-                #content &,
-                .lp-editor &,
-                .element-editor & {
-
-                    &:not(.is-selected) {
-                        display: none;
-                    }
                 }
 
                 > .field {
@@ -491,6 +482,10 @@ $preview-reduction: 80px;
                 background-color: white;
             }
         }
+    }
+
+    &_child-blocks-ui-element > .ni_block_children {
+        padding: 0;
     }
 }
 

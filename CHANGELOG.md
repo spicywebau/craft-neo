@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Changes to Neo input block rendering, to use `craft\models\FieldLayout::createForm()` while still allowing the child blocks UI element to work
+
 ### Fixed
 - Fixed a bug where subfields of pasted/cloned block types would all be set to required, regardless of their setting on the original block type
 

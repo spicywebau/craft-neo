@@ -1,18 +1,20 @@
 {% set blockId = block and block.id ? block.id : '__NEOBLOCK__' %}
 
-<div class="ni_block_children" data-neo-b="{{ blockId }}.container.children">
-    <div class="ni_blocks" data-neo-b="{{ blockId }}.container.blocks">
-        {% if block and block.id %}
-            {% for child in block.children.all() %}
-                {% include 'neo/block' with { handle, block: child, static } only %}
-            {% endfor %}
+<div class="ni_child-blocks-ui-element" data-layout-element="{{ uid }}">
+    <div class="ni_block_children" data-neo-b="{{ blockId }}.container.children">
+        <div class="ni_blocks" data-neo-b="{{ blockId }}.container.blocks">
+            {% if block and block.id %}
+                {% for child in block.children.all() %}
+                    {% include 'neo/block' with { handle, block: child, static } only %}
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        {% if not static %}
+            <div data-neo-b="{{ blockId }}.container.buttons" class="hidden"></div>
+            <div data-neo-b="{{ blockId }}.container.childrenWarnings" class="hidden">
+                <p class="first warning with-icon">{{ "This Neo field's maximum number of levels has been reached, so no child blocks can be added here."|t('neo') }}</p>
+            </div>
         {% endif %}
     </div>
-
-    {% if not static %}
-        <div data-neo-b="{{ blockId }}.container.buttons" class="hidden"></div>
-        <div data-neo-b="{{ blockId }}.container.childrenWarnings" class="hidden">
-            <p class="first warning with-icon">{{ "This Neo field's maximum number of levels has been reached, so no child blocks can be added here."|t('neo') }}</p>
-        </div>
-    {% endif %}
 </div>
