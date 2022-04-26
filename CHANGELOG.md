@@ -8,8 +8,6 @@
 ### Fixed
 - Fixed a JavaScript error that occurred when saved blocks included Redactor fields and potentially others
 - Fixed a bug where checkboxes on saved blocks at even-numbered levels weren't working
-
-### Fixed
 - Fixed a bug where subfields of pasted/cloned block types would all be set to required, regardless of their setting on the original block type
 
 ## 3.0.0-beta.3 - 2022-04-22
