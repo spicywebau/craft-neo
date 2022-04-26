@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-beta.4 - 2022-04-26
 
 ### Changed
 - Changes to Neo input block rendering, to use `craft\models\FieldLayout::createForm()` while still allowing the child blocks UI element to work
