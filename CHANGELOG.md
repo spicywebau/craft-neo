@@ -6,6 +6,7 @@
 - Changes to Neo input block rendering, to use `craft\models\FieldLayout::createForm()` while still allowing the child blocks UI element to work
 
 ### Fixed
+- Fixed a JavaScript error that occurred when saved blocks included Redactor fields and potentially others
 - Fixed a bug where checkboxes on saved blocks at even-numbered levels weren't working
 
 ### Fixed

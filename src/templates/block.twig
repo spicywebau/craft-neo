@@ -1,5 +1,4 @@
 {% set type = block.type %}
-{% set typeFieldLayoutForm = block.getFieldLayout().createForm(block, static) %}
 {% set typeTabs = type.getFieldLayout().getTabs() %}
 {% set hasTabs = typeTabs is not empty %}
 {% set isParent = static and block.children.exists() or not static and type.childBlocks is not null and type.childBlocks is not empty %}
