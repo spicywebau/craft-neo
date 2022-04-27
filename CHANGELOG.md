@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Changed
+- Neo now requires Craft 4.0.0-RC1 or later
 - The amount of animations and transitions Neo uses is now reduced if the user has requested reduced motion
 
 ## 3.0.0-beta.4 - 2022-04-26
