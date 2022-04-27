@@ -205,7 +205,7 @@ export default Garnish.Base.extend({
               <div class="status off" title="${Craft.t('neo', 'Disabled')}"></div>
             </div>
             <div class="ni_block_topbar_item block-settings">
-              <div data-wrapper>
+              <div>
                 <button class="btn settings icon menubtn" type="button" role="button" title="${Craft.t('neo', 'Actions')}" aria-controls="${actionMenuId}" aria-label="${actionBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.actions"></button>
                 <div id="${actionMenuId}" class="menu menu--disclosure" data-neo-b="${this._id}.container.menu">
                   <ul class="padded">`)
@@ -295,9 +295,11 @@ export default Garnish.Base.extend({
 
     this.$tabsButton.menubtn()
 
-    this._settingsMenu = new Garnish.DisclosureMenu(this.$settingsButton)
+    this._settingsMenu = this.$settingsButton.data('trigger') || new Garnish.DisclosureMenu(this.$settingsButton)
     this._settingsMenu.on('show', () => this.$container.addClass('active'))
     this._settingsMenu.on('hide', () => this.$container.removeClass('active'))
+
+    this.$menuContainer = this._settingsMenu.$container
     this.addListener(this.$menuContainer.find('[data-action]'), 'click', this._handleActionClick)
     this.addListener(this.$menuContainer.find('[data-action]'), 'keydown', this._handleActionKeydown)
 

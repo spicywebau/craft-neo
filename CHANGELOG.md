@@ -6,6 +6,9 @@
 - Neo now requires Craft 4.0.0-RC1 or later
 - The amount of animations and transitions Neo uses is now reduced if the user has requested reduced motion
 
+### Fixed
+- Fixed a bug where saved blocks' action menus weren't working properly on Craft 4.0.0-RC1
+
 ## 3.0.0-beta.4 - 2022-04-26
 
 ### Changed
