@@ -197,7 +197,7 @@ export default Garnish.Base.extend({
   addBlock (block, index = -1, level = 1, animate = null) {
     const blockCount = this._blocks.length
     index = (index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount)
-    animate = (typeof animate === 'boolean' ? animate : true)
+    animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
 
     const prevBlock = index > 0 ? this._blocks[index - 1] : false
     const nextBlock = index < blockCount ? this._blocks[index] : false
@@ -255,7 +255,7 @@ export default Garnish.Base.extend({
       window.draftEditor.pause()
     }
 
-    animate = (typeof animate === 'boolean' ? animate : true)
+    animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
     _delayAnimate = (typeof _delayAnimate === 'boolean' ? _delayAnimate : false)
 
     const childBlocks = this._findChildBlocks(this._blocks.indexOf(block))
@@ -341,7 +341,7 @@ export default Garnish.Base.extend({
       return
     }
 
-    const animateMove = (typeof animate === 'boolean' ? animate : true)
+    const animateMove = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
     const $block = block.$container
 
     const startTheMove = () => {
@@ -570,7 +570,7 @@ export default Garnish.Base.extend({
   },
 
   _destroyTempButtons (animate = null) {
-    animate = (typeof animate === 'boolean' ? animate : true)
+    animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
 
     if (this._tempButtons) {
       const buttons = this._tempButtons
@@ -675,25 +675,31 @@ export default Garnish.Base.extend({
       window.draftEditor.pause()
     }
 
-    const $spinner = $('<div class="ni_spinner"><div class="spinner"></div></div>')
+    const animate = !Garnish.prefersReducedMotion()
+    const $spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : 'Loading block'}</div>`)
 
     block.$container.after($spinner)
 
     let spinnerComplete = false
     let spinnerCallback = function () {}
 
-    $spinner
-      .css({
-        opacity: 0,
-        marginBottom: -($spinner.outerHeight())
-      })
-      .velocity({
-        opacity: 1,
-        marginBottom: 10
-      }, 'fast', () => {
-        spinnerComplete = true
-        spinnerCallback()
-      })
+    if (animate) {
+      $spinner
+        .css({
+          opacity: 0,
+          marginBottom: -($spinner.outerHeight())
+        })
+        .velocity({
+          opacity: 1,
+          marginBottom: 10
+        }, 'fast', () => {
+          spinnerComplete = true
+          spinnerCallback()
+        })
+    } else {
+      spinnerComplete = true
+      spinnerCallback()
+    }
 
     Craft.postActionRequest('neo/input/render-blocks', data, e => {
       if (e.success && e.blocks.length > 0) {
@@ -744,17 +750,19 @@ export default Garnish.Base.extend({
             this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
           }
 
-          const firstBlock = newBlocks[0]
+          if (animate) {
+            const firstBlock = newBlocks[0]
 
-          firstBlock.$container
-            .css({
-              opacity: 0,
-              marginBottom: $spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
-            })
-            .velocity({
-              opacity: 1,
-              marginBottom: 10
-            }, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
+            firstBlock.$container
+              .css({
+                opacity: 0,
+                marginBottom: $spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
+              })
+              .velocity({
+                opacity: 1,
+                marginBottom: 10
+              }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
+          }
 
           $spinner.remove()
 
@@ -790,6 +798,7 @@ export default Garnish.Base.extend({
   '@addBlockAbove' (e) {
     this._destroyTempButtons()
 
+    const animate = !Garnish.prefersReducedMotion() && e.animate !== false
     const block = e.block
     const index = this._blocks.indexOf(block)
     const parent = this._findParentBlock(index)
@@ -812,7 +821,7 @@ export default Garnish.Base.extend({
 
     buttons.initUi()
 
-    if (e.animate !== false) {
+    if (animate) {
       buttons.$container
         .css({
           opacity: 0,

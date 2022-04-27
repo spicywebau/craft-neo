@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- The amount of animations and transitions Neo uses is now reduced if the user has requested reduced motion
+
 ## 3.0.0-beta.4 - 2022-04-26
 
 ### Changed

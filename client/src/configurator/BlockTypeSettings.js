@@ -498,7 +498,7 @@ export default Settings.extend({
   },
 
   _refreshMaxChildBlocks (animate) {
-    animate = (typeof animate === 'boolean') ? animate : true
+    animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
 
     const showSetting = !!this.getChildBlocks()
 

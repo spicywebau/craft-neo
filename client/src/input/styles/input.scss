@@ -64,8 +64,11 @@ $preview-reduction: 80px;
             line-height: 30px;
             background-color: #ebf2fa;
             color: #8f98a3;
-            transition: background-color 0.5s;
             padding: 0 14px;
+
+            @media screen and (prefers-reduced-motion: no-preference) {
+                transition: background-color 0.5s;
+            }
 
             &_left,
             &_right {
@@ -145,7 +148,10 @@ $preview-reduction: 80px;
                         height: 30px;
                         overflow: hidden;
                         color: #b9bfc6;
-                        transition: opacity 0.2s;
+
+                        @media screen and (prefers-reduced-motion: no-preference) {
+                            transition: opacity 0.2s;
+                        }
 
                         body.ltr & { margin-left:  8px; }
                         body.rtl & { margin-right: 8px; }
@@ -194,7 +200,10 @@ $preview-reduction: 80px;
 
                 &.tabs {
                     position: relative;
-                    transition: opacity 0.2s;
+
+                    @media screen and (prefers-reduced-motion: no-preference) {
+                        transition: opacity 0.2s;
+                    }
 
                     .tabs_inner {
                         white-space: nowrap;
@@ -250,7 +259,10 @@ $preview-reduction: 80px;
                             &.is-blank {
                                 border-bottom-color: #f1f5f8;
                                 background-color: transparent;
-                                transition: border-bottom-color 0.5s;
+
+                                @media screen and (prefers-reduced-motion: no-preference) {
+                                    transition: border-bottom-color 0.5s;
+                                }
                             }
                         }
 
@@ -348,7 +360,10 @@ $preview-reduction: 80px;
 
         &_children {
             padding: 14px 0 7px;
-            transition: background-color 0.5s;
+
+            @media screen and (prefers-reduced-motion: no-preference) {
+                transition: background-color 0.5s;
+            }
 
             .ni_block_body > &:not(:first-child) {
                 margin-top: 14px;
@@ -364,7 +379,10 @@ $preview-reduction: 80px;
                 border-top: 1px solid #e3e5e8;
                 background-color: #fbfcfd;
                 margin-top: -3px;
-                transition: margin-top 0.2s; // 200ms to match jQuery transition duration
+
+                @media screen and (prefers-reduced-motion: no-preference) {
+                    transition: margin-top 0.2s; // 200ms to match jQuery transition duration
+                }
             }
         }
 

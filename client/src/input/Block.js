@@ -781,7 +781,7 @@ export default Garnish.Base.extend({
   toggleExpansion (expand, save, animate) {
     expand = (typeof expand === 'boolean' ? expand : !this._expanded)
     save = (typeof save === 'boolean' ? save : true)
-    animate = (typeof animate === 'boolean' ? animate : true)
+    animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
 
     if (expand !== this._expanded) {
       this._expanded = expand

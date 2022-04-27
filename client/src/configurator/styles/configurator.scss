@@ -35,7 +35,10 @@
                 padding: 10px 40px;
                 border: 1px solid #ebebeb;
                 background-color: #fcfcfc;
-                transition: margin-left 0.15s;
+
+                @media screen and (prefers-reduced-motion: no-preference) {
+                    transition: margin-left 0.15s;
+                }
 
                 &::before {
                     content: '';
@@ -47,7 +50,10 @@
                     border-top: 1px solid #ebebeb;
                     border-bottom: 1px solid #ebebeb;
                     background-color: #fafafa;
-                    transition: left 0.15s, width 0.15s;
+
+                    @media screen and (prefers-reduced-motion: no-preference) {
+                        transition: left 0.15s, width 0.15s;
+                    }
                 }
 
                 > .label {
