@@ -133,12 +133,10 @@ class SettingsAsset extends AssetBundle
             $fieldLayoutHtml = self::_renderFieldLayoutHtml($fieldLayout);
             $view->setNamespace($oldNamespace);
 
-            $fieldTypes = [];
-
             $jsBlockType = [
                 'id' => $blockType->id,
                 'sortOrder' => $blockType->sortOrder,
-                'name' => Craft::t('neo', $blockType->name),
+                'name' => Craft::t('site', $blockType->name),
                 'handle' => $blockType->handle,
                 'maxBlocks' => $blockType->maxBlocks,
                 'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
@@ -149,7 +147,6 @@ class SettingsAsset extends AssetBundle
                 'fieldLayout' => $fieldLayout->getConfig(),
                 'fieldLayoutHtml' => $fieldLayoutHtml,
                 'fieldLayoutId' => $fieldLayout->id,
-                'fieldTypes' => $fieldTypes,
                 'groupId' => $blockType->groupId,
             ];
 
@@ -170,15 +167,11 @@ class SettingsAsset extends AssetBundle
         $jsBlockTypeGroups = [];
 
         foreach ($blockTypeGroups as $blockTypeGroup) {
-            if ($blockTypeGroup instanceof BlockTypeGroup) {
-                $jsBlockTypeGroups[] = [
-                    'id' => $blockTypeGroup->id,
-                    'sortOrder' => $blockTypeGroup->sortOrder,
-                    'name' => Craft::t('neo', $blockTypeGroup->name),
-                ];
-            } elseif (is_array($blockTypeGroup)) {
-                $jsBlockTypeGroups[] = $blockTypeGroup;
-            }
+            $jsBlockTypeGroups[] = [
+                'id' => $blockTypeGroup->id,
+                'sortOrder' => $blockTypeGroup->sortOrder,
+                'name' => Craft::t('site', $blockTypeGroup->name),
+            ];
         }
 
         return $jsBlockTypeGroups;
@@ -194,7 +187,7 @@ class SettingsAsset extends AssetBundle
 
         // Render the field layout designer HTML, but disregard any JavaScript it outputs, as that'll be handled by Neo
         $view->startJsBuffer();
-        $html = Craft::$app->getView()->renderTemplate('_includes/fieldlayoutdesigner', [
+        $html = $view->renderTemplate('_includes/fieldlayoutdesigner', [
             'fieldLayout' => $fieldLayout ?? new FieldLayout(['type' => Block::class]),
             'customizableUi' => true,
         ]);

@@ -88,21 +88,13 @@ class InputAsset extends FieldAsset
             'Move up',
             'Move down',
             'Name',
-            'What this block type will be called in the CP.',
             'Handle',
-            'How you&#8217;ll refer to this block type in the templates.',
             'Max Blocks',
-            'The maximum number of blocks of this type the field is allowed to have.',
             'All',
             'Child Blocks',
-            'Which block types do you want to allow as children?',
             'Max Child Blocks',
-            'The maximum number of child blocks this block type is allowed to have.',
             'Top Level',
-            'Will this block type be allowed at the top level?',
-            'Delete block type',
             'This can be left blank if you just want an unlabeled separator.',
-            'Delete group',
             'Block Types',
             'Block type',
             'Group',
@@ -175,9 +167,6 @@ class InputAsset extends FieldAsset
                 $block->siteId = $owner->siteId;
             }
 
-            $jsBlockTypeTabs = Neo::$plugin->blocks->renderTabs($block);
-            $fieldTypes = [];
-
             $jsBlockTypes[] = [
                 'id' => $blockType->id,
                 'sortOrder' => $blockType->sortOrder,
@@ -188,9 +177,8 @@ class InputAsset extends FieldAsset
                 'maxChildBlocks' => $blockType->maxChildBlocks,
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
-                'tabs' => $jsBlockTypeTabs,
+                'tabs' => Neo::$plugin->blocks->renderTabs($block),
                 'fieldLayoutId' => $blockType->fieldLayoutId,
-                'fieldTypes' => $fieldTypes,
                 'groupId' => $blockType->groupId,
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
             ];
@@ -210,15 +198,11 @@ class InputAsset extends FieldAsset
         $jsBlockTypeGroups = [];
 
         foreach ($blockTypeGroups as $blockTypeGroup) {
-            if ($blockTypeGroup instanceof BlockTypeGroup) {
-                $jsBlockTypeGroups[] = [
-                    'id' => $blockTypeGroup->id,
-                    'sortOrder' => $blockTypeGroup->sortOrder,
-                    'name' => Craft::t('neo', $blockTypeGroup->name),
-                ];
-            } elseif (is_array($blockTypeGroup)) {
-                $jsBlockTypeGroups[] = $blockTypeGroup;
-            }
+            $jsBlockTypeGroups[] = [
+                'id' => $blockTypeGroup->id,
+                'sortOrder' => $blockTypeGroup->sortOrder,
+                'name' => Craft::t('site', $blockTypeGroup->name),
+            ];
         }
 
         return $jsBlockTypeGroups;
