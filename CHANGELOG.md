@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-RC2 - 2022-04-28
 
 ### Added
 - Added the ability to show or hide block type group dropdowns where the group only has one available block type
