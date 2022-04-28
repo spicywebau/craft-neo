@@ -336,6 +336,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockTypeGroup->fieldId = $this->id;
                 $newBlockTypeGroup->name = $blockTypeGroup['name'];
                 $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
+                $newBlockTypeGroup->alwaysShowDropdown = match ($blockTypeGroup['alwaysShowDropdown']) {
+                    'show' => true,
+                    'hide' => false,
+                    'global' => null,
+                };
             }
 
             $newBlockTypeGroups[] = $newBlockTypeGroup;

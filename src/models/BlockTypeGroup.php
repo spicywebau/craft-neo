@@ -36,6 +36,12 @@ class BlockTypeGroup extends Model
     public ?int $sortOrder = null;
 
     /**
+     * @var bool|null Whether to always show dropdowns for this block type group.
+     * @since 3.0.0
+     */
+    public ?bool $alwaysShowDropdown = null;
+
+    /**
      * @var string|null
      */
     public ?string $uid = null;
@@ -82,6 +88,7 @@ class BlockTypeGroup extends Model
             'field' => Craft::$app->getFields()->getFieldById($this->fieldId)->uid,
             'name' => $this->name,
             'sortOrder' => (int)$this->sortOrder,
+            'alwaysShowDropdown' => $this->alwaysShowDropdown,
         ];
     }
 }

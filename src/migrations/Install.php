@@ -91,6 +91,7 @@ class Install extends Migration
                 'fieldId' => $this->integer()->notNull(),
                 'name' => $this->string()->notNull(),
                 'sortOrder' => $this->smallInteger()->unsigned(),
+                'alwaysShowDropdown' => $this->boolean(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),

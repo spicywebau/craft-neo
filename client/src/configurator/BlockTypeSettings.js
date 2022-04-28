@@ -498,44 +498,7 @@ export default Settings.extend({
   },
 
   _refreshMaxChildBlocks (animate) {
-    animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
-
-    const showSetting = !!this.getChildBlocks()
-
-    if (animate) {
-      if (showSetting) {
-        if (this.$maxChildBlocksContainer.hasClass('hidden')) {
-          this.$maxChildBlocksContainer
-            .removeClass('hidden')
-            .css({
-              opacity: 0,
-              marginBottom: -(this.$maxChildBlocksContainer.outerHeight())
-            })
-            .velocity({
-              opacity: 1,
-              marginBottom: 24
-            }, 'fast')
-        }
-      } else {
-        if (!this.$maxChildBlocksContainer.hasClass('hidden')) {
-          this.$maxChildBlocksContainer
-            .css({
-              opacity: 1,
-              marginBottom: 24
-            })
-            .velocity({
-              opacity: 0,
-              marginBottom: -(this.$maxChildBlocksContainer.outerHeight())
-            }, 'fast', () => {
-              this.$maxChildBlocksContainer.addClass('hidden')
-            })
-        }
-      }
-    } else {
-      this.$maxChildBlocksContainer
-        .toggleClass('hidden', !showSetting)
-        .css('margin-bottom', showSetting ? 24 : '')
-    }
+    this._refreshSetting(this.$maxChildBlocksContainer, !!this.getChildBlocks(), animate)
   },
 
   '@onChildBlockTypeChange' (e, blockType, $checkbox) {

@@ -202,6 +202,7 @@ class InputAsset extends FieldAsset
                 'id' => $blockTypeGroup->id,
                 'sortOrder' => $blockTypeGroup->sortOrder,
                 'name' => Craft::t('site', $blockTypeGroup->name),
+                'alwaysShowDropdown' => $blockTypeGroup->alwaysShowDropdown ?? Neo::$plugin->settings->defaultAlwaysShowGroupDropdowns,
             ];
         }
 

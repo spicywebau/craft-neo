@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added the ability to show or hide block type group dropdowns where the group only has one available block type
+- Added the `defaultAlwaysShowGroupDropdowns` plugin setting (defaults to `true`)
+- Added the `alwaysShowDropdown` column to the `neoblocktypegroups` table
+- Added `benf\neo\models\BlockTypeGroup::$alwaysShowDropdown`
+
 ## 3.0.0-RC1 - 2022-04-27
 
 ### Changed

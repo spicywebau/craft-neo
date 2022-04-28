@@ -543,6 +543,7 @@ class BlockTypes extends Component
                     $record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
                     $record->name = $data['name'];
                     $record->sortOrder = $data['sortOrder'];
+                    $record->alwaysShowDropdown = $data['alwaysShowDropdown'];
                     $record->uid = $uid;
                     $record->save(false);
                 } else {
@@ -658,6 +659,7 @@ class BlockTypes extends Component
                 'fieldId',
                 'name',
                 'sortOrder',
+                'alwaysShowDropdown',
                 'uid',
             ])
             ->from(['{{%neoblocktypegroups}}'])

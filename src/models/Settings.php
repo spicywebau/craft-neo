@@ -25,12 +25,18 @@ class Settings extends Model
     public bool $optimiseSearchIndexing = true;
 
     /**
+     * @var bool
+     * @since 3.0.0
+     */
+    public bool $defaultAlwaysShowGroupDropdowns = true;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
     {
         return [
-            [['collapseAllBlocks', 'optimiseSearchIndexing'], 'boolean'],
+            [['collapseAllBlocks', 'optimiseSearchIndexing', 'defaultAlwaysShowGroupDropdowns'], 'boolean'],
         ];
     }
 }

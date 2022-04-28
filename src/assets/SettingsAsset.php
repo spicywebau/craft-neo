@@ -80,6 +80,12 @@ class SettingsAsset extends AssetBundle
             'Will this block type be allowed at the top level?',
             'Delete block type',
             'This can be left blank if you just want an unlabeled separator.',
+            'Show',
+            'Hide',
+            'Use global setting (Show)',
+            'Use global setting (Hide)',
+            'Always Show Dropdown?',
+            'Whether to show the dropdown for this group if it only has one available block type.',
             'Delete group',
             'Block Types',
             'Block type',
@@ -108,6 +114,7 @@ class SettingsAsset extends AssetBundle
             'blockTypes' => self::_getBlockTypesJsSettings($blockTypes),
             'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
             'fieldLayoutHtml' => $fieldLayoutHtml,
+            'defaultAlwaysShowGroupDropdowns' => Neo::$plugin->settings->defaultAlwaysShowGroupDropdowns,
         ];
 
         $encodedJsSettings = Json::encode($jsSettings);
@@ -171,6 +178,7 @@ class SettingsAsset extends AssetBundle
                 'id' => $blockTypeGroup->id,
                 'sortOrder' => $blockTypeGroup->sortOrder,
                 'name' => Craft::t('site', $blockTypeGroup->name),
+                'alwaysShowDropdown' => $blockTypeGroup->alwaysShowDropdown,
             ];
         }
 

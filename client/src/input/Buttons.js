@@ -83,7 +83,15 @@ export default Garnish.Base.extend({
         </div>`)
         }
 
-        currentGroup = item.isBlank() || (i + 2) >= this._items.length || this._items[i + 2].getType() === 'group' ? null : item
+        if (item.isBlank()) {
+          // Never show dropdowns for groups with blank names, as they're just used to end the previous group
+          currentGroup = null
+        } else if (!item.getAlwaysShowDropdown() && ((i + 2) >= this._items.length || this._items[i + 2].getType() === 'group')) {
+          // Don't show dropdowns if we're not forcing them to show, and there's only one block type in this group
+          currentGroup = null
+        } else {
+          currentGroup = item
+        }
 
         if (currentGroup !== null) {
           buttonsHtml.push(`

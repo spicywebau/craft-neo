@@ -105,7 +105,9 @@ export default Garnish.Base.extend({
         namespace: [...gNamespace, gInfo.id],
         sortOrder: gInfo.sortOrder,
         id: gInfo.id,
-        name: gInfo.name
+        name: gInfo.name,
+        alwaysShowDropdown: gInfo.alwaysShowDropdown,
+        defaultAlwaysShowGroupDropdowns: settings.defaultAlwaysShowGroupDropdowns
       })
 
       const group = new Group({
