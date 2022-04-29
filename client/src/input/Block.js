@@ -860,7 +860,9 @@ export default Garnish.Base.extend({
         siteId: this.getSiteId()
       }
 
-      Craft.queueActionRequest(() => Craft.postActionRequest('neo/input/save-expansion', data))
+      Craft.queue.push(() => new Promise((resolve, reject) => {
+        Craft.sendActionRequest('POST', 'neo/input/save-expansion', { data }).then(resolve).catch(reject)
+      }))
     }
   },
 
