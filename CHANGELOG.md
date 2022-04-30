@@ -91,6 +91,11 @@
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
 
+## 2.13.6 - 2022-04-30
+
+### Fixed
+- Fixed a JavaScript error that occurred on Neo field settings pages, when changing a block type's 'Max Sibling Blocks of This Type' value
+
 ## 2.13.5 - 2022-04-16
 
 ### Added

@@ -94,7 +94,7 @@ export default Settings.extend({
 
     this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
     this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
-    this.addListener(this.$maxSiblingBlocksInput, 'keyup change', () => this.setSiblingMaxBlocks(this.$maxSiblingBlocksInput.val()))
+    this.addListener(this.$maxSiblingBlocksInput, 'keyup change', () => this.setMaxSiblingBlocks(this.$maxSiblingBlocksInput.val()))
     this.addListener(this.$maxChildBlocksInput, 'keyup change', () => this.setMaxChildBlocks(this.$maxChildBlocksInput.val()))
     this.addListener(this.$deleteButton, 'click', () => {
       if (window.confirm(Craft.t('neo', 'Are you sure you want to delete this block type?'))) {
