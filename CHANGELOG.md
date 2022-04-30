@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-RC3 - 2022-04-30
 
 ### Changed
 - Neo now requires Craft 4.0.0-RC2 or later
