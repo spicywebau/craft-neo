@@ -1,5 +1,5 @@
 import $ from 'jquery'
-
+import Craft from 'craft'
 import Garnish from 'garnish'
 
 const _fieldDefaults = {
@@ -103,7 +103,7 @@ export default Garnish.Base.extend({
   _lightswitch (settings = {}) {
     settings = Object.assign({}, _lightswitchDefaults, settings)
 
-    settings.input = `
+    const input = $(`
       <div class="lightswitch${settings.checked ? ' on' : ''}" tabindex="0"${this._attributes(settings.attributes)}>
         <div class="lightswitch-container">
           <div class="label on"></div>
@@ -111,9 +111,9 @@ export default Garnish.Base.extend({
           <div class="label off"></div>
         </div>
         <input type="hidden" name="${settings.name}" value="${settings.checked ? '1' : ''}">
-      </div>`
+      </div>`)
 
-    return this._field(settings)
+    return $('<div class="field"/>').append(Craft.ui.createField(input, settings)).html()
   },
 
   _attributes (attributes) {
