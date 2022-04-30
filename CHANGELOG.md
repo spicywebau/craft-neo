@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a JavaScript error that occurred on Neo field settings pages, when changing a block type's 'Max Sibling Blocks of This Type' value
+
 ## 2.13.5 - 2022-04-16
 
 ### Added
