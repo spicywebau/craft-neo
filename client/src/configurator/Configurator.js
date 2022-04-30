@@ -289,8 +289,8 @@ export default Garnish.Base.extend({
 
   _getNewFieldLayoutHtml () {
     return this._fieldLayoutHtml.replace(
-      /<input type="hidden" name="fieldLayout" value="{&quot;uid&quot;:&quot;([a-f0-9-]+)&quot;}" data-config-input>/,
-      `<input type="hidden" name="fieldLayout" value="{&quot;uid&quot;:&quot;${uuidv4()}&quot;}" data-config-input>`
+      /&quot;uid&quot;:&quot;([a-f0-9-]+)&quot;/,
+      `&quot;uid&quot;:&quot;${uuidv4()}&quot;`
     )
   },
 
