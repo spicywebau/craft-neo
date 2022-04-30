@@ -6,7 +6,7 @@
 - Neo now requires Craft 4.0.0-RC2 or later
 
 ### Fixed
-- Replaced usage of `Craft.queueActionRequest()` (removed in Craft 4.0.0-RC2) with `Craft.queue.push()`, fixing a JavaScript error tha occurred on Craft 4.0.0-RC2 when collapsing/expanding blocks
+- Replaced usage of `Craft.queueActionRequest()` (removed in Craft 4.0.0-RC2) with `Craft.queue.push()`, fixing a JavaScript error that occurred on Craft 4.0.0-RC2 when collapsing/expanding blocks
 
 ## 3.0.0-RC2 - 2022-04-28
 
