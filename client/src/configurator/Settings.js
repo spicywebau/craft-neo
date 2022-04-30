@@ -12,16 +12,6 @@ const _fieldDefaults = {
   errors: false
 }
 
-const _inputDefaults = {
-  type: 'text',
-  attributes: {},
-  id: '',
-  name: '',
-  value: '',
-  class: '',
-  fullWidth: true
-}
-
 const _lightswitchDefaults = {
   attributes: {},
   name: '',
@@ -108,21 +98,6 @@ export default Garnish.Base.extend({
       </div>`)
 
     return fieldHtml.join('')
-  },
-
-  _input (settings = {}) {
-    settings = Object.assign({}, _inputDefaults, settings)
-
-    settings.input = `
-      <input class="text${settings.fullWidth ? ' fullwidth' : ''} ${settings.class}"
-             type="${settings.type}"
-             id="${settings.id}"
-             name="${settings.name}"
-             value="${settings.value}"
-             ${this._attributes(settings.attributes)}
-             autocomplete="off">`
-
-    return this._field(settings)
   },
 
   _lightswitch (settings = {}) {

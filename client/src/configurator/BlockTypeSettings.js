@@ -128,67 +128,88 @@ export default Settings.extend({
     const topLevelInputName = NS.fieldName('topLevel')
     NS.leave()
 
+    const $nameInput = Craft.ui.createTextField({
+      type: 'text',
+      id: nameInputId,
+      name: nameInputName,
+      label: Craft.t('neo', 'Name'),
+      instructions: Craft.t('neo', 'What this block type will be called in the CP.'),
+      required: true,
+      value: this.getName(),
+      errors: errors.name
+    })
+    $nameInput.find('input').attr('data-neo-bts', 'input.name')
+
+    const $handleInput = Craft.ui.createTextField({
+      type: 'text',
+      id: handleInputId,
+      name: handleInputName,
+      label: Craft.t('neo', 'Handle'),
+      instructions: Craft.t('neo', 'How you&#8217;ll refer to this block type in the templates.'),
+      required: true,
+      class: 'code',
+      value: this.getHandle(),
+      errors: errors.handle
+    })
+    $handleInput.find('input').attr('data-neo-bts', 'input.handle')
+
+    const $maxBlocksInput = Craft.ui.createTextField({
+      type: 'number',
+      id: maxBlocksInputId,
+      name: maxBlocksInputName,
+      label: Craft.t('neo', 'Max Blocks'),
+      instructions: Craft.t('neo', 'The maximum number of blocks of this type the field is allowed to have.'),
+      value: maxBlocks > 0 ? maxBlocks : null,
+      min: 0,
+      errors: errors.maxBlocks
+    })
+    $maxBlocksInput.find('input')
+      .removeClass('fullwidth')
+      .css('width', '80px')
+      .attr('data-neo-bts', 'input.maxBlocks')
+
+    const $maxSiblingBlocksInput = Craft.ui.createTextField({
+      type: 'number',
+      id: maxSiblingBlocksInputId,
+      name: maxSiblingBlocksInputName,
+      label: Craft.t('neo', 'Max Sibling Blocks of This Type'),
+      instructions: Craft.t('neo', 'The maximum number of blocks of this type allowed under one parent block or at the top level.'),
+      value: maxSiblingBlocks > 0 ? maxSiblingBlocks : null,
+      min: 0,
+      errors: errors.maxSiblingBlocks
+    })
+    $maxSiblingBlocksInput.find('input')
+      .removeClass('fullwidth')
+      .css('width', '80px')
+      .attr('data-neo-bts', 'input.maxSiblingBlocks')
+
+    const $maxChildBlocksInput = Craft.ui.createTextField({
+      type: 'number',
+      id: maxChildBlocksInputId,
+      name: maxChildBlocksInputName,
+      label: Craft.t('neo', 'Max Child Blocks'),
+      instructions: Craft.t('neo', 'The maximum number of child blocks this block type is allowed to have.'),
+      value: maxChildBlocks > 0 ? maxChildBlocks : null,
+      min: 0,
+      errors: errors.maxChildBlocks,
+      attributes: {
+        style: 'width: 80px;',
+        'data-neo-bts': 'input.maxChildBlocks'
+      }
+    })
+    $maxChildBlocksInput.find('input')
+      .removeClass('fullwidth')
+      .css('width', '80px')
+      .attr('data-neo-bts', 'input.maxChildBlocks')
+
     return $(`
       <div>
         <input type="hidden" name="${sortOrderName}" value="${this.getSortOrder()}" data-neo-bts="input.sortOrder">
         <div>
-          ${this._input({
-            type: 'text',
-            id: nameInputId,
-            name: nameInputName,
-            label: Craft.t('neo', 'Name'),
-            instructions: Craft.t('neo', 'What this block type will be called in the CP.'),
-            required: true,
-            value: this.getName(),
-            errors: errors.name,
-            attributes: {
-              'data-neo-bts': 'input.name'
-            }
-          })}
-          ${this._input({
-            type: 'text',
-            id: handleInputId,
-            name: handleInputName,
-            label: Craft.t('neo', 'Handle'),
-            instructions: Craft.t('neo', 'How you&#8217;ll refer to this block type in the templates.'),
-            required: true,
-            class: 'code',
-            value: this.getHandle(),
-            errors: errors.handle,
-            attributes: {
-              'data-neo-bts': 'input.handle'
-            }
-          })}
-          ${this._input({
-            type: 'number',
-            id: maxBlocksInputId,
-            name: maxBlocksInputName,
-            label: Craft.t('neo', 'Max Blocks'),
-            instructions: Craft.t('neo', 'The maximum number of blocks of this type the field is allowed to have.'),
-            fullWidth: false,
-            value: maxBlocks > 0 ? maxBlocks : null,
-            errors: errors.maxBlocks,
-            attributes: {
-              min: 0,
-              style: 'width: 80px;',
-              'data-neo-bts': 'input.maxBlocks'
-            }
-          })}
-          ${this._input({
-            type: 'number',
-            id: maxSiblingBlocksInputId,
-            name: maxSiblingBlocksInputName,
-            label: Craft.t('neo', 'Max Sibling Blocks of This Type'),
-            instructions: Craft.t('neo', 'The maximum number of blocks of this type allowed under one parent block or at the top level.'),
-            fullWidth: false,
-            value: maxSiblingBlocks > 0 ? maxSiblingBlocks : null,
-            errors: errors.maxSiblingBlocks,
-            attributes: {
-              min: 0,
-              style: 'width: 80px;',
-              'data-neo-bts': 'input.maxSiblingBlocks'
-            }
-          })}
+          ${$('<div class="field"/>').append($nameInput).html()}
+          ${$('<div class="field"/>').append($handleInput).html()}
+          ${$('<div class="field"/>').append($maxBlocksInput).html()}
+          ${$('<div class="field"/>').append($maxSiblingBlocksInput).html()}
           ${this._field({
             id: childBlocksInputId,
             label: Craft.t('neo', 'Child Blocks'),
@@ -204,21 +225,7 @@ export default Settings.extend({
               </div>`
           })}
           <div data-neo-bts="container.maxChildBlocks">
-            ${this._input({
-              type: 'number',
-              id: maxChildBlocksInputId,
-              name: maxChildBlocksInputName,
-              label: Craft.t('neo', 'Max Child Blocks'),
-              instructions: Craft.t('neo', 'The maximum number of child blocks this block type is allowed to have.'),
-              fullWidth: false,
-              value: maxChildBlocks > 0 ? maxChildBlocks : null,
-              errors: errors.maxChildBlocks,
-              attributes: {
-                min: 0,
-                style: 'width: 80px;',
-                'data-neo-bts': 'input.maxChildBlocks'
-              }
-            })}
+            ${$('<div class="field"/>').append($maxChildBlocksInput).html()}
           </div>
           <div data-neo-bts="container.topLevel">
             ${this._lightswitch({

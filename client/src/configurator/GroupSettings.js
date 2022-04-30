@@ -51,8 +51,8 @@ export default Settings.extend({
   _generateGroupSettings () {
     NS.enter(this._templateNs)
     const sortOrderName = NS.fieldName('sortOrder')
-    const inputId = NS.value('name', '-')
-    const inputName = NS.fieldName('name')
+    const nameInputId = NS.value('name', '-')
+    const nameInputName = NS.fieldName('name')
     const alwaysShowDropdownId = NS.value('alwaysShowDropdown', '-')
     const alwaysShowDropdownName = NS.fieldName('alwaysShowDropdown')
     NS.leave()
@@ -70,22 +70,21 @@ export default Settings.extend({
         label: this._defaultAlwaysShowGroupDropdowns ? Craft.t('neo', 'Use global setting (Show)') : Craft.t('neo', 'Use global setting (Hide)')
       }
     ]
+    const $nameInput = Craft.ui.createTextField({
+      type: 'text',
+      id: nameInputId,
+      name: nameInputName,
+      label: Craft.t('neo', 'Name'),
+      instructions: Craft.t('neo', 'This can be left blank if you just want an unlabeled separator.'),
+      value: this.getName()
+    })
+    $nameInput.find('input').attr('data-neo-gs', 'input.name')
 
     return $(`
       <div>
       <input type="hidden" name="${sortOrderName}" value="${this.getSortOrder()}" data-neo-gs="input.sortOrder">
       <div>
-        ${this._input({
-            type: 'text',
-            id: inputId,
-            name: inputName,
-            label: Craft.t('neo', 'Name'),
-            instructions: Craft.t('neo', 'This can be left blank if you just want an unlabeled separator.'),
-            value: this.getName(),
-            attributes: {
-                'data-neo-gs': 'input.name'
-            }
-        })}
+        ${$('<div class="field">').append($nameInput).html()}
         <div data-neo-gs="container.alwaysShowDropdown">
           <div class="field">
             ${Craft.ui.createSelectField({
