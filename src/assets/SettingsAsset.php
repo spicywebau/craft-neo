@@ -68,7 +68,7 @@ class SettingsAsset extends AssetBundle
             'Name',
             'What this block type will be called in the CP.',
             'Handle',
-            'How you&#8217;ll refer to this block type in the templates.',
+            'How you’ll refer to this block type in the templates.',
             'Max Blocks',
             'The maximum number of blocks of this type the field is allowed to have.',
             'All',

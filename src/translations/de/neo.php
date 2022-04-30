@@ -18,7 +18,7 @@ return [
     'Name' => 'Name',
     'What this block type will be called in the CP.' => 'Wie dieser Blocktyp in der CP genannt wird.',
     'Handle' => 'Kurzname',
-    'How you&#8217;ll refer to this block type in the templates.' => 'Unter welchem Kurzname dieser Blocktyp im Template genutzt werden kann.',
+    'How you’ll refer to this block type in the templates.' => 'Unter welchem Kurzname dieser Blocktyp im Template genutzt werden kann.',
     'Max Blocks' => 'Maximale Anzahl von Blöcken',
     'The maximum number of blocks of this type the field is allowed to have.' => 'Die maximale Anzahl von Blöcken dieses Typs, die im Feld sein dürfen.',
     'All' => 'Alle',

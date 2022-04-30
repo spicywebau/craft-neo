@@ -20,7 +20,7 @@ return [
     'Name' => 'Name',
     'What this block type will be called in the CP.' => 'What this block type will be called in the CP.',
     'Handle' => 'Handle',
-    'How you&#8217;ll refer to this block type in the templates.' => 'How you&#8217;ll refer to this block type in the templates.',
+    'How you’ll refer to this block type in the templates.' => 'How you’ll refer to this block type in the templates.',
     'Max Blocks' => 'Max Blocks',
     'The maximum number of blocks of this type the field is allowed to have.' => 'The maximum number of blocks of this type the field is allowed to have.',
     'All' => 'All',

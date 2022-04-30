@@ -145,7 +145,7 @@ export default Settings.extend({
       id: handleInputId,
       name: handleInputName,
       label: Craft.t('neo', 'Handle'),
-      instructions: Craft.t('neo', 'How you&#8217;ll refer to this block type in the templates.'),
+      instructions: Craft.t('neo', 'How you’ll refer to this block type in the templates.'),
       required: true,
       class: 'code',
       value: this.getHandle(),
