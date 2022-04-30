@@ -183,6 +183,23 @@ export default Settings.extend({
       .css('width', '80px')
       .attr('data-neo-bts', 'input.maxSiblingBlocks')
 
+    const $childBlocksInput = Craft.ui.createField(
+      $(`
+        <fieldset class="checkbox-select" data-neo-bts="input.childBlocks">
+          <div>
+            <input type="hidden" name="${childBlocksInputName}">
+            <input type="checkbox" value="*" id="${childBlocksInputId}" class="all checkbox" name="${childBlocksInputName}">
+            <label for="${childBlocksInputId}"><strong>${Craft.t('neo', 'All')}</strong></label>
+          </div>
+          <div data-neo-bts="container.childBlocks"></div>
+        </fieldset>`),
+      {
+        id: childBlocksInputId,
+        label: Craft.t('neo', 'Child Blocks'),
+        instructions: Craft.t('neo', 'Which block types do you want to allow as children?')
+      }
+    )
+
     const $maxChildBlocksInput = Craft.ui.createTextField({
       type: 'number',
       id: maxChildBlocksInputId,
@@ -210,20 +227,7 @@ export default Settings.extend({
           ${$('<div class="field"/>').append($handleInput).html()}
           ${$('<div class="field"/>').append($maxBlocksInput).html()}
           ${$('<div class="field"/>').append($maxSiblingBlocksInput).html()}
-          ${this._field({
-            id: childBlocksInputId,
-            label: Craft.t('neo', 'Child Blocks'),
-            instructions: Craft.t('neo', 'Which block types do you want to allow as children?'),
-            input: `
-              <div class="checkbox-select" data-neo-bts="input.childBlocks">
-                <div>
-                  <input type="hidden" name="${childBlocksInputName}">
-                  <input type="checkbox" value="*" id="${childBlocksInputId}" class="all checkbox" name="${childBlocksInputName}">
-                  <label for="${childBlocksInputId}"><strong>${Craft.t('neo', 'All')}</strong></label>
-                </div>
-                <div data-neo-bts="container.childBlocks"></div>
-              </div>`
-          })}
+          ${$('<div class="field"/>').append($childBlocksInput).html()}
           <div data-neo-bts="container.maxChildBlocks">
             ${$('<div class="field"/>').append($maxChildBlocksInput).html()}
           </div>
