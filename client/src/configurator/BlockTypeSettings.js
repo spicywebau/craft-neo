@@ -219,6 +219,23 @@ export default Settings.extend({
       .css('width', '80px')
       .attr('data-neo-bts', 'input.maxChildBlocks')
 
+    const $topLevelInput = Craft.ui.createField(
+      $(`
+        <div class="lightswitch${this.getTopLevel() ? ' on' : ''}" tabindex="0" data-neo-bts="input.topLevel">
+          <div class="lightswitch-container">
+            <div class="label on"></div>
+            <div class="handle"></div>
+            <div class="label off"></div>
+          </div>
+          <input type="hidden" name="${topLevelInputName}" value="${this.getTopLevel() ? '1' : ''}">
+        </div>`),
+      {
+        id: topLevelInputId,
+        label: Craft.t('neo', 'Top Level'),
+        instructions: Craft.t('neo', 'Will this block type be allowed at the top level?')
+      }
+    )
+
     return $(`
       <div>
         <input type="hidden" name="${sortOrderName}" value="${this.getSortOrder()}" data-neo-bts="input.sortOrder">
@@ -232,16 +249,7 @@ export default Settings.extend({
             ${$('<div class="field"/>').append($maxChildBlocksInput).html()}
           </div>
           <div data-neo-bts="container.topLevel">
-            ${this._lightswitch({
-              id: topLevelInputId,
-              name: topLevelInputName,
-              label: Craft.t('neo', 'Top Level'),
-              instructions: Craft.t('neo', 'Will this block type be allowed at the top level?'),
-              checked: this.getTopLevel(),
-              attributes: {
-                'data-neo-bts': 'input.topLevel'
-              }
-            })}
+            ${$('<div class="field"/>').append($topLevelInput).html()}
           </div>
         </div>
         <hr>

@@ -1,12 +1,5 @@
 import $ from 'jquery'
-import Craft from 'craft'
 import Garnish from 'garnish'
-
-const _lightswitchDefaults = {
-  attributes: {},
-  name: '',
-  checked: false
-}
 
 export default Garnish.Base.extend({
 
@@ -36,32 +29,6 @@ export default Garnish.Base.extend({
 
   destroy () {
     this.trigger('destroy')
-  },
-
-  _lightswitch (settings = {}) {
-    settings = Object.assign({}, _lightswitchDefaults, settings)
-
-    const input = $(`
-      <div class="lightswitch${settings.checked ? ' on' : ''}" tabindex="0"${this._attributes(settings.attributes)}>
-        <div class="lightswitch-container">
-          <div class="label on"></div>
-          <div class="handle"></div>
-          <div class="label off"></div>
-        </div>
-        <input type="hidden" name="${settings.name}" value="${settings.checked ? '1' : ''}">
-      </div>`)
-
-    return $('<div class="field"/>').append(Craft.ui.createField(input, settings)).html()
-  },
-
-  _attributes (attributes) {
-    const attributesHtml = []
-
-    for (const attribute in attributes) {
-      attributesHtml.push(` ${attribute}="${attributes[attribute]}"`)
-    }
-
-    return attributesHtml.join('')
   },
 
   _refreshSetting ($container, showSetting, animate) {
