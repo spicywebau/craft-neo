@@ -91,6 +91,11 @@
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
 
+## 2.13.7 - 2022-05-03
+
+### Fixed
+- Fixed an error that could occur when saving Neo blocks, when checking if a block has a searchable block type
+
 ## 2.13.6 - 2022-04-30
 
 ### Fixed

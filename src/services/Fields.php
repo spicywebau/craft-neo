@@ -963,7 +963,7 @@ SQL
      */
     private function _hasSearchableBlockType(Field $field, Block $block): bool
     {
-        if ($block->fieldId !== $field->id) {
+        if ($block->fieldId != $field->id) {
             throw new InvalidArgumentException('Incompatible Neo field and block');
         }
 
