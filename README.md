@@ -60,7 +60,16 @@ Supports the ability to relabel fields on block types.
 
 ---
 
-### [Refer to the Wiki](https://github.com/spicywebau/craft-neo/wiki) for documentation on how to use Neo.
+## Documentation
+- [Installation](docs/installation.md)
+- [Creating Neo Fields](docs/creating-neo-fields.md)
+- [Templating](docs/templating.md)
+- [Eager Loading](docs/eager-loading.md)
+- [Configuration](docs/configuration.md)
+- [Resources](docs/resources.md)
+- [API](docs/api.md)
+- [FAQ](docs/faq.md)
+- [Changelog](CHANGELOG.md)
 
 ---
 
