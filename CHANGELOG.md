@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when saving Neo blocks, when checking if a block has a searchable block type
+
 ## 2.13.6 - 2022-04-30
 
 ### Fixed
