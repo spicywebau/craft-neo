@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Visual improvements to the Neo block type settings
+
 ## 3.0.0-RC3 - 2022-04-30
 
 ### Changed
