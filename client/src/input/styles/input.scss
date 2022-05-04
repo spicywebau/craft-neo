@@ -1,4 +1,7 @@
 $preview-reduction: 80px;
+$topbar-background-color-level-odd: #ebf2fa;
+$topbar-background-color-level-even: #ebf2fa80;
+$topbar-background-color-transparent: #ebf2fa00;
 
 .neo-input {
 
@@ -62,7 +65,7 @@ $preview-reduction: 80px;
             position: relative;
             height: 30px;
             line-height: 30px;
-            background-color: #ebf2fa;
+            background-color: $topbar-background-color-level-odd;
             color: #8f98a3;
             padding: 0 14px;
 
@@ -386,11 +389,33 @@ $preview-reduction: 80px;
             }
         }
 
+        &.is-level-odd {
+            .ni_block_topbar_left::before {
+                body.ltr & {
+                    background-image: linear-gradient(-90deg, $topbar-background-color-level-odd 0, $topbar-background-color-transparent 40px, $topbar-background-color-transparent 100%);
+                }
+
+                body.rtl & {
+                    background-image: linear-gradient(90deg, $topbar-background-color-level-odd 0, $topbar-background-color-transparent 40px, $topbar-background-color-transparent 100%);
+                }
+            }
+        }
+
         &.is-level-even {
             background-color: #fbfcfd;
 
             > .ni_block_topbar {
-                background-color: #ebf2fa80;
+                background-color: $topbar-background-color-level-even;
+
+                > .ni_block_topbar_left::before {
+                    body.ltr & {
+                        background-image: linear-gradient(-90deg, $topbar-background-color-level-even 0, $topbar-background-color-transparent 40px, $topbar-background-color-transparent 100%);
+                    }
+
+                    body.rtl & {
+                        background-image: linear-gradient(90deg, $topbar-background-color-level-even 0, $topbar-background-color-transparent 40px, $topbar-background-color-transparent 100%);
+                    }
+                }
 
                 > .ni_block_topbar_right > .ni_block_topbar_item.tabs .tab {
                     &.is-blank {
@@ -432,14 +457,6 @@ $preview-reduction: 80px;
                         left: 0;
                         right: 0;
                         z-index: 1;
-
-                        body.ltr & {
-                            background-image: linear-gradient(-90deg, #f3f7fc 0, rgba(243, 247, 252, 0) 40px, rgba(243, 247, 252, 0) 100%);
-                        }
-
-                        body.rtl & {
-                            background-image: linear-gradient(90deg, #f3f7fc 0, rgba(243, 247, 252, 0) 40px, rgba(243, 247, 252, 0) 100%);
-                        }
                     }
 
                     body.ltr & {
@@ -496,8 +513,12 @@ $preview-reduction: 80px;
         &.is-empty {
             padding: 6px 0; // Add some vertical size to blocks without fields or children so they stand out more
 
+            &.is-level-odd {
+                background-color: $topbar-background-color-level-odd;
+            }
+
             &.is-level-even {
-                background-color: white;
+                background-color: $topbar-background-color-level-even;
             }
         }
     }
