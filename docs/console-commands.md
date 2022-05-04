@@ -12,4 +12,4 @@ This command reapplies the propagation methods for Neo fields' blocks, optionall
 
 ## `resave/neo-blocks`
 
-This command resaves Neo blocks and has the same options as Craft's in-built [`resave/matrix-blocks`](https://craftcms.com/docs/3.x/console-commands.html#resave-matrix-blocks) command.
+This command resaves Neo blocks and has the same options as Craft's in-built [`resave/matrix-blocks`](https://craftcms.com/docs/4.x/console-commands.html#resave-matrix-blocks) command.
