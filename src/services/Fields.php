@@ -400,11 +400,6 @@ class Fields extends Component
                 $newBlockIds[] = $newBlock->id;
                 $block->structureId = $oldStructureId;
 
-                // Make sure `dateDeleted`, `deletedWithOwner` etc. aren't retained if they shouldn't be
-                if (!$newBlock->trashed) {
-                    $elementsService->restoreElement($newBlock);
-                }
-
                 // Levels not applying properly when saving drafts, so do it manually
                 $newBlock->level = $block->level;
 

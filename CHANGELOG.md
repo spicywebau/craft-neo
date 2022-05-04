@@ -91,6 +91,11 @@
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
 
+## 2.13.8 - 2022-05-04
+
+### Fixed
+- Fixed some performance issues when saving Neo blocks
+
 ## 2.13.7 - 2022-05-03
 
 ### Fixed

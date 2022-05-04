@@ -264,7 +264,6 @@ class Block extends Element implements BlockElementInterface
             ->preferSites([$this->siteId])
             ->unique()
             ->status(null)
-            ->trashed(null)
             ->ignorePlaceholders()
             ->one();
 
