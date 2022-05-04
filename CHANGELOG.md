@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.8 - 2022-05-04
 
 ### Fixed
 - Fixed some performance issues when saving Neo blocks
