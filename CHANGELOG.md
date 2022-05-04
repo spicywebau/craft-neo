@@ -1,62 +1,13 @@
 # Changelog
 
-## Unreleased
-
-### Changed
-- Visual improvements to the Neo block type settings
-
-## 3.0.0-RC3 - 2022-04-30
-
-### Changed
-- Neo now requires Craft 4.0.0-RC2 or later
-
-### Fixed
-- Replaced usage of `Craft.queueActionRequest()` (removed in Craft 4.0.0-RC2) with `Craft.queue.push()`, fixing a JavaScript error that occurred on Craft 4.0.0-RC2 when collapsing/expanding blocks
-
-## 3.0.0-RC2 - 2022-04-28
+## 3.0.0 - 2022-05-04
 
 ### Added
+- Added Craft 4 compatibility
 - Added the ability to show or hide block type group dropdowns where the group only has one available block type
 - Added the `defaultAlwaysShowGroupDropdowns` plugin setting (defaults to `true`)
 - Added the `alwaysShowDropdown` column to the `neoblocktypegroups` table
 - Added `benf\neo\models\BlockTypeGroup::$alwaysShowDropdown`
-
-## 3.0.0-RC1 - 2022-04-27
-
-### Changed
-- Neo now requires Craft 4.0.0-RC1 or later
-- The amount of animations and transitions Neo uses is now reduced if the user has requested reduced motion
-
-### Fixed
-- Fixed a bug where saved blocks' action menus weren't working properly on Craft 4.0.0-RC1
-
-## 3.0.0-beta.4 - 2022-04-26
-
-### Changed
-- Changes to Neo input block rendering, to use `craft\models\FieldLayout::createForm()` while still allowing the child blocks UI element to work
-
-### Fixed
-- Fixed a JavaScript error that occurred when saved blocks included Redactor fields and potentially others
-- Fixed a bug where checkboxes on saved blocks at even-numbered levels weren't working
-- Fixed a bug where subfields of pasted/cloned block types would all be set to required, regardless of their setting on the original block type
-
-## 3.0.0-beta.3 - 2022-04-22
-
-### Changed
-- When editing a Neo field's block types, creating a new block type will show the settings tab, if the field layout tab was previously showing
-
-### Fixed
-- Fixed a bug where creating more than one new block type at once would cause those block types to share a field layout
-
-## 3.0.0-beta.2 - 2022-04-19
-
-### Fixed
-- Fixed a bug where it was possible to add more than one child blocks UI element to a block type's field layout
-
-## 3.0.0-beta.1 - 2022-04-14
-
-### Added
-- Added Craft 4 compatibility (requires Craft 4.0.0-beta.4 or later)
 - Added `benf\neo\assets\InputAsset`
 - Added `benf\neo\assets\SettingsAsset`
 - Added `benf\neo\controllers\Configurator`
@@ -66,6 +17,9 @@
 - Existing Neo input field content is no longer rendered using JavaScript (other than new block buttons)
 - Whether a Neo block type's max blocks setting has been exceeded is now validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
 - The `neoblockstructures` table's `ownerSiteId` column has been renamed to `siteId`, and the `benf\neo\models\BlockStructure` class's `$ownerSiteId` property has been renamed to `$siteId`
+- The amount of animations and transitions Neo uses is now reduced if the user has requested reduced motion
+- When editing a Neo field's block types, creating a new block type will show the settings tab, if the field layout tab was previously showing
+- Visual improvements to the Neo block type settings
 - Updated JavaScript dependencies
 
 ### Deprecated
@@ -73,6 +27,7 @@
 - Deprecated `benf\neo\tasks\DuplicateNeoStructureTask`; use `benf\neo\jobs\SaveBlockStructures` instead
 
 ### Removed
+- Removed Craft 3 compatibility
 - Removed the unused `saveModifiedBlocksOnly` setting
 - Removed the unused `ownerSiteId` column from the `neoblocks` table
 - Removed `benf\neo\Field::$localizeBlocks`; use `$propagationMethod` instead
