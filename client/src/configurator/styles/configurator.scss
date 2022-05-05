@@ -45,8 +45,8 @@ $border-radius: var(--small-border-radius);
                 cursor: default;
                 position: relative;
                 margin-top: -1px;
-                padding-top: 10px;
-                padding-bottom: 10px;
+                padding-top: 6px;
+                padding-bottom: 6px;
                 border: 1px solid var(--hairline-color);
                 background-color: var(--gray-100);
 
@@ -100,6 +100,10 @@ $border-radius: var(--small-border-radius);
                     }
                 }
 
+                > .code:empty::before {
+                    content: "(blank)";
+                }
+
                 > .move,
                 > .settings {
                     position: absolute;
@@ -109,7 +113,7 @@ $border-radius: var(--small-border-radius);
 
                 > .move {
                     display: block;
-                    top: 10px;
+                    top: calc(50% - 10px);
 
                     body.ltr & {
                         right: 3px;
@@ -142,7 +146,7 @@ $border-radius: var(--small-border-radius);
 
                 > .settings {
                     display: inline-flex;
-                    top: 13px;
+                    top: calc(50% - 7px);
                     padding: 0 !important;
 
                     body.ltr & {
@@ -207,6 +211,8 @@ $border-radius: var(--small-border-radius);
 
                 &.type-heading {
                     margin-top: 9px;
+                    padding-top: 10px;
+                    padding-bottom: 10px;
 
                     &:first-child {
                         margin-top: 0;

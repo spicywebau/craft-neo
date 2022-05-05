@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- The Neo block type settings sidebar now displays block type handles under the block type names
+
 ## 3.0.1 - 2022-05-05
 
 ### Fixed

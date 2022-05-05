@@ -26,6 +26,7 @@ export default Item.extend({
 
     const $neo = this.$container.find('[data-neo-bt]')
     this.$nameText = $neo.filter('[data-neo-bt="text.name"]')
+    this.$handleText = $neo.filter('[data-neo-bt="text.handle"]')
     this.$moveButton = $neo.filter('[data-neo-bt="button.move"]')
     this.$actionsButton = $neo.filter('[data-neo-bt="button.actions"]')
     this.$actionsMenu = $neo.filter('[data-neo-bt="container.menu"]')
@@ -53,6 +54,7 @@ export default Item.extend({
     return $(`
       <div class="nc_sidebar_list_item${hasErrors ? ' has-errors' : ''}">
         <div class="label" data-neo-bt="text.name">${settings.getName()}</div>
+        <div class="smalltext light code" data-neo-bt="text.handle">${settings.getHandle()}</div>
         <a class="move icon" title="${Craft.t('neo', 'Reorder')}" role="button" data-neo-bt="button.move"></a>
         <button class="settings icon menubtn" title="${Craft.t('neo', 'Actions')}" role="button" type="button" data-neo-bt="button.actions"></button>
         <div class="menu" data-neo-bt="container.menu">
@@ -94,6 +96,7 @@ export default Item.extend({
 
     if (settings) {
       this.$nameText.text(settings.getName())
+      this.$handleText.text(settings.getHandle())
       this.$container.toggleClass('is-child', !settings.getTopLevel())
 
       if (fieldLayout) {
