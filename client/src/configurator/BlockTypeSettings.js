@@ -87,8 +87,8 @@ export default Settings.extend({
       this.setName(this.$nameInput.val())
 
       if (this._handleGenerator.listening) {
-        // Make sure the handle is updated internally, so the child block type checkbox values can be updated
-        this.setHandle(this.$handleInput.val())
+        // Wait for the handle to be auto-updated
+        setTimeout(() => this.setHandle(this.$handleInput.val()), 200)
       }
     })
 
