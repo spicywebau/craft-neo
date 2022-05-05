@@ -5,8 +5,8 @@ namespace benf\neo\migrations;
 use benf\neo\elements\Block;
 use benf\neo\Plugin as Neo;
 use Craft;
-use craft\helpers\StringHelper;
 use craft\db\Migration;
+use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 
 /**

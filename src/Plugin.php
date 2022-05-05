@@ -18,7 +18,6 @@ use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\console\Controller;
 use craft\console\controllers\ResaveController;
-use craft\db\Query;
 use craft\db\Table;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutElementsEvent;
@@ -210,7 +209,7 @@ class Plugin extends BasePlugin
                         $criteria['type'] = explode(',', $controller->type);
                     }
                     return $controller->resaveElements(Block::class, $criteria);
-                }
+                },
             ];
         });
     }
