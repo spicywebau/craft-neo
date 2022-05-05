@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when querying Neo block contents using GraphQL
+
 ## 3.0.0 - 2022-05-04
 
 ### Added

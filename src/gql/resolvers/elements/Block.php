@@ -7,6 +7,7 @@ use benf\neo\elements\db\BlockQuery;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Gql as GqlHelper;
 use GraphQL\Type\Definition\ResolveInfo;
+use Illuminate\Support\Collection;
 
 /**
  * Class Block
@@ -51,8 +52,8 @@ class Block extends ElementResolver
         }
 
         // If it's preloaded, it's preloaded.
-        if (is_array($query)) {
-            $query = array_unique($query);
+        if (!$query instanceof ElementQuery) {
+            $query = array_unique($query->all());
 
             // Return level 1 blocks only, unless the `level` argument says otherwise
             $level = isset($arguments['level'])
@@ -64,7 +65,7 @@ class Block extends ElementResolver
                     return (int)$block->level === $level;
                 });
 
-            return !empty($newBlocks) ? $newBlocks : $query;
+            return Collection::make(!empty($newBlocks) ? $newBlocks : $query);
         }
 
         // We require level 1 unless the arguments say otherwise
