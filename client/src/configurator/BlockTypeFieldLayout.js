@@ -17,7 +17,6 @@ const _defaults = {
 export default Garnish.Base.extend({
 
   _templateNs: [],
-  _blockName: '',
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -25,8 +24,6 @@ export default Garnish.Base.extend({
     this._templateNs = NS.parse(settings.namespace)
     this._id = settings.id | 0
     this._blockTypeId = settings.blockTypeId
-
-    this.setBlockName(settings.blockName)
 
     this.$container = $(settings.html).find('.layoutdesigner')
     this.$container.removeAttr('id')
@@ -74,11 +71,6 @@ export default Garnish.Base.extend({
 
   getBlockTypeId () {
     return this._blockTypeId
-  },
-
-  getBlockName () { return this._blockName },
-  setBlockName (name) {
-    this._blockName = name
   },
 
   getConfig () {

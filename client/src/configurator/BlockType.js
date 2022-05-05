@@ -92,16 +92,11 @@ export default Item.extend({
 
   _updateTemplate () {
     const settings = this.getSettings()
-    const fieldLayout = this.getFieldLayout()
 
     if (settings) {
       this.$nameText.text(settings.getName())
       this.$handleText.text(settings.getHandle())
       this.$container.toggleClass('is-child', !settings.getTopLevel())
-
-      if (fieldLayout) {
-        fieldLayout.setBlockName(settings.getName())
-      }
     }
   },
 
