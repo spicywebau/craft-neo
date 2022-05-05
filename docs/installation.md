@@ -21,11 +21,4 @@ Neo requires Craft CMS 4.0.0 or later.
 Neo has the same PHP version requirement as Craft CMS 4.0.0: PHP 8.0.2 or later.
 
 ### Browser support
-Neo officially supports the same browsers and versions that Craft CMS supports:
-
-- Firefox 67+
-- Chrome 63+
-- Safari 11.1+
-- Edge 79+
-
-While Neo may work on browsers outside of those listed, the above list is what Neo explicitly supports. The best option is to use an up-to-date major browser.
+Neo supports the same [browsers and versions that Craft CMS 4.0.0 supports](https://craftcms.com/docs/4.x/requirements.html#control-panel-browser-requirements). While Neo may work on browsers outside of those listed, this list is what Neo explicitly supports. The best option is to use an up-to-date major browser.
