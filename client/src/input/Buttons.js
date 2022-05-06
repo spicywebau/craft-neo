@@ -1,5 +1,4 @@
 import $ from 'jquery'
-import '../jquery-extensions'
 import Craft from 'craft'
 import Garnish from 'garnish'
 
@@ -184,11 +183,11 @@ export default Garnish.Base.extend({
   },
 
   updateButtonStates (blocks = [], additionalCheck = null, block = null) {
-    additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
+    additionalCheck = typeof additionalCheck === 'boolean' ? additionalCheck : true
 
     const that = this
 
-    const totalTopBlocks = blocks.filter(block => block.getLevel() === 1).length
+    const totalTopBlocks = blocks.filter(block => block.isTopLevel()).length
     const maxBlocksMet = this._maxBlocks > 0 && blocks.length >= this._maxBlocks
     const maxTopBlocksMet = this._maxTopBlocks > 0 && totalTopBlocks >= this._maxTopBlocks
 
@@ -208,10 +207,9 @@ export default Garnish.Base.extend({
         const siblingBlocksOfType = block !== null
           ? block.getChildren(blocks).filter(blockHasSameType)
           // This is at the top level
-          : blocks.filter(b => b.getLevel() === 1 && b.getBlockType().getHandle() === blockType.getHandle())
+          : blocks.filter(b => b.isTopLevel() && b.getBlockType().getHandle() === blockType.getHandle())
 
-        disabled = disabled ||
-          (maxBlocksOfType > 0 && blocksOfType.length >= maxBlocksOfType) ||
+        disabled ||= (maxBlocksOfType > 0 && blocksOfType.length >= maxBlocksOfType) ||
           (maxSiblingBlocks > 0 && siblingBlocksOfType.length >= maxSiblingBlocks)
       }
 
@@ -225,7 +223,7 @@ export default Garnish.Base.extend({
 
       if (!disabled && menu) {
         const $menuButtons = menu.menu.$options
-        disabled = ($menuButtons.length === $menuButtons.filter('.disabled').length)
+        disabled = $menuButtons.length === $menuButtons.filter('.disabled').length
       }
 
       $button.toggleClass('disabled', disabled)
@@ -233,11 +231,8 @@ export default Garnish.Base.extend({
   },
 
   updateResponsiveness () {
-    if (!this._buttonsContainerWidth) {
-      this._buttonsContainerWidth = this.$buttonsContainer.width()
-    }
-
-    const isMobile = (this.$container.width() < this._buttonsContainerWidth)
+    this._buttonsContainerWidth ??= this.$buttonsContainer.width()
+    const isMobile = this.$container.width() < this._buttonsContainerWidth
 
     this.$buttonsContainer.toggleClass('hidden', isMobile)
     this.$menuContainer.toggleClass('hidden', !isMobile)
