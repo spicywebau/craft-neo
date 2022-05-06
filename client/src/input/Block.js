@@ -381,6 +381,10 @@ export default Garnish.Base.extend({
     return this._id
   },
 
+  isTopLevel () {
+    return this._level === 1
+  },
+
   getLevel () {
     return this._level
   },
@@ -490,11 +494,7 @@ export default Garnish.Base.extend({
   },
 
   getSiblings (blocks) {
-    if (this._level === 1) {
-      return blocks.filter(b => b.getLevel() === 1)
-    }
-
-    return this.getParent(blocks).getChildren(blocks)
+    return this.isTopLevel() ? blocks.filter(b => b.isTopLevel()) : this.getParent(blocks).getChildren(blocks)
   },
 
   getField () {
@@ -921,7 +921,7 @@ export default Garnish.Base.extend({
     const maxBlockTypes = blockType.getMaxBlocks()
     const siblingBlocks = this.getSiblings(blocks)
 
-    const totalTopBlocks = blocks.filter(block => block.getLevel() === 0).length
+    const totalTopBlocks = blocks.filter(block => block.isTopLevel()).length
 
     const maxBlocksMet = maxBlocks > 0 && blocks.length >= maxBlocks
     const maxTopBlocksMet = maxTopBlocks > 0 && totalTopBlocks >= maxTopBlocks

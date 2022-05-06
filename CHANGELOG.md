@@ -5,6 +5,9 @@
 ### Changed
 - The Neo block type settings sidebar now displays block type handles under the block type names
 
+### Fixed
+- Fixed a bug where top-level Neo blocks' Paste, Clone and Add Block Above actions weren't being disabled when the field had reached its Max Top-Level Blocks setting
+
 ## 3.0.1 - 2022-05-05
 
 ### Fixed
