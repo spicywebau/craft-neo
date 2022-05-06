@@ -34,7 +34,21 @@ module.exports = {
       {
         use: {
           loader: 'babel-loader',
-          options: { presets: ['@babel/preset-env'] }
+          options: {
+            presets: [
+              [
+                '@babel/preset-env',
+                {
+                  targets: {
+                    firefox: '67',
+                    chrome: '63',
+                    safari: '11',
+                    edge: '79'
+                  }
+                }
+              ]
+            ]
+          }
         },
         include: [path.resolve(__dirname, '../src')],
         test: /\.jsx?$/
