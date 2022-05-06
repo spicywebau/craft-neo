@@ -105,6 +105,7 @@ export default Garnish.Base.extend({
     this.$levelInput = $neo.filter(`[data-neo-b="${this._id}.input.level"]`)
     this.$status = $neo.filter(`[data-neo-b="${this._id}.status"]`)
     this.$sortOrder = $neo.filter(`[data-neo-b="${this._id}.sortOrder"]`)
+    this.$form = this.$container.closest('form')
 
     if (this._buttons) {
       this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, { level: this.getLevel() + 1 })))
@@ -304,10 +305,7 @@ export default Garnish.Base.extend({
     this.addListener(this.$menuContainer.find('[data-action]'), 'keydown', this._handleActionKeydown)
 
     this._initialised = true
-
-    if (this._buttons) {
-      this._buttons.initUi()
-    }
+    this._buttons?.initUi()
 
     Garnish.requestAnimationFrame(() => this.updateResponsiveness())
 
@@ -405,9 +403,7 @@ export default Garnish.Base.extend({
 
   getSiteId () {
     if (!this._siteId) {
-      const $form = this.$container.closest('form')
-      const $siteId = $form.find('input[name="siteId"]')
-
+      const $siteId = this.$form.find('input[name="siteId"]')
       this._siteId = $siteId.val()
     }
 
@@ -559,12 +555,9 @@ export default Garnish.Base.extend({
         case 'craft\\fields\\Users':
           {
             const values = []
-            const $elements = $input.find('.element')
 
-            $elements.each(function () {
-              const $element = $(this)
-              const title = $element.find('.title, .label').eq(0).text()
-
+            $input.find('.element').each(function () {
+              const title = $(this).find('.title, .label').eq(0).text()
               values.push(_escapeHTML(_limit(title)))
             })
 
@@ -574,15 +567,11 @@ export default Garnish.Base.extend({
         case 'craft\\fields\\Checkboxes':
           {
             const values = []
-            const $checkboxes = $input.find('input[type="checkbox"]')
 
-            $checkboxes.each(function () {
+            $input.find('input[type="checkbox"]').each(function () {
               if (this.checked) {
-                const $checkbox = $(this)
-                const id = $checkbox.prop('id')
-                const $label = $input.find(`label[for="${id}"]`)
-                const label = $label.text()
-
+                const id = $(this).prop('id')
+                const label = $input.find(`label[for="${id}"]`).text()
                 values.push(_escapeHTML(_limit(label)))
               }
             })
@@ -661,8 +650,7 @@ export default Garnish.Base.extend({
         case 'craft\\fields\\RadioButtons':
           {
             const $checked = $input.find('input[type="radio"]:checked')
-            const $label = $checked.closest('label')
-            const label = $label.text()
+            const label = $checked.closest('label').text()
 
             value = _escapeHTML(_limit(label))
           }
@@ -781,8 +769,8 @@ export default Garnish.Base.extend({
   },
 
   toggleExpansion (expand, save, animate) {
-    expand = (typeof expand === 'boolean' ? expand : !this._expanded)
-    save = (typeof save === 'boolean' ? save : true)
+    expand = typeof expand === 'boolean' ? expand : !this._expanded
+    save = typeof save === 'boolean' ? save : true
     animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
 
     if (expand !== this._expanded) {
@@ -849,7 +837,7 @@ export default Garnish.Base.extend({
       // Use the duplicated block ID if we're on a new provisional draft
       // The server-side code will also apply the new state to the canonical block
       const thisBlockId = this.getId()
-      const elementEditor = $('#main-form').data('elementEditor')
+      const elementEditor = this.$form.data('elementEditor')
       const duplicatedBlockId = elementEditor.duplicatedElements[thisBlockId]
       const sentBlockId = elementEditor.settings.isProvisionalDraft && typeof duplicatedBlockId !== 'undefined'
         ? duplicatedBlockId
@@ -925,14 +913,14 @@ export default Garnish.Base.extend({
     }
 
     this._topbarRightWidth = this._topbarRightWidth || this.$topbarRightContainer.width()
-    const isMobile = (this.$topbarContainer.width() < this._topbarLeftWidth + this._topbarRightWidth)
+    const isMobile = this.$topbarContainer.width() < this._topbarLeftWidth + this._topbarRightWidth
 
     this.$tabsContainer.toggleClass('invisible', isMobile)
     this.$tabsButton.toggleClass('invisible', !isMobile)
   },
 
   updateMenuStates (field, blocks = [], maxBlocks = 0, additionalCheck = null, allowedBlockTypes = false, maxTopBlocks = 0) {
-    additionalCheck = (typeof additionalCheck === 'boolean') ? additionalCheck : true
+    additionalCheck = typeof additionalCheck === 'boolean' ? additionalCheck : true
 
     const blockType = this.getBlockType()
     const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
@@ -945,7 +933,7 @@ export default Garnish.Base.extend({
     const maxTopBlocksMet = maxTopBlocks > 0 && totalTopBlocks >= maxTopBlocks
 
     const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
-    const typeDisabled = (maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes)
+    const typeDisabled = maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes
     let cloneDisabled = allDisabled || typeDisabled
 
     const pasteData = JSON.parse(window.localStorage.getItem('neo:copy') || '{}')
@@ -959,7 +947,7 @@ export default Garnish.Base.extend({
       if (maxChildBlocks > 0) {
         const childBlockCount = parentBlock.getChildren(blocks).length
         const pasteBlockCount = pasteData.blocks.length
-        pasteDisabled = pasteDisabled || childBlockCount + pasteBlockCount > maxChildBlocks
+        pasteDisabled ||= childBlockCount + pasteBlockCount > maxChildBlocks
       }
     }
 
@@ -968,7 +956,7 @@ export default Garnish.Base.extend({
       const maxSiblingBlocks = this.getBlockType().getMaxSiblingBlocks()
 
       if (maxSiblingBlocks > 0) {
-        const hasSameBlockType = (block) => {
+        const hasSameBlockType = block => {
           if (Object.prototype.hasOwnProperty.call(block, 'type')) {
             return block.type === this.getBlockType().getId()
           } else if (typeof block.getBlockType === 'function') {
@@ -980,8 +968,8 @@ export default Garnish.Base.extend({
 
         const siblingBlockCount = siblingBlocks.filter(hasSameBlockType, this).length
         const pasteSiblingBlockCount = pasteData.blocks ? pasteData.blocks.filter(hasSameBlockType, this).length : 0
-        pasteDisabled = pasteDisabled || siblingBlockCount + pasteSiblingBlockCount > maxSiblingBlocks
-        cloneDisabled = cloneDisabled || siblingBlockCount >= maxSiblingBlocks
+        pasteDisabled ||= siblingBlockCount + pasteSiblingBlockCount > maxSiblingBlocks
+        cloneDisabled ||= siblingBlockCount >= maxSiblingBlocks
       }
     }
 
@@ -1005,16 +993,14 @@ export default Garnish.Base.extend({
           const pasteBlockType = pasteBlockTypeObj.blockType
           const currentBlocksOfTypeCount = pasteBlockTypeObj.count
           const maxPasteBlockTypes = pasteBlockType.getMaxBlocks()
-          const pasteTypeDisabled = (maxPasteBlockTypes > 0 && currentBlocksOfTypeCount >= maxPasteBlockTypes)
+          const pasteTypeDisabled = maxPasteBlockTypes > 0 && currentBlocksOfTypeCount >= maxPasteBlockTypes
 
-          pasteDisabled = pasteDisabled || pasteTypeDisabled
+          pasteDisabled ||= pasteTypeDisabled
         }
 
         // Test to see if the top level paste blocks have a block type that is allowed to be pasted here
         if (pasteBlock.level === 1) {
-          const allowedBlockType = allowedBlockTypes.find(bt => bt.getId() === pasteBlock.type)
-
-          pasteDisabled = pasteDisabled || !allowedBlockType
+          pasteDisabled ||= !allowedBlockTypes.find(bt => bt.getId() === pasteBlock.type)
         }
       }
     }
@@ -1045,11 +1031,9 @@ export default Garnish.Base.extend({
   _detectChange () {
     // When editing a draft and autosave is enabled, we need to force modified to be set, or
     // returning the block to its original values will cause it not to be resaved.
-    if (
-      window.draftEditor &&
-      window.draftEditor.enableAutosave &&
-      window.draftEditor.settings.draftId
-    ) {
+    const elementEditor = this.$form.data('elementEditor')
+
+    if (elementEditor?.enableAutosave && elementEditor.settings.draftId) {
       this.setModified(true)
       this._forceModified = true
     }
@@ -1120,19 +1104,13 @@ export default Garnish.Base.extend({
 
     const $target = $(e.target)
     const $checkFrom = $target.parent()
-    const isLeft = ($checkFrom.closest(this.$topbarLeftContainer).length > 0)
-    const isRight = ($checkFrom.closest(this.$topbarRightContainer).length > 0)
+    const isLeft = $checkFrom.closest(this.$topbarLeftContainer).length > 0
+    const isRight = $checkFrom.closest(this.$topbarRightContainer).length > 0
 
     if (!isLeft && !isRight) {
-      if (window.draftEditor) {
-        window.draftEditor.pause()
-      }
-
+      this.$form.data('elementEditor')?.pause()
       this.toggleExpansion()
-
-      if (window.draftEditor) {
-        window.draftEditor.resume()
-      }
+      this.$form.data('elementEditor')?.resume()
     }
   },
 
