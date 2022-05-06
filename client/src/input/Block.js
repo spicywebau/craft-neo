@@ -838,10 +838,8 @@ export default Garnish.Base.extend({
       // The server-side code will also apply the new state to the canonical block
       const thisBlockId = this.getId()
       const elementEditor = this.$form.data('elementEditor')
-      const duplicatedBlockId = elementEditor.duplicatedElements[thisBlockId]
-      const sentBlockId = elementEditor.settings.isProvisionalDraft && typeof duplicatedBlockId !== 'undefined'
-        ? duplicatedBlockId
-        : thisBlockId
+      const duplicatedBlockId = elementEditor.duplicatedElements[thisBlockId] ?? thisBlockId
+      const sentBlockId = elementEditor.settings.isProvisionalDraft ? duplicatedBlockId : thisBlockId
       const data = {
         expanded: this.isExpanded() ? 1 : 0,
         blockId: sentBlockId,
@@ -907,12 +905,8 @@ export default Garnish.Base.extend({
   },
 
   updateResponsiveness () {
-    if (typeof this._topbarLeftWidth === 'undefined') {
-      const previewWidth = this._expanded ? 0 : this.$previewContainer.width()
-      this._topbarLeftWidth = this.$topbarLeftContainer.width() - previewWidth
-    }
-
-    this._topbarRightWidth = this._topbarRightWidth || this.$topbarRightContainer.width()
+    this._topbarLeftWidth ??= this.$topbarLeftContainer.width() - (this._expanded ? 0 : this.$previewContainer.width())
+    this._topbarRightWidth ??= this.$topbarRightContainer.width()
     const isMobile = this.$topbarContainer.width() < this._topbarLeftWidth + this._topbarRightWidth
 
     this.$tabsContainer.toggleClass('invisible', isMobile)

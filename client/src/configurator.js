@@ -1,6 +1,6 @@
 import Configurator from './configurator/Configurator'
 
-const context = typeof window !== 'undefined' ? window : this
+const context = window ?? this
 const configurators = []
 
 context.Neo = {

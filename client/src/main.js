@@ -1,6 +1,6 @@
 import Input from './input/Input'
 
-const context = typeof window !== 'undefined' ? window : this
+const context = window ?? this
 const inputs = []
 
 context.Neo = {

@@ -32,9 +32,9 @@ export default Garnish.Base.extend({
     this._maxChildBlocks = settings.maxChildBlocks | 0
     this._childBlocks = settings.childBlocks
     this._topLevel = settings.topLevel
-    this._tabs = typeof settings.tabs.tabNames !== 'undefined' ? settings.tabs.tabNames.map(tab => tab instanceof Tab ? tab : new Tab({ name: tab })) : []
-    this._html = typeof settings.tabs.html !== 'undefined' ? settings.tabs.html : ''
-    this._js = typeof settings.tabs.js !== 'undefined' ? settings.tabs.js : ''
+    this._tabs = settings.tabs.tabNames?.map(tab => tab instanceof Tab ? tab : new Tab({ name: tab })) ?? []
+    this._html = settings.tabs.html ?? ''
+    this._js = settings.tabs.js ?? ''
     this._hasChildBlocksUiElement = settings.hasChildBlocksUiElement
   },
 
