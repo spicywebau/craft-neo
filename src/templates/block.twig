@@ -21,6 +21,8 @@
 
 {% set actionBtnLabel = "#{type.name} #{'Actions'|t('neo')}" %}
 {% set actionMenuId = "neoblock-action-menu-#{blockId}" %}
+{% set tabsBtnLabel = "#{type.name} #{'Tabs'|t('neo')}" %}
+{% set tabsMenuId = "neoblock-tabs-menu-#{blockId}" %}
 
 {% set actionBtnAttributes = {
     class: ['btn', 'settings', 'icon', 'menubtn'],
@@ -34,6 +36,20 @@
     data: {
         'disclosure-trigger': true,
         'neo-b': "#{blockId}.button.actions",
+    },
+} %}
+
+{% set tabsBtnAttributes = {
+    type: 'button',
+    role: 'button',
+    title: 'Tabs'|t('neo'),
+    aria: {
+        controls: tabsMenuId,
+        label: tabsBtnLabel,
+    },
+    data: {
+        'disclosure-trigger': true,
+        'neo-b': "#{blockId}.button.tabs",
     },
 } %}
 
@@ -73,21 +89,27 @@
                             {%- set hasErrors = (hasErrors or tabHasErrors) -%}
                         {%- endfor -%}
                     </div>
-                    <div class="tabs_btn menubtn {{ hasErrors ? ' has-errors' : '' }}" data-neo-b="{{ blockId }}.button.tabs">
-                        {{ (typeTabs|first).name }}
-                    </div>
-                    <div class="neo_block_tabs-menu menu">
-                        <ul>
-                            {% for tab in typeTabs %}
-                                <li>
-                                    <a class="{{ loop.first ? ' is-selected' : '' }} {{ tab.getErrors()|length > 0 ? ' has-errors' : '' }}"
-                                    data-neo-b="{{ blockId }}.button.tab"
-                                    data-neo-b-info="{{ tab.name }}">
-                                        {{ tab.name }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
+                    <div>
+                        <button {{ attr(tabsBtnAttributes) }} class="tabs_btn menubtn{{ hasErrors ? ' has-errors' : '' }}">
+                            {{ (typeTabs|first).name }}
+                        </button>
+                        <div id="{{ tabsMenuId }}" class="neo_block_tabs-menu menu menu--disclosure">
+                            <ul>
+                                {% for tab in typeTabs %}
+                                    <li>
+                                        <a class="{{ loop.first ? 'is-selected' : '' }}{{ tab.getErrors()|length > 0 ? ' has-errors' : '' }}"
+                                        href="#"
+                                        type="button"
+                                        role="button"
+                                        aria-label="{{ tab.name }}"
+                                        data-neo-b="{{ blockId }}.button.tab"
+                                        data-neo-b-info="{{ tab.name }}">
+                                            {{ tab.name }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 {% endif %}
             </div>

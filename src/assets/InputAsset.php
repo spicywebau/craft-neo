@@ -71,6 +71,7 @@ class InputAsset extends FieldAsset
     public function registerAssetFiles($view): void
     {
         $view->registerTranslations('neo', [
+            'Tabs',
             'Select',
             'Disabled',
             'Actions',

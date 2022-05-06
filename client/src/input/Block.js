@@ -130,7 +130,6 @@ export default Garnish.Base.extend({
     this.toggleShowButtons(this._showButtons)
 
     this.addListener(this.$topbarContainer, 'dblclick', '@doubleClickTitle')
-    this.addListener(this.$tabButton, 'click', '@setTab')
   },
 
   _generateElement () {
@@ -144,6 +143,8 @@ export default Garnish.Base.extend({
     const isParent = type.isParent()
     const actionBtnLabel = `${type.getName()} ${Craft.t('neo', 'Actions')}`
     const actionMenuId = `neoblock-action-menu-${this._id}`
+    const tabsBtnLabel = `${type.getName()} ${Craft.t('neo', 'Tabs')}`
+    const tabsMenuId = `neoblock-tabs-menu-${this._id}`
     const elementHtml = []
     elementHtml.push(`
       <div class="ni_block ni_block--${type.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${!hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}">
@@ -181,22 +182,24 @@ export default Garnish.Base.extend({
 
       elementHtml.push(`
               </div>
-              <div class="tabs_btn menubtn" data-neo-b="${this._id}.button.tabs">
-                ${typeTabs[0].getName()}
-              </div>
-              <div class="neo_block_tabs-menu menu">
-                <ul>`)
+              <div>
+                <button type="button" role="button" title=${Craft.t('neo', 'Tabs')} aria-controls="${tabsMenuId}" aria-label="${tabsBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.tabs" class="tabs_btn menubtn">
+                  ${typeTabs[0].getName()}
+                </button>
+                <div id="${tabsMenuId}" class="neo_block_tabs-menu menu menu--disclosure">
+                  <ul>`)
 
       for (let i = 0; i < typeTabs.length; i++) {
         const tabName = typeTabs[i].getName()
         elementHtml.push(`
-                  <li>
-                    <a${!i ? ' class="is-selected"' : ''} data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>
-                  </li>`)
+                    <li>
+                      <a${!i ? ' class="is-selected"' : ''} href="#" type="button" role="button" aria-label="${tabName}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>
+                    </li>`)
       }
 
       elementHtml.push(`
-                </ul>
+                  </ul>
+                </div>
               </div>`)
     }
 
@@ -294,7 +297,13 @@ export default Garnish.Base.extend({
       Craft.initUiElements(this.$contentContainer)
     }
 
-    this.$tabsButton.menubtn()
+    this._tabsMenu = this.$tabsButton.data('trigger') || new Garnish.DisclosureMenu(this.$tabsButton)
+    this._tabsMenu.on('show', () => this.$container.addClass('active'))
+    this._tabsMenu.on('hide', () => this.$container.removeClass('active'))
+
+    this.$tabButton = this.$tabButton.add(this._tabsMenu.$container.find(`[data-neo-b="${this._id}.button.tab"]`))
+    this.addListener(this.$tabButton, 'click', this['@setTab'])
+    this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
 
     this._settingsMenu = this.$settingsButton.data('trigger') || new Garnish.DisclosureMenu(this.$settingsButton)
     this._settingsMenu.on('show', () => this.$container.addClass('active'))
@@ -1022,6 +1031,12 @@ export default Garnish.Base.extend({
     }
   },
 
+  _handleTabKeydown (e) {
+    if (e.keyCode === Garnish.SPACE_KEY) {
+      this['@setTab'](e)
+    }
+  },
+
   _detectChange () {
     // When editing a draft and autosave is enabled, we need to force modified to be set, or
     // returning the block to its original values will cause it not to be resaved.
@@ -1110,6 +1125,7 @@ export default Garnish.Base.extend({
 
   '@setTab' (e) {
     e.preventDefault()
+    this._tabsMenu.hide()
 
     const $tab = $(e.currentTarget)
     const tabName = $tab.attr('data-neo-b-info')

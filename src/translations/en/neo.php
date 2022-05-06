@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'Tabs' => 'Tabs',
     'Select' => 'Select',
     'Disabled' => 'Disabled',
     'Actions' => 'Actions',

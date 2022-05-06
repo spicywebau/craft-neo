@@ -8,6 +8,7 @@
 ### Fixed
 - Fixed a bug where top-level Neo blocks' Paste, Clone and Add Block Above actions weren't being disabled when the field had reached its Max Top-Level Blocks setting
 - Fixed a bug where, when selecting a block type tab that has a space in its name, the tab contents would not appear
+- Fixed a bug where selecting block type tabs on mobile devices wasn't working
 
 ## 3.0.1 - 2022-05-05
 
