@@ -897,7 +897,7 @@ export default Garnish.Base.extend({
     this.$tabButton.removeClass('is-selected')
     this.$tabContainer.addClass('hidden')
     const $tabButton = this.$tabButton.filter(`[data-neo-b-info="${tabName}"]`).addClass('is-selected')
-    const $tabContainer = this.$tabContainer.filter(`[data-id="tab--${tabName.toLowerCase()}"]`).removeClass('hidden')
+    const $tabContainer = this.$tabContainer.eq($tabButton.index()).removeClass('hidden')
     this.$tabsButton.text(tabName)
     Craft.ElementThumbLoader.retryAll()
 
