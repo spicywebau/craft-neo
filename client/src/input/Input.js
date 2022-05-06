@@ -1,6 +1,4 @@
 import $ from 'jquery'
-import '../jquery-extensions'
-
 import Garnish from 'garnish'
 import Craft from 'craft'
 
@@ -68,8 +66,8 @@ export default Garnish.Base.extend({
       }
     }
 
-    const $form = this.$container.closest('form')
-    this._siteId = $form.find('input[name="siteId"]').val()
+    this.$form = this.$container.closest('form')
+    this._siteId = this.$form.find('input[name="siteId"]').val()
 
     const $neo = this.$container.find('[data-neo]')
     this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]')
@@ -162,10 +160,12 @@ export default Garnish.Base.extend({
 
     this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
 
-    const serialized = typeof $form.data('serializer') === 'function' ? $form.data('serializer')() : $form.serialize()
-    $form.data('initialSerializedValue', serialized)
+    const serialized = typeof this.$form.data('serializer') === 'function'
+      ? this.$form.data('serializer')()
+      : this.$form.serialize()
+    this.$form.data('initialSerializedValue', serialized)
 
-    // add error highlight for matrix fields within neo
+    // Add error highlight for Matrix fields within Neo
     this._setMatrixClassErrors()
     this._setBlockTypeClassErrors()
 
@@ -179,23 +179,16 @@ export default Garnish.Base.extend({
   updateResponsiveness () {
     for (const block of this._blocks) {
       block.updateResponsiveness()
-
-      const buttons = block.getButtons()
-      if (buttons) {
-        buttons.updateResponsiveness()
-      }
+      block.getButtons()?.updateResponsiveness()
     }
 
     this._buttons.updateResponsiveness()
-
-    if (this._tempButtons) {
-      this._tempButtons.updateResponsiveness()
-    }
+    this._tempButtons?.updateResponsiveness()
   },
 
   addBlock (block, index = -1, level = 1, animate = null) {
     const blockCount = this._blocks.length
-    index = (index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount)
+    index = index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount
     animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
 
     const prevBlock = index > 0 ? this._blocks[index - 1] : false
@@ -250,12 +243,10 @@ export default Garnish.Base.extend({
   },
 
   removeBlock (block, animate = null, _delayAnimate = null) {
-    if (window.draftEditor) {
-      window.draftEditor.pause()
-    }
+    this.$form.data('elementEditor')?.pause()
 
     animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
-    _delayAnimate = (typeof _delayAnimate === 'boolean' ? _delayAnimate : false)
+    _delayAnimate = typeof _delayAnimate === 'boolean' ? _delayAnimate : false
 
     const childBlocks = this._findChildBlocks(this._blocks.indexOf(block))
     for (const childBlock of childBlocks) {
@@ -274,10 +265,7 @@ export default Garnish.Base.extend({
     const finishTheRemoval = () => {
       block.$container.remove()
       this._updateBlockChildren()
-
-      if (window.draftEditor) {
-        window.draftEditor.resume()
-      }
+      this.$form.data('elementEditor')?.resume()
     }
 
     if (animate) {
@@ -327,9 +315,7 @@ export default Garnish.Base.extend({
       return
     }
 
-    if (window.draftEditor) {
-      window.draftEditor.pause()
-    }
+    this.$form.data('elementEditor')?.pause()
 
     const siblings = block.getSiblings(this.getBlocks())
     const index = siblings.indexOf(block)
@@ -356,10 +342,7 @@ export default Garnish.Base.extend({
     const finishTheMove = () => {
       this._updateBlockOrder()
       this._updateButtons()
-
-      if (window.draftEditor) {
-        window.draftEditor.resume()
-      }
+      this.$form.data('elementEditor')?.resume()
     }
 
     if (animateMove) {
@@ -410,7 +393,7 @@ export default Garnish.Base.extend({
   },
 
   getBlockTypes (topLevelOnly) {
-    topLevelOnly = (typeof topLevelOnly === 'boolean' ? topLevelOnly : false)
+    topLevelOnly = typeof topLevelOnly === 'boolean' ? topLevelOnly : false
 
     return topLevelOnly
       ? this._blockTypes.filter(bt => bt.getTopLevel())
@@ -450,33 +433,31 @@ export default Garnish.Base.extend({
     // TODO: will need probably need to find a method within php instead of JS
     // temp solution for now.
     const matrixErrors = $('.ni_block_body .matrix-field .input.errors')
-    if (matrixErrors.length) {
-      matrixErrors.each(function () {
-        const _this = $(this)
-        const tabContainer = _this.closest('.ni_block_content_tab')
-        const tabData = tabContainer.data('neo-b-info')
-        const closestContainer = _this.closest('.ni_block')
-        const bar = closestContainer.find('.tabs .tab[data-neo-b-info="' + tabData + '"]')
 
-        if (bar.length) {
-          bar.addClass('has-errors')
-        }
-      })
-    }
+    matrixErrors.each(function () {
+      const _this = $(this)
+      const tabContainer = _this.closest('.ni_block_content_tab')
+      const tabData = tabContainer.data('neo-b-info')
+      const closestContainer = _this.closest('.ni_block')
+      const bar = closestContainer.find('.tabs .tab[data-neo-b-info="' + tabData + '"]')
+
+      if (bar.length) {
+        bar.addClass('has-errors')
+      }
+    })
   },
 
   _setBlockTypeClassErrors () {
     const tabErrors = $('.ni_block .tab.has-errors')
 
-    if (tabErrors.length) {
-      tabErrors.each(function () {
-        const parents = tabErrors.parents('.ni_block.is-collapsed')
-        parents.each(function () {
-          const _this = $(this)
-          _this.find('> .ni_block_topbar .title .blocktype').addClass('has-errors')
-        })
+    tabErrors.each(function () {
+      const parents = tabErrors.parents('.ni_block.is-collapsed')
+
+      parents.each(function () {
+        const _this = $(this)
+        _this.find('> .ni_block_topbar .title .blocktype').addClass('has-errors')
       })
-    }
+    })
   },
 
   _updateBlockOrder () {
@@ -524,18 +505,15 @@ export default Garnish.Base.extend({
   _updateButtons () {
     const blocks = this.getBlocks()
     this._buttons.updateButtonStates(blocks)
-
-    if (this._tempButtons) {
-      this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
-    }
+    this._tempButtons?.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
 
     for (const block of blocks) {
       const parentBlock = this._findParentBlock(block)
-      const parentBlockType = parentBlock ? parentBlock.getBlockType() : null
+      const parentBlockType = parentBlock?.getBlockType()
       const buttons = block.getButtons()
       const blockLevel = block.getLevel()
 
-      let allowedBlockTypes = parentBlockType ? parentBlockType.getChildBlocks() : this.getBlockTypes(true)
+      let allowedBlockTypes = parentBlockType?.getChildBlocks() ?? this.getBlockTypes(true)
 
       if (allowedBlockTypes === true || allowedBlockTypes === '*') {
         allowedBlockTypes = this.getBlockTypes(false)
@@ -552,10 +530,7 @@ export default Garnish.Base.extend({
         blockLevel === 1 ? this.getMaxTopBlocks() : 0
       )
 
-      if (buttons) {
-        buttons.updateButtonStates(blocks, this._checkMaxChildren(block), block)
-      }
-
+      buttons?.updateButtonStates(blocks, this._checkMaxChildren(block), block)
       block.toggleShowButtons(!this.atMaxLevels(blockLevel))
     }
   },
@@ -670,9 +645,7 @@ export default Garnish.Base.extend({
   },
 
   _duplicate (data, block) {
-    if (window.draftEditor) {
-      window.draftEditor.pause()
-    }
+    this.$form.data('elementEditor')?.pause()
 
     const animate = !Garnish.prefersReducedMotion()
     const $spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : 'Loading block'}</div>`)
@@ -763,10 +736,7 @@ export default Garnish.Base.extend({
           }
 
           $spinner.remove()
-
-          if (window.draftEditor) {
-            window.draftEditor.resume()
-          }
+          this.$form.data('elementEditor')?.resume()
         }
 
         if (spinnerComplete) {
