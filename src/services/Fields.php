@@ -970,14 +970,14 @@ SQL
         $typeId = $block->typeId;
 
         if (!isset($this->_searchableBlockTypes[$typeId])) {
-            $fieldLayout = $block->getType()->getFieldLayout();
-
             // A Neo block type should only be searchable if all of the following apply:
             // 1. the Neo field it belongs to is searchable
             // 2. it has a field layout
             // 3. the field layout has any searchable sub-fields
-            $this->_searchableBlockTypes[$typeId] = $field->searchable && $fieldLayout &&
-                !empty(array_filter($fieldLayout->getCustomFields(), fn($subField) => $subField->searchable));
+            $this->_searchableBlockTypes[$typeId] = $field->searchable && !empty(array_filter(
+                $block->getType()->getFieldLayout()->getCustomFields(),
+                fn($subField) => $subField->searchable
+            ));
         }
 
         return $this->_searchableBlockTypes[$typeId];

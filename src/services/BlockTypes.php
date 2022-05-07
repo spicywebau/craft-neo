@@ -422,7 +422,7 @@ class BlockTypes extends Component
             $record->childBlocks = $data['childBlocks'];
             $record->topLevel = $data['topLevel'];
             $record->uid = $uid;
-            $record->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
+            $record->fieldLayoutId = $fieldLayout?->id;
             $record->save(false);
 
             $blockType->id = $record->id;
@@ -437,7 +437,7 @@ class BlockTypes extends Component
             $blockType->childBlocks = $data['childBlocks'];
             $blockType->topLevel = $data['topLevel'];
             $blockType->uid = $uid;
-            $blockType->fieldLayoutId = $fieldLayout ? $fieldLayout->id : null;
+            $blockType->fieldLayoutId = $fieldLayout?->id;
 
             $event = new BlockTypeEvent([
                 'blockType' => $blockType,
