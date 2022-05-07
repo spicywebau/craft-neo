@@ -569,7 +569,8 @@ class BlockQuery extends ElementQuery
             $method = '___' . $param;
 
             if (method_exists($this, $method)) {
-                $result = $this->$method($result, $value);
+                $currentFiltered = $this->$method($this->_allElements, $value);
+                $result = array_uintersect($result, $currentFiltered, fn($a, $b) => $a->lft <=> $b->lft);
             }
         }
 
