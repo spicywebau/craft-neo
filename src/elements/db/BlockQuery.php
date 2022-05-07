@@ -744,9 +744,7 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $newElements = array_filter($elements, function($element) use ($value) {
-            return in_array($element->typeId, $value);
-        });
+        $newElements = array_filter($elements, fn($element) => in_array($element->typeId, $value));
 
         return array_values($newElements);
     }
@@ -762,9 +760,7 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $ancestors = array_filter($elements, function($element) use ($value) {
-            return $element->level >= $this->ancestorOf->level - $value;
-        });
+        $ancestors = array_filter($elements, fn($element) => $element->level >= $this->ancestorOf->level - $value);
 
         return array_values($ancestors);
     }
@@ -811,9 +807,7 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $descendants = array_filter($elements, function($element) use ($value) {
-            return $element->level <= $this->descendantOf->level + $value;
-        });
+        $descendants = array_filter($elements, fn($element) => $element->level <= $this->descendantOf->level + $value);
 
         return array_values($descendants);
     }
@@ -868,9 +862,7 @@ class BlockQuery extends ElementQuery
             $ids[$id] = true;
         }
 
-        $newElements = array_filter($elements, function($element) use ($ids) {
-            return $element->id !== null && isset($ids[$element->id]);
-        });
+        $newElements = array_filter($elements, fn($element) => $element->id !== null && isset($ids[$element->id]));
 
         return array_values($newElements);
     }
@@ -900,9 +892,7 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $newElements = array_filter($elements, function($block) use ($value) {
-            return $this->_compareInt($block->level, $value);
-        });
+        $newElements = array_filter($elements, fn($block) => $this->_compareInt($block->level, $value));
 
         return array_values($newElements);
     }
@@ -1053,9 +1043,10 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $newElements = array_filter($elements, function($element) use ($value) {
-            return is_array($value) ? in_array($element->status, $value) : $element->status == $value;
-        });
+        $newElements = array_filter(
+            $elements,
+            fn($element) => is_array($value) ? in_array($element->status, $value) : $element->status == $value
+        );
 
         return array_values($newElements);
     }
