@@ -9,7 +9,7 @@
 - Fixed a bug where top-level Neo blocks' Paste, Clone and Add Block Above actions weren't being disabled when the field had reached its Max Top-Level Blocks setting
 - Fixed a bug where, when selecting a block type tab that has a space in its name, the tab's contents wouldn't display
 - Fixed a bug where selecting block type tabs on mobile devices wasn't working
-- Fixed a bug where errors that occurred when rendering Neo input HTML would cause Neo input fields to display the "Unable to nest Neo fields" error, instead of the actual error being displayed
+- Fixed a bug where errors that occurred when rendering Neo input HTML would cause Neo input fields to display the "Unable to nest Neo fields" error, instead of displaying the actual error that occurred
 
 ## 3.0.1 - 2022-05-05
 
