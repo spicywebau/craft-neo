@@ -149,6 +149,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public ?string $propagationKeyFormat = null;
 
+    private ?\Exception $_inputHtmlException = null;
+
     /**
      * @inheritdoc
      */
@@ -386,36 +388,46 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     protected function inputHtml(mixed $value, ?ElementInterface $element = null): string
     {
+        // `inputHtml` being called a second time with namespace depth > 1 when there's an error...
+        if ($this->_inputHtmlException !== null) {
+            throw $this->_inputHtmlException;
+        }
+
         // Disable Neo fields inside Matrix, Super Table and potentially other field-grouping field types.
         if ($this->_getNamespaceDepth() > 1) {
             return $this->_getNestingErrorHtml();
         }
 
-        $view = Craft::$app->getView();
+        try {
+            $view = Craft::$app->getView();
 
-        if ($element !== null && $element->hasEagerLoadedElements($this->handle)) {
-            $value = $element->getEagerLoadedElements($this->handle);
+            if ($element !== null && $element->hasEagerLoadedElements($this->handle)) {
+                $value = $element->getEagerLoadedElements($this->handle);
+            }
+
+            if ($value instanceof BlockQuery) {
+                $value = $value->getCachedResult() ?? $value->limit(null)->status(null)->all();
+            }
+
+            foreach ($value as $block) {
+                $block->useMemoized($value);
+            }
+
+            $view->registerAssetBundle(InputAsset::class);
+            $view->registerJs(InputAsset::createInputJs($this, $element));
+
+            return $view->renderTemplate('neo/input', [
+                'handle' => $this->handle,
+                'blocks' => $value,
+                'id' => $view->formatInputId($this->handle),
+                'name' => $this->handle,
+                'translatable' => $this->propagationMethod,
+                'static' => false,
+            ]);
+        } catch (\Exception $e) {
+            $this->_inputHtmlException = $e;
+            throw $e;
         }
-
-        if ($value instanceof BlockQuery) {
-            $value = $value->getCachedResult() ?? $value->limit(null)->status(null)->all();
-        }
-
-        foreach ($value as $block) {
-            $block->useMemoized($value);
-        }
-
-        $view->registerAssetBundle(InputAsset::class);
-        $view->registerJs(InputAsset::createInputJs($this, $element));
-
-        return $view->renderTemplate('neo/input', [
-            'handle' => $this->handle,
-            'blocks' => $value,
-            'id' => $view->formatInputId($this->handle),
-            'name' => $this->handle,
-            'translatable' => $this->propagationMethod,
-            'static' => false,
-        ]);
     }
 
     /**

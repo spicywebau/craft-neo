@@ -10,6 +10,7 @@
 - Fixed a bug where, when selecting a block type tab that has a space in its name, the tab's contents wouldn't display
 - Fixed a bug where selecting block type tabs on mobile devices wasn't working
 - Fixed a bug where filtering memoized block query results by criteria wasn't returning results in some cases
+- Fixed a bug where errors that occurred when rendering Neo input HTML would cause Neo input fields to display the "Unable to nest Neo fields" error, instead of the actual error being displayed
 
 ## 3.0.1 - 2022-05-05
 
