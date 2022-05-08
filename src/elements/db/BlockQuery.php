@@ -735,7 +735,7 @@ class BlockQuery extends ElementQuery
 
     /**
      * @param Block[] $elements
-     * @param int|null $value
+     * @param int[]|int|null $value
      * @return Block[]
      */
     private function ___typeId(array $elements, ?int $value): array
@@ -744,7 +744,11 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $newElements = array_filter($elements, fn($element) => in_array($element->typeId, $value));
+        if (is_array($value)) {
+            $newElements = array_filter($elements, fn($element) => in_array($element->typeId, $value));
+        } else {
+            $newElements = array_filter($elements, fn($element) => $element->typeId == $value);
+        }
 
         return array_values($newElements);
     }
