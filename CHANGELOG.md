@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where filtering memoized block query results by criteria was incorrectly not returning results in some cases
+- Fixed a bug where filtering memoized block query results by block type ID(s) would cause an error if an integer was passed instead of an array
+
 ## 2.13.8 - 2022-05-04
 
 ### Fixed

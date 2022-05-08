@@ -624,7 +624,10 @@ class BlockQuery extends ElementQuery
             $method = '___' . $param;
 
             if (method_exists($this, $method)) {
-                $result = $this->$method($result, $value);
+                $currentFiltered = $this->$method($this->_allElements, $value);
+                $result = array_uintersect($result, $currentFiltered, function($a, $b) {
+                    return $a->lft <=> $b->lft;
+                });
             }
         }
 
@@ -786,7 +789,7 @@ class BlockQuery extends ElementQuery
 
     /**
      * @param array $elements
-     * @param int $value
+     * @param array|int $value
      * @return array
      */
     private function ___typeId(array $elements, $value): array
@@ -795,9 +798,15 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
-        $newElements = array_filter($elements, function ($element) use ($value) {
-            return in_array($element->typeId, $value);
-        });
+        if (is_array($value)) {
+            $newElements = array_filter($elements, function ($element) use ($value) {
+                return in_array($element->typeId, $value);
+            });
+        } else {
+            $newElements = array_filter($elements, function ($element) use ($value) {
+                return $element->typeId == $value;
+            });
+        }
 
         return array_values($newElements);
     }
