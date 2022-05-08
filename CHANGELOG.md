@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.9 - 2022-05-08
 
 ### Fixed
 - Fixed a bug where filtering memoized block query results by criteria was incorrectly not returning results in some cases
