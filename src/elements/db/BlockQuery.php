@@ -738,7 +738,7 @@ class BlockQuery extends ElementQuery
      * @param int[]|int|null $value
      * @return Block[]
      */
-    private function ___typeId(array $elements, ?int $value): array
+    private function ___typeId(array $elements, array|int|null $value): array
     {
         if (!$value) {
             return $elements;
