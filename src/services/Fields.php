@@ -137,7 +137,7 @@ class Fields extends Component
                         $currentGroup = $item;
                         Neo::$plugin->blockTypes->saveGroup($item);
                     } else {
-                        $item->groupId = $currentGroup ? $currentGroup->id : null;
+                        $item->groupId = $currentGroup?->id;
                         Neo::$plugin->blockTypes->save($item, false);
                     }
                 }
