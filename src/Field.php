@@ -338,7 +338,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockTypeGroup->fieldId = $this->id;
                 $newBlockTypeGroup->name = $blockTypeGroup['name'];
                 $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
-                $newBlockTypeGroup->alwaysShowDropdown = match ($blockTypeGroup['alwaysShowDropdown']) {
+                $newBlockTypeGroup->alwaysShowDropdown = match ($blockTypeGroup['alwaysShowDropdown']  ?? Neo::$plugin->settings->defaultAlwaysShowGroupDropdowns) {
                     'show' => true,
                     'hide' => false,
                     'global' => null,

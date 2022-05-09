@@ -543,7 +543,7 @@ class BlockTypes extends Component
                     $record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
                     $record->name = $data['name'];
                     $record->sortOrder = $data['sortOrder'];
-                    $record->alwaysShowDropdown = $data['alwaysShowDropdown'];
+                    $record->alwaysShowDropdown = $data['alwaysShowDropdown'] ?? Neo::$plugin->settings->defaultAlwaysShowGroupDropdowns;
                     $record->uid = $uid;
                     $record->save(false);
                 } else {
