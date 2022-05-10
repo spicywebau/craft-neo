@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.3 - 2022-05-10
 
 ### Fixed
 - Fixed an error that could occur on Craft installs upgraded from Craft 3 / Neo 2 when applying project config changes
