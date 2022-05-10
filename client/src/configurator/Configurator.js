@@ -90,10 +90,6 @@ export default Garnish.Base.extend({
         fieldLayout: btFieldLayout
       })
 
-      if (window.localStorage.getItem('neo:copyBlockType')) {
-        blockType.$actionsMenu.find('[data-action="paste"]').parent().removeClass('disabled')
-      }
-
       blockType.on('copy.configurator', () => this._copyBlockType(blockType))
       blockType.on('paste.configurator', () => this._pasteBlockType())
       blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType))
@@ -128,6 +124,18 @@ export default Garnish.Base.extend({
 
       btSettings.setChildBlocks(info.childBlocks)
     }
+
+    // Make sure menu states (for pasting block types) are updated when changing tabs
+    const refreshPasteOptions = () => {
+      const noPasteData = !window.localStorage.getItem('neo:copyBlockType')
+
+      for (const blockType of this.getBlockTypes()) {
+        blockType.$actionsMenu.find('[data-action="paste"]').parent().toggleClass('disabled', noPasteData)
+      }
+    }
+
+    refreshPasteOptions()
+    this.addListener(document, 'visibilitychange.configurator', refreshPasteOptions)
 
     this.selectTab('settings')
 
