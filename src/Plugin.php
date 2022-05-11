@@ -52,7 +52,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public string $schemaVersion = '3.0.2';
+    public string $schemaVersion = '3.0.3';
 
     /**
      * @inheritdoc
