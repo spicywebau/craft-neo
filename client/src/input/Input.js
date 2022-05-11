@@ -158,6 +158,9 @@ export default Garnish.Base.extend({
     this._updateBlockChildren()
     this._updateButtons()
 
+    // Make sure menu states (for pasting blocks) are updated when changing tabs
+    this.addListener(document, 'visibilitychange.input', () => this._updateButtons())
+
     this.addListener(this.$container, 'resize', () => this.updateResponsiveness())
 
     const serialized = typeof this.$form.data('serializer') === 'function'
