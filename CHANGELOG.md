@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Neo blocks at the top level that were disabled weren't having their disabled state saved
+- Fixed a bug where Neo blocks not at the top level that were disabled weren't being displayed on element editor pages
+
 ## 3.0.3 - 2022-05-10
 
 ### Fixed

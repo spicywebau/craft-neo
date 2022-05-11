@@ -77,6 +77,7 @@ export default Garnish.Base.extend({
     this._blockType = settings.blockType
     this._id = settings.id
     this._buttons = settings.buttons
+    this._initialEnabled = settings.enabled
     this._modified = settings.modified
     this._showButtons = settings.showButtons
     this._renderOldChildBlocksContainer = !settings.blockType.hasChildBlocksUiElement()
@@ -125,7 +126,6 @@ export default Garnish.Base.extend({
     }
 
     this.setLevel(settings.level)
-    this.toggleEnabled(settings.enabled)
     this.toggleExpansion(hasErrors ? true : !settings.collapsed, false, false)
     this.toggleShowButtons(this._showButtons)
 
@@ -149,7 +149,7 @@ export default Garnish.Base.extend({
     elementHtml.push(`
       <div class="ni_block ni_block--${type.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${!hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}">
         <input type="hidden" name="${baseInputName}[type]" value="${type.getHandle()}">
-        <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : '0'}" data-neo-b="${this._id}.input.enabled">
+        <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : ''}" data-neo-b="${this._id}.input.enabled">
         <input type="hidden" name="${baseInputName}[level]" value="${this._level}" data-neo-b="${this._id}.input.level">
         <input type="hidden" name="${this._templateNs[0]}[${this._templateNs[1]}][sortOrder][]" value="${this._id}" data-neo-b="${this._id}.input.sortOrder">
 
@@ -312,6 +312,8 @@ export default Garnish.Base.extend({
     this.$menuContainer = this._settingsMenu.$container
     this.addListener(this.$menuContainer.find('[data-action]'), 'click', this._handleActionClick)
     this.addListener(this.$menuContainer.find('[data-action]'), 'keydown', this._handleActionKeydown)
+
+    this.toggleEnabled(this._initialEnabled)
 
     this._initialised = true
     this._buttons?.initUi()
@@ -885,7 +887,7 @@ export default Garnish.Base.extend({
       enableContainer.toggleClass('hidden', this._enabled)
       disableContainer.toggleClass('hidden', !this._enabled)
 
-      this.$enabledInput.val(this._enabled ? 1 : 0)
+      this.$enabledInput.val(this._enabled ? '1' : '')
 
       this.trigger('toggleEnabled', {
         enabled: this._enabled
