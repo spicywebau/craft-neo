@@ -358,19 +358,27 @@ export default Garnish.Base.extend({
       const config = oldBlockType.getFieldLayout().getConfig()
 
       if (config.tabs.length > 0) {
+        const data = {
+          layout: config
+        }
         const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
         this._insertAt($spinner, selectedIndex)
 
-        Craft.postActionRequest('neo/configurator/render-field-layout', { layout: config }, e => {
-          const fieldLayout = new BlockTypeFieldLayout({
-            blockTypeId: id,
-            html: e.success ? e.html : this._getNewFieldLayoutHtml(),
-            namespace: [...namespace, id]
-          })
+        Craft.queue.push(() => new Promise((resolve, reject) => {
+          Craft.sendActionRequest('POST', 'neo/configurator/render-field-layout', { data })
+            .then(response => {
+              const fieldLayout = new BlockTypeFieldLayout({
+                blockTypeId: id,
+                html: response.data.success ? response.data.html : this._getNewFieldLayoutHtml(),
+                namespace: [...namespace, id]
+              })
 
-          this.$blockTypesContainer.find('.type-spinner').remove()
-          this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
-        })
+              this.$blockTypesContainer.find('.type-spinner').remove()
+              this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
+              resolve()
+            })
+            .catch(reject)
+        }))
       } else {
         const fieldLayout = new BlockTypeFieldLayout({
           blockTypeId: id,
