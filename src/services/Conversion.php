@@ -35,10 +35,11 @@ class Conversion extends Component
      * conversion cannot be undone.
      *
      * @param Field $neoField
+     * @param bool $deleteOldBlockTypesAndGroups
      * @return bool
      * @throws \Throwable
      */
-    public function convertFieldToMatrix(Field $neoField): bool
+    public function convertFieldToMatrix(Field $neoField, bool $deleteOldBlockTypesAndGroups = true): bool
     {
         $fieldsService = Craft::$app->getFields();
         $globalFields = [];
@@ -54,6 +55,7 @@ class Conversion extends Component
             // Save a mapping of block type handles to their Neo ID for use later on when migrating content.
             $neoBlockTypeIds = [];
             $neoBlockTypes = $neoField->getBlockTypes();
+            $neoBlockTypeGroups = $neoField->getGroups();
 
             foreach ($neoBlockTypes as $neoBlockType) {
                 $neoBlockTypeIds[$neoBlockType->handle] = $neoBlockType->id;
@@ -186,6 +188,16 @@ class Conversion extends Component
                 'targetId',
                 'sortOrder',
             ], $newRelations);
+
+            if ($deleteOldBlockTypesAndGroups) {
+                foreach ($neoBlockTypes as $neoBlockType) {
+                    Neo::$plugin->blockTypes->delete($neoBlockType);
+                }
+
+                foreach ($neoBlockTypeGroups as $neoBlockTypeGroup) {
+                    Neo::$plugin->blockTypes->deleteGroup($neoBlockTypeGroup);
+                }
+            }
 
             $transaction->commit();
 
