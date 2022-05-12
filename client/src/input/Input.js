@@ -179,6 +179,10 @@ export default Garnish.Base.extend({
     this.trigger('afterInit')
   },
 
+  getName () {
+    return this._name
+  },
+
   updateResponsiveness () {
     for (const block of this._blocks) {
       block.updateResponsiveness()
@@ -511,30 +515,9 @@ export default Garnish.Base.extend({
     this._tempButtons?.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
 
     for (const block of blocks) {
-      const parentBlock = this._findParentBlock(block)
-      const parentBlockType = parentBlock?.getBlockType()
-      const buttons = block.getButtons()
-      const blockLevel = block.getLevel()
-
-      let allowedBlockTypes = parentBlockType?.getChildBlocks() ?? this.getBlockTypes(true)
-
-      if (allowedBlockTypes === true || allowedBlockTypes === '*') {
-        allowedBlockTypes = this.getBlockTypes(false)
-      } else if (Array.isArray(allowedBlockTypes)) {
-        allowedBlockTypes = allowedBlockTypes.map(bt => typeof bt === 'string' ? this.getBlockTypeByHandle(bt) : bt)
-      }
-
-      block.updateMenuStates(
-        this._name,
-        blocks,
-        this.getMaxBlocks(),
-        this._checkMaxChildren(parentBlock),
-        allowedBlockTypes,
-        blockLevel === 1 ? this.getMaxTopBlocks() : 0
-      )
-
-      buttons?.updateButtonStates(blocks, this._checkMaxChildren(block), block)
-      block.toggleShowButtons(!this.atMaxLevels(blockLevel))
+      block.updateActionsMenu()
+      block.getButtons()?.updateButtonStates(blocks, this._checkMaxChildren(block), block)
+      block.toggleShowButtons(!this.atMaxLevels(block.getLevel()))
     }
   },
 

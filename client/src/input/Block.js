@@ -924,6 +924,30 @@ export default Garnish.Base.extend({
     this.$tabsButton.toggleClass('invisible', !isMobile)
   },
 
+  updateActionsMenu () {
+    const blocks = this._field.getBlocks()
+    const parentBlock = this.getParent(blocks)
+    const parentBlockType = parentBlock?.getBlockType()
+
+    let allowedBlockTypes = parentBlockType?.getChildBlocks() ?? this._field.getBlockTypes(true)
+
+    if (allowedBlockTypes === true || allowedBlockTypes === '*') {
+      allowedBlockTypes = this._field.getBlockTypes(false)
+    } else if (Array.isArray(allowedBlockTypes)) {
+      allowedBlockTypes = allowedBlockTypes.map(bt => typeof bt === 'string' ? this._field.getBlockTypeByHandle(bt) : bt)
+    }
+
+    this.updateMenuStates(
+      this._field.getName(),
+      blocks,
+      this._field.getMaxBlocks(),
+      true,
+      allowedBlockTypes,
+      this._level === 1 ? this._field.getMaxTopBlocks() : 0
+    )
+  },
+
+  // Deprecated in 3.0.4; use `updateActionsMenu()` instead
   updateMenuStates (field, blocks = [], maxBlocks = 0, additionalCheck = null, allowedBlockTypes = false, maxTopBlocks = 0) {
     additionalCheck = typeof additionalCheck === 'boolean' ? additionalCheck : true
 
@@ -937,7 +961,10 @@ export default Garnish.Base.extend({
     const maxBlocksMet = maxBlocks > 0 && blocks.length >= maxBlocks
     const maxTopBlocksMet = maxTopBlocks > 0 && totalTopBlocks >= maxTopBlocks
 
-    const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
+    const maxChildren = blockType.getMaxChildBlocks()
+    const maxChildrenMet = maxChildren > 0 && this.getChildren(blocks).length >= maxChildren
+
+    const allDisabled = maxBlocksMet || maxTopBlocksMet || maxChildrenMet || !additionalCheck
     const typeDisabled = maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes
     let cloneDisabled = allDisabled || typeDisabled
 
