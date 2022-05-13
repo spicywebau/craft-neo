@@ -1,12 +1,13 @@
 # Changelog
 
-## Unreleased
+## 3.0.4 - 2022-05-13
 
 ### Fixed
 - Fixed a bug where Neo blocks at the top level that were disabled weren't having their disabled state saved
 - Fixed a bug where Neo blocks not at the top level that were disabled weren't being displayed on element editor pages
 - Fixed a bug where, when converting a Neo field to Matrix, the old Neo block types and block type groups weren't getting deleted from the database and project config
 - Fixed a bug where it was possible to exceed a Neo block type's Max Blocks and Max Sibling Blocks of This Type settings, by pasting blocks that were copied from a different browser tab
+- Fixed a bug where running a migration that creates a new entry with Neo content would cause an error
 
 ## 3.0.3 - 2022-05-10
 
