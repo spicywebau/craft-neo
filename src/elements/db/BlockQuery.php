@@ -535,7 +535,9 @@ class BlockQuery extends ElementQuery
             $ownerId = $this->descendantOf->ownerId;
         } else if ($this->ancestorOf instanceof Block) {
             $ownerId = $this->ancestorOf->ownerId;
-        } else {
+        }
+
+        if ($ownerId === null) {
             return false;
         }
 
