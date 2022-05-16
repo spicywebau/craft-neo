@@ -387,8 +387,8 @@ export default Garnish.Base.extend({
     return this._blocks.find(block => block.$container.is($block))
   },
 
-  getBlocks () {
-    return Array.from(this._blocks)
+  getBlocks (level = 0) {
+    return level > 0 ? this._blocks.filter(b => b.getLevel() === level) : Array.from(this._blocks)
   },
 
   getBlockTypeById (id) {
