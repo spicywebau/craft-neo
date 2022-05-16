@@ -463,7 +463,8 @@ export default Garnish.Base.extend({
     return content
   },
 
-  getParent (blocks) {
+  getParent (blocks = null) {
+    blocks ??= this._field.getBlocks()
     const level = this.getLevel()
     let index = blocks.indexOf(this)
     let blockParent = null
@@ -482,7 +483,8 @@ export default Garnish.Base.extend({
     return blockParent
   },
 
-  getChildren (blocks, descendants = null) {
+  getChildren (blocks = null, descendants = null) {
+    blocks ??= this._field.getBlocks()
     const level = this.getLevel()
     let index = blocks.indexOf(this)
     const childBlocks = []
@@ -504,7 +506,9 @@ export default Garnish.Base.extend({
     return childBlocks
   },
 
-  getSiblings (blocks) {
+  getSiblings (blocks = null) {
+    blocks ??= this._field.getBlocks()
+
     return this.isTopLevel() ? blocks.filter(b => b.isTopLevel()) : this.getParent(blocks).getChildren(blocks)
   },
 
@@ -926,9 +930,7 @@ export default Garnish.Base.extend({
 
   updateActionsMenu () {
     const blocks = this._field.getBlocks()
-    const parentBlock = this.getParent(blocks)
-    const parentBlockType = parentBlock?.getBlockType()
-
+    const parentBlockType = this.getParent()?.getBlockType()
     let allowedBlockTypes = parentBlockType?.getChildBlocks() ?? this._field.getBlockTypes(true)
 
     if (allowedBlockTypes === true || allowedBlockTypes === '*') {
