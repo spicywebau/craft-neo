@@ -819,7 +819,7 @@ export default Garnish.Base.extend({
     }
 
     for (const group of blockGroups) {
-      const firstBlockLevel = group[0].getLevel()
+      const firstBlockLevel = group[0].getLevel() - 1
 
       for (const block of group) {
         const blockData = {

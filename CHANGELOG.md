@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where copied top level Neo blocks could be pasted into places in the Neo field where that block type shouldn't have been allowed
+
 ## 3.0.4 - 2022-05-13
 
 ### Fixed
