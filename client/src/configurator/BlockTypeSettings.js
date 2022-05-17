@@ -10,6 +10,7 @@ const _defaults = {
   sortOrder: 0,
   name: '',
   handle: '',
+  description: '',
   maxBlocks: 0,
   maxSiblingBlocks: 0,
   maxChildBlocks: 0,
@@ -27,6 +28,7 @@ export default Settings.extend({
   $sortOrderInput: new $(),
   $nameInput: new $(),
   $handleInput: new $(),
+  $descriptionInput: new $(),
   $maxBlocksInput: new $(),
   $maxSiblingBlocksInput: new $(),
   $maxChildBlocksInput: new $(),
@@ -42,6 +44,7 @@ export default Settings.extend({
     this.setSortOrder(settings.sortOrder)
     this.setName(settings.name)
     this.setHandle(settings.handle)
+    this.setDescription(settings.description)
     this.setMaxBlocks(settings.maxBlocks)
     this.setMaxSiblingBlocks(settings.maxSiblingBlocks)
     this.setMaxChildBlocks(settings.maxChildBlocks)
@@ -53,6 +56,7 @@ export default Settings.extend({
     this.$sortOrderInput = $neo.filter('[data-neo-bts="input.sortOrder"]')
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
+    this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
     this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
     this.$maxSiblingBlocksInput = $neo.filter('[data-neo-bts="input.maxSiblingBlocks"]')
     this.$maxChildBlocksInput = $neo.filter('[data-neo-bts="input.maxChildBlocks"]')
@@ -93,6 +97,7 @@ export default Settings.extend({
     })
 
     this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
+    this.addListener(this.$descriptionInput, 'keyup change textchange', () => this.setDescription(this.$descriptionInput.val()))
     this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
     this.addListener(this.$maxSiblingBlocksInput, 'keyup change', () => this.setMaxSiblingBlocks(this.$maxSiblingBlocksInput.val()))
     this.addListener(this.$maxChildBlocksInput, 'keyup change', () => this.setMaxChildBlocks(this.$maxChildBlocksInput.val()))
@@ -116,6 +121,8 @@ export default Settings.extend({
     const nameInputName = NS.fieldName('name')
     const handleInputId = NS.value('handle', '-')
     const handleInputName = NS.fieldName('handle')
+    const descriptionInputId = NS.value('description', '-')
+    const descriptionInputName = NS.fieldName('description')
     const maxBlocksInputId = NS.value('maxBlocks', '-')
     const maxBlocksInputName = NS.fieldName('maxBlocks')
     const maxSiblingBlocksInputId = NS.value('maxSiblingBlocks', '-')
@@ -152,6 +159,18 @@ export default Settings.extend({
       errors: errors.handle
     })
     $handleInput.find('input').attr('data-neo-bts', 'input.handle')
+
+    const $descriptionInput = Craft.ui.createTextareaField({
+      type: 'text',
+      id: descriptionInputId,
+      name: descriptionInputName,
+      label: Craft.t('neo', 'Description'),
+      // instructions: Craft.t('neo', 'How you’ll refer to this block type in the templates.'),
+      required: false,
+      value: this.getDescription(),
+      errors: errors.handle
+    })
+    $descriptionInput.find('input').attr('data-neo-bts', 'input.description')
 
     const $maxBlocksInput = Craft.ui.createTextField({
       type: 'number',
@@ -242,6 +261,7 @@ export default Settings.extend({
         <div>
           ${$('<div class="field"/>').append($nameInput).html()}
           ${$('<div class="field"/>').append($handleInput).html()}
+          ${$('<div class="field"/>').append($descriptionInput).html()}
           ${$('<div class="field"/>').append($maxBlocksInput).html()}
           ${$('<div class="field"/>').append($maxSiblingBlocksInput).html()}
           ${$('<div class="field"/>').append($childBlocksInput).html()}
@@ -324,6 +344,24 @@ export default Settings.extend({
         property: 'handle',
         oldValue: oldHandle,
         newValue: this._handle
+      })
+    }
+  },
+
+  getDescription () { console.log(this); return this._description },
+  setDescription (description) {
+    if (description !== this._description) {
+      const oldDescription = this._description
+      this._description = description
+
+      if (this.$descriptionInput.val() !== this._description) {
+        this.$descriptionInput.val(this._description)
+      }
+
+      this.trigger('change', {
+        property: 'description',
+        oldValue: oldDescription,
+        newValue: this._description
       })
     }
   },

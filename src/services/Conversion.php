@@ -372,6 +372,7 @@ class Conversion extends Component
                     $newBlockType['fields']['new' . (++$ids)] = [
                         'name' => $field->name,
                         'handle' => $field->handle,
+                        'description' => $field->description,
                         'instructions' => $field->instructions,
                         'required' => $field->required,
                         'searchable' => $field->searchable,
