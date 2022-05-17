@@ -476,6 +476,7 @@ export default Garnish.Base.extend({
     })
 
     this._blocks = blocks
+    this.trigger('updateBlockOrder')
   },
 
   _updateBlockChildren () {
