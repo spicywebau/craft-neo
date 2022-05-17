@@ -330,7 +330,7 @@ export default Garnish.Base.extend({
     })
 
     // Setting up field and block property watching
-    if (!this._modified && !this.isNew()) {
+    if (!this.isNew()) {
       this._initialState = {
         enabled: this._enabled,
         level: this._level,
@@ -1078,20 +1078,20 @@ export default Garnish.Base.extend({
       this._forceModified = true
     }
 
-    if (this._forceModified) {
-      return
+    if (!this._forceModified) {
+      const initial = this._initialState
+      const content = Garnish.getPostData(this.$contentContainer)
+
+      const modified = !Craft.compare(content, initial.content, false) ||
+        initial.enabled !== this._enabled ||
+        initial.level !== this._level
+
+      if (modified !== this._modified) {
+        this.setModified(modified)
+      }
     }
 
-    const initial = this._initialState
-    const content = Garnish.getPostData(this.$contentContainer)
-
-    const modified = !Craft.compare(content, initial.content, false) ||
-      initial.enabled !== this._enabled ||
-      initial.level !== this._level
-
-    if (modified !== this._modified) {
-      this.setModified(modified)
-    }
+    this.trigger('change')
   },
 
   '@settingSelect' (e) {

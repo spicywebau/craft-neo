@@ -315,6 +315,7 @@ export default Garnish.Base.extend({
     block.on('copyBlock.input', e => this['@copyBlock'](e))
     block.on('pasteBlock.input', e => this['@pasteBlock'](e))
     block.on('duplicateBlock.input', e => this['@duplicateBlock'](e))
+    block.on('change.input', () => this.trigger('change', { block }))
   },
 
   _moveBlock (block, direction, animate = true) {
@@ -477,6 +478,7 @@ export default Garnish.Base.extend({
 
     this._blocks = blocks
     this.trigger('updateBlockOrder')
+    this.trigger('change', { block: null })
   },
 
   _updateBlockChildren () {
