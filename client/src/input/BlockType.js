@@ -27,6 +27,7 @@ export default Garnish.Base.extend({
     this._sortOrder = settings.sortOrder | 0
     this._name = settings.name
     this._handle = settings.handle
+    this._description = settings.description
     this._maxBlocks = settings.maxBlocks | 0
     this._maxSiblingBlocks = settings.maxSiblingBlocks | 0
     this._maxChildBlocks = settings.maxChildBlocks | 0
@@ -44,6 +45,7 @@ export default Garnish.Base.extend({
   getSortOrder () { return this._sortOrder },
   getName () { return this._name },
   getHandle () { return this._handle },
+  getDescription () { return this._description },
   getMaxBlocks () { return this._maxBlocks },
   getMaxSiblingBlocks () { return this._maxSiblingBlocks },
   getMaxChildBlocks () { return this._maxChildBlocks },

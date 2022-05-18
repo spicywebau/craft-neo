@@ -348,7 +348,7 @@ export default Settings.extend({
     }
   },
 
-  getDescription () { console.log(this); return this._description },
+  getDescription () { return this._description },
   setDescription (description) {
     if (description !== this._description) {
       const oldDescription = this._description
