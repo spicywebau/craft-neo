@@ -90,11 +90,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         return BlockQuery::class;
     }
-
-    /**
-     * @var string|null Description
-     */
-    public ?string $description = null;
     
     /**
      * @var int|null The minimum number of blocks this field can have.
