@@ -1,4 +1,5 @@
 $border-radius: var(--small-border-radius);
+$content-padding: var(--padding);
 
 .neo-configurator > .field > .input {
     display: flex;
@@ -312,7 +313,17 @@ $border-radius: var(--small-border-radius);
         }
 
         &_content {
-            padding: 24px;
+            padding: $content-padding;
+
+            &[data-neo='container.fieldLayout'] {
+                display: flex;
+                align-items: stretch;
+                height: calc(100% - #{$content-padding} -  #{$content-padding});
+
+                > .layoutdesigner {
+                    flex: 1;
+                }
+            }
 
             .checkbox + label {
                 color: var(--medium-text-color);
