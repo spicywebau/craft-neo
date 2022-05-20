@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.10 - 2022-05-20
 
 ### Fixed
 - Fixed a JavaScript error that occurred when collapsing a Neo block on a global set, which caused the collapsed state of the block not to be saved
