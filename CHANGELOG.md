@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added `benf\neo\models\BlockType::description`
+
 ### Fixed
 - Fixed a bug where copied top level Neo blocks could be pasted into places in the Neo field where that block type shouldn't have been allowed
 

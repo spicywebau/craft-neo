@@ -90,7 +90,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     {
         return BlockQuery::class;
     }
-
+    
     /**
      * @var int|null The minimum number of blocks this field can have.
      */
@@ -251,6 +251,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->fieldId = $this->id;
                 $newBlockType->name = $blockType['name'];
                 $newBlockType->handle = $blockType['handle'];
+                $newBlockType->description = $blockType['description'];
                 $newBlockType->maxBlocks = (int)$blockType['maxBlocks'];
                 $newBlockType->maxSiblingBlocks = (int)$blockType['maxSiblingBlocks'];
                 $newBlockType->maxChildBlocks = (int)$blockType['maxChildBlocks'];
