@@ -853,8 +853,8 @@ export default Garnish.Base.extend({
       // The server-side code will also apply the new state to the canonical block
       const thisBlockId = this.getId()
       const elementEditor = this.$form.data('elementEditor')
-      const duplicatedBlockId = elementEditor.duplicatedElements[thisBlockId] ?? thisBlockId
-      const sentBlockId = elementEditor.settings.isProvisionalDraft ? duplicatedBlockId : thisBlockId
+      const duplicatedBlockId = elementEditor?.duplicatedElements[thisBlockId] ?? thisBlockId
+      const sentBlockId = elementEditor?.settings.isProvisionalDraft ? duplicatedBlockId : thisBlockId
       const data = {
         expanded: this.isExpanded() ? 1 : 0,
         blockId: sentBlockId,
