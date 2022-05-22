@@ -70,6 +70,7 @@ export default Garnish.Base.extend({
         name: btInfo.name,
         handle: btInfo.handle,
         description: btInfo.description,
+        icon: btInfo.icon,
         maxBlocks: btInfo.maxBlocks,
         maxSiblingBlocks: btInfo.maxSiblingBlocks,
         maxChildBlocks: btInfo.maxChildBlocks,
@@ -353,6 +354,7 @@ export default Garnish.Base.extend({
         maxSiblingBlocks: oldSettings.getMaxSiblingBlocks(),
         name: oldSettings.getName(),
         description: oldSettings.getDescription(),
+        icon: oldSettings.getIcon(),
         namespace: [...namespace, id],
         sortOrder: this._items.length,
         topLevel: oldSettings.getTopLevel()

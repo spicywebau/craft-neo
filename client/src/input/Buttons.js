@@ -63,14 +63,19 @@ export default Garnish.Base.extend({
       const type = item.getType()
 
       if (type === 'blockType') {
+        const iconImage = item.getIcon() ? `<img src="${item.getIcon()}" class="icon">` : ''
         if (currentGroup !== null) {
           buttonsHtml.push(`
             <li>
-              <a data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">${item.getName()}</a>
+              <a data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}" class="flex neo-add-block-btn">
+                ${iconImage}
+                ${item.getName()}
+              </a>
             </li>`)
         } else {
           buttonsHtml.push(`
-          <div class="btn dashed${firstButton ? ' add icon' : ''}" data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">
+          <div class="btn dashed flex neo-add-block-btn${firstButton ? ' add icon' : ''}" data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">
+            ${iconImage}
             ${item.getName()}
           </div>`)
           firstButton = false

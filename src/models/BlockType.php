@@ -62,6 +62,11 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public ?string $description = null;
 
     /**
+     * @var string|null The block type's icon.
+     */
+    public ?string $icon = null;
+
+    /**
      * @var int|null The maximum number of blocks of this type allowed in this block type's field.
      */
     public ?int $maxBlocks = null;
@@ -237,6 +242,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'group' => $group ? $group->uid : null,
             'handle' => $this->handle,
             'description' => $this->description,
+            'icon' => $this->icon,
             'maxBlocks' => (int)$this->maxBlocks,
             'maxChildBlocks' => (int)$this->maxChildBlocks,
             'maxSiblingBlocks' => (int)$this->maxSiblingBlocks,

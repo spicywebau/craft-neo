@@ -174,6 +174,7 @@ class InputAsset extends FieldAsset
                 'name' => Craft::t('site', $blockType->name),
                 'handle' => $blockType->handle,
                 'description' => $blockType->description,
+                'icon' => Craft::getAlias($blockType->icon),
                 'maxBlocks' => $blockType->maxBlocks,
                 'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
                 'maxChildBlocks' => $blockType->maxChildBlocks,

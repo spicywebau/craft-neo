@@ -28,6 +28,7 @@ export default Garnish.Base.extend({
     this._name = settings.name
     this._handle = settings.handle
     this._description = settings.description
+    this._icon = settings.icon
     this._maxBlocks = settings.maxBlocks | 0
     this._maxSiblingBlocks = settings.maxSiblingBlocks | 0
     this._maxChildBlocks = settings.maxChildBlocks | 0
@@ -46,6 +47,7 @@ export default Garnish.Base.extend({
   getName () { return this._name },
   getHandle () { return this._handle },
   getDescription () { return this._description },
+  getIcon () { return this._icon },
   getMaxBlocks () { return this._maxBlocks },
   getMaxSiblingBlocks () { return this._maxSiblingBlocks },
   getMaxChildBlocks () { return this._maxChildBlocks },

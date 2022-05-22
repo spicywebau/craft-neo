@@ -6,16 +6,16 @@ use craft\db\Migration;
 use craft\db\Table;
 
 /**
- * m220516_124013_add_blocktype_description migration.
+ * m220522_122113_add_blocktype_icon migration.
  */
-class m220516_124013_add_blocktype_description extends Migration
+class m220522_122113_add_blocktype_icon extends Migration
 {
     /**
      * @inheritdoc
      */
     public function safeUp(): bool
     {
-        $this->addColumn('{{%neoblocktypes}}', 'description', $this->string()->after('handle'));
+        $this->addColumn('{{%neoblocktypes}}', 'icon', $this->string()->after('description'));
 
         return true;
     }
@@ -25,7 +25,7 @@ class m220516_124013_add_blocktype_description extends Migration
      */
     public function safeDown(): bool
     {
-        echo "m220516_124013_add_blocktype_description cannot be reverted.\n";
+        echo "m220522_122113_add_blocktype_icon cannot be reverted.\n";
         return false;
     }
 }

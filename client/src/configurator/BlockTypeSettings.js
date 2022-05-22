@@ -11,6 +11,7 @@ const _defaults = {
   name: '',
   handle: '',
   description: '',
+  icon: '',
   maxBlocks: 0,
   maxSiblingBlocks: 0,
   maxChildBlocks: 0,
@@ -29,6 +30,7 @@ export default Settings.extend({
   $nameInput: new $(),
   $handleInput: new $(),
   $descriptionInput: new $(),
+  $iconInput: new $(),
   $maxBlocksInput: new $(),
   $maxSiblingBlocksInput: new $(),
   $maxChildBlocksInput: new $(),
@@ -40,11 +42,11 @@ export default Settings.extend({
     this._childBlockTypes = []
     this._id = settings.id
     this._errors = settings.errors
-
     this.setSortOrder(settings.sortOrder)
     this.setName(settings.name)
     this.setHandle(settings.handle)
     this.setDescription(settings.description)
+    this.setIcon(settings.icon)
     this.setMaxBlocks(settings.maxBlocks)
     this.setMaxSiblingBlocks(settings.maxSiblingBlocks)
     this.setMaxChildBlocks(settings.maxChildBlocks)
@@ -57,6 +59,7 @@ export default Settings.extend({
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
+    this.$iconInput = $neo.filter('[data-neo-bts="input.icon"]')
     this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
     this.$maxSiblingBlocksInput = $neo.filter('[data-neo-bts="input.maxSiblingBlocks"]')
     this.$maxChildBlocksInput = $neo.filter('[data-neo-bts="input.maxChildBlocks"]')
@@ -98,6 +101,7 @@ export default Settings.extend({
 
     this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
     this.addListener(this.$descriptionInput, 'keyup change textchange', () => this.setDescription(this.$descriptionInput.val()))
+    this.addListener(this.$iconInput, 'keyup change textchange', () => this.setIcon(this.$iconInput.val()))
     this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
     this.addListener(this.$maxSiblingBlocksInput, 'keyup change', () => this.setMaxSiblingBlocks(this.$maxSiblingBlocksInput.val()))
     this.addListener(this.$maxChildBlocksInput, 'keyup change', () => this.setMaxChildBlocks(this.$maxChildBlocksInput.val()))
@@ -123,6 +127,8 @@ export default Settings.extend({
     const handleInputName = NS.fieldName('handle')
     const descriptionInputId = NS.value('description', '-')
     const descriptionInputName = NS.fieldName('description')
+    const iconInputId = NS.value('icon', '-')
+    const iconInputName = NS.fieldName('icon')
     const maxBlocksInputId = NS.value('maxBlocks', '-')
     const maxBlocksInputName = NS.fieldName('maxBlocks')
     const maxSiblingBlocksInputId = NS.value('maxSiblingBlocks', '-')
@@ -165,12 +171,23 @@ export default Settings.extend({
       id: descriptionInputId,
       name: descriptionInputName,
       label: Craft.t('neo', 'Description'),
-      // instructions: Craft.t('neo', 'How you’ll refer to this block type in the templates.'),
       required: false,
       value: this.getDescription(),
       errors: errors.handle
     })
     $descriptionInput.find('input').attr('data-neo-bts', 'input.description')
+
+    const $iconInput = Craft.ui.createTextField({
+      type: 'text',
+      id: iconInputId,
+      name: iconInputName,
+      label: Craft.t('neo', 'Icon'),
+      instructions: Craft.t('neo', 'Public URL to a svg icon which represents this block.'),
+      required: false,
+      value: this.getIcon(),
+      errors: errors.icon
+    })
+    $iconInput.find('input').attr('data-neo-bts', 'input.icon')
 
     const $maxBlocksInput = Craft.ui.createTextField({
       type: 'number',
@@ -262,6 +279,7 @@ export default Settings.extend({
           ${$('<div class="field"/>').append($nameInput).html()}
           ${$('<div class="field"/>').append($handleInput).html()}
           ${$('<div class="field"/>').append($descriptionInput).html()}
+          ${$('<div class="field"/>').append($iconInput).html()}
           ${$('<div class="field"/>').append($maxBlocksInput).html()}
           ${$('<div class="field"/>').append($maxSiblingBlocksInput).html()}
           ${$('<div class="field"/>').append($childBlocksInput).html()}
@@ -362,6 +380,24 @@ export default Settings.extend({
         property: 'description',
         oldValue: oldDescription,
         newValue: this._description
+      })
+    }
+  },
+
+  getIcon () { return this._icon },
+  setIcon (icon) {
+    if (icon !== this._icon) {
+      const oldIcon = this._icon
+      this._icon = icon
+
+      if (this.$iconInput.val() !== this._icon) {
+        this.$iconInput.val(this._icon)
+      }
+
+      this.trigger('change', {
+        property: 'icon',
+        oldValue: oldIcon,
+        newValue: this._icon
       })
     }
   },

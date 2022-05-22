@@ -133,6 +133,7 @@ export default Garnish.Base.extend({
         name: blockType.getName(),
         handle: blockType.getHandle(),
         description: blockType.getDescription(),
+        icon: blockType.getIcon(),
         maxBlocks: blockType.getMaxBlocks(),
         maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
         maxChildBlocks: blockType.getMaxChildBlocks(),

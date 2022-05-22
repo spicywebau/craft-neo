@@ -252,6 +252,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->name = $blockType['name'];
                 $newBlockType->handle = $blockType['handle'];
                 $newBlockType->description = $blockType['description'];
+                $newBlockType->icon = $blockType['icon'];
                 $newBlockType->maxBlocks = (int)$blockType['maxBlocks'];
                 $newBlockType->maxSiblingBlocks = (int)$blockType['maxSiblingBlocks'];
                 $newBlockType->maxChildBlocks = (int)$blockType['maxChildBlocks'];

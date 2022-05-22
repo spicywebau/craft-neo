@@ -202,6 +202,7 @@ class BlockTypes extends Component
         $record->name = $blockType->name;
         $record->handle = $blockType->handle;
         $record->description = $blockType->description;
+        $record->icon = $blockType->icon;
         $record->sortOrder = $blockType->sortOrder;
         $record->maxBlocks = $blockType->maxBlocks;
         $record->maxSiblingBlocks = $blockType->maxSiblingBlocks;
@@ -417,6 +418,7 @@ class BlockTypes extends Component
             $record->name = $data['name'];
             $record->handle = $data['handle'];
             $record->description = $data['description'];
+            $record->icon = $data['icon'];
             $record->sortOrder = $data['sortOrder'];
             $record->maxBlocks = $data['maxBlocks'];
             $record->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
@@ -433,6 +435,7 @@ class BlockTypes extends Component
             $blockType->name = $data['name'];
             $blockType->handle = $data['handle'];
             $blockType->description = $data['description'];
+            $blockType->icon = $data['icon'];
             $blockType->sortOrder = $data['sortOrder'];
             $blockType->maxBlocks = $data['maxBlocks'];
             $blockType->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
@@ -640,6 +643,7 @@ class BlockTypes extends Component
                 'name',
                 'handle',
                 'description',
+                'icon',
                 'maxBlocks',
                 'maxSiblingBlocks',
                 'maxChildBlocks',

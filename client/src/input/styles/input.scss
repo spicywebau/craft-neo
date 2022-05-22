@@ -20,6 +20,19 @@ $topbar-background-color-transparent: #ebf2fa00;
     }
 }
 
+.neo-add-block-btn {
+    a {
+        display: flex;
+        gap: 2px;
+    }
+
+    img {
+        display: block;
+        height: 18px;
+        width: auto;
+    }
+}
+
 .ni {
 
     &_buttons {
@@ -34,6 +47,8 @@ $topbar-background-color-transparent: #ebf2fa00;
             body.ltr & { left:  0; }
             body.rtl & { right: 0; }
         }
+        
+        
     }
 
     &_blocks {
