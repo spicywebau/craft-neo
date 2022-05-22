@@ -168,7 +168,7 @@ export default Settings.extend({
       // instructions: Craft.t('neo', 'How you’ll refer to this block type in the templates.'),
       required: false,
       value: this.getDescription(),
-      errors: errors.handle
+      errors: errors.description
     })
     $descriptionInput.find('input').attr('data-neo-bts', 'input.description')
 
