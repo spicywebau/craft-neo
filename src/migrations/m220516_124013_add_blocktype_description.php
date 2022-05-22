@@ -6,7 +6,7 @@ use craft\db\Migration;
 use craft\db\Table;
 
 /**
- * m220516_124013_add_section_description migration.
+ * m220516_124013_add_blocktype_description migration.
  */
 class m220516_124013_add_blocktype_description extends Migration
 {
