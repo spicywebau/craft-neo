@@ -73,6 +73,7 @@ class Install extends Migration
                 'groupId' => $this->integer(),
                 'name' => $this->string()->notNull(),
                 'handle' => $this->string()->notNull(),
+                'description' => $this->string(),
                 'maxBlocks' => $this->smallInteger()->unsigned(),
                 'maxSiblingBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'maxChildBlocks' => $this->smallInteger()->unsigned(),

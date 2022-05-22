@@ -173,7 +173,7 @@ export default Settings.extend({
       label: Craft.t('neo', 'Description'),
       required: false,
       value: this.getDescription(),
-      errors: errors.handle
+      errors: errors.description
     })
     $descriptionInput.find('input').attr('data-neo-bts', 'input.description')
 

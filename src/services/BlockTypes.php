@@ -417,7 +417,7 @@ class BlockTypes extends Component
             $record->groupId = $groupId;
             $record->name = $data['name'];
             $record->handle = $data['handle'];
-            $record->description = $data['description'];
+            $record->description = $data['description'] ?? null;
             $record->icon = $data['icon'];
             $record->sortOrder = $data['sortOrder'];
             $record->maxBlocks = $data['maxBlocks'];
@@ -434,7 +434,7 @@ class BlockTypes extends Component
             $blockType->groupId = $groupId;
             $blockType->name = $data['name'];
             $blockType->handle = $data['handle'];
-            $blockType->description = $data['description'];
+            $blockType->description = $data['description'] ?? null;
             $blockType->icon = $data['icon'];
             $blockType->sortOrder = $data['sortOrder'];
             $blockType->maxBlocks = $data['maxBlocks'];
