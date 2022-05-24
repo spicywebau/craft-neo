@@ -58,6 +58,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
 
     /**
      * @var string|null The block type's description.
+     * @since 3.0.5
      */
     public ?string $description = null;
 

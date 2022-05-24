@@ -1,12 +1,17 @@
 # Changelog
 
-## Unreleased
+## 3.0.5 - 2022-05-24
 
 ### Added
-- Added `benf\neo\models\BlockType::description`
+- Added `benf\neo\models\BlockType::$description` (thanks @leevigraham)
+
+### Changed
+- Neo input blocks now have a `data-neo-b-name` attribute (thanks @davidhellmann)
+- Block type descriptions can appear on hover over new block buttons
 
 ### Fixed
 - Fixed a bug where copied top level Neo blocks could be pasted into places in the Neo field where that block type shouldn't have been allowed
+- Fixed a bug where creating a Quick Post widget with a visible Neo field would cause an error
 
 ## 3.0.4 - 2022-05-13
 

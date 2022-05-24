@@ -61,20 +61,20 @@ export default Garnish.Base.extend({
     for (let i = 0; i < this._items.length; i++) {
       const item = this._items[i]
       const type = item.getType()
-
       if (type === 'blockType') {
         const iconImage = item.getIcon() ? `<img src="${item.getIcon()}" class="icon">` : ''
+        const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         if (currentGroup !== null) {
           buttonsHtml.push(`
             <li>
-              <a data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}" class="flex neo-add-block-btn">
+              <a type="button"${titleAttr} data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}" class="flex neo-add-block-btn">
                 ${iconImage}
                 ${item.getName()}
               </a>
             </li>`)
         } else {
           buttonsHtml.push(`
-          <div class="btn dashed flex neo-add-block-btn${firstButton ? ' add icon' : ''}" data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">
+          <div type="button" ${titleAttr} class="btn dashed flex neo-add-block-btn${firstButton ? ' add icon' : ''}" data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">
             ${iconImage}
             ${item.getName()}
           </div>`)
@@ -140,11 +140,12 @@ export default Garnish.Base.extend({
               <ul class="padded">`)
         }
 
+        const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         buttonsHtml.push(`
             <li>
-              <a data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">
+              <button type="button" ${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}">
                 ${item.getName()}
-              </a>
+              </button>
             </li>`)
       } else if (type === 'group') {
         if (currentGroup === null || lastGroupHadBlockTypes) {
