@@ -147,7 +147,7 @@ export default Garnish.Base.extend({
     const tabsMenuId = `neoblock-tabs-menu-${this._id}`
     const elementHtml = []
     elementHtml.push(`
-      <div class="ni_block ni_block--${type.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${!hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}">
+      <div class="ni_block ni_block--${type.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${!hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}  data-neo-b-name="${type.getName()}">
         <input type="hidden" name="${baseInputName}[type]" value="${type.getHandle()}">
         <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : ''}" data-neo-b="${this._id}.input.enabled">
         <input type="hidden" name="${baseInputName}[level]" value="${this._level}" data-neo-b="${this._id}.input.level">
@@ -330,7 +330,7 @@ export default Garnish.Base.extend({
     })
 
     // Setting up field and block property watching
-    if (!this._modified && !this.isNew()) {
+    if (!this.isNew()) {
       this._initialState = {
         enabled: this._enabled,
         level: this._level,
@@ -1078,20 +1078,20 @@ export default Garnish.Base.extend({
       this._forceModified = true
     }
 
-    if (this._forceModified) {
-      return
+    if (!this._forceModified) {
+      const initial = this._initialState
+      const content = Garnish.getPostData(this.$contentContainer)
+
+      const modified = !Craft.compare(content, initial.content, false) ||
+        initial.enabled !== this._enabled ||
+        initial.level !== this._level
+
+      if (modified !== this._modified) {
+        this.setModified(modified)
+      }
     }
 
-    const initial = this._initialState
-    const content = Garnish.getPostData(this.$contentContainer)
-
-    const modified = !Craft.compare(content, initial.content, false) ||
-      initial.enabled !== this._enabled ||
-      initial.level !== this._level
-
-    if (modified !== this._modified) {
-      this.setModified(modified)
-    }
+    this.trigger('change')
   },
 
   '@settingSelect' (e) {
