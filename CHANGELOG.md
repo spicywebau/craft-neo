@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.5 - 2022-05-24
 
 ### Added
 - Added `benf\neo\models\BlockType::$description` (thanks @leevigraham)
