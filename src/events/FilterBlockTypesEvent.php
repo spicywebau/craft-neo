@@ -15,9 +15,9 @@ class FilterBlockTypesEvent extends \yii\base\Event
     public Field $field;
 
     /**
-     * @var ElementInterface
+     * @var ElementInterface|null
      */
-    public ElementInterface $element;
+    public ?ElementInterface $element = null;
 
     /**
      * @var BlockType[]
