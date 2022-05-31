@@ -17,6 +17,8 @@ const _defaults = {
   topLevel: true,
   childBlocks: null,
   childBlockTypes: [],
+  html: '',
+  js: '',
   errors: {}
 }
 
@@ -24,6 +26,7 @@ export default Settings.extend({
 
   _templateNs: [],
   _childBlockTypes: [],
+  _initialised: false,
 
   $sortOrderInput: new $(),
   $nameInput: new $(),
@@ -38,19 +41,12 @@ export default Settings.extend({
 
     this._templateNs = NS.parse(settings.namespace)
     this._childBlockTypes = []
+    this._childBlocks = settings.childBlocks
     this._id = settings.id
     this._errors = settings.errors
-
-    this.setSortOrder(settings.sortOrder)
-    this.setName(settings.name)
-    this.setHandle(settings.handle)
-    this.setDescription(settings.description)
-    this.setMaxBlocks(settings.maxBlocks)
-    this.setMaxSiblingBlocks(settings.maxSiblingBlocks)
-    this.setMaxChildBlocks(settings.maxChildBlocks)
-    this.setTopLevel(settings.topLevel)
-
-    this.$container = this._generateBlockTypeSettings()
+    this._js = settings.js
+    this._settingsChildBlockTypes = settings.childBlockTypes
+    this.$container = $(settings.html)
 
     const $neo = this.$container.find('[data-neo-bts]')
     this.$sortOrderInput = $neo.filter('[data-neo-bts="input.sortOrder"]')
@@ -67,6 +63,24 @@ export default Settings.extend({
     this.$childBlocksContainer = $neo.filter('[data-neo-bts="container.childBlocks"]')
     this.$deleteButton = $neo.filter('[data-neo-bts="button.delete"]')
 
+    this.setSortOrder(settings.sortOrder)
+    this.setName(settings.name)
+    this.setHandle(settings.handle)
+    this.setDescription(settings.description)
+    this.setMaxBlocks(settings.maxBlocks)
+    this.setMaxSiblingBlocks(settings.maxSiblingBlocks)
+    this.setMaxChildBlocks(settings.maxChildBlocks)
+    this.setTopLevel(settings.topLevel)
+  },
+
+  initUi () {
+    if (this._initialised) {
+      return
+    }
+
+    this.$foot = $(this._js)
+    Garnish.$bod.append(this.$foot)
+
     Craft.initUiElements(this.$container)
 
     this._childBlocksSelect = this.$childBlocksInput.data('checkboxSelect')
@@ -78,14 +92,11 @@ export default Settings.extend({
       this._handleGenerator.stopListening()
     }
 
-    for (const blockType of settings.childBlockTypes) {
+    for (const blockType of this._settingsChildBlockTypes) {
       this.addChildBlockType(blockType)
     }
 
-    this.setChildBlocks(settings.childBlocks)
-
-    // LightSwitch accidentally overrides the `on()` method by using `on` as a property...
-    Garnish.Base.prototype.on.call(this._topLevelLightswitch, 'change', () => this.setTopLevel(this._topLevelLightswitch.on))
+    this.setChildBlocks(this._childBlocks)
 
     this.addListener(this.$nameInput, 'keyup change', () => {
       this.setName(this.$nameInput.val())
@@ -101,6 +112,7 @@ export default Settings.extend({
     this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
     this.addListener(this.$maxSiblingBlocksInput, 'keyup change', () => this.setMaxSiblingBlocks(this.$maxSiblingBlocksInput.val()))
     this.addListener(this.$maxChildBlocksInput, 'keyup change', () => this.setMaxChildBlocks(this.$maxChildBlocksInput.val()))
+    this.addListener(this._topLevelLightswitch, 'change', () => this.setTopLevel(this._topLevelLightswitch.on))
     this.addListener(this.$deleteButton, 'click', () => {
       if (window.confirm(Craft.t('neo', 'Are you sure you want to delete this block type?'))) {
         this.destroy()
@@ -108,173 +120,8 @@ export default Settings.extend({
     })
 
     this.$childBlocksInput.on('change', 'input', () => this._refreshMaxChildBlocks())
-  },
 
-  _generateBlockTypeSettings () {
-    const errors = this.getErrors()
-    const maxBlocks = this.getMaxBlocks()
-    const maxSiblingBlocks = this.getMaxSiblingBlocks()
-    const maxChildBlocks = this.getMaxChildBlocks()
-    NS.enter(this._templateNs)
-    const sortOrderName = NS.fieldName('sortOrder')
-    const nameInputId = NS.value('name', '-')
-    const nameInputName = NS.fieldName('name')
-    const handleInputId = NS.value('handle', '-')
-    const handleInputName = NS.fieldName('handle')
-    const descriptionInputId = NS.value('description', '-')
-    const descriptionInputName = NS.fieldName('description')
-    const maxBlocksInputId = NS.value('maxBlocks', '-')
-    const maxBlocksInputName = NS.fieldName('maxBlocks')
-    const maxSiblingBlocksInputId = NS.value('maxSiblingBlocks', '-')
-    const maxSiblingBlocksInputName = NS.fieldName('maxSiblingBlocks')
-    const childBlocksInputId = NS.value('childBlocks', '-')
-    const childBlocksInputName = NS.fieldName('childBlocks')
-    const maxChildBlocksInputId = NS.value('maxChildBlocks', '-')
-    const maxChildBlocksInputName = NS.fieldName('maxChildBlocks')
-    const topLevelInputId = NS.value('topLevel', '-')
-    const topLevelInputName = NS.fieldName('topLevel')
-    NS.leave()
-
-    const $nameInput = Craft.ui.createTextField({
-      type: 'text',
-      id: nameInputId,
-      name: nameInputName,
-      label: Craft.t('neo', 'Name'),
-      instructions: Craft.t('neo', 'What this block type will be called in the CP.'),
-      required: true,
-      value: this.getName(),
-      errors: errors.name
-    })
-    $nameInput.find('input').attr('data-neo-bts', 'input.name')
-
-    const $handleInput = Craft.ui.createTextField({
-      type: 'text',
-      id: handleInputId,
-      name: handleInputName,
-      label: Craft.t('neo', 'Handle'),
-      instructions: Craft.t('neo', 'How you’ll refer to this block type in the templates.'),
-      required: true,
-      class: 'code',
-      value: this.getHandle(),
-      errors: errors.handle
-    })
-    $handleInput.find('input').attr('data-neo-bts', 'input.handle')
-
-    const $descriptionInput = Craft.ui.createTextareaField({
-      type: 'text',
-      id: descriptionInputId,
-      name: descriptionInputName,
-      label: Craft.t('neo', 'Description'),
-      // instructions: Craft.t('neo', 'How you’ll refer to this block type in the templates.'),
-      required: false,
-      value: this.getDescription(),
-      errors: errors.description
-    })
-    $descriptionInput.find('input').attr('data-neo-bts', 'input.description')
-
-    const $maxBlocksInput = Craft.ui.createTextField({
-      type: 'number',
-      id: maxBlocksInputId,
-      name: maxBlocksInputName,
-      label: Craft.t('neo', 'Max Blocks'),
-      instructions: Craft.t('neo', 'The maximum number of blocks of this type the field is allowed to have.'),
-      value: maxBlocks > 0 ? maxBlocks : null,
-      min: 0,
-      errors: errors.maxBlocks
-    })
-    $maxBlocksInput.find('input')
-      .removeClass('fullwidth')
-      .css('width', '80px')
-      .attr('data-neo-bts', 'input.maxBlocks')
-
-    const $maxSiblingBlocksInput = Craft.ui.createTextField({
-      type: 'number',
-      id: maxSiblingBlocksInputId,
-      name: maxSiblingBlocksInputName,
-      label: Craft.t('neo', 'Max Sibling Blocks of This Type'),
-      instructions: Craft.t('neo', 'The maximum number of blocks of this type allowed under one parent block or at the top level.'),
-      value: maxSiblingBlocks > 0 ? maxSiblingBlocks : null,
-      min: 0,
-      errors: errors.maxSiblingBlocks
-    })
-    $maxSiblingBlocksInput.find('input')
-      .removeClass('fullwidth')
-      .css('width', '80px')
-      .attr('data-neo-bts', 'input.maxSiblingBlocks')
-
-    const $childBlocksInput = Craft.ui.createField(
-      $(`
-        <fieldset class="checkbox-select" data-neo-bts="input.childBlocks">
-          <div>
-            <input type="hidden" name="${childBlocksInputName}">
-            <input type="checkbox" value="*" id="${childBlocksInputId}" class="all checkbox" name="${childBlocksInputName}">
-            <label for="${childBlocksInputId}"><strong>${Craft.t('neo', 'All')}</strong></label>
-          </div>
-          <div data-neo-bts="container.childBlocks"></div>
-        </fieldset>`),
-      {
-        id: childBlocksInputId,
-        label: Craft.t('neo', 'Child Blocks'),
-        instructions: Craft.t('neo', 'Which block types do you want to allow as children?')
-      }
-    )
-
-    const $maxChildBlocksInput = Craft.ui.createTextField({
-      type: 'number',
-      id: maxChildBlocksInputId,
-      name: maxChildBlocksInputName,
-      label: Craft.t('neo', 'Max Child Blocks'),
-      instructions: Craft.t('neo', 'The maximum number of child blocks this block type is allowed to have.'),
-      value: maxChildBlocks > 0 ? maxChildBlocks : null,
-      min: 0,
-      errors: errors.maxChildBlocks,
-      attributes: {
-        style: 'width: 80px;',
-        'data-neo-bts': 'input.maxChildBlocks'
-      }
-    })
-    $maxChildBlocksInput.find('input')
-      .removeClass('fullwidth')
-      .css('width', '80px')
-      .attr('data-neo-bts', 'input.maxChildBlocks')
-
-    const $topLevelInput = Craft.ui.createField(
-      $(`
-        <div class="lightswitch${this.getTopLevel() ? ' on' : ''}" tabindex="0" data-neo-bts="input.topLevel">
-          <div class="lightswitch-container">
-            <div class="label on"></div>
-            <div class="handle"></div>
-            <div class="label off"></div>
-          </div>
-          <input type="hidden" name="${topLevelInputName}" value="${this.getTopLevel() ? '1' : ''}">
-        </div>`),
-      {
-        id: topLevelInputId,
-        label: Craft.t('neo', 'Top Level'),
-        instructions: Craft.t('neo', 'Will this block type be allowed at the top level?')
-      }
-    )
-
-    return $(`
-      <div>
-        <input type="hidden" name="${sortOrderName}" value="${this.getSortOrder()}" data-neo-bts="input.sortOrder">
-        <div>
-          ${$('<div class="field"/>').append($nameInput).html()}
-          ${$('<div class="field"/>').append($handleInput).html()}
-          ${$('<div class="field"/>').append($descriptionInput).html()}
-          ${$('<div class="field"/>').append($maxBlocksInput).html()}
-          ${$('<div class="field"/>').append($maxSiblingBlocksInput).html()}
-          ${$('<div class="field"/>').append($childBlocksInput).html()}
-          <div data-neo-bts="container.maxChildBlocks">
-            ${$('<div class="field"/>').append($maxChildBlocksInput).html()}
-          </div>
-          <div data-neo-bts="container.topLevel">
-            ${$('<div class="field"/>').append($topLevelInput).html()}
-          </div>
-        </div>
-        <hr>
-        <a class="error delete" data-neo-bts="button.delete">${Craft.t('neo', 'Delete block type')}</a>
-      </div>`)
+    this._initialised = true
   },
 
   _generateChildBlocksCheckbox (settings) {

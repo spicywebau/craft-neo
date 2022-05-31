@@ -105,17 +105,20 @@ class SettingsAsset extends AssetBundle
     {
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
+        [$blockTypeSettingsHtml, $blockTypeSettingsJs] = self::_renderBlockTypeSettings();
         $fieldLayoutHtml = self::_renderFieldLayoutHtml();
 
         $jsSettings = [
             'namespace' => Craft::$app->getView()->getNamespace(),
             'blockTypes' => self::_getBlockTypesJsSettings($blockTypes),
             'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
+            'blockTypeSettingsHtml' => $blockTypeSettingsHtml,
+            'blockTypeSettingsJs' => $blockTypeSettingsJs,
             'fieldLayoutHtml' => $fieldLayoutHtml,
             'defaultAlwaysShowGroupDropdowns' => Neo::$plugin->settings->defaultAlwaysShowGroupDropdowns,
         ];
 
-        $encodedJsSettings = Json::encode($jsSettings);
+        $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);
 
         return "Neo.createConfigurator($encodedJsSettings)";
     }
@@ -132,6 +135,7 @@ class SettingsAsset extends AssetBundle
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
+            [$blockTypeSettingsHtml, $blockTypeSettingsJs] = self::_renderBlockTypeSettings($blockType);
             $fieldLayout = $blockType->getFieldLayout();
             $oldNamespace = $view->getNamespace();
             $view->setNamespace('neoBlockType' . $blockType['id']);
@@ -152,6 +156,8 @@ class SettingsAsset extends AssetBundle
                 'errors' => $blockType->getErrors(),
                 'fieldLayout' => $fieldLayout->getConfig(),
                 'fieldLayoutHtml' => $fieldLayoutHtml,
+                'settingsHtml' => $blockTypeSettingsHtml,
+                'settingsJs' => $blockTypeSettingsJs,
                 'fieldLayoutId' => $fieldLayout->id,
                 'groupId' => $blockType->groupId,
             ];
@@ -182,6 +188,29 @@ class SettingsAsset extends AssetBundle
         }
 
         return $jsBlockTypeGroups;
+    }
+
+    /**
+     * @param BlockType|null $blockType
+     * @return array
+     */
+    private static function _renderBlockTypeSettings(?BlockType $blockType = null): array
+    {
+        $view = Craft::$app->getView();
+        $blockTypeId = $blockType?->id ?? '__NEOBLOCKTYPE_ID__';
+        $oldNamespace = $view->getNamespace();
+        $newNamespace = $oldNamespace . '[blockTypes][' . $blockTypeId . ']';
+        $view->setNamespace($newNamespace);
+        $view->startJsBuffer();
+
+        $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
+            'blockType' => $blockType,
+        ]));
+
+        $js = $view->clearJsBuffer();
+        $view->setNamespace($oldNamespace);
+
+        return [$html, $js];
     }
 
     /**
