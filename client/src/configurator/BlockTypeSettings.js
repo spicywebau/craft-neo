@@ -8,6 +8,7 @@ const _defaults = {
   namespace: [],
   id: null,
   sortOrder: 0,
+  fieldLayoutId: null,
   name: '',
   handle: '',
   description: '',
@@ -39,6 +40,7 @@ export default Settings.extend({
     this._templateNs = NS.parse(settings.namespace)
     this._childBlockTypes = []
     this._id = settings.id
+    this._fieldLayoutId = settings.fieldLayoutId
     this._errors = settings.errors
 
     this.setSortOrder(settings.sortOrder)
@@ -296,6 +298,10 @@ export default Settings.extend({
 
   getId () {
     return this._id
+  },
+
+  getFieldLayoutId () {
+    return this._fieldLayoutId
   },
 
   isNew () {

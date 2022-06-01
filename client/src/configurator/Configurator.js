@@ -72,25 +72,19 @@ export default Garnish.Base.extend({
         maxChildBlocks: btInfo.maxChildBlocks,
         topLevel: btInfo.topLevel,
         errors: btInfo.errors,
+        fieldLayoutId: btInfo.fieldLayoutId,
         childBlockTypes: existingItems.filter(item => item instanceof BlockType)
-      })
-
-      const btFieldLayout = new BlockTypeFieldLayout({
-        namespace: [...btNamespace, btInfo.id],
-        html: btInfo.fieldLayoutHtml,
-        id: btInfo.fieldLayoutId,
-        blockTypeId: btInfo.id
       })
 
       const blockType = new BlockType({
         namespace: btNamespace,
-        settings: btSettings,
-        fieldLayout: btFieldLayout
+        settings: btSettings
       })
 
       blockType.on('copy.configurator', () => this._copyBlockType(blockType))
       blockType.on('paste.configurator', () => this._pasteBlockType())
       blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType))
+      blockType.on('loadFieldLayout.configurator', () => this._addFieldLayout(blockType.getFieldLayout()))
       existingItems.push(blockType)
     }
 
@@ -157,8 +151,7 @@ export default Garnish.Base.extend({
     item.on('destroy.configurator', () => this.removeItem(item, false))
 
     if (item instanceof BlockType) {
-      const fieldLayout = item.getFieldLayout()
-      if (fieldLayout) this.$fieldLayoutContainer.append(fieldLayout.$container)
+      this._addFieldLayout(item.getFieldLayout())
     }
 
     this._items.push(item)
@@ -175,6 +168,12 @@ export default Garnish.Base.extend({
       item: item,
       index: index
     })
+  },
+
+  _addFieldLayout (fieldLayout) {
+    if (fieldLayout) {
+      this.$fieldLayoutContainer.append(fieldLayout.$container)
+    }
   },
 
   removeItem (item, showConfirm) {

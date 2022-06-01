@@ -3,6 +3,7 @@
 namespace benf\neo\controllers;
 
 use benf\neo\elements\Block;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\models\FieldLayout;
 use craft\web\Controller;
@@ -18,7 +19,7 @@ use yii\web\Response;
 class Configurator extends Controller
 {
     /**
-     * Renders field layout designers for pasted or cloned block types.
+     * Renders field layout designers for block types.
      *
      * @return Response
      */
@@ -28,16 +29,14 @@ class Configurator extends Controller
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
-        $config = $request->getRequiredBodyParam('layout');
-        $fieldLayout = FieldLayout::createFromConfig($config);
+        $id = $request->getBodyParam('layoutId');
+        $config = $request->getBodyParam('layout');
 
-        $view = Craft::$app->getView();
-        $view->startJsBuffer();
-        $html = $view->renderTemplate('_includes/fieldlayoutdesigner', [
-            'fieldLayout' => $fieldLayout ?? new FieldLayout(['type' => Block::class]),
-            'customizableUi' => true,
-        ]);
-        $view->clearJsBuffer();
+        // Prioritise the config
+        $fieldLayout = $config
+            ? FieldLayout::createFromConfig($config)
+            : ($id ? Craft::$app->getFields()->getLayoutById($id) : new FieldLayout(['type' => Block::class]));
+        $html = Neo::$plugin->blockTypes->renderFieldLayoutDesigner($fieldLayout);
 
         return $this->asJson([
             'success' => true,

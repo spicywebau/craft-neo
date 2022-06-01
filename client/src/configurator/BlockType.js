@@ -3,6 +3,7 @@ import Craft from 'craft'
 import Garnish from 'garnish'
 import Item from './Item'
 import NS from '../namespace'
+import BlockTypeFieldLayout from './BlockTypeFieldLayout'
 
 const _defaults = {
   namespace: [],
@@ -72,6 +73,33 @@ export default Item.extend({
     return this._fieldLayout
   },
 
+  loadFieldLayout () {
+    if (this._fieldLayout) {
+      // Already loaded
+      return
+    }
+
+    const settings = this.getSettings()
+    const layoutId = settings.getFieldLayoutId()
+    const data = { layoutId }
+
+    Craft.queue.push(() => new Promise((resolve, reject) => {
+      Craft.sendActionRequest('POST', 'neo/configurator/render-field-layout', { data })
+        .then(response => {
+          this._fieldLayout = new BlockTypeFieldLayout({
+            namespace: [...this._templateNs, this._id],
+            html: response.data.html,
+            id: layoutId,
+            blockTypeId: settings.getId()
+          })
+
+          this.trigger('loadFieldLayout')
+          resolve()
+        })
+        .catch(reject)
+    }))
+  },
+
   toggleSelect: function (select) {
     this.base(select)
 
@@ -85,6 +113,8 @@ export default Item.extend({
 
     if (fieldLayout) {
       fieldLayout.$container.toggleClass('hidden', !selected)
+    } else if (selected) {
+      this.loadFieldLayout()
     }
 
     this.$container.toggleClass('is-selected', selected)

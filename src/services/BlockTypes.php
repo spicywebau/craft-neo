@@ -591,6 +591,27 @@ class BlockTypes extends Component
     }
 
     /**
+     * Renders a field layout designer for a Neo block type.
+     *
+     * @param FieldLayout|null $fieldLayout
+     * @return string
+     */
+    public function renderFieldLayoutDesigner(FieldLayout $fieldLayout): string
+    {
+        $view = Craft::$app->getView();
+
+        // Render the field layout designer HTML, but disregard any JavaScript it outputs, as that'll be handled by Neo
+        $view->startJsBuffer();
+        $html = $view->renderTemplate('_includes/fieldlayoutdesigner', [
+            'fieldLayout' => $fieldLayout,
+            'customizableUi' => true,
+        ]);
+        $view->clearJsBuffer();
+
+        return $html;
+    }
+
+    /**
      * Returns all the block types.
      *
      * @return BlockType[]
