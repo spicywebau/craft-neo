@@ -54,6 +54,16 @@
     },
 } %}
 
+{% set blockTypeHandleLabel %}{% if currentUser.getPreference('showFieldHandles') %}
+    <div class="ni_block_topbar_item handle" data-neo-b="{{ blockId }}.container.handle">
+        {% include '_includes/forms/copytextbtn' with {
+            id: "#{handle}-blocks-#{blockId}-#{type.handle}-attribute",
+            class: ['code', 'small', 'light'],
+            value: type.handle,
+        } %}
+    </div>
+{% endif %}{% endset %}
+
 <div {{ attr(blockAttributes) }}>
     {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': blockId ~ '.input.type'}) }}
     {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '', {'data-neo-b': blockId ~ '.input.enabled'}) }}
@@ -66,10 +76,13 @@
             <div class="ni_block_topbar_item" data-neo-b="{{ blockId }}.select">
                 <div class="checkbox block-checkbox" title="{{ "Select"|t('neo') }}" aria-label="{{ 'Select'|t('neo') }}"></div>
             </div>
-            <div class="ni_block_topbar_item title clip-text">
+            <div class="ni_block_topbar_item title">
                 <span class="blocktype" data-neo-b="{{ blockId }}.select">{{ type.name }}</span>{#
-                #}{% if block.hasErrors() %}<span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}{#
-                #}<span class="preview" data-neo-b="{{ blockId }}.container.preview">&nbsp;</span>
+                #}{% if block.hasErrors() %}<span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
+            </div>
+            {{ blockTypeHandleLabel }}
+            <div class="ni_block_topbar_item preview-container clip-text">
+                <span class="preview" data-neo-b="{{ blockId }}.container.preview">&nbsp;</span>
             </div>
         </div>
         <div class="ni_block_topbar_right" data-neo-b="{{ blockId }}.container.topbarRight">

@@ -143,7 +143,16 @@ $topbar-background-color-transparent: #ebf2fa00;
                             color: #da5a47;
                         }
                     }
+                }
 
+                &.handle {
+                    > .copytextbtn {
+                        height: 20px;
+                        transform: translateY(-2px);
+                    }
+                }
+
+                &.preview-container {
                     .preview {
                         pointer-events: none; // Allow the double-click expand/collapse work it's magic
                         position: absolute;

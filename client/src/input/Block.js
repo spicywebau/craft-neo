@@ -17,7 +17,8 @@ const _defaults = {
   enabled: true,
   collapsed: false,
   modified: true,
-  showButtons: true
+  showButtons: true,
+  showBlockTypeHandle: false
 }
 
 const _resources = {}
@@ -81,7 +82,9 @@ export default Garnish.Base.extend({
     this._modified = settings.modified
     this._showButtons = settings.showButtons
     this._renderOldChildBlocksContainer = !settings.blockType.hasChildBlocksUiElement()
-    this.$container = generateElement ? this._generateElement() : $(`[data-neo-b-id=${this._id}]`)
+    this.$container = generateElement
+      ? this._generateElement(settings.showBlockTypeHandle)
+      : $(`[data-neo-b-id=${this._id}]`)
 
     const $neo = this.$container.find('[data-neo-b]')
     this.$bodyContainer = $neo.filter(`[data-neo-b="${this._id}.container.body"]`)
@@ -94,6 +97,7 @@ export default Garnish.Base.extend({
     this.$topbarContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbar"]`)
     this.$topbarLeftContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarLeft"]`)
     this.$topbarRightContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarRight"]`)
+    this.$handleContainer = $neo.filter(`[data-neo-b="${this._id}.container.handle"]`)
     this.$tabsContainer = $neo.filter(`[data-neo-b="${this._id}.container.tabs"]`)
     this.$tabContainer = this.$contentContainer.children('[data-layout-tab]')
     this.$menuContainer = $neo.filter(`[data-neo-b="${this._id}.container.menu"]`)
@@ -132,9 +136,10 @@ export default Garnish.Base.extend({
     this.addListener(this.$topbarContainer, 'dblclick', '@doubleClickTitle')
   },
 
-  _generateElement () {
+  _generateElement (showHandle = false) {
     NS.enter(this._templateNs)
     const baseInputName = NS.toFieldName()
+    const baseInputId = NS.toString('-')
     NS.leave()
 
     const type = this._blockType
@@ -158,8 +163,11 @@ export default Garnish.Base.extend({
             <div class="ni_block_topbar_item" data-neo-b="${this._id}.select">
               <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')} aria-label="${Craft.t('neo', 'Select')}"></div>
             </div>
-            <div class="ni_block_topbar_item title clip-text">
-              <span class="blocktype" data-neo-b="${this._id}.select">${type.getName()}</span><span class="preview" data-neo-b="${this._id}.container.preview">&nbsp;</span>
+            <div class="ni_block_topbar_item title">
+              <span class="blocktype" data-neo-b="${this._id}.select">${type.getName()}</span>
+            </div>
+            <div class="ni_block_topbar_item preview-container clip-text">
+              <span class="preview" data-neo-b="${this._id}.container.preview">&nbsp;</span>
             </div>
           </div>
           <div class="ni_block_topbar_right" data-neo-b="${this._id}.container.topbarRight">
@@ -281,7 +289,21 @@ export default Garnish.Base.extend({
     elementHtml.push(`
       <div data-neo="container.buttons"></div>`)
 
-    return $(elementHtml.join(''))
+    const $elementHtml = $(elementHtml.join(''))
+
+    if (showHandle) {
+      $('<div/>')
+        .addClass('ni_block_topbar_item handle')
+        .prop('data-neo-b', `${this._id}.container.handle`)
+        .append(Craft.ui.createCopyTextBtn({
+          id: `${baseInputId}-${type.getHandle()}-attribute`,
+          class: ['code', 'small', 'light'],
+          value: type.getHandle()
+        }))
+        .insertAfter($elementHtml.find('.ni_block_topbar_item.title'))
+    }
+
+    return $elementHtml
   },
 
   initUi (callInitUiElements = true) {
@@ -920,12 +942,16 @@ export default Garnish.Base.extend({
   },
 
   updateResponsiveness () {
-    this._topbarLeftWidth ??= this.$topbarLeftContainer.width() - (this._expanded ? 0 : this.$previewContainer.width())
+    const isMobileBrowser = Garnish.isMobileBrowser()
+    this._topbarLeftWidth ??= this.$topbarLeftContainer.width() -
+      (this._expanded ? 0 : this.$previewContainer.width()) -
+      (isMobileBrowser ? this.$handleContainer.width() : 0)
     this._topbarRightWidth ??= this.$topbarRightContainer.width()
-    const isMobile = this.$topbarContainer.width() < this._topbarLeftWidth + this._topbarRightWidth
+    const hasRoomForIndividualTabs = this.$topbarContainer.width() < this._topbarLeftWidth + this._topbarRightWidth
 
-    this.$tabsContainer.toggleClass('invisible', isMobile)
-    this.$tabsButton.toggleClass('invisible', !isMobile)
+    this.$handleContainer.toggleClass('hidden', isMobileBrowser)
+    this.$tabsContainer.toggleClass('invisible', hasRoomForIndividualTabs)
+    this.$tabsButton.toggleClass('invisible', !hasRoomForIndividualTabs)
   },
 
   updateActionsMenu () {

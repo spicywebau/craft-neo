@@ -42,6 +42,7 @@ export default Garnish.Base.extend({
     this._maxTopBlocks = settings.maxTopBlocks
     this._maxLevels = settings.maxLevels
     this._ownerId = null
+    this._showBlockTypeHandles = settings.showBlockTypeHandles
 
     const ownerIdElement = $('[name="setId"], [name="entryId"], [name="categoryId"]')
     if (ownerIdElement.length) {
@@ -698,7 +699,8 @@ export default Garnish.Base.extend({
             buttons: newButtons,
             enabled: !!renderedBlock.enabled,
             collapsed: !!renderedBlock.collapsed,
-            showButtons: !this.atMaxLevels(renderedBlock.level | 0)
+            showButtons: !this.atMaxLevels(renderedBlock.level | 0),
+            showBlockTypeHandle: this._showBlockTypeHandles
           }, true)
 
           newBlocks.push(newBlock)
@@ -747,7 +749,8 @@ export default Garnish.Base.extend({
         items: e.blockType.getChildBlockItems(this.getItems()),
         maxBlocks: this.getMaxBlocks()
       }),
-      showButtons: !this.atMaxLevels(e.level)
+      showButtons: !this.atMaxLevels(e.level),
+      showBlockTypeHandle: this._showBlockTypeHandles
     }, true)
 
     this.addBlock(block, e.index, e.level)
