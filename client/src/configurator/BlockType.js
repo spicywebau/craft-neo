@@ -76,14 +76,14 @@ export default Item.extend({
   loadFieldLayout () {
     if (this._fieldLayout) {
       // Already loaded
-      return
+      return Promise.resolve()
     }
 
     const settings = this.getSettings()
     const layoutId = settings.getFieldLayoutId()
     const data = { layoutId }
 
-    Craft.queue.push(() => new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       Craft.sendActionRequest('POST', 'neo/configurator/render-field-layout', { data })
         .then(response => {
           this._fieldLayout = new BlockTypeFieldLayout({
@@ -97,7 +97,7 @@ export default Item.extend({
           resolve()
         })
         .catch(reject)
-    }))
+    })
   },
 
   toggleSelect: function (select) {

@@ -333,39 +333,42 @@ export default Garnish.Base.extend({
         sortOrder: this._items.length,
         topLevel: oldSettings.getTopLevel()
       })
-      const config = oldBlockType.getFieldLayout().getConfig()
 
-      if (config.tabs.length > 0) {
-        const data = {
-          layout: config
-        }
-        const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
-        this._insertAt($spinner, selectedIndex)
+      oldBlockType.loadFieldLayout()
+        .then(() => {
+          const layout = oldBlockType.getFieldLayout().getConfig()
 
-        Craft.queue.push(() => new Promise((resolve, reject) => {
-          Craft.sendActionRequest('POST', 'neo/configurator/render-field-layout', { data })
-            .then(response => {
-              const fieldLayout = new BlockTypeFieldLayout({
-                blockTypeId: id,
-                html: response.data.success ? response.data.html : this._getNewFieldLayoutHtml(),
-                namespace: [...namespace, id]
-              })
+          if (layout.tabs.length > 0) {
+            const data = { layout }
+            const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
+            this._insertAt($spinner, selectedIndex)
 
-              this.$blockTypesContainer.find('.type-spinner').remove()
-              this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
-              resolve()
+            Craft.queue.push(() => new Promise((resolve, reject) => {
+              Craft.sendActionRequest('POST', 'neo/configurator/render-field-layout', { data })
+                .then(response => {
+                  const fieldLayout = new BlockTypeFieldLayout({
+                    blockTypeId: id,
+                    html: response.data.html,
+                    namespace: [...namespace, id]
+                  })
+
+                  this.$blockTypesContainer.find('.type-spinner').remove()
+                  this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
+                  resolve()
+                })
+                .catch(reject)
+            }))
+          } else {
+            const fieldLayout = new BlockTypeFieldLayout({
+              blockTypeId: id,
+              html: this._getNewFieldLayoutHtml(),
+              namespace: [...namespace, id]
             })
-            .catch(reject)
-        }))
-      } else {
-        const fieldLayout = new BlockTypeFieldLayout({
-          blockTypeId: id,
-          html: this._getNewFieldLayoutHtml(),
-          namespace: [...namespace, id]
-        })
 
-        this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
-      }
+            this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
+          }
+        })
+        .catch(() => Craft.cp.displayError(Craft.t('neo', 'Couldn’t create new block type.')))
     }
   },
 
@@ -382,20 +385,24 @@ export default Garnish.Base.extend({
   },
 
   _copyBlockType (blockType) {
-    const settings = blockType.getSettings()
-    const data = {
-      childBlocks: settings.getChildBlocks(),
-      handle: settings.getHandle(),
-      layout: blockType.getFieldLayout().getConfig(),
-      maxBlocks: settings.getMaxBlocks(),
-      maxChildBlocks: settings.getMaxChildBlocks(),
-      maxSiblingBlocks: settings.getMaxSiblingBlocks(),
-      name: settings.getName(),
-      topLevel: settings.getTopLevel()
-    }
+    blockType.loadFieldLayout()
+      .then(() => {
+        const settings = blockType.getSettings()
+        const data = {
+          childBlocks: settings.getChildBlocks(),
+          handle: settings.getHandle(),
+          layout: blockType.getFieldLayout().getConfig(),
+          maxBlocks: settings.getMaxBlocks(),
+          maxChildBlocks: settings.getMaxChildBlocks(),
+          maxSiblingBlocks: settings.getMaxSiblingBlocks(),
+          name: settings.getName(),
+          topLevel: settings.getTopLevel()
+        }
 
-    window.localStorage.setItem('neo:copyBlockType', JSON.stringify(data))
-    this.getBlockTypes().forEach(bt => bt.$actionsMenu.find('[data-action="paste"]').parent().removeClass('disabled'))
+        window.localStorage.setItem('neo:copyBlockType', JSON.stringify(data))
+        this.getBlockTypes().forEach(bt => bt.$actionsMenu.find('[data-action="paste"]').parent().removeClass('disabled'))
+      })
+      .catch(() => Craft.cp.displayError(Craft.t('neo', 'Couldn’t copy block type.')))
   },
 
   _pasteBlockType () {

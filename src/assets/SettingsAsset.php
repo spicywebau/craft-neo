@@ -90,6 +90,8 @@ class SettingsAsset extends AssetBundle
             'Group',
             'Settings',
             'Field Layout',
+            'Couldn’t copy block type.',
+            'Couldn’t create new block type.',
         ]);
 
         parent::registerAssetFiles($view);
