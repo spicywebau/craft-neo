@@ -357,7 +357,8 @@ export default Garnish.Base.extend({
         namespace: [...namespace, id],
         sortOrder: this._items.length,
         topLevel: oldSettings.getTopLevel(),
-        html: this._getNewBlockTypeSettingsJs(id)
+        html: this._getNewBlockTypeSettingsHtml(id, selectedIndex),
+        js: this._getNewBlockTypeSettingsJs(id)
       })
       const config = oldBlockType.getFieldLayout().getConfig()
 
