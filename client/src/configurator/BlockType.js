@@ -79,6 +79,7 @@ export default Item.extend({
       return Promise.resolve()
     }
 
+    this.trigger('beforeLoadFieldLayout')
     const settings = this.getSettings()
     const layoutId = settings.getFieldLayoutId()
     const data = { layoutId }
@@ -93,7 +94,7 @@ export default Item.extend({
             blockTypeId: settings.getId()
           })
 
-          this.trigger('loadFieldLayout')
+          this.trigger('afterLoadFieldLayout')
           resolve()
         })
         .catch(reject)

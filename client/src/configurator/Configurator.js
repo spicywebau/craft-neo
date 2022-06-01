@@ -84,7 +84,13 @@ export default Garnish.Base.extend({
       blockType.on('copy.configurator', () => this._copyBlockType(blockType))
       blockType.on('paste.configurator', () => this._pasteBlockType())
       blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType))
-      blockType.on('loadFieldLayout.configurator', () => this._addFieldLayout(blockType.getFieldLayout()))
+      blockType.on('beforeLoadFieldLayout.configurator', () => this.$fieldLayoutContainer.append(
+        $('<span class="spinner"/></span>')
+      ))
+      blockType.on('afterLoadFieldLayout.configurator', () => {
+        this.$fieldLayoutContainer.children('.spinner').remove()
+        this._addFieldLayout(blockType.getFieldLayout())
+      })
       existingItems.push(blockType)
     }
 
@@ -333,6 +339,8 @@ export default Garnish.Base.extend({
         sortOrder: this._items.length,
         topLevel: oldSettings.getTopLevel()
       })
+      const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
+      this._insertAt($spinner, selectedIndex)
 
       oldBlockType.loadFieldLayout()
         .then(() => {
@@ -340,8 +348,6 @@ export default Garnish.Base.extend({
 
           if (layout.tabs.length > 0) {
             const data = { layout }
-            const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
-            this._insertAt($spinner, selectedIndex)
 
             Craft.queue.push(() => new Promise((resolve, reject) => {
               Craft.sendActionRequest('POST', 'neo/configurator/render-field-layout', { data })
@@ -365,6 +371,7 @@ export default Garnish.Base.extend({
               namespace: [...namespace, id]
             })
 
+            this.$blockTypesContainer.find('.type-spinner').remove()
             this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
           }
         })
