@@ -125,6 +125,7 @@ class SettingsAsset extends AssetBundle
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
+            [$blockTypeSettingsHtml, $blockTypeSettingsJs] = self::_renderBlockTypeSettings($blockType);
             $jsBlockTypes[] = [
                 'id' => $blockType->id,
                 'sortOrder' => $blockType->sortOrder,
