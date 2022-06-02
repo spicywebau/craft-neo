@@ -17,6 +17,8 @@ const _defaults = {
   namespace: [],
   blockTypes: [],
   groups: [],
+  blockTypeSettingsHtml: '',
+  blockTypeSettingsJs: '',
   fieldLayoutHtml: ''
 }
 
@@ -33,6 +35,8 @@ export default Garnish.Base.extend({
     this.$container = $field.children('.field').children('.input')
 
     this._templateNs = NS.parse(settings.namespace)
+    this._blockTypeSettingsHtml = settings.blockTypeSettingsHtml
+    this._blockTypeSettingsJs = settings.blockTypeSettingsJs
     this._fieldLayoutHtml = settings.fieldLayoutHtml
     this._items = []
 
@@ -71,6 +75,8 @@ export default Garnish.Base.extend({
         maxSiblingBlocks: btInfo.maxSiblingBlocks,
         maxChildBlocks: btInfo.maxChildBlocks,
         topLevel: btInfo.topLevel,
+        html: btInfo.settingsHtml,
+        js: btInfo.settingsJs,
         errors: btInfo.errors,
         childBlockTypes: existingItems.filter(item => item instanceof BlockType)
       })
@@ -149,7 +155,13 @@ export default Garnish.Base.extend({
     this._insertAt(item.$container, index)
     this._itemSort.addItems(item.$container)
 
-    if (settings) this.$settingsContainer.append(settings.$container)
+    if (settings) {
+      this.$settingsContainer.append(settings.$container)
+
+      if (item instanceof BlockType) {
+        settings.initUi()
+      }
+    }
 
     this.$mainContainer.removeClass('hidden')
 
@@ -273,6 +285,16 @@ export default Garnish.Base.extend({
     this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout')
   },
 
+  _getNewBlockTypeSettingsHtml (blockTypeId, sortOrder) {
+    return this._blockTypeSettingsHtml
+      .replace(/__NEOBLOCKTYPE_ID__/g, blockTypeId)
+      .replace(/__NEOBLOCKTYPE_SORTORDER__/, sortOrder)
+  },
+
+  _getNewBlockTypeSettingsJs (blockTypeId) {
+    return this._blockTypeSettingsJs.replace(/__NEOBLOCKTYPE_ID__/g, blockTypeId)
+  },
+
   _getNewFieldLayoutHtml () {
     return this._fieldLayoutHtml.replace(
       /&quot;uid&quot;:&quot;([a-f0-9-]+)&quot;/,
@@ -308,7 +330,9 @@ export default Garnish.Base.extend({
         childBlockTypes: this.getBlockTypes(),
         id: id,
         namespace: [...namespace, id],
-        sortOrder: this._items.length
+        sortOrder: this._items.length,
+        html: this._getNewBlockTypeSettingsHtml(id, selectedIndex),
+        js: this._getNewBlockTypeSettingsJs(id)
       })
       const fieldLayout = new BlockTypeFieldLayout({
         blockTypeId: id,
@@ -332,7 +356,9 @@ export default Garnish.Base.extend({
         description: oldSettings.getDescription(),
         namespace: [...namespace, id],
         sortOrder: this._items.length,
-        topLevel: oldSettings.getTopLevel()
+        topLevel: oldSettings.getTopLevel(),
+        html: this._getNewBlockTypeSettingsHtml(id, selectedIndex),
+        js: this._getNewBlockTypeSettingsJs(id)
       })
       const config = oldBlockType.getFieldLayout().getConfig()
 

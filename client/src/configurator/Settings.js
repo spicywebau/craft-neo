@@ -28,6 +28,7 @@ export default Garnish.Base.extend({
   },
 
   destroy () {
+    this.$foot?.remove()
     this.trigger('destroy')
   },
 
