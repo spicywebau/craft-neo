@@ -5,6 +5,11 @@
 ### Changed
 - Neo input blocks now show the block type's handle next to the name on desktops/tablets, for users who have their 'Show field handles in edit forms' user setting enabled
 
+## 3.0.6 - 2022-06-02
+
+### Fixed
+- Fixed a bug where block type groups that only contained non-top-level block types were displaying as a disabled dropdown at the top level on Neo input fields
+
 ## 3.0.5 - 2022-05-24
 
 ### Added
