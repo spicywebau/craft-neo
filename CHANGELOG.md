@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where block type groups that only contained non-top-level block types were displaying as a disabled dropdown at the top level on Neo input fields
+
 ## 3.0.5 - 2022-05-24
 
 ### Added
