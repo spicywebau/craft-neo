@@ -2,8 +2,12 @@
 
 ## Unreleased
 
+### Added
+- Added `benf\neo\services\BlockTypes::renderFieldLayoutDesigner()`
+
 ### Changed
 - Neo block type settings are now rendered in PHP/Twig instead of JavaScript
+- When editing a Neo field's settings, the existing block types' field layout designers are now lazy loaded
 - Neo input blocks now show the block type's handle next to the name on desktops/tablets, for users who have their 'Show field handles in edit forms' user setting enabled
 
 ## 3.0.6 - 2022-06-02

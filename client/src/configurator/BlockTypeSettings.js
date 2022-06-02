@@ -8,6 +8,7 @@ const _defaults = {
   namespace: [],
   id: null,
   sortOrder: 0,
+  fieldLayoutId: null,
   name: '',
   handle: '',
   description: '',
@@ -43,6 +44,7 @@ export default Settings.extend({
     this._childBlockTypes = []
     this._childBlocks = settings.childBlocks
     this._id = settings.id
+    this._fieldLayoutId = settings.fieldLayoutId
     this._errors = settings.errors
     this._js = settings.js
     this._settingsChildBlockTypes = settings.childBlockTypes
@@ -143,6 +145,10 @@ export default Settings.extend({
 
   getId () {
     return this._id
+  },
+
+  getFieldLayoutId () {
+    return this._fieldLayoutId
   },
 
   isNew () {

@@ -70,6 +70,8 @@ return [
     'The maximum level that blocks in this field can be nested.' => 'The maximum level that blocks in this field can be nested.',
     '{attribute} blocks must not be nested deeper than level {maxLevels, number}.' => '{attribute} blocks must not be nested deeper than level {maxLevels, number}.',
     '{attribute} should contain at most {maxBlockTypeBlocks, number} {maxBlockTypeBlocks, plural, one{block} other{blocks}} of type {blockType}.' => '{attribute} should contain at most {maxBlockTypeBlocks, number} {maxBlockTypeBlocks, plural, one{block} other{blocks}} of type {blockType}.',
+    'Couldn’t copy block type.' => 'Couldn’t copy block type.',
+    'Couldn’t create new block type.' => 'Couldn’t create new block type.',
     'This field is currently of the Neo type. You may automatically convert it to Matrix along with all of its content.' => 'This field is currently of the Neo type. You may automatically convert it to Matrix along with all of its content.',
     'Convert' => 'Convert',
     'By converting to Matrix, structural information will be lost.' => 'By converting to Matrix, structural information will be lost.',

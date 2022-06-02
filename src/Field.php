@@ -240,6 +240,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function setBlockTypes(array $blockTypes)
     {
         $fieldsService = Craft::$app->getFields();
+        $request = Craft::$app->getRequest();
         $newBlockTypes = [];
 
         foreach ($blockTypes as $blockTypeId => $blockType) {
@@ -266,7 +267,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                         $newBlockType->setFieldLayout($fieldLayout);
                         $newBlockType->fieldLayoutId = $fieldLayout->id;
                     }
-                } else {
+                } elseif ($request->getBodyParam('neoBlockType' . (string)$blockTypeId) !== null) {
                     // Otherwise, check for a field layout in the POST data
                     $fieldLayout = $fieldsService->assembleLayoutFromPost('neoBlockType' . (string)$blockTypeId);
                     $fieldLayout->type = Block::class;
@@ -291,6 +292,21 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
                     $newBlockType->setFieldLayout($fieldLayout);
                     $newBlockType->fieldLayoutId = $fieldLayout->id;
+                } else {
+                    // No field layout data was sent, which means this is an existing block type whose field layout
+                    // designer was never loaded, and therefore no changes were made to any field layout the block type
+                    // already has
+                    $fieldLayoutId = (new Query())
+                        ->select(['fieldLayoutId'])
+                        ->from('{{%neoblocktypes}}')
+                        ->where(['id' => $blockTypeId])
+                        ->scalar();
+
+                    if ($fieldLayoutId) {
+                        $fieldLayout = $fieldsService->getLayoutById($fieldLayoutId);
+                        $newBlockType->setFieldLayout($fieldLayout);
+                        $newBlockType->fieldLayoutId = $fieldLayoutId;
+                    }
                 }
             }
 

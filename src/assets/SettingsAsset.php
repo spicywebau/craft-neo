@@ -78,6 +78,8 @@ class SettingsAsset extends AssetBundle
             'Always Show Dropdown?',
             'Whether to show the dropdown for this group if it only has one available block type.',
             'Delete group',
+            'Couldn’t copy block type.',
+            'Couldn’t create new block type.',
         ]);
 
         parent::registerAssetFiles($view);
@@ -94,7 +96,7 @@ class SettingsAsset extends AssetBundle
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
         [$blockTypeSettingsHtml, $blockTypeSettingsJs] = self::_renderBlockTypeSettings();
-        $fieldLayoutHtml = self::_renderFieldLayoutHtml();
+        $fieldLayoutHtml = Neo::$plugin->blockTypes->renderFieldLayoutDesigner(new FieldLayout(['type' => Block::class]));
 
         $jsSettings = [
             'namespace' => Craft::$app->getView()->getNamespace(),
@@ -123,14 +125,7 @@ class SettingsAsset extends AssetBundle
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
-            [$blockTypeSettingsHtml, $blockTypeSettingsJs] = self::_renderBlockTypeSettings($blockType);
-            $fieldLayout = $blockType->getFieldLayout();
-            $oldNamespace = $view->getNamespace();
-            $view->setNamespace('neoBlockType' . $blockType['id']);
-            $fieldLayoutHtml = self::_renderFieldLayoutHtml($fieldLayout);
-            $view->setNamespace($oldNamespace);
-
-            $jsBlockType = [
+            $jsBlockTypes[] = [
                 'id' => $blockType->id,
                 'sortOrder' => $blockType->sortOrder,
                 'name' => Craft::t('site', $blockType->name),
@@ -142,15 +137,11 @@ class SettingsAsset extends AssetBundle
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
                 'errors' => $blockType->getErrors(),
-                'fieldLayout' => $fieldLayout->getConfig(),
-                'fieldLayoutHtml' => $fieldLayoutHtml,
                 'settingsHtml' => $blockTypeSettingsHtml,
                 'settingsJs' => $blockTypeSettingsJs,
-                'fieldLayoutId' => $fieldLayout->id,
+                'fieldLayoutId' => $blockType->fieldLayoutId,
                 'groupId' => $blockType->groupId,
             ];
-
-            $jsBlockTypes[] = $jsBlockType;
         }
 
         return $jsBlockTypes;
@@ -199,24 +190,5 @@ class SettingsAsset extends AssetBundle
         $view->setNamespace($oldNamespace);
 
         return [$html, $js];
-    }
-
-    /**
-     * @param FieldLayout|null $fieldLayout
-     * @return string
-     */
-    private static function _renderFieldLayoutHtml(?FieldLayout $fieldLayout = null): string
-    {
-        $view = Craft::$app->getView();
-
-        // Render the field layout designer HTML, but disregard any JavaScript it outputs, as that'll be handled by Neo
-        $view->startJsBuffer();
-        $html = $view->renderTemplate('_includes/fieldlayoutdesigner', [
-            'fieldLayout' => $fieldLayout ?? new FieldLayout(['type' => Block::class]),
-            'customizableUi' => true,
-        ]);
-        $view->clearJsBuffer();
-
-        return $html;
     }
 }
