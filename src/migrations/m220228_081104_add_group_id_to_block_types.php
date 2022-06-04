@@ -55,11 +55,19 @@ class m220228_081104_add_group_id_to_block_types extends Migration
                 foreach ($items as $item) {
                     if ($item instanceof BlockTypeGroup) {
                         $currentGroup = $item;
+                        $groupPath = 'neoBlockTypeGroups.' . $item->uid;
+
+                        if ($projectConfig->get($groupPath) === null) {
+                            $projectConfig->set($groupPath, $item->getConfig());
+                        }
                     } else {
-                        $projectConfig->set(
-                            'neoBlockTypes.' . $item->uid . '.group',
-                            $currentGroup ? $currentGroup->uid : null
-                        );
+                        $blockTypePath = 'neoBlockTypes.' . $item->uid;
+
+                        if ($projectConfig->get($blockTypePath) === null) {
+                            $projectConfig->set($blockTypePath, $item->getConfig());
+                        }
+
+                        $projectConfig->set($blockTypePath . '.group', $currentGroup ? $currentGroup->uid : null);
                     }
                 }
             }

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error caused by Neo that occurred when upgrading from Craft 2 to Craft 3
+
 ## 2.13.10 - 2022-05-20
 
 ### Fixed
