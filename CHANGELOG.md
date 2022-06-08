@@ -109,6 +109,11 @@
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
 
+## 2.13.11 - 2022-06-04
+
+### Fixed
+- Fixed an error caused by Neo that occurred when upgrading from Craft 2 to Craft 3
+
 ## 2.13.10 - 2022-05-20
 
 ### Fixed
