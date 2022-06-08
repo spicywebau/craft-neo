@@ -10,6 +10,7 @@ use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
+use Illuminate\Support\Collection;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\base\Model as BaseModel;
@@ -301,12 +302,15 @@ class BlockQuery extends ElementQuery
     /**
      * Sets whether the block query operates on a memoized data set.
      *
-     * @param bool|Block[] $use - Either a boolean to enable/disable, or a dataset to use (which results in enabling)
+     * @param bool|Block[]|Collection $use - Either a boolean to enable/disable, or a dataset to use (which results in enabling)
      */
-    public function useMemoized(bool|array $use = true): void
+    public function useMemoized(bool|array|Collection $use = true): void
     {
         if (is_array($use)) {
             $this->setAllElements($use);
+            $use = true;
+        } elseif ($use instanceof Collection) {
+            $this->setAllElements($use->all());
             $use = true;
         }
 

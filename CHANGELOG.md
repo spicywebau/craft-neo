@@ -9,6 +9,7 @@
 - Neo block type settings are now rendered in PHP/Twig instead of JavaScript
 - When editing a Neo field's settings, the existing block types' field layout designers are now lazy loaded
 - Neo input blocks now show the block type's handle next to the name on desktops/tablets, for users who have their 'Show field handles in edit forms' user setting enabled
+- `benf\neo\elements\Block::useMemoized()` and `benf\neo\elements\db\BlockQuery::useMemoized()` now support being given an `Illuminate\Support\Collection` object
 
 ## 3.0.6 - 2022-06-02
 
