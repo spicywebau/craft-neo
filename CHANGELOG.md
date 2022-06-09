@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Neo block type settings are now rendered in PHP/Twig instead of JavaScript
+
 ## 3.0.5 - 2022-05-24
 
 ### Added
