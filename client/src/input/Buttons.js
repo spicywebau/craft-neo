@@ -51,8 +51,22 @@ export default Garnish.Base.extend({
 
   _generateButtons () {
     const buttonsHtml = []
+    let blockTypesHtml = []
     let currentGroup = null
     let firstButton = true
+
+    const generateGroupDropdown = () => {
+      buttonsHtml.push(`
+          <div class="btn dashed${firstButton ? ' add icon' : ''} menubtn" data-neo-bn="button.group">
+            ${currentGroup.getName()}
+          </div>
+          <div class="menu">
+            <ul>${blockTypesHtml.join('')}
+            </ul>
+          </div>`)
+      firstButton = false
+      blockTypesHtml = []
+    }
 
     buttonsHtml.push(`
       <div class="ni_buttons">
@@ -65,7 +79,7 @@ export default Garnish.Base.extend({
         const iconImage = item.getIcon() ? `<img src="${item.getIcon()}" class="icon">` : ''
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         if (currentGroup !== null) {
-          buttonsHtml.push(`
+          blockTypesHtml.push(`
             <li>
               <a type="button"${titleAttr} data-neo-bn="button.addBlock" data-neo-bn-info="${item.getHandle()}" class="flex neo-add-block-btn">
                 ${iconImage}
@@ -81,10 +95,8 @@ export default Garnish.Base.extend({
           firstButton = false
         }
       } else if (type === 'group') {
-        if (currentGroup !== null) {
-          buttonsHtml.push(`
-          </ul>
-        </div>`)
+        if (currentGroup !== null && blockTypesHtml.length > 0) {
+          generateGroupDropdown()
         }
 
         if (item.isBlank()) {
@@ -96,23 +108,11 @@ export default Garnish.Base.extend({
         } else {
           currentGroup = item
         }
-
-        if (currentGroup !== null) {
-          buttonsHtml.push(`
-        <div class="btn dashed${firstButton ? ' add icon' : ''} menubtn" data-neo-bn="button.group">
-          ${item.getName()}
-        </div>
-        <div class="menu">
-          <ul>`)
-          firstButton = false
-        }
       }
     }
 
-    if (currentGroup !== null) {
-      buttonsHtml.push(`
-            </ul>
-          </div>`)
+    if (currentGroup !== null && blockTypesHtml.length > 0) {
+      generateGroupDropdown()
     }
 
     buttonsHtml.push(`

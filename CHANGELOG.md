@@ -5,6 +5,11 @@
 ### Changed
 - Neo block type settings are now rendered in PHP/Twig instead of JavaScript
 
+## 3.0.6 - 2022-06-02
+
+### Fixed
+- Fixed a bug where block type groups that only contained non-top-level block types were displaying as a disabled dropdown at the top level on Neo input fields
+
 ## 3.0.5 - 2022-05-24
 
 ### Added
@@ -98,6 +103,11 @@
 
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
+
+## 2.13.11 - 2022-06-04
+
+### Fixed
+- Fixed an error caused by Neo that occurred when upgrading from Craft 2 to Craft 3
 
 ## 2.13.10 - 2022-05-20
 

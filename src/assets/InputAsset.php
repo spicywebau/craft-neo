@@ -88,19 +88,6 @@ class InputAsset extends FieldAsset
             'Add a block',
             'Move up',
             'Move down',
-            'Name',
-            'Handle',
-            'Max Blocks',
-            'All',
-            'Child Blocks',
-            'Max Child Blocks',
-            'Top Level',
-            'This can be left blank if you just want an unlabeled separator.',
-            'Block Types',
-            'Block type',
-            'Group',
-            'Settings',
-            'Field Layout',
         ]);
 
         parent::registerAssetFiles($view);

@@ -49,19 +49,12 @@ class SettingsAsset extends AssetBundle
     public function registerAssetFiles($view): void
     {
         $view->registerTranslations('neo', [
-            'Select',
-            'Disabled',
             'Actions',
-            'Collapse',
-            'Expand',
-            'Disable',
-            'Enable',
             'Copy',
             'Paste',
             'Clone',
             'Delete',
             'Reorder',
-            'Add a block',
             'Name',
             'What this block type will be called in the CP.',
             'Handle',
@@ -85,11 +78,6 @@ class SettingsAsset extends AssetBundle
             'Always Show Dropdown?',
             'Whether to show the dropdown for this group if it only has one available block type.',
             'Delete group',
-            'Block Types',
-            'Block type',
-            'Group',
-            'Settings',
-            'Field Layout',
         ]);
 
         parent::registerAssetFiles($view);
