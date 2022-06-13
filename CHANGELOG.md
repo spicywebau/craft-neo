@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.7 - 2022-06-13
 
 ### Fixed
 - Fixed an error that occurred when passing an array of handles to a Neo block query's `type()` method
