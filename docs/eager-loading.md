@@ -86,6 +86,8 @@ Be aware though, every block (include all child blocks) should have the `useMemo
 {% endfor %}
 ```
 
+The `useMemoized` method can be called without passing it an argument, which tells the block to query against an array of blocks without actually giving it the array to use. This is used in cases where the array has already been set. If `useMemoized` is used without the array already being set, the block's `setAllElements` method would need to be called separately, passing it the array. It's definitely recommended to just pass `useMemoized` the array instead, though.
+
 ## Eager loading fields inside Neo blocks
 
 From here on out, eager-loading behaves the same way as the Matrix field type. [Refer to the official Craft documentation](https://docs.craftcms.com/v3/dev/eager-loading-elements.html#eager-loading-elements-related-to-matrix-blocks).
