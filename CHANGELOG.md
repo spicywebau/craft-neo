@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Added
+- Added the `php craft neo/block-type-groups/edit` console command
+- Added `benf\neo\console\controllers\BlockTypeGroupsController`
+- Added `benf\neo\enums\BlockTypeGroupDropdown`
 - Added `benf\neo\services\BlockTypes::renderFieldLayoutDesigner()`
 
 ### Changed

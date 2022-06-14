@@ -6,6 +6,7 @@ use benf\neo\assets\InputAsset;
 use benf\neo\assets\SettingsAsset;
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
+use benf\neo\enums\BlockTypeGroupDropdown;
 use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
 use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
 use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
@@ -356,9 +357,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockTypeGroup->name = $blockTypeGroup['name'];
                 $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
                 $newBlockTypeGroup->alwaysShowDropdown = match ($blockTypeGroup['alwaysShowDropdown']) {
-                    'show' => true,
-                    'hide' => false,
-                    'global' => null,
+                    BlockTypeGroupDropdown::Show => true,
+                    BlockTypeGroupDropdown::Hide => false,
+                    BlockTypeGroupDropdown::Global => null,
                 };
             }
 

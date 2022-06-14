@@ -1,6 +1,18 @@
 # Console Commands
 
-Neo offers two console commands for managing Neo blocks and fields.
+Neo offers console commands for managing Neo blocks, block type groups and fields.
+
+## `neo/block-type-groups/edit`
+
+Edits a Neo block type group.
+
+### Options
+- `--group-id` (required): The ID of the block type group to edit.
+- `--set-name`: A new name to set for the block type group.
+- `--blank-name`: Whether to set a blank name for the block type group.
+- `--dropdown [show|hide|global]`: What behaviour should be used for showing the block type group's dropdown.
+
+Please note that at most one of `--set-name` and `--blank-name` can be specified.
 
 ## `neo/fields/reapply-propagation-method`
 
