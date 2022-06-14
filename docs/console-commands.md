@@ -2,6 +2,14 @@
 
 Neo offers console commands for managing Neo blocks, block type groups and fields.
 
+## `neo/block-type-groups/delete`
+
+Deletes a Neo block type group.
+
+### Options
+- `--group-id` (required): The ID of the block type group to delete.
+- `--delete-block-types`: Delete block types belonging to the block type group. If omitted, the block types will be reassigned to the previous group in the field (if any).
+
 ## `neo/block-type-groups/edit`
 
 Edits a Neo block type group.
