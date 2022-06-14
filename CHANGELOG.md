@@ -14,6 +14,10 @@
 - When editing a Neo field's settings, the existing block types' field layout designers are now lazy loaded
 - Neo input blocks now show the block type's handle next to the name on desktops/tablets, for users who have their 'Show field handles in edit forms' user setting enabled
 - `benf\neo\elements\Block::useMemoized()` and `benf\neo\elements\db\BlockQuery::useMemoized()` now support being given an `Illuminate\Support\Collection` object
+
+### Fixed
+- Fixed a bug where block type groups with blank names would appear in the block type settings sidebar with the name `NULL` when first loading a Neo field settings page
+
 ## 3.0.7 - 2022-06-13
 
 ### Fixed

@@ -36,7 +36,7 @@ export default Item.extend({
   _generateGroup (settings) {
     return $(`
       <div class="nc_sidebar_list_item type-heading">
-        <div class="label" data-neo-g="text.name">${settings.getName()}</div>
+        <div class="label" data-neo-g="text.name">${settings.getName() ?? ''}</div>
         <a class="move icon" title="${Craft.t('neo', 'Reorder')}" role="button" data-neo-g="button.move"></a>
       </div>`)
   },
