@@ -195,10 +195,10 @@ class BlockQuery extends ElementQuery
     /**
      * Filters the query results based on the block type.
      *
-     * @param BlockType|string|null The block type, specified either by a handle or a block type model.
+     * @param BlockType|string[]|string|null The block type(s) to set
      * @return self
      */
-    public function type(BlockType|string|null $value): self
+    public function type(BlockType|array|string|null $value): self
     {
         if ($value instanceof BlockType) {
             $this->typeId = $value->id;
