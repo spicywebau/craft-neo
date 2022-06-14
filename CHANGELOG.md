@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.0 - 2022-06-14
 
 ### Added
 - Added the `php craft neo/block-type-groups/delete` console command
