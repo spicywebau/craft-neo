@@ -17,8 +17,8 @@ Edits a Neo block type group.
 ### Options
 - `--group-id` (required): The ID of the block type group to edit.
 - `--set-name`: A new name to set for the block type group.
-- `--blank-name`: Whether to set a blank name for the block type group.
-- `--dropdown [show|hide|global]`: What behaviour should be used for showing the block type group's dropdown.
+- `--blank-name`: Set a blank name for the block type group.
+- `--dropdown`: What behaviour should be used for showing the block type group's dropdown — either 'show', 'hide', or 'global'.
 
 Please note that at most one of `--set-name` and `--blank-name` can be specified.
 
