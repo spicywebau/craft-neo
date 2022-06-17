@@ -136,8 +136,8 @@
                     <div id="{{ actionMenuId }}" class="menu menu--disclosure" data-neo-b="{{ blockId }}.container.menu">
                         <ul class="padded">
                             {% if hasTabs or isParent %}
-                                <li><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="{{ 'Collapse'|t('neo') }}">{{ 'Collapse'|t('neo') }}</a></li>
-                                <li class="hidden"><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="{{ 'Expand'|t('neo') }}">{{ 'Expand'|t('neo') }}</a></li>
+                                <li{% if block.collapsed %} class="hidden"{% endif %}><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="{{ 'Collapse'|t('neo') }}">{{ 'Collapse'|t('neo') }}</a></li>
+                                <li{% if not block.collapsed %} class="hidden"{% endif %}><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="{{ 'Expand'|t('neo') }}">{{ 'Expand'|t('neo') }}</a></li>
                             {% endif %}
                             <li><a data-icon="disabled" data-action="disable" href="#" type="button" role="button" aria-label="{{ 'Disable'|t('neo') }}">{{ 'Disable'|t('neo') }}</a></li>
                             <li class="hidden"><a data-icon="enabled" data-action="enable" href="#" type="button" role="button" aria-label="{{ 'Enable'|t('neo') }}">{{ 'Enable'|t('neo') }}</a></li>

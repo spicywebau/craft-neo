@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where collapsed Neo blocks had the 'Collapse' action display in the actions menu instead of 'Expand' after saving them
+
 ## 3.1.0 - 2022-06-14
 
 ### Added
