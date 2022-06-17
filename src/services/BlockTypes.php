@@ -652,23 +652,28 @@ class BlockTypes extends Component
      */
     private function _createQuery(): Query
     {
+        $columns = [
+            'id',
+            'fieldId',
+            'fieldLayoutId',
+            'groupId',
+            'name',
+            'handle',
+            'maxBlocks',
+            'maxSiblingBlocks',
+            'maxChildBlocks',
+            'childBlocks',
+            'topLevel',
+            'sortOrder',
+            'uid',
+        ];
+
+        if (Craft::$app->getDb()->columnExists('{{%neoblocktypes}}', 'description')) {
+            $columns[] = 'description';
+        }
+
         return (new Query())
-            ->select([
-                'id',
-                'fieldId',
-                'fieldLayoutId',
-                'groupId',
-                'name',
-                'handle',
-                'description',
-                'maxBlocks',
-                'maxSiblingBlocks',
-                'maxChildBlocks',
-                'childBlocks',
-                'topLevel',
-                'sortOrder',
-                'uid',
-            ])
+            ->select($columns)
             ->from(['{{%neoblocktypes}}'])
             ->orderBy(['sortOrder' => SORT_ASC]);
     }

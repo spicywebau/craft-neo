@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where collapsed Neo blocks had the 'Collapse' action display in the actions menu instead of 'Expand' after saving them
+- Fixed an error that occurred when updating from a Neo version prior to 3.0.4, if a Neo-to-Matrix conversion had been performed in the past
 
 ## 3.1.0 - 2022-06-14
 
