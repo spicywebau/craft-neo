@@ -77,8 +77,14 @@ class BlockTypeGroupsController extends Controller
             return ExitCode::USAGE;
         }
 
-        $projectConfig = Craft::$app->getProjectConfig();
         $group = Neo::$plugin->blockTypes->getGroupById($this->groupId);
+
+        if ($group === null) {
+            $this->stderr('The block type group ID specified does not exist.' . PHP_EOL, Console::FG_RED);
+            return ExitCode::USAGE;
+        }
+
+        $projectConfig = Craft::$app->getProjectConfig();
         $blockTypeUids = (new Query())
             ->select(['uid'])
             ->from('{{%neoblocktypes}}')
@@ -141,8 +147,14 @@ class BlockTypeGroupsController extends Controller
             return ExitCode::USAGE;
         }
 
-        $projectConfig = Craft::$app->getProjectConfig();
         $groupUid = Db::uidById('{{%neoblocktypegroups}}', $this->groupId);
+
+        if ($groupUid === null) {
+            $this->stderr('The block type group ID specified does not exist.' . PHP_EOL, Console::FG_RED);
+            return ExitCode::USAGE;
+        }
+
+        $projectConfig = Craft::$app->getProjectConfig();
         $groupPath = 'neoBlockTypeGroups.' . $groupUid;
         $groupConfig = $projectConfig->get($groupPath);
 
