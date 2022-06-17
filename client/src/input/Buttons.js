@@ -234,7 +234,7 @@ export default Garnish.Base.extend({
   },
 
   updateResponsiveness () {
-    this._buttonsContainerWidth ??= this.$buttonsContainer.width()
+    this._buttonsContainerWidth ||= this.$buttonsContainer.width()
     const isMobile = this.$container.width() < this._buttonsContainerWidth
 
     this.$buttonsContainer.toggleClass('hidden', isMobile)
