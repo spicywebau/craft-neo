@@ -2,6 +2,7 @@
 
 Neo is officially compatible with some other Craft plugins, listed below:
 
+- [Quick Field](https://github.com/spicywebau/craft-quick-field)
 - [CP Field Inspect](https://github.com/mmikkel/CpFieldInspect-Craft)
 - [Field Manager](https://github.com/verbb/field-manager)
 - [Matrix Field Preview](https://github.com/weareferal/craft-matrix-field-preview) (Neo support added in version 1.2.0)

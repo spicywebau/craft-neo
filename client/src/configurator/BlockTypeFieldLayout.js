@@ -1,9 +1,8 @@
 import $ from 'jquery'
-
 import Garnish from 'garnish'
 import Craft from 'craft'
-
 import NS from '../namespace'
+import QuickField from '../plugins/quickfield/QuickField'
 
 const _defaults = {
   namespace: [],
@@ -62,6 +61,8 @@ export default Garnish.Base.extend({
         this.addElementToTab($tab, element)
       }
     }
+
+    this._initQuickFieldPlugin()
   },
 
   getId () {
@@ -214,5 +215,25 @@ export default Garnish.Base.extend({
     })
 
     return tabs
+  },
+
+  _initQuickFieldPlugin () {
+    if (QuickField) {
+      const quickField = new QuickField(this._fld)
+
+      const newGroups = QuickField.getNewGroups()
+      const newFields = QuickField.getNewFields()
+
+      for (const id of Object.keys(newGroups)) {
+        const group = newGroups[id].group
+        quickField.addGroup(group.name, true)
+      }
+
+      for (const id of Object.keys(newFields)) {
+        quickField.addField(newFields[id].field, newFields[id].elementSelector)
+      }
+
+      this._quickField = quickField
+    }
   }
 })
