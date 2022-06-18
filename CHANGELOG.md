@@ -7,6 +7,7 @@
 - Fixed an error that occurred when updating from a Neo version prior to 3.0.4, if a Neo-to-Matrix conversion had been performed in the past
 - Fixed a bug where Neo fields with enough block types / groups that the buttons wouldn't fit within an element editor page container, on non-active tabs when the page loaded, would still show the buttons (overflowing the editor container) instead of a dropdown
 - Fixed an error that occurred when using the `php craft neo/block-type-groups/delete` console command if the block type group ID specified didn't exist
+- Fixed a bug where changes to existing Neo blocks weren't saving for element types that supported drafts but not change tracking
 
 ## 3.1.0 - 2022-06-14
 

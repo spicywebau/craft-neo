@@ -377,7 +377,7 @@ class Fields extends Component
                     if (
                         ElementHelper::isRevision($source) ||
                         !empty($target->newSiteIds) ||
-                        $source->isFieldModified($field->handle, true)
+                        (!$source::trackChanges() || $source->isFieldModified($field->handle, true))
                     ) {
                         $newBlock = $elementsService->updateCanonicalElement($block, $newAttributes);
                     } else {
