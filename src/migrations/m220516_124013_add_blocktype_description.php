@@ -3,7 +3,6 @@
 namespace benf\neo\migrations;
 
 use craft\db\Migration;
-use craft\db\Table;
 
 /**
  * m220516_124013_add_blocktype_description migration.
