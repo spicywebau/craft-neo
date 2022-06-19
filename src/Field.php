@@ -714,7 +714,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             'map' => $map,
             'criteria' => [
                 'fieldId' => $this->id,
-                'primaryOwnerId' => $sourceElementIds,
+                'ownerId' => $sourceElementIds,
+                'allowOwnerDrafts' => true,
+                'allowOwnerRevisions' => true,
             ],
         ];
     }

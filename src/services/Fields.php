@@ -12,6 +12,7 @@ use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
+use craft\db\Table;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
@@ -503,6 +504,7 @@ class Fields extends Component
         $blocksTable = '{{%neoblocks}}';
         $ownersTable = '{{%neoblocks_owners}}';
 
+        // Duplicate into the owners table
         Craft::$app->getDb()->createCommand(<<<SQL
 INSERT INTO $ownersTable ([[blockId]], [[ownerId]], [[sortOrder]]) 
 SELECT [[o.blockId]], '$draft->id', [[o.sortOrder]] 
@@ -511,6 +513,18 @@ INNER JOIN $blocksTable AS [[b]] ON [[b.id]] = [[o.blockId]] AND [[b.primaryOwne
 WHERE [[o.ownerId]] = '$canonical->id'
 SQL
         )->execute();
+
+        // Save the block structure for the draft
+        $structureId = $this->_getStructureId($field, $canonical);
+        $blocks = Block::find()
+            ->ownerId($canonical->id)
+            ->fieldId($field->id)
+            ->siteId('*')
+            ->structureId($structureId)
+            ->unique()
+            ->status(null)
+            ->all();
+        $this->_saveNeoStructuresForSites($field, $draft, $blocks);
     }
 
     /**
@@ -525,15 +539,7 @@ SQL
      */
     public function createRevisionBlocks(Field $field, ElementInterface $canonical, ElementInterface $revision): void
     {
-        $structureId = (new Query())
-            ->select(['nbs.structureId'])
-            ->from(['nbs' => '{{%neoblockstructures}}'])
-            ->where([
-                'ownerId' => $canonical->id,
-                'fieldId' => $field->id,
-            ])
-            ->scalar();
-
+        $structureId = $this->_getStructureId($field, $canonical);
         $blocks = Block::find()
             ->ownerId($canonical->id)
             ->fieldId($field->id)
@@ -981,5 +987,24 @@ SQL
         }
 
         return $this->_searchableBlockTypes[$typeId];
+    }
+
+    /**
+     * Gets a block structure ID.
+     *
+     * @param Field $field
+     * @param ElementInterface $owner
+     * @return int|null
+     */
+    private function _getStructureId(Field $field, ElementInterface $owner): ?int
+    {
+        return (new Query())
+            ->select(['nbs.structureId'])
+            ->from(['nbs' => '{{%neoblockstructures}}'])
+            ->where([
+                'ownerId' => $owner->id,
+                'fieldId' => $field->id,
+            ])
+            ->scalar();
     }
 }

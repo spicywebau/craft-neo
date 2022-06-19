@@ -8,6 +8,8 @@
 - Fixed a bug where Neo fields with enough block types / groups that the buttons wouldn't fit within an element editor page container, on non-active tabs when the page loaded, would still show the buttons (overflowing the editor container) instead of a dropdown
 - Fixed an error that occurred when using the `php craft neo/block-type-groups/delete` console command if the block type group ID specified didn't exist
 - Fixed a bug where changes to existing Neo blocks weren't saving for element types that supported drafts but not change tracking
+- Fixed a bug where unedited Neo blocks weren't being added to their field's block structure for provisional drafts
+- Fixed a bug where `primaryOwnerId` was being set in the eager loading map criteria instead of `ownerId`, causing unedited Neo blocks not to appear in preview mode if the Neo field was eager loaded
 
 ## 3.1.0 - 2022-06-14
 
