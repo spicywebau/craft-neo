@@ -128,6 +128,13 @@ export default Garnish.Base.extend({
 
       const blockTypeHandle = $block.find(`[data-neo-b="${bInfo.id}.input.type"]`).val()
       const blockType = tempBlockTypes[blockTypeHandle]
+
+      // If the block type data isn't there, it's been filtered out and the blocks shouldn't be included
+      if (typeof blockType === 'undefined') {
+        $block.remove()
+        return
+      }
+
       bInfo.blockType = new BlockType({
         id: blockType.getId(),
         fieldLayoutId: blockType.getFieldLayoutId(),

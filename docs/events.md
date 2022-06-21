@@ -24,6 +24,8 @@ Event::on(BlockTypes::class, BlockTypes::EVENT_AFTER_SAVE_BLOCK_TYPE, function (
 
 A `FilterBlockTypesEvent` is triggered for a Neo field when loading a Craft element editor page that includes that field. It allows for filtering which block types or block type groups belonging to that field are allowed to be used, depending on the element being edited.
 
+Note that, if Neo blocks already exist in a context where their block type is filtered out, the blocks won't be rendered on the element editor page, and changes to the block structure will result in the filtered-out block(s) being deleted.
+
 ### Example
 
 This example removes the ability to use a block type with the handle `quote`, and a block type group with the name `Structure`, from a `contentBlocks` Neo field when loading an entry from the `blog` section.
