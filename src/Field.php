@@ -453,7 +453,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function getStaticHtml(mixed $value, ElementInterface $element): string
     {
-        $value = $value->all();
+        $value = $value->status(null)->all();
 
         if (empty($value)) {
             return '<p class="light">' . Craft::t('app', 'No blocks.') . '</p>';
