@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a JavaScript error that occurred when filtering out a Neo block type in a case where the block type was already in use; now, Neo blocks with filtered-out types won't be rendered, and will be deleted if structural changes are made to the Neo field
+- Fixed a JavaScript error that occurred as a result of cloning a block that uses the child blocks UI element
 
 ## 3.1.1 - 2022-06-19
 

@@ -689,6 +689,7 @@ export default Garnish.Base.extend({
             maxChildBlocks: blockType.getMaxChildBlocks(),
             childBlocks: blockType.getChildBlocks(),
             topLevel: blockType.getTopLevel(),
+            hasChildBlocksUiElement: blockType.hasChildBlocksUiElement(),
             tabs: renderedBlock.tabs
           })
 
