@@ -5,6 +5,9 @@
 ### Added
 - Added support for the Craft 3 version of the Quick Field plugin
 
+### Fixed
+- Fixed a bug where Codeception tests of Neo content were failing if the `dbSetup` option's `clean` and `setupCraft` were set to true, due to Neo not finding its block types
+
 ## 2.13.11 - 2022-06-04
 
 ### Fixed
