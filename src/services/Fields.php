@@ -270,10 +270,29 @@ class Fields extends Component
                 $blockIds[] = $block->id;
             }
 
+            // Check if any different block IDs are in the structure compared with what we just saved, which could
+            // happen e.g. when saving a provisional draft
+            $structureId = (new Query())
+                ->select(['structureId'])
+                ->from(['{{%neoblockstructures}}' => 'neoblockstructures'])
+                ->where([
+                    'fieldId' => $field->id,
+                    'ownerId' => $owner->id,
+                    'siteId' => $owner->siteId,
+                ])
+                ->scalar();
+            $oldStructureBlocks = (new Query())
+                ->select(['elementId'])
+                ->from(Table::STRUCTUREELEMENTS)
+                ->where(['structureId' => $structureId])
+                ->andWhere('[[elementId]] IS NOT NULL')
+                ->column();
+            $structureBlocksChanged = !empty(array_diff($oldStructureBlocks, $blockIds));
+
             $this->_deleteOtherBlocks($field, $owner, $blockIds);
 
-            // need to check if the blocks is different e.g any deletions so we can rebuild the structure.
-            if ($this->_rebuildIfDeleted) {
+            // We need to check if the blocks are different e.g any deletions so we can rebuild the structure
+            if ($this->_rebuildIfDeleted || $structureBlocksChanged) {
                 $structureModified = true;
             }
 
