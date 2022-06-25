@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where Codeception tests of Neo content were failing if the `dbSetup` option's `clean` and `setupCraft` were set to true, due to Neo not finding its block types
+- Fixed a bug where eager loaded block children queries could return a non-0 indexed array
 
 ## 2.13.11 - 2022-06-04
 
