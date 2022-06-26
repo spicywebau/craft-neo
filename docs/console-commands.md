@@ -1,6 +1,6 @@
 # Console Commands
 
-Neo offers console commands for managing Neo blocks, block type groups and fields.
+Neo offers console commands for managing Neo blocks, block types, block type groups and fields.
 
 ## `neo/block-type-groups/delete`
 
@@ -21,6 +21,17 @@ Edits a Neo block type group.
 - `--dropdown`: What behaviour should be used for showing the block type group's dropdown — either 'show', 'hide', or 'global'.
 
 Please note that at most one of `--set-name` and `--blank-name` can be specified.
+
+## `neo/block-types/delete`
+
+Deletes a Neo block type.
+
+### Options
+- `--type-id`: The ID of the block type to delete.
+- `--handle`: The handle of the block type to delete.
+- `--field-id`: The field ID of the block type to delete.
+
+One of `--type-id` and `--handle` must be specified, and if `--handle` is specified and the specified handle is used on more than one Neo field, `--field-id` must also be specified.
 
 ## `neo/fields/reapply-propagation-method`
 
