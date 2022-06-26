@@ -274,7 +274,7 @@ class Fields extends Component
             // happen e.g. when saving a provisional draft
             $structureId = (new Query())
                 ->select(['structureId'])
-                ->from(['{{%neoblockstructures}}' => 'neoblockstructures'])
+                ->from(['{{%neoblockstructures}}'])
                 ->where([
                     'fieldId' => $field->id,
                     'ownerId' => $owner->id,

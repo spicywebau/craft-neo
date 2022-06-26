@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug in Neo 3.1.2 where saving an entry would fail if the database table names used a table prefix
+
 ## 3.1.2 - 2022-06-24
 
 ### Fixed
