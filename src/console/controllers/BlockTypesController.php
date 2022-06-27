@@ -35,6 +35,16 @@ class BlockTypesController extends Controller
     public ?string $handle = null;
 
     /**
+     * @var string|null A new name to set for the block type.
+     */
+    public ?string $setName = null;
+
+    /**
+     * @var string|null A new handle to set for the block type.
+     */
+    public ?string $setHandle = null;
+
+    /**
      * @inheritdoc
      */
     public function options($actionID): array
@@ -44,6 +54,11 @@ class BlockTypesController extends Controller
         $options[] = 'typeId';
         $options[] = 'fieldId';
         $options[] = 'handle';
+
+        if ($actionID === 'edit') {
+            $options[] = 'setName';
+            $options[] = 'setHandle';
+        }
 
         return $options;
     }
@@ -64,6 +79,38 @@ class BlockTypesController extends Controller
 
         $this->stdout('Deleting the block type...' . PHP_EOL);
         Craft::$app->getProjectConfig()->remove('neoBlockTypes.' . $blockType->uid);
+        $this->stdout('Done.' . PHP_EOL);
+
+        return ExitCode::OK;
+    }
+
+    /**
+     * Edits a Neo block type.
+     *
+     * @return int
+     */
+    public function actionEdit(): int
+    {
+        try {
+            $blockType = $this->_getBlockType();
+        } catch (BlockTypeNotFoundException $e) {
+            $this->stderr($e->getMessage() . PHP_EOL, Console::FG_RED);
+            return ExitCode::USAGE;
+        }
+
+        $projectConfig = Craft::$app->getProjectConfig();
+        $typePath = 'neoBlockTypes.' . $blockType->uid;
+        $typeConfig = $projectConfig->get($typePath);
+
+        if ($this->setName) {
+            $typeConfig['name'] = $this->setName;
+        }
+
+        if ($this->setHandle) {
+            $typeConfig['handle'] = $this->setHandle;
+        }
+
+        $projectConfig->set($typePath, $typeConfig);
         $this->stdout('Done.' . PHP_EOL);
 
         return ExitCode::OK;
