@@ -281,13 +281,19 @@ class Fields extends Component
                     'siteId' => $owner->siteId,
                 ])
                 ->scalar();
-            $oldStructureBlocks = (new Query())
-                ->select(['elementId'])
-                ->from(Table::STRUCTUREELEMENTS)
-                ->where(['structureId' => $structureId])
-                ->andWhere('[[elementId]] IS NOT NULL')
-                ->column();
-            $structureBlocksChanged = !empty(array_diff($oldStructureBlocks, $blockIds));
+
+            if ($structureId) {
+                $oldStructureBlocks = (new Query())
+                    ->select(['elementId'])
+                    ->from(Table::STRUCTUREELEMENTS)
+                    ->where(['structureId' => $structureId])
+                    ->andWhere('[[elementId]] IS NOT NULL')
+                    ->column();
+                $structureBlocksChanged = !empty(array_diff($oldStructureBlocks, $blockIds));
+            } else {
+                // Fall back to what `$this->_rebuildIfDeleted` ends up being
+                $structureBlocksChanged = false;
+            }
 
             $this->_deleteOtherBlocks($field, $owner, $blockIds);
 
