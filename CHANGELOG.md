@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.4 - 2022-06-27
 
 ### Fixed
 - Fixed an error that could occur when saving a Neo field value if PostgreSQL is being used
