@@ -274,20 +274,26 @@ class Fields extends Component
             // happen e.g. when saving a provisional draft
             $structureId = (new Query())
                 ->select(['structureId'])
-                ->from(['{{%neoblockstructures}}' => 'neoblockstructures'])
+                ->from(['{{%neoblockstructures}}'])
                 ->where([
                     'fieldId' => $field->id,
                     'ownerId' => $owner->id,
                     'siteId' => $owner->siteId,
                 ])
                 ->scalar();
-            $oldStructureBlocks = (new Query())
-                ->select(['elementId'])
-                ->from(Table::STRUCTUREELEMENTS)
-                ->where(['structureId' => $structureId])
-                ->andWhere('[[elementId]] IS NOT NULL')
-                ->column();
-            $structureBlocksChanged = !empty(array_diff($oldStructureBlocks, $blockIds));
+
+            if ($structureId) {
+                $oldStructureBlocks = (new Query())
+                    ->select(['elementId'])
+                    ->from(Table::STRUCTUREELEMENTS)
+                    ->where(['structureId' => $structureId])
+                    ->andWhere('[[elementId]] IS NOT NULL')
+                    ->column();
+                $structureBlocksChanged = !empty(array_diff($oldStructureBlocks, $blockIds));
+            } else {
+                // Fall back to what `$this->_rebuildIfDeleted` ends up being
+                $structureBlocksChanged = false;
+            }
 
             $this->_deleteOtherBlocks($field, $owner, $blockIds);
 

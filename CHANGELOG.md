@@ -6,6 +6,16 @@
 - Added the `php craft neo/block-types/delete` console command
 - Added `benf\neo\console\controllers\BlockTypesController`
 
+## 3.1.4 - 2022-06-27
+
+### Fixed
+- Fixed an error that could occur when saving a Neo field value if PostgreSQL is being used
+
+## 3.1.3 - 2022-06-27
+
+### Fixed
+- Fixed a bug in Neo 3.1.2 where saving an entry would fail if the database table names used a table prefix
+
 ## 3.1.2 - 2022-06-24
 
 ### Fixed
