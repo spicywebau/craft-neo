@@ -6,6 +6,11 @@
 - Added the `php craft neo/block-types/delete` console command
 - Added `benf\neo\console\controllers\BlockTypesController`
 
+## 3.1.5 - 2022-06-28
+
+### Fixed
+- Fixed a bug where unedited Neo blocks were being duplicated in preview mode, when editing a provisional draft, if the blocks were eager loaded
+
 ## 3.1.4 - 2022-06-27
 
 ### Fixed

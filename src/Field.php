@@ -709,12 +709,27 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             ->orderBy(['[[neoblocks_owners.sortOrder]]' => SORT_ASC])
             ->all();
 
+        if (count($sourceElements) === 1) {
+            $structureId = (new Query())
+                ->select(['structureId'])
+                ->from('{{%neoblockstructures}}')
+                ->where([
+                    'fieldId' => $this->id,
+                    'ownerId' => $sourceElementIds[0],
+                    'siteId' => $sourceElements[0]->siteId,
+                ])
+                ->scalar() ?: null;
+        } else {
+            $structureId = null;
+        }
+
         return [
             'elementType' => Block::class,
             'map' => $map,
             'criteria' => [
                 'fieldId' => $this->id,
                 'ownerId' => $sourceElementIds,
+                'structureId' => $structureId,
                 'allowOwnerDrafts' => true,
                 'allowOwnerRevisions' => true,
             ],
