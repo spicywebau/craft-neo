@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where unedited Neo blocks were being duplicated in preview mode, when editing a provisional draft, if the blocks were eager loaded
+
 ## 3.1.4 - 2022-06-27
 
 ### Fixed
