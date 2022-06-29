@@ -6,8 +6,10 @@ use benf\neo\models\BlockType;
 use benf\neo\errors\BlockTypeNotFoundException;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\db\Query;
 use craft\console\Controller;
 use craft\helpers\Console;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use yii\console\ExitCode;
 
@@ -71,6 +73,12 @@ class BlockTypesController extends Controller
     public ?string $setMaxChildBlocks = null;
 
     /**
+     * @var string|null The child block types of this block type, either as a string representing an array of block type
+     * handles, or the string '*' representing all of the Neo field's block types.
+     */
+    public ?string $setChildBlocks = null;
+
+    /**
      * @var bool Whether to set the block type as being allowed at the top level.
      */
     public bool $setTopLevel = false;
@@ -99,6 +107,7 @@ class BlockTypesController extends Controller
             $options[] = 'setMaxBlocks';
             $options[] = 'setMaxSiblingBlocks';
             $options[] = 'setMaxChildBlocks';
+            $options[] = 'setChildBlocks';
             $options[] = 'setTopLevel';
             $options[] = 'unsetTopLevel';
         }
@@ -172,6 +181,36 @@ class BlockTypesController extends Controller
                 $typeConfig[$btProperty] = $this->$setProperty;
             } elseif ($this->$unsetProperty) {
                 $typeConfig[$btProperty] = is_bool($this->$setProperty) ? false : null;
+            }
+        }
+
+        if ($this->setChildBlocks) {
+            $childBlockTypes = Json::decodeIfJson($this->setChildBlocks);
+
+            if (is_array($childBlockTypes)) {
+                if (empty($childBlockTypes)) {
+                    $typeConfig['childBlocks'] = null;
+                } else {
+                    $existingHandles = (new Query())
+                        ->select(['handle'])
+                        ->from(['{{%neoblocktypes}}'])
+                        ->where([
+                            'handle' => $childBlockTypes,
+                            'fieldId' => $blockType->fieldId,
+                        ])
+                        ->column();
+                    $nonExistingHandles = array_diff($childBlockTypes, $existingHandles);
+
+                    if (empty($nonExistingHandles)) {
+                        $typeConfig['childBlocks'] = $childBlockTypes;
+                    } else {
+                        $this->stderr('Invalid handles ' . implode(', ', $nonExistingHandles) . ' given for --set-child-blocks.' . PHP_EOL, Console::FG_RED);
+                    }
+                }
+            } elseif ($childBlockTypes === '*') {
+                $typeConfig['childBlocks'] = $childBlockTypes;
+            } else {
+                $this->stderr('Invalid input given for --set-child-blocks.' . PHP_EOL, Console::FG_RED);
             }
         }
 
