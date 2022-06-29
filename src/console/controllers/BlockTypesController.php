@@ -8,6 +8,7 @@ use benf\neo\Plugin as Neo;
 use Craft;
 use craft\console\Controller;
 use craft\helpers\Console;
+use craft\helpers\StringHelper;
 use yii\console\ExitCode;
 
 /**
@@ -43,6 +44,16 @@ class BlockTypesController extends Controller
      * @var string|null A new handle to set for the block type.
      */
     public ?string $setHandle = null;
+
+    /**
+     * @var string|null A new description to set for the block type.
+     */
+    public ?string $setDescription = null;
+
+    /**
+     * @var bool Whether to remove the block type's description.
+     */
+    public bool $unsetDescription = false;
 
     /**
      * @var int|null A new max blocks value to set for the block type.
@@ -83,6 +94,8 @@ class BlockTypesController extends Controller
         if ($actionID === 'edit') {
             $options[] = 'setName';
             $options[] = 'setHandle';
+            $options[] = 'setDescription';
+            $options[] = 'unsetDescription';
             $options[] = 'setMaxBlocks';
             $options[] = 'setMaxSiblingBlocks';
             $options[] = 'setMaxChildBlocks';
@@ -148,12 +161,18 @@ class BlockTypesController extends Controller
             }
         }
 
-        if ($this->setTopLevel && $this->unsetTopLevel) {
-            $this->stderr('At most one of --set-top-level and --unset-top-level may be used.' . PHP_EOL, Console::FG_RED);
-        } elseif ($this->setTopLevel) {
-            $typeConfig['topLevel'] = true;
-        } elseif ($this->unsetTopLevel) {
-            $typeConfig['topLevel'] = false;
+        foreach (['description', 'topLevel'] as $btProperty) {
+            $setProperty = 'set' . ucfirst($btProperty);
+            $unsetProperty = 'unset' . ucfirst($btProperty);
+
+            if ($this->$setProperty && $this->$unsetProperty) {
+                $optionKebab = StringHelper::toKebabCase($btProperty);
+                $this->stderr("At most one of --set-$optionKebab and --unset-$optionKebab may be used." . PHP_EOL, Console::FG_RED);
+            } elseif ($this->$setProperty) {
+                $typeConfig[$btProperty] = $this->$setProperty;
+            } elseif ($this->$unsetProperty) {
+                $typeConfig[$btProperty] = is_bool($this->$setProperty) ? false : null;
+            }
         }
 
         $projectConfig->set($typePath, $typeConfig);
