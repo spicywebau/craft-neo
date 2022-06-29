@@ -60,6 +60,16 @@ class BlockTypesController extends Controller
     public ?string $setMaxChildBlocks = null;
 
     /**
+     * @var bool Whether to set the block type as being allowed at the top level.
+     */
+    public bool $setTopLevel = false;
+
+    /**
+     * @var bool Whether to set the block type as not being allowed at the top level.
+     */
+    public bool $unsetTopLevel = false;
+
+    /**
      * @inheritdoc
      */
     public function options($actionID): array
@@ -76,6 +86,8 @@ class BlockTypesController extends Controller
             $options[] = 'setMaxBlocks';
             $options[] = 'setMaxSiblingBlocks';
             $options[] = 'setMaxChildBlocks';
+            $options[] = 'setTopLevel';
+            $options[] = 'unsetTopLevel';
         }
 
         return $options;
@@ -134,6 +146,14 @@ class BlockTypesController extends Controller
             if ($this->$controllerProperty !== null) {
                 $typeConfig[$btProperty] = $this->$controllerProperty;
             }
+        }
+
+        if ($this->setTopLevel && $this->unsetTopLevel) {
+            $this->stderr('At most one of --set-top-level and --unset-top-level may be used.' . PHP_EOL, Console::FG_RED);
+        } elseif ($this->setTopLevel) {
+            $typeConfig['topLevel'] = true;
+        } elseif ($this->unsetTopLevel) {
+            $typeConfig['topLevel'] = false;
         }
 
         $projectConfig->set($typePath, $typeConfig);
