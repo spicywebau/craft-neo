@@ -31,7 +31,7 @@ class BlockTypeGroupsController extends Controller
     public bool $deleteBlockTypes = false;
 
     /**
-     * @var ?int A new name to set for the block type group.
+     * @var string|null A new name to set for the block type group.
      */
     public ?string $setName = null;
 

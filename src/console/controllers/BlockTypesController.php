@@ -60,17 +60,17 @@ class BlockTypesController extends Controller
     /**
      * @var int|null A new max blocks value to set for the block type.
      */
-    public ?string $setMaxBlocks = null;
+    public ?int $setMaxBlocks = null;
 
     /**
      * @var int|null A new max sibling blocks value to set for the block type.
      */
-    public ?string $setMaxSiblingBlocks = null;
+    public ?int $setMaxSiblingBlocks = null;
 
     /**
      * @var int|null A new max child blocks value to set for the block type.
      */
-    public ?string $setMaxChildBlocks = null;
+    public ?int $setMaxChildBlocks = null;
 
     /**
      * @var string|null The child block types of this block type, either as a string representing an array of block type
