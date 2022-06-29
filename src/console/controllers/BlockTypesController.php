@@ -45,6 +45,21 @@ class BlockTypesController extends Controller
     public ?string $setHandle = null;
 
     /**
+     * @var int|null A new max blocks value to set for the block type.
+     */
+    public ?string $setMaxBlocks = null;
+
+    /**
+     * @var int|null A new max sibling blocks value to set for the block type.
+     */
+    public ?string $setMaxSiblingBlocks = null;
+
+    /**
+     * @var int|null A new max child blocks value to set for the block type.
+     */
+    public ?string $setMaxChildBlocks = null;
+
+    /**
      * @inheritdoc
      */
     public function options($actionID): array
@@ -58,6 +73,9 @@ class BlockTypesController extends Controller
         if ($actionID === 'edit') {
             $options[] = 'setName';
             $options[] = 'setHandle';
+            $options[] = 'setMaxBlocks';
+            $options[] = 'setMaxSiblingBlocks';
+            $options[] = 'setMaxChildBlocks';
         }
 
         return $options;
@@ -108,6 +126,14 @@ class BlockTypesController extends Controller
 
         if ($this->setHandle) {
             $typeConfig['handle'] = $this->setHandle;
+        }
+
+        foreach (['maxBlocks', 'maxSiblingBlocks', 'maxChildBlocks'] as $btProperty) {
+            $controllerProperty = 'set' . ucfirst($btProperty);
+
+            if ($this->$controllerProperty !== null) {
+                $typeConfig[$btProperty] = $this->$controllerProperty;
+            }
         }
 
         $projectConfig->set($typePath, $typeConfig);
