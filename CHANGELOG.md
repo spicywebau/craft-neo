@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.12 - 2022-06-29
 
 ### Added
 - Added support for the Craft 3 version of the Quick Field plugin
