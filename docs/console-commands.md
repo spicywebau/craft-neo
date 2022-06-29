@@ -33,6 +33,27 @@ Deletes a Neo block type.
 
 One of `--type-id` and `--handle` must be specified, and if `--handle` is specified and the specified handle is used on more than one Neo field, `--field-id` must also be specified.
 
+## `neo/block-types/edit`
+
+Edits a Neo block type.
+
+### Options
+- `--type-id`: The ID of the block type to delete.
+- `--handle`: The handle of the block type to delete.
+- `--field-id`: The field ID of the block type to delete.
+- `--set-name`: A new name to set for the block type.
+- `--set-handle`: A new handle to set for the block type.
+- `--set-description`: A new description to set for the block type.
+- `--unset-description`: Whether to remove the block type's description.
+- `--set-max-blocks`: A new max blocks value to set for the block type. Set this to 0 to remove the limit.
+- `--set-max-sibling-blocks`: A new max sibling blocks value to set for the block type. Set this to 0 to remove the limit.
+- `--set-max-child-blocks`: A new max child blocks value to set for the block type. Set this to 0 to remove the limit.
+- `--set-child-blocks`: The child block types of this block type, either as a string representing an array of handles of block types belonging to the same Neo field, or the string '*' representing all of the Neo field's block types.
+- `--set-top-level`: Whether to set the block type as being allowed at the top level.
+- `--unset-top-level`: Whether to set the block type as not being allowed at the top level.
+
+One of `--type-id` and `--handle` must be specified, and if `--handle` is specified and the specified handle is used on more than one Neo field, `--field-id` must also be specified. Furthermore, at most one of `--set-description` and `--unset-description` may be used, and at most one of `--set-top-level` and `--unset-top-level` may be used.
+
 ## `neo/fields/reapply-propagation-method`
 
 This command reapplies the propagation methods for Neo fields' blocks, optionally on a per-block-structure basis.

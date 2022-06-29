@@ -4,6 +4,7 @@
 
 ### Added
 - Added the `php craft neo/block-types/delete` console command
+- Added the `php craft neo/block-types/edit` console command
 - Added `benf\neo\console\controllers\BlockTypesController`
 
 ## 3.1.5 - 2022-06-28
