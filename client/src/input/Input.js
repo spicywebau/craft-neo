@@ -866,7 +866,7 @@ export default Garnish.Base.extend({
 
   '@pasteBlock' (e) {
     const block = e.block
-    const baseLevel = block.getLevel()
+    const baseLevel = block.getLevel() - 1
     const copyData = window.localStorage.getItem('neo:copy')
 
     if (copyData) {
