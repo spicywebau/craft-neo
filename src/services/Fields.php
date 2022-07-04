@@ -413,7 +413,7 @@ class Fields extends Component
                             $newBlock->trashed = false;
                         }
                     }
-                } elseif ($block->primaryOwnerId === $target->id) {
+                } elseif ($block->primaryOwnerId === $target->id && $source->id !== $target->id) {
                     // Only the block ownership was duplicated, so just update its sort order for the target element
                     Db::update('{{%neoblocks_owners}}', [
                         'sortOrder' => $block->sortOrder,

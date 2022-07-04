@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when editing a new entry with a Neo field with the propagation method 'Only save blocks to the site they were created in', where new Neo blocks weren't getting duplicated for the other sites
+
 ## 3.1.5 - 2022-06-28
 
 ### Fixed
