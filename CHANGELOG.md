@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug when editing a new entry with a Neo field with the propagation method 'Only save blocks to the site they were created in', where new Neo blocks weren't getting duplicated for the other sites
 - Fixed a bug where pasting a Neo block would paste it as a child block of the block where the paste action was selected, instead of after that block at the same level, if that block was allowed to have child blocks
+- Fixed a bug when saving a provisional draft on multi-site, where Neo blocks could end up at the wrong level as a result of Neo finding the wrong structure ID for the original entry
 
 ## 3.1.5 - 2022-06-28
 

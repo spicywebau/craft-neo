@@ -1028,6 +1028,7 @@ SQL
             ->from(['nbs' => '{{%neoblockstructures}}'])
             ->where([
                 'ownerId' => $owner->id,
+                'siteId' => $owner->siteId,
                 'fieldId' => $field->id,
             ])
             ->scalar();
