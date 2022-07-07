@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when editing an element via the slideout editor, where new Neo blocks weren't being saved when saving the element
+
 ## 3.1.6 - 2022-07-06
 
 ### Fixed
