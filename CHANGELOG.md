@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.13 - 2022-07-12
 
 ### Fixed
 - Fixed a bug where Neo block type names could be overwritten by translations on a Neo field settings page
