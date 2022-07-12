@@ -129,7 +129,7 @@ class SettingsAsset extends AssetBundle
             $jsBlockTypes[] = [
                 'id' => $blockType->id,
                 'sortOrder' => $blockType->sortOrder,
-                'name' => Craft::t('site', $blockType->name),
+                'name' => $blockType->name,
                 'handle' => $blockType->handle,
                 'description' => $blockType->description,
                 'maxBlocks' => $blockType->maxBlocks,
