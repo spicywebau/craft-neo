@@ -111,7 +111,7 @@ class BlockTypes extends Component
     {
         $blockTypes = [];
 
-        if (isset(Memoize::$blockTypesByFieldId[$fieldId])) {
+        if (isset(Memoize::$blockTypesByFieldId[$fieldId]) && !empty(Memoize::$blockTypesByFieldId[$fieldId])) {
             $blockTypes = Memoize::$blockTypesByFieldId[$fieldId];
         } else {
             $results = $this->_createQuery()
@@ -168,7 +168,7 @@ class BlockTypes extends Component
     {
         $blockTypeGroups = [];
 
-        if (isset(Memoize::$blockTypeGroupsByFieldId[$fieldId])) {
+        if (isset(Memoize::$blockTypeGroupsByFieldId[$fieldId]) && !empty(Memoize::$blockTypeGroupsByFieldId[$fieldId])) {
             $blockTypeGroups = Memoize::$blockTypeGroupsByFieldId[$fieldId];
         } else {
             $results = $this->_createGroupQuery()

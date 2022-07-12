@@ -1,8 +1,6 @@
 import $ from 'jquery'
-
 import Garnish from 'garnish'
 import Craft from 'craft'
-
 import NS from '../namespace'
 
 const _defaults = {

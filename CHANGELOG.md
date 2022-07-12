@@ -168,6 +168,20 @@
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
 
+## 2.13.13 - 2022-07-12
+
+### Fixed
+- Fixed a bug where Neo block type names could be overwritten by translations on a Neo field settings page
+
+## 2.13.12 - 2022-06-29
+
+### Added
+- Added support for the Craft 3 version of the Quick Field plugin
+
+### Fixed
+- Fixed a bug where Codeception tests of Neo content were failing if the `dbSetup` option's `clean` and `setupCraft` were set to true, due to Neo not finding its block types
+- Fixed a bug where eager loaded block children queries could return a non-0 indexed array
+
 ## 2.13.11 - 2022-06-04
 
 ### Fixed
