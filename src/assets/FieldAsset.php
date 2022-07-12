@@ -313,7 +313,9 @@ class FieldAsset extends AssetBundle
             $jsBlockType = [
                 'id' => $blockType->id,
                 'sortOrder' => $blockType->sortOrder,
-                'name' => Craft::t('neo', $blockType->name),
+                // Only translate the block type's name if getting the settings for input fields, so the name isn't
+                // overwritten on a Neo field settings page
+                'name' => $renderTabs ? Craft::t('neo', $blockType->name) : $blockType->name,
                 'handle' => $blockType->handle,
                 'maxBlocks' => $blockType->maxBlocks,
                 'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
