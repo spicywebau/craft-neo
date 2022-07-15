@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.8 - 2022-07-15
 
 ### Fixed
 - Fixed a bug where block type field layout changes would be lost if the Neo field failed to save due to a validation error
