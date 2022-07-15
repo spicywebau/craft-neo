@@ -81,8 +81,9 @@ export default Item.extend({
 
     this.trigger('beforeLoadFieldLayout')
     const settings = this.getSettings()
+    const layout = settings.getFieldLayoutConfig()
     const layoutId = settings.getFieldLayoutId()
-    const data = { layoutId }
+    const data = layout ? { layout } : { layoutId }
 
     return new Promise((resolve, reject) => {
       Craft.sendActionRequest('POST', 'neo/configurator/render-field-layout', { data })

@@ -141,6 +141,7 @@ class SettingsAsset extends AssetBundle
                 'settingsHtml' => $blockTypeSettingsHtml,
                 'settingsJs' => $blockTypeSettingsJs,
                 'fieldLayoutId' => $blockType->fieldLayoutId,
+                'fieldLayoutConfig' => $blockType->getFieldLayout()->getConfig(),
                 'groupId' => $blockType->groupId,
             ];
         }
