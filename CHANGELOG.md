@@ -1,5 +1,8 @@
 # Changelog
 
+### Fixed
+- Fixed a JavaScript error that occurred when pasting a block type
+
 ## 3.1.8 - 2022-07-15
 
 ### Fixed

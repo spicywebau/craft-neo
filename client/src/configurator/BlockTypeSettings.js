@@ -322,6 +322,10 @@ export default Settings.extend({
     const select = this._childBlocksSelect
     const childBlocks = []
 
+    if (typeof select === 'undefined') {
+      return this._childBlocks === true ? true : Array.from(this._childBlocks ?? [])
+    }
+
     if (select.$all.prop('checked')) {
       return true
     }
