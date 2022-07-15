@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where block type field layout changes would be lost if the Neo field failed to save due to a validation error
+- Fixed a bug where blocks that had reached their block type's max child blocks setting were having their add block above, paste, and clone actions disabled, regardless of whether or not they should have been disabled
 
 ## 3.1.7 - 2022-07-08
 

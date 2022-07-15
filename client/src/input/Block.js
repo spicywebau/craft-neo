@@ -990,10 +990,7 @@ export default Garnish.Base.extend({
     const maxBlocksMet = maxBlocks > 0 && blocks.length >= maxBlocks
     const maxTopBlocksMet = maxTopBlocks > 0 && totalTopBlocks >= maxTopBlocks
 
-    const maxChildren = blockType.getMaxChildBlocks()
-    const maxChildrenMet = maxChildren > 0 && this.getChildren(blocks).length >= maxChildren
-
-    const allDisabled = maxBlocksMet || maxTopBlocksMet || maxChildrenMet || !additionalCheck
+    const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
     const typeDisabled = maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes
     let cloneDisabled = allDisabled || typeDisabled
 
