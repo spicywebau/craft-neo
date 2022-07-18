@@ -50,7 +50,7 @@ return [
     'Save blocks to other sites in the same site group' => 'Speichern von Blöcken in anderen Seiten innerhalb derselben Seiten-Gruppe',
     'Save blocks to other sites with the same language' => 'Speichern von Blöcken auf anderen Websites mit derselben Sprache',
     'Save blocks to all sites the owner element is saved in' => 'Speichere Blöcke in allen Seiten, in denen das zugehörige Element gespeichert ist',
-    'Min Blocks' => 'Maximale Anzahl von Blöcken',
+    'Min Blocks' => 'Minimale Anzahl von Blöcken',
     'The minimum number of blocks the field must have.' => 'Die minimale Anzahl von Blöcken, die im Feld sein dürfen.',
     'The maximum number of blocks the field is allowed to have.' => 'Die maximale Anzahl von Blöcken, die im Feld sein dürfen.',
     'Max Top-Level Blocks' => 'Maximale Anzahl von Blöcken auf der obersten Ebene',
