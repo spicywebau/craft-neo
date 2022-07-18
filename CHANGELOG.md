@@ -177,6 +177,11 @@
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
 
+## 2.13.14 - 2022-07-18
+
+### Fixed
+- Fixed an error that could occur when merging changes to canonical Neo blocks into derivative blocks, due to Neo incorrectly trying to merge changes into derivative blocks that didn't belong to a block structure
+
 ## 2.13.13 - 2022-07-12
 
 ### Fixed
