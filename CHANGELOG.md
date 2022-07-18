@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when merging changes to canonical Neo blocks into derivative blocks, due to Neo incorrectly trying to merge changes into derivative blocks that didn't belong to a block structure
+
 ## 2.13.13 - 2022-07-12
 
 ### Fixed

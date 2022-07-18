@@ -554,6 +554,7 @@ class Fields extends Component
                 ->siteId($canonicalOwner->siteId)
                 ->status(null)
                 ->trashed(null)
+                ->andWhere(['not', ['structureId' => null]])
                 ->ignorePlaceholders()
                 ->indexBy('canonicalId')
                 ->all();
