@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.15 - 2022-07-19
 
 ### Fixed
 - Fixed a JavaScript error that occurred when creating a new Neo block type, if Quick Field was used to delete a field group that wasn't created using Quick Field
