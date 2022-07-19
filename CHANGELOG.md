@@ -1,7 +1,10 @@
 # Changelog
 
+## Unreleased
+
 ### Fixed
 - Fixed a JavaScript error that occurred when pasting a block type
+- Fixed an incorrect German translation of 'Min Blocks' (thanks @alumpe)
 
 ## 3.1.8 - 2022-07-15
 
