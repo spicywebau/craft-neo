@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a JavaScript error that occurred when pasting a block type
 - Fixed an incorrect German translation of 'Min Blocks' (thanks @alumpe)
+- Fixed a bug where the child blocks UI element wasn't appearing on the field layout designer sidebar on existing block types
 
 ## 3.1.8 - 2022-07-15
 
