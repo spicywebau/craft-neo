@@ -418,6 +418,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         try {
             $view = Craft::$app->getView();
+            $newIdCounter = 0;
 
             if ($element !== null && $element->hasEagerLoadedElements($this->handle)) {
                 $value = $element->getEagerLoadedElements($this->handle);
@@ -428,6 +429,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             }
 
             foreach ($value as $block) {
+                if ($block->id === null) {
+                    // Set a non-positive ID on the block, which the templates will interpret as a new, unsaved block
+                    $block->id = $newIdCounter--;
+                }
+
                 $block->useMemoized($value);
             }
 

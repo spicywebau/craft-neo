@@ -1,9 +1,11 @@
-{% set blockId = block and block.id ? block.id : '__NEOBLOCK__' %}
+{% from 'neo/macros' import getBlockId %}
+
+{% set blockId = block and block.id is not null ? getBlockId(block) : '__NEOBLOCK__' %}
 
 <div class="ni_child-blocks-ui-element" data-layout-element="{{ uid }}">
     <div class="ni_block_children" data-neo-b="{{ blockId }}.container.children">
         <div class="ni_blocks" data-neo-b="{{ blockId }}.container.blocks">
-            {% if block and block.id %}
+            {% if block and block.id is not null %}
                 {% for child in block.children.status(null).all() %}
                     {% include 'neo/block' with { handle, block: child, static } only %}
                 {% endfor %}
