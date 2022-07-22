@@ -79,6 +79,7 @@ export default Garnish.Base.extend({
         js: btInfo.settingsJs,
         errors: btInfo.errors,
         fieldLayoutId: btInfo.fieldLayoutId,
+        fieldLayoutConfig: btInfo.fieldLayoutConfig,
         childBlockTypes: existingItems.filter(item => item instanceof BlockType)
       })
 

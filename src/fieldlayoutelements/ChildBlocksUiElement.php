@@ -36,7 +36,11 @@ class ChildBlocksUiElement extends BaseUiElement
      */
     public function formHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
-        $blockId = $element && $element->id ? $element->id : '__NEOBLOCK__';
+        if ($element && $element->level) {
+            $blockId = $element->id > 0 ? $element->id : 'new' . ($element->id * -1);
+        } else {
+            $blockId = '__NEOBLOCK__';
+        }
 
         // This will be replaced in `block.twig` and `benf\neo\services\Blocks::renderTabs()`; done like this so we can
         // use `craft\models\FieldLayout::createForm()` without repeatedly namespacing the child blocks

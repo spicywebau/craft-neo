@@ -7,6 +7,31 @@
 - Added the `php craft neo/block-types/edit` console command
 - Added `benf\neo\console\controllers\BlockTypesController`
 
+### Fixed
+- Fixed a JavaScript error that occurred when pasting a block type
+- Fixed an incorrect German translation of 'Min Blocks' (thanks @alumpe)
+- Fixed a bug where the child blocks UI element wasn't appearing on the field layout designer sidebar on existing block types
+- Fixed a PHP error that occurred when saving an element that doesn't autosave drafts, if a validation error occurred and there was a new block nested in another new block
+- Fixed a JavaScript error that occurred when saving an element that doesn't autosave drafts, if a validation error occurred and a new block contained a Redactor field
+
+## 3.1.8 - 2022-07-15
+
+### Fixed
+- Fixed a bug where block type field layout changes would be lost if the Neo field failed to save due to a validation error
+- Fixed a bug where blocks that had reached their block type's max child blocks setting were having their add block above, paste, and clone actions disabled, regardless of whether or not they should have been disabled
+
+## 3.1.7 - 2022-07-08
+
+### Fixed
+- Fixed a bug when editing an element via the slideout editor, where new Neo blocks weren't being saved when saving the element
+
+## 3.1.6 - 2022-07-06
+
+### Fixed
+- Fixed a bug when editing a new entry with a Neo field with the propagation method 'Only save blocks to the site they were created in', where new Neo blocks weren't getting duplicated for the other sites
+- Fixed a bug where pasting a Neo block would paste it as a child block of the block where the paste action was selected, instead of after that block at the same level, if that block was allowed to have child blocks
+- Fixed a bug when saving a provisional draft on a multi-site Craft install, where Neo blocks could be saved at the wrong level, as a result of Neo finding the wrong structure ID for the original entry
+
 ## 3.1.5 - 2022-06-28
 
 ### Fixed
@@ -162,6 +187,30 @@
 
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
+
+## 2.13.15 - 2022-07-19
+
+### Fixed
+- Fixed a JavaScript error that occurred when creating a new Neo block type, if Quick Field was used to delete a field group that wasn't created using Quick Field
+
+## 2.13.14 - 2022-07-18
+
+### Fixed
+- Fixed an error that could occur when merging changes to canonical Neo blocks into derivative blocks, due to Neo incorrectly trying to merge changes into derivative blocks that didn't belong to a block structure
+
+## 2.13.13 - 2022-07-12
+
+### Fixed
+- Fixed a bug where Neo block type names could be overwritten by translations on a Neo field settings page
+
+## 2.13.12 - 2022-06-29
+
+### Added
+- Added support for the Craft 3 version of the Quick Field plugin
+
+### Fixed
+- Fixed a bug where Codeception tests of Neo content were failing if the `dbSetup` option's `clean` and `setupCraft` were set to true, due to Neo not finding its block types
+- Fixed a bug where eager loaded block children queries could return a non-0 indexed array
 
 ## 2.13.11 - 2022-06-04
 

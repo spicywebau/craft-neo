@@ -150,13 +150,14 @@ export default Garnish.Base.extend({
     const actionMenuId = `neoblock-action-menu-${this._id}`
     const tabsBtnLabel = `${type.getName()} ${Craft.t('neo', 'Tabs')}`
     const tabsMenuId = `neoblock-tabs-menu-${this._id}`
+    const sortOrderName = `${this._templateNs[0]}[${this._templateNs.slice(1, this._templateNs.length - 2).join('][')}][sortOrder]`
     const elementHtml = []
     elementHtml.push(`
       <div class="ni_block ni_block--${type.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${!hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}" data-neo-b-name="${type.getName()}">
         <input type="hidden" name="${baseInputName}[type]" value="${type.getHandle()}">
         <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : ''}" data-neo-b="${this._id}.input.enabled">
         <input type="hidden" name="${baseInputName}[level]" value="${this._level}" data-neo-b="${this._id}.input.level">
-        <input type="hidden" name="${this._templateNs[0]}[${this._templateNs[1]}][sortOrder][]" value="${this._id}" data-neo-b="${this._id}.input.sortOrder">
+        <input type="hidden" name="${sortOrderName}[]" value="${this._id}" data-neo-b="${this._id}.input.sortOrder">
 
         <div class="ni_block_topbar" data-neo-b="${this._id}.container.topbar">
           <div class="ni_block_topbar_left" data-neo-b="${this._id}.container.topbarLeft">
@@ -989,10 +990,7 @@ export default Garnish.Base.extend({
     const maxBlocksMet = maxBlocks > 0 && blocks.length >= maxBlocks
     const maxTopBlocksMet = maxTopBlocks > 0 && totalTopBlocks >= maxTopBlocks
 
-    const maxChildren = blockType.getMaxChildBlocks()
-    const maxChildrenMet = maxChildren > 0 && this.getChildren(blocks).length >= maxChildren
-
-    const allDisabled = maxBlocksMet || maxTopBlocksMet || maxChildrenMet || !additionalCheck
+    const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
     const typeDisabled = maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes
     let cloneDisabled = allDisabled || typeDisabled
 

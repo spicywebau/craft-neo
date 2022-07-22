@@ -55,6 +55,7 @@ module.exports = {
       }
     ]
   },
+  devtool: 'source-map',
   plugins: [new MiniCssExtractPlugin({
     filename: 'neo-[name].css'
   })]

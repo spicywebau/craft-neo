@@ -33,9 +33,13 @@ class Configurator extends Controller
         $config = $request->getBodyParam('layout');
 
         // Prioritise the config
-        $fieldLayout = $config
-            ? FieldLayout::createFromConfig($config)
-            : ($id ? Craft::$app->getFields()->getLayoutById($id) : new FieldLayout(['type' => Block::class]));
+        if ($config) {
+            $fieldLayout = FieldLayout::createFromConfig($config);
+            $fieldLayout->type = Block::class;
+        } else {
+            $fieldLayout = $id ? Craft::$app->getFields()->getLayoutById($id) : new FieldLayout(['type' => Block::class]);
+        }
+
         $html = Neo::$plugin->blockTypes->renderFieldLayoutDesigner($fieldLayout);
 
         return $this->asJson([

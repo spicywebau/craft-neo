@@ -413,7 +413,7 @@ class Fields extends Component
                             $newBlock->trashed = false;
                         }
                     }
-                } elseif ($block->primaryOwnerId === $target->id) {
+                } elseif ($block->primaryOwnerId === $target->id && $source->id !== $target->id) {
                     // Only the block ownership was duplicated, so just update its sort order for the target element
                     Db::update('{{%neoblocks_owners}}', [
                         'sortOrder' => $block->sortOrder,
@@ -683,6 +683,7 @@ SQL
                 ->siteId($canonicalOwner->siteId)
                 ->status(null)
                 ->trashed(null)
+                ->andWhere(['not', ['structureId' => null]])
                 ->ignorePlaceholders()
                 ->indexBy('canonicalId')
                 ->all();
@@ -1028,6 +1029,7 @@ SQL
             ->from(['nbs' => '{{%neoblockstructures}}'])
             ->where([
                 'ownerId' => $owner->id,
+                'siteId' => $owner->siteId,
                 'fieldId' => $field->id,
             ])
             ->scalar();

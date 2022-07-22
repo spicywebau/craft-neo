@@ -1,0 +1,3 @@
+{% macro getBlockId(block) %}
+    {{- block.id > 0 ? block.id : 'new' ~ (block.id * -1) -}}
+{%- endmacro %}

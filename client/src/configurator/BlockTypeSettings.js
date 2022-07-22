@@ -9,6 +9,7 @@ const _defaults = {
   id: null,
   sortOrder: 0,
   fieldLayoutId: null,
+  fieldLayoutConfig: null,
   name: '',
   handle: '',
   description: '',
@@ -45,6 +46,7 @@ export default Settings.extend({
     this._childBlocks = settings.childBlocks
     this._id = settings.id
     this._fieldLayoutId = settings.fieldLayoutId
+    this._fieldLayoutConfig = settings.fieldLayoutConfig
     this._errors = settings.errors
     this._js = settings.js
     this._settingsChildBlockTypes = settings.childBlockTypes
@@ -149,6 +151,10 @@ export default Settings.extend({
 
   getFieldLayoutId () {
     return this._fieldLayoutId
+  },
+
+  getFieldLayoutConfig () {
+    return Object.assign({}, this._fieldLayoutConfig)
   },
 
   isNew () {
@@ -315,6 +321,10 @@ export default Settings.extend({
   getChildBlocks () {
     const select = this._childBlocksSelect
     const childBlocks = []
+
+    if (typeof select === 'undefined') {
+      return this._childBlocks === true ? true : Array.from(this._childBlocks ?? [])
+    }
 
     if (select.$all.prop('checked')) {
       return true
