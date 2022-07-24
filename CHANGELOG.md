@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.2.0 - 2022-07-24
 
 ### Added
 - Added the `php craft neo/block-types/delete` console command
