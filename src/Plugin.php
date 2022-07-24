@@ -2,6 +2,7 @@
 
 namespace benf\neo;
 
+use benf\neo\assets\SettingsAsset;
 use benf\neo\controllers\Configurator as ConfiguratorController;
 use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;
@@ -14,6 +15,7 @@ use benf\neo\services\BlockTypes as BlockTypesService;
 use benf\neo\services\Conversion as ConversionService;
 use benf\neo\services\Fields as FieldsService;
 use Craft;
+use craft\base\conditions\BaseCondition;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\console\Controller;
@@ -23,6 +25,7 @@ use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutElementsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterConditionRuleTypesEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
 use craft\gatsbyhelper\services\Deltas;
@@ -69,6 +72,11 @@ class Plugin extends BasePlugin
     ];
 
     /**
+     * @var bool
+     */
+    public static bool $isGeneratingConditionHtml = false;
+
+    /**
      * @inheritdoc
      */
     public function init(): void
@@ -95,6 +103,7 @@ class Plugin extends BasePlugin
         $this->_registerChildBlocksUiElement();
         $this->_registerResaveBlocksCommand();
         $this->_registerGatsbyHelper();
+        $this->_registerConditionFieldRuleRemoval();
     }
 
     /**
@@ -221,5 +230,24 @@ class Plugin extends BasePlugin
                 $event->types[] = Block::class;
             });
         }
+    }
+
+    /**
+     * Removes any condition rules related to fields when generating condition builders for the block type settings.
+     */
+    private function _registerConditionFieldRuleRemoval()
+    {
+        Event::on(
+            BaseCondition::class,
+            BaseCondition::EVENT_REGISTER_CONDITION_RULE_TYPES,
+            function(RegisterConditionRuleTypesEvent $event) {
+                if (self::$isGeneratingConditionHtml) {
+                    $event->conditionRuleTypes = array_filter(
+                        $event->conditionRuleTypes,
+                        fn($type) => !isset($type['fieldUid'])
+                    );
+                }
+            }
+        );
     }
 }

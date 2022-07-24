@@ -253,6 +253,7 @@ class SettingsAsset extends AssetBundle
     {
         $conditionsService = Craft::$app->getConditions();
         $conditionHtml = [];
+        Neo::$isGeneratingConditionHtml = true;
 
         foreach (self::$_conditionElementTypes as $elementType) {
             $condition = !empty($blockType?->conditions) && isset($blockType->conditions[$elementType])
@@ -272,6 +273,8 @@ class SettingsAsset extends AssetBundle
                 ]),
             ]);
         }
+
+        Neo::$isGeneratingConditionHtml = false;
 
         return $conditionHtml;
     }
