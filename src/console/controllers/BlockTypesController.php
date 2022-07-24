@@ -73,10 +73,15 @@ class BlockTypesController extends Controller
     public ?int $setMaxChildBlocks = null;
 
     /**
-     * @var string|null The child block types of this block type, either as a string representing an array of block type
-     * handles, or the string '*' representing all of the Neo field's block types.
+     * @var string|null The child block types of this block type, either as comma-separated block type handles, or the
+     * string '*' representing all of the Neo field's block types.
      */
     public ?string $setChildBlocks = null;
+
+    /**
+     * @var bool Whether to set this block type as having no child block types.
+     */
+    public bool $unsetChildBlocks = false;
 
     /**
      * @var bool Whether to set the block type as being allowed at the top level.
@@ -108,6 +113,7 @@ class BlockTypesController extends Controller
             $options[] = 'setMaxSiblingBlocks';
             $options[] = 'setMaxChildBlocks';
             $options[] = 'setChildBlocks';
+            $options[] = 'unsetChildBlocks';
             $options[] = 'setTopLevel';
             $options[] = 'unsetTopLevel';
         }
@@ -176,7 +182,7 @@ class BlockTypesController extends Controller
 
             if ($this->$setProperty && $this->$unsetProperty) {
                 $optionKebab = StringHelper::toKebabCase($btProperty);
-                $this->stderr("At most one of --set-$optionKebab and --unset-$optionKebab may be used." . PHP_EOL, Console::FG_RED);
+                $this->stderr($this->_getSetUnsetError($optionKebab), Console::FG_RED);
             } elseif ($this->$setProperty) {
                 $typeConfig[$btProperty] = $this->$setProperty;
             } elseif ($this->$unsetProperty) {
@@ -184,34 +190,32 @@ class BlockTypesController extends Controller
             }
         }
 
-        if ($this->setChildBlocks) {
-            $childBlockTypes = Json::decodeIfJson($this->setChildBlocks);
+        if ($this->setChildBlocks && $this->unsetChildBlocks) {
+            $this->stderr($this->_getSetUnsetError('child-blocks'), Console::FG_RED);
+        } elseif ($this->setChildBlocks) {
+            $childBlockTypes = explode(',', $this->setChildBlocks);
 
-            if (is_array($childBlockTypes)) {
-                if (empty($childBlockTypes)) {
-                    $typeConfig['childBlocks'] = null;
+            if ($childBlockTypes !== ['*']) {
+                $existingHandles = (new Query())
+                    ->select(['handle'])
+                    ->from(['{{%neoblocktypes}}'])
+                    ->where([
+                        'handle' => $childBlockTypes,
+                        'fieldId' => $blockType->fieldId,
+                    ])
+                    ->column();
+                $nonExistingHandles = array_diff($childBlockTypes, $existingHandles);
+
+                if (empty($nonExistingHandles)) {
+                    $typeConfig['childBlocks'] = $childBlockTypes;
                 } else {
-                    $existingHandles = (new Query())
-                        ->select(['handle'])
-                        ->from(['{{%neoblocktypes}}'])
-                        ->where([
-                            'handle' => $childBlockTypes,
-                            'fieldId' => $blockType->fieldId,
-                        ])
-                        ->column();
-                    $nonExistingHandles = array_diff($childBlockTypes, $existingHandles);
-
-                    if (empty($nonExistingHandles)) {
-                        $typeConfig['childBlocks'] = $childBlockTypes;
-                    } else {
-                        $this->stderr('Invalid handles ' . implode(', ', $nonExistingHandles) . ' given for --set-child-blocks.' . PHP_EOL, Console::FG_RED);
-                    }
+                    $this->stderr('Invalid handles ' . implode(', ', $nonExistingHandles) . ' given for --set-child-blocks.' . PHP_EOL, Console::FG_RED);
                 }
-            } elseif ($childBlockTypes === '*') {
-                $typeConfig['childBlocks'] = $childBlockTypes;
             } else {
-                $this->stderr('Invalid input given for --set-child-blocks.' . PHP_EOL, Console::FG_RED);
+                $typeConfig['childBlocks'] = '*';
             }
+        } elseif ($this->unsetChildBlocks) {
+            $typeConfig['childBlocks'] = null;
         }
 
         $projectConfig->set($typePath, $typeConfig);
@@ -256,5 +260,10 @@ class BlockTypesController extends Controller
         }
 
         return reset($blockTypes);
+    }
+
+    private function _getSetUnsetError(string $option): string
+    {
+        return "At most one of --set-$option and --unset-$option may be used." . PHP_EOL;
     }
 }
