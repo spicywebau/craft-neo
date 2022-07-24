@@ -117,9 +117,14 @@
             }) }}
         </div>
 
-        {% for condition in conditions %}
-            {{ condition|raw }}
-        {% endfor %}
+        <hr>
+
+        <a class="fieldtoggle" data-target="advanced">{{ "Advanced"|t('app') }}</a>
+        <div id="advanced" class="hidden">
+            {% for condition in conditions %}
+                {{ condition|raw }}
+            {% endfor %}
+        </div>
     </div>
     <hr>
     <a class="error delete" data-neo-bts="button.delete">{{ 'Delete block type'|t('neo') }}</a>
