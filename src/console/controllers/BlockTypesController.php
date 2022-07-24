@@ -2,14 +2,13 @@
 
 namespace benf\neo\console\controllers;
 
-use benf\neo\models\BlockType;
 use benf\neo\errors\BlockTypeNotFoundException;
+use benf\neo\models\BlockType;
 use benf\neo\Plugin as Neo;
 use Craft;
-use craft\db\Query;
 use craft\console\Controller;
+use craft\db\Query;
 use craft\helpers\Console;
-use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use yii\console\ExitCode;
 

@@ -2,7 +2,6 @@
 
 namespace benf\neo;
 
-use benf\neo\assets\SettingsAsset;
 use benf\neo\controllers\Configurator as ConfiguratorController;
 use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;

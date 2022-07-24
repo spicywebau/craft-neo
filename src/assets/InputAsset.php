@@ -113,7 +113,7 @@ class InputAsset extends FieldAsset
             $ownerClass = get_class($owner);
             $blockTypes = array_filter(
                 $field->getBlockTypes(),
-                function($blockType) use($conditionsService, $owner, $ownerClass) {
+                function($blockType) use ($conditionsService, $owner, $ownerClass) {
                     if (isset($blockType->conditions[$ownerClass])) {
                         $condition = $conditionsService->createCondition($blockType->conditions[$ownerClass]);
                         return $condition->matchElement($owner);
