@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when upgrading to Neo 3.2.0 if using MySQL
+
 ## 3.2.0 - 2022-07-24
 
 ### Added

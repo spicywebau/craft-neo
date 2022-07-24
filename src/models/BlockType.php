@@ -134,6 +134,10 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             $config['childBlocks'] = Json::decodeIfJson($config['childBlocks']);
         }
 
+        if (!isset($config['conditions'])) {
+            $config['conditions'] = [];
+        }
+
         parent::__construct($config);
     }
 
