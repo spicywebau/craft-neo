@@ -5,7 +5,11 @@
 ### Added
 - Added the `php craft neo/block-types/delete` console command
 - Added the `php craft neo/block-types/edit` console command
+- Added the ability to set conditions on the owner elements a Neo block type can be used for, through condition fields for Craft CMS and Craft Commerce element types on the Neo block type settings
+- Added `benf\neo\assets\SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES` (allowing other plugins to register element types for the Neo block type condition fields)
 - Added `benf\neo\console\controllers\BlockTypesController`
+- Added `benf\neo\events\SetConditionElementTypesEvent`
+- Added `benf\neo\models\BlockType::$conditions` and added the `conditions` column to the `neoblocktypes` table
 
 ### Fixed
 - Fixed a JavaScript error that occurred when pasting a block type
