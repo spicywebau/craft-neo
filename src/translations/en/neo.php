@@ -32,6 +32,8 @@ return [
     'The maximum number of child blocks this block type is allowed to have.' => 'The maximum number of child blocks this block type is allowed to have.',
     'Top Level' => 'Top Level',
     'Will this block type be allowed at the top level?' => 'Will this block type be allowed at the top level?',
+    '{type} Condition' => '{type} Condition',
+    'Only allow this block type to be used on {type} if they match the following rules:' => 'Only allow this block type to be used on {type} if they match the following rules:',
     'Delete block type' => 'Delete block type',
     'This can be left blank if you just want an unlabeled separator.' => 'This can be left blank if you just want an unlabeled separator.',
     'Show' => 'Show',
