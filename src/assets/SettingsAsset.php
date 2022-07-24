@@ -9,7 +9,6 @@ use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use Craft;
-use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
@@ -302,7 +301,6 @@ class SettingsAsset extends AssetBundle
             $elementTypes[] = Variant::class;
             $elementTypes[] = Order::class;
             $elementTypes[] = Subscription::class;
-            $elementTypes[] = Donation::class;
         }
 
         return $elementTypes;
