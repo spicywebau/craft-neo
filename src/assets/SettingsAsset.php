@@ -3,15 +3,25 @@
 namespace benf\neo\assets;
 
 use benf\neo\elements\Block;
+use benf\neo\events\SetConditionElementTypesEvent;
 use benf\neo\Field;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\elements\Address;
+use craft\elements\Asset;
+use craft\elements\Category;
+use craft\elements\Entry;
+use craft\elements\Tag;
+use craft\elements\User;
+use craft\helpers\Cp;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
+use yii\base\Event;
 
 /**
  * Class SettingsAsset
@@ -23,6 +33,33 @@ use craft\web\assets\cp\CpAsset;
  */
 class SettingsAsset extends AssetBundle
 {
+    /**
+     * @event SetConditionElementTypesEvent The event that's triggered when setting the element types for setting
+     * conditions on when block types can be used
+     *
+     * ```php
+     * use benf\neo\assets\SettingsAsset;
+     * use benf\neo\events\SetConditionElementTypesEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     SettingsAsset::class,
+     *     SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES,
+     *     function (SetConditionElementTypesEvent $event) {
+     *         $event->elementTypes[] = \some\added\ElementType::class;
+     *     }
+     * );
+     * ```
+     *
+     * @since 3.2.0
+     */
+    public const EVENT_SET_CONDITION_ELEMENT_TYPES = 'setConditionElementTypes';
+
+    /**
+     * @var string[] Supported element types for setting conditions on when block types can be used
+     */
+    private static array $_conditionElementTypes = [];
+
     /**
      * @inheritdoc
      */
@@ -93,6 +130,19 @@ class SettingsAsset extends AssetBundle
      */
     public static function createSettingsJs(Field $field): string
     {
+        $event = new SetConditionElementTypesEvent([
+            'elementTypes' => [
+                Entry::class,
+                Category::class,
+                Asset::class,
+                User::class,
+                Tag::class,
+                Address::class,
+            ],
+        ]);
+        Event::trigger(self::class, self::EVENT_SET_CONDITION_ELEMENT_TYPES, $event);
+        self::$_conditionElementTypes = $event->elementTypes;
+
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
         [$blockTypeSettingsHtml, $blockTypeSettingsJs] = self::_renderBlockTypeSettings();
@@ -186,11 +236,45 @@ class SettingsAsset extends AssetBundle
 
         $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
             'blockType' => $blockType,
+            'conditions' => self::_getConditions($blockType),
         ]));
 
         $js = $view->clearJsBuffer();
         $view->setNamespace($oldNamespace);
 
         return [$html, $js];
+    }
+
+    /**
+     * Gets the condition builder field HTML for a block type.
+     *
+     * @param BlockType|null $blockType
+     * @return string[]
+     */
+    private static function _getConditions(?BlockType $blockType = null): array
+    {
+        $conditionsService = Craft::$app->getConditions();
+        $conditionHtml = [];
+
+        foreach (self::$_conditionElementTypes as $elementType) {
+            $condition = !empty($blockType?->conditions) && isset($blockType->conditions[$elementType])
+                ? $conditionsService->createCondition($blockType->conditions[$elementType])
+                : $elementType::createCondition();
+            $condition->mainTag = 'div';
+            $condition->id = 'conditions-' . StringHelper::toKebabCase($elementType);
+            $condition->name = "conditions[$elementType]";
+            $condition->forProjectConfig = true;
+
+            $conditionHtml[$elementType] = Cp::fieldHtml($condition->getBuilderHtml(), [
+                'label' => Craft::t('neo', '{type} Condition', [
+                    'type' => StringHelper::mb_ucwords($elementType::displayName()),
+                ]),
+                'instructions' => Craft::t('neo', 'Only allow this block type to be used on {type} if they match the following rules:', [
+                    'type' => $elementType::pluralLowerDisplayName(),
+                ]),
+            ]);
+        }
+
+        return $conditionHtml;
     }
 }

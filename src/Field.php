@@ -240,6 +240,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function setBlockTypes(array $blockTypes)
     {
+        $conditionsService = Craft::$app->getConditions();
         $fieldsService = Craft::$app->getFields();
         $request = Craft::$app->getRequest();
         $newBlockTypes = [];
@@ -248,6 +249,16 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $newBlockType = $blockType;
 
             if (!($blockType instanceof BlockType)) {
+                foreach (array_keys($blockType['conditions']) as $elementType) {
+                    if (!isset($blockType['conditions'][$elementType]['conditionRules'])) {
+                        // Don't bother setting condition data for any element types that have no rules set
+                        unset($blockType['conditions'][$elementType]);
+                    } else {
+                        // Get the condition config
+                        $blockType['conditions'][$elementType] = $conditionsService->createCondition($blockType['conditions'][$elementType])->getConfig();
+                    }
+                }
+
                 $newBlockType = new BlockType();
                 $newBlockType->id = (int)$blockTypeId;
                 $newBlockType->fieldId = $this->id;
@@ -260,6 +271,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
                 $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
+                $newBlockType->conditions = $blockType['conditions'] ?? [];
                 $newBlockType->groupId = isset($blockType['groupId']) ? (int)$blockType['groupId'] : null;
 
                 // Allow the `fieldLayoutId` to be set in the blockType settings

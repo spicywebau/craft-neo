@@ -116,6 +116,10 @@
                 }
             }) }}
         </div>
+
+        {% for condition in conditions %}
+            {{ condition|raw }}
+        {% endfor %}
     </div>
     <hr>
     <a class="error delete" data-neo-bts="button.delete">{{ 'Delete block type'|t('neo') }}</a>

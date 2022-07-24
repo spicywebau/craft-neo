@@ -80,6 +80,7 @@ class Install extends Migration
                 'childBlocks' => $this->text(),
                 'topLevel' => $this->boolean()->defaultValue(true)->notNull(),
                 'sortOrder' => $this->smallInteger()->unsigned(),
+                'conditions' => $this->text()->defaultValue('[]')->notNull(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),

@@ -15,6 +15,7 @@ use Craft;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
+use craft\helpers\Json;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
@@ -423,6 +424,7 @@ class BlockTypes extends Component
             $record->maxChildBlocks = $data['maxChildBlocks'];
             $record->childBlocks = $data['childBlocks'];
             $record->topLevel = $data['topLevel'];
+            $record->conditions = Json::encode($data['conditions'] ?? []);
             $record->uid = $uid;
             $record->fieldLayoutId = $fieldLayout?->id;
             $record->save(false);
@@ -652,6 +654,7 @@ class BlockTypes extends Component
      */
     private function _createQuery(): Query
     {
+        $db = Craft::$app->getDb();
         $columns = [
             'id',
             'fieldId',
@@ -668,8 +671,10 @@ class BlockTypes extends Component
             'uid',
         ];
 
-        if (Craft::$app->getDb()->columnExists('{{%neoblocktypes}}', 'description')) {
-            $columns[] = 'description';
+        foreach (['description', 'conditions'] as $column) {
+            if ($db->columnExists('{{%neoblocktypes}}', $column)) {
+                $columns[] = $column;
+            }
         }
 
         return (new Query())

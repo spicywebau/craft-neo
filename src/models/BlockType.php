@@ -90,6 +90,11 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public bool $topLevel = true;
 
     /**
+     * @var array Conditions for the elements this block type can be used on.
+     */
+    public array $conditions = [];
+
+    /**
      * @var int|null The sort order.
      */
     public ?int $sortOrder = null;
@@ -244,6 +249,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'name' => $this->name,
             'sortOrder' => (int)$this->sortOrder,
             'topLevel' => (bool)$this->topLevel,
+            'conditions' => $this->conditions,
         ];
         $fieldLayout = $this->getFieldLayout();
 
