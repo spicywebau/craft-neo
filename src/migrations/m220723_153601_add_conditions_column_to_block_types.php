@@ -18,7 +18,7 @@ class m220723_153601_add_conditions_column_to_block_types extends Migration
         $this->addColumn(
             '{{%neoblocktypes}}',
             'conditions',
-            $this->text()->defaultValue('[]')->notNull(),->after('sortOrder')
+            $this->text()->defaultValue('[]')->notNull()->after('sortOrder'),
         );
 
         return true;
