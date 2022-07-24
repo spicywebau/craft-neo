@@ -60,3 +60,23 @@ Event::on(InputAsset::class, InputAsset::EVENT_FILTER_BLOCK_TYPES, function (Fil
     }
 });
 ```
+
+## SetConditionElementTypesEvent
+
+A `SetConditionElementTypesEvent` is triggered when loading a Neo field's settings page. It allows other plugins to register element types that will have condition fields added to each block type's settings, to then allow users to control the conditions elements of that type must meet for that block to be allowed to be used.
+
+### Example
+
+```php
+use benf\neo\assets\SettingsAsset;
+use benf\neo\events\SetConditionElementTypesEvent;
+use yii\base\Event;
+
+Event::on(
+    SettingsAsset::class,
+    SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES,
+    function (SetConditionElementTypesEvent $event) {
+        $event->elementTypes[] = \some\added\ElementType::class;
+    }
+);
+```
