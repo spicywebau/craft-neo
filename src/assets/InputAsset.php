@@ -102,12 +102,31 @@ class InputAsset extends FieldAsset
      */
     public static function createInputJs(Field $field, ?ElementInterface $owner = null): string
     {
+        $conditionsService = Craft::$app->getConditions();
         $view = Craft::$app->getView();
         $name = $field->handle;
         $id = $view->formatInputId($name);
-        $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
 
+        if ($owner) {
+            // Filter block types based on the block types' condition rules
+            $ownerClass = get_class($owner);
+            $blockTypes = array_filter(
+                $field->getBlockTypes(),
+                function($blockType) use($conditionsService, $owner, $ownerClass) {
+                    if (isset($blockType->conditions[$ownerClass])) {
+                        $condition = $conditionsService->createCondition($blockType->conditions[$ownerClass]);
+                        return $condition->matchElement($owner);
+                    }
+
+                    return true;
+                }
+            );
+        } else {
+            $blockTypes = $field->getBlockTypes();
+        }
+
+        // Filter block types based on the event
         $event = new FilterBlockTypesEvent([
             'field' => $field,
             'element' => $owner,
