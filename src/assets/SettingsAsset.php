@@ -9,6 +9,11 @@ use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\commerce\elements\Donation;
+use craft\commerce\elements\Order;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Variant;
 use craft\elements\Address;
 use craft\elements\Asset;
 use craft\elements\Category;
@@ -131,14 +136,7 @@ class SettingsAsset extends AssetBundle
     public static function createSettingsJs(Field $field): string
     {
         $event = new SetConditionElementTypesEvent([
-            'elementTypes' => [
-                Entry::class,
-                Category::class,
-                Asset::class,
-                User::class,
-                Tag::class,
-                Address::class,
-            ],
+            'elementTypes' => self::_getSupportedConditionElementTypes(),
         ]);
         Event::trigger(self::class, self::EVENT_SET_CONDITION_ELEMENT_TYPES, $event);
         self::$_conditionElementTypes = $event->elementTypes;
@@ -276,5 +274,34 @@ class SettingsAsset extends AssetBundle
         }
 
         return $conditionHtml;
+    }
+
+    /**
+     * Get the element types supported by Neo for block type conditionals.
+     *
+     * @return string[]
+     */
+    private static function _getSupportedConditionElementTypes(): array
+    {
+        // In-built Craft element types
+        $elementTypes = [
+            Entry::class,
+            Category::class,
+            Asset::class,
+            User::class,
+            Tag::class,
+            Address::class,
+        ];
+
+        // Craft Commerce element types
+        if (Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
+            $elementTypes[] = Product::class;
+            $elementTypes[] = Variant::class;
+            $elementTypes[] = Order::class;
+            $elementTypes[] = Subscription::class;
+            $elementTypes[] = Donation::class;
+        }
+
+        return $elementTypes;
     }
 }
