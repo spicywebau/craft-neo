@@ -577,8 +577,14 @@ SQL
         $revisionsService = Craft::$app->getRevisions();
         $ownershipData = [];
         $jobData = [];
+        $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $canonical, $field->propagationKeyFormat);;
 
         foreach ($blocks as $block) {
+            // Don't bother if the block doesn't have a supported site, likely the owner is disabled for the site now
+            if (!in_array($block->siteId, $supportedSites)) {
+                continue;
+            }
+
             $blockRevisionId = $revisionsService->createRevision($block, null, null, [
                 'primaryOwnerId' => $revision->id,
                 'saveOwnership' => false,
