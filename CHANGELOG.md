@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.2.2 - 2022-07-26
 
 ### Fixed
 - Fixed an 'Attempting to duplicate an element in an unsupported site' error that occurred when disabling a section for a site, if any Neo blocks belonging to any of the section's entries were only saved for the disabled site
