@@ -639,7 +639,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function validateBlocks(ElementInterface $element)
     {
         $value = $element->getFieldValue($this->handle);
-        $blocks = $value->status(null)->all();
+        $blocks = $value->all();
         $scenario = $element->getScenario();
         $allBlocksValidate = true;
 
