@@ -264,8 +264,8 @@ class BlockQuery extends ElementQuery
      */
     public function exists($db = null): bool
     {
-        $this->_setFilteredResultIfUsingMemoized();
-        return !empty($this->getCachedResult()) && parent::exists($db);
+        $isUsingMemoized = $this->_setFilteredResultIfUsingMemoized();
+        return (!$isUsingMemoized || !empty($this->getCachedResult())) && parent::exists($db);
     }
 
     /**
@@ -454,11 +454,15 @@ class BlockQuery extends ElementQuery
 
     // Private methods
 
-    private function _setFilteredResultIfUsingMemoized()
+    private function _setFilteredResultIfUsingMemoized(): bool
     {
-        if ($this->isUsingMemoized() && isset($this->_allElements)) {
+        $isUsingMemoized = $this->isUsingMemoized() && isset($this->_allElements);
+
+        if ($isUsingMemoized) {
             $this->setCachedResult($this->_getFilteredResult());
         }
+
+        return $isUsingMemoized;
     }
 
     private function _tokenRouteHasProp(string $prop): bool
