@@ -253,7 +253,7 @@ export default Garnish.Base.extend({
     const blockType = this._blockTypes.find(bt => bt.getHandle() === blockTypeHandle)
 
     this.trigger('newBlock', {
-      blockType: blockType
+      blockType
     })
   }
 })

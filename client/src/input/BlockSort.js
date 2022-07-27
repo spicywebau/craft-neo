@@ -158,10 +158,10 @@ const BlockSort = Garnish.Drag.extend({
             : BlockSort.DIRECTION_DOWN
 
           this._currentMidpoints.push({
-            block: block,
-            position: position,
-            type: type,
-            direction: direction
+            block,
+            position,
+            type,
+            direction
           })
         }
       }

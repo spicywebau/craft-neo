@@ -184,8 +184,8 @@ export default Garnish.Base.extend({
     }
 
     this.trigger('addItem', {
-      item: item,
-      index: index
+      item,
+      index
     })
   },
 
@@ -234,7 +234,7 @@ export default Garnish.Base.extend({
       }
 
       this.trigger('removeItem', {
-        item: item
+        item
       })
     }
   },
@@ -334,7 +334,7 @@ export default Garnish.Base.extend({
     if (oldBlockType === null) {
       const settings = new BlockTypeSettings({
         childBlockTypes: this.getBlockTypes(),
-        id: id,
+        id,
         namespace: [...namespace, id],
         sortOrder: this._items.length,
         html: this._getNewBlockTypeSettingsHtml(id, selectedIndex),
@@ -354,7 +354,7 @@ export default Garnish.Base.extend({
         childBlockTypes: this.getBlockTypes(),
         // Set a timestamp on the handle so it doesn't clash with the old one
         handle: `${oldSettings.getHandle()}_${Date.now()}`,
-        id: id,
+        id,
         maxBlocks: oldSettings.getMaxBlocks(),
         maxChildBlocks: oldSettings.getMaxChildBlocks(),
         maxSiblingBlocks: oldSettings.getMaxSiblingBlocks(),
@@ -452,7 +452,7 @@ export default Garnish.Base.extend({
       ? data.childBlocks.filter(cb => blockTypeHandles.includes(cb))
       : (data.childBlocks ? true : [])
     const settings = new BlockTypeSettings({
-      childBlocks: childBlocks,
+      childBlocks,
       childBlockTypes: this.getBlockTypes(),
       handle: data.handle,
       maxBlocks: data.maxBlocks,
@@ -468,8 +468,8 @@ export default Garnish.Base.extend({
     })
 
     const blockType = new BlockType({
-      settings: settings,
-      fieldLayout: fieldLayout
+      settings,
+      fieldLayout
     })
 
     this._createBlockTypeFrom(blockType)
@@ -496,12 +496,12 @@ export default Garnish.Base.extend({
     const settings = new GroupSettings({
       namespace: [...namespace, id],
       sortOrder: this._items.length,
-      id: id
+      id
     })
 
     const group = new Group({
-      namespace: namespace,
-      settings: settings
+      namespace,
+      settings
     })
 
     const selected = this.getSelectedItem()

@@ -253,8 +253,8 @@ export default Garnish.Base.extend({
     }
 
     this.trigger('addBlock', {
-      block: block,
-      index: index
+      block,
+      index
     })
   },
 
@@ -301,7 +301,7 @@ export default Garnish.Base.extend({
     block.destroy()
 
     this.trigger('removeBlock', {
-      block: block
+      block
     })
   },
 
@@ -774,7 +774,7 @@ export default Garnish.Base.extend({
     const blocks = this.getBlocks()
     const buttons = new Buttons({
       blockTypes: !parent ? this.getBlockTypes(true) : [],
-      blocks: blocks,
+      blocks,
       groups: !parent ? this.getGroups() : [],
       items: parent ? parent.getBlockType().getChildBlockItems(this.getItems()) : null,
       maxBlocks: this.getMaxBlocks()
@@ -784,7 +784,7 @@ export default Garnish.Base.extend({
 
     buttons.on('newBlock', e => this['@newBlock']({
       blockType: e.blockType,
-      index: index,
+      index,
       level: block.getLevel()
     }))
 
@@ -841,7 +841,7 @@ export default Garnish.Base.extend({
           type: block.getBlockType().getId(),
           level: block.getLevel() - firstBlockLevel,
           content: block.getContent(),
-          ownerId: ownerId
+          ownerId
         }
 
         if (block.isEnabled()) {
@@ -902,7 +902,7 @@ export default Garnish.Base.extend({
         content: block.getContent(),
         enabled: block.isEnabled() | 0,
         level: block.getLevel(),
-        ownerId: ownerId,
+        ownerId,
         type: block.getBlockType().getId()
       }
     }
