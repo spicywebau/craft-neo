@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where saving an element with a Neo field that only contained disabled blocks would cause the blocks to be deleted
+
 ## 3.2.2 - 2022-07-26
 
 ### Fixed

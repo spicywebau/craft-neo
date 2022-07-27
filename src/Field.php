@@ -609,6 +609,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             [
                 'validateBlocks',
                 'on' => [Element::SCENARIO_ESSENTIALS, Element::SCENARIO_DEFAULT, Element::SCENARIO_LIVE],
+                'skipOnEmpty' => false,
             ],
         ];
     }
