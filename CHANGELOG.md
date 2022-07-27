@@ -11,6 +11,7 @@
 ### Fixed
 - Fixed a bug where saving an element with a Neo field that only contained disabled blocks would cause the blocks to be deleted
 - Fixed a bug where `benf\neo\elements\db\BlockQuery::exists()` could incorrectly return `false` if the query wasn't memoized and had no cached result
+- Fixed a bug where cloned Neo blocks using the child blocks UI element wouldn't have child block buttons
 
 ## 3.2.2 - 2022-07-26
 
