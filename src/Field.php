@@ -26,6 +26,7 @@ use craft\base\GqlInlineFragmentInterface;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
+use craft\fields\conditions\EmptyFieldConditionRule;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Gql as GqlHelper;
@@ -549,6 +550,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function copyValue(ElementInterface $from, ElementInterface $to): void
     {
         // Much like Matrix fields, we'll be doing this in afterElementPropagate()
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getElementConditionRuleType(): array|string|null
+    {
+        return EmptyFieldConditionRule::class;
     }
 
     /**

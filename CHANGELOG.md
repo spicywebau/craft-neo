@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Element conditions can now include condition rules for Neo fields
+
 ### Fixed
 - Fixed a bug where saving an element with a Neo field that only contained disabled blocks would cause the blocks to be deleted
 - Fixed a bug where `benf\neo\elements\db\BlockQuery::exists()` could incorrectly return `false` if the query wasn't memoized and had no cached result
