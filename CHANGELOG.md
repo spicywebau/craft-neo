@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Added
-- Element conditions can now include condition rules for Neo fields
+- Element conditions can now include condition rules for Neo fields on Craft 4.2.0 or later
 
 ### Changed
 - Updated JavaScript dependencies

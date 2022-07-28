@@ -557,7 +557,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function getElementConditionRuleType(): array|string|null
     {
-        return EmptyFieldConditionRule::class;
+        return class_exists(EmptyFieldConditionRule::class) ? EmptyFieldConditionRule::class : null;
     }
 
     /**
