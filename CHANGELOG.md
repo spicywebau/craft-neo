@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.2.3 - 2022-07-29
 
 ### Added
 - Element conditions can now include condition rules for Neo fields on Craft 4.2.0 or later
