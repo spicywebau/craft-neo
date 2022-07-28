@@ -458,7 +458,7 @@ class BlockQuery extends ElementQuery
     {
         $isUsingMemoized = $this->isUsingMemoized() && isset($this->_allElements);
 
-        if ($isUsingMemoized) {
+        if ($isUsingMemoized && $this->status === null) {
             $this->setCachedResult($this->_getFilteredResult());
         }
 

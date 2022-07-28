@@ -13,6 +13,8 @@
 - Fixed a bug where `benf\neo\elements\db\BlockQuery::exists()` could incorrectly return `false` if the query wasn't memoized and had no cached result
 - Fixed a bug where cloned Neo blocks using the child blocks UI element wouldn't have child block buttons
 - Fixed a bug on multi-site Craft installs, where Neo revision blocks weren't being saved for entry revisions if the canonical blocks weren't saved for the site that was active when the entry was saved
+- Fixed a bug where setting a Neo block as disabled on a provisional draft would cause the disabled state to be lost
+- Fixed a bug where reordering a Neo field's blocks could sometimes cause them to move out of order after saving
 
 ## 3.2.2 - 2022-07-26
 

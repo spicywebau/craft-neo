@@ -1164,6 +1164,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             if (isset($oldBlocksById[$blockId])) {
                 $block = $oldBlocksById[$blockId];
                 $dirty = !empty($blockData);
+                $blockEnabled = (bool)($blockData['enabled'] ?? $block->enabled);
 
                 // Is this a derivative element, and does the block primarily belong to the canonical?
                 if ($dirty && $element->getIsDerivative() && $block->primaryOwnerId === $element->getCanonicalId()) {
@@ -1177,6 +1178,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                         'markAsSaved' => false,
                         'structureId' => null,
                         'level' => $block->level,
+                        'enabled' => $blockEnabled,
                     ]);
                 }
 
@@ -1192,6 +1194,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->typeId = $blockTypes[$blockData['type']]->id;
                 $block->primaryOwnerId = $block->ownerId = $element->id;
                 $block->siteId = $element->siteId;
+                $block->enabled = true;
             }
 
             $blockLevel = (int)($blockData['level'] ?? $block->level);
@@ -1202,10 +1205,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
             if (isset($blockData['collapsed'])) {
                 $block->setCollapsed((bool)$blockData['collapsed']);
-            }
-
-            if (isset($blockData['enabled'])) {
-                $block->enabled = (bool)$blockData['enabled'];
             }
 
             // Skip disabled blocks on Live Preview requests

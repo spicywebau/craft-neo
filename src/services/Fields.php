@@ -539,17 +539,17 @@ WHERE [[o.ownerId]] = '$canonical->id'
 SQL
         )->execute();
 
-        // Save the block structure for the draft
-        $structureId = $this->_getStructureId($field, $canonical);
-        $blocks = Block::find()
-            ->ownerId($canonical->id)
-            ->fieldId($field->id)
-            ->siteId('*')
-            ->structureId($structureId)
-            ->unique()
-            ->status(null)
-            ->all();
-        $this->_saveNeoStructuresForSites($field, $draft, $blocks);
+        // Save the block structures for the draft
+        foreach (ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($draft), 'siteId') as $siteId) {
+            $blocks = Block::find()
+                ->ownerId($draft->id)
+                ->fieldId($field->id)
+                ->siteId($siteId)
+                ->unique()
+                ->status(null)
+                ->all();
+            $this->_saveNeoStructuresForSites($field, $draft, $blocks);
+        }
     }
 
     /**
