@@ -564,69 +564,96 @@ SQL
      */
     public function createRevisionBlocks(Field $field, ElementInterface $canonical, ElementInterface $revision): void
     {
-        $structureId = $this->_getStructureId($field, $canonical);
-        $blocks = Block::find()
-            ->ownerId($canonical->id)
-            ->fieldId($field->id)
-            ->siteId('*')
-            ->structureId($structureId)
-            ->unique()
-            ->status(null)
-            ->all();
+        $supportedSiteIds = fn($element) => ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($element), 'siteId');
+        $blocks = [];
+
+        foreach ($supportedSiteIds($canonical) as $siteId) {
+            $blocks[$siteId] = Block::find()
+                ->ownerId($canonical->id)
+                ->fieldId($field->id)
+                ->siteId($siteId)
+                ->structureId($this->_getStructureId($field, $canonical, $siteId))
+                ->unique()
+                ->status(null)
+                ->all();
+        }
 
         $revisionsService = Craft::$app->getRevisions();
         $ownershipData = [];
         $jobData = [];
-        $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $canonical, $field->propagationKeyFormat);;
+        $processedSites = [];
+        $otherSites = [];
 
-        foreach ($blocks as $block) {
-            // Don't bother if the block doesn't have a supported site, likely the owner is disabled for the site now
-            if (!in_array($block->siteId, $supportedSites)) {
+        foreach ($blocks as $siteId => $siteBlocks) {
+            // Don't bother if we've already processed the blocks for this site
+            if (isset($processedSites[$siteId])) {
                 continue;
             }
 
-            $blockRevisionId = $revisionsService->createRevision($block, null, null, [
-                'primaryOwnerId' => $revision->id,
-                'saveOwnership' => false,
-            ]);
-            $ownershipData[] = [$blockRevisionId, $revision->id, $block->sortOrder];
+            $supportedSites = null;
 
-            // Get the actual blocks, for block structure creation
-            if ($blockRevisionId === $block->id) {
-                $jobData[] = [
-                    'id' => $block->id,
-                    'lft' => $block->lft,
-                    'rgt' => $block->rgt,
-                    'level' => $block->level,
-                ];
-            } else {
-                // Querying the database because `getElementById()` doesn't seem to return anything at this point
-                $jobData[] = (new Query())
-                    ->select([
-                        'id' => 'elements.id',
-                        'lft' => 'structureelements.lft',
-                        'rgt' => 'structureelements.rgt',
-                        'level' => 'structureelements.level',
-                    ])
-                    ->from(['elements' => '{{%elements}}'])
-                    ->innerJoin(
-                        ['structureelements' => '{{%structureelements}}'],
-                        '[[structureelements.elementId]] = [[elements.canonicalId]]',
-                    )
-                    ->where(['elements.id' => $blockRevisionId])
-                    ->one();
+            foreach ($siteBlocks as $block) {
+                if ($supportedSites === null) {
+                    $supportedSites = $supportedSiteIds($block);
+                }
+
+                // Don't bother if the block doesn't have a supported site, likely the owner is disabled for the site now
+                if (!in_array($block->siteId, $supportedSites)) {
+                    continue;
+                }
+
+                $blockRevisionId = $revisionsService->createRevision($block, null, null, [
+                    'primaryOwnerId' => $revision->id,
+                    'saveOwnership' => false,
+                ]);
+                $ownershipData[] = [$blockRevisionId, $revision->id, $block->sortOrder];
+
+                // Get the actual blocks, for block structure creation
+                if ($blockRevisionId === $block->id) {
+                    $jobData[$siteId][] = [
+                        'id' => $block->id,
+                        'lft' => $block->lft,
+                        'rgt' => $block->rgt,
+                        'level' => $block->level,
+                    ];
+                } else {
+                    // Querying the database because `getElementById()` doesn't seem to return anything at this point
+                    $jobData[$siteId][] = (new Query())
+                        ->select([
+                            'id' => 'elements.id',
+                            'lft' => 'structureelements.lft',
+                            'rgt' => 'structureelements.rgt',
+                            'level' => 'structureelements.level',
+                        ])
+                        ->from(['elements' => '{{%elements}}'])
+                        ->innerJoin(
+                            ['structureelements' => '{{%structureelements}}'],
+                            '[[structureelements.elementId]] = [[elements.canonicalId]]',
+                        )
+                        ->where(['elements.id' => $blockRevisionId])
+                        ->one();
+                }
             }
+
+            foreach ($supportedSites ?? [] as $supportedSite) {
+                $processedSites[$supportedSite] = true;
+            }
+
+            $otherSites[$siteId] = $supportedSites;
         }
 
         Db::batchInsert('{{%neoblocks_owners}}', ['blockId', 'ownerId', 'sortOrder'], $ownershipData);
+        $queue = Craft::$app->getQueue();
 
-        Craft::$app->getQueue()->push(new SaveBlockStructures([
-            'fieldId' => $field->id,
-            'ownerId' => $revision->id,
-            'siteId' => $revision->siteId,
-            'otherSupportedSiteIds' => $this->getSupportedSiteIdsExCurrent($field, $revision),
-            'blocks' => $jobData,
-        ]));
+        foreach ($jobData as $siteId => $data) {
+            $queue->push(new SaveBlockStructures([
+                'fieldId' => $field->id,
+                'ownerId' => $revision->id,
+                'siteId' => $siteId,
+                'otherSupportedSiteIds' => $otherSites[$siteId],
+                'blocks' => $data,
+            ]));
+        }
     }
 
     /**
@@ -1026,16 +1053,17 @@ SQL
      *
      * @param Field $field
      * @param ElementInterface $owner
+     * @param int|null $siteId The site ID of the structure to get. If null, then $owner->siteId will be used.
      * @return int|null
      */
-    private function _getStructureId(Field $field, ElementInterface $owner): ?int
+    private function _getStructureId(Field $field, ElementInterface $owner, ?int $siteId = null): ?int
     {
         return (new Query())
             ->select(['nbs.structureId'])
             ->from(['nbs' => '{{%neoblockstructures}}'])
             ->where([
                 'ownerId' => $owner->id,
-                'siteId' => $owner->siteId,
+                'siteId' => $siteId ?? $owner->siteId,
                 'fieldId' => $field->id,
             ])
             ->scalar();
