@@ -1135,7 +1135,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         /** @var Block[] $blocks */
         $blocks = [];
         $prevBlock = null;
-        $sortOrderCounter = 1;
 
         foreach ($newSortOrder as $blockId) {
             if (isset($newBlockData[$blockId])) {
@@ -1200,7 +1199,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $block->setOwner($element);
             $block->oldLevel = $block->level;
             $block->level = $blockLevel;
-            $block->sortOrder = $sortOrderCounter++;
 
             if (isset($blockData['collapsed'])) {
                 $block->setCollapsed((bool)$blockData['collapsed']);

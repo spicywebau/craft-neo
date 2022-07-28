@@ -39,7 +39,6 @@
 - Fixed a JavaScript error that occurred when pasting a block type
 - Fixed an incorrect German translation of 'Min Blocks' (thanks @alumpe)
 - Fixed a bug where the child blocks UI element wasn't appearing on the field layout designer sidebar on existing block types
-- Fixed a PHP error that occurred when saving an element that doesn't autosave drafts, if a validation error occurred and there was a new block nested in another new block
 - Fixed a JavaScript error that occurred when saving an element that doesn't autosave drafts, if a validation error occurred and a new block contained a Redactor field
 
 ## 3.1.8 - 2022-07-15
