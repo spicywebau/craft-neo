@@ -406,6 +406,21 @@ class Fields extends Component
                         (!$source::trackChanges() || $source->isFieldModified($field->handle, true))
                     ) {
                         $newBlock = $elementsService->updateCanonicalElement($block, $newAttributes);
+                        $alreadyHasOwnerRow = (new Query())
+                            ->from(['{{%neoblocks_owners}}'])
+                            ->where([
+                                'blockId' => $newBlock->id,
+                                'ownerId' => $target->id,
+                            ])
+                            ->exists();
+
+                        if (!$alreadyHasOwnerRow) {
+                            Db::insert('{{%neoblocks_owners}}', [
+                                'blockId' => $newBlock->id,
+                                'ownerId' => $target->id,
+                                'sortOrder' => $newBlock->sortOrder,
+                            ]);
+                        }
                     } else {
                         $newBlock = $block->getCanonical();
 
