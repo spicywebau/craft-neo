@@ -235,8 +235,7 @@ class BlockQuery extends ElementQuery
      */
     public function count($q = '*', $db = null): string|int|bool|null
     {
-        $this->_setFilteredResultIfUsingMemoized();
-        return parent::count($q, $db);
+        return $this->_setFilteredResultIfUsingMemoized(fn() => parent::count($q, $db));
     }
 
     /**
@@ -245,8 +244,7 @@ class BlockQuery extends ElementQuery
      */
     public function all($db = null): array
     {
-        $this->_setFilteredResultIfUsingMemoized();
-        return parent::all($db);
+        return $this->_setFilteredResultIfUsingMemoized(fn() => parent::all($db));
     }
 
     /**
@@ -255,8 +253,7 @@ class BlockQuery extends ElementQuery
      */
     public function one($db = null): BaseModel|array|null
     {
-        $this->_setFilteredResultIfUsingMemoized();
-        return parent::one($db);
+        return $this->_setFilteredResultIfUsingMemoized(fn() => parent::one($db));
     }
 
     /**
@@ -264,8 +261,10 @@ class BlockQuery extends ElementQuery
      */
     public function exists($db = null): bool
     {
-        $isUsingMemoized = $this->_setFilteredResultIfUsingMemoized();
-        return (!$isUsingMemoized || !empty($this->getCachedResult())) && parent::exists($db);
+        $isUsingMemoized = $this->isUsingMemoized() && isset($this->_allElements);
+        return $this->_setFilteredResultIfUsingMemoized(
+            fn() => (!$isUsingMemoized || !empty($this->getCachedResult())) && parent::exists($db)
+        );
     }
 
     /**
@@ -274,8 +273,7 @@ class BlockQuery extends ElementQuery
      */
     public function nth(int $n, ?Connection $db = null): BaseModel|array|null
     {
-        $this->_setFilteredResultIfUsingMemoized();
-        return parent::nth($n, $db);
+        return $this->_setFilteredResultIfUsingMemoized(fn() => parent::nth($n, $db));
     }
 
     /**
@@ -454,15 +452,22 @@ class BlockQuery extends ElementQuery
 
     // Private methods
 
-    private function _setFilteredResultIfUsingMemoized(): bool
+    private function _setFilteredResultIfUsingMemoized(callable $resultFunction): mixed
     {
         $isUsingMemoized = $this->isUsingMemoized() && isset($this->_allElements);
+        $notAlreadyCached = $this->getCachedResult() === null;
 
-        if ($isUsingMemoized && $this->status === null) {
+        if ($isUsingMemoized && $notAlreadyCached) {
             $this->setCachedResult($this->_getFilteredResult());
         }
 
-        return $isUsingMemoized;
+        $result = $resultFunction();
+
+        if ($isUsingMemoized && $notAlreadyCached) {
+            $this->clearCachedResult();
+        }
+
+        return $result;
     }
 
     private function _tokenRouteHasProp(string $prop): bool

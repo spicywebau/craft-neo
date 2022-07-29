@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed potential performance issues when executing Neo block queries with memoized blocks if the `status` property was set on the query
+
 ## 3.2.3 - 2022-07-29
 
 ### Added
