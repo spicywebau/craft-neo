@@ -3,6 +3,7 @@
 namespace benf\neo\services;
 
 use benf\neo\elements\Block;
+use benf\neo\elements\db\BlockQuery;
 use benf\neo\Field;
 use benf\neo\helpers\Memoize;
 use benf\neo\jobs\SaveBlockStructures;
@@ -18,6 +19,7 @@ use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\services\Structures;
+use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
 
@@ -208,13 +210,19 @@ class Fields extends Component
         $neoSettings = Neo::$plugin->getSettings();
 
         $this->_rebuildIfDeleted = false;
-        $query = $owner->getFieldValue($field->handle);
+        $value = $owner->getFieldValue($field->handle);
 
-        if (($blocks = $query->getCachedResult()) !== null) {
-            $saveAll = false;
-        } else {
-            $blocks = (clone $query)->status(null)->all();
+        if ($value instanceof Collection) {
+            $blocks = $value->all();
             $saveAll = true;
+        } else {
+            $blocks = $value->getCachedResult();
+            if ($blocks !== null) {
+                $saveAll = false;
+            } else {
+                $blocks = (clone $value)->status(null)->all();
+                $saveAll = true;
+            }
         }
 
         $blockIds = [];
@@ -333,10 +341,11 @@ class Fields extends Component
                     // Duplicate Neo blocks, ensuring we don't process the same blocks more than once
                     $handledSiteIds = [];
 
-                    $cachedQuery = clone $query;
-                    $cachedQuery->status(null);
-                    $cachedQuery->setCachedResult($blocks);
-                    $owner->setFieldValue($field->handle, $cachedQuery);
+                    if ($value instanceof BlockQuery) {
+                        $cachedQuery = (clone $value)->status(null);
+                        $cachedQuery->setCachedResult($blocks);
+                        $owner->setFieldValue($field->handle, $cachedQuery);
+                    }
 
                     foreach ($otherTargets as $otherTarget) {
                         // Make sure we haven't already duplicated blocks for this site, via propagation from another site
@@ -348,7 +357,10 @@ class Fields extends Component
                         $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherTarget, $field->propagationKeyFormat);
                         $handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
                     }
-                    $owner->setFieldValue($field->handle, $query);
+
+                    if ($value instanceof BlockQuery) {
+                        $owner->setFieldValue($field->handle, $value);
+                    }
                 }
             }
 
@@ -372,14 +384,17 @@ class Fields extends Component
     public function duplicateBlocks(Field $field, ElementInterface $source, ElementInterface $target, bool $checkOtherSites = false, bool $deleteOtherBlocks = true): void
     {
         $elementsService = Craft::$app->getElements();
-        $query = $source->getFieldValue($field->handle);
-        if (($blocks = $query->getCachedResult()) === null) {
-            $blocksQuery = clone $query;
-            $blocks = $blocksQuery->status(null)->all();
-        }
-        $newBlockIds = [];
+        $value = $source->getFieldValue($field->handle);
 
+        if ($value instanceof Collection) {
+            $blocks = $value->all();
+        } else {
+            $blocks = $value->getCachedResult() ?? (clone $value)->status(null)->all();
+        }
+
+        $newBlockIds = [];
         $transaction = Craft::$app->getDb()->beginTransaction();
+
         try {
             $newBlocks = [];
             $newBlocksTaskData = [];

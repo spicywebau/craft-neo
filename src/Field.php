@@ -859,10 +859,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
         // Repopulate the Neo block query if this is a new element
         if ($resetValue || $isNew) {
-            $query = $element->getFieldValue($this->handle);
-            $this->_populateQuery($query, $element);
-            $query->clearCachedResult();
-            $query->useMemoized(false);
+            $value = $element->getFieldValue($this->handle);
+            if ($value instanceof BlockQuery) {
+                $this->_populateQuery($value, $element);
+            }
+            $value->clearCachedResult();
+            $value->useMemoized(false);
         }
 
         parent::afterElementPropagate($element, $isNew);
