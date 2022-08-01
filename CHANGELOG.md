@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.2.4 - 2022-08-01
 
 ### Added
 - Added `benf\neo\console\controllers\FieldsController::$withPropagationMethod` (added the `--with-propagation-method` to the `php craft neo/fields/reapply-propagation-method` console command)

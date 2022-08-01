@@ -29,6 +29,7 @@ class FieldsController extends Controller
 
     /**
      * @var string|null Which propagation methods the field(s) should have
+     * @since 3.2.4
      */
     public ?string $withPropagationMethod = null;
 
