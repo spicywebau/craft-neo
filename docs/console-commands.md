@@ -62,6 +62,7 @@ This command reapplies the propagation methods for Neo fields' blocks, optionall
 ### Options
 - `--field-id`: The ID(s) of the fields whose blocks should have the propagation method reapplied. If this option is omitted, then all Neo fields will be used.
 - `--by-block-structure`: This option is usually unnecessary, but may be required if omitting it causes an error due to a bug in Neo versions prior to 2.8.14. Note that this may create many jobs in the queue.
+- `--with-propagation-method`: A comma-separated list of propagation methods that Neo fields need to have, in order to have their propagation methods reapplied - accepted options are `none`, `siteGroup`, `language`, `custom`, and `all`. If not specified, it will default to fields with any propagation method except "Save blocks to all sites the owner element is saved in".
 
 ## `resave/neo-blocks`
 
