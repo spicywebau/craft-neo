@@ -47,6 +47,7 @@ Edits a Neo block type.
 - `--unset-description`: Whether to remove the block type's description.
 - `--set-max-blocks`: A new max blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-max-sibling-blocks`: A new max sibling blocks value to set for the block type. Set this to 0 to remove the limit.
+- `--set-min-child-blocks`: A new min child blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-max-child-blocks`: A new max child blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-child-blocks`: The child block types of this block type, either as comma-separated block type handles, or the string '*' representing all of the Neo field's block types.
 - `--unset-child-blocks`: Whether to set this block type as having no child block types.

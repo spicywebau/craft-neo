@@ -61,6 +61,10 @@ $topbar-background-color-transparent: #ebf2fa00;
             outline: 0;
         }
 
+        &.has-errors {
+            border: 1px solid var(--error-color);
+        }
+
         &_topbar {
             position: relative;
             height: 30px;
@@ -68,6 +72,7 @@ $topbar-background-color-transparent: #ebf2fa00;
             background-color: $topbar-background-color-level-odd;
             color: #8f98a3;
             padding: 0 14px;
+            border-radius: 4px 4px 0 0;
 
             @media screen and (prefers-reduced-motion: no-preference) {
                 transition: background-color 0.5s;
@@ -532,8 +537,14 @@ $topbar-background-color-transparent: #ebf2fa00;
         }
     }
 
-    &_child-blocks-ui-element > .ni_block_children {
-        padding: 0;
+    &_child-blocks-ui-element {
+        > .ni_block_children {
+            padding: 0;
+        }
+
+        + .ni_block_errors > .errors {
+            margin-top: 0;
+        }
     }
 }
 

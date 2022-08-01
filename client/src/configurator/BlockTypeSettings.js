@@ -15,6 +15,7 @@ const _defaults = {
   description: '',
   maxBlocks: 0,
   maxSiblingBlocks: 0,
+  minChildBlocks: 0,
   maxChildBlocks: 0,
   topLevel: true,
   childBlocks: null,
@@ -36,6 +37,7 @@ export default Settings.extend({
   $descriptionInput: new $(),
   $maxBlocksInput: new $(),
   $maxSiblingBlocksInput: new $(),
+  $minChildBlocksInput: new $(),
   $maxChildBlocksInput: new $(),
 
   init (settings = {}) {
@@ -59,6 +61,8 @@ export default Settings.extend({
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
     this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
     this.$maxSiblingBlocksInput = $neo.filter('[data-neo-bts="input.maxSiblingBlocks"]')
+    this.$minChildBlocksInput = $neo.filter('[data-neo-bts="input.minChildBlocks"]')
+    this.$minChildBlocksContainer = $neo.filter('[data-neo-bts="container.minChildBlocks"]')
     this.$maxChildBlocksInput = $neo.filter('[data-neo-bts="input.maxChildBlocks"]')
     this.$maxChildBlocksContainer = $neo.filter('[data-neo-bts="container.maxChildBlocks"]')
     this.$topLevelInput = $neo.filter('[data-neo-bts="input.topLevel"]')
@@ -73,6 +77,7 @@ export default Settings.extend({
     this.setDescription(settings.description)
     this.setMaxBlocks(settings.maxBlocks)
     this.setMaxSiblingBlocks(settings.maxSiblingBlocks)
+    this.setMinChildBlocks(settings.minChildBlocks)
     this.setMaxChildBlocks(settings.maxChildBlocks)
     this.setTopLevel(settings.topLevel)
   },
@@ -115,6 +120,7 @@ export default Settings.extend({
     this.addListener(this.$descriptionInput, 'keyup change textchange', () => this.setDescription(this.$descriptionInput.val()))
     this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
     this.addListener(this.$maxSiblingBlocksInput, 'keyup change', () => this.setMaxSiblingBlocks(this.$maxSiblingBlocksInput.val()))
+    this.addListener(this.$minChildBlocksInput, 'keyup change', () => this.setMinChildBlocks(this.$minChildBlocksInput.val()))
     this.addListener(this.$maxChildBlocksInput, 'keyup change', () => this.setMaxChildBlocks(this.$maxChildBlocksInput.val()))
     this.addListener(this._topLevelLightswitch, 'change', () => this.setTopLevel(this._topLevelLightswitch.on))
     this.addListener(this.$deleteButton, 'click', () => {
@@ -123,7 +129,7 @@ export default Settings.extend({
       }
     })
 
-    this.$childBlocksInput.on('change', 'input', () => this._refreshMaxChildBlocks())
+    this.$childBlocksInput.on('change', 'input', () => this._refreshChildBlockSettings())
 
     this._initialised = true
   },
@@ -273,26 +279,31 @@ export default Settings.extend({
     }
   },
 
+  getMinChildBlocks () { return this._minChildBlocks },
   getMaxChildBlocks () { return this._maxChildBlocks },
-  setMaxChildBlocks (maxChildBlocks) {
-    const oldMaxChildBlocks = this._maxChildBlocks
-    const newMaxChildBlocks = Math.max(0, maxChildBlocks | 0)
+  setMinChildBlocks (minChildBlocks) { this._setBlocksConstraint('minChildBlocks', minChildBlocks) },
+  setMaxChildBlocks (maxChildBlocks) { this._setBlocksConstraint('maxChildBlocks', maxChildBlocks) },
+  _setBlocksConstraint (mode, value) {
+    const privateProp = `_${mode}`
+    const jqueryProp = `$${mode}Input`
+    const oldValue = this[privateProp]
+    const newValue = Math.max(0, value | 0)
 
-    if (newMaxChildBlocks === 0) {
-      this.$maxChildBlocksInput.val(null)
+    if (newValue === 0) {
+      this[jqueryProp].val(null)
     }
 
-    if (oldMaxChildBlocks !== newMaxChildBlocks) {
-      this._maxChildBlocks = newMaxChildBlocks
+    if (oldValue !== newValue) {
+      this[privateProp] = newValue
 
-      if (this._maxChildBlocks > 0 && parseInt(this.$maxChildBlocksInput.val()) !== this._maxChildBlocks) {
-        this.$maxChildBlocksInput.val(this._maxChildBlocks)
+      if (this[privateProp] > 0 && parseInt(this[jqueryProp].val()) !== this[privateProp]) {
+        this[jqueryProp].val(this[privateProp])
       }
 
       this.trigger('change', {
-        property: 'maxChildBlocks',
-        oldValue: oldMaxChildBlocks,
-        newValue: this._maxChildBlocks
+        property: mode,
+        oldValue,
+        newValue: this[privateProp]
       })
     }
   },
@@ -358,7 +369,7 @@ export default Settings.extend({
       select.$options.prop('checked', false)
     }
 
-    this._refreshMaxChildBlocks(false)
+    this._refreshChildBlockSettings(false)
   },
 
   addChildBlockType (blockType) {
@@ -417,7 +428,8 @@ export default Settings.extend({
     }
   },
 
-  _refreshMaxChildBlocks (animate) {
+  _refreshChildBlockSettings (animate) {
+    this._refreshSetting(this.$minChildBlocksContainer, !!this.getChildBlocks(), animate)
     this._refreshSetting(this.$maxChildBlocksContainer, !!this.getChildBlocks(), animate)
   },
 

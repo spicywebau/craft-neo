@@ -74,6 +74,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public ?int $maxSiblingBlocks = null;
 
     /**
+     * @var int|null The minimum number of child blocks.
+     * @since 3.3.0
+     */
+    public ?int $minChildBlocks = null;
+
+    /**
      * @var int|null The maximum number of child blocks.
      */
     public ?int $maxChildBlocks = null;
@@ -161,7 +167,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     {
         return [
             [['id', 'fieldId', 'sortOrder'], 'number', 'integerOnly' => true],
-            [['maxBlocks', 'maxChildBlocks'], 'integer', 'min' => 0],
+            [['maxBlocks', 'minChildBlocks', 'maxChildBlocks'], 'integer', 'min' => 0],
         ];
     }
 
@@ -248,6 +254,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'handle' => $this->handle,
             'description' => $this->description,
             'maxBlocks' => (int)$this->maxBlocks,
+            'minChildBlocks' => (int)$this->minChildBlocks,
             'maxChildBlocks' => (int)$this->maxChildBlocks,
             'maxSiblingBlocks' => (int)$this->maxSiblingBlocks,
             'name' => $this->name,

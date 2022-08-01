@@ -206,6 +206,7 @@ class BlockTypes extends Component
         $record->sortOrder = $blockType->sortOrder;
         $record->maxBlocks = $blockType->maxBlocks;
         $record->maxSiblingBlocks = $blockType->maxSiblingBlocks;
+        $record->minChildBlocks = $blockType->minChildBlocks;
         $record->maxChildBlocks = $blockType->maxChildBlocks;
         $record->childBlocks = $blockType->childBlocks;
         $record->topLevel = $blockType->topLevel;
@@ -421,6 +422,7 @@ class BlockTypes extends Component
             $record->sortOrder = $data['sortOrder'];
             $record->maxBlocks = $data['maxBlocks'];
             $record->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
+            $record->minChildBlocks = $data['minChildBlocks'];
             $record->maxChildBlocks = $data['maxChildBlocks'];
             $record->childBlocks = $data['childBlocks'];
             $record->topLevel = $data['topLevel'];
@@ -438,6 +440,7 @@ class BlockTypes extends Component
             $blockType->sortOrder = $data['sortOrder'];
             $blockType->maxBlocks = $data['maxBlocks'];
             $blockType->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
+            $blockType->minChildBlocks = $data['minChildBlocks'] ?? 0;
             $blockType->maxChildBlocks = $data['maxChildBlocks'];
             $blockType->childBlocks = $data['childBlocks'];
             $blockType->topLevel = $data['topLevel'];
@@ -671,7 +674,7 @@ class BlockTypes extends Component
             'uid',
         ];
 
-        foreach (['description', 'conditions'] as $column) {
+        foreach (['description', 'minChildBlocks', 'conditions'] as $column) {
             if ($db->columnExists('{{%neoblocktypes}}', $column)) {
                 $columns[] = $column;
             }

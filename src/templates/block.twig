@@ -7,6 +7,20 @@
 {% set collapsed = craft.app.plugins.getPlugin('neo').settings.collapseAllBlocks or block.collapsed %}
 {% set blockId = getBlockId(block) %}
 {% set isNew = block.id is null or block.id < 1 %}
+{% set hasErrors = block.hasErrors() %}
+
+{# Get the errors specific to the block (i.e. not subfield errors) #}
+{% set blockErrors = [] %}
+{% for attribute, errors in block.getErrors() %}
+    {% if attribute[:5] == '__NEO' %}
+        {% set blockErrors = blockErrors|merge(errors) %}
+    {% endif %}
+{% endfor %}
+{% set errorList %}
+    <div class="ni_block_errors">
+        {% include '_includes/forms/errorList' with { errors: blockErrors } %}
+    </div>
+{% endset %}
 
 {% set baseInputName = "#{handle}[blocks][#{blockId}]" %}
 {% set blockAttributes = {
@@ -16,6 +30,7 @@
         collapsed ? 'is-collapsed' : 'is-expanded',
         not hasTabs and not isParent ? 'is-empty',
         isParent ? 'is-parent',
+        hasErrors ? 'has-errors',
     ],
     data: {
         'neo-b-id': blockId,
@@ -184,6 +199,7 @@
                     {% if splitOnChildBlocks|length > 1 %}
                         {% set splitAfterChildBlocks = splitOnChildBlocks[1]|split('"></div>', 2) %}
                         {% include 'neo/child-blocks' with { block, handle, static, uid: splitAfterChildBlocks[0] } %}
+                        {{ errorList }}
                         {{ splitAfterChildBlocks[1]|raw }}
                     {% endif %}
                 </div>
@@ -203,6 +219,7 @@
                         </div>
                     {% endif %}
                 </div>
+                {{ errorList }}
             {% endif %}
         </div>
     {% endif %}

@@ -88,6 +88,22 @@
             instructions: 'Which block types do you want to allow as children?'|t('neo'),
         }, childBlocksInput) }}
 
+        <div data-neo-bts="container.minChildBlocks">
+            {{ forms.textField({
+                type: 'number',
+                id: 'minChildBlocks',
+                name: 'minChildBlocks',
+                label: 'Min Child Blocks'|t('neo'),
+                instructions: 'The minimum number of child blocks this block type is allowed to have.'|t('neo'),
+                size: 3,
+                value: blockType and blockType.minChildBlocks ? blockType.minChildBlocks : null,
+                errors: blockType ? blockType.getErrors('minChildBlocks') : null,
+                inputAttributes: {
+                    'data-neo-bts': 'input.minChildBlocks'
+                }
+            }) }}
+        </div>
+
         <div data-neo-bts="container.maxChildBlocks">
             {{ forms.textField({
                 type: 'number',

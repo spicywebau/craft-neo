@@ -253,6 +253,33 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
+    public function validate($attributeNames = null, $clearErrors = true): bool
+    {
+        $validates = parent::validate($attributeNames, $clearErrors);
+
+        if ($this->getScenario() === Element::SCENARIO_LIVE) {
+            // Check the block type's min child blocks
+            $blockType = $this->getType();
+            $minChildBlocks = $blockType->minChildBlocks;
+
+            if ($minChildBlocks > 0 && $this->getChildren()->count() < $minChildBlocks) {
+                $validates = false;
+                $this->addError(
+                    '__NEO_MIN_CHILD_BLOCKS__',
+                    Craft::t('neo', 'Blocks of type {type} must have at least {min, number} child {min, plural, one{block} other{blocks}}.', [
+                        'type' => Craft::t('site', $blockType->name),
+                        'min' => $minChildBlocks,
+                    ])
+                );
+            }
+        }
+
+        return $validates;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getCanonical(bool $anySite = false): ElementInterface
     {
         // Element::getCanonical() will fail to find a Neo block's canonical block because it sets the structure ID on

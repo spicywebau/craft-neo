@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased (3.3.0)
+
+### Added
+- Added the Min Child Blocks block type setting (added `benf\neo\models\BlockType::$minChildBlocks` and added the `minChildBlocks` column to the `neoblocktypes` table)
+- Added `benf\neo\console\controllers\BlockTypesController::$setMinChildBlocks` (added the `--set-min-child-blocks` option to the `php craft neo/block-types/edit` console command)
+
 ## Unreleased
 
 ### Fixed
