@@ -28,6 +28,12 @@ class FieldsController extends Controller
     public bool $byBlockStructure = false;
 
     /**
+     * @var string|null Which propagation methods the field(s) should have
+     * @since 3.2.4
+     */
+    public ?string $withPropagationMethod = null;
+
+    /**
      * @var string|null
      */
     public ?string $fieldId = null;
@@ -41,6 +47,7 @@ class FieldsController extends Controller
 
         if ($actionID === 'reapply-propagation-method') {
             $options[] = 'byBlockStructure';
+            $options[] = 'withPropagationMethod';
             $options[] = 'fieldId';
         }
 
@@ -61,6 +68,14 @@ class FieldsController extends Controller
         }
 
         $fieldsService = Craft::$app->getFields();
+        $withPropagationMethod = $this->withPropagationMethod
+            ? explode(',', $this->withPropagationMethod)
+            : [
+                Field::PROPAGATION_METHOD_NONE,
+                Field::PROPAGATION_METHOD_SITE_GROUP,
+                Field::PROPAGATION_METHOD_LANGUAGE,
+                Field::PROPAGATION_METHOD_CUSTOM,
+            ];
 
         // If not reapplying by block structure, just do one for every field
         if (!$this->byBlockStructure) {
@@ -72,9 +87,9 @@ class FieldsController extends Controller
                 }
             }
 
-            $neoFields = array_filter($fieldsService->getAllFields(), function($field) use ($setIds) {
+            $neoFields = array_filter($fieldsService->getAllFields(), function($field) use ($setIds, $withPropagationMethod) {
                 return $field instanceof Field &&
-                    $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL &&
+                    in_array($field->propagationMethod, $withPropagationMethod) &&
                     (empty($setIds) || isset($setIds[$field->id]));
             });
 
@@ -122,7 +137,7 @@ class FieldsController extends Controller
                 $fieldPropagationMethod[$fieldId] = $field->propagationMethod;
             }
 
-            if ($fieldPropagationMethod[$fieldId] !== Field::PROPAGATION_METHOD_ALL) {
+            if (in_array($fieldPropagationMethod[$fieldId], $withPropagationMethod)) {
                 Queue::push(new ApplyNewPropagationMethod([
                     'description' => Translation::prep('neo', 'Applying new propagation method to Neo blocks'),
                     'elementType' => Block::class,

@@ -9,6 +9,14 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug where calling `ids()` on a memoized Neo block query would always return an empty array
+
+## 3.2.4 - 2022-08-01
+
+### Added
+- Added `benf\neo\console\controllers\FieldsController::$withPropagationMethod` (added the `--with-propagation-method` to the `php craft neo/fields/reapply-propagation-method` console command)
+
+### Fixed
 - Fixed potential performance issues when executing Neo block queries with memoized blocks if the `status` property was set on the query
 - Fixed a bug when reverting to an entry revision, where Neo revision blocks that had deleted canonical blocks weren't being reverted
 - Fixed a bug where Neo fields were assuming their values hadn't been eager-loaded on element save

@@ -277,6 +277,16 @@ class BlockQuery extends ElementQuery
     }
 
     /**
+     * @inheritdoc
+     */
+    public function ids(?Connection $db = null): array
+    {
+        return $this->isUsingMemoized() && isset($this->_allElements)
+            ? array_map(fn($block) => $block->id, $this->all())
+            : parent::ids($db);
+    }
+
+    /**
      * Sets all the elements (blocks) to be filtered against in Live Preview mode.
      * This becomes the main data source for Live Preview, instead of the database.
      *
