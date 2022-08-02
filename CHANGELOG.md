@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where calling `ids()` on a memoized Neo block query would always return an empty array
+- Fixed a bug that occurred when saving an element that doesn't autosave drafts, where validation errors would cause new Neo blocks that had any child blocks to incorrectly detect themselves as their own child block
 
 ## 3.2.4 - 2022-08-01
 
