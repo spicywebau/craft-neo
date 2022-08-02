@@ -1182,6 +1182,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                         'level' => $block->level,
                         'enabled' => $blockEnabled,
                     ]);
+                } else {
+                    // Just make sure we update the block's enabled state
+                    $block->enabled = $blockEnabled;
                 }
 
                 $block->dirty = $dirty;
