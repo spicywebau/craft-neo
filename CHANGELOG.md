@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.2.5 - 2022-08-03
 
 ### Fixed
 - Fixed a bug where calling `ids()` on a memoized Neo block query would always return an empty array
