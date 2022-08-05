@@ -57,6 +57,12 @@ class BlockTypesController extends Controller
     public bool $unsetDescription = false;
 
     /**
+     * @var int|null A new min blocks value to set for the block type.
+     * @since 3.3.0
+     */
+    public ?int $setMinBlocks = null;
+
+    /**
      * @var int|null A new max blocks value to set for the block type.
      */
     public ?int $setMaxBlocks = null;
@@ -114,6 +120,7 @@ class BlockTypesController extends Controller
             $options[] = 'setHandle';
             $options[] = 'setDescription';
             $options[] = 'unsetDescription';
+            $options[] = 'setMinBlocks';
             $options[] = 'setMaxBlocks';
             $options[] = 'setMaxSiblingBlocks';
             $options[] = 'setMinChildBlocks';
@@ -174,7 +181,15 @@ class BlockTypesController extends Controller
             $typeConfig['handle'] = $this->setHandle;
         }
 
-        foreach (['maxBlocks', 'maxSiblingBlocks', 'minChildBlocks', 'maxChildBlocks'] as $btProperty) {
+        $blockTypeConstraintProperties = [
+            'minBlocks',
+            'maxBlocks',
+            'maxSiblingBlocks',
+            'minChildBlocks',
+            'maxChildBlocks'
+        ];
+
+        foreach ($blockTypeConstraintProperties as $btProperty) {
             $controllerProperty = 'set' . ucfirst($btProperty);
 
             if ($this->$controllerProperty !== null) {

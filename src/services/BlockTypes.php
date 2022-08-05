@@ -204,6 +204,7 @@ class BlockTypes extends Component
         $record->handle = $blockType->handle;
         $record->description = $blockType->description;
         $record->sortOrder = $blockType->sortOrder;
+        $record->minBlocks = $blockType->minBlocks;
         $record->maxBlocks = $blockType->maxBlocks;
         $record->maxSiblingBlocks = $blockType->maxSiblingBlocks;
         $record->minChildBlocks = $blockType->minChildBlocks;
@@ -420,6 +421,7 @@ class BlockTypes extends Component
             $record->handle = $data['handle'];
             $record->description = $data['description'] ?? null;
             $record->sortOrder = $data['sortOrder'];
+            $record->minBlocks = $data['minBlocks'];
             $record->maxBlocks = $data['maxBlocks'];
             $record->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
             $record->minChildBlocks = $data['minChildBlocks'];
@@ -438,6 +440,7 @@ class BlockTypes extends Component
             $blockType->handle = $data['handle'];
             $blockType->description = $data['description'] ?? null;
             $blockType->sortOrder = $data['sortOrder'];
+            $blockType->minBlocks = $data['minBlocks'];
             $blockType->maxBlocks = $data['maxBlocks'];
             $blockType->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
             $blockType->minChildBlocks = $data['minChildBlocks'] ?? 0;
@@ -674,7 +677,16 @@ class BlockTypes extends Component
             'uid',
         ];
 
-        foreach (['description', 'minChildBlocks', 'conditions'] as $column) {
+        // Columns that didn't exist in Neo 3.0.0
+        // TODO: move these into `$columns` in Neo 4
+        $maybeColumns = [
+            'description',
+            'minBlocks',
+            'minChildBlocks',
+            'conditions'
+        ];
+
+        foreach ($maybeColumns as $column) {
             if ($db->columnExists('{{%neoblocktypes}}', $column)) {
                 $columns[] = $column;
             }

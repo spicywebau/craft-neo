@@ -266,6 +266,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->name = $blockType['name'];
                 $newBlockType->handle = $blockType['handle'];
                 $newBlockType->description = $blockType['description'];
+                $newBlockType->minBlocks = (int)$blockType['minBlocks'];
                 $newBlockType->maxBlocks = (int)$blockType['maxBlocks'];
                 $newBlockType->maxSiblingBlocks = (int)$blockType['maxSiblingBlocks'];
                 $newBlockType->minChildBlocks = (int)$blockType['minChildBlocks'];
@@ -683,13 +684,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 }
             }
 
-            if ($this->maxTopBlocks || $this->maxLevels) {
-                $fieldValidator = new FieldValidator([
-                    'maxTopBlocks' => $this->maxTopBlocks ?: null,
-                    'maxLevels' => $this->maxLevels ?: null,
-                ]);
-                $fieldValidator->validateAttribute($element, $this->handle);
-            }
+            $fieldValidator = new FieldValidator([
+                'maxTopBlocks' => $this->maxTopBlocks ?: null,
+                'maxLevels' => $this->maxLevels ?: null,
+            ]);
+            $fieldValidator->validateAttribute($element, $this->handle);
         }
     }
 

@@ -46,6 +46,20 @@
         
         {{ forms.textField({
             type: 'number',
+            id: 'minBlocks',
+            name: 'minBlocks',
+            label: 'Min Blocks'|t('neo'),
+            instructions: 'The minimum number of blocks of this type the field is allowed to have.'|t('neo'),
+            size: 3,
+            value: blockType and blockType.minBlocks ? blockType.minBlocks : null,
+            errors: blockType ? blockType.getErrors('minBlocks') : null,
+            inputAttributes: {
+                'data-neo-bts': 'input.minBlocks'
+            }
+        }) }}
+
+        {{ forms.textField({
+            type: 'number',
             id: 'maxBlocks',
             name: 'maxBlocks',
             label: 'Max Blocks'|t('neo'),

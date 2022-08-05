@@ -13,6 +13,7 @@ const _defaults = {
   name: '',
   handle: '',
   description: '',
+  minBlocks: 0,
   maxBlocks: 0,
   maxSiblingBlocks: 0,
   minChildBlocks: 0,
@@ -35,6 +36,7 @@ export default Settings.extend({
   $nameInput: new $(),
   $handleInput: new $(),
   $descriptionInput: new $(),
+  $minBlocksInput: new $(),
   $maxBlocksInput: new $(),
   $maxSiblingBlocksInput: new $(),
   $minChildBlocksInput: new $(),
@@ -59,6 +61,7 @@ export default Settings.extend({
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
+    this.$minBlocksInput = $neo.filter('[data-neo-bts="input.minBlocks"]')
     this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
     this.$maxSiblingBlocksInput = $neo.filter('[data-neo-bts="input.maxSiblingBlocks"]')
     this.$minChildBlocksInput = $neo.filter('[data-neo-bts="input.minChildBlocks"]')
@@ -75,6 +78,7 @@ export default Settings.extend({
     this.setName(settings.name)
     this.setHandle(settings.handle)
     this.setDescription(settings.description)
+    this.setMinBlocks(settings.minBlocks)
     this.setMaxBlocks(settings.maxBlocks)
     this.setMaxSiblingBlocks(settings.maxSiblingBlocks)
     this.setMinChildBlocks(settings.minChildBlocks)
@@ -118,6 +122,7 @@ export default Settings.extend({
 
     this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
     this.addListener(this.$descriptionInput, 'keyup change textchange', () => this.setDescription(this.$descriptionInput.val()))
+    this.addListener(this.$minBlocksInput, 'keyup change', () => this.setMinBlocks(this.$minBlocksInput.val()))
     this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
     this.addListener(this.$maxSiblingBlocksInput, 'keyup change', () => this.setMaxSiblingBlocks(this.$maxSiblingBlocksInput.val()))
     this.addListener(this.$minChildBlocksInput, 'keyup change', () => this.setMinChildBlocks(this.$minChildBlocksInput.val()))
@@ -231,29 +236,11 @@ export default Settings.extend({
     }
   },
 
+  getMinBlocks () { return this._minBlocks },
+  setMinBlocks (minBlocks) { this._setBlocksConstraint('minBlocks', minBlocks) },
+
   getMaxBlocks () { return this._maxBlocks },
-  setMaxBlocks (maxBlocks) {
-    const oldMaxBlocks = this._maxBlocks
-    const newMaxBlocks = Math.max(0, maxBlocks | 0)
-
-    if (newMaxBlocks === 0) {
-      this.$maxBlocksInput.val(null)
-    }
-
-    if (oldMaxBlocks !== newMaxBlocks) {
-      this._maxBlocks = newMaxBlocks
-
-      if (this._maxBlocks > 0 && parseInt(this.$maxBlocksInput.val()) !== this._maxBlocks) {
-        this.$maxBlocksInput.val(this._maxBlocks)
-      }
-
-      this.trigger('change', {
-        property: 'maxBlocks',
-        oldValue: oldMaxBlocks,
-        newValue: this._maxBlocks
-      })
-    }
-  },
+  setMaxBlocks (maxBlocks) { this._setBlocksConstraint('maxBlocks', maxBlocks) },
 
   getMaxSiblingBlocks () { return this._maxSiblingBlocks },
   setMaxSiblingBlocks (maxSiblingBlocks) {

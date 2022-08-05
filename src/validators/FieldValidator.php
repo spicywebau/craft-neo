@@ -38,6 +38,12 @@ class FieldValidator extends Validator
     public ?string $exceedsMaxLevels = null;
 
     /**
+     * @var string|null A user-defined error message to be used if a block type's `minBlocks` setting is violated.
+     * @since 3.3.0
+     */
+    public ?string $tooFewBlocksOfType = null;
+
+    /**
      * @var string|null A user-defined error message to be used if a block type's `maxBlocks` is exceeded.
      * @since 3.0.0
      */
@@ -62,7 +68,7 @@ class FieldValidator extends Validator
         $this->_checkMaxTopLevelBlocks($model, $attribute);
         $this->_checkMaxLevels($model, $attribute);
 
-        // Check for max blocks by block type
+        // Check for min/max blocks by block type
         $blockTypesCount = [];
         $blockTypesById = [];
 
@@ -77,6 +83,18 @@ class FieldValidator extends Validator
 
         foreach ($blockTypesCount as $blockTypeId => $blockTypeCount) {
             $blockType = $blockTypesById[$blockTypeId];
+
+            if ($blockType->minBlocks > 0 && $blockTypeCount < $blockType->minBlocks) {
+                $this->addError(
+                    $model,
+                    $attribute,
+                    $this->tooFewBlocksOfType,
+                    [
+                        'minBlockTypeBlocks' => $blockType->minBlocks,
+                        'blockType' => $blockType->name,
+                    ]
+                );
+            }
 
             if ($blockType->maxBlocks > 0 && $blockTypeCount > $blockType->maxBlocks) {
                 $this->addError(
@@ -133,6 +151,10 @@ class FieldValidator extends Validator
 
         if ($this->exceedsMaxLevels === null) {
             $this->exceedsMaxLevels = Craft::t('neo', '{attribute} blocks must not be nested deeper than level {maxLevels, number}.');
+        }
+
+        if ($this->tooFewBlocksOfType === null) {
+            $this->tooFewBlocksOfType = Craft::t('neo', '{attribute} should contain at least {minBlockTypeBlocks, number} {minBlockTypeBlocks, plural, one{block} other{blocks}} of type {blockType}.');
         }
 
         if ($this->tooManyBlocksOfType === null) {

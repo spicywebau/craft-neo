@@ -45,6 +45,7 @@ Edits a Neo block type.
 - `--set-handle`: A new handle to set for the block type.
 - `--set-description`: A new description to set for the block type.
 - `--unset-description`: Whether to remove the block type's description.
+- `--set-min-blocks`: A new min blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-max-blocks`: A new max blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-max-sibling-blocks`: A new max sibling blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-min-child-blocks`: A new min child blocks value to set for the block type. Set this to 0 to remove the limit.

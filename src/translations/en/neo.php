@@ -24,6 +24,7 @@ return [
     'How you’ll refer to this block type in the templates.' => 'How you’ll refer to this block type in the templates.',
     'Description' => 'Description',
     'Max Blocks' => 'Max Blocks',
+    'The minimum number of blocks of this type the field is allowed to have.' => 'The minimum number of blocks of this type the field is allowed to have.',
     'The maximum number of blocks of this type the field is allowed to have.' => 'The maximum number of blocks of this type the field is allowed to have.',
     'All' => 'All',
     'Child Blocks' => 'Child Blocks',
