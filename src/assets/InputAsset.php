@@ -144,6 +144,7 @@ class InputAsset extends FieldAsset
             'minBlocks' => $field->minBlocks,
             'maxBlocks' => $field->maxBlocks,
             'maxTopBlocks' => $field->maxTopBlocks,
+            'minLevels' => (int)$field->minLevels,
             'maxLevels' => (int)$field->maxLevels,
             'showBlockTypeHandles' => Craft::$app->getUser()->getIdentity()->getPreference('showFieldHandles'),
         ];

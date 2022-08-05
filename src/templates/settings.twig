@@ -113,6 +113,16 @@
 }) }}
 
 {{ forms.textField({
+    label: "Min Levels"|t('neo'),
+    instructions: "The minimum number of levels that blocks in this field can be nested."|t('neo'),
+    id: 'minLevels',
+    name: 'minLevels',
+    value: neoField.minLevels,
+    size: 3,
+    errors: neoField.getErrors('minLevels'),
+}) }}
+
+{{ forms.textField({
     label: "Max Levels"|t('app'),
     instructions: "The maximum number of levels that blocks in this field can be nested."|t('neo'),
     id: 'maxLevels',

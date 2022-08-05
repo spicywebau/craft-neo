@@ -21,6 +21,12 @@ class FieldValidator extends Validator
     public ?int $maxTopBlocks = null;
 
     /**
+     * @var int|null The minimum level blocks can be nested in the field.  If not set, there is no limit.
+     * @since 3.3.0
+     */
+    public ?int $minLevels = null;
+
+    /**
      * @var int|null The maximum level blocks can be nested in the field.  If not set, there is no limit.
      * @since 2.9.0
      */
@@ -30,6 +36,12 @@ class FieldValidator extends Validator
      * @var string|null A user-defined error message to be used if the field's `maxTopBlocks` is exceeded.
      */
     public ?string $tooManyTopBlocks = null;
+
+    /**
+     * @var string|null A user-defined error message to be used if the field's `minLevels` is exceeded.
+     * @since 3.3.0
+     */
+    public ?string $exceedsMinLevels = null;
 
     /**
      * @var string|null A user-defined error message to be used if the field's `maxLevels` is exceeded.
@@ -72,6 +84,7 @@ class FieldValidator extends Validator
         $this->_blocks = $value->all();
 
         $this->_checkMaxTopLevelBlocks($model, $attribute);
+        $this->_checkMinLevels($model, $attribute);
         $this->_checkMaxLevels($model, $attribute);
 
         // Check for block type block constraints
@@ -198,6 +211,22 @@ class FieldValidator extends Validator
     }
 
     /**
+     * Adds an error if the field exceeds its min levels.
+     */
+    private function _checkMinLevels($model, $attribute): void
+    {
+        $minLevels = $this->minLevels;
+
+        if ($minLevels !== null) {
+            $blocksAtMinLevels = array_filter($this->_blocks, fn($block) => ((int)$block->level) >= $minLevels);
+
+            if (empty($blocksAtMinLevels)) {
+                $this->addError($model, $attribute, $this->exceedsMinLevels, ['minLevels' => $this->minLevels]);
+            }
+        }
+    }
+
+    /**
      * Adds an error if the field exceeds its max levels.
      */
     private function _checkMaxLevels($model, $attribute): void
@@ -220,6 +249,10 @@ class FieldValidator extends Validator
     {
         if ($this->tooManyTopBlocks === null) {
             $this->tooManyTopBlocks = Craft::t('neo', '{attribute} should contain at most {maxTopBlocks, number} top-level {maxTopBlocks, plural, one{block} other{blocks}}.');
+        }
+
+        if ($this->exceedsMinLevels === null) {
+            $this->exceedsMinLevels = Craft::t('neo', '{attribute} must have at least one block nested at level {minLevels, number}.');
         }
 
         if ($this->exceedsMaxLevels === null) {

@@ -21,6 +21,7 @@ const _defaults = {
   inputId: null,
   maxBlocks: 0,
   maxTopBlocks: 0,
+  minLevels: 0,
   maxLevels: 0
 }
 
@@ -40,6 +41,7 @@ export default Garnish.Base.extend({
     this._name = settings.name
     this._maxBlocks = settings.maxBlocks
     this._maxTopBlocks = settings.maxTopBlocks
+    this._minLevels = settings.minLevels
     this._maxLevels = settings.maxLevels
     this._ownerId = null
     this._showBlockTypeHandles = settings.showBlockTypeHandles
@@ -431,6 +433,10 @@ export default Garnish.Base.extend({
 
   getMaxTopBlocks () {
     return this._maxTopBlocks
+  },
+
+  getMinLevels () {
+    return this._minLevels
   },
 
   getMaxLevels () {

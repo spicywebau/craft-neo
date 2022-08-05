@@ -110,6 +110,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public ?int $maxTopBlocks = null;
 
     /**
+     * @var int|null The minimum number of levels that blocks in this field can be nested.
+     * @since 3.3.0
+     */
+    public ?int $minLevels = null;
+
+    /**
      * @var int|null The maximum number of levels that blocks in this field can be nested.
      * @since 2.9.0
      */
@@ -208,7 +214,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             ],
         ];
         $rules[] = [['blockTypes'], ArrayValidator::class, 'min' => 1, 'skipOnEmpty' => false];
-        $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks', 'maxLevels'], 'integer', 'min' => 0];
+        $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks', 'minLevels', 'maxLevels'], 'integer', 'min' => 0];
 
         return $rules;
     }
@@ -687,6 +693,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
             $fieldValidator = new FieldValidator([
                 'maxTopBlocks' => $this->maxTopBlocks ?: null,
+                'minLevels' => $this->minLevels ?: null,
                 'maxLevels' => $this->maxLevels ?: null,
             ]);
             $fieldValidator->validateAttribute($element, $this->handle);
