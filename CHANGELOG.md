@@ -6,10 +6,12 @@
 - Added the Min Child Blocks block type setting (added `benf\neo\models\BlockType::$minChildBlocks` and added the `minChildBlocks` column to the `neoblocktypes` table)
 - Added `benf\neo\console\controllers\BlockTypesController::$setMinChildBlocks` (added the `--set-min-child-blocks` option to the `php craft neo/block-types/edit` console command)
 
-## Unreleased
+## 3.2.5 - 2022-08-03
 
 ### Fixed
 - Fixed a bug where calling `ids()` on a memoized Neo block query would always return an empty array
+- Fixed a bug that occurred when saving an element that doesn't autosave drafts, where validation errors would cause new Neo blocks that had any child blocks to incorrectly detect themselves as their own child block
+- Fixed a bug that occurred when saving an element that doesn't autosave drafts, where changes to a Neo block's enabled/disabled state wouldn't be saved
 
 ## 3.2.4 - 2022-08-01
 

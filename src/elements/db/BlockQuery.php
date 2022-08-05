@@ -582,6 +582,7 @@ class BlockQuery extends ElementQuery
     private function _getFilteredResult(): array
     {
         $result = $this->_allElements ?? [];
+        $originalIds = array_map(fn($block) => $block->id, $result);
         $criteria = $this->getCriteria();
 
         foreach (['limit', 'offset'] as $limitParam) {
@@ -595,7 +596,13 @@ class BlockQuery extends ElementQuery
 
             if (method_exists($this, $method)) {
                 $currentFiltered = $this->$method($this->_allElements, $value);
-                $result = array_values(array_uintersect($result, $currentFiltered, fn($a, $b) => $a->lft <=> $b->lft));
+                $result = array_values(
+                    array_uintersect(
+                        $result,
+                        $currentFiltered,
+                        fn($a, $b) => array_search($a->id, $originalIds) <=> array_search($b->id, $originalIds)
+                    )
+                );
             }
         }
 
