@@ -73,6 +73,7 @@ export default Garnish.Base.extend({
         description: btInfo.description,
         minBlocks: btInfo.minBlocks,
         maxBlocks: btInfo.maxBlocks,
+        minSiblingBlocks: btInfo.minSiblingBlocks,
         maxSiblingBlocks: btInfo.maxSiblingBlocks,
         minChildBlocks: btInfo.minChildBlocks,
         maxChildBlocks: btInfo.maxChildBlocks,
@@ -361,6 +362,7 @@ export default Garnish.Base.extend({
         maxBlocks: oldSettings.getMaxBlocks(),
         minChildBlocks: oldSettings.getMinChildBlocks(),
         maxChildBlocks: oldSettings.getMaxChildBlocks(),
+        minSiblingBlocks: oldSettings.getMinSiblingBlocks(),
         maxSiblingBlocks: oldSettings.getMaxSiblingBlocks(),
         name: oldSettings.getName(),
         description: oldSettings.getDescription(),
@@ -434,6 +436,7 @@ export default Garnish.Base.extend({
           maxBlocks: settings.getMaxBlocks(),
           minChildBlocks: settings.getMinChildBlocks(),
           maxChildBlocks: settings.getMaxChildBlocks(),
+          minSiblingBlocks: settings.getMinSiblingBlocks(),
           maxSiblingBlocks: settings.getMaxSiblingBlocks(),
           name: settings.getName(),
           topLevel: settings.getTopLevel()
@@ -465,6 +468,7 @@ export default Garnish.Base.extend({
       maxBlocks: data.maxBlocks,
       minChildBlocks: data.minChildBlocks,
       maxChildBlocks: data.maxChildBlocks,
+      minSiblingBlocks: data.minSiblingBlocks,
       maxSiblingBlocks: data.maxSiblingBlocks,
       name: data.name,
       topLevel: data.topLevel

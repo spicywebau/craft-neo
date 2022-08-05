@@ -68,6 +68,12 @@ class BlockTypesController extends Controller
     public ?int $setMaxBlocks = null;
 
     /**
+     * @var int|null A new min sibling blocks value to set for the block type.
+     * @since 3.3.0
+     */
+    public ?int $setMinSiblingBlocks = null;
+
+    /**
      * @var int|null A new max sibling blocks value to set for the block type.
      */
     public ?int $setMaxSiblingBlocks = null;
@@ -122,6 +128,7 @@ class BlockTypesController extends Controller
             $options[] = 'unsetDescription';
             $options[] = 'setMinBlocks';
             $options[] = 'setMaxBlocks';
+            $options[] = 'setMinSiblingBlocks';
             $options[] = 'setMaxSiblingBlocks';
             $options[] = 'setMinChildBlocks';
             $options[] = 'setMaxChildBlocks';
@@ -184,6 +191,7 @@ class BlockTypesController extends Controller
         $blockTypeConstraintProperties = [
             'minBlocks',
             'maxBlocks',
+            'minSiblingBlocks',
             'maxSiblingBlocks',
             'minChildBlocks',
             'maxChildBlocks'

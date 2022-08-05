@@ -206,6 +206,7 @@ class BlockTypes extends Component
         $record->sortOrder = $blockType->sortOrder;
         $record->minBlocks = $blockType->minBlocks;
         $record->maxBlocks = $blockType->maxBlocks;
+        $record->minSiblingBlocks = $blockType->maxSiblingBlocks;
         $record->maxSiblingBlocks = $blockType->maxSiblingBlocks;
         $record->minChildBlocks = $blockType->minChildBlocks;
         $record->maxChildBlocks = $blockType->maxChildBlocks;
@@ -423,6 +424,7 @@ class BlockTypes extends Component
             $record->sortOrder = $data['sortOrder'];
             $record->minBlocks = $data['minBlocks'];
             $record->maxBlocks = $data['maxBlocks'];
+            $record->minSiblingBlocks = $data['minSiblingBlocks'] ?? 0;
             $record->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
             $record->minChildBlocks = $data['minChildBlocks'];
             $record->maxChildBlocks = $data['maxChildBlocks'];
@@ -442,6 +444,7 @@ class BlockTypes extends Component
             $blockType->sortOrder = $data['sortOrder'];
             $blockType->minBlocks = $data['minBlocks'];
             $blockType->maxBlocks = $data['maxBlocks'];
+            $blockType->minSiblingBlocks = $data['minSiblingBlocks'] ?? 0;
             $blockType->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
             $blockType->minChildBlocks = $data['minChildBlocks'] ?? 0;
             $blockType->maxChildBlocks = $data['maxChildBlocks'];
@@ -683,6 +686,7 @@ class BlockTypes extends Component
             'description',
             'minBlocks',
             'minChildBlocks',
+            'minSiblingBlocks',
             'conditions'
         ];
 

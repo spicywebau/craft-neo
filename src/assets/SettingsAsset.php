@@ -181,6 +181,7 @@ class SettingsAsset extends AssetBundle
                 'description' => $blockType->description,
                 'minBlocks' => $blockType->minBlocks,
                 'maxBlocks' => $blockType->maxBlocks,
+                'minSiblingBlocks' => $blockType->minSiblingBlocks,
                 'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
                 'minChildBlocks' => $blockType->minChildBlocks,
                 'maxChildBlocks' => $blockType->maxChildBlocks,

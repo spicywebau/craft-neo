@@ -50,6 +50,12 @@ class FieldValidator extends Validator
     public ?string $tooManyBlocksOfType = null;
 
     /**
+     * @var string|null A user-defined error message to be used if a block type's `minSiblingBlocks` setting is violated.
+     * @since 3.3.0
+     */
+    public ?string $tooFewSiblingBlocks = null;
+
+    /**
      * @var Block[]
      */
     private array $_blocks = [];
@@ -68,17 +74,65 @@ class FieldValidator extends Validator
         $this->_checkMaxTopLevelBlocks($model, $attribute);
         $this->_checkMaxLevels($model, $attribute);
 
-        // Check for min/max blocks by block type
+        // Check for block type block constraints
+        // TODO: validate max sibling blocks by type in Neo 4, arguably a breaking change before then
         $blockTypesCount = [];
         $blockTypesById = [];
+        $blockTypesByHandle = [];
+        $childBlockTypes = [];
+        $topLevelBlockTypeHandles = [];
+        $blockSiblingCount = [];
+        $blockAncestors = [null];
+        $lastBlock = null;
+        $blockTypes = $field->getBlockTypes();
 
-        foreach ($field->getBlockTypes() as $blockType) {
+        foreach ($blockTypes as $blockType) {
             $blockTypesCount[$blockType->id] = 0;
             $blockTypesById[$blockType->id] = $blockType;
+            $blockTypesByHandle[$blockType->handle] = $blockType;
+            $childBlockTypes[$blockType->id] = $blockType->childBlocks ?? [];
+
+            if ($blockType->topLevel) {
+                $topLevelBlockTypeHandles[] = $blockType->handle;
+            }
+        }
+
+        // Now that it's safe to use array_keys($blockTypesByHandle)
+        foreach ($blockTypes as $blockType) {
+            if ($childBlockTypes[$blockType->id] === '*') {
+                $childBlockTypes[$blockType->id] = array_keys($blockTypesByHandle);
+            }
         }
 
         foreach ($this->_blocks as $block) {
             $blockTypesCount[$block->typeId] += 1;
+
+            // Make sure we have the correct ancestors for the current block
+            if ($lastBlock !== null) {
+                if ($lastBlock->level < $block->level) {
+                    $blockAncestors[] = $lastBlock;
+                } elseif ($lastBlock->level > $block->level) {
+                    array_splice($blockAncestors, $block->level - $lastBlock->level);
+                }
+            }
+
+            $parent = end($blockAncestors);
+            $parentId = $parent?->id ?? 0;
+            $atTopLevel = $parent === null;
+
+            // Create the sibling count for this parent block if this block is the first of its children
+            if (!isset($blockSiblingCount[$parentId])) {
+                $blockSiblingCount[$parentId] = array_fill_keys(
+                    array_map(
+                        fn($handle) => $blockTypesByHandle[$handle]->id,
+                        $atTopLevel ? $topLevelBlockTypeHandles : $childBlockTypes[$parent->typeId]
+                    ),
+                    0
+                );
+            }
+
+            $blockSiblingCount[$parentId][$block->typeId] += 1;
+            $lastBlock = $block;
         }
 
         foreach ($blockTypesCount as $blockTypeId => $blockTypeCount) {
@@ -106,6 +160,25 @@ class FieldValidator extends Validator
                         'blockType' => $blockType->name,
                     ]
                 );
+            }
+        }
+
+        // Check the block sibling counts for any violations of minSiblingBlocks
+        foreach ($blockSiblingCount as $childBlockTypeCount) {
+            $childBlockTypes = array_map(fn($id) => $blockTypesById[$id], array_keys($childBlockTypeCount));
+
+            foreach ($childBlockTypes as $childBlockType) {
+                if ($childBlockType->minSiblingBlocks > $childBlockTypeCount[$childBlockType->id]) {
+                    $this->addError(
+                        $model,
+                        $attribute,
+                        $this->tooFewSiblingBlocks,
+                        [
+                            'minSiblingBlocks' => $childBlockType->minSiblingBlocks,
+                            'blockType' => $childBlockType->name,
+                        ]
+                    );
+                }
             }
         }
     }
@@ -159,6 +232,10 @@ class FieldValidator extends Validator
 
         if ($this->tooManyBlocksOfType === null) {
             $this->tooManyBlocksOfType = Craft::t('neo', '{attribute} should contain at most {maxBlockTypeBlocks, number} {maxBlockTypeBlocks, plural, one{block} other{blocks}} of type {blockType}.');
+        }
+
+        if ($this->tooFewSiblingBlocks === null) {
+            $this->tooFewSiblingBlocks = Craft::t('neo', '{attribute} should not contain any instances of fewer than {minSiblingBlocks, number} sibling {minSiblingBlocks, plural, one{block} other{blocks}} of type {blockType}.');
         }
     }
 }

@@ -71,7 +71,21 @@
                 'data-neo-bts': 'input.maxBlocks'
             }
         }) }}
-        
+
+        {{ forms.textField({
+            type: 'number',
+            id: 'minSiblingBlocks',
+            name: 'minSiblingBlocks',
+            label: 'Min Sibling Blocks of This Type'|t('neo'),
+            instructions: 'The minimum number of blocks of this type allowed under one parent block or at the top level.'|t('neo'),
+            size: 3,
+            value: blockType and blockType.minSiblingBlocks ? blockType.minSiblingBlocks : null,
+            errors: blockType ? blockType.getErrors('minSiblingBlocks') : null,
+            inputAttributes: {
+                'data-neo-bts': 'input.minSiblingBlocks'
+            }
+        }) }}
+
         {{ forms.textField({
             type: 'number',
             id: 'maxSiblingBlocks',

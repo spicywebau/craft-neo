@@ -76,6 +76,7 @@ class Install extends Migration
                 'description' => $this->string(),
                 'minBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'maxBlocks' => $this->smallInteger()->unsigned(),
+                'minSiblingBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'maxSiblingBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'minChildBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'maxChildBlocks' => $this->smallInteger()->unsigned(),
