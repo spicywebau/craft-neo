@@ -16,7 +16,12 @@ use yii\validators\Validator;
 class FieldValidator extends Validator
 {
     /**
-     * @var int|null The maximum top-level blocks the field can have.  If not set, there is no top-level block limit.
+     * @var int|null The minimum top-level blocks the field can have.  If not set, there is no top-level block minimum.
+     */
+    public ?int $minTopBlocks = null;
+
+    /**
+     * @var int|null The maximum top-level blocks the field can have.  If not set, there is no top-level block maximum.
      */
     public ?int $maxTopBlocks = null;
 
@@ -31,6 +36,12 @@ class FieldValidator extends Validator
      * @since 2.9.0
      */
     public ?int $maxLevels = null;
+
+    /**
+     * @var string|null A user-defined error message to be used if the field's `minTopBlocks` is exceeded.
+     * @since 3.3.0
+     */
+    public ?string $tooFewTopBlocks = null;
 
     /**
      * @var string|null A user-defined error message to be used if the field's `maxTopBlocks` is exceeded.
@@ -83,7 +94,7 @@ class FieldValidator extends Validator
         $value = $model->$attribute;
         $this->_blocks = $value->all();
 
-        $this->_checkMaxTopLevelBlocks($model, $attribute);
+        $this->_checkTopLevelBlocks($model, $attribute);
         $this->_checkMinLevels($model, $attribute);
         $this->_checkMaxLevels($model, $attribute);
 
@@ -197,14 +208,18 @@ class FieldValidator extends Validator
     }
 
     /**
-     * Adds an error if the field exceeds its max top-level blocks.
+     * Adds an error if the field violates its min or max top-level blocks settings.
      */
-    private function _checkMaxTopLevelBlocks($model, $attribute): void
+    private function _checkTopLevelBlocks($model, $attribute): void
     {
-        if ($this->maxTopBlocks !== null) {
+        if ($this->minTopBlocks !== null || $this->maxTopBlocks !== null) {
             $topBlocks = array_filter($this->_blocks, fn($block) => (int)$block->level === 1);
 
-            if (count($topBlocks) > $this->maxTopBlocks) {
+            if ($this->minTopBlocks !== null && count($topBlocks) < $this->minTopBlocks) {
+                $this->addError($model, $attribute, $this->tooFewTopBlocks, ['minTopBlocks' => $this->minTopBlocks]);
+            }
+
+            if ($this->maxTopBlocks !== null && count($topBlocks) > $this->maxTopBlocks) {
                 $this->addError($model, $attribute, $this->tooManyTopBlocks, ['maxTopBlocks' => $this->maxTopBlocks]);
             }
         }
@@ -247,6 +262,10 @@ class FieldValidator extends Validator
      */
     private function _setDefaultErrorMessages(): void
     {
+        if ($this->tooFewTopBlocks === null) {
+            $this->tooFewTopBlocks = Craft::t('neo', '{attribute} should contain at least {minTopBlocks, number} top-level {minTopBlocks, plural, one{block} other{blocks}}.');
+        }
+
         if ($this->tooManyTopBlocks === null) {
             $this->tooManyTopBlocks = Craft::t('neo', '{attribute} should contain at most {maxTopBlocks, number} top-level {maxTopBlocks, plural, one{block} other{blocks}}.');
         }

@@ -4,6 +4,7 @@
 
 ### Added
 - Added the Min Levels field setting (added `benf\neo\Field::$minLevels`)
+- Added the Min Top-Level Blocks field setting (added `benf\neo\Field::$minTopBlocks`)
 - Added the Min Blocks block type setting (added `benf\neo\models\BlockType::$minBlocks` and added the `minBlocks` column to the `neoblocktypes` table)
 - Added the Min Sibling Blocks of This Type block type setting (added `benf\neo\models\BlockType::$minSiblingBlocks` and added the `minSiblingBlocks` column to the `neoblocktypes` table)
 - Added the Min Child Blocks block type setting (added `benf\neo\models\BlockType::$minChildBlocks` and added the `minChildBlocks` column to the `neoblocktypes` table)

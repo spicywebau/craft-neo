@@ -104,6 +104,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public ?int $maxBlocks = null;
 
     /**
+     * @var int|null The minimum number of top-level blocks this field can have.
+     * @since 3.3.0
+     */
+    public ?int $minTopBlocks = null;
+
+    /**
      * @var int|null The maximum number of top-level blocks this field can have.
      * @since 2.3.0
      */
@@ -692,6 +698,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             }
 
             $fieldValidator = new FieldValidator([
+                'minTopBlocks' => $this->minTopBlocks ?: null,
                 'maxTopBlocks' => $this->maxTopBlocks ?: null,
                 'minLevels' => $this->minLevels ?: null,
                 'maxLevels' => $this->maxLevels ?: null,
