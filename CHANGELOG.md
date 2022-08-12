@@ -17,6 +17,7 @@
 
 ### Fixed
 - Fixed a bug when saving an element, where Neo fields weren't being validated on block types' Max Blocks settings, unless at least one of the Neo field's Max Top-Level Blocks and Max Levels settings were set
+- Fixed a bug where copying and pasting a block type would not copy the old block type's description to the new block type
 
 ## 3.2.5 - 2022-08-03
 

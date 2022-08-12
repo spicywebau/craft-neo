@@ -432,6 +432,7 @@ export default Garnish.Base.extend({
         const settings = blockType.getSettings()
         const data = {
           childBlocks: settings.getChildBlocks(),
+          description: settings.getDescription(),
           enabled: settings.getEnabled(),
           handle: settings.getHandle(),
           layout: blockType.getFieldLayout().getConfig(),
@@ -466,6 +467,7 @@ export default Garnish.Base.extend({
     const settings = new BlockTypeSettings({
       childBlocks,
       childBlockTypes: this.getBlockTypes(),
+      description: data.description,
       enabled: data.enabled,
       handle: data.handle,
       minBlocks: data.minBlocks,
