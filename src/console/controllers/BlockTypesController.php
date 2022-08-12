@@ -57,6 +57,18 @@ class BlockTypesController extends Controller
     public bool $unsetDescription = false;
 
     /**
+     * @var bool Whether to set the block type as being allowed to be used.
+     * @since 3.3.0
+     */
+    public bool $setEnabled = false;
+
+    /**
+     * @var bool Whether to set the block type as not being allowed to be used.
+     * @since 3.3.0
+     */
+    public bool $unsetEnabled = false;
+
+    /**
      * @var int|null A new min blocks value to set for the block type.
      * @since 3.3.0
      */
@@ -126,6 +138,8 @@ class BlockTypesController extends Controller
             $options[] = 'setHandle';
             $options[] = 'setDescription';
             $options[] = 'unsetDescription';
+            $options[] = 'setEnabled';
+            $options[] = 'unsetEnabled';
             $options[] = 'setMinBlocks';
             $options[] = 'setMaxBlocks';
             $options[] = 'setMinSiblingBlocks';
@@ -205,7 +219,7 @@ class BlockTypesController extends Controller
             }
         }
 
-        foreach (['description', 'topLevel'] as $btProperty) {
+        foreach (['description', 'enabled', 'topLevel'] as $btProperty) {
             $setProperty = 'set' . ucfirst($btProperty);
             $unsetProperty = 'unset' . ucfirst($btProperty);
 

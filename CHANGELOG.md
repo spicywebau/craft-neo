@@ -9,6 +9,8 @@
 - Added the Min Blocks block type setting (added `benf\neo\models\BlockType::$minBlocks` and added the `minBlocks` column to the `neoblocktypes` table)
 - Added the Min Sibling Blocks of This Type block type setting (added `benf\neo\models\BlockType::$minSiblingBlocks` and added the `minSiblingBlocks` column to the `neoblocktypes` table)
 - Added the Min Child Blocks block type setting (added `benf\neo\models\BlockType::$minChildBlocks` and added the `minChildBlocks` column to the `neoblocktypes` table)
+- Added `benf\neo\console\controllers\BlockTypesController::$setEnabled` (added the `--set-enabled` option to the `php craft neo/block-types/edit` console command)
+- Added `benf\neo\console\controllers\BlockTypesController::$unsetEnabled` (added the `--unset-enabled` option to the `php craft neo/block-types/edit` console command)
 - Added `benf\neo\console\controllers\BlockTypesController::$setMinBlocks` (added the `--set-min-blocks` option to the `php craft neo/block-types/edit` console command)
 - Added `benf\neo\console\controllers\BlockTypesController::$setMinSiblingBlocks` (added the `--set-min-sibling-blocks` option to the `php craft neo/block-types/edit` console command)
 - Added `benf\neo\console\controllers\BlockTypesController::$setMinChildBlocks` (added the `--set-min-child-blocks` option to the `php craft neo/block-types/edit` console command)

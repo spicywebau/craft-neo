@@ -45,6 +45,8 @@ Edits a Neo block type.
 - `--set-handle`: A new handle to set for the block type.
 - `--set-description`: A new description to set for the block type.
 - `--unset-description`: Whether to remove the block type's description.
+- `--set-enabled`: Whether to set the block type as being allowed to be used.
+- `--unset-enabled`: Whether to set the block type as not being allowed to be used.
 - `--set-min-blocks`: A new min blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-max-blocks`: A new max blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-min-sibling-blocks`: A new min sibling blocks value to set for the block type. Set this to 0 to remove the limit.
@@ -56,7 +58,12 @@ Edits a Neo block type.
 - `--set-top-level`: Whether to set the block type as being allowed at the top level.
 - `--unset-top-level`: Whether to set the block type as not being allowed at the top level.
 
-One of `--type-id` and `--handle` must be specified, and if `--handle` is specified and the specified handle is used on more than one Neo field, `--field-id` must also be specified. Furthermore, at most one of `--set-description` and `--unset-description` may be used, at most one of `--set-top-level` and `--unset-top-level` may be used, and at most one of `--set-child-blocks` and `--unset-child-blocks` may be used.
+The following restrictions exist on using options:
+- One of `--type-id` and `--handle` must be specified, and if `--handle` is specified and the specified handle is used on more than one Neo field, `--field-id` must also be specified
+- At most one of `--set-description` and `--unset-description` may be used
+- At most one of `--set-enabled` and `--unset-enabled` may be used
+- At most one of `--set-top-level` and `--unset-top-level` may be used
+- At most one of `--set-child-blocks` and `--unset-child-blocks` may be used
 
 ## `neo/fields/reapply-propagation-method`
 
