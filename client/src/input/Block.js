@@ -78,6 +78,7 @@ export default Garnish.Base.extend({
     this._blockType = settings.blockType
     this._id = settings.id
     this._buttons = settings.buttons
+    this._enabled = settings.enabled && this._blockType.getEnabled()
     this._initialEnabled = settings.enabled
     this._modified = settings.modified
     this._showButtons = settings.showButtons
@@ -902,17 +903,19 @@ export default Garnish.Base.extend({
     if (enable !== this._enabled) {
       this._enabled = enable
 
+      const blockTypeEnabled = this._blockType.getEnabled()
+      const actuallyEnabled = this._enabled && blockTypeEnabled
       const enableContainer = this.$menuContainer.find('[data-action="enable"]').parent()
       const disableContainer = this.$menuContainer.find('[data-action="disable"]').parent()
 
       this.$container
-        .toggleClass('is-enabled', this._enabled)
-        .toggleClass('is-disabled', !this._enabled)
+        .toggleClass('is-enabled', actuallyEnabled)
+        .toggleClass('is-disabled', !actuallyEnabled)
 
-      this.$status.toggleClass('hidden', this._enabled)
+      this.$status.toggleClass('hidden', actuallyEnabled)
 
-      enableContainer.toggleClass('hidden', this._enabled)
-      disableContainer.toggleClass('hidden', !this._enabled)
+      enableContainer.toggleClass('hidden', this._enabled || !blockTypeEnabled)
+      disableContainer.toggleClass('hidden', !this._enabled || !blockTypeEnabled)
 
       this.$enabledInput.val(this._enabled ? '1' : '')
 

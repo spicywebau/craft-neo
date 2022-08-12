@@ -5,6 +5,7 @@ namespace benf\neo\elements\db;
 use benf\neo\elements\Block;
 use benf\neo\models\BlockType;
 use Craft;
+use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
@@ -427,6 +428,14 @@ class BlockQuery extends ElementQuery
             }
         }
 
+        if ($this->status !== null) {
+            // Inner join the `neoblocktypes` table, so we can pretend blocks with disabled block types are disabled
+            $this->subQuery->innerJoin(
+                ['neoblocktypes' => '{{%neoblocktypes}}'],
+                '[[neoblocktypes.id]] = [[neoblocks.typeId]]',
+            );
+        }
+
         return parent::beforePrepare();
     }
 
@@ -458,6 +467,27 @@ class BlockQuery extends ElementQuery
         }
 
         return $tags;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function statusCondition(string $status): mixed
+    {
+        return match ($status) {
+            Element::STATUS_ENABLED => [
+                'elements.enabled' => true,
+                'elements_sites.enabled' => true,
+                'neoblocktypes.enabled' => true,
+            ],
+            Element::STATUS_DISABLED => [
+                'or',
+                ['elements.enabled' => false],
+                ['elements_sites.enabled' => false],
+                ['neoblocktypes.enabled' => false],
+            ],
+            default => false,
+        };
     }
 
     // Private methods
