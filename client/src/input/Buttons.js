@@ -77,6 +77,11 @@ export default Garnish.Base.extend({
       const type = item.getType()
 
       if (type === 'blockType') {
+        // Ignore disabled block types
+        if (!item.getEnabled()) {
+          continue
+        }
+
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
 
         if (currentGroup !== null) {
@@ -129,6 +134,11 @@ export default Garnish.Base.extend({
       const type = item.getType()
 
       if (type === 'blockType') {
+        // Ignore disabled block types
+        if (!item.getEnabled()) {
+          continue
+        }
+
         if (currentGroup !== null && !lastGroupHadBlockTypes) {
           lastGroupHadBlockTypes = true
 
