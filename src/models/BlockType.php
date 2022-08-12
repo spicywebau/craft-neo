@@ -63,6 +63,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public ?string $description = null;
 
     /**
+     * @var bool Whether this block type is allowed to be used.
+     * @since 3.3.0
+     */
+    public bool $enabled = true;
+
+    /**
      * @var int|null The minimum number of blocks of this type allowed in this block type's field.
      * @since 3.3.0
      */
@@ -180,6 +186,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
         return [
             [['id', 'fieldId', 'sortOrder'], 'number', 'integerOnly' => true],
             [['minBlocks', 'maxBlocks', 'minChildBlocks', 'maxChildBlocks', 'minSiblingBlocks'], 'integer', 'min' => 0],
+            [['enabled', 'topLevel'], 'boolean'],
         ];
     }
 
@@ -265,6 +272,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'group' => $group ? $group->uid : null,
             'handle' => $this->handle,
             'description' => $this->description,
+            'enabled' => $this->enabled,
             'minBlocks' => (int)$this->minBlocks,
             'maxBlocks' => (int)$this->maxBlocks,
             'minChildBlocks' => (int)$this->minChildBlocks,

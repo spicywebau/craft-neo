@@ -203,6 +203,7 @@ class BlockTypes extends Component
         $record->name = $blockType->name;
         $record->handle = $blockType->handle;
         $record->description = $blockType->description;
+        $record->enabled = $blockType->enabled;
         $record->sortOrder = $blockType->sortOrder;
         $record->minBlocks = $blockType->minBlocks;
         $record->maxBlocks = $blockType->maxBlocks;
@@ -421,6 +422,7 @@ class BlockTypes extends Component
             $record->name = $data['name'];
             $record->handle = $data['handle'];
             $record->description = $data['description'] ?? null;
+            $record->enabled = $data['enabled'] ?? true;
             $record->sortOrder = $data['sortOrder'];
             $record->minBlocks = $data['minBlocks'];
             $record->maxBlocks = $data['maxBlocks'];
@@ -441,6 +443,7 @@ class BlockTypes extends Component
             $blockType->name = $data['name'];
             $blockType->handle = $data['handle'];
             $blockType->description = $data['description'] ?? null;
+            $blockType->enabled = $data['enabled'] ?? true;
             $blockType->sortOrder = $data['sortOrder'];
             $blockType->minBlocks = $data['minBlocks'];
             $blockType->maxBlocks = $data['maxBlocks'];
@@ -684,6 +687,7 @@ class BlockTypes extends Component
         // TODO: move these into `$columns` in Neo 4
         $maybeColumns = [
             'description',
+            'enabled',
             'minBlocks',
             'minChildBlocks',
             'minSiblingBlocks',

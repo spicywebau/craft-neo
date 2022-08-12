@@ -71,6 +71,7 @@ export default Garnish.Base.extend({
         name: btInfo.name,
         handle: btInfo.handle,
         description: btInfo.description,
+        enabled: btInfo.enabled,
         minBlocks: btInfo.minBlocks,
         maxBlocks: btInfo.maxBlocks,
         minSiblingBlocks: btInfo.minSiblingBlocks,
@@ -366,6 +367,7 @@ export default Garnish.Base.extend({
         maxSiblingBlocks: oldSettings.getMaxSiblingBlocks(),
         name: oldSettings.getName(),
         description: oldSettings.getDescription(),
+        enabled: oldSettings.getEnabled(),
         namespace: [...namespace, id],
         sortOrder: this._items.length,
         topLevel: oldSettings.getTopLevel(),
@@ -430,6 +432,7 @@ export default Garnish.Base.extend({
         const settings = blockType.getSettings()
         const data = {
           childBlocks: settings.getChildBlocks(),
+          enabled: settings.getEnabled(),
           handle: settings.getHandle(),
           layout: blockType.getFieldLayout().getConfig(),
           minBlocks: settings.getMinBlocks(),
@@ -463,6 +466,7 @@ export default Garnish.Base.extend({
     const settings = new BlockTypeSettings({
       childBlocks,
       childBlockTypes: this.getBlockTypes(),
+      enabled: data.enabled,
       handle: data.handle,
       minBlocks: data.minBlocks,
       maxBlocks: data.maxBlocks,

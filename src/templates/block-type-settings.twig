@@ -43,6 +43,19 @@
                 'data-neo-bts': 'input.description'
             }
         }) }}
+
+        <div data-neo-bts="container.enabled">
+            {{ forms.lightswitchField({
+                id: 'enabled',
+                name: 'enabled',
+                label: 'Enabled'|t('neo'),
+                instructions: 'Whether this block type is allowed to be used.'|t('neo'),
+                on: blockType ? blockType.enabled : true,
+                containerAttributes: {
+                    'data-neo-bts': 'input.enabled'
+                }
+            }) }}
+        </div>
         
         {{ forms.textField({
             type: 'number',

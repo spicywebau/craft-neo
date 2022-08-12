@@ -181,6 +181,7 @@ class InputAsset extends FieldAsset
                 'sortOrder' => $blockType->sortOrder,
                 'name' => Craft::t('site', $blockType->name),
                 'handle' => $blockType->handle,
+                'enabled' => $blockType->enabled,
                 'description' => $blockType->description,
                 'minBlocks' => $blockType->minBlocks,
                 'maxBlocks' => $blockType->maxBlocks,

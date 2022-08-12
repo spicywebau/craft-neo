@@ -13,6 +13,7 @@ const _defaults = {
   name: '',
   handle: '',
   description: '',
+  enabled: true,
   minBlocks: 0,
   maxBlocks: 0,
   minSiblingBlocks: 0,
@@ -63,6 +64,8 @@ export default Settings.extend({
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
+    this.$enabledInput = $neo.filter('[data-neo-bts="input.enabled"]')
+    this.$enabledContainer = $neo.filter('[data-neo-bts="container.enabled"]')
     this.$minBlocksInput = $neo.filter('[data-neo-bts="input.minBlocks"]')
     this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
     this.$minSiblingBlocksInput = $neo.filter('[data-neo-bts="input.minSiblingBlocks"]')
@@ -81,6 +84,7 @@ export default Settings.extend({
     this.setName(settings.name)
     this.setHandle(settings.handle)
     this.setDescription(settings.description)
+    this.setEnabled(settings.enabled)
     this.setMinBlocks(settings.minBlocks)
     this.setMaxBlocks(settings.maxBlocks)
     this.setMinSiblingBlocks(settings.minSiblingBlocks)
@@ -101,6 +105,7 @@ export default Settings.extend({
     Craft.initUiElements(this.$container)
 
     this._childBlocksSelect = this.$childBlocksInput.data('checkboxSelect')
+    this._enabledLightswitch = this.$enabledInput.data('lightswitch')
     this._topLevelLightswitch = this.$topLevelInput.data('lightswitch')
     this._handleGenerator = new Craft.HandleGenerator(this.$nameInput, this.$handleInput)
 
@@ -126,6 +131,7 @@ export default Settings.extend({
 
     this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
     this.addListener(this.$descriptionInput, 'keyup change textchange', () => this.setDescription(this.$descriptionInput.val()))
+    this.addListener(this._enabledLightswitch, 'change', () => this.setEnabled(this._enabledLightswitch.on))
     this.addListener(this.$minBlocksInput, 'keyup change', () => this.setMinBlocks(this.$minBlocksInput.val()))
     this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
     this.addListener(this.$minSiblingBlocksInput, 'keyup change', () => this.setMinSiblingBlocks(this.$minSiblingBlocksInput.val()))
@@ -241,6 +247,9 @@ export default Settings.extend({
     }
   },
 
+  getEnabled () { return this._enabled },
+  setEnabled (enabled) { this._setLightswitchField('enabled', enabled) },
+
   getMinBlocks () { return this._minBlocks },
   setMinBlocks (minBlocks) { this._setBlocksConstraint('minBlocks', minBlocks) },
 
@@ -283,22 +292,26 @@ export default Settings.extend({
   },
 
   getTopLevel () { return this._topLevel },
-  setTopLevel (topLevel) {
-    const oldTopLevel = this._topLevel
-    const newTopLevel = !!topLevel
+  setTopLevel (topLevel) { this._setLightswitchField('topLevel', topLevel) },
 
-    if (oldTopLevel !== newTopLevel) {
-      this._topLevel = newTopLevel
+  _setLightswitchField (property, value) {
+    const privateProp = `_${property}`
+    const lightswitchProp = `${privateProp}Lightswitch`
+    const oldValue = this[privateProp]
+    const newValue = !!value
 
-      if (this._topLevelLightswitch && this._topLevelLightswitch.on !== this._topLevel) {
-        this._topLevelLightswitch.on = this._topLevel
-        this._topLevelLightswitch.toggle()
+    if (oldValue !== newValue) {
+      this[privateProp] = newValue
+
+      if (this[lightswitchProp] && this[lightswitchProp].on !== this[privateProp]) {
+        this[lightswitchProp].on = this[privateProp]
+        this[lightswitchProp].toggle()
       }
 
       this.trigger('change', {
-        property: 'topLevel',
-        oldValue: oldTopLevel,
-        newValue: this._topLevel
+        property,
+        oldValue,
+        newValue
       })
     }
   },

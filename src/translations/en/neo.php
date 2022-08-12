@@ -23,6 +23,8 @@ return [
     'Handle' => 'Handle',
     'How you’ll refer to this block type in the templates.' => 'How you’ll refer to this block type in the templates.',
     'Description' => 'Description',
+    'Enabled' => 'Enabled',
+    'Whether this block type is allowed to be used.' => 'Whether this block type is allowed to be used.',
     'Max Blocks' => 'Max Blocks',
     'The minimum number of blocks of this type the field is allowed to have.' => 'The minimum number of blocks of this type the field is allowed to have.',
     'The maximum number of blocks of this type the field is allowed to have.' => 'The maximum number of blocks of this type the field is allowed to have.',
