@@ -684,7 +684,7 @@ export default Garnish.Base.extend({
           break
         case 'craft\\fields\\Number':
         case 'craft\\fields\\PlainText':
-          value = _escapeHTML(_limit($input.children('input[type="text"]').val()))
+          value = _escapeHTML(_limit($input.children('input[type="text"], textarea').val()))
           break
         case 'craft\\fields\\RadioButtons':
           {
