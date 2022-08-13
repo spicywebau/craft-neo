@@ -578,7 +578,7 @@ SQL
                 ->unique()
                 ->status(null)
                 ->all();
-            $this->_saveNeoStructuresForSites($field, $draft, $blocks);
+            $this->_saveNeoStructuresForSites($field, $draft, $blocks, $siteId);
         }
     }
 
