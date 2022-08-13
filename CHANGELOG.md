@@ -15,6 +15,9 @@
 - Added `benf\neo\console\controllers\BlockTypesController::$setMinSiblingBlocks` (added the `--set-min-sibling-blocks` option to the `php craft neo/block-types/edit` console command)
 - Added `benf\neo\console\controllers\BlockTypesController::$setMinChildBlocks` (added the `--set-min-child-blocks` option to the `php craft neo/block-types/edit` console command)
 
+### Changed
+- Restored the ability to show Linkit field content in collapsed block previews
+
 ### Fixed
 - Fixed a bug when saving an element, where Neo fields weren't being validated on block types' Max Blocks settings, unless at least one of the Neo field's Max Top-Level Blocks and Max Levels settings were set
 - Fixed a bug where copying and pasting a block type would not copy the old block type's description to the new block type

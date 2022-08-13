@@ -733,7 +733,7 @@ export default Garnish.Base.extend({
           }
           break
         case 'typedlinkfield\\fields\\LinkField':
-        case 'fruitstudios\\linkit\\fields\\LinkitField':
+        case 'presseddigital\\linkit\\fields\\LinkitField':
           {
             const values = []
             const $selectedType = $input.find('select').children(':selected').first()
