@@ -815,6 +815,10 @@ export default Garnish.Base.extend({
     if (expand !== this._expanded) {
       this._expanded = expand
 
+      if (!this._expanded) {
+        this.updatePreview()
+      }
+
       const expandContainer = this.$menuContainer.find('[data-action="expand"]').parent()
       const collapseContainer = this.$menuContainer.find('[data-action="collapse"]').parent()
 
@@ -824,10 +828,7 @@ export default Garnish.Base.extend({
 
       expandContainer.toggleClass('hidden', this._expanded)
       collapseContainer.toggleClass('hidden', !this._expanded)
-
-      if (!this._expanded) {
-        this.updatePreview()
-      }
+      this.$previewContainer.toggleClass('hidden', this._expanded)
 
       const contentHeight = this.$contentContainer.outerHeight() | 0
       const childrenHeight = this.$childrenContainer.outerHeight() | 0
