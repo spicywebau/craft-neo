@@ -387,6 +387,12 @@ export default Garnish.Base.extend({
           Craft.modifiedDeltaNames.push(fieldInputName)
         }
       }
+
+      // Hide the copy/paste/clone options if the block type is disabled
+      this.$menuContainer
+        .find('[data-action="copy"], [data-action="paste"], [data-action="duplicate"]')
+        .parent()
+        .toggleClass('hidden', !this._blockType.getEnabled())
     }
 
     addFieldLinks(this.$contentContainer)
