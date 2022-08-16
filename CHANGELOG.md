@@ -25,6 +25,7 @@
 - Fixed a bug where collapsed block previews were not displaying the content of multi-line plain text fields
 - Fixed a bug on multi-site Craft installs, where a provisional draft being created with an unedited Neo field could cause the Neo field's block structure not to be created for the provisional draft, if the Neo field's propagation method was set to "Only save blocks to the site they were created in"
 - Fixed a bug where disabled Neo input blocks could appear to be enabled, and selecting the disable action on these blocks would have no effect
+- Fixed a bug where disabled Neo input blocks could sometimes not appear, if there were validation errors when saving an element
 
 ## 3.2.5 - 2022-08-03
 

@@ -655,15 +655,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function validateBlocks(ElementInterface $element)
     {
         $value = $element->getFieldValue($this->handle);
-        $blocks = $value->all();
+        $allBlocks = $value->status(null)->all();
+        $enabledBlocks = array_filter($allBlocks, fn($block) => $block->enabled);
         $scenario = $element->getScenario();
         $allBlocksValidate = true;
 
-        foreach ($blocks as $key => $block) {
-            if (
-                $scenario === Element::SCENARIO_ESSENTIALS ||
-                ($block->enabled && $scenario === Element::SCENARIO_LIVE)
-            ) {
+        foreach ($enabledBlocks as $key => $block) {
+            if (in_array($scenario, [Element::SCENARIO_ESSENTIALS, Element::SCENARIO_LIVE])) {
                 $block->setScenario($scenario);
             }
 
@@ -674,7 +672,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         if (!$allBlocksValidate) {
-            $value->setCachedResult($blocks);
+            $value->setCachedResult($allBlocks);
         }
 
         if ($scenario === Element::SCENARIO_LIVE) {
@@ -693,7 +691,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                     'skipOnEmpty' => false,
                 ]);
 
-                if (!$arrayValidator->validate($blocks, $error)) {
+                if (!$arrayValidator->validate($enabledBlocks, $error)) {
                     $element->addError($this->handle, $error);
                 }
             }
