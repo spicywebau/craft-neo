@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.3.1 - 2022-08-16
 
 ### Fixed
 - Fixed an error that occurred when applying a project config from a Craft install running a Neo version prior to 3.3.0
