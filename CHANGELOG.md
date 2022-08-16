@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.3.2 - 2022-08-17
 
 ### Fixed
 - Fixed an 'Undefined array key' error that occurred in some cases when saving an element
