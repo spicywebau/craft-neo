@@ -155,6 +155,11 @@ class FieldValidator extends Validator
                 );
             }
 
+            // TODO: figure out why the undefined array key error is happening, and then remove this
+            if (!isset($blockSiblingCount[$parentId][$block->typeId])) {
+                $blockSiblingCount[$parentId][$block->typeId] = 0;
+            }
+
             $blockSiblingCount[$parentId][$block->typeId] += 1;
             $lastBlock = $block;
         }
