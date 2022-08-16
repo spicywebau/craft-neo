@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (3.3.0)
+## 3.3.0 - 2022-08-16
 
 ### Added
 - Added the Min Levels field setting (added `benf\neo\Field::$minLevels`)

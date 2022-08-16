@@ -1,6 +1,6 @@
 {
   "name": "craft-neo",
-  "version": "3.2.5",
+  "version": "3.3.0",
   "description": "A Matrix-like field type that uses existing fields",
   "main": "webpack.config.js",
   "scripts": {
