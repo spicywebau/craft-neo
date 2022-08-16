@@ -424,11 +424,11 @@ class BlockTypes extends Component
             $record->description = $data['description'] ?? null;
             $record->enabled = $data['enabled'] ?? true;
             $record->sortOrder = $data['sortOrder'];
-            $record->minBlocks = $data['minBlocks'];
+            $record->minBlocks = $data['minBlocks'] ?? 0;
             $record->maxBlocks = $data['maxBlocks'];
             $record->minSiblingBlocks = $data['minSiblingBlocks'] ?? 0;
             $record->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
-            $record->minChildBlocks = $data['minChildBlocks'];
+            $record->minChildBlocks = $data['minChildBlocks'] ?? 0;
             $record->maxChildBlocks = $data['maxChildBlocks'];
             $record->childBlocks = $data['childBlocks'];
             $record->topLevel = $data['topLevel'];
@@ -445,7 +445,7 @@ class BlockTypes extends Component
             $blockType->description = $data['description'] ?? null;
             $blockType->enabled = $data['enabled'] ?? true;
             $blockType->sortOrder = $data['sortOrder'];
-            $blockType->minBlocks = $data['minBlocks'];
+            $blockType->minBlocks = $data['minBlocks'] ?? 0;
             $blockType->maxBlocks = $data['maxBlocks'];
             $blockType->minSiblingBlocks = $data['minSiblingBlocks'] ?? 0;
             $blockType->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
