@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where trying to delete all Neo blocks from a field would cause them not to be deleted
+- Fixed a JavaScript error that could occur with a Neo -> Matrix -> Redactor setup if there were validation errors
 
 ## 3.3.2 - 2022-08-17
 
