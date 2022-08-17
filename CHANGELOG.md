@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where trying to delete all Neo blocks from a field would cause them not to be deleted
+
 ## 3.3.2 - 2022-08-17
 
 ### Fixed
