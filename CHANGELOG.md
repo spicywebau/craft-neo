@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Improved the appearance of titles of Neo input blocks with validation errors
+
 ### Fixed
 - Fixed a bug where trying to delete all Neo blocks from a field would cause them not to be deleted
 

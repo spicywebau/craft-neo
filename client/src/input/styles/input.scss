@@ -145,7 +145,12 @@ $topbar-background-color-transparent: #ebf2fa00;
                         padding: 8px 0;
                         
                         &.has-errors {
-                            color: #da5a47;
+                            color: var(--error-color);
+
+                            + span {
+                                margin-left: var(--xs);
+                                color: var(--error-color);
+                            }
                         }
                     }
                 }
