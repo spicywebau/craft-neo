@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.3.3 - 2022-08-18
 
 ### Changed
 - Improved the appearance of titles of Neo input blocks with validation errors
