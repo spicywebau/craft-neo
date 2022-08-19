@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a JavaScript error that occurred when trying to enable or disable multiple selected blocks at once
+
 ## 3.3.3 - 2022-08-18
 
 ### Changed

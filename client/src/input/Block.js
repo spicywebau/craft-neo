@@ -895,6 +895,7 @@ export default Garnish.Base.extend({
   },
 
   toggleEnabled (enable = !this._enabled) {
+    const triggerEvent = this._enabled !== enable
     this._enabled = enable
 
     const blockTypeEnabled = this._blockType.getEnabled()
@@ -913,9 +914,11 @@ export default Garnish.Base.extend({
 
     this.$enabledInput.val(this._enabled ? '1' : '')
 
-    this.trigger('toggleEnabled', {
-      enabled: this._enabled
-    })
+    if (triggerEvent) {
+      this.trigger('toggleEnabled', {
+        enabled: this._enabled
+      })
+    }
   },
 
   isEnabled () {
