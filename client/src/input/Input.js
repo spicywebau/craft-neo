@@ -94,7 +94,7 @@ export default Garnish.Base.extend({
       filter: () => {
         // Only return all the selected items if the target item is selected
         if (this._blockSort.$targetItem.hasClass('is-selected')) {
-          return this._blockSelect.getSelectedItems()
+          return this.blockSelect.getSelectedItems()
         }
 
         return this._blockSort.$targetItem
@@ -109,7 +109,7 @@ export default Garnish.Base.extend({
       }
     })
 
-    this._blockSelect = new Garnish.Select(this.$blocksContainer, null, {
+    this.blockSelect = new Garnish.Select(this.$blocksContainer, null, {
       multi: true,
       vertical: true,
       handle: '> .ni_block_topbar [data-neo-b$=".select"]',
@@ -163,7 +163,7 @@ export default Garnish.Base.extend({
 
       this._blocks.push(block)
       this._blockSort.addBlock(block)
-      this._blockSelect.addItems(block.$container)
+      this.blockSelect.addItems(block.$container)
     })
 
     this._updateBlockOrder()
@@ -234,7 +234,7 @@ export default Garnish.Base.extend({
 
     this._blocks.push(block)
     this._blockSort.addBlock(block)
-    this._blockSelect.addItems(block.$container)
+    this.blockSelect.addItems(block.$container)
 
     block.initUi()
     this._setBlockEvents(block)
@@ -276,7 +276,7 @@ export default Garnish.Base.extend({
 
     this._blocks = this._blocks.filter(b => b !== block)
     this._blockSort.removeItems(block.$container)
-    this._blockSelect.removeItems(block.$container)
+    this.blockSelect.removeItems(block.$container)
 
     this._destroyTempButtons()
     this._updateButtons()
@@ -449,7 +449,7 @@ export default Garnish.Base.extend({
   },
 
   getSelectedBlocks () {
-    const $selectedBlocks = this._blockSelect.getSelectedItems()
+    const $selectedBlocks = this.blockSelect.getSelectedItems()
     return this._blocks.filter(block => block.$container.closest($selectedBlocks).length > 0)
   },
 

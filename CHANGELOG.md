@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Renamed the `Input._blockSelect` Neo JavaScript property to `Input.blockSelect` (denoting it as public)
+
 ### Fixed
 - Fixed a JavaScript error that occurred when trying to enable or disable multiple selected blocks at once
 
