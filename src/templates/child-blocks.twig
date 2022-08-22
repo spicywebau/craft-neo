@@ -1,11 +1,12 @@
 {% from 'neo/macros' import getBlockId %}
 
-{% set blockId = block and block.id is not null ? getBlockId(block) : '__NEOBLOCK__' %}
+{% set notPlaceholder = block and (block.id is not null or block.unsavedId is not null) %}
+{% set blockId = notPlaceholder ? getBlockId(block) : '__NEOBLOCK__' %}
 
 <div class="ni_child-blocks-ui-element" data-layout-element="{{ uid }}">
     <div class="ni_block_children" data-neo-b="{{ blockId }}.container.children">
         <div class="ni_blocks" data-neo-b="{{ blockId }}.container.blocks">
-            {% if block and block.id is not null %}
+            {% if notPlaceholder %}
                 {% for child in block.children.status(null).all() %}
                     {% include 'neo/block' with { handle, block: child, static } only %}
                 {% endfor %}

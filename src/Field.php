@@ -459,8 +459,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
             foreach ($value as $block) {
                 if ($block->id === null) {
-                    // Set a non-positive ID on the block, which the templates will interpret as a new, unsaved block
-                    $block->id = $newIdCounter--;
+                    // A validation error occurred and we're sending unsaved blocks back
+                    $block->unsavedId = $newIdCounter++;
                 }
 
                 $block->useMemoized($value);

@@ -6,7 +6,7 @@
 {% set isParent = static and block.children.exists() or not static and type.childBlocks is not null and type.childBlocks is not empty %}
 {% set collapsed = craft.app.plugins.getPlugin('neo').settings.collapseAllBlocks or block.collapsed %}
 {% set blockId = getBlockId(block) %}
-{% set isNew = block.id is null or block.id < 1 %}
+{% set isNew = block.id is null %}
 {% set hasErrors = block.hasErrors() %}
 
 {# Get the errors specific to the block (i.e. not subfield errors) #}

@@ -37,7 +37,7 @@ class ChildBlocksUiElement extends BaseUiElement
     public function formHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
         if ($element && $element->level && $element->fieldId) {
-            $blockId = $element->id > 0 ? $element->id : 'new' . ($element->id * -1);
+            $blockId = $element->id > 0 ? $element->id : 'new' . $element->unsavedId;
         } else {
             $blockId = '__NEOBLOCK__';
         }

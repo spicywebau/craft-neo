@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a JavaScript error that occurred when trying to enable or disable multiple selected blocks at once
+- Fixed a bug where validation errors when creating a new entry could cause Neo blocks' subfield content to be lost
 
 ## 3.3.3 - 2022-08-18
 

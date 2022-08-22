@@ -202,6 +202,13 @@ class Block extends Element implements BlockElementInterface
     public bool $dirty = false;
 
     /**
+     * @var int|null If this is an unsaved block, what the `X` in the `newX` placeholder should be.
+     * @internal
+     * @since 3.3.4
+     */
+    public ?int $unsavedId = null;
+
+    /**
      * @var Block[]|null All blocks belonging to the same field as this one.
      */
     private ?array $_allElements = null;
