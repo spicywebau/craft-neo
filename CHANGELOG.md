@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.3.4 - 2022-08-22
 
 ### Changed
 - Renamed the `Input._blockSelect` Neo JavaScript property to `Input.blockSelect` (denoting it as public)
