@@ -691,6 +691,7 @@ export default Garnish.Base.extend({
             fieldLayoutId: blockType.getFieldLayoutId(),
             name: blockType.getName(),
             handle: blockType.getHandle(),
+            enabled: blockType.getEnabled(),
             maxBlocks: blockType.getMaxBlocks(),
             maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
             maxChildBlocks: blockType.getMaxChildBlocks(),
