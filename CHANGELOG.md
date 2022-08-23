@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.3.5 - 2022-08-23
 
 ### Fixed
 - Fixed a bug where pasted or cloned blocks would appear to be disabled
