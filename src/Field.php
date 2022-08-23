@@ -1213,7 +1213,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->typeId = $blockTypes[$blockData['type']]->id;
                 $block->primaryOwnerId = $block->ownerId = $element->id;
                 $block->siteId = $element->siteId;
-                $block->enabled = true;
+                $block->enabled = (bool)($blockData['enabled'] ?? true);
             }
 
             $blockLevel = (int)($blockData['level'] ?? $block->level);

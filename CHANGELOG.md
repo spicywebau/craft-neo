@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where pasted or cloned blocks would appear to be disabled
+- Fixed a bug where newly created disabled blocks would not have their disabled state saved
 
 ## 3.3.4 - 2022-08-22
 
