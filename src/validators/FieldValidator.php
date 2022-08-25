@@ -109,6 +109,7 @@ class FieldValidator extends Validator
         $blockAncestors = [null];
         $lastBlock = null;
         $blockTypes = $field->getBlockTypes();
+        $newCounter = 0;
 
         foreach ($blockTypes as $blockType) {
             $blockTypesCount[$blockType->id] = 0;
@@ -141,7 +142,9 @@ class FieldValidator extends Validator
             }
 
             $parent = end($blockAncestors);
-            $parentId = $parent?->id ?? 0;
+            $parentId = $parent !== null
+                ? ($parent->id ?? 'new' . $newCounter++) // Maybe an unsaved block
+                : 0; // Maybe a top level block
             $atTopLevel = $parent === null;
 
             // Create the sibling count for this parent block if this block is the first of its children
@@ -153,11 +156,6 @@ class FieldValidator extends Validator
                     ),
                     0
                 );
-            }
-
-            // TODO: figure out why the undefined array key error is happening, and then remove this
-            if (!isset($blockSiblingCount[$parentId][$block->typeId])) {
-                $blockSiblingCount[$parentId][$block->typeId] = 0;
             }
 
             $blockSiblingCount[$parentId][$block->typeId] += 1;
