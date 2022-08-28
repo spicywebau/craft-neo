@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug with Min Sibling Blocks of This Type validation
+
 ## 3.3.5 - 2022-08-23
 
 ### Fixed
