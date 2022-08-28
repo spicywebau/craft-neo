@@ -16,11 +16,13 @@
         {% set blockErrors = blockErrors|merge(errors) %}
     {% endif %}
 {% endfor %}
-{% set errorList %}
-    <div class="ni_block_errors">
-        {% include '_includes/forms/errorList' with { errors: blockErrors } %}
-    </div>
-{% endset %}
+{% set errorList -%}
+    {%- if blockErrors is not empty %}
+        <div class="ni_block_errors">
+            {% include '_includes/forms/errorList' with { errors: blockErrors } %}
+        </div>
+    {% endif -%}
+{%- endset %}
 
 {% set baseInputName = "#{handle}[blocks][#{blockId}]" %}
 {% set blockAttributes = {
