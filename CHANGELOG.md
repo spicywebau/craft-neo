@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug with Min Sibling Blocks of This Type validation
+- Fixed a bug with GraphQL, where transform directives weren't working on asset field on child blocks
 
 ## 3.3.5 - 2022-08-23
 
