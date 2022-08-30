@@ -25,11 +25,11 @@ class Block extends ElementResolver
         $query = self::prepareElementQuery($source, $arguments, $context, $resolveInfo);
         $blocks = $query instanceof BlockQuery ? $query->all() : $query;
 
-        if ($query instanceof BlockQuery && $query->level == 0) {
-            // If we have all blocks, memoize them to avoid database calls for child block queries.
-            // This also allows child block queries after mutations to return results... not sure if
-            // there's some caching going on causing it to otherwise return no child blocks, need to
-            // look into it further.
+        // If we have all blocks, memoize them to avoid database calls for child block queries
+        if (
+            $query instanceof BlockQuery && $query->level == 0 ||
+            $query instanceof Collection && isset($arguments['level']) && $arguments['level'] == 0
+        ) {
             foreach ($blocks as $block) {
                 $block->useMemoized($blocks);
             }
