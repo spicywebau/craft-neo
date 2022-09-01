@@ -208,7 +208,7 @@ class BlockTypesController extends Controller
             'minSiblingBlocks',
             'maxSiblingBlocks',
             'minChildBlocks',
-            'maxChildBlocks'
+            'maxChildBlocks',
         ];
 
         foreach ($blockTypeConstraintProperties as $btProperty) {

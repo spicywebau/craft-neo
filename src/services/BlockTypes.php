@@ -691,7 +691,7 @@ class BlockTypes extends Component
             'minBlocks',
             'minChildBlocks',
             'minSiblingBlocks',
-            'conditions'
+            'conditions',
         ];
 
         foreach ($maybeColumns as $column) {
