@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an 'Undefined array key' error that occurred when saving an element, if any Neo blocks were in formerly valid places in the field for them to exist
+
 ## 3.3.6 - 2022-09-01
 
 ### Fixed
