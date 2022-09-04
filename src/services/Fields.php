@@ -53,12 +53,14 @@ class Fields extends Component
      */
     public function validate(Field $field): bool
     {
-        $isValid = true;
+        $allBlockTypesValid = true;
+        $anyBlockTypesAtTopLevel = false;
         $handles = [];
 
         foreach ($field->getBlockTypes() as $blockType) {
             $isBlockTypeValid = Neo::$plugin->blockTypes->validate($blockType, false);
-            $isValid = $isValid && $isBlockTypeValid;
+            $allBlockTypesValid = $allBlockTypesValid && $isBlockTypeValid;
+            $anyBlockTypesAtTopLevel = $anyBlockTypesAtTopLevel || $blockType->topLevel;
 
             if (isset($handles[$blockType->handle])) {
                 $blockType->addError('handle', Craft::t('neo', "{label} \"{value}\" has already been taken.", [
@@ -66,13 +68,17 @@ class Fields extends Component
                     'value' => Html::encode($blockType->handle),
                 ]));
 
-                $isValid = false;
+                $allBlockTypesValid = false;
             } else {
                 $handles[$blockType->handle] = true;
             }
         }
 
-        return $isValid;
+        if (!$anyBlockTypesAtTopLevel) {
+            $field->addError('blockTypes', Craft::t('neo', 'Neo fields must have at least one block type allowed at the top level.'));
+        }
+
+        return $allBlockTypesValid && $anyBlockTypesAtTopLevel;
     }
 
     /**

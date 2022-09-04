@@ -85,6 +85,7 @@ return [
     '{attribute} should contain at least {minTopBlocks, number} top-level {minTopBlocks, plural, one{block} other{blocks}}.' => '{attribute} should contain at least {minTopBlocks, number} top-level {minTopBlocks, plural, one{block} other{blocks}}.',
     '{attribute} should contain at most {maxTopBlocks, number} top-level {maxTopBlocks, plural, one{block} other{blocks}}.' => '{attribute} should contain at most {maxTopBlocks, number} top-level {maxTopBlocks, plural, one{block} other{blocks}}.',
     '{label} "{value}" has already been taken.' => '{label} "{value}" has already been taken.',
+    'Neo fields must have at least one block type allowed at the top level.' => 'Neo fields must have at least one block type allowed at the top level.',
     '{attribute} must have at least one block nested at level {minLevels, number}.' => '{attribute} must have at least one block nested at level {minLevels, number}.',
     '{attribute} blocks must not be nested deeper than level {maxLevels, number}.' => '{attribute} blocks must not be nested deeper than level {maxLevels, number}.',
     '{attribute} should contain at least {minBlockTypeBlocks, number} {minBlockTypeBlocks, plural, one{block} other{blocks}} of type {blockType}.' => '{attribute} should contain at least {minBlockTypeBlocks, number} {minBlockTypeBlocks, plural, one{block} other{blocks}} of type {blockType}.',
