@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed an 'Undefined array key' error that occurred when saving an element, if any Neo blocks were in formerly valid places in the field for them to exist
 - Fixed a bug where Neo fields could be created without any block types at the top level
+- Fixed a bug when editing a Neo field's settings, where setting a block type to be allowed or disallowed at the top level was not applying the new state to the block type sidebar
 
 ## 3.3.6 - 2022-09-01
 
