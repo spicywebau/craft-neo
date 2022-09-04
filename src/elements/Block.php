@@ -265,17 +265,30 @@ class Block extends Element implements BlockElementInterface
         $validates = parent::validate($attributeNames, $clearErrors);
 
         if ($this->getScenario() === Element::SCENARIO_LIVE) {
-            // Check the block type's min child blocks
+            // Check the block type's min/max child blocks
             $blockType = $this->getType();
+            $childCount = $this->getChildren()->count();
             $minChildBlocks = $blockType->minChildBlocks;
+            $maxChildBlocks = $blockType->maxChildBlocks;
 
-            if ($minChildBlocks > 0 && $this->getChildren()->count() < $minChildBlocks) {
+            if ($childCount < $minChildBlocks) {
                 $validates = false;
                 $this->addError(
                     '__NEO_MIN_CHILD_BLOCKS__',
                     Craft::t('neo', 'Blocks of type {type} must have at least {min, number} child {min, plural, one{block} other{blocks}}.', [
                         'type' => Craft::t('site', $blockType->name),
                         'min' => $minChildBlocks,
+                    ])
+                );
+            }
+
+            if ($maxChildBlocks > 0 && $childCount > $maxChildBlocks) {
+                $validates = false;
+                $this->addError(
+                    '__NEO_MAX_CHILD_BLOCKS__',
+                    Craft::t('neo', 'Blocks of type {type} must have at most {max, number} child {max, plural, one{block} other{blocks}}.', [
+                        'type' => Craft::t('site', $blockType->name),
+                        'max' => $maxChildBlocks,
                     ])
                 );
             }
