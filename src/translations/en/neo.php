@@ -61,6 +61,7 @@ return [
     '{attribute} should contain at least {min, number} {min, plural, one{block} other{blocks}}.' => '{attribute} should contain at least {min, number} {min, plural, one{block} other{blocks}}.',
     '{attribute} should contain at most {max, number} {max, plural, one{block} other{blocks}}.' => '{attribute} should contain at most {max, number} {max, plural, one{block} other{blocks}}.',
     'Blocks of type {type} must have at least {min, number} child {min, plural, one{block} other{blocks}}.' => 'Blocks of type {type} must have at least {min, number} child {min, plural, one{block} other{blocks}}.',
+    'Blocks of type {type} are not allowed at the top level.' => 'Blocks of type {type} are not allowed at the top level.',
     'Unable to nest Neo fields.' => 'Unable to nest Neo fields.',
     'Neo Block' => 'Neo Block',
     'Neo Blocks' => 'Neo Blocks',

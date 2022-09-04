@@ -279,6 +279,17 @@ class Block extends Element implements BlockElementInterface
                     ])
                 );
             }
+
+            // Check whether the block type is at the top level and allowed to exist there
+            if ($this->level == 1 && !$blockType->topLevel) {
+                $validates = false;
+                $this->addError(
+                    '__NEO_TOP_LEVEL__',
+                    Craft::t('neo', 'Blocks of type {type} are not allowed at the top level.', [
+                        'type' => Craft::t('site', $blockType->name),
+                    ])
+                );
+            }
         }
 
         return $validates;
