@@ -3,7 +3,7 @@
 ## Unreleased (4.x)
 
 ### Changed
-- Whether a Neo block type's top level setting has been violated is now validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
+- Whether a Neo block type's top level or valid child blocks settings have been violated is now validated server-side when saving a Neo field's contents, rather than relying on it to be enforced by client-side JavaScript
 
 ## Unreleased
 

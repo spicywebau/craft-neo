@@ -290,6 +290,26 @@ class Block extends Element implements BlockElementInterface
                     ])
                 );
             }
+
+            // Check whether this block is a valid child block for its parent
+            if (($parent = $this->getParent()) !== null) {
+                $parentBlockType = $parent->getType();
+                $parentAllowedChildTypes = $parentBlockType->childBlocks;
+
+                if (
+                    empty($parentAllowedChildTypes) ||
+                    is_array($parentAllowedChildTypes) && !in_array($blockType->handle, $parentAllowedChildTypes)
+                ) {
+                    $validates = false;
+                    $this->addError(
+                        '__NEO_CHILD_BLOCKS__',
+                        Craft::t('neo', 'Blocks of type {childType} are not allowed as children of blocks of type {parentType}.', [
+                            'childType' => Craft::t('site', $blockType->name),
+                            'parentType' => Craft::t('site', $parentBlockType->name),
+                        ])
+                    );
+                }
+            }
         }
 
         return $validates;
