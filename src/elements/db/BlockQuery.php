@@ -474,6 +474,11 @@ class BlockQuery extends ElementQuery
      */
     protected function statusCondition(string $status): mixed
     {
+        // TODO: remove this in Neo 4
+        if (!Craft::$app->getDb()->columnExists('{{%neoblocktypes}}', 'enabled')) {
+            return parent::statusCondition($status);
+        }
+
         return match ($status) {
             Element::STATUS_ENABLED => [
                 'elements.enabled' => true,

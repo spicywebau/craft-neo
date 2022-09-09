@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a gateway timeout that could occur when validation errors occurred with unsaved Neo parent and child blocks
+- Fixed an error that occurred when upgrading from Craft 3 to Craft 4 if any Neo fields had been converted to Matrix fields
 
 ## 3.3.7 - 2022-09-08
 
