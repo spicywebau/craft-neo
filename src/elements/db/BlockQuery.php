@@ -612,7 +612,7 @@ class BlockQuery extends ElementQuery
     private function _getFilteredResult(): array
     {
         $result = $this->_allElements ?? [];
-        $originalIds = array_map(fn($block) => $block->id, $result);
+        $originalIds = array_map(fn($block) => $block->id ?? -$block->unsavedId, $result);
         $criteria = $this->getCriteria();
 
         foreach (['limit', 'offset'] as $limitParam) {
@@ -630,7 +630,7 @@ class BlockQuery extends ElementQuery
                     array_uintersect(
                         $result,
                         $currentFiltered,
-                        fn($a, $b) => array_search($a->id, $originalIds) <=> array_search($b->id, $originalIds)
+                        fn($a, $b) => array_search($a->id ?? -$a->unsavedId, $originalIds) <=> array_search($b->id ?? -$b->unsavedId, $originalIds)
                     )
                 );
             }
