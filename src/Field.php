@@ -457,6 +457,31 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $value = $value->getCachedResult() ?? $value->limit(null)->status(null)->all();
             }
 
+            $view->registerAssetBundle(InputAsset::class);
+            $view->registerJs(InputAsset::createInputJs($this, $element));
+            $filteredBlockTypes = ArrayHelper::index(InputAsset::$filteredBlockTypes, 'id');
+
+            $blocks = [];
+            $skippedBlockLevel = null;
+
+            foreach ($value as $block) {
+                if ($skippedBlockLevel !== null) {
+                    // If an ancestor has been skipped due to having a filtered-out block type, skip this one too
+                    if ($block->level > $skippedBlockLevel) {
+                        continue;
+                    }
+
+                    $skippedBlockLevel = null;
+                }
+
+                if (isset($filteredBlockTypes[$block->typeId])) {
+                    $blocks[] = $block;
+                } else {
+                    // If the block type data isn't there, it's been filtered out and the block should be skipped
+                    $skippedBlockLevel = $block->level;
+                }
+            }
+
             foreach ($value as $block) {
                 if ($block->id === null) {
                     // A validation error occurred and we're sending unsaved blocks back
@@ -466,12 +491,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->useMemoized($value);
             }
 
-            $view->registerAssetBundle(InputAsset::class);
-            $view->registerJs(InputAsset::createInputJs($this, $element));
-
             return $view->renderTemplate('neo/input', [
                 'handle' => $this->handle,
-                'blocks' => $value,
+                'blocks' => $blocks,
                 'id' => $view->formatInputId($this->handle),
                 'name' => $this->handle,
                 'translatable' => $this->propagationMethod,
