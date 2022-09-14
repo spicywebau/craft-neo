@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.3.8 - 2022-09-14
 
 ### Fixed
 - Fixed a gateway timeout that could occur when validation errors occurred with unsaved Neo parent and child blocks
