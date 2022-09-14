@@ -11,6 +11,8 @@ Neo is officially compatible with some other Craft plugins, listed below:
 - [Typed Link Field](https://github.com/sebastian-lenz/craft-linkfield) (field content is displayed in Neo's collapsed block previews)
 - [Linkit](https://github.com/presseddigital/linkit) (field content is displayed in Neo's collapsed block previews)
 - [Category Groups Field](https://github.com/ttempleton/craft-category-groups-field) (field content is displayed in Neo's collapsed block previews)
+- [CodeMirror](https://github.com/luwes/craft-codemirror) (field content is displayed in Neo's collapsed block previews)
+- [oEmbed](https://github.com/wrav/oembed) (field input content is displayed in Neo's collapsed block previews)
 
 The following plugins are known to be incompatible with Neo:
 
