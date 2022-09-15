@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an error that could occur when upgrading to Craft 4, if any Neo blocks contained null `sortOrder` values
+- Fixed an 'Attempt to read property "typeId" on bool' error that could occur during Neo field validation when saving an entry
 
 ## 3.3.8 - 2022-09-14
 

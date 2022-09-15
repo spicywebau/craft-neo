@@ -158,6 +158,8 @@ class FieldValidator extends Validator
                 );
             }
 
+            $lastBlock = $block;
+
             if (!isset($blockSiblingCount[$parentId][$block->typeId])) {
                 // This block is in a place in the field where it isn't supposed to exist any more, so ignore it for the
                 // purposes of min sibling blocks validation
@@ -165,7 +167,6 @@ class FieldValidator extends Validator
             }
 
             $blockSiblingCount[$parentId][$block->typeId] += 1;
-            $lastBlock = $block;
         }
 
         foreach ($blockTypesCount as $blockTypeId => $blockTypeCount) {
