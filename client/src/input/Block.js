@@ -689,6 +689,7 @@ export default Garnish.Base.extend({
           }
           break
         case 'craft\\redactor\\Field':
+        case 'spicyweb\\tinymce\\fields\\TinyMCE':
           value = _escapeHTML(_limit(Craft.getText($input.find('textarea').val())))
           break
         case 'craft\\ckeditor\\Field':
