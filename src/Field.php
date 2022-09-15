@@ -1279,7 +1279,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $adjustLevels = (int)$blocks[0]->level === 0;
 
             foreach ($blocks as $block) {
-                $block->setAllElements($blocks);
+                $block->useMemoized($blocks);
 
                 if ($adjustLevels) {
                     $block->level++;
