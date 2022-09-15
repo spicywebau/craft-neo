@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when upgrading to Craft 4, if any Neo blocks contained null `sortOrder` values
+
 ## 3.3.8 - 2022-09-14
 
 ### Fixed
