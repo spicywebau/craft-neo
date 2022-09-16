@@ -116,11 +116,12 @@
                     {% set hasErrors = false %}
                     <div class="tabs_inner" data-neo-b="{{ blockId }}.container.tabs">
                         {%- for tab in typeTabs -%}
-                            {%- set tabHasErrors = (tab.getErrors()|length > 0) -%}
+                            {%- set tabHasErrors = tab.elementHasErrors(block) -%}
                             <a class="tab {{ loop.first ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
                             data-neo-b="{{ blockId }}.button.tab"
                             data-neo-b-info="{{ tab.name }}">
-                                {{ tab.name }}
+                                {{ tab.name }}{#
+                                #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
                             </a>
                             {%- set hasErrors = (hasErrors or tabHasErrors) -%}
                         {%- endfor -%}
@@ -132,15 +133,17 @@
                         <div id="{{ tabsMenuId }}" class="neo_block_tabs-menu menu menu--disclosure">
                             <ul>
                                 {% for tab in typeTabs %}
+                                    {%- set tabHasErrors = tab.elementHasErrors(block) -%}
                                     <li>
-                                        <a class="{{ loop.first ? 'is-selected' : '' }}{{ tab.getErrors()|length > 0 ? ' has-errors' : '' }}"
+                                        <a class="{{ loop.first ? 'is-selected' : '' }}{{ tabHasErrors ? ' has-errors' : '' }}"
                                         href="#"
                                         type="button"
                                         role="button"
                                         aria-label="{{ tab.name }}"
                                         data-neo-b="{{ blockId }}.button.tab"
                                         data-neo-b-info="{{ tab.name }}">
-                                            {{ tab.name }}
+                                            {{ tab.name }}{#
+                                            #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
                                         </a>
                                     </li>
                                 {% endfor %}

@@ -9,6 +9,7 @@
 - Fixed an error that could occur when upgrading to Craft 4, if any Neo blocks contained null `sortOrder` values
 - Fixed an 'Attempt to read property "typeId" on bool' error that could occur during Neo field validation when saving an entry
 - Fixed a bug with Min Child Blocks validation when saving an element that doesn't autosave drafts
+- Fixed a bug where Neo block tabs weren't showing indicators of validation errors in subfields
 
 ## 3.3.8 - 2022-09-14
 
