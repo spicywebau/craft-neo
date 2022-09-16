@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.3.9 - 2022-09-16
 
 ### Added
 - Collapsed block previews can now display TinyMCE Field content
