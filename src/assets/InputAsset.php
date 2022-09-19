@@ -94,6 +94,7 @@ class InputAsset extends FieldAsset
             'Add a block',
             'Move up',
             'Move down',
+            'Error',
         ]);
 
         parent::registerAssetFiles($view);
