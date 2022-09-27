@@ -31,7 +31,6 @@ class OwnerCategoryGroupConditionRule extends GroupConditionRule
      */
     public function matchElement(ElementInterface $element): bool
     {
-        $owner = $element->getOwner();
-        return !($owner instanceof Category) || parent::matchElement($owner);
+        return $this->_matchElement($element, Category::class);
     }
 }

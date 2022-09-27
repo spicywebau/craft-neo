@@ -31,7 +31,6 @@ class OwnerTagGroupConditionRule extends GroupConditionRule
      */
     public function matchElement(ElementInterface $element): bool
     {
-        $owner = $element->getOwner();
-        return !($owner instanceof Tag) || parent::matchElement($owner);
+        return $this->_matchElement($element, Tag::class);
     }
 }

@@ -31,7 +31,6 @@ class OwnerVolumeConditionRule extends VolumeConditionRule
      */
     public function matchElement(ElementInterface $element): bool
     {
-        $owner = $element->getOwner();
-        return !($owner instanceof Asset) || parent::matchElement($owner);
+        return $this->_matchElement($element, Asset::class);
     }
 }

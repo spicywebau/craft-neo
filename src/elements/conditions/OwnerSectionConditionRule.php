@@ -31,7 +31,6 @@ class OwnerSectionConditionRule extends SectionConditionRule
      */
     public function matchElement(ElementInterface $element): bool
     {
-        $owner = $element->getOwner();
-        return !($owner instanceof Entry) || parent::matchElement($owner);
+        return $this->_matchElement($element, Entry::class);
     }
 }
