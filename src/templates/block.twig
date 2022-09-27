@@ -2,6 +2,7 @@
 
 {% set type = block.type %}
 {% set typeTabs = type.getFieldLayout().getTabs() %}
+{% set typeName = type.name|t('site') %}
 {% set hasTabs = typeTabs is not empty %}
 {% set isParent = static and block.children.exists() or not static and type.childBlocks is not null and type.childBlocks is not empty %}
 {% set collapsed = craft.app.plugins.getPlugin('neo').settings.collapseAllBlocks or block.collapsed %}
@@ -36,13 +37,13 @@
     ],
     data: {
         'neo-b-id': blockId,
-        'neo-b-name': "#{type.name}",
+        'neo-b-name': "#{typeName}",
     },
 } %}
 
-{% set actionBtnLabel = "#{type.name} #{'Actions'|t('neo')}" %}
+{% set actionBtnLabel = "#{typeName} #{'Actions'|t('neo')}" %}
 {% set actionMenuId = "neoblock-action-menu-#{blockId}" %}
-{% set tabsBtnLabel = "#{type.name} #{'Tabs'|t('neo')}" %}
+{% set tabsBtnLabel = "#{typeName} #{'Tabs'|t('neo')}" %}
 {% set tabsMenuId = "neoblock-tabs-menu-#{blockId}" %}
 
 {% set actionBtnAttributes = {
@@ -99,7 +100,7 @@
                 <div class="checkbox block-checkbox" title="{{ "Select"|t('neo') }}" aria-label="{{ 'Select'|t('neo') }}"></div>
             </div>
             <div class="ni_block_topbar_item title">
-                <span class="blocktype{{ hasErrors ? ' has-errors' }}" data-neo-b="{{ blockId }}.select">{{ type.name }}</span>{#
+                <span class="blocktype{{ hasErrors ? ' has-errors' }}" data-neo-b="{{ blockId }}.select">{{ typeName }}</span>{#
                 #}{% if block.hasErrors() %}<span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
             </div>
             {{ blockTypeHandleLabel }}
@@ -116,11 +117,12 @@
                     {% set hasErrors = false %}
                     <div class="tabs_inner" data-neo-b="{{ blockId }}.container.tabs">
                         {%- for tab in typeTabs -%}
+                            {%- set tabName = tab.name|t('site') -%}
                             {%- set tabHasErrors = tab.elementHasErrors(block) -%}
                             <a class="tab {{ loop.first ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
                             data-neo-b="{{ blockId }}.button.tab"
-                            data-neo-b-info="{{ tab.name }}">
-                                {{ tab.name }}{#
+                            data-neo-b-info="{{ tabName }}">
+                                {{ tabName }}{#
                                 #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
                             </a>
                             {%- set hasErrors = (hasErrors or tabHasErrors) -%}
@@ -128,21 +130,22 @@
                     </div>
                     <div>
                         <button {{ attr(tabsBtnAttributes) }} class="tabs_btn menubtn{{ hasErrors ? ' has-errors' : '' }}">
-                            {{ (typeTabs|first).name }}
+                            {{ (typeTabs|first).name|t('site') }}
                         </button>
                         <div id="{{ tabsMenuId }}" class="neo_block_tabs-menu menu menu--disclosure">
                             <ul>
                                 {% for tab in typeTabs %}
+                                    {%- set tabName = tab.name|t('site') -%}
                                     {%- set tabHasErrors = tab.elementHasErrors(block) -%}
                                     <li>
                                         <a class="{{ loop.first ? 'is-selected' : '' }}{{ tabHasErrors ? ' has-errors' : '' }}"
                                         href="#"
                                         type="button"
                                         role="button"
-                                        aria-label="{{ tab.name }}"
+                                        aria-label="{{ tabName }}"
                                         data-neo-b="{{ blockId }}.button.tab"
-                                        data-neo-b-info="{{ tab.name }}">
-                                            {{ tab.name }}{#
+                                        data-neo-b-info="{{ tabName }}">
+                                            {{ tabName }}{#
                                             #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
                                         </a>
                                     </li>

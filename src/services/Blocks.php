@@ -62,7 +62,7 @@ class Blocks extends Component
         $data = [];
 
         foreach ($fieldLayoutTabs as $tab) {
-            $data['tabNames'][] = $tab->name;
+            $data['tabNames'][] = Craft::t('site', $tab->name);
 
             foreach ($tab->getElements() as $tabElement) {
                 if ($tabElement instanceof CustomField && $isNewBlock) {
