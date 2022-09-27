@@ -2,6 +2,7 @@
 
 namespace benf\neo\elements;
 
+use benf\neo\elements\conditions\BlockCondition;
 use benf\neo\elements\db\BlockQuery;
 use benf\neo\Field;
 use benf\neo\models\BlockType;
@@ -11,6 +12,7 @@ use Craft;
 use craft\base\BlockElementInterface;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Db;
 use craft\models\FieldLayout;
@@ -108,6 +110,15 @@ class Block extends Element implements BlockElementInterface
     public static function find(): ElementQueryInterface
     {
         return new BlockQuery(static::class);
+    }
+
+    /**
+     * @inheritdoc
+     * @return BlockCondition
+     */
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(BlockCondition::class, [static::class]);
     }
 
     /**

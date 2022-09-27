@@ -98,4 +98,10 @@ return [
     'By converting to Matrix, structural information will be lost.' => 'By converting to Matrix, structural information will be lost.',
     'Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.' => 'Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.',
     'Could not convert Neo field to Matrix' => 'Could not convert Neo field to Matrix',
+    'Owner Category Group' => 'Owner Category Group',
+    'Owner Entry Type' => 'Owner Entry Type',
+    'Owner Section' => 'Owner Section',
+    'Owner Tag Group' => 'Owner Tag Group',
+    'Owner User Group' => 'Owner User Group',
+    'Owner Volume' => 'Owner Volume',
 ];

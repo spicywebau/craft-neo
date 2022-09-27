@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Added
+- Neo block subfields can now have condition rules applied based on the owner element's section, entry type, asset volume, category group, user group or tag group
+- Added `benf\neo\elements\conditions\BlockCondition`
+- Added `benf\neo\elements\conditions\OwnerCategoryGroupConditionRule`
+- Added `benf\neo\elements\conditions\OwnerConditionRuleTrait`
+- Added `benf\neo\elements\conditions\OwnerEntryTypeConditionRule`
+- Added `benf\neo\elements\conditions\OwnerSectionConditionRule`
+- Added `benf\neo\elements\conditions\OwnerTagGroupConditionRule`
+- Added `benf\neo\elements\conditions\OwnerUserGroupConditionRule`
+- Added `benf\neo\elements\conditions\OwnerVolumeConditionRule`
+
 ### Fixed
 - Fixed a bug where Neo block tabs weren't showing indicators of validation errors in descendant blocks, if the descendant blocks were hidden in child blocks UI element(s)
 
