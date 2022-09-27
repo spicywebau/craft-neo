@@ -4,8 +4,8 @@ namespace benf\neo\elements\conditions;
 
 use Craft;
 use craft\base\ElementInterface;
-use craft\elements\conditions\assets\VolumeConditionRule;
 use craft\elements\Asset;
+use craft\elements\conditions\assets\VolumeConditionRule;
 
 /**
  * Class OwnerVolumeConditionRule

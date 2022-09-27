@@ -4,8 +4,8 @@ namespace benf\neo\elements\conditions;
 
 use Craft;
 use craft\base\ElementInterface;
-use craft\elements\conditions\categories\GroupConditionRule;
 use craft\elements\Category;
+use craft\elements\conditions\categories\GroupConditionRule;
 
 /**
  * Class OwnerCategoryGroupConditionRule
