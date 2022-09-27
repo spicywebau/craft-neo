@@ -639,6 +639,11 @@ export default Garnish.Base.extend({
   },
 
   _getNextBlockIndex (index) {
+    // If undefined, then there's no previous block and the 'next' block will be the first block
+    if (typeof index === 'undefined') {
+      return 0
+    }
+
     if (index instanceof Block) {
       index = this._blocks.indexOf(index)
     }
@@ -655,7 +660,11 @@ export default Garnish.Base.extend({
     const animate = !Garnish.prefersReducedMotion()
     const $spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : 'Loading block'}</div>`)
 
-    block.$container.after($spinner)
+    if (typeof block !== 'undefined') {
+      block.$container.after($spinner)
+    } else {
+      this.$blocksContainer.prepend($spinner)
+    }
 
     let spinnerComplete = false
     let spinnerCallback = function () {}
@@ -874,7 +883,7 @@ export default Garnish.Base.extend({
 
   '@pasteBlock' (e) {
     const block = e.block
-    const baseLevel = block.getLevel() - 1
+    const baseLevel = (block?.getLevel() ?? 1) - 1
     const copyData = window.localStorage.getItem('neo:copy')
 
     if (copyData) {
