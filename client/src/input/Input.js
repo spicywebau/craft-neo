@@ -453,6 +453,17 @@ export default Garnish.Base.extend({
     return this._blocks.filter(block => block.$container.closest($selectedBlocks).length > 0)
   },
 
+  getCopiedBlocks () {
+    const copyData = window.localStorage.getItem(`neo:copy:${this._name}`)
+
+    if (!copyData) {
+      return []
+    }
+
+    const { blocks } = JSON.parse(copyData)
+    return blocks
+  },
+
   _setMatrixClassErrors () {
     // TODO: will need probably need to find a method within php instead of JS
     // temp solution for now.
@@ -873,7 +884,7 @@ export default Garnish.Base.extend({
       }
     }
 
-    window.localStorage.setItem('neo:copy', JSON.stringify(data))
+    window.localStorage.setItem(`neo:copy:${this._name}`, JSON.stringify(data))
 
     this._updateButtons()
 
@@ -884,11 +895,9 @@ export default Garnish.Base.extend({
   '@pasteBlock' (e) {
     const block = e.block
     const baseLevel = (block?.getLevel() ?? 1) - 1
-    const copyData = window.localStorage.getItem('neo:copy')
+    const blocks = this.getCopiedBlocks()
 
-    if (copyData) {
-      const { blocks } = JSON.parse(copyData)
-
+    if (blocks.length > 0) {
       for (const pasteBlock of blocks) {
         pasteBlock.level += baseLevel
       }

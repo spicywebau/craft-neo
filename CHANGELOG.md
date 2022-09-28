@@ -13,6 +13,9 @@
 - Added `benf\neo\elements\conditions\OwnerUserGroupConditionRule`
 - Added `benf\neo\elements\conditions\OwnerVolumeConditionRule`
 
+### Changed
+- Copied Neo input block data is now stored on a per-field basis
+
 ### Fixed
 - Fixed a bug where Neo block tabs weren't showing indicators of validation errors in descendant blocks, if the descendant blocks were hidden in child blocks UI element(s)
 - Fixed a bug where the block type names on existing Neo input blocks weren't being translated
