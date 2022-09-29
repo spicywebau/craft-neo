@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.4.0 - 2022-09-29
 
 ### Added
 - Neo block subfields can now have condition rules applied based on the owner element's section, entry type, asset volume, category group, user group or tag group
