@@ -901,7 +901,10 @@ class BlockQuery extends ElementQuery
             if ($element === $value) {
                 $found = true;
             } elseif ($found) {
-                if (($value->rgt && $element->rgt && $element->rgt < $value->rgt) || $element->level > $value->level) {
+                if (
+                    $value->rgt && $element->rgt && $element->rgt < $value->rgt ||
+                    (!$value->rgt || !$element->rgt) && $element->level > $value->level
+                ) {
                     $descendants[] = $element;
                 } else {
                     break;

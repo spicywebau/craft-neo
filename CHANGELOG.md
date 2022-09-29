@@ -20,6 +20,7 @@
 - Fixed a bug where Neo block tabs weren't showing indicators of validation errors in descendant blocks, if the descendant blocks were hidden in child blocks UI element(s)
 - Fixed a bug where the block type names on existing Neo input blocks weren't being translated
 - Fixed a bug where the tab names on all Neo input blocks weren't being translated
+- Fixed a bug where eager loaded Neo fields with disabled parent blocks would have their enabled child blocks counted as children of the parent's previous sibling block
 
 ## 3.3.9 - 2022-09-16
 
