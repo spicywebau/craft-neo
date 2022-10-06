@@ -3,6 +3,7 @@ import Craft from 'craft'
 import Garnish from 'garnish'
 
 const _defaults = {
+  $ownerContainer: null,
   blockTypes: [],
   groups: [],
   items: null,
@@ -31,6 +32,8 @@ export default Garnish.Base.extend({
       this._items = [...this._blockTypes, ...this._groups].sort((a, b) => a.getSortOrder() - b.getSortOrder())
     }
 
+    this.$ownerContainer = settings.$ownerContainer
+    this._field = settings.field
     this._maxBlocks = settings.maxBlocks | 0
     this._maxTopBlocks = settings.maxTopBlocks | 0
 
@@ -50,6 +53,11 @@ export default Garnish.Base.extend({
   },
 
   _generateButtons () {
+    const ownerBlockType = this.$ownerContainer?.hasClass('ni_block')
+      ? this.$ownerContainer.attr('class').match(/ni_block--([^\s]+)/)[1]
+      : null
+    const ungroupChildBlockTypes = ownerBlockType !== null &&
+      !this._field.getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
     const buttonsHtml = []
     let blockTypesHtml = []
     let currentGroup = null
@@ -101,11 +109,14 @@ export default Garnish.Base.extend({
           generateGroupDropdown()
         }
 
-        if (item.isBlank()) {
-          // Never show dropdowns for groups with blank names, as they're just used to end the previous group
-          currentGroup = null
-        } else if (!item.getAlwaysShowDropdown() && ((i + 2) >= this._items.length || this._items[i + 2].getType() === 'group')) {
+        if (
+          // Don't show dropdowns for groups with blank names, as they're just used to end the previous group
+          (item.isBlank()) ||
           // Don't show dropdowns if we're not forcing them to show, and there's only one block type in this group
+          (!item.getAlwaysShowDropdown() && ((i + 2) >= this._items.length || this._items[i + 2].getType() === 'group')) ||
+          // Don't show dropdowns if the block type is set not to group child block types
+          (ungroupChildBlockTypes)
+        ) {
           currentGroup = null
         } else {
           currentGroup = item
@@ -161,7 +172,7 @@ export default Garnish.Base.extend({
         }
 
         lastGroupHadBlockTypes = false
-        currentGroup = item.isBlank() ? null : item
+        currentGroup = item.isBlank() || ungroupChildBlockTypes ? null : item
 
         if (currentGroup === null) {
           buttonsHtml.push(`

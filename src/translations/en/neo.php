@@ -41,6 +41,8 @@ return [
     'The maximum number of child blocks this block type is allowed to have.' => 'The maximum number of child blocks this block type is allowed to have.',
     'Top Level' => 'Top Level',
     'Will this block type be allowed at the top level?' => 'Will this block type be allowed at the top level?',
+    'Group Child Block Types' => 'Group Child Block Types',
+    'Will child block types be shown in their groups?' => 'Will child block types be shown in their groups?',
     '{type} Condition' => '{type} Condition',
     'Only allow this block type to be used on {type} if they match the following rules:' => 'Only allow this block type to be used on {type} if they match the following rules:',
     'Delete block type' => 'Delete block type',

@@ -116,6 +116,10 @@ export default Garnish.Base.extend({
     if (this._buttons) {
       this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, { level: this.getLevel() + 1 })))
       this.$buttonsContainer.append(this._buttons.$container)
+
+      if (this._buttons.$ownerContainer === null) {
+        this._buttons.$ownerContainer = this.$container
+      }
     }
 
     let hasErrors = false

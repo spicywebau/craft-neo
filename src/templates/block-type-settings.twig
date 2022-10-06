@@ -161,6 +161,19 @@
             }) }}
         </div>
 
+        <div data-neo-bts="container.groupChildBlockTypes">
+            {{ forms.lightswitchField({
+                id: 'groupChildBlockTypes',
+                name: 'groupChildBlockTypes',
+                label: 'Group Child Block Types'|t('neo'),
+                instructions: 'Will child block types be shown in their groups?'|t('neo'),
+                on: blockType ? blockType.groupChildBlockTypes : true,
+                containerAttributes: {
+                    'data-neo-bts': 'input.groupChildBlockTypes'
+                }
+            }) }}
+        </div>
+
         <div data-neo-bts="container.topLevel">
             {{ forms.lightswitchField({
                 id: 'topLevel',

@@ -198,6 +198,7 @@ class InputAsset extends FieldAsset
                 'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
                 'minChildBlocks' => $blockType->minChildBlocks,
                 'maxChildBlocks' => $blockType->maxChildBlocks,
+                'groupChildBlockTypes' => (bool)$blockType->groupChildBlockTypes,
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
                 'tabs' => Neo::$plugin->blocks->renderTabs($block),

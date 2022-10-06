@@ -103,6 +103,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public ?int $maxChildBlocks = null;
 
     /**
+     * @var bool Whether the child block types (if any) will be shown in their groups (if any).
+     * @since 4.0.0
+     */
+    public bool $groupChildBlockTypes = true;
+
+    /**
      * @var string[]|string|null The child block types of this block type, either as an array of block type handles, the
      * string '*' representing all of the Neo field's block types, or null if no child block types.
      */
@@ -186,7 +192,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
         return [
             [['id', 'fieldId', 'sortOrder'], 'number', 'integerOnly' => true],
             [['minBlocks', 'maxBlocks', 'minChildBlocks', 'maxChildBlocks', 'minSiblingBlocks'], 'integer', 'min' => 0],
-            [['enabled', 'topLevel'], 'boolean'],
+            [['enabled', 'topLevel', 'groupChildBlockTypes'], 'boolean'],
         ];
     }
 
@@ -270,6 +276,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'childBlocks' => $this->childBlocks,
             'field' => $this->getField()->uid,
             'group' => $group ? $group->uid : null,
+            'groupChildBlockTypes' => (bool)$this->groupChildBlockTypes,
             'handle' => $this->handle,
             'description' => $this->description,
             'enabled' => $this->enabled,

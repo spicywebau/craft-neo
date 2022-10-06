@@ -102,6 +102,18 @@ class BlockTypesController extends Controller
     public ?int $setMaxChildBlocks = null;
 
     /**
+     * @var bool Whether to set the block type's child block types as being shown in their groups.
+     * @since 4.0.0
+     */
+    public bool $setGroupChildBlockTypes = false;
+
+    /**
+     * @var bool Whether to set the block type's child block types as not being shown in their groups.
+     * @since 4.0.0
+     */
+    public bool $unsetGroupChildBlockTypes = false;
+
+    /**
      * @var string|null The child block types of this block type, either as comma-separated block type handles, or the
      * string '*' representing all of the Neo field's block types.
      */
@@ -146,6 +158,8 @@ class BlockTypesController extends Controller
             $options[] = 'setMaxSiblingBlocks';
             $options[] = 'setMinChildBlocks';
             $options[] = 'setMaxChildBlocks';
+            $options[] = 'setGroupChildBlockTypes';
+            $options[] = 'unsetGroupChildBlockTypes';
             $options[] = 'setChildBlocks';
             $options[] = 'unsetChildBlocks';
             $options[] = 'setTopLevel';
@@ -219,7 +233,7 @@ class BlockTypesController extends Controller
             }
         }
 
-        foreach (['description', 'enabled', 'topLevel'] as $btProperty) {
+        foreach (['description', 'enabled', 'topLevel', 'groupChildBlockTypes'] as $btProperty) {
             $setProperty = 'set' . ucfirst($btProperty);
             $unsetProperty = 'unset' . ucfirst($btProperty);
 

@@ -81,6 +81,7 @@ class Install extends Migration
                 'maxSiblingBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'minChildBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'maxChildBlocks' => $this->smallInteger()->unsigned(),
+                'groupChildBlockTypes' => $this->boolean()->defaultValue(true)->notNull(),
                 'childBlocks' => $this->text(),
                 'topLevel' => $this->boolean()->defaultValue(true)->notNull(),
                 'sortOrder' => $this->smallInteger()->unsigned(),

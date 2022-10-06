@@ -211,6 +211,7 @@ class BlockTypes extends Component
         $record->maxSiblingBlocks = $blockType->maxSiblingBlocks;
         $record->minChildBlocks = $blockType->minChildBlocks;
         $record->maxChildBlocks = $blockType->maxChildBlocks;
+        $record->groupChildBlockTypes = $blockType->groupChildBlockTypes;
         $record->childBlocks = $blockType->childBlocks;
         $record->topLevel = $blockType->topLevel;
         $record->groupId = $blockType->groupId;
@@ -430,6 +431,7 @@ class BlockTypes extends Component
             $record->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
             $record->minChildBlocks = $data['minChildBlocks'] ?? 0;
             $record->maxChildBlocks = $data['maxChildBlocks'];
+            $record->groupChildBlockTypes = $data['groupChildBlockTypes'] ?? true;
             $record->childBlocks = $data['childBlocks'];
             $record->topLevel = $data['topLevel'];
             $record->conditions = Json::encode($data['conditions'] ?? []);
@@ -451,6 +453,7 @@ class BlockTypes extends Component
             $blockType->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
             $blockType->minChildBlocks = $data['minChildBlocks'] ?? 0;
             $blockType->maxChildBlocks = $data['maxChildBlocks'];
+            $blockType->groupChildBlockTypes = $data['groupChildBlockTypes'] ?? true;
             $blockType->childBlocks = $data['childBlocks'];
             $blockType->topLevel = $data['topLevel'];
             $blockType->uid = $uid;
@@ -684,13 +687,13 @@ class BlockTypes extends Component
         ];
 
         // Columns that didn't exist in Neo 3.0.0
-        // TODO: move these into `$columns` in Neo 4
         $maybeColumns = [
             'description',
             'enabled',
             'minBlocks',
             'minChildBlocks',
             'minSiblingBlocks',
+            'groupChildBlockTypes',
             'conditions',
         ];
 
