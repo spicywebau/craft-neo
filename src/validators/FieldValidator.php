@@ -96,6 +96,11 @@ class FieldValidator extends Validator
     private ?Field $_field = null;
 
     /**
+     * @var Block[]
+     */
+    private array $_enabledBlocks = [];
+
+    /**
      * @inheritdoc
      */
     public function validateAttribute($model, $attribute): void
@@ -103,7 +108,8 @@ class FieldValidator extends Validator
         $this->_setDefaultErrorMessages();
 
         $this->_field = $model->getFieldLayout()->getFieldByHandle($attribute);
-        $this->_blocks = $model->$attribute->all();
+        $this->_blocks = $model->$attribute->status(null)->all();
+        $this->_enabledBlocks = array_filter($this->_blocks, fn($block) => $block->enabled);
 
         $this->_checkTopLevelBlocks($model, $attribute);
         $this->_checkMinLevels($model, $attribute);
@@ -117,7 +123,7 @@ class FieldValidator extends Validator
     private function _checkTopLevelBlocks($model, $attribute): void
     {
         if ($this->minTopBlocks !== null || $this->maxTopBlocks !== null) {
-            $topBlocks = array_filter($this->_blocks, fn($block) => (int)$block->level === 1);
+            $topBlocks = array_filter($this->_enabledBlocks, fn($block) => (int)$block->level === 1);
 
             if ($this->minTopBlocks !== null && count($topBlocks) < $this->minTopBlocks) {
                 $this->addError($model, $attribute, $this->tooFewTopBlocks, ['minTopBlocks' => $this->minTopBlocks]);
@@ -137,7 +143,7 @@ class FieldValidator extends Validator
         $minLevels = $this->minLevels;
 
         if ($minLevels !== null) {
-            $blocksAtMinLevels = array_filter($this->_blocks, fn($block) => ((int)$block->level) >= $minLevels);
+            $blocksAtMinLevels = array_filter($this->_enabledBlocks, fn($block) => ((int)$block->level) >= $minLevels);
 
             if (empty($blocksAtMinLevels)) {
                 $this->addError($model, $attribute, $this->exceedsMinLevels, ['minLevels' => $this->minLevels]);
@@ -153,7 +159,7 @@ class FieldValidator extends Validator
         $maxLevels = $this->maxLevels;
 
         if ($maxLevels !== null) {
-            $tooHighBlocks = array_filter($this->_blocks, fn($block) => ((int)$block->level) > $maxLevels);
+            $tooHighBlocks = array_filter($this->_enabledBlocks, fn($block) => ((int)$block->level) > $maxLevels);
 
             if (!empty($tooHighBlocks)) {
                 $this->addError($model, $attribute, $this->exceedsMaxLevels, ['maxLevels' => $this->maxLevels]);
@@ -196,7 +202,9 @@ class FieldValidator extends Validator
         }
 
         foreach ($this->_blocks as $block) {
-            $blockTypesCount[$block->typeId] += 1;
+            if ($block->enabled) {
+                $blockTypesCount[$block->typeId] += 1;
+            }
 
             // Make sure we have the correct ancestors for the current block
             if ($lastBlock !== null) {
@@ -224,14 +232,17 @@ class FieldValidator extends Validator
                 );
             }
 
+            $lastBlock = $block;
+
             if (!isset($blockSiblingCount[$parentId][$block->typeId])) {
                 // This block is in a place in the field where it isn't supposed to exist any more, so ignore it for the
                 // purposes of min sibling blocks validation
                 continue;
             }
 
-            $blockSiblingCount[$parentId][$block->typeId] += 1;
-            $lastBlock = $block;
+            if ($block->enabled) {
+                $blockSiblingCount[$parentId][$block->typeId] += 1;
+            }
         }
 
         foreach ($blockTypesCount as $blockTypeId => $blockTypeCount) {

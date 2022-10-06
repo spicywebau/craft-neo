@@ -5,7 +5,47 @@
 ### Changed
 - Whether a Neo block type's Top Level, Max Sibling Blocks of This Type, Child Blocks or Max Child Blocks settings have been violated is now validated server-side when saving a Neo field's contents, rather than relying on them to be enforced by client-side JavaScript
 
-## Unreleased
+## 3.4.0 - 2022-09-29
+
+### Added
+- Neo block subfields can now have condition rules applied based on the owner element's section, entry type, asset volume, category group, user group or tag group
+- Added `benf\neo\elements\conditions\BlockCondition`
+- Added `benf\neo\elements\conditions\OwnerCategoryGroupConditionRule`
+- Added `benf\neo\elements\conditions\OwnerConditionRuleTrait`
+- Added `benf\neo\elements\conditions\OwnerEntryTypeConditionRule`
+- Added `benf\neo\elements\conditions\OwnerSectionConditionRule`
+- Added `benf\neo\elements\conditions\OwnerTagGroupConditionRule`
+- Added `benf\neo\elements\conditions\OwnerUserGroupConditionRule`
+- Added `benf\neo\elements\conditions\OwnerVolumeConditionRule`
+
+### Changed
+- Copied Neo input block data is now stored on a per-field basis
+
+### Fixed
+- Fixed a bug where Neo block tabs weren't showing indicators of validation errors in descendant blocks, if the descendant blocks were hidden in child blocks UI element(s)
+- Fixed a bug where the block type names on existing Neo input blocks weren't being translated
+- Fixed a bug where the tab names on all Neo input blocks weren't being translated
+- Fixed a bug where eager loaded Neo fields with disabled parent blocks would have their enabled child blocks counted as children of the parent's previous sibling block
+
+## 3.3.9 - 2022-09-16
+
+### Added
+- Collapsed block previews can now display TinyMCE Field content
+
+### Fixed
+- Fixed an error that could occur when upgrading to Craft 4, if any Neo blocks contained null `sortOrder` values
+- Fixed an 'Attempt to read property "typeId" on bool' error that could occur during Neo field validation when saving an entry
+- Fixed a bug with Min Child Blocks validation when saving an element that doesn't autosave drafts
+- Fixed a bug where Neo block tabs weren't showing indicators of validation errors in subfields
+
+## 3.3.8 - 2022-09-14
+
+### Fixed
+- Fixed a gateway timeout that could occur when validation errors occurred with unsaved Neo parent and child blocks
+- Fixed an error that occurred when upgrading from Craft 3 to Craft 4 if any Neo fields had been converted to Matrix fields
+- Fixed a JavaScript error that occurred if any existing Neo blocks with filtered-out block types had child blocks with allowed block types
+
+## 3.3.7 - 2022-09-08
 
 ### Fixed
 - Fixed an 'Undefined array key' error that occurred when saving an element, if any Neo blocks were in formerly valid places in the field for them to exist

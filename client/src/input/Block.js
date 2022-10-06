@@ -135,6 +135,7 @@ export default Garnish.Base.extend({
     this.toggleShowButtons(this._showButtons)
 
     this.addListener(this.$topbarContainer, 'dblclick', '@doubleClickTitle')
+    this.$container.data('block', this)
   },
 
   _generateElement (showHandle = false) {
@@ -352,6 +353,20 @@ export default Garnish.Base.extend({
     this.$container.on('mousedown', '.matrixblock', function (e) {
       $(this).addClass('neo-matrixblock')
     })
+
+    // If this block has errors and is nested somewhere in a child blocks UI element, set errors on ancestors' tabs
+    if (this.$container.hasClass('has-errors')) {
+      this.$container.parents('.ni_child-blocks-ui-element').each((_, cbuiElement) => {
+        const $tabContent = $(cbuiElement).parent()
+        const parentBlock = $tabContent.closest('.ni_block').data('block')
+        const tabIndex = $tabContent.index()
+        parentBlock.$tabButton.filter('.tab').eq(tabIndex) // Desktop tab buttons
+          .add(parentBlock.$tabButton.filter(':not(.tab)').eq(tabIndex)) // Mobile tab buttons
+          .add(parentBlock.$container.find('> .ni_block_topbar .tabs_btn')) // Mobile tab dropdown button
+          .addClass('has-errors')
+          .append(`<span data-icon="alert" aria-label="${Craft.t('neo', 'Error')}"></span>`)
+      })
+    }
 
     // Setting up field and block property watching
     if (!this.isNew()) {
@@ -689,6 +704,7 @@ export default Garnish.Base.extend({
           }
           break
         case 'craft\\redactor\\Field':
+        case 'spicyweb\\tinymce\\fields\\TinyMCE':
           value = _escapeHTML(_limit(Craft.getText($input.find('textarea').val())))
           break
         case 'craft\\ckeditor\\Field':
@@ -993,7 +1009,7 @@ export default Garnish.Base.extend({
     const typeDisabled = maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes
     let cloneDisabled = allDisabled || typeDisabled
 
-    const pasteData = JSON.parse(window.localStorage.getItem('neo:copy') || '{}')
+    const pasteData = JSON.parse(window.localStorage.getItem(`neo:copy:${field}`) || '{}')
     let pasteDisabled = allDisabled || !pasteData.blocks || !pasteData.field || pasteData.field !== field
 
     // Test to see if pasting would exceed the parent's max child blocks

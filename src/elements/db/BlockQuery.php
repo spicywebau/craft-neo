@@ -474,6 +474,11 @@ class BlockQuery extends ElementQuery
      */
     protected function statusCondition(string $status): mixed
     {
+        // TODO: remove this in Neo 4
+        if (!Craft::$app->getDb()->columnExists('{{%neoblocktypes}}', 'enabled')) {
+            return parent::statusCondition($status);
+        }
+
         return match ($status) {
             Element::STATUS_ENABLED => [
                 'elements.enabled' => true,
@@ -612,7 +617,7 @@ class BlockQuery extends ElementQuery
     private function _getFilteredResult(): array
     {
         $result = $this->_allElements ?? [];
-        $originalIds = array_map(fn($block) => $block->id, $result);
+        $originalIds = array_map(fn($block) => $block->id ?? -$block->unsavedId, $result);
         $criteria = $this->getCriteria();
 
         foreach (['limit', 'offset'] as $limitParam) {
@@ -630,7 +635,7 @@ class BlockQuery extends ElementQuery
                     array_uintersect(
                         $result,
                         $currentFiltered,
-                        fn($a, $b) => array_search($a->id, $originalIds) <=> array_search($b->id, $originalIds)
+                        fn($a, $b) => array_search($a->id ?? -$a->unsavedId, $originalIds) <=> array_search($b->id ?? -$b->unsavedId, $originalIds)
                     )
                 );
             }
@@ -896,7 +901,10 @@ class BlockQuery extends ElementQuery
             if ($element === $value) {
                 $found = true;
             } elseif ($found) {
-                if (($value->rgt && $element->rgt && $element->rgt < $value->rgt) || $element->level > $value->level) {
+                if (
+                    $value->rgt && $element->rgt && $element->rgt < $value->rgt ||
+                    (!$value->rgt || !$element->rgt) && $element->level > $value->level
+                ) {
                     $descendants[] = $element;
                 } else {
                     break;

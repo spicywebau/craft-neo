@@ -49,6 +49,12 @@ class InputAsset extends FieldAsset
     public const EVENT_FILTER_BLOCK_TYPES = 'filterBlockTypes';
 
     /**
+     * @var BlockType[]
+     * @since 3.3.8
+     */
+    public static array $filteredBlockTypes = [];
+
+    /**
      * @inheritdoc
      */
     public function init(): void
@@ -88,6 +94,7 @@ class InputAsset extends FieldAsset
             'Add a block',
             'Move up',
             'Move down',
+            'Error',
         ]);
 
         parent::registerAssetFiles($view);
@@ -134,6 +141,8 @@ class InputAsset extends FieldAsset
             'blockTypeGroups' => $blockTypeGroups,
         ]);
         Event::trigger(self::class, self::EVENT_FILTER_BLOCK_TYPES, $event);
+
+        self::$filteredBlockTypes = $event->blockTypes;
 
         $jsSettings = [
             'name' => $name,

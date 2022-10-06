@@ -120,11 +120,11 @@ $topbar-background-color-transparent: #ebf2fa00;
                 body.rtl &:not(:last-child) {
                     padding-left: 0;
                 }
-                
+
                 &:first-child {
                     padding-left: 0;
                 }
-                
+
                 &:last-child {
                     padding-right: 0;
                 }
@@ -143,7 +143,7 @@ $topbar-background-color-transparent: #ebf2fa00;
                     .blocktype {
                         // Add vertical padding so there's more hit area for the checkbox
                         padding: 8px 0;
-                        
+
                         &.has-errors {
                             color: var(--error-color);
 
@@ -252,7 +252,7 @@ $topbar-background-color-transparent: #ebf2fa00;
                         body.rtl & { left:  8px;  }
 
                         &.has-errors {
-                            color: #da5a47;
+                            color: var(--error-color);
                         }
                     }
 
@@ -289,7 +289,7 @@ $topbar-background-color-transparent: #ebf2fa00;
                         }
 
                         &.has-errors {
-                            color: #da5a47;
+                            color: var(--error-color);
                         }
                     }
                 }
@@ -481,7 +481,7 @@ $topbar-background-color-transparent: #ebf2fa00;
                     body.ltr & {
                         right: $preview-reduction;
                     }
-    
+
                     body.rtl & {
                         left: $preview-reduction;
                     }
