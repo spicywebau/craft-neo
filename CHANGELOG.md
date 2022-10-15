@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `benf\neo\Field::getBlockTypeFields()`
+
 ## 3.4.0 - 2022-09-29
 
 ### Added
