@@ -8,6 +8,7 @@ use benf\neo\controllers\Input as InputController;
 use benf\neo\elements\Block;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\gql\interfaces\elements\Block as NeoGqlInterface;
+use benf\neo\integrations\feedme\Field as FeedMeField;
 use benf\neo\models\Settings;
 use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\BlockTypes as BlockTypesService;
@@ -26,6 +27,8 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterConditionRuleTypesEvent;
 use craft\events\RegisterGqlTypesEvent;
+use craft\feedme\events\RegisterFeedMeFieldsEvent;
+use craft\feedme\services\Fields as FeedMeFields;
 use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
 use craft\gatsbyhelper\services\Deltas;
 use craft\models\FieldLayout;
@@ -102,6 +105,7 @@ class Plugin extends BasePlugin
         $this->_registerChildBlocksUiElement();
         $this->_registerResaveBlocksCommand();
         $this->_registerGatsbyHelper();
+        $this->_registerFeedMeSupport();
         $this->_registerConditionFieldRuleRemoval();
     }
 
@@ -229,6 +233,17 @@ class Plugin extends BasePlugin
                 $event->types[] = Block::class;
             });
         }
+    }
+
+    private function _registerFeedMeSupport(): void
+    {
+        Event::on(
+            FeedMeFields::class,
+            FeedMeFields::EVENT_REGISTER_FEED_ME_FIELDS,
+            function(RegisterFeedMeFieldsEvent $e) {
+                $e->fields[] = FeedMeField::class;
+            }
+        );
     }
 
     /**
