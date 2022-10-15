@@ -104,7 +104,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
 
     /**
      * @var bool Whether the child block types (if any) will be shown in their groups (if any).
-     * @since 4.0.0
+     * @since 3.5.0
      */
     public bool $groupChildBlockTypes = true;
 

@@ -103,13 +103,13 @@ class BlockTypesController extends Controller
 
     /**
      * @var bool Whether to set the block type's child block types as being shown in their groups.
-     * @since 4.0.0
+     * @since 3.5.0
      */
     public bool $setGroupChildBlockTypes = false;
 
     /**
      * @var bool Whether to set the block type's child block types as not being shown in their groups.
-     * @since 4.0.0
+     * @since 3.5.0
      */
     public bool $unsetGroupChildBlockTypes = false;
 
