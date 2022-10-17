@@ -4,6 +4,7 @@
 
 ### Added
 - Added `benf\neo\Field::getBlockTypeFields()`
+- Added `benf\neo\integrations\feedme\Field`
 
 ## 3.4.0 - 2022-09-29
 
