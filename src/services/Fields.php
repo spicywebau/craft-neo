@@ -927,6 +927,14 @@ SQL
         return $supported;
     }
 
+    public function getNeoFields(): array
+    {
+        return array_filter(
+            Craft::$app->getFields()->getAllFields(),
+            fn($field) => $field instanceof Field
+        );
+    }
+
     // Private Methods
     // =========================================================================
 

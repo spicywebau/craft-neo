@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added the ability to set user permissions for the creation, deletion and editing of blocks of each block type
+- Added `benf\neo\services\Fields::getNeoFields()`
+
 ## 3.4.0 - 2022-09-29
 
 ### Added
