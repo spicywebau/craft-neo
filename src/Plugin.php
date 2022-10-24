@@ -235,7 +235,7 @@ class Plugin extends BasePlugin
 
                 foreach ($this->fields->getNeoFields() as $field) {
                     foreach ($field->getBlockTypes() as $blockType) {
-                        $blockTypePermissions["neo-editBlockType:{$blockType->uid}"] = [
+                        $blockTypePermissions["neo-editBlocks:{$blockType->uid}"] = [
                             'label' => Craft::t('neo', 'Edit {field} blocks of type {blockType}', [
                                 'field' => $field->name,
                                 'blockType' => $blockType->name,

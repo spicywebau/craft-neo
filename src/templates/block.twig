@@ -34,6 +34,7 @@
         not hasTabs and not isParent ? 'is-empty',
         isParent ? 'is-parent',
         hasErrors ? 'has-errors',
+        not currentUser.can("neo-editBlocks:#{type.uid}") ? 'is-disabled-for-user',
     ],
     data: {
         'neo-b-id': blockId,

@@ -383,7 +383,14 @@ export default Garnish.Base.extend({
       }
 
       const detectChange = () => this._detectChange()
-      const observer = new window.MutationObserver(() => setTimeout(detectChange, 200))
+      const observer = new window.MutationObserver(() => {
+        setTimeout(detectChange, 200)
+
+        // Ensure blocks that are supposed to be non-editable by the user remain so
+        if (!this.getBlockType().isEditableByUser() && !this.$container.hasClass('is-disabled-for-user')) {
+          this.$container.addClass('is-disabled-for-user')
+        }
+      })
 
       observer.observe(this.$container[0], {
         attributes: true,

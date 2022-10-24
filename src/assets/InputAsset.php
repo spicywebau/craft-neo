@@ -207,6 +207,7 @@ class InputAsset extends FieldAsset
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
                 'creatableByUser' => $user->can("neo-createBlocks:{$blockType->uid}"),
                 'deletableByUser' => $user->can("neo-deleteBlocks:{$blockType->uid}"),
+                'editableByUser' => $user->can("neo-editBlocks:{$blockType->uid}"),
             ];
         }
 
