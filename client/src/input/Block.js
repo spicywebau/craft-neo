@@ -243,11 +243,17 @@ export default Garnish.Base.extend({
                     <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Copy')}">${Craft.t('neo', 'Copy')}</a></li>
                     <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Paste')}">${Craft.t('neo', 'Paste')}</a></li>
                     <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Clone')}">${Craft.t('neo', 'Clone')}</a></li>
-                  </ul>
+                  </ul>`)
+
+    if (type.isDeletableByUser()) {
+      elementHtml.push(`
                   <hr>
                   <ul class="padded">
                     <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Delete')}">${Craft.t('neo', 'Delete')}</a></li>
-                  </ul>
+                  </ul>`)
+    }
+
+    elementHtml.push(`
                 </div>
               </div>
             </div>

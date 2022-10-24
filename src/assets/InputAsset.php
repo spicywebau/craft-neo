@@ -205,7 +205,8 @@ class InputAsset extends FieldAsset
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'groupId' => $blockType->groupId,
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
-                'creatableByUser' => $user->can("neo-createBlocks:{$blockType->uid}")
+                'creatableByUser' => $user->can("neo-createBlocks:{$blockType->uid}"),
+                'deletableByUser' => $user->can("neo-deleteBlocks:{$blockType->uid}"),
             ];
         }
 

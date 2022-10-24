@@ -15,7 +15,8 @@ const _defaults = {
   topLevel: true,
   tabs: [],
   hasChildBlocksUiElement: false,
-  creatableByUser: true
+  creatableByUser: true,
+  deletableByUser: true
 }
 
 export default Garnish.Base.extend({
@@ -43,6 +44,7 @@ export default Garnish.Base.extend({
     this._js = settings.tabs.js ?? ''
     this._hasChildBlocksUiElement = settings.hasChildBlocksUiElement
     this._creatableByUser = settings.creatableByUser
+    this._deletableByUser = settings.deletableByUser
   },
 
   getType () { return 'blockType' },
@@ -107,5 +109,9 @@ export default Garnish.Base.extend({
 
   isCreatableByUser () {
     return this._creatableByUser
+  },
+
+  isDeletableByUser () {
+    return this._deletableByUser
   }
 })

@@ -179,10 +179,12 @@
                             <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="{{ 'Paste'|t('neo') }}">{{ 'Paste'|t('neo') }}</a></li>
                             <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="{{ 'Clone'|t('neo') }}">{{ 'Clone'|t('neo') }}</a></li>
                         </ul>
-                        <hr>
-                        <ul class="padded">
-                            <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="{{ 'Delete'|t('neo') }}">{{ 'Delete'|t('neo') }}</a></li>
-                        </ul>
+                        {% if currentUser.can("neo-deleteBlocks:#{type.uid}") %}
+                            <hr>
+                            <ul class="padded">
+                                <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="{{ 'Delete'|t('neo') }}">{{ 'Delete'|t('neo') }}</a></li>
+                            </ul>
+                        {% endif %}
                     </div>
                 </div>
             </div>
