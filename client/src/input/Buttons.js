@@ -1,39 +1,19 @@
 import $ from 'jquery'
 import Craft from 'craft'
 import Garnish from 'garnish'
+import BlockSelector from './BlockSelector'
 
 const _defaults = {
-  $ownerContainer: null,
-  blockTypes: [],
-  groups: [],
-  items: null,
   maxBlocks: 0,
   maxTopBlocks: 0,
   blocks: null
 }
 
-export default Garnish.Base.extend({
-
-  _blockTypes: [],
-  _groups: [],
-  _maxBlocks: 0,
-  _maxTopBlocks: 0,
-
-  init (settings = {}) {
+class Buttons extends BlockSelector {
+  constructor (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
+    super(settings)
 
-    if (settings.items) {
-      this._items = Array.from(settings.items)
-      this._blockTypes = this._items.filter(i => i.getType() === 'blockType')
-      this._groups = this._items.filter(i => i.getType() === 'group')
-    } else {
-      this._blockTypes = Array.from(settings.blockTypes)
-      this._groups = Array.from(settings.groups)
-      this._items = [...this._blockTypes, ...this._groups].sort((a, b) => a.getSortOrder() - b.getSortOrder())
-    }
-
-    this.$ownerContainer = settings.$ownerContainer
-    this._field = settings.field
     this._maxBlocks = settings.maxBlocks | 0
     this._maxTopBlocks = settings.maxTopBlocks | 0
 
@@ -46,11 +26,9 @@ export default Garnish.Base.extend({
     this.$groupButtons = $neo.filter('[data-neo-bn="button.group"]')
 
     if (settings.blocks) {
-      this.updateButtonStates(settings.blocks)
+      this.updateState(settings.blocks)
     }
-
-    this.addListener(this.$blockButtons, 'activate', '@newBlock')
-  },
+  }
 
   _generateButtons () {
     const ownerBlockType = this.$ownerContainer?.hasClass('ni_block')
@@ -187,26 +165,14 @@ export default Garnish.Base.extend({
       </div>`)
 
     return $(buttonsHtml.join(''))
-  },
+  }
 
   initUi () {
     $('.menubtn', this.$container).menubtn()
     this.updateResponsiveness()
-  },
+  }
 
-  getBlockTypes () {
-    return Array.from(this._blockTypes)
-  },
-
-  getGroups () {
-    return Array.from(this._groups)
-  },
-
-  getMaxBlocks () {
-    return this._maxBlocks
-  },
-
-  updateButtonStates (blocks = [], additionalCheck = null, block = null) {
+  updateState (blocks = [], additionalCheck = null, block = null) {
     additionalCheck = typeof additionalCheck === 'boolean' ? additionalCheck : true
 
     const that = this
@@ -252,7 +218,7 @@ export default Garnish.Base.extend({
 
       $button.toggleClass('disabled', disabled)
     })
-  },
+  }
 
   updateResponsiveness () {
     this._buttonsContainerWidth ||= this.$buttonsContainer.width()
@@ -260,18 +226,55 @@ export default Garnish.Base.extend({
 
     this.$buttonsContainer.toggleClass('hidden', isMobile)
     this.$menuContainer.toggleClass('hidden', !isMobile)
-  },
+  }
 
   getBlockTypeByButton ($button) {
     const btHandle = $button.attr('data-neo-bn-info')
 
     return this._blockTypes.find(bt => bt.getHandle() === btHandle)
+  }
+}
+
+export default Garnish.Base.extend({
+
+  init (settings = {}) {
+    this._buttons = new Buttons(settings)
+    this.$container = this._buttons.$container
+    this.addListener(this._buttons.$blockButtons, 'activate', '@newBlock')
+  },
+
+  initUi () {
+    this._buttons.initUi()
+  },
+
+  getBlockTypes () {
+    return this._buttons.getBlockTypes()
+  },
+
+  getGroups () {
+    return this._buttons.getBlockTypeGroups()
+  },
+
+  getMaxBlocks () {
+    return this._maxBlocks
+  },
+
+  updateButtonStates (blocks = [], additionalCheck = null, block = null) {
+    this._buttons.updateState(blocks, additionalCheck, block)
+  },
+
+  updateResponsiveness () {
+    this._buttons.updateResponsiveness()
+  },
+
+  getBlockTypeByButton ($button) {
+    return this._buttons.getBlockTypeByButton($button)
   },
 
   '@newBlock' (e) {
     const $button = $(e.currentTarget)
     const blockTypeHandle = $button.attr('data-neo-bn-info')
-    const blockType = this._blockTypes.find(bt => bt.getHandle() === blockTypeHandle)
+    const blockType = this._buttons.getBlockTypes().find(bt => bt.getHandle() === blockTypeHandle)
 
     this.trigger('newBlock', {
       blockType
