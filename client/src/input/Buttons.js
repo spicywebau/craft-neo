@@ -77,8 +77,8 @@ export default Garnish.Base.extend({
       const type = item.getType()
 
       if (type === 'blockType') {
-        // Ignore disabled block types
-        if (!item.getEnabled()) {
+        // Ignore disabled block types, or block types for which the current user isn't allowed to create blocks
+        if (!item.getEnabled() || !item.isCreatableByUser()) {
           continue
         }
 
@@ -134,8 +134,8 @@ export default Garnish.Base.extend({
       const type = item.getType()
 
       if (type === 'blockType') {
-        // Ignore disabled block types
-        if (!item.getEnabled()) {
+        // Ignore disabled block types, or block types for which the current user isn't allowed to create blocks
+        if (!item.getEnabled() || !item.isCreatableByUser()) {
           continue
         }
 
