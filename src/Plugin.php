@@ -26,6 +26,7 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterConditionRuleTypesEvent;
 use craft\events\RegisterGqlTypesEvent;
+use craft\events\RegisterUserPermissionsEvent;
 use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
 use craft\gatsbyhelper\services\Deltas;
 use craft\models\FieldLayout;
@@ -33,6 +34,7 @@ use craft\services\Fields;
 use craft\services\Gc;
 use craft\services\Gql;
 use craft\services\ProjectConfig;
+use craft\services\UserPermissions;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 
@@ -101,6 +103,7 @@ class Plugin extends BasePlugin
         $this->_registerGarbageCollection();
         $this->_registerChildBlocksUiElement();
         $this->_registerResaveBlocksCommand();
+        $this->_registerPermissions();
         $this->_registerGatsbyHelper();
         $this->_registerConditionFieldRuleRemoval();
     }
@@ -220,6 +223,41 @@ class Plugin extends BasePlugin
                 },
             ];
         });
+    }
+
+    private function _registerPermissions(): void
+    {
+        Event::on(
+            UserPermissions::class,
+            UserPermissions::EVENT_REGISTER_PERMISSIONS,
+            function(RegisterUserPermissionsEvent $event) {
+                $blockTypePermissions = [];
+
+                foreach ($this->fields->getNeoFields() as $field) {
+                    foreach ($field->getBlockTypes() as $blockType) {
+                        $blockTypePermissions["neo-editBlockType:{$blockType->uid}"] = [
+                            'label' => Craft::t('neo', 'Edit {field} blocks of type {blockType}', [
+                                'field' => $field->name,
+                                'blockType' => $blockType->name,
+                            ]),
+                            'nested' => [
+                                "neo-createBlocks:{$blockType->uid}" => [
+                                    'label' => Craft::t('neo', 'Create blocks'),
+                                ],
+                                "neo-deleteBlocks:{$blockType->uid}" => [
+                                    'label' => Craft::t('neo', 'Delete blocks'),
+                                ],
+                            ]
+                        ];
+                    }
+                }
+
+                $event->permissions[] = [
+                    'heading' => Craft::t('neo', 'Neo'),
+                    'permissions' => $blockTypePermissions,
+                ];
+            }
+        );
     }
 
     private function _registerGatsbyHelper()
