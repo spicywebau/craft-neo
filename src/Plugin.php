@@ -231,13 +231,12 @@ class Plugin extends BasePlugin
             UserPermissions::class,
             UserPermissions::EVENT_REGISTER_PERMISSIONS,
             function(RegisterUserPermissionsEvent $event) {
-                $blockTypePermissions = [];
-
                 foreach ($this->fields->getNeoFields() as $field) {
+                    $blockTypePermissions = [];
+
                     foreach ($field->getBlockTypes() as $blockType) {
                         $blockTypePermissions["neo-editBlocks:{$blockType->uid}"] = [
-                            'label' => Craft::t('neo', 'Edit {field} blocks of type {blockType}', [
-                                'field' => $field->name,
+                            'label' => Craft::t('neo', 'Edit {blockType} blocks', [
                                 'blockType' => $blockType->name,
                             ]),
                             'nested' => [
@@ -250,12 +249,14 @@ class Plugin extends BasePlugin
                             ]
                         ];
                     }
-                }
 
-                $event->permissions[] = [
-                    'heading' => Craft::t('neo', 'Neo'),
-                    'permissions' => $blockTypePermissions,
-                ];
+                    $event->permissions[] = [
+                        'heading' => Craft::t('neo', 'Neo - {field}', [
+                            'field' => $field->name,
+                        ]),
+                        'permissions' => $blockTypePermissions,
+                    ];
+                }
             }
         );
     }

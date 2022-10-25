@@ -106,4 +106,8 @@ return [
     'Owner Tag Group' => 'Owner Tag Group',
     'Owner User Group' => 'Owner User Group',
     'Owner Volume' => 'Owner Volume',
+    'Neo - {field}' => 'Neo - {field}',
+    'Edit {blockType} blocks' => 'Edit {blockType} blocks',
+    'Create blocks' => 'Create blocks',
+    'Delete blocks' => 'Delete blocks',
 ];
