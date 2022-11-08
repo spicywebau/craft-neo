@@ -6,6 +6,11 @@
 - Added the ability to set user permissions for the creation, deletion and editing of blocks of each block type
 - Added `benf\neo\services\Fields::getNeoFields()`
 
+## 3.4.1 - 2022-11-08
+
+### Fixed
+- Fixed a bug where cloning or copying Neo blocks using the child blocks UI element could cause the parent blocks to be pasted/cloned with some of the child block's content
+
 ## 3.4.0 - 2022-09-29
 
 ### Added
