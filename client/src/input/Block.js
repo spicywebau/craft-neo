@@ -373,7 +373,7 @@ export default Garnish.Base.extend({
       this._initialState = {
         enabled: this._enabled,
         level: this._level,
-        content: Garnish.getPostData(this.$contentContainer)
+        content: this._getPostData()
       }
 
       const detectChange = () => this._detectChange()
@@ -459,7 +459,7 @@ export default Garnish.Base.extend({
   },
 
   getContent () {
-    const rawContent = Garnish.getPostData(this.$contentContainer)
+    const rawContent = this._getPostData()
     const content = {}
 
     const setValue = (keys, value) => {
@@ -468,7 +468,7 @@ export default Garnish.Base.extend({
       for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i]
 
-        if (!$.isPlainObject(currentSet[key]) && !$.isArray(currentSet[key])) {
+        if (!$.isPlainObject(currentSet[key]) && !Array.isArray(currentSet[key])) {
           currentSet[key] = {}
         }
 
@@ -1119,7 +1119,7 @@ export default Garnish.Base.extend({
 
     if (!this._forceModified) {
       const initial = this._initialState
-      const content = Garnish.getPostData(this.$contentContainer)
+      const content = this._getPostData()
 
       const modified = !Craft.compare(content, initial.content, false) ||
         initial.enabled !== this._enabled ||
@@ -1131,6 +1131,19 @@ export default Garnish.Base.extend({
     }
 
     this.trigger('change')
+  },
+
+  _getPostData () {
+    const content = Garnish.getPostData(this.$contentContainer)
+    // Remove keys associated with child block subfields (occurs when using child blocks UI element)
+    const badKeys = Object.keys(content)
+      .filter((key) => !key.startsWith(`fields[${this._field.getName()}][blocks][${this._id}]`))
+
+    for (const key of badKeys) {
+      delete content[key]
+    }
+
+    return content
   },
 
   '@settingSelect' (e) {

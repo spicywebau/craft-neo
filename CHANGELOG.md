@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where cloning or copying Neo blocks using the child blocks UI element could cause the parent blocks to be pasted/cloned with some of the child block's content
+
 ## 3.4.0 - 2022-09-29
 
 ### Added
