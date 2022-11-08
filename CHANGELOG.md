@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added support for the Feed Me plugin
 - Added the ability to set user permissions for the creation, deletion and editing of blocks of each block type
 - Added `benf\neo\Field::getBlockTypeFields()`
 - Added `benf\neo\integrations\feedme\Field`
