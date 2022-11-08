@@ -508,23 +508,17 @@ $topbar-background-color-transparent: #ebf2fa00;
             }
         }
 
-        &.is-disabled {
+        &.is-disabled-for-user {
+            pointer-events: none;
+            opacity: 0.5;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
 
             .ni_block_topbar_item {
 
                 &.title .preview {
                     opacity: 0;
-                }
-            }
-
-            .ni_block_content_tab {
-
-                .field {
-                    pointer-events: none;
-                    opacity: 0.5;
-                    -webkit-user-select: none;
-                    -moz-user-select: none;
-                    user-select: none;
                 }
             }
         }

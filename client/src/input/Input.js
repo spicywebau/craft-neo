@@ -77,6 +77,8 @@ export default Garnish.Base.extend({
     this.$buttonsContainer = $neo.filter('[data-neo="container.buttons"]')
 
     this._buttons = new Buttons({
+      $ownerContainer: this.$container,
+      field: this,
       blockTypes: this.getBlockTypes(true),
       groups: this.getGroups(),
       maxBlocks: this.getMaxBlocks(),
@@ -147,11 +149,17 @@ export default Garnish.Base.extend({
         maxBlocks: blockType.getMaxBlocks(),
         maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
         maxChildBlocks: blockType.getMaxChildBlocks(),
+        groupChildBlockTypes: blockType.getGroupChildBlockTypes(),
         childBlocks: blockType.getChildBlocks(),
         topLevel: blockType.getTopLevel(),
-        hasChildBlocksUiElement: blockType.hasChildBlocksUiElement()
+        hasChildBlocksUiElement: blockType.hasChildBlocksUiElement(),
+        creatableByUser: blockType.isCreatableByUser(),
+        deletableByUser: blockType.isDeletableByUser(),
+        editableByUser: blockType.isEditableByUser()
       })
       bInfo.buttons = new Buttons({
+        $ownerContainer: $block,
+        field: this,
         items: blockType.getChildBlockItems(this.getItems()),
         maxBlocks: this.getMaxBlocks()
       })
@@ -715,13 +723,18 @@ export default Garnish.Base.extend({
             maxBlocks: blockType.getMaxBlocks(),
             maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
             maxChildBlocks: blockType.getMaxChildBlocks(),
+            groupChildBlockTypes: blockType.getGroupChildBlockTypes(),
             childBlocks: blockType.getChildBlocks(),
             topLevel: blockType.getTopLevel(),
             hasChildBlocksUiElement: blockType.hasChildBlocksUiElement(),
+            creatableByUser: blockType.isCreatableByUser(),
+            deletableByUser: blockType.isDeletableByUser(),
+            editableByUser: blockType.isEditableByUser(),
             tabs: renderedBlock.tabs
           })
 
           const newButtons = new Buttons({
+            field: this,
             items: newBlockType.getChildBlockItems(this.getItems()),
             maxBlocks: this.getMaxBlocks()
           })
@@ -782,6 +795,7 @@ export default Garnish.Base.extend({
       blockType: e.blockType,
       id: blockId,
       buttons: new Buttons({
+        field: this,
         items: e.blockType.getChildBlockItems(this.getItems()),
         maxBlocks: this.getMaxBlocks()
       }),
@@ -801,6 +815,8 @@ export default Garnish.Base.extend({
     const parent = this._findParentBlock(index)
     const blocks = this.getBlocks()
     const buttons = new Buttons({
+      $ownerContainer: block.isTopLevel() ? this.$container : block.getParent().$container,
+      field: this,
       blockTypes: !parent ? this.getBlockTypes(true) : [],
       blocks,
       groups: !parent ? this.getGroups() : [],

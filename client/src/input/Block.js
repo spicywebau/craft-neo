@@ -116,6 +116,10 @@ export default Garnish.Base.extend({
     if (this._buttons) {
       this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, { level: this.getLevel() + 1 })))
       this.$buttonsContainer.append(this._buttons.$container)
+
+      if (this._buttons.$ownerContainer === null) {
+        this._buttons.$ownerContainer = this.$container
+      }
     }
 
     let hasErrors = false
@@ -243,11 +247,17 @@ export default Garnish.Base.extend({
                     <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Copy')}">${Craft.t('neo', 'Copy')}</a></li>
                     <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Paste')}">${Craft.t('neo', 'Paste')}</a></li>
                     <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Clone')}">${Craft.t('neo', 'Clone')}</a></li>
-                  </ul>
+                  </ul>`)
+
+    if (type.isDeletableByUser()) {
+      elementHtml.push(`
                   <hr>
                   <ul class="padded">
                     <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Delete')}">${Craft.t('neo', 'Delete')}</a></li>
-                  </ul>
+                  </ul>`)
+    }
+
+    elementHtml.push(`
                 </div>
               </div>
             </div>
@@ -373,11 +383,18 @@ export default Garnish.Base.extend({
       this._initialState = {
         enabled: this._enabled,
         level: this._level,
-        content: Garnish.getPostData(this.$contentContainer)
+        content: this._getPostData()
       }
 
       const detectChange = () => this._detectChange()
-      const observer = new window.MutationObserver(() => setTimeout(detectChange, 200))
+      const observer = new window.MutationObserver(() => {
+        setTimeout(detectChange, 200)
+
+        // Ensure blocks that are supposed to be non-editable by the user remain so
+        if (!this.getBlockType().isEditableByUser() && !this.$container.hasClass('is-disabled-for-user')) {
+          this.$container.addClass('is-disabled-for-user')
+        }
+      })
 
       observer.observe(this.$container[0], {
         attributes: true,
@@ -459,7 +476,7 @@ export default Garnish.Base.extend({
   },
 
   getContent () {
-    const rawContent = Garnish.getPostData(this.$contentContainer)
+    const rawContent = this._getPostData()
     const content = {}
 
     const setValue = (keys, value) => {
@@ -468,7 +485,7 @@ export default Garnish.Base.extend({
       for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i]
 
-        if (!$.isPlainObject(currentSet[key]) && !$.isArray(currentSet[key])) {
+        if (!$.isPlainObject(currentSet[key]) && !Array.isArray(currentSet[key])) {
           currentSet[key] = {}
         }
 
@@ -1119,7 +1136,7 @@ export default Garnish.Base.extend({
 
     if (!this._forceModified) {
       const initial = this._initialState
-      const content = Garnish.getPostData(this.$contentContainer)
+      const content = this._getPostData()
 
       const modified = !Craft.compare(content, initial.content, false) ||
         initial.enabled !== this._enabled ||
@@ -1131,6 +1148,19 @@ export default Garnish.Base.extend({
     }
 
     this.trigger('change')
+  },
+
+  _getPostData () {
+    const content = Garnish.getPostData(this.$contentContainer)
+    // Remove keys associated with child block subfields (occurs when using child blocks UI element)
+    const badKeys = Object.keys(content)
+      .filter((key) => !key.startsWith(`fields[${this._field.getName()}][blocks][${this._id}]`))
+
+    for (const key of badKeys) {
+      delete content[key]
+    }
+
+    return content
   },
 
   '@settingSelect' (e) {

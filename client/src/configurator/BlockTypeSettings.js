@@ -76,6 +76,8 @@ export default Settings.extend({
     this.$maxChildBlocksContainer = $neo.filter('[data-neo-bts="container.maxChildBlocks"]')
     this.$topLevelInput = $neo.filter('[data-neo-bts="input.topLevel"]')
     this.$topLevelContainer = $neo.filter('[data-neo-bts="container.topLevel"]')
+    this.$groupChildBlockTypesInput = $neo.filter('[data-neo-bts="input.groupChildBlockTypes"]')
+    this.$groupChildBlockTypesContainer = $neo.filter('[data-neo-bts="container.groupChildBlockTypes"]')
     this.$childBlocksInput = $neo.filter('[data-neo-bts="input.childBlocks"]')
     this.$childBlocksContainer = $neo.filter('[data-neo-bts="container.childBlocks"]')
     this.$deleteButton = $neo.filter('[data-neo-bts="button.delete"]')
@@ -107,6 +109,7 @@ export default Settings.extend({
     this._childBlocksSelect = this.$childBlocksInput.data('checkboxSelect')
     this._enabledLightswitch = this.$enabledInput.data('lightswitch')
     this._topLevelLightswitch = this.$topLevelInput.data('lightswitch')
+    this._groupChildBlockTypesLightswitch = this.$groupChildBlockTypesInput.data('lightswitch')
     this._handleGenerator = new Craft.HandleGenerator(this.$nameInput, this.$handleInput)
 
     // Ensure that an existing block type's handle will not be changed if the name is edited first.
@@ -139,6 +142,7 @@ export default Settings.extend({
     this.addListener(this.$minChildBlocksInput, 'keyup change', () => this.setMinChildBlocks(this.$minChildBlocksInput.val()))
     this.addListener(this.$maxChildBlocksInput, 'keyup change', () => this.setMaxChildBlocks(this.$maxChildBlocksInput.val()))
     this.addListener(this.$topLevelInput, 'change', () => this.setTopLevel(this._topLevelLightswitch.on))
+    this.addListener(this.$groupChildBlockTypesInput, 'change', () => this.setTopLevel(this._groupChildBlockTypesLightswitch.on))
     this.addListener(this.$deleteButton, 'click', () => {
       if (window.confirm(Craft.t('neo', 'Are you sure you want to delete this block type?'))) {
         this.destroy()
@@ -416,8 +420,10 @@ export default Settings.extend({
   },
 
   _refreshChildBlockSettings (animate) {
-    this._refreshSetting(this.$minChildBlocksContainer, !!this.getChildBlocks(), animate)
-    this._refreshSetting(this.$maxChildBlocksContainer, !!this.getChildBlocks(), animate)
+    const showSettings = !!this.getChildBlocks()
+    this._refreshSetting(this.$minChildBlocksContainer, showSettings, animate)
+    this._refreshSetting(this.$maxChildBlocksContainer, showSettings, animate)
+    this._refreshSetting(this.$groupChildBlockTypesContainer, showSettings, animate)
   },
 
   '@onChildBlockTypeChange' (e, blockType, $checkbox) {

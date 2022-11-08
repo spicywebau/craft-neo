@@ -188,6 +188,7 @@ class SettingsAsset extends AssetBundle
                 'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
                 'minChildBlocks' => $blockType->minChildBlocks,
                 'maxChildBlocks' => $blockType->maxChildBlocks,
+                'groupChildBlockTypes' => (bool)$blockType->groupChildBlockTypes,
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
                 'errors' => $blockType->getErrors(),

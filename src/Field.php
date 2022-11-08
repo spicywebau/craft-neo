@@ -332,6 +332,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->minChildBlocks = (int)$blockType['minChildBlocks'];
                 $newBlockType->maxChildBlocks = (int)$blockType['maxChildBlocks'];
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
+                $newBlockType->groupChildBlockTypes = isset($blockType['groupChildBlockTypes']) ? (bool)$blockType['groupChildBlockTypes'] : true;
                 $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
                 $newBlockType->conditions = $blockType['conditions'] ?? [];

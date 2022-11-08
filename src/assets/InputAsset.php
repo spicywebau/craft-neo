@@ -173,6 +173,7 @@ class InputAsset extends FieldAsset
      */
     private static function _getBlockTypesJsSettings(Field $field, array $blockTypes, ?ElementInterface $owner = null): array
     {
+        $user = Craft::$app->getUser()->getIdentity();
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
@@ -198,12 +199,16 @@ class InputAsset extends FieldAsset
                 'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
                 'minChildBlocks' => $blockType->minChildBlocks,
                 'maxChildBlocks' => $blockType->maxChildBlocks,
+                'groupChildBlockTypes' => (bool)$blockType->groupChildBlockTypes,
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
                 'tabs' => Neo::$plugin->blocks->renderTabs($block),
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'groupId' => $blockType->groupId,
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
+                'creatableByUser' => $user->can("neo-createBlocks:{$blockType->uid}"),
+                'deletableByUser' => $user->can("neo-deleteBlocks:{$blockType->uid}"),
+                'editableByUser' => $user->can("neo-editBlocks:{$blockType->uid}"),
             ];
         }
 

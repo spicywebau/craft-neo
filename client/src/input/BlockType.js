@@ -11,10 +11,14 @@ const _defaults = {
   maxBlocks: 0,
   maxSiblingBlocks: 0,
   maxChildBlocks: 0,
+  groupChildBlockTypes: true,
   childBlocks: false,
   topLevel: true,
   tabs: [],
-  hasChildBlocksUiElement: false
+  hasChildBlocksUiElement: false,
+  creatableByUser: true,
+  deletableByUser: true,
+  editableByUser: true
 }
 
 export default Garnish.Base.extend({
@@ -35,12 +39,16 @@ export default Garnish.Base.extend({
     this._maxSiblingBlocks = settings.maxSiblingBlocks | 0
     this._minChildBlocks = settings.minChildBlocks | 0
     this._maxChildBlocks = settings.maxChildBlocks | 0
+    this._groupChildBlockTypes = settings.groupChildBlockTypes
     this._childBlocks = settings.childBlocks
     this._topLevel = settings.topLevel
     this._tabs = settings.tabs.tabNames?.map(tab => tab instanceof Tab ? tab : new Tab({ name: tab })) ?? []
     this._html = settings.tabs.html ?? ''
     this._js = settings.tabs.js ?? ''
     this._hasChildBlocksUiElement = settings.hasChildBlocksUiElement
+    this._creatableByUser = settings.creatableByUser
+    this._deletableByUser = settings.deletableByUser
+    this._editableByUser = settings.editableByUser
   },
 
   getType () { return 'blockType' },
@@ -57,6 +65,7 @@ export default Garnish.Base.extend({
   getMaxSiblingBlocks () { return this._maxSiblingBlocks },
   getMinChildBlocks () { return this._minChildBlocks },
   getMaxChildBlocks () { return this._maxChildBlocks },
+  getGroupChildBlockTypes () { return this._groupChildBlockTypes },
   getChildBlocks () { return this._childBlocks },
   getTopLevel () { return this._topLevel },
   getTabs () { return Array.from(this._tabs) },
@@ -101,5 +110,17 @@ export default Garnish.Base.extend({
 
   hasChildBlocksUiElement () {
     return this._hasChildBlocksUiElement
+  },
+
+  isCreatableByUser () {
+    return this._creatableByUser
+  },
+
+  isDeletableByUser () {
+    return this._deletableByUser
+  },
+
+  isEditableByUser () {
+    return this._editableByUser
   }
 })
