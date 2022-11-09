@@ -13,6 +13,9 @@
 - Added `benf\neo\models\BlockType::$groupChildBlockTypes`
 - Added `benf\neo\services\Fields::getNeoFields()`
 
+### Changed
+- Updated JavaScript dependencies
+
 ### Fixed
 - Fixed a bug where opening a Neo block's actions menu would not close any already open actions menu belonging to another block in the same Neo field
 
