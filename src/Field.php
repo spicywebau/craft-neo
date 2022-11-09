@@ -138,6 +138,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     private ?array $_blockTypeGroups = null;
 
     /**
+     * @var BlockType[]|null The block types' fields.
+     */
+    private ?array $_blockTypeFields = null;
+
+    /**
      * @var string Propagation method
      *
      * This will be set to one of the following:
@@ -244,6 +249,47 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         return $blockTypes;
+    }
+
+    /**
+     * Returns all of the block types' fields.
+     *
+     * @param int[]|null $typeIds The Neo block type IDs to return fields for.
+     * If null, all block type fields will be returned.
+     * @return FieldInterface[]
+     */
+    public function getBlockTypeFields(?array $typeIds = null): array
+    {
+        if (!isset($this->_blockTypeFields)) {
+            $this->_blockTypeFields = [];
+            $fieldsService = Craft::$app->getFields();
+            $blockTypes = array_filter($this->getBlockTypes(), fn($blockType) => $blockType->fieldLayoutId !== null);
+            $layoutIds = array_map(fn($blockType) => $blockType->fieldLayoutId, $blockTypes);
+            $fieldsById = ArrayHelper::index($fieldsService->getAllFields(), 'id');
+            $fieldIdsByLayoutId = $fieldsService->getFieldIdsByLayoutIds($layoutIds);
+            $blockTypesWithFields = array_filter(
+                $blockTypes,
+                fn($blockType) => isset($fieldIdsByLayoutId[$blockType->fieldLayoutId])
+            );
+
+            foreach ($blockTypesWithFields as $blockType) {
+                foreach ($fieldIdsByLayoutId[$blockType->fieldLayoutId] as $fieldId) {
+                    $this->_blockTypeFields[$blockType->id][] = $fieldsById[$fieldId];
+                }
+            }
+        }
+
+        $fields = [];
+
+        foreach ($this->_blockTypeFields as $blockTypeId => $blockTypeFields) {
+            if ($typeIds === null || in_array($blockTypeId, $typeIds)) {
+                foreach (array_filter($blockTypeFields, fn($field) => !isset($fields[$field->id])) as $field) {
+                    $fields[$field->id] = $field;
+                }
+            }
+        }
+
+        return array_values($fields);
     }
 
     /**

@@ -1,0 +1,132 @@
+{#
+This file is based on the Matrix field settings template file, from Feed Me version 5.0.4, by Pixel & Tonic, Inc.
+https://github.com/craftcms/feed-me/blob/5.0.4/src/templates/_includes/fields/matrix.html
+Feed Me is released under the terms of the Craft License, a copy of which is included below.
+https://github.com/craftcms/feed-me/blob/5.0.4/LICENSE.md
+
+Copyright © Pixel & Tonic
+
+Permission is hereby granted to any person obtaining a copy of this software
+(the “Software”) to use, copy, modify, merge, publish and/or distribute copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+1. **Don’t plagiarize.** The above copyright notice and this license shall be
+   included in all copies or substantial portions of the Software.
+
+2. **Don’t use the same license on more than one project.** Each licensed copy
+   of the Software shall be actively installed in no more than one production
+   environment at a time.
+
+3. **Don’t mess with the licensing features.** Software features related to
+   licensing shall not be altered or circumvented in any way, including (but
+   not limited to) license validation, payment prompts, feature restrictions,
+   and update eligibility.
+
+4. **Pay up.** Payment shall be made immediately upon receipt of any notice,
+   prompt, reminder, or other message indicating that a payment is owed.
+
+5. **Follow the law.** All use of the Software shall not violate any applicable
+   law or regulation, nor infringe the rights of any other person or entity.
+
+Failure to comply with the foregoing conditions will automatically and
+immediately result in termination of the permission granted hereby. This
+license does not include any right to receive updates to the Software or
+technical support. Licensees bear all risk related to the quality and
+performance of the Software and any modifications made or obtained to it,
+including liability for actual and consequential harm, such as loss or
+corruption of data, and any necessary service, repair, or correction.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, INCLUDING SPECIAL, INCIDENTAL AND CONSEQUENTIAL DAMAGES, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#}
+
+{# ------------------------ #}
+{# Available Variables #}
+{# ------------------------ #}
+{# Attributes: #}
+{# type, name, handle, instructions, attribute, default, feed, feedData #}
+{# ------------------------ #}
+{# Fields: #}
+{# name, handle, instructions, feed, feedData, field, fieldClass #}
+{# ------------------------ #}
+
+{% import 'feed-me/_macros' as feedMeMacro %}
+{% import '_includes/forms' as forms %}
+
+{% set classes = ['complex-field'] %}
+
+<div class="additional-mapping-fields">
+    {% namespace 'fieldMapping[' ~ handle ~ ']' %}
+        <input type="text" name="field" value="{{ className(field) }}">
+    {% endnamespace %}
+</div>
+
+{# Block levels #}
+{% set nameLabel = name ~ ': ' ~ 'Level'|t('neo') %}
+{% set instructionsHandle = handle ~ '[*][level]' %}
+{% include 'feed-me/_includes/fields/default' ignore missing with {
+    handle: 'level',
+    path: [ handle, 'level' ],
+    default: {},
+} %}
+
+{% for blocktype in field.blocktypes %}
+    {% if blocktype.fields|length %}
+        <tr class="complex-field complex-field-header">
+            <td class="col-field">
+                <div class="field">
+                    <div class="heading">
+                        <label class="">{{ name }} - {{ blocktype.name }}</label>
+                    </div>
+                </div>
+            </td>
+
+            <td class="col-map" colspan="2">
+                <div class="field-extra-settings">
+                    {% set blockPath = [ handle, 'blocks', blocktype.handle ] %}
+
+                    {% set disabled = hash_get(feed.fieldMapping, blockPath|join('.') ~ '.disabled') ?: '' %}
+                    {% set collapsed = hash_get(feed.fieldMapping, blockPath|join('.') ~ '.collapsed') ?: '' %}
+
+                    {% namespace 'fieldMapping[' ~ blockPath|join('][') ~ ']' %}
+                        {{ feedMeMacro.checkbox({
+                            label: 'Disabled'|t('feed-me'),
+                            name: 'disabled',
+                            value: 1,
+                            checked: disabled,
+                        }) }}
+
+                        {{ feedMeMacro.checkbox({
+                            label: 'Collapsed'|t('feed-me'),
+                            name: 'collapsed',
+                            value: 1,
+                            checked: collapsed,
+                        }) }}
+                    {% endnamespace %}
+                </div>
+            </td>
+        </tr>
+
+        {% for blocktypefield in blocktype.getCustomFields() %}
+            {% set nameLabel = blocktype.name ~ ': ' ~ blocktypefield.name %}
+            {% set instructionsHandle = handle ~ '[' ~ blocktype.handle ~ '][' ~ blocktypefield.handle ~ ']' %}
+
+            {% set parentPath = [ handle, 'blocks', blocktype.handle, 'fields', blocktypefield.handle ] %}
+
+            {% set fieldClass = craft.feedme.fields.getRegisteredField(className(blocktypefield)) %}
+            {% set template = fieldClass.getMappingTemplate() %}
+
+            {% include template ignore missing with {
+                field: blocktypefield,
+                handle: blocktypefield.handle,
+                path: parentPath,
+            } %}
+        {% endfor %}
+    {% endif %}
+{% endfor %}
