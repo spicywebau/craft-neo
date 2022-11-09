@@ -5,8 +5,12 @@
 ### Added
 - Added support for the Feed Me plugin
 - Added the ability to set user permissions for the creation, deletion and editing of blocks of each block type
+- Added the ability to set whether the child block types of a block type will be shown in their groups (if any)
+- Added `benf\neo\console\controllers\BlockTypesController::$setGroupChildBlockTypes`
+- Added `benf\neo\console\controllers\BlockTypesController::$unsetGroupChildBlockTypes`
 - Added `benf\neo\Field::getBlockTypeFields()`
 - Added `benf\neo\integrations\feedme\Field`
+- Added `benf\neo\models\BlockType::$groupChildBlockTypes`
 - Added `benf\neo\services\Fields::getNeoFields()`
 
 ### Fixed
