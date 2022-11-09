@@ -6,6 +6,9 @@
 - Added the ability to set user permissions for the creation, deletion and editing of blocks of each block type
 - Added `benf\neo\services\Fields::getNeoFields()`
 
+### Fixed
+- Fixed a bug where opening a Neo block's actions menu would not close any already open actions menu belonging to another block in the same Neo field
+
 ## 3.4.1 - 2022-11-08
 
 ### Fixed

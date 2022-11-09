@@ -341,7 +341,14 @@ export default Garnish.Base.extend({
     this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
 
     this._settingsMenu = this.$settingsButton.data('trigger') || new Garnish.DisclosureMenu(this.$settingsButton)
-    this._settingsMenu.on('show', () => this.$container.addClass('active'))
+    this._settingsMenu.on('show', () => {
+      // Make sure all other blocks in the field have their settings menus closed
+      this._field
+        .getBlocks()
+        .filter((block) => block.$container.hasClass('active'))
+        .forEach((block) => block.toggleSettingsMenu(false))
+      this.$container.addClass('active')
+    })
     this._settingsMenu.on('hide', () => this.$container.removeClass('active'))
 
     this.$menuContainer = this._settingsMenu.$container
@@ -1104,6 +1111,15 @@ export default Garnish.Base.extend({
     this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
     this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', cloneDisabled)
     this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
+  },
+
+  toggleSettingsMenu (toggle) {
+    toggle ??= !this._settingsMenu.isExpanded()
+    if (toggle) {
+      this._settingsMenu.show()
+    } else {
+      this._settingsMenu.hide()
+    }
   },
 
   _handleActionClick (e) {
