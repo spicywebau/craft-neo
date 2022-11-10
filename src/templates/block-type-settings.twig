@@ -191,6 +191,19 @@
 
         <a class="fieldtoggle" data-target="advanced">{{ "Advanced"|t('app') }}</a>
         <div id="advanced" class="hidden">
+            <div data-neo-bts="container.ignorePermissions">
+                {{ forms.lightswitchField({
+                    id: 'ignorePermissions',
+                    name: 'ignorePermissions',
+                    label: 'Ignore Permissions'|t('neo'),
+                    instructions: 'Whether user permissions for this block type should be ignored.'|t('neo'),
+                    on: blockType ? blockType.ignorePermissions : true,
+                    containerAttributes: {
+                        'data-neo-bts': 'input.ignorePermissions'
+                    }
+                }) }}
+            </div>
+
             {% for condition in conditions %}
                 {{ condition|raw }}
             {% endfor %}

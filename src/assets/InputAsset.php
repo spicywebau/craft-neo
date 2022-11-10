@@ -206,9 +206,9 @@ class InputAsset extends FieldAsset
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'groupId' => $blockType->groupId,
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
-                'creatableByUser' => $user->can("neo-createBlocks:{$blockType->uid}"),
-                'deletableByUser' => $user->can("neo-deleteBlocks:{$blockType->uid}"),
-                'editableByUser' => $user->can("neo-editBlocks:{$blockType->uid}"),
+                'creatableByUser' => $blockType->ignorePermissions || $user->can("neo-createBlocks:{$blockType->uid}"),
+                'deletableByUser' => $blockType->ignorePermissions || $user->can("neo-deleteBlocks:{$blockType->uid}"),
+                'editableByUser' => $blockType->ignorePermissions || $user->can("neo-editBlocks:{$blockType->uid}"),
             ];
         }
 

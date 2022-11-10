@@ -2,9 +2,7 @@
 
 namespace benf\neo\migrations;
 
-use benf\neo\Field;
 use benf\neo\Plugin as Neo;
-use Craft;
 use craft\db\Migration;
 
 /**
@@ -84,6 +82,7 @@ class Install extends Migration
                 'groupChildBlockTypes' => $this->boolean()->defaultValue(true)->notNull(),
                 'childBlocks' => $this->text(),
                 'topLevel' => $this->boolean()->defaultValue(true)->notNull(),
+                'ignorePermissions' => $this->boolean()->defaultValue(true)->notNull(),
                 'sortOrder' => $this->smallInteger()->unsigned(),
                 'conditions' => $this->text(),
                 'dateCreated' => $this->dateTime()->notNull(),

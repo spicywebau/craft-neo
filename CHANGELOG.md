@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+> {note} The migration that runs in this update saves the value of `ignorePermissions` for each block type based on which block types already have any user permissions set - if any have been set, then it will be saved as `false`, otherwise it will be saved as `true`.
+
+### Added
+- Added `benf\neo\models\BlockType::$ignorePermissions` - Adds the ability to set a block type to ignore any user permissions set for it (in the Advanced section of the block type settings)
+
 ## 3.5.1 - 2022-11-10
 
 ### Fixed

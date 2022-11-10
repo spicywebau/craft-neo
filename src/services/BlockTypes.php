@@ -204,6 +204,7 @@ class BlockTypes extends Component
         $record->handle = $blockType->handle;
         $record->description = $blockType->description;
         $record->enabled = $blockType->enabled;
+        $record->ignorePermissions = $blockType->ignorePermissions;
         $record->sortOrder = $blockType->sortOrder;
         $record->minBlocks = $blockType->minBlocks;
         $record->maxBlocks = $blockType->maxBlocks;
@@ -424,6 +425,7 @@ class BlockTypes extends Component
             $record->handle = $data['handle'];
             $record->description = $data['description'] ?? null;
             $record->enabled = $data['enabled'] ?? true;
+            $record->ignorePermissions = $data['ignorePermissions'] ?? true;
             $record->sortOrder = $data['sortOrder'];
             $record->minBlocks = $data['minBlocks'] ?? 0;
             $record->maxBlocks = $data['maxBlocks'];
@@ -446,6 +448,7 @@ class BlockTypes extends Component
             $blockType->handle = $data['handle'];
             $blockType->description = $data['description'] ?? null;
             $blockType->enabled = $data['enabled'] ?? true;
+            $blockType->ignorePermissions = $data['ignorePermissions'] ?? true;
             $blockType->sortOrder = $data['sortOrder'];
             $blockType->minBlocks = $data['minBlocks'] ?? 0;
             $blockType->maxBlocks = $data['maxBlocks'];
@@ -690,6 +693,7 @@ class BlockTypes extends Component
         $maybeColumns = [
             'description',
             'enabled',
+            'ignorePermissions',
             'minBlocks',
             'minChildBlocks',
             'minSiblingBlocks',
