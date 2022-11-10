@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.5.0 - 2022-11-10
 
 ### Added
 - Added support for the Feed Me plugin
