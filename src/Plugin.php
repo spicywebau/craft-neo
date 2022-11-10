@@ -250,7 +250,7 @@ class Plugin extends BasePlugin
                                 "neo-deleteBlocks:{$blockType->uid}" => [
                                     'label' => Craft::t('neo', 'Delete blocks'),
                                 ],
-                            ]
+                            ],
                         ];
                     }
 
