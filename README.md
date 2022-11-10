@@ -59,6 +59,7 @@ Neo copies/pastes a block with descendants, all descendant blocks are copied and
 - [Settings](docs/settings.md)
 - [Console Commands](docs/console-commands.md)
 - [Plugin Compatibility](docs/plugin-compatibility.md)
+- [Feed Me](docs/feed-me.md)
 - [FAQ](docs/faq.md)
 - Content Migration Guides:
     - [Populating Neo Fields](docs/content-migration-guides/populating-neo-fields.md)
