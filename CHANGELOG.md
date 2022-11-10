@@ -18,6 +18,7 @@
 
 ### Fixed
 - Fixed a bug where opening a Neo block's actions menu would not close any already open actions menu belonging to another block in the same Neo field
+- Fixed a bug that occurred when using the `collapseAllBlocks` plugin setting, where existing blocks could not be expanded
 
 ## 3.4.1 - 2022-11-08
 
