@@ -276,13 +276,15 @@ class Plugin extends BasePlugin
 
     private function _registerFeedMeSupport(): void
     {
-        Event::on(
-            FeedMeFields::class,
-            FeedMeFields::EVENT_REGISTER_FEED_ME_FIELDS,
-            function(RegisterFeedMeFieldsEvent $e) {
-                $e->fields[] = FeedMeField::class;
-            }
-        );
+        if (class_exists(FeedMeFields::class)) {
+            Event::on(
+                FeedMeFields::class,
+                FeedMeFields::EVENT_REGISTER_FEED_ME_FIELDS,
+                function(RegisterFeedMeFieldsEvent $e) {
+                    $e->fields[] = FeedMeField::class;
+                }
+            );
+        }
     }
 
     /**

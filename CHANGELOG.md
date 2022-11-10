@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred if Feed Me wasn't installed
+
 ## 3.5.0 - 2022-11-10
 
 ### Added
