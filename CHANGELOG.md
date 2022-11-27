@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when executing a GraphQL query, if a field previously of the Neo type had been changed to a different type
+
 ## 3.5.2 - 2022-11-11
 
 > {note} The migration that runs in this update saves the value of `ignorePermissions` for each block type based on which block types already have any user permissions set - if any have been set, then it will be saved as `false`, otherwise it will be saved as `true`.

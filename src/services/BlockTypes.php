@@ -13,6 +13,7 @@ use benf\neo\records\BlockType as BlockTypeRecord;
 use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
 use Craft;
 use craft\db\Query;
+use craft\db\Table;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\Json;
@@ -639,6 +640,8 @@ class BlockTypes extends Component
     public function getAllBlockTypes(): array
     {
         $results = $this->_createQuery()
+            ->innerJoin(['f' => Table::FIELDS], '[[f.id]] = [[bt.fieldId]]')
+            ->where(['f.type' => Field::class])
             ->all();
 
         foreach ($results as $key => $result) {
@@ -708,9 +711,9 @@ class BlockTypes extends Component
         }
 
         return (new Query())
-            ->select($columns)
-            ->from(['{{%neoblocktypes}}'])
-            ->orderBy(['sortOrder' => SORT_ASC]);
+            ->select(array_map(fn($column) => "bt.$column", $columns))
+            ->from(['bt' => '{{%neoblocktypes}}'])
+            ->orderBy(['bt.sortOrder' => SORT_ASC]);
     }
 
     /**
