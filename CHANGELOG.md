@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.5.3 - 2022-11-27
 
 ### Fixed
 - Fixed an error that occurred when executing a GraphQL query, if a field previously of the Neo type had been changed to a different type
