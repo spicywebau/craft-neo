@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Neo child blocks could be cloned to exceed the parent block's max child blocks setting
+
 ## 3.5.3 - 2022-11-27
 
 ### Fixed
