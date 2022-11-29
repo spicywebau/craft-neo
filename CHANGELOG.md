@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a console error that occurred in Neo 3.5.4 if there was no Neo copied block data in the browser's local storage
+
 ## 3.5.4 - 2022-11-28
 
 ### Fixed

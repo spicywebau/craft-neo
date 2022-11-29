@@ -1043,7 +1043,7 @@ export default Garnish.Base.extend({
 
       if (maxChildBlocks > 0) {
         const childBlockCount = parentBlock.getChildren(blocks).length
-        const pasteBlockCount = pasteData.blocks.length
+        const pasteBlockCount = pasteData.blocks?.length ?? 0
         pasteDisabled ||= childBlockCount + pasteBlockCount > maxChildBlocks
         cloneDisabled ||= childBlockCount >= maxChildBlocks
       }
