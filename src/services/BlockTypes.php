@@ -2,6 +2,7 @@
 
 namespace benf\neo\services;
 
+use benf\neo\Field;
 use benf\neo\elements\Block;
 use benf\neo\errors\BlockTypeNotFoundException;
 use benf\neo\events\BlockTypeEvent;
