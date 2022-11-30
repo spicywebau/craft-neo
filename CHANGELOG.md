@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.5.6 - 2022-11-30
 
 ### Fixed
 - Fixed a bug where rebuilding the project config would result in Neo block type config YAML files being removed
