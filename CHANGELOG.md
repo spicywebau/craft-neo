@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.5.7 - 2022-12-02
 
 ### Fixed
 - Fixed a bug where Neo blocks could be scrambled or the "Can not move a node when the target node is same" error could occur when creating a draft
