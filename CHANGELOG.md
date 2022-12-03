@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where queries for Neo blocks with a specific owner entry/category could return duplicate blocks, if the entry/category had any drafts and the duplicated blocks were owned by both the entry/category and the drafts
+
 ## 3.5.7 - 2022-12-02
 
 ### Fixed
