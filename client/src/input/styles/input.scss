@@ -373,8 +373,14 @@ $topbar-background-color-transparent: #ebf2fa00;
                 &.flex-fields {
                     --row-gap: var(--m) !important;
 
-                    > .field::before {
-                        display: none;
+                    > .field {
+                        &::before {
+                            display: none;
+                        }
+
+                        .lp-editor & .status-badge {
+                            left: calc(var(--m) * -1);
+                        }
                     }
                 }
             }
