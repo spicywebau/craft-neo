@@ -447,27 +447,22 @@ class BlockQuery extends ElementQuery
         // Try to narrow down the structure criteria for the blocks we need, so we don't return duplicate blocks because
         // they belong to a draft as well as the draft's canonical element
         if ($this->withStructure && !$this->structureId) {
-            $conditions = [
-                'and',
+            $this->subQuery->innerJoin(
+                ['neoblockstructures' => '{{%neoblockstructures}}'],
                 '[[neoblockstructures.structureId]] = [[structureelements.structureId]]',
-            ];
+            );
 
             if ($this->fieldId) {
-                $conditions[] = ['neoblockstructures.fieldId' => $this->fieldId];
+                $this->subQuery->andWhere(['neoblockstructures.fieldId' => $this->fieldId]);
             }
 
             if ($this->ownerId) {
-                $conditions[] = ['neoblockstructures.ownerId' => $this->ownerId];
+                $this->subQuery->andWhere(['neoblockstructures.ownerId' => $this->ownerId]);
             }
 
             if ($this->siteId) {
-                $conditions[] = ['neoblockstructures.siteId' => $this->siteId];
+                $this->subQuery->andWhere(['neoblockstructures.siteId' => $this->siteId]);
             }
-
-            $this->subQuery->innerJoin(
-                ['neoblockstructures' => '{{%neoblockstructures}}'],
-                count($conditions) > 2 ? $conditions : $conditions[1],
-            );
         }
 
         return parent::afterPrepare();
