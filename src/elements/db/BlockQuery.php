@@ -446,7 +446,7 @@ class BlockQuery extends ElementQuery
     {
         // Try to narrow down the structure criteria for the blocks we need, so we don't return duplicate blocks because
         // they belong to a draft as well as the draft's canonical element
-        if ($this->withStructure && !$this->structureId) {
+        if (!$this->trashed && !$this->revisions && $this->withStructure && !$this->structureId) {
             $this->subQuery->innerJoin(
                 ['neoblockstructures' => '{{%neoblockstructures}}'],
                 '[[neoblockstructures.structureId]] = [[structureelements.structureId]]',

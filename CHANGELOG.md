@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when saving entries using Neo 3.5.8
+
 ## 3.5.8 - 2022-12-04
 
 ### Fixed
