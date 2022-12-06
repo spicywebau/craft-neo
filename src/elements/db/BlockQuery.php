@@ -436,6 +436,11 @@ class BlockQuery extends ElementQuery
             );
         }
 
+        // Don't include structure data where it doesn't make sense to
+        if ($this->id) {
+            $this->withStructure(false);
+        }
+
         return parent::beforePrepare();
     }
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug in Neo 3.5.9 where Neo block structures weren't being saved for entry revisions
+
 ## 3.5.9 - 2022-12-05
 
 ### Fixed
