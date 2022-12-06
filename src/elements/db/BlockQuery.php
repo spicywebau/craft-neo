@@ -437,7 +437,7 @@ class BlockQuery extends ElementQuery
         }
 
         // Don't include structure data where it doesn't make sense to
-        if ($this->id) {
+        if ((!$this->fieldId || !$this->ownerId || !$this->siteId) && $this->id && !$this->structureId) {
             $this->withStructure(false);
         }
 
