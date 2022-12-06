@@ -2,9 +2,7 @@
 
 namespace benf\neo\migrations;
 
-use benf\neo\Field;
 use benf\neo\Plugin as Neo;
-use Craft;
 use craft\db\Migration;
 
 /**
@@ -84,6 +82,7 @@ class Install extends Migration
                 'groupChildBlockTypes' => $this->boolean()->defaultValue(true)->notNull(),
                 'childBlocks' => $this->text(),
                 'topLevel' => $this->boolean()->defaultValue(true)->notNull(),
+                'ignorePermissions' => $this->boolean()->defaultValue(true)->notNull(),
                 'sortOrder' => $this->smallInteger()->unsigned(),
                 'conditions' => $this->text(),
                 'dateCreated' => $this->dateTime()->notNull(),
@@ -178,14 +177,10 @@ class Install extends Migration
     public function safeDown()
     {
         // Convert Neo fields to Matrix fields before dropping Neo tables
-        $fields = Craft::$app->getFields()->getAllFields();
-
-        foreach ($fields as $field) {
-            if ($field instanceof Field) {
-                // Don't bother deleting the old Neo block types and groups during the conversion, since we're about to
-                // drop the tables anyway
-                Neo::$plugin->conversion->convertFieldToMatrix($field, false);
-            }
+        foreach (Neo::$plugin->fields->getNeoFields() as $field) {
+            // Don't bother deleting the old Neo block types and groups during the conversion, since we're about to
+            // drop the tables anyway
+            Neo::$plugin->conversion->convertFieldToMatrix($field, false);
         }
 
         $this->dropTableIfExists('{{%neoblocks_owners}}');

@@ -152,7 +152,10 @@ export default Garnish.Base.extend({
         groupChildBlockTypes: blockType.getGroupChildBlockTypes(),
         childBlocks: blockType.getChildBlocks(),
         topLevel: blockType.getTopLevel(),
-        hasChildBlocksUiElement: blockType.hasChildBlocksUiElement()
+        hasChildBlocksUiElement: blockType.hasChildBlocksUiElement(),
+        creatableByUser: blockType.isCreatableByUser(),
+        deletableByUser: blockType.isDeletableByUser(),
+        editableByUser: blockType.isEditableByUser()
       })
       bInfo.buttons = new Buttons({
         $ownerContainer: $block,
@@ -724,6 +727,9 @@ export default Garnish.Base.extend({
             childBlocks: blockType.getChildBlocks(),
             topLevel: blockType.getTopLevel(),
             hasChildBlocksUiElement: blockType.hasChildBlocksUiElement(),
+            creatableByUser: blockType.isCreatableByUser(),
+            deletableByUser: blockType.isDeletableByUser(),
+            editableByUser: blockType.isEditableByUser(),
             tabs: renderedBlock.tabs
           })
 

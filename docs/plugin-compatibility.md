@@ -4,6 +4,7 @@ Neo is officially compatible with some other Craft plugins, listed below:
 
 - [Quick Field](https://github.com/spicywebau/craft-quick-field)
 - [CP Field Inspect](https://github.com/mmikkel/CpFieldInspect-Craft)
+- [Feed Me](https://github.com/craftcms/feed-me)
 - [Field Manager](https://github.com/verbb/field-manager)
 - [Matrix Field Preview](https://github.com/weareferal/craft-matrix-field-preview)
 - [Embedded Assets](https://github.com/spicywebau/craft-embedded-assets) (field content is displayed in Neo's collapsed block previews)
@@ -15,8 +16,4 @@ Neo is officially compatible with some other Craft plugins, listed below:
 - [CodeMirror](https://github.com/luwes/craft-codemirror) (field content is displayed in Neo's collapsed block previews)
 - [oEmbed](https://github.com/wrav/oembed) (field input content is displayed in Neo's collapsed block previews)
 
-The following plugins are known to be incompatible with Neo:
-
-- [Feed Me](https://github.com/craftcms/feed-me)
-
-If you know of a plugin not listed above that's incompatible with Neo, and no issue already exists for Neo or the other plugin, please let us know by [opening an issue on GitHub](https://github.com/spicywebau/craft-neo/issues/new).
+If you know of a plugin that's incompatible with Neo, and no issue already exists for Neo or the other plugin, please let us know by [opening an issue on GitHub](https://github.com/spicywebau/craft-neo/issues/new).

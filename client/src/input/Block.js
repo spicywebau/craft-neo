@@ -247,11 +247,17 @@ export default Garnish.Base.extend({
                     <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Copy')}">${Craft.t('neo', 'Copy')}</a></li>
                     <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Paste')}">${Craft.t('neo', 'Paste')}</a></li>
                     <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Clone')}">${Craft.t('neo', 'Clone')}</a></li>
-                  </ul>
+                  </ul>`)
+
+    if (type.isDeletableByUser()) {
+      elementHtml.push(`
                   <hr>
                   <ul class="padded">
                     <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Delete')}">${Craft.t('neo', 'Delete')}</a></li>
-                  </ul>
+                  </ul>`)
+    }
+
+    elementHtml.push(`
                 </div>
               </div>
             </div>
@@ -335,7 +341,14 @@ export default Garnish.Base.extend({
     this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
 
     this._settingsMenu = this.$settingsButton.data('trigger') || new Garnish.DisclosureMenu(this.$settingsButton)
-    this._settingsMenu.on('show', () => this.$container.addClass('active'))
+    this._settingsMenu.on('show', () => {
+      // Make sure all other blocks in the field have their settings menus closed
+      this._field
+        .getBlocks()
+        .filter((block) => block.$container.hasClass('active'))
+        .forEach((block) => block.toggleSettingsMenu(false))
+      this.$container.addClass('active')
+    })
     this._settingsMenu.on('hide', () => this.$container.removeClass('active'))
 
     this.$menuContainer = this._settingsMenu.$container
@@ -377,11 +390,18 @@ export default Garnish.Base.extend({
       this._initialState = {
         enabled: this._enabled,
         level: this._level,
-        content: Garnish.getPostData(this.$contentContainer)
+        content: this._getPostData()
       }
 
       const detectChange = () => this._detectChange()
-      const observer = new window.MutationObserver(() => setTimeout(detectChange, 200))
+      const observer = new window.MutationObserver(() => {
+        setTimeout(detectChange, 200)
+
+        // Ensure blocks that are supposed to be non-editable by the user remain so
+        if (!this.getBlockType().isEditableByUser() && !this.$container.hasClass('is-disabled-for-user')) {
+          this.$container.addClass('is-disabled-for-user')
+        }
+      })
 
       observer.observe(this.$container[0], {
         attributes: true,
@@ -463,7 +483,7 @@ export default Garnish.Base.extend({
   },
 
   getContent () {
-    const rawContent = Garnish.getPostData(this.$contentContainer)
+    const rawContent = this._getPostData()
     const content = {}
 
     const setValue = (keys, value) => {
@@ -472,7 +492,7 @@ export default Garnish.Base.extend({
       for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i]
 
-        if (!$.isPlainObject(currentSet[key]) && !$.isArray(currentSet[key])) {
+        if (!$.isPlainObject(currentSet[key]) && !Array.isArray(currentSet[key])) {
           currentSet[key] = {}
         }
 
@@ -1016,15 +1036,16 @@ export default Garnish.Base.extend({
     const pasteData = JSON.parse(window.localStorage.getItem(`neo:copy:${field}`) || '{}')
     let pasteDisabled = allDisabled || !pasteData.blocks || !pasteData.field || pasteData.field !== field
 
-    // Test to see if pasting would exceed the parent's max child blocks
+    // Test to see if pasting/cloning would exceed the parent's max child blocks
     const parentBlock = this.getParent(blocks)
-    if (!pasteDisabled && parentBlock) {
+    if ((!pasteDisabled || !cloneDisabled) && parentBlock) {
       const maxChildBlocks = parentBlock.getBlockType().getMaxChildBlocks()
 
       if (maxChildBlocks > 0) {
         const childBlockCount = parentBlock.getChildren(blocks).length
-        const pasteBlockCount = pasteData.blocks.length
+        const pasteBlockCount = pasteData.blocks?.length ?? 0
         pasteDisabled ||= childBlockCount + pasteBlockCount > maxChildBlocks
+        cloneDisabled ||= childBlockCount >= maxChildBlocks
       }
     }
 
@@ -1093,6 +1114,15 @@ export default Garnish.Base.extend({
     this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
   },
 
+  toggleSettingsMenu (toggle) {
+    toggle ??= !this._settingsMenu.isExpanded()
+    if (toggle) {
+      this._settingsMenu.show()
+    } else {
+      this._settingsMenu.hide()
+    }
+  },
+
   _handleActionClick (e) {
     e.preventDefault()
     this['@settingSelect'](e)
@@ -1123,7 +1153,7 @@ export default Garnish.Base.extend({
 
     if (!this._forceModified) {
       const initial = this._initialState
-      const content = Garnish.getPostData(this.$contentContainer)
+      const content = this._getPostData()
 
       const modified = !Craft.compare(content, initial.content, false) ||
         initial.enabled !== this._enabled ||
@@ -1135,6 +1165,19 @@ export default Garnish.Base.extend({
     }
 
     this.trigger('change')
+  },
+
+  _getPostData () {
+    const content = Garnish.getPostData(this.$contentContainer)
+    // Remove keys associated with child block subfields (occurs when using child blocks UI element)
+    const badKeys = Object.keys(content)
+      .filter((key) => !key.startsWith(`fields[${this._field.getName()}][blocks][${this._id}]`))
+
+    for (const key of badKeys) {
+      delete content[key]
+    }
+
+    return content
   },
 
   '@settingSelect' (e) {

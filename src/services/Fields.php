@@ -578,9 +578,20 @@ SQL
         // Save the block structures for the draft
         foreach (ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($draft), 'siteId') as $siteId) {
             $blocks = Block::find()
-                ->ownerId($draft->id)
+                ->ownerId($canonical->id)
                 ->fieldId($field->id)
                 ->siteId($siteId)
+                ->structureId(
+                    (new Query())
+                        ->select(['structureId'])
+                        ->from(['{{%neoblockstructures}}'])
+                        ->where([
+                            'fieldId' => $field->id,
+                            'ownerId' => $canonical->id,
+                            'siteId' => $siteId,
+                        ])
+                        ->scalar()
+                )
                 ->unique()
                 ->status(null)
                 ->all();
@@ -925,6 +936,14 @@ SQL
         }
 
         return $supported;
+    }
+
+    public function getNeoFields(): array
+    {
+        return array_filter(
+            Craft::$app->getFields()->getAllFields(),
+            fn($field) => $field instanceof Field
+        );
     }
 
     // Private Methods

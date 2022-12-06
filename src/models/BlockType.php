@@ -120,6 +120,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public bool $topLevel = true;
 
     /**
+     * @var bool Whether user permissions for this block type should be ignored.
+     * @since 3.5.2
+     */
+    public bool $ignorePermissions = true;
+
+    /**
      * @var array Conditions for the elements this block type can be used on.
      */
     public array $conditions = [];
@@ -192,7 +198,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
         return [
             [['id', 'fieldId', 'sortOrder'], 'number', 'integerOnly' => true],
             [['minBlocks', 'maxBlocks', 'minChildBlocks', 'maxChildBlocks', 'minSiblingBlocks'], 'integer', 'min' => 0],
-            [['enabled', 'topLevel', 'groupChildBlockTypes'], 'boolean'],
+            [['enabled', 'topLevel', 'groupChildBlockTypes', 'ignorePermissions'], 'boolean'],
         ];
     }
 
@@ -289,6 +295,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'name' => $this->name,
             'sortOrder' => (int)$this->sortOrder,
             'topLevel' => (bool)$this->topLevel,
+            'ignorePermissions' => (bool)$this->ignorePermissions,
             'conditions' => $this->conditions,
         ];
         $fieldLayout = $this->getFieldLayout();

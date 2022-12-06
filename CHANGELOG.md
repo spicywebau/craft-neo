@@ -1,5 +1,78 @@
 # Changelog
 
+## 3.5.9 - 2022-12-05
+
+### Fixed
+- Fixed an error that could occur when saving entries using Neo 3.5.8
+
+## 3.5.8 - 2022-12-04
+
+### Fixed
+- Fixed a bug where queries for Neo blocks with a specific owner entry/category could return duplicate blocks, if the entry/category had any drafts and the duplicated blocks were owned by both the entry/category and the drafts
+- Fixed the position of field status indicators within Neo fields in Live Preview
+
+## 3.5.7 - 2022-12-02
+
+### Fixed
+- Fixed a bug where Neo blocks could be scrambled or the "Can not move a node when the target node is same" error could occur when creating a draft
+
+## 3.5.6 - 2022-11-30
+
+### Fixed
+- Fixed a bug where rebuilding the project config would result in Neo block type config YAML files being removed
+
+## 3.5.5 - 2022-11-29
+
+### Fixed
+- Fixed a console error that occurred in Neo 3.5.4 if there was no Neo copied block data in the browser's local storage
+
+## 3.5.4 - 2022-11-28
+
+### Fixed
+- Fixed a bug where Neo child blocks could be cloned to exceed the parent block's max child blocks setting
+
+## 3.5.3 - 2022-11-27
+
+### Fixed
+- Fixed an error that occurred when executing a GraphQL query, if a field previously of the Neo type had been changed to a different type
+
+## 3.5.2 - 2022-11-11
+
+> {note} The migration that runs in this update saves the value of `ignorePermissions` for each block type based on which block types already have any user permissions set - if any have been set, then it will be saved as `false`, otherwise it will be saved as `true`.
+
+### Added
+- Added `benf\neo\models\BlockType::$ignorePermissions` - Adds the ability to set a block type to ignore any user permissions set for it (in the Advanced section of the block type settings)
+
+## 3.5.1 - 2022-11-10
+
+### Fixed
+- Fixed an error that occurred if Feed Me wasn't installed
+
+## 3.5.0 - 2022-11-10
+
+### Added
+- Added support for the Feed Me plugin
+- Added the ability to set user permissions for the creation, deletion and editing of blocks of each block type
+- Added the ability to set whether the child block types of a block type will be shown in their groups (if any)
+- Added `benf\neo\console\controllers\BlockTypesController::$setGroupChildBlockTypes`
+- Added `benf\neo\console\controllers\BlockTypesController::$unsetGroupChildBlockTypes`
+- Added `benf\neo\Field::getBlockTypeFields()`
+- Added `benf\neo\integrations\feedme\Field`
+- Added `benf\neo\models\BlockType::$groupChildBlockTypes`
+- Added `benf\neo\services\Fields::getNeoFields()`
+
+### Changed
+- Updated JavaScript dependencies
+
+### Fixed
+- Fixed a bug where opening a Neo block's actions menu would not close any already open actions menu belonging to another block in the same Neo field
+- Fixed a bug that occurred when using the `collapseAllBlocks` plugin setting, where existing blocks could not be expanded
+
+## 3.4.1 - 2022-11-08
+
+### Fixed
+- Fixed a bug where cloning or copying Neo blocks using the child blocks UI element could cause the parent blocks to be pasted/cloned with some of the child block's content
+
 ## 3.4.0 - 2022-09-29
 
 ### Added

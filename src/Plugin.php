@@ -8,6 +8,7 @@ use benf\neo\controllers\Input as InputController;
 use benf\neo\elements\Block;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\gql\interfaces\elements\Block as NeoGqlInterface;
+use benf\neo\integrations\feedme\Field as FeedMeField;
 use benf\neo\models\Settings;
 use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\BlockTypes as BlockTypesService;
@@ -26,6 +27,9 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterConditionRuleTypesEvent;
 use craft\events\RegisterGqlTypesEvent;
+use craft\events\RegisterUserPermissionsEvent;
+use craft\feedme\events\RegisterFeedMeFieldsEvent;
+use craft\feedme\services\Fields as FeedMeFields;
 use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
 use craft\gatsbyhelper\services\Deltas;
 use craft\models\FieldLayout;
@@ -33,6 +37,7 @@ use craft\services\Fields;
 use craft\services\Gc;
 use craft\services\Gql;
 use craft\services\ProjectConfig;
+use craft\services\UserPermissions;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 
@@ -54,7 +59,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public string $schemaVersion = '3.3.0';
+    public string $schemaVersion = '3.5.2';
 
     /**
      * @inheritdoc
@@ -101,7 +106,9 @@ class Plugin extends BasePlugin
         $this->_registerGarbageCollection();
         $this->_registerChildBlocksUiElement();
         $this->_registerResaveBlocksCommand();
+        $this->_registerPermissions();
         $this->_registerGatsbyHelper();
+        $this->_registerFeedMeSupport();
         $this->_registerConditionFieldRuleRemoval();
     }
 
@@ -222,12 +229,61 @@ class Plugin extends BasePlugin
         });
     }
 
+    private function _registerPermissions(): void
+    {
+        Event::on(
+            UserPermissions::class,
+            UserPermissions::EVENT_REGISTER_PERMISSIONS,
+            function(RegisterUserPermissionsEvent $event) {
+                foreach ($this->fields->getNeoFields() as $field) {
+                    $blockTypePermissions = [];
+
+                    foreach ($field->getBlockTypes() as $blockType) {
+                        $blockTypePermissions["neo-editBlocks:{$blockType->uid}"] = [
+                            'label' => Craft::t('neo', 'Edit {blockType} blocks', [
+                                'blockType' => $blockType->name,
+                            ]),
+                            'nested' => [
+                                "neo-createBlocks:{$blockType->uid}" => [
+                                    'label' => Craft::t('neo', 'Create blocks'),
+                                ],
+                                "neo-deleteBlocks:{$blockType->uid}" => [
+                                    'label' => Craft::t('neo', 'Delete blocks'),
+                                ],
+                            ],
+                        ];
+                    }
+
+                    $event->permissions[] = [
+                        'heading' => Craft::t('neo', 'Neo - {field}', [
+                            'field' => $field->name,
+                        ]),
+                        'permissions' => $blockTypePermissions,
+                    ];
+                }
+            }
+        );
+    }
+
     private function _registerGatsbyHelper()
     {
         if (class_exists(Deltas::class)) {
             Event::on(Deltas::class, Deltas::EVENT_REGISTER_IGNORED_TYPES, function(RegisterIgnoredTypesEvent $event) {
                 $event->types[] = Block::class;
             });
+        }
+    }
+
+    private function _registerFeedMeSupport(): void
+    {
+        if (class_exists(FeedMeFields::class)) {
+            Event::on(
+                FeedMeFields::class,
+                FeedMeFields::EVENT_REGISTER_FEED_ME_FIELDS,
+                function(RegisterFeedMeFieldsEvent $e) {
+                    $e->fields[] = FeedMeField::class;
+                }
+            );
         }
     }
 

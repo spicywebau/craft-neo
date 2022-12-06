@@ -41,6 +41,8 @@ return [
     'The maximum number of child blocks this block type is allowed to have.' => 'The maximum number of child blocks this block type is allowed to have.',
     'Top Level' => 'Top Level',
     'Will this block type be allowed at the top level?' => 'Will this block type be allowed at the top level?',
+    'Ignore Permissions' => 'Ignore Permissions',
+    'Whether user permissions for this block type should be ignored.' => 'Whether user permissions for this block type should be ignored.',
     'Group Child Block Types' => 'Group Child Block Types',
     'Will child block types be shown in their groups?' => 'Will child block types be shown in their groups?',
     '{type} Condition' => '{type} Condition',
@@ -106,4 +108,8 @@ return [
     'Owner Tag Group' => 'Owner Tag Group',
     'Owner User Group' => 'Owner User Group',
     'Owner Volume' => 'Owner Volume',
+    'Neo - {field}' => 'Neo - {field}',
+    'Edit {blockType} blocks' => 'Edit {blockType} blocks',
+    'Create blocks' => 'Create blocks',
+    'Delete blocks' => 'Delete blocks',
 ];

@@ -14,6 +14,7 @@ const _defaults = {
   handle: '',
   description: '',
   enabled: true,
+  ignorePermissions: true,
   minBlocks: 0,
   maxBlocks: 0,
   minSiblingBlocks: 0,
@@ -66,6 +67,8 @@ export default Settings.extend({
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
     this.$enabledInput = $neo.filter('[data-neo-bts="input.enabled"]')
     this.$enabledContainer = $neo.filter('[data-neo-bts="container.enabled"]')
+    this.$ignorePermissionsInput = $neo.filter('[data-neo-bts="input.ignorePermissions"]')
+    this.$ignorePermissionsContainer = $neo.filter('[data-neo-bts="container.ignorePermissions"]')
     this.$minBlocksInput = $neo.filter('[data-neo-bts="input.minBlocks"]')
     this.$maxBlocksInput = $neo.filter('[data-neo-bts="input.maxBlocks"]')
     this.$minSiblingBlocksInput = $neo.filter('[data-neo-bts="input.minSiblingBlocks"]')
@@ -87,6 +90,7 @@ export default Settings.extend({
     this.setHandle(settings.handle)
     this.setDescription(settings.description)
     this.setEnabled(settings.enabled)
+    this.setIgnorePermissions(settings.ignorePermissions)
     this.setMinBlocks(settings.minBlocks)
     this.setMaxBlocks(settings.maxBlocks)
     this.setMinSiblingBlocks(settings.minSiblingBlocks)
@@ -108,6 +112,7 @@ export default Settings.extend({
 
     this._childBlocksSelect = this.$childBlocksInput.data('checkboxSelect')
     this._enabledLightswitch = this.$enabledInput.data('lightswitch')
+    this._ignorePermissionsLightswitch = this.$ignorePermissionsInput.data('lightswitch')
     this._topLevelLightswitch = this.$topLevelInput.data('lightswitch')
     this._groupChildBlockTypesLightswitch = this.$groupChildBlockTypesInput.data('lightswitch')
     this._handleGenerator = new Craft.HandleGenerator(this.$nameInput, this.$handleInput)
@@ -135,6 +140,7 @@ export default Settings.extend({
     this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
     this.addListener(this.$descriptionInput, 'keyup change textchange', () => this.setDescription(this.$descriptionInput.val()))
     this.addListener(this._enabledLightswitch, 'change', () => this.setEnabled(this._enabledLightswitch.on))
+    this.addListener(this._ignorePermissionsLightswitch, 'change', () => this.setIgnorePermissions(this._ignorePermissionsLightswitch.on))
     this.addListener(this.$minBlocksInput, 'keyup change', () => this.setMinBlocks(this.$minBlocksInput.val()))
     this.addListener(this.$maxBlocksInput, 'keyup change', () => this.setMaxBlocks(this.$maxBlocksInput.val()))
     this.addListener(this.$minSiblingBlocksInput, 'keyup change', () => this.setMinSiblingBlocks(this.$minSiblingBlocksInput.val()))
@@ -253,6 +259,9 @@ export default Settings.extend({
 
   getEnabled () { return this._enabled },
   setEnabled (enabled) { this._setLightswitchField('enabled', enabled) },
+
+  getIgnorePermissions () { return this._ignorePermissions },
+  setIgnorePermissions (ignore) { this._setLightswitchField('ignorePermissions', ignore) },
 
   getMinBlocks () { return this._minBlocks },
   setMinBlocks (minBlocks) { this._setBlocksConstraint('minBlocks', minBlocks) },
