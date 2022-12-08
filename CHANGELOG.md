@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.5.12 - 2022-12-09
 
 ### Fixed
 - Fixed block structure issues
