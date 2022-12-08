@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.5.11 - 2022-12-09
 
 ### Fixed
 - Fixed an error that occurred when merging canonical Neo block changes into their derivative blocks
