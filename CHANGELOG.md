@@ -4,7 +4,7 @@
 
 ### Fixed
 - Fixed an error that occurred when merging canonical Neo block changes into their derivative blocks
-- Fixed a bug where nested Neo blocks, and potentially blocks following them in the block structure, could incorrectly be saved at the top level
+- Fixed a bug where disabled nested Neo blocks, and potentially blocks following them in the block structure, could incorrectly be saved at the top level
 - Fixed a bug when using eager loading (including using GraphQL), where querying a Neo block's children would always return no results
 - Fixed a bug where a Neo block type's `conditions` property was not being set in the project config if there were no conditions on the block type
 - Fixed style issues with Neo block type handles on Neo input blocks when using Safari
