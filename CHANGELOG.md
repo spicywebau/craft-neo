@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where a Neo block type's `conditions` property was not being set in the project config if there were no conditions on the block type
+- Fixed style issues with Neo block type handles on Neo input blocks when using Safari
 
 ## 3.5.10 - 2022-12-06
 
