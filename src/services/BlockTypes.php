@@ -377,6 +377,7 @@ class BlockTypes extends Component
             $fieldLayout = null;
             $isNew = false;
             $blockType = null;
+            $blockTypeConditions = $data['conditions'] ?? [];
 
             if ($record->id !== null) {
                 $result = $this->_createQuery()
@@ -438,7 +439,7 @@ class BlockTypes extends Component
             $record->groupChildBlockTypes = $data['groupChildBlockTypes'] ?? true;
             $record->childBlocks = $data['childBlocks'];
             $record->topLevel = $data['topLevel'];
-            $record->conditions = Json::encode($data['conditions'] ?? []);
+            $record->conditions = Json::encode($blockTypeConditions);
             $record->uid = $uid;
             $record->fieldLayoutId = $fieldLayout?->id;
             $record->save(false);
@@ -461,6 +462,7 @@ class BlockTypes extends Component
             $blockType->groupChildBlockTypes = $data['groupChildBlockTypes'] ?? true;
             $blockType->childBlocks = $data['childBlocks'];
             $blockType->topLevel = $data['topLevel'];
+            $blockType->conditions = $blockTypeConditions;
             $blockType->uid = $uid;
             $blockType->fieldLayoutId = $fieldLayout?->id;
 

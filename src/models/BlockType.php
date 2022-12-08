@@ -296,7 +296,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'sortOrder' => (int)$this->sortOrder,
             'topLevel' => (bool)$this->topLevel,
             'ignorePermissions' => (bool)$this->ignorePermissions,
-            'conditions' => $this->conditions,
+            'conditions' => $this->conditions ?: null,
         ];
         $fieldLayout = $this->getFieldLayout();
 

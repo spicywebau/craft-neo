@@ -308,7 +308,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $newBlockType = $blockType;
 
             if (!($blockType instanceof BlockType)) {
-                foreach (array_keys($blockType['conditions']) as $elementType) {
+                foreach (array_keys($blockType['conditions'] ?? []) as $elementType) {
                     if (!isset($blockType['conditions'][$elementType]['conditionRules'])) {
                         // Don't bother setting condition data for any element types that have no rules set
                         unset($blockType['conditions'][$elementType]);
