@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where a Neo block type's `conditions` property was not being set in the project config if there were no conditions on the block type
+
+## 3.5.10 - 2022-12-06
+
+### Fixed
+- Fixed a bug in Neo 3.5.9 where Neo block structures weren't being saved for entry revisions
+
 ## 3.5.9 - 2022-12-05
 
 ### Fixed

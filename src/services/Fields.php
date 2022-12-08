@@ -763,7 +763,7 @@ SQL
                 ->siteId($canonicalOwner->siteId)
                 ->status(null)
                 ->trashed(null)
-                ->andWhere(['not', ['structureId' => null]])
+                ->andWhere(['not', ['structureelements.structureId' => null]])
                 ->ignorePlaceholders()
                 ->indexBy('canonicalId')
                 ->all();
