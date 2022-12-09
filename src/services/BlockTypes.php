@@ -568,7 +568,7 @@ class BlockTypes extends Component
             if ($record) {
                 if ($data) {
                     $record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
-                    $record->name = $data['name'];
+                    $record->name = $data['name'] ?? '';
                     $record->sortOrder = $data['sortOrder'];
                     // If the Craft install was upgraded from Craft 3 / Neo 2 and the project config doesn't have
                     // `alwaysShowDropdown` set, set it to null so it falls back to the global setting

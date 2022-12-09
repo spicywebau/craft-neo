@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where a Neo block type group without a name could have its name set to `null` in the project config, instead of an empty string
+- Fixed an error that occurred when applying a project config if a Neo block type group without a name had its name set to `null` in the project config
+
 ## 3.5.12 - 2022-12-09
 
 ### Fixed
