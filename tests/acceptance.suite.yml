@@ -1,0 +1,14 @@
+# Codeception Test Suite Configuration
+#
+# Suite for acceptance tests.
+# Perform tests in browser using the WebDriver or PhpBrowser.
+# If you need both WebDriver and PHPBrowser tests - create a separate suite.
+
+actor: AcceptanceTester
+modules:
+  enabled:
+    - \craft\test\Craft
+    - PhpBrowser:
+      url: http://localhost/myapp
+    - \Helper\Acceptance
+step_decorators: ~
