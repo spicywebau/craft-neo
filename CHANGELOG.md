@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where a Neo block type group without a name could have its name set to `null` in the project config, instead of an empty string
 - Fixed an error that occurred when applying a project config if a Neo block type group without a name had its name set to `null` in the project config
+- Fixed an error that occurred when using Field Manager to import Neo field data that was exported by the Craft 3 version of Field Manager
 
 ## 3.5.12 - 2022-12-09
 
