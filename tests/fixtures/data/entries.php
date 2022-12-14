@@ -9,5 +9,34 @@ return [
         'uid' => 'entry-000000000000000000000000000001',
         'title' => 'Test Entry 1',
         'slug' => 'testEntry1',
+        'neoField1' => [
+            'new1' => [
+                'level' => 1,
+                'type' => 'plainText',
+                'enabled' => true,
+                'collapsed' => false,
+                'fields' => [
+                    'plainTextField' => 'a',
+                ],
+            ],
+            'new2' => [
+                'level' => 2,
+                'type' => 'plainText',
+                'enabled' => true,
+                'collapsed' => false,
+                'fields' => [
+                    'plainTextField' => 'b',
+                ],
+            ],
+            'new3' => [
+                'level' => 3,
+                'type' => 'plainText',
+                'enabled' => true,
+                'collapsed' => false,
+                'fields' => [
+                    'plainTextField' => 'c',
+                ],
+            ],
+        ],
     ],
 ];

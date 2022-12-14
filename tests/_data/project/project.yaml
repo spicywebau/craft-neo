@@ -1,3 +1,9 @@
+plugins:
+  neo:
+    edition: standard
+    enabled: true
+    licenseKey: null
+    schemaVersion: 3.5.2
 system:
   edition: solo
   live: true

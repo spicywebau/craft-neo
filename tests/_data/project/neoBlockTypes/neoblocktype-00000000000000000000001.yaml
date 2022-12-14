@@ -1,0 +1,39 @@
+childBlocks: '*'
+conditions: null
+description: null
+enabled: true
+field: field-000000000000000000000000000001
+fieldLayouts:
+  neoblocktypelayout-00000000000000001:
+    tabs:
+      -
+        elementCondition: null
+        elements:
+          -
+            elementCondition: null
+            fieldUid: field-000000000000000000000000000002
+            instructions: null
+            label: null
+            required: true
+            tip: null
+            type: craft\fieldlayoutelements\CustomField
+            uid: neoblocktypelayoutelement-0000000001
+            userCondition: null
+            warning: null
+            width: 100
+        name: Content
+        uid: neoblocktypelayouttab-00000000000001
+        userCondition: null
+group: null
+groupChildBlockTypes: true
+handle: plainText
+ignorePermissions: true
+maxBlocks: 0
+maxChildBlocks: 0
+maxSiblingBlocks: 0
+minBlocks: 0
+minChildBlocks: 0
+minSiblingBlocks: 0
+name: 'Plain Text'
+sortOrder: 1
+topLevel: true
