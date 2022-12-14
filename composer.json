@@ -33,6 +33,11 @@
       "benf\\neo\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "spicyweb\\neotests\\": "tests/"
+    }
+  },
   "extra": {
     "handle": "neo",
     "name": "Neo",

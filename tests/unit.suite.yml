@@ -5,7 +5,11 @@
 actor: UnitTester
 modules:
   enabled:
-    - \craft\test\Craft
+    - \craft\test\Craft:
+        projectConfig: {
+          folder: 'tests/_data/project',
+          reset: false
+        }
     - Asserts
     - \Helper\Unit
   step_decorators: ~

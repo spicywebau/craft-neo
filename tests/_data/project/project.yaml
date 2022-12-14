@@ -1,0 +1,43 @@
+entryTypes:
+  entrytype-00000000000000000000000001:
+    handle: neoTestSingle
+    hasTitleField: true
+    name: 'Neo Test Single'
+    section: section-0000000000000000000000000001
+    sortOrder: 1
+    titleFormat: ''
+    titleLabel: Title
+sections:
+  section-0000000000000000000000000001:
+    enableVersioning: true
+    handle: neoTestSingle
+    name: 'Neo Test Single'
+    propagationMethod: all
+    siteSettings:
+      site-0000000000000000000000000000001:
+        enabledByDefault: true
+        hasUrls: false
+        template: null
+        uriFormat: null
+    type: single
+siteGroups:
+  sitegroup-00000000000000000000000001:
+    name: 'Site Group A'
+sites:
+  site-0000000000000000000000000000001:
+    baseUrl: '@web'
+    enabled: true
+    handle: default
+    hasUrls: true
+    language: en
+    name: 'Site A1'
+    primary: true
+    siteGroup: sitegroup-00000000000000000000000001
+    sortOrder: 1
+system:
+  edition: solo
+  live: true
+  name: 'Neo Test'
+  retryDuration: null
+  schemaVersion: 4.0.0.9
+  timeZone: Australia/Melbourne
