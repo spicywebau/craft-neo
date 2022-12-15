@@ -1,6 +1,6 @@
 enableVersioning: true
-handle: neoTestSingle
-name: 'Neo Test Single'
+handle: neoTestChannel
+name: 'Neo Test Channel'
 propagationMethod: all
 siteSettings:
   site-0000000000000000000000000000001:
@@ -8,4 +8,4 @@ siteSettings:
     hasUrls: false
     template: null
     uriFormat: null
-type: single
+type: channel
