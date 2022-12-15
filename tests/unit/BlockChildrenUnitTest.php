@@ -34,7 +34,28 @@ class BlockChildrenUnitTest extends TestCase
     }
 
     /**
-     * Tests block children queries for memoized Neo fields.
+     * Tests block children queries for fully eager-loaded Neo fields.
+     */
+    public function testEagerLoaded(): void
+    {
+        $entry = $this->_entry();
+        Craft::$app->getElements()->eagerLoadElements(
+            Entry::class,
+            [$entry],
+            [['neoField1', ['status' => null]]]
+        );
+        $neoBlocks = $entry->getFieldValue('neoField1')->all();
+
+        foreach ($neoBlocks as $block) {
+            $block->useMemoized($neoBlocks);
+        }
+
+        $neoTopBlocks = array_values(array_filter($neoBlocks, fn($block) => $block->level === 1));
+        $this->_test($neoTopBlocks);
+    }
+
+    /**
+     * Tests block children queries for non-eager-loaded memoized Neo fields.
      */
     public function testMemoized(): void
     {
@@ -50,7 +71,7 @@ class BlockChildrenUnitTest extends TestCase
     }
 
     /**
-     * Tests block children queries for non-memoized Neo fields.
+     * Tests block children queries for non-eager-loaded non-memoized Neo fields.
      */
     public function testNonMemoized(): void
     {
@@ -70,7 +91,7 @@ class BlockChildrenUnitTest extends TestCase
     }
 
     /**
-     * Common code for memoized and non-memoized block children tests.
+     * Common code for all block children tests.
      *
      * @param Block[] $neoTopBlocks
      */
