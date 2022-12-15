@@ -38,11 +38,28 @@ class BlockChildrenUnitTest extends TestCase
     public function testNonEagerLoaded(): void
     {
         $entry = Craft::$app->getElements()->getElementByUid('entry-000000000000000000000000000001', Entry::class);
-        $neoTopBlock = $entry->getFieldValue('neoField1')->one();
+        $neoTopBlocks = $entry->getFieldValue('neoField1')->level(1)->all();
 
+        // Not that this class is meant to test top level blocks, but there should only be two top level blocks
+        $this->assertSame(
+            2,
+            count($neoTopBlocks)
+        );
+
+        // The first top level block has two children
+        $this->assertSame(
+            2,
+            (int)$neoTopBlocks[0]->getChildren()->count()
+        );
+
+        // The second top level block also has two children, but only one of them is enabled
         $this->assertSame(
             1,
-            (int)$neoTopBlock->getChildren()->count()
+            (int)$neoTopBlocks[1]->getChildren()->count()
+        );
+        $this->assertSame(
+            2,
+            (int)$neoTopBlocks[1]->getChildren()->status(null)->count()
         );
     }
 }

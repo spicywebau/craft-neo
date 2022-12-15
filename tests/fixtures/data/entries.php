@@ -7,34 +7,73 @@ return [
         'typeId' => '1',
         'authorId' => '1',
         'uid' => 'entry-000000000000000000000000000001',
-        'title' => 'Test Entry 1',
-        'slug' => 'testEntry1',
+        'title' => 'Block Children Test',
+        'slug' => 'block-children-test',
         'neoField1' => [
             'new1' => [
                 'level' => 1,
                 'type' => 'plainText',
                 'enabled' => true,
-                'collapsed' => false,
                 'fields' => [
-                    'plainTextField' => 'a',
+                    'plainTextField' => '1',
                 ],
             ],
             'new2' => [
                 'level' => 2,
                 'type' => 'plainText',
                 'enabled' => true,
-                'collapsed' => false,
                 'fields' => [
-                    'plainTextField' => 'b',
+                    'plainTextField' => '2',
                 ],
             ],
             'new3' => [
+                'level' => 2,
+                'type' => 'plainText',
+                'enabled' => true,
+                'fields' => [
+                    'plainTextField' => '2',
+                ],
+            ],
+            'new4' => [
+                'level' => 3,
+                'type' => 'plainText',
+                'enabled' => true,
+                'fields' => [
+                    'plainTextField' => '3',
+                ],
+            ],
+            'new5' => [
+                'level' => 1,
+                'type' => 'plainText',
+                'enabled' => true,
+                'fields' => [
+                    'plainTextField' => '1',
+                ],
+            ],
+            'new6' => [
+                'level' => 2,
+                'type' => 'plainText',
+                'enabled' => false,
+                'fields' => [
+                    'plainTextField' => '2',
+                ],
+            ],
+            'new7' => [
                 'level' => 3,
                 'type' => 'plainText',
                 'enabled' => true,
                 'collapsed' => false,
                 'fields' => [
-                    'plainTextField' => 'c',
+                    'plainTextField' => '3',
+                ],
+            ],
+            'new8' => [
+                'level' => 2,
+                'type' => 'plainText',
+                'enabled' => true,
+                'collapsed' => false,
+                'fields' => [
+                    'plainTextField' => '2',
                 ],
             ],
         ],
