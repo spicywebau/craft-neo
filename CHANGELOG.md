@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where revision Neo blocks could be saved at the wrong level
+
 ## 3.5.13 - 2022-12-14
 
 ### Fixed
