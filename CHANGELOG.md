@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where new Neo blocks' collapsed states were being lost when saving
+
 ## 3.5.14 - 2022-12-21
 
 ### Fixed
