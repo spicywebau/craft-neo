@@ -1011,7 +1011,10 @@ export default Garnish.Base.extend({
     if (allowedBlockTypes === true || allowedBlockTypes === '*') {
       allowedBlockTypes = this._field.getBlockTypes(false)
     } else if (Array.isArray(allowedBlockTypes)) {
-      allowedBlockTypes = allowedBlockTypes.map(bt => typeof bt === 'string' ? this._field.getBlockTypeByHandle(bt) : bt)
+      allowedBlockTypes = allowedBlockTypes
+        .map(bt => typeof bt === 'string' ? this._field.getBlockTypeByHandle(bt) : bt)
+        // In case any otherwise valid block types are being filtered out by the event or conditions
+        .filter(bt => typeof bt !== 'undefined')
     }
 
     this.updateMenuStates(

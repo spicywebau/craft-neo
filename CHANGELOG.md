@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where new Neo blocks' collapsed states were being lost when saving
+- Fixed a console error that could occur after copying a Neo block if any of the Neo field's block types were being filtered out
 
 ## 3.5.14 - 2022-12-21
 
