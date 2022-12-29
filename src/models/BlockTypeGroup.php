@@ -29,6 +29,7 @@ class BlockTypeGroup extends Model
      * @var string|null The block type group name.
      */
     public ?string $name = null;
+    // TODO: $name should only be allowed to be a string in Neo 4
 
     /**
      * @var int|null The sort order.
@@ -86,7 +87,7 @@ class BlockTypeGroup extends Model
     {
         return [
             'field' => Craft::$app->getFields()->getFieldById($this->fieldId)->uid,
-            'name' => $this->name,
+            'name' => $this->name ?? '',
             'sortOrder' => (int)$this->sortOrder,
             'alwaysShowDropdown' => $this->alwaysShowDropdown,
         ];

@@ -436,41 +436,7 @@ class BlockQuery extends ElementQuery
             );
         }
 
-        // Don't include structure data where it doesn't make sense to
-        if ((!$this->fieldId || !$this->ownerId || !$this->siteId) && $this->id && !$this->structureId) {
-            $this->withStructure(false);
-        }
-
         return parent::beforePrepare();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function afterPrepare(): bool
-    {
-        // Try to narrow down the structure criteria for the blocks we need, so we don't return duplicate blocks because
-        // they belong to a draft as well as the draft's canonical element
-        if (!$this->trashed && !$this->revisions && $this->withStructure && !$this->structureId) {
-            $this->subQuery->innerJoin(
-                ['neoblockstructures' => '{{%neoblockstructures}}'],
-                '[[neoblockstructures.structureId]] = [[structureelements.structureId]]',
-            );
-
-            if ($this->fieldId) {
-                $this->subQuery->andWhere(['neoblockstructures.fieldId' => $this->fieldId]);
-            }
-
-            if ($this->ownerId) {
-                $this->subQuery->andWhere(['neoblockstructures.ownerId' => $this->ownerId]);
-            }
-
-            if ($this->siteId) {
-                $this->subQuery->andWhere(['neoblockstructures.siteId' => $this->siteId]);
-            }
-        }
-
-        return parent::afterPrepare();
     }
 
     /**

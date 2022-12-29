@@ -1,0 +1,11 @@
+name: Question
+description: Ask a question about Neo
+labels:
+  - question
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: What question would you like to ask?
+    validations:
+      required: true

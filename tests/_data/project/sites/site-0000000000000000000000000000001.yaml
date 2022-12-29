@@ -1,0 +1,9 @@
+baseUrl: '@web'
+enabled: true
+handle: siteA1
+hasUrls: true
+language: en
+name: 'Site A1'
+primary: true
+siteGroup: sitegroup-00000000000000000000000001
+sortOrder: 1

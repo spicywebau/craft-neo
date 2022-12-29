@@ -156,9 +156,17 @@ $topbar-background-color-transparent: #ebf2fa00;
                 }
 
                 &.handle {
+                    display: flex;
+                    align-items: center;
+                    transform: translateY(2px);
+
                     > .copytextbtn {
                         height: 20px;
                         transform: translateY(-2px);
+
+                        > input {
+                            line-height: 1;
+                        }
                     }
                 }
 

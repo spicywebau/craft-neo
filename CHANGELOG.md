@@ -1,9 +1,36 @@
 # Changelog
 
-## Unreleased
+## 3.5.15 - 2022-12-28
 
 ### Fixed
+- Fixed a bug where new Neo blocks' collapsed states were being lost when saving
+- Fixed a console error that could occur after copying a Neo block if any of the Neo field's block types were being filtered out
+
+## 3.5.14 - 2022-12-21
+
+### Fixed
+- Fixed a bug where revision Neo blocks could be saved at the wrong level
+
+## 3.5.13 - 2022-12-14
+
+### Fixed
+- Fixed a bug where a Neo block type group without a name could have its name set to `null` in the project config, instead of an empty string
+- Fixed an error that occurred when applying a project config if a Neo block type group without a name had its name set to `null` in the project config
+- Fixed an error that occurred when using Field Manager to import Neo field data that was exported by the Craft 3 version of Field Manager
+
+## 3.5.12 - 2022-12-09
+
+### Fixed
+- Fixed block structure issues
+
+## 3.5.11 - 2022-12-09
+
+### Fixed
+- Fixed an error that occurred when merging canonical Neo block changes into their derivative blocks
+- Fixed a bug where disabled nested Neo blocks, and potentially blocks following them in the block structure, could incorrectly be saved at the top level
+- Fixed a bug when using eager loading (including using GraphQL), where querying a Neo block's children would always return no results
 - Fixed a bug where a Neo block type's `conditions` property was not being set in the project config if there were no conditions on the block type
+- Fixed style issues with Neo block type handles on Neo input blocks when using Safari
 
 ## 3.5.10 - 2022-12-06
 
