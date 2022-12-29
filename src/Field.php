@@ -323,15 +323,15 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->fieldId = $this->id;
                 $newBlockType->name = $blockType['name'];
                 $newBlockType->handle = $blockType['handle'];
-                $newBlockType->enabled = $blockType['enabled'];
-                $newBlockType->ignorePermissions = $blockType['ignorePermissions'];
-                $newBlockType->description = $blockType['description'];
-                $newBlockType->minBlocks = (int)$blockType['minBlocks'];
-                $newBlockType->maxBlocks = (int)$blockType['maxBlocks'];
-                $newBlockType->minSiblingBlocks = (int)$blockType['minSiblingBlocks'];
-                $newBlockType->maxSiblingBlocks = (int)$blockType['maxSiblingBlocks'];
-                $newBlockType->minChildBlocks = (int)$blockType['minChildBlocks'];
-                $newBlockType->maxChildBlocks = (int)$blockType['maxChildBlocks'];
+                $newBlockType->enabled = $blockType['enabled'] ?? true;
+                $newBlockType->ignorePermissions = $blockType['ignorePermissions'] ?? true;
+                $newBlockType->description = $blockType['description'] ?? '';
+                $newBlockType->minBlocks = (int)($blockType['minBlocks'] ?? 0);
+                $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);
+                $newBlockType->minSiblingBlocks = (int)($blockType['minSiblingBlocks'] ?? 0);
+                $newBlockType->maxSiblingBlocks = (int)($blockType['maxSiblingBlocks'] ?? 0);
+                $newBlockType->minChildBlocks = (int)($blockType['minChildBlocks'] ?? 0);
+                $newBlockType->maxChildBlocks = (int)($blockType['maxChildBlocks'] ?? 0);
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
                 $newBlockType->groupChildBlockTypes = isset($blockType['groupChildBlockTypes']) ? (bool)$blockType['groupChildBlockTypes'] : true;
                 $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
@@ -428,15 +428,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $newBlockTypeGroup = $blockTypeGroup;
 
             if (!($blockTypeGroup instanceof BlockTypeGroup)) {
+                $alwaysShowDropdown = $blockTypeGroup['alwaysShowDropdown'] ?? null;
                 $newBlockTypeGroup = new BlockTypeGroup();
                 $newBlockTypeGroup->id = (int)$id;
                 $newBlockTypeGroup->fieldId = $this->id;
                 $newBlockTypeGroup->name = $blockTypeGroup['name'];
                 $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
-                $newBlockTypeGroup->alwaysShowDropdown = match ($blockTypeGroup['alwaysShowDropdown']) {
+                $newBlockTypeGroup->alwaysShowDropdown = match ($alwaysShowDropdown) {
                     BlockTypeGroupDropdown::Show => true,
                     BlockTypeGroupDropdown::Hide => false,
                     BlockTypeGroupDropdown::Global => null,
+                    // Handle cases where `alwaysShowDropdown` is already set to true/false/null
+                    true, false, null => $alwaysShowDropdown,
                 };
             }
 

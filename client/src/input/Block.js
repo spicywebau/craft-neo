@@ -109,6 +109,7 @@ export default Garnish.Base.extend({
     this.$tabsButton = $neo.filter(`[data-neo-b="${this._id}.button.tabs"]`)
     this.$enabledInput = $neo.filter(`[data-neo-b="${this._id}.input.enabled"]`)
     this.$levelInput = $neo.filter(`[data-neo-b="${this._id}.input.level"]`)
+    this.$collapsedInput = $neo.filter(`[data-neo-b="${this._id}.input.collapsed"]`)
     this.$status = $neo.filter(`[data-neo-b="${this._id}.status"]`)
     this.$sortOrder = $neo.filter(`[data-neo-b="${this._id}.sortOrder"]`)
     this.$form = this.$container.closest('form')
@@ -163,8 +164,14 @@ export default Garnish.Base.extend({
         <input type="hidden" name="${baseInputName}[type]" value="${type.getHandle()}">
         <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : ''}" data-neo-b="${this._id}.input.enabled">
         <input type="hidden" name="${baseInputName}[level]" value="${this._level}" data-neo-b="${this._id}.input.level">
-        <input type="hidden" name="${sortOrderName}[]" value="${this._id}" data-neo-b="${this._id}.input.sortOrder">
+        <input type="hidden" name="${sortOrderName}[]" value="${this._id}" data-neo-b="${this._id}.input.sortOrder">`)
 
+    if (isNaN(parseInt(this._id))) {
+      elementHtml.push(`
+        <input type="hidden" name="${baseInputName}[collapsed]" value="${!this._expanded ? '1' : ''}" data-neo-b="${this._id}.input.collapsed">`)
+    }
+
+    elementHtml.push(`
         <div class="ni_block_topbar" data-neo-b="${this._id}.container.topbar">
           <div class="ni_block_topbar_left" data-neo-b="${this._id}.container.topbarLeft">
             <div class="ni_block_topbar_item" data-neo-b="${this._id}.select">
@@ -332,6 +339,7 @@ export default Garnish.Base.extend({
       Craft.initUiElements(this.$contentContainer)
     }
 
+    this.$form = this.$container.closest('form')
     this._tabsMenu = this.$tabsButton.data('trigger') || new Garnish.DisclosureMenu(this.$tabsButton)
     this._tabsMenu.on('show', () => this.$container.addClass('active'))
     this._tabsMenu.on('hide', () => this.$container.removeClass('active'))
@@ -856,6 +864,7 @@ export default Garnish.Base.extend({
       const expandContainer = this.$menuContainer.find('[data-action="expand"]').parent()
       const collapseContainer = this.$menuContainer.find('[data-action="collapse"]').parent()
 
+      this.$collapsedInput.val(!this._expanded ? '1' : '')
       this.$container
         .toggleClass('is-expanded', this._expanded)
         .toggleClass('is-collapsed', !this._expanded)
@@ -1002,7 +1011,10 @@ export default Garnish.Base.extend({
     if (allowedBlockTypes === true || allowedBlockTypes === '*') {
       allowedBlockTypes = this._field.getBlockTypes(false)
     } else if (Array.isArray(allowedBlockTypes)) {
-      allowedBlockTypes = allowedBlockTypes.map(bt => typeof bt === 'string' ? this._field.getBlockTypeByHandle(bt) : bt)
+      allowedBlockTypes = allowedBlockTypes
+        .map(bt => typeof bt === 'string' ? this._field.getBlockTypeByHandle(bt) : bt)
+        // In case any otherwise valid block types are being filtered out by the event or conditions
+        .filter(bt => typeof bt !== 'undefined')
     }
 
     this.updateMenuStates(

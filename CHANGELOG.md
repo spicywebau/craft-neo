@@ -1,10 +1,22 @@
 # Changelog
 
-## Unreleased
+## 3.5.15 - 2022-12-28
+
+### Fixed
+- Fixed a bug where new Neo blocks' collapsed states were being lost when saving
+- Fixed a console error that could occur after copying a Neo block if any of the Neo field's block types were being filtered out
+
+## 3.5.14 - 2022-12-21
+
+### Fixed
+- Fixed a bug where revision Neo blocks could be saved at the wrong level
+
+## 3.5.13 - 2022-12-14
 
 ### Fixed
 - Fixed a bug where a Neo block type group without a name could have its name set to `null` in the project config, instead of an empty string
 - Fixed an error that occurred when applying a project config if a Neo block type group without a name had its name set to `null` in the project config
+- Fixed an error that occurred when using Field Manager to import Neo field data that was exported by the Craft 3 version of Field Manager
 
 ## 3.5.12 - 2022-12-09
 
