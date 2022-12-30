@@ -31,12 +31,18 @@ class Settings extends Model
     public bool $defaultAlwaysShowGroupDropdowns = true;
 
     /**
+     * @var bool
+     * @since 3.6.0
+     */
+    public bool $useVisualButtons = false;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
     {
         return [
-            [['collapseAllBlocks', 'optimiseSearchIndexing', 'defaultAlwaysShowGroupDropdowns'], 'boolean'],
+            [['collapseAllBlocks', 'optimiseSearchIndexing', 'defaultAlwaysShowGroupDropdowns', 'useVisualButtons'], 'boolean'],
         ];
     }
 }
