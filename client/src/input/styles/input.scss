@@ -1,3 +1,5 @@
+@use "sass:math";
+
 $preview-reduction: 80px;
 $topbar-background-color-level-odd: #ebf2fa;
 $topbar-background-color-level-even: #ebf2fa80;
@@ -10,7 +12,8 @@ $topbar-background-color-transparent: #ebf2fa00;
         .ni_block .block-checkbox,
         .ni_block .block-settings,
         .ni_block .block-reorder,
-        .ni_buttons {
+        .ni_buttons,
+        .ni_visualbuttons {
             display: none;
         }
 
@@ -22,7 +25,8 @@ $topbar-background-color-transparent: #ebf2fa00;
 
 .ni {
 
-    &_buttons {
+    &_buttons,
+    &_visualbuttons {
         position: relative;
         height: 30px;
 
@@ -36,9 +40,36 @@ $topbar-background-color-transparent: #ebf2fa00;
         }
     }
 
+    &_visualbuttons_menu {
+        width: 500px;
+        max-width: 100%;
+
+        ul {
+            display: flex;
+            flex-flow: wrap;
+            width: 100%;
+
+            &:not(:last-child) {
+                border-bottom: 1px solid #e3e5e8;
+            }
+
+            > li {
+                padding: 10px 14px;
+                width: math.div(1, 4) * 100%;
+
+                > a {
+                    padding: 10px 14px !important;
+                    text-align: center !important;
+                    white-space: normal;
+                }
+            }
+        }
+    }
+
     &_blocks {
 
-        > .ni_buttons {
+        > .ni_buttons,
+        > .ni_visualbuttons {
             margin-bottom: 10px;
         }
     }

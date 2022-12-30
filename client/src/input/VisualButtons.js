@@ -8,7 +8,7 @@ const _defaults = {
   blocks: null
 }
 
-class Buttons extends BlockSelector {
+class VisualButtons extends BlockSelector {
   constructor (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
     super(settings)
@@ -36,87 +36,18 @@ class Buttons extends BlockSelector {
     const ungroupChildBlockTypes = ownerBlockType !== null &&
       !this._field.getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
     const buttonsHtml = []
-    let blockTypesHtml = []
     let currentGroup = null
-    let firstButton = true
 
-    const generateGroupDropdown = () => {
-      buttonsHtml.push(`
-          <div class="btn dashed${firstButton ? ' add icon' : ''} menubtn" data-neo-bn="button.group">
-            ${currentGroup.getName()}
-          </div>
-          <div class="menu">
-            <ul>${blockTypesHtml.join('')}
-            </ul>
+    buttonsHtml.push(`
+        <div class="ni_visualbuttons">
+          <div class="btn dashed add icon menubtn" data-neo-bn="container.menu">
+            ${Craft.t('neo', 'Add a block')}
           </div>`)
-      firstButton = false
-      blockTypesHtml = []
-    }
 
-    buttonsHtml.push(`
-      <div class="ni_buttons">
-        <div class="btngroup" data-neo-bn="container.buttons">`)
-
-    for (let i = 0; i < this._items.length; i++) {
-      const item = this._items[i]
-      const type = item.getType()
-
-      if (type === 'blockType') {
-        // Ignore disabled block types, or block types for which the current user isn't allowed to create blocks
-        if (!item.getEnabled() || !item.isCreatableByUser()) {
-          continue
-        }
-
-        const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
-
-        if (currentGroup !== null) {
-          blockTypesHtml.push(`
-            <li>
-              <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">${item.getName()}</a>
-            </li>`)
-        } else {
-          buttonsHtml.push(`
-          <button${titleAttr} aria-label="${item.getName()}" class="btn dashed${firstButton ? ' add icon' : ''}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">
-            ${item.getName()}
-          </button>`)
-          firstButton = false
-        }
-      } else if (type === 'group') {
-        if (currentGroup !== null && blockTypesHtml.length > 0) {
-          generateGroupDropdown()
-        }
-
-        if (
-          // Don't show dropdowns for groups with blank names, as they're just used to end the previous group
-          (item.isBlank()) ||
-          // Don't show dropdowns if we're not forcing them to show, and there's only one block type in this group
-          (!item.getAlwaysShowDropdown() && ((i + 2) >= this._items.length || this._items[i + 2].getType() === 'group')) ||
-          // Don't show dropdowns if the block type is set not to group child block types
-          (ungroupChildBlockTypes)
-        ) {
-          currentGroup = null
-        } else {
-          currentGroup = item
-        }
-      }
-    }
-
-    if (currentGroup !== null && blockTypesHtml.length > 0) {
-      generateGroupDropdown()
-    }
-
-    buttonsHtml.push(`
-        </div>
-        <div class="btn dashed add icon menubtn hidden" data-neo-bn="container.menu">
-          ${Craft.t('neo', 'Add a block')}
-        </div>`)
-
-    // Menu, for views where the buttons would exceed the editor width
     currentGroup = null
     let lastGroupHadBlockTypes = false
     buttonsHtml.push(`
-        <div class="menu">
-          <ul>`)
+          <div class="menu ni_visualbuttons_menu" data-neo-bn="container.buttons">`)
 
     for (const item of this._items) {
       const type = item.getType()
@@ -127,41 +58,41 @@ class Buttons extends BlockSelector {
           continue
         }
 
-        if (currentGroup !== null && !lastGroupHadBlockTypes) {
+        if (!lastGroupHadBlockTypes) {
           lastGroupHadBlockTypes = true
 
+          if (currentGroup !== null) {
+            buttonsHtml.push(`
+            <h6>${currentGroup.getName()}</h6>`)
+          }
+
           buttonsHtml.push(`
-              <h6>${currentGroup.getName()}</h6>
-              <ul class="padded">`)
+            <ul class="padded">`)
         }
 
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         buttonsHtml.push(`
-            <li>
-              <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">
-                ${item.getName()}
-              </a>
-            </li>`)
+              <li>
+                <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">
+                  ${item.getName()}
+                </a>
+              </li>`)
       } else if (type === 'group') {
-        if (currentGroup === null || lastGroupHadBlockTypes) {
+        if (lastGroupHadBlockTypes) {
           buttonsHtml.push(`
-              </ul>`)
+            </ul>`)
         }
 
         lastGroupHadBlockTypes = false
         currentGroup = item.isBlank() || ungroupChildBlockTypes ? null : item
-
-        if (currentGroup === null) {
-          buttonsHtml.push(`
-              <ul>`)
-        }
       }
     }
 
     buttonsHtml.push(`
           </ul>
         </div>
-      </div>`)
+      </div>
+    </div>`)
 
     return $(buttonsHtml.join(''))
   }
@@ -171,7 +102,7 @@ class Buttons extends BlockSelector {
     this.updateResponsiveness()
 
     // If no buttons were rendered (e.g. if all valid block types are disabled for the user), hide the button container
-    if (this.$buttonsContainer.children().length === 0) {
+    if (this.$buttonsContainer.find('[data-neo-bn="button.addBlock"]').length === 0) {
       const parent = this.$container.parent()
       const grandParent = parent.parent()
       const childrenContainer = grandParent.children('.ni_blocks')
@@ -231,18 +162,10 @@ class Buttons extends BlockSelector {
       $button.toggleClass('disabled', disabled)
     })
   }
-
-  updateResponsiveness () {
-    this._buttonsContainerWidth ||= this.$buttonsContainer.width()
-    const isMobile = this.$container.width() < this._buttonsContainerWidth
-
-    this.$buttonsContainer.toggleClass('hidden', isMobile)
-    this.$menuContainer.toggleClass('hidden', !isMobile)
-  }
 }
 
 export default GarnishBlockSelector.extend({
   init (settings = {}) {
-    this.base(new Buttons(settings))
+    this.base(new VisualButtons(settings))
   }
 })
