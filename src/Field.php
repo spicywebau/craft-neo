@@ -326,6 +326,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->enabled = $blockType['enabled'] ?? true;
                 $newBlockType->ignorePermissions = $blockType['ignorePermissions'] ?? true;
                 $newBlockType->description = $blockType['description'] ?? '';
+                $newBlockType->iconId = !empty($blockType['iconId']) ? (int)$blockType['iconId'] : null;
                 $newBlockType->minBlocks = (int)($blockType['minBlocks'] ?? 0);
                 $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);
                 $newBlockType->minSiblingBlocks = (int)($blockType['minSiblingBlocks'] ?? 0);
@@ -545,6 +546,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             return $view->renderTemplate('neo/input', [
                 'handle' => $this->handle,
                 'blocks' => $blocks,
+                'blockTypes' => $filteredBlockTypes,
                 'id' => $view->formatInputId($this->handle),
                 'name' => $this->handle,
                 'translatable' => $this->propagationMethod,

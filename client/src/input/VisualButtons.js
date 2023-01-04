@@ -74,7 +74,10 @@ class VisualButtons extends BlockSelector {
         buttonsHtml.push(`
               <li>
                 <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">
-                  ${item.getName()}
+                  <svg class="ni_visualbuttons_menu_icon">
+                    <use href="#fields-ni-icon-${item.getHandle()}"></use>
+                  </svg>
+                  <span>${item.getName()}</span>
                 </a>
               </li>`)
       } else if (type === 'group') {

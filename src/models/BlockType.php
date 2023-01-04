@@ -11,6 +11,7 @@ use craft\base\GqlInlineFragmentInterface;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\db\Table;
+use craft\elements\Asset;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
@@ -61,6 +62,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * @since 3.0.5
      */
     public ?string $description = null;
+
+    /**
+     * @var int|null The block type's icon, as a Craft asset ID.
+     * @since 3.6.0
+     */
+    public ?int $iconId = null;
 
     /**
      * @var bool Whether this block type is allowed to be used.
@@ -161,6 +168,11 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     private ?bool $_hasChildBlocksUiElement = null;
 
     /**
+     * @var Asset|null
+     */
+    private ?Asset $_icon = null;
+
+    /**
      * @inheritdoc
      */
     public function __construct($config = [])
@@ -254,6 +266,21 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     }
 
     /**
+     * Gets this block type's icon asset, if an icon is set.
+     *
+     * @return Asset|null
+     * @since 3.6.0
+     */
+    public function getIcon(): ?Asset
+    {
+        if ($this->_icon === null && $this->iconId !== null) {
+            $this->_icon = Craft::$app->getAssets()->getAssetById($this->iconId);
+        }
+
+        return $this->_icon;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getFieldContext(): string
@@ -278,6 +305,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public function getConfig(): array
     {
         $group = $this->getGroup();
+        $icon = $this->getIcon();
         $config = [
             'childBlocks' => $this->childBlocks,
             'field' => $this->getField()->uid,
@@ -286,6 +314,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'handle' => $this->handle,
             'description' => $this->description,
             'enabled' => $this->enabled,
+            'icon' => $icon?->uid ?? null,
             'minBlocks' => (int)$this->minBlocks,
             'maxBlocks' => (int)$this->maxBlocks,
             'minChildBlocks' => (int)$this->minChildBlocks,

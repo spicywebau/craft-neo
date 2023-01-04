@@ -72,6 +72,7 @@ class Install extends Migration
                 'name' => $this->string()->notNull(),
                 'handle' => $this->string()->notNull(),
                 'description' => $this->string(),
+                'iconId' => $this->integer(),
                 'enabled' => $this->boolean()->defaultValue(true)->notNull(),
                 'minBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'maxBlocks' => $this->smallInteger()->unsigned(),
@@ -162,6 +163,7 @@ class Install extends Migration
                 null);
             $this->addForeignKey(null, '{{%neoblocktypes}}', ['groupId'], '{{%neoblocktypegroups}}', ['id'], 'SET NULL',
                 null);
+            $this->addForeignKey(null, '{{%neoblocktypes}}', ['iconId'], '{{%assets}}', ['id'], 'SET NULL', null);
         }
 
         if (!$hasBlockTypeGroupsTable) {

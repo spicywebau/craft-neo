@@ -15,6 +15,7 @@ use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
 use Craft;
 use craft\db\Query;
 use craft\db\Table;
+use craft\elements\Asset;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\Json;
@@ -205,6 +206,7 @@ class BlockTypes extends Component
         $record->name = $blockType->name;
         $record->handle = $blockType->handle;
         $record->description = $blockType->description;
+        $record->iconId = $blockType->iconId;
         $record->enabled = $blockType->enabled;
         $record->ignorePermissions = $blockType->ignorePermissions;
         $record->sortOrder = $blockType->sortOrder;
@@ -378,6 +380,9 @@ class BlockTypes extends Component
             $isNew = false;
             $blockType = null;
             $blockTypeConditions = $data['conditions'] ?? [];
+            $blockTypeIcon = $data['icon'] !== null
+                ? Craft::$app->getElements()->getElementByUid($data['icon'], Asset::class)
+                : null;
 
             if ($record->id !== null) {
                 $result = $this->_createQuery()
@@ -427,6 +432,7 @@ class BlockTypes extends Component
             $record->name = $data['name'];
             $record->handle = $data['handle'];
             $record->description = $data['description'] ?? null;
+            $record->iconId = $blockTypeIcon?->id ?? null;
             $record->enabled = $data['enabled'] ?? true;
             $record->ignorePermissions = $data['ignorePermissions'] ?? true;
             $record->sortOrder = $data['sortOrder'];
@@ -698,6 +704,7 @@ class BlockTypes extends Component
         // Columns that didn't exist in Neo 3.0.0
         $maybeColumns = [
             'description',
+            'iconId',
             'enabled',
             'ignorePermissions',
             'minBlocks',

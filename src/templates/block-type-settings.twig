@@ -44,6 +44,26 @@
             }
         }) }}
 
+        {{ forms.elementSelectField({
+            id: 'iconId',
+            name: 'iconId',
+            label: 'Icon'|t('neo'),
+            instructions: 'The SVG icon to use for this block type, if Neo is set to use visual buttons to add new blocks.'|t('neo'),
+            value: blockType ? [blockType.iconId] : null,
+            errors: blockType ? blockType.getErrors('iconId') : null,
+            elements: blockType and blockType.iconId ? [blockType.icon] : null,
+            elementType: 'craft\\elements\\Asset',
+            single: true,
+            viewMode: 'large',
+            criteria: {
+                kind: 'image',
+                filename: '*.svg',
+            },
+            containerAttributes: {
+                'data-neo-bts': 'input.icon'
+            },
+        }) }}
+
         <div data-neo-bts="container.enabled">
             {{ forms.lightswitchField({
                 id: 'enabled',

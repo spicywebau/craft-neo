@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased (3.6)
+
+### Added
+- Added `benf\neo\models\BlockType::$iconId`
+
 ## 3.5.15 - 2022-12-28
 
 ### Fixed

@@ -54,15 +54,24 @@ $topbar-background-color-transparent: #ebf2fa00;
             }
 
             > li {
+                display: flex;
+                flex-direction: column;
                 padding: 10px 14px;
                 width: math.div(1, 4) * 100%;
 
                 > a {
+                    flex-grow: 1;
                     padding: 10px 14px !important;
                     text-align: center !important;
                     white-space: normal;
                 }
             }
+        }
+
+        &_icon {
+            margin-bottom: 10px;
+            width: 90px;
+            height: 90px;
         }
     }
 
