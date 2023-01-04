@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where users who were disallowed from deleting Neo blocks of a certain block type still didn't have the delete option on existing blocks if the block type's Ignore Permissions setting was enabled
+
 ## 3.5.15 - 2022-12-28
 
 ### Fixed
