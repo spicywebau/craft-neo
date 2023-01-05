@@ -109,7 +109,7 @@ export default Item.extend({
     const fieldLayout = this.getFieldLayout()
     const selected = this.isSelected()
 
-    if (settings) {
+    if (settings?.$container ?? false) {
       settings.$container.toggleClass('hidden', !selected)
     }
 

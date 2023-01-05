@@ -3,9 +3,11 @@
 namespace benf\neo\services;
 
 use benf\neo\Field;
+use benf\neo\assets\SettingsAsset;
 use benf\neo\elements\Block;
 use benf\neo\errors\BlockTypeNotFoundException;
 use benf\neo\events\BlockTypeEvent;
+use benf\neo\events\SetConditionElementTypesEvent;
 use benf\neo\helpers\Memoize;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
@@ -15,14 +17,25 @@ use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
 use Craft;
 use craft\db\Query;
 use craft\db\Table;
+use craft\commerce\elements\Order;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Variant;
+use craft\elements\Address;
 use craft\elements\Asset;
+use craft\elements\Category;
+use craft\elements\Entry;
+use craft\elements\Tag;
+use craft\elements\User;
 use craft\events\ConfigEvent;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
+use yii\base\Event;
 use yii\base\Exception;
 
 /**
@@ -46,6 +59,11 @@ class BlockTypes extends Component
      * @since 2.3.0
      */
     public const EVENT_AFTER_SAVE_BLOCK_TYPE = 'afterSaveNeoBlockType';
+
+    /**
+     * @var string[]|null Supported element types for setting conditions on when block types can be used
+     */
+    private ?array $_conditionElementTypes = null;
 
     /**
      * Gets a Neo block type given its ID.
@@ -621,6 +639,33 @@ class BlockTypes extends Component
     }
 
     /**
+     * Renders a Neo block type's settings.
+     *
+     * @param BlockType|null $blockType
+     * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
+     * @return array
+     */
+    public function renderBlockTypeSettings(?BlockType $blockType = null, ?string $baseNamespace = null): array
+    {
+        $view = Craft::$app->getView();
+        $blockTypeId = $blockType?->id ?? '__NEOBLOCKTYPE_ID__';
+        $oldNamespace = $view->getNamespace();
+        $newNamespace = ($baseNamespace ?? $oldNamespace) . '[blockTypes][' . $blockTypeId . ']';
+        $view->setNamespace($newNamespace);
+        $view->startJsBuffer();
+
+        $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
+            'blockType' => $blockType,
+            'conditions' => $this->_getConditions($blockType),
+        ]));
+
+        $js = $view->clearJsBuffer();
+        $view->setNamespace($oldNamespace);
+
+        return [$html, $js];
+    }
+
+    /**
      * Renders a field layout designer for a Neo block type.
      *
      * @param FieldLayout|null $fieldLayout
@@ -795,5 +840,77 @@ class BlockTypes extends Component
         }
 
         return $record;
+    }
+
+    /**
+     * Gets the condition builder field HTML for a block type.
+     *
+     * @param BlockType|null $blockType
+     * @return string[]
+     */
+    private function _getConditions(?BlockType $blockType = null): array
+    {
+        if ($this->_conditionElementTypes === null) {
+            $event = new SetConditionElementTypesEvent([
+                'elementTypes' => $this->_getSupportedConditionElementTypes(),
+            ]);
+            Event::trigger(SettingsAsset::class, SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES, $event);
+            $this->_conditionElementTypes = $event->elementTypes;
+        }
+
+        $conditionsService = Craft::$app->getConditions();
+        $conditionHtml = [];
+        Neo::$isGeneratingConditionHtml = true;
+
+        foreach ($this->_conditionElementTypes as $elementType) {
+            $condition = !empty($blockType?->conditions) && isset($blockType->conditions[$elementType])
+                ? $conditionsService->createCondition($blockType->conditions[$elementType])
+                : $elementType::createCondition();
+            $condition->mainTag = 'div';
+            $condition->id = 'conditions-' . StringHelper::toKebabCase($elementType);
+            $condition->name = "conditions[$elementType]";
+            $condition->forProjectConfig = true;
+
+            $conditionHtml[$elementType] = Cp::fieldHtml($condition->getBuilderHtml(), [
+                'label' => Craft::t('neo', '{type} Condition', [
+                    'type' => StringHelper::mb_ucwords($elementType::displayName()),
+                ]),
+                'instructions' => Craft::t('neo', 'Only allow this block type to be used on {type} if they match the following rules:', [
+                    'type' => $elementType::pluralLowerDisplayName(),
+                ]),
+            ]);
+        }
+
+        Neo::$isGeneratingConditionHtml = false;
+
+        return $conditionHtml;
+    }
+
+    /**
+     * Get the element types supported by Neo for block type conditionals.
+     *
+     * @return string[]
+     */
+    private function _getSupportedConditionElementTypes(): array
+    {
+        // In-built Craft element types
+        $elementTypes = [
+            Entry::class,
+            Category::class,
+            Asset::class,
+            User::class,
+            Tag::class,
+            Address::class,
+        ];
+
+        // Craft Commerce element types
+        if (Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
+            $elementTypes[] = Product::class;
+            $elementTypes[] = Variant::class;
+            $elementTypes[] = Order::class;
+            $elementTypes[] = Subscription::class;
+        }
+
+        return $elementTypes;
     }
 }

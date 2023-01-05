@@ -3,7 +3,9 @@
 ## Unreleased (3.6)
 
 ### Added
+- Added `benf\neo\controllers\Configurator::actionRenderBlockType()`
 - Added `benf\neo\models\BlockType::$iconId`
+- Added `benf\neo\services\BlockTypes::renderBlockTypeSettings()`
 
 ## 3.5.15 - 2022-12-28
 

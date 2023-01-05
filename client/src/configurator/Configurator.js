@@ -71,6 +71,7 @@ export default Garnish.Base.extend({
         name: btInfo.name,
         handle: btInfo.handle,
         description: btInfo.description,
+        iconId: btInfo.iconId,
         enabled: btInfo.enabled,
         ignorePermissions: btInfo.ignorePermissions,
         minBlocks: btInfo.minBlocks,
@@ -354,9 +355,8 @@ export default Garnish.Base.extend({
       this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
     } else {
       const oldSettings = oldBlockType.getSettings()
-      const settings = new BlockTypeSettings({
+      const settingsObj = {
         childBlocks: oldSettings.getChildBlocks(),
-        childBlockTypes: this.getBlockTypes(),
         // Set a timestamp on the handle so it doesn't clash with the old one
         handle: `${oldSettings.getHandle()}_${Date.now()}`,
         id,
@@ -368,13 +368,16 @@ export default Garnish.Base.extend({
         maxSiblingBlocks: oldSettings.getMaxSiblingBlocks(),
         name: oldSettings.getName(),
         description: oldSettings.getDescription(),
+        iconId: oldSettings.getIconId(),
         enabled: oldSettings.getEnabled(),
         ignorePermissions: oldSettings.getIgnorePermissions(),
-        namespace: [...namespace, id],
         sortOrder: this._items.length,
-        topLevel: oldSettings.getTopLevel(),
-        html: this._getNewBlockTypeSettingsHtml(id, selectedIndex),
-        js: this._getNewBlockTypeSettingsJs(id)
+        topLevel: oldSettings.getTopLevel()
+      }
+      const settings = new BlockTypeSettings({
+        ...settingsObj,
+        childBlockTypes: this.getBlockTypes(),
+        namespace: [...namespace, id]
       })
       const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
       this._insertAt($spinner, selectedIndex)
@@ -382,35 +385,30 @@ export default Garnish.Base.extend({
       oldBlockType.loadFieldLayout()
         .then(() => {
           const layout = oldBlockType.getFieldLayout().getConfig()
-
-          if (layout.tabs.length > 0) {
-            const data = { layout }
-
-            Craft.queue.push(() => new Promise((resolve, reject) => {
-              Craft.sendActionRequest('POST', 'neo/configurator/render-field-layout', { data })
-                .then(response => {
-                  const fieldLayout = new BlockTypeFieldLayout({
-                    blockTypeId: id,
-                    html: response.data.html,
-                    namespace: [...namespace, id]
-                  })
-
-                  this.$blockTypesContainer.find('.type-spinner').remove()
-                  this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
-                  resolve()
-                })
-                .catch(reject)
-            }))
-          } else {
-            const fieldLayout = new BlockTypeFieldLayout({
-              blockTypeId: id,
-              html: this._getNewFieldLayoutHtml(),
-              namespace: [...namespace, id]
-            })
-
-            this.$blockTypesContainer.find('.type-spinner').remove()
-            this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
+          const data = {
+            settings: settingsObj,
+            layout: layout.tabs.length > 0 ? layout : null
           }
+
+          Craft.queue.push(() => new Promise((resolve, reject) => {
+            Craft.sendActionRequest('POST', 'neo/configurator/render-block-type', { data })
+              .then(response => {
+                const fieldLayout = new BlockTypeFieldLayout({
+                  blockTypeId: id,
+                  html: response.data.layoutHtml,
+                  namespace: [...namespace, id]
+                })
+                settings.createContainer({
+                  html: response.data.settingsHtml.replace(/__NEOBLOCKTYPE_ID__/g, id),
+                  js: response.data.settingsJs.replace(/__NEOBLOCKTYPE_ID__/g, id)
+                })
+
+                this.$blockTypesContainer.find('.type-spinner').remove()
+                this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
+                resolve()
+              })
+              .catch(reject)
+          }))
         })
         .catch(() => Craft.cp.displayError(Craft.t('neo', 'Couldn’t create new block type.')))
     }
@@ -436,6 +434,7 @@ export default Garnish.Base.extend({
           childBlocks: settings.getChildBlocks(),
           description: settings.getDescription(),
           enabled: settings.getEnabled(),
+          iconId: settings.getIconId(),
           ignorePermissions: settings.getIgnorePermissions(),
           handle: settings.getHandle(),
           layout: blockType.getFieldLayout().getConfig(),
@@ -471,6 +470,7 @@ export default Garnish.Base.extend({
       childBlocks,
       childBlockTypes: this.getBlockTypes(),
       description: data.description,
+      iconId: data.iconId,
       enabled: data.enabled,
       ignorePermissions: data.ignorePermissions,
       handle: data.handle,
@@ -481,7 +481,8 @@ export default Garnish.Base.extend({
       minSiblingBlocks: data.minSiblingBlocks,
       maxSiblingBlocks: data.maxSiblingBlocks,
       name: data.name,
-      topLevel: data.topLevel
+      topLevel: data.topLevel,
+      html: ''
     })
 
     const fieldLayout = new BlockTypeFieldLayout({

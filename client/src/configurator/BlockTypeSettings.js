@@ -24,8 +24,8 @@ const _defaults = {
   topLevel: true,
   childBlocks: null,
   childBlockTypes: [],
-  html: '',
-  js: '',
+  html: null,
+  js: null,
   errors: {}
 }
 
@@ -35,6 +35,7 @@ export default Settings.extend({
   _childBlockTypes: [],
   _initialised: false,
 
+  $container: null,
   $sortOrderInput: new $(),
   $nameInput: new $(),
   $handleInput: new $(),
@@ -56,15 +57,47 @@ export default Settings.extend({
     this._fieldLayoutId = settings.fieldLayoutId
     this._fieldLayoutConfig = settings.fieldLayoutConfig
     this._errors = settings.errors
-    this._js = settings.js
     this._settingsChildBlockTypes = settings.childBlockTypes
-    this.$container = $(settings.html)
+    this._afterCreateContainer = () => {
+      this.setSortOrder(settings.sortOrder)
+      this.setName(settings.name)
+      this.setHandle(settings.handle)
+      this.setDescription(settings.description)
+      this._setIconId(settings.iconId)
+      this.setEnabled(settings.enabled)
+      this.setIgnorePermissions(settings.ignorePermissions)
+      this.setMinBlocks(settings.minBlocks)
+      this.setMaxBlocks(settings.maxBlocks)
+      this.setMinSiblingBlocks(settings.minSiblingBlocks)
+      this.setMaxSiblingBlocks(settings.maxSiblingBlocks)
+      this.setMinChildBlocks(settings.minChildBlocks)
+      this.setMaxChildBlocks(settings.maxChildBlocks)
+      this.setTopLevel(settings.topLevel)
+    }
+
+    if (settings.html !== null) {
+      this.createContainer({
+        html: settings.html,
+        js: settings.js
+      })
+    }
+  },
+
+  createContainer (containerData) {
+    // Only create it if it doesn't already exist
+    if (this.$container !== null) {
+      return
+    }
+
+    this.$container = $(containerData.html)
+    this._js = containerData.js ?? ''
 
     const $neo = this.$container.find('[data-neo-bts]')
     this.$sortOrderInput = $neo.filter('[data-neo-bts="input.sortOrder"]')
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
+    this.$iconIdContainer = $neo.filter('[data-neo-bts="container.iconId"]')
     this.$enabledInput = $neo.filter('[data-neo-bts="input.enabled"]')
     this.$enabledContainer = $neo.filter('[data-neo-bts="container.enabled"]')
     this.$ignorePermissionsInput = $neo.filter('[data-neo-bts="input.ignorePermissions"]')
@@ -85,19 +118,7 @@ export default Settings.extend({
     this.$childBlocksContainer = $neo.filter('[data-neo-bts="container.childBlocks"]')
     this.$deleteButton = $neo.filter('[data-neo-bts="button.delete"]')
 
-    this.setSortOrder(settings.sortOrder)
-    this.setName(settings.name)
-    this.setHandle(settings.handle)
-    this.setDescription(settings.description)
-    this.setEnabled(settings.enabled)
-    this.setIgnorePermissions(settings.ignorePermissions)
-    this.setMinBlocks(settings.minBlocks)
-    this.setMaxBlocks(settings.maxBlocks)
-    this.setMinSiblingBlocks(settings.minSiblingBlocks)
-    this.setMaxSiblingBlocks(settings.maxSiblingBlocks)
-    this.setMinChildBlocks(settings.minChildBlocks)
-    this.setMaxChildBlocks(settings.maxChildBlocks)
-    this.setTopLevel(settings.topLevel)
+    this._afterCreateContainer()
   },
 
   initUi () {
@@ -139,6 +160,16 @@ export default Settings.extend({
 
     this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
     this.addListener(this.$descriptionInput, 'keyup change textchange', () => this.setDescription(this.$descriptionInput.val()))
+    this.addListener(this.$iconIdContainer, 'change', () => {
+      setTimeout(
+        () => {
+          const $iconIdInput = this.$iconIdInput
+          const iconId = $iconIdInput.length > 0 ? $iconIdInput.val() : null
+          this._setIconId(iconId)
+        },
+        500
+      )
+    })
     this.addListener(this._enabledLightswitch, 'change', () => this.setEnabled(this._enabledLightswitch.on))
     this.addListener(this._ignorePermissionsLightswitch, 'change', () => this.setIgnorePermissions(this._ignorePermissionsLightswitch.on))
     this.addListener(this.$minBlocksInput, 'keyup change', () => this.setMinBlocks(this.$minBlocksInput.val()))
@@ -171,6 +202,10 @@ export default Settings.extend({
         <input type="checkbox" value="${settings.getHandle()}" id="${id}" class="checkbox" name="${name}[]" data-neo-btsc="input">
         <label for="${id}" data-neo-btsc="text.label">${settings.getName()}</label>
       </div>`)
+  },
+
+  get $iconIdInput () {
+    return this.$iconIdContainer.find('input[type="hidden"]')
   },
 
   getFocusInput () {
@@ -253,6 +288,27 @@ export default Settings.extend({
         property: 'description',
         oldValue: oldDescription,
         newValue: this._description
+      })
+    }
+  },
+
+  getIconId () { return this._iconId },
+  _setIconId (iconId) {
+    if (iconId !== this._iconId) {
+      const oldIconId = this._iconId
+      this._iconId = iconId
+
+      if (this.$iconIdInput.val() !== this._iconId) {
+        // TODO
+        // This is normally where we would reset the input value, but since the icon ID setting is an asset field, we
+        // would also need to update the element HTML. This would be good to implement in the future, and then this
+        // method could be made public.
+      }
+
+      this.trigger('change', {
+        property: 'iconId',
+        oldValue: oldIconId,
+        newValue: this._iconId
       })
     }
   },
