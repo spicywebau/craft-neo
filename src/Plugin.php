@@ -20,8 +20,10 @@ use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\console\Controller;
 use craft\console\controllers\ResaveController;
+use craft\controllers\ElementsController;
 use craft\db\Table;
 use craft\events\DefineConsoleActionsEvent;
+use craft\events\DefineElementEditorHtmlEvent;
 use craft\events\DefineFieldLayoutElementsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -32,6 +34,7 @@ use craft\feedme\events\RegisterFeedMeFieldsEvent;
 use craft\feedme\services\Fields as FeedMeFields;
 use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
 use craft\gatsbyhelper\services\Deltas;
+use craft\helpers\Html;
 use craft\models\FieldLayout;
 use craft\services\Fields;
 use craft\services\Gc;
@@ -110,6 +113,7 @@ class Plugin extends BasePlugin
         $this->_registerGatsbyHelper();
         $this->_registerFeedMeSupport();
         $this->_registerConditionFieldRuleRemoval();
+        $this->_registerDefaultBlockTypeIcon();
     }
 
     /**
@@ -301,6 +305,27 @@ class Plugin extends BasePlugin
                         $event->conditionRuleTypes,
                         fn($type) => !isset($type['fieldUid'])
                     );
+                }
+            }
+        );
+    }
+
+    private function _registerDefaultBlockTypeIcon()
+    {
+        Event::on(
+            ElementsController::class,
+            ElementsController::EVENT_DEFINE_EDITOR_CONTENT,
+            function(DefineElementEditorHtmlEvent $event) {
+                if ($this->getSettings()->useVisualButtons && !$event->static) {
+                    $svg = Html::tag(
+                        'div',
+                        Html::modifyTagAttributes(
+                            Html::svg('@benf/neo/icon.svg'),
+                            ['id' => 'ni-icon'],
+                        ),
+                        ['class' => 'hidden'],
+                    );
+                    $event->html = $svg . $event->html;
                 }
             }
         );

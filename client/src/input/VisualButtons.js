@@ -71,11 +71,14 @@ class VisualButtons extends BlockSelector {
         }
 
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
+        const defaultIconId = 'ni-icon'
+        const blockTypeIconId = `fields-${defaultIconId}-${item.getHandle()}`
+        const hasBlockTypeIcon = this.$ownerContainer?.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
         buttonsHtml.push(`
               <li>
                 <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">
                   <svg class="ni_visualbuttons_menu_icon">
-                    <use href="#fields-ni-icon-${item.getHandle()}"></use>
+                    <use href="#${hasBlockTypeIcon ? blockTypeIconId : defaultIconId}"></use>
                   </svg>
                   <span>${item.getName()}</span>
                 </a>
