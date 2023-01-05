@@ -37,7 +37,7 @@ return [
     'Block type' => 'Type de bloc',
     'Group' => 'Groupe',
     'Settings' => 'Réglages',
-    'Field Layout' => 'Réglage du champ',
+    'Field Layout' => 'Réglage des champs',
     'Neo' => 'Neo',
     '{attribute} should contain at least {min, number} {min, plural, one{block} other{blocks}}.' => '{attribute} doit contenir au moins {min, number} {min, plural, one{block} other{blocks}}.',
     '{attribute} should contain at most {max, number} {max, plural, one{block} other{blocks}}.' => '{attribute} doit contenir au plus {max, number} {max, plural, one{block} other{blocks}}.',
