@@ -13,7 +13,7 @@
     <div class="hidden">
         {% for blockType in blockTypes|filter(bt => bt.iconId is not null) %}
             {{ svg(blockType.icon)|attr({
-                id: "ni-icon-#{blockType.handle}",
+                id: "ni-icon-#{handle}-#{blockType.handle}",
             }) }}
         {% endfor %}
     </div>

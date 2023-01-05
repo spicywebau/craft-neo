@@ -34,7 +34,7 @@ class VisualButtons extends BlockSelector {
       ? this.$ownerContainer.attr('class').match(/ni_block--([^\s]+)/)[1]
       : null
     const ungroupChildBlockTypes = ownerBlockType !== null &&
-      !this._field.getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
+      !this.getField().getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
     const buttonsHtml = []
     let currentGroup = null
 
@@ -72,7 +72,7 @@ class VisualButtons extends BlockSelector {
 
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         const defaultIconId = 'ni-icon'
-        const blockTypeIconId = `fields-${defaultIconId}-${item.getHandle()}`
+        const blockTypeIconId = `fields-${defaultIconId}-${this.getField().getName()}-${item.getHandle()}`
         const hasBlockTypeIcon = this.$ownerContainer?.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
         buttonsHtml.push(`
               <li>

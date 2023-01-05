@@ -34,7 +34,7 @@ class Buttons extends BlockSelector {
       ? this.$ownerContainer.attr('class').match(/ni_block--([^\s]+)/)[1]
       : null
     const ungroupChildBlockTypes = ownerBlockType !== null &&
-      !this._field.getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
+      !this.getField().getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
     const buttonsHtml = []
     let blockTypesHtml = []
     let currentGroup = null

@@ -30,6 +30,10 @@ class BlockSelector {
     this._field = settings.field
   }
 
+  getField () {
+    return this._field
+  }
+
   getBlockTypes () {
     return Array.from(this._blockTypes)
   }
