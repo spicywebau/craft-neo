@@ -19,7 +19,7 @@ return [
 	'Reorder' => 'Réordonner',
 	'Add a block' => 'Ajouter un bloc',
 	'Name' => 'Nom',
-	'What this block type will be called in the CP.' => 'Nom du bloc dans le panneau de contrôle',
+	'What this block type will be called in the CP.' => 'Nom de ce bloc dans le panneau de contrôle',
 	'Handle' => 'Étiquette',
 	'How you’ll refer to this block type in the templates.' => 'La façon dont vous allez faire référence à ce champ dans les templates.',
 	'Description' => 'Description',
