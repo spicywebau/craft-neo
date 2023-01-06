@@ -11,3 +11,7 @@ This setting, which defaults to `true`, controls the global setting for whether 
 ## `optimiseSearchIndexing`
 
 This setting, which defaults to `true`, controls whether to skip updating search indexes for Neo blocks that have no sub-fields set to use their values as search keywords, or that belong to Neo fields that aren't set to use the field's values as search keywords.
+
+## `useNewBlockGrid`
+
+This setting, which defaults to `false`, controls whether to use a new block grid on Neo input fields, instead of new block buttons/dropdowns.
