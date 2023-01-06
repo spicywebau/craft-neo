@@ -2,12 +2,12 @@
 
 namespace benf\neo\services;
 
-use benf\neo\Field;
 use benf\neo\assets\SettingsAsset;
 use benf\neo\elements\Block;
 use benf\neo\errors\BlockTypeNotFoundException;
 use benf\neo\events\BlockTypeEvent;
 use benf\neo\events\SetConditionElementTypesEvent;
+use benf\neo\Field;
 use benf\neo\helpers\Memoize;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
@@ -15,12 +15,12 @@ use benf\neo\Plugin as Neo;
 use benf\neo\records\BlockType as BlockTypeRecord;
 use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
 use Craft;
-use craft\db\Query;
-use craft\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
+use craft\db\Query;
+use craft\db\Table;
 use craft\elements\Address;
 use craft\elements\Asset;
 use craft\elements\Category;

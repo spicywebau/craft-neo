@@ -9,7 +9,6 @@ use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use Craft;
 use craft\helpers\Json;
-use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
