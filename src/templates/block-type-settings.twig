@@ -44,25 +44,29 @@
             }
         }) }}
 
-        {{ forms.elementSelectField({
-            id: 'iconId',
-            name: 'iconId',
-            label: 'Icon'|t('neo'),
-            instructions: 'The SVG icon to use for this block type, if Neo is set to use the new block grid.'|t('neo'),
-            value: blockType ? [blockType.iconId] : null,
-            errors: blockType ? blockType.getErrors('iconId') : null,
-            elements: blockType and blockType.iconId ? [blockType.icon] : null,
-            elementType: 'craft\\elements\\Asset',
-            single: true,
-            viewMode: 'large',
-            criteria: {
-                kind: 'image',
-                filename: '*.svg',
-            },
-            containerAttributes: {
-                'data-neo-bts': 'container.iconId'
-            },
-        }) }}
+        {% if craft.app.plugins.getPlugin('neo').settings.useNewBlockGrid %}
+            {{ forms.elementSelectField({
+                id: 'iconId',
+                name: 'iconId',
+                label: 'Icon'|t('neo'),
+                instructions: 'The SVG icon to use for this block type.'|t('neo'),
+                value: blockType ? [blockType.iconId] : null,
+                errors: blockType ? blockType.getErrors('iconId') : null,
+                elements: blockType and blockType.iconId ? [blockType.icon] : null,
+                elementType: 'craft\\elements\\Asset',
+                single: true,
+                viewMode: 'large',
+                criteria: {
+                    kind: 'image',
+                    filename: '*.svg',
+                },
+                containerAttributes: {
+                    'data-neo-bts': 'container.iconId'
+                },
+            }) }}
+        {% else %}
+            <input type="hidden" name="iconId" value="{{ blockType ? blockType.iconId : '' }}">
+        {% endif %}
 
         <div data-neo-bts="container.enabled">
             {{ forms.lightswitchField({
