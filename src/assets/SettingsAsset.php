@@ -25,24 +25,8 @@ use craft\web\assets\cp\CpAsset;
 class SettingsAsset extends AssetBundle
 {
     /**
-     * @event SetConditionElementTypesEvent The event that's triggered when setting the element types for setting
-     * conditions on when block types can be used
-     *
-     * ```php
-     * use benf\neo\assets\SettingsAsset;
-     * use benf\neo\events\SetConditionElementTypesEvent;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     SettingsAsset::class,
-     *     SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES,
-     *     function (SetConditionElementTypesEvent $event) {
-     *         $event->elementTypes[] = \some\added\ElementType::class;
-     *     }
-     * );
-     * ```
-     *
      * @since 3.2.0
+     * @deprecated in 3.6.0; use `benf\neo\services\BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES` instead
      */
     public const EVENT_SET_CONDITION_ELEMENT_TYPES = 'setConditionElementTypes';
 

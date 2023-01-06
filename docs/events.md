@@ -68,13 +68,13 @@ A `SetConditionElementTypesEvent` is triggered when loading a Neo field's settin
 ### Example
 
 ```php
-use benf\neo\assets\SettingsAsset;
 use benf\neo\events\SetConditionElementTypesEvent;
+use benf\neo\services\BlockTypes;
 use yii\base\Event;
 
 Event::on(
-    SettingsAsset::class,
-    SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES,
+    BlockTypes::class,
+    BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES,
     function (SetConditionElementTypesEvent $event) {
         $event->elementTypes[] = \some\added\ElementType::class;
     }

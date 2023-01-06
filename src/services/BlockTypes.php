@@ -61,6 +61,28 @@ class BlockTypes extends Component
     public const EVENT_AFTER_SAVE_BLOCK_TYPE = 'afterSaveNeoBlockType';
 
     /**
+     * @event SetConditionElementTypesEvent The event that's triggered when setting the element types for setting
+     * conditions on when block types can be used
+     *
+     * ```php
+     * use benf\neo\events\SetConditionElementTypesEvent;
+     * use benf\neo\services\BlockTypes;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     BlockTypes::class,
+     *     BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES,
+     *     function (SetConditionElementTypesEvent $event) {
+     *         $event->elementTypes[] = \some\added\ElementType::class;
+     *     }
+     * );
+     * ```
+     *
+     * @since 3.6.0
+     */
+    public const EVENT_SET_CONDITION_ELEMENT_TYPES = 'setConditionElementTypes';
+
+    /**
      * @var string[]|null Supported element types for setting conditions on when block types can be used
      */
     private ?array $_conditionElementTypes = null;
@@ -851,11 +873,17 @@ class BlockTypes extends Component
     private function _getConditions(?BlockType $blockType = null): array
     {
         if ($this->_conditionElementTypes === null) {
-            $event = new SetConditionElementTypesEvent([
+            // TODO: remove $event1 in Neo 4
+            $event1 = new SetConditionElementTypesEvent([
                 'elementTypes' => $this->_getSupportedConditionElementTypes(),
             ]);
-            Event::trigger(SettingsAsset::class, SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES, $event);
-            $this->_conditionElementTypes = $event->elementTypes;
+            Event::trigger(SettingsAsset::class, SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES, $event1);
+
+            $event2 = new SetConditionElementTypesEvent([
+                'elementTypes' => $event1->elementTypes,
+            ]);
+            $this->trigger(self::EVENT_SET_CONDITION_ELEMENT_TYPES, $event2);
+            $this->_conditionElementTypes = $event2->elementTypes;
         }
 
         $conditionsService = Craft::$app->getConditions();
