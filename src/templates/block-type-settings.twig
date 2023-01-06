@@ -48,7 +48,7 @@
             id: 'iconId',
             name: 'iconId',
             label: 'Icon'|t('neo'),
-            instructions: 'The SVG icon to use for this block type, if Neo is set to use visual buttons to add new blocks.'|t('neo'),
+            instructions: 'The SVG icon to use for this block type, if Neo is set to use the new block grid.'|t('neo'),
             value: blockType ? [blockType.iconId] : null,
             errors: blockType ? blockType.getErrors('iconId') : null,
             elements: blockType and blockType.iconId ? [blockType.icon] : null,

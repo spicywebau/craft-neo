@@ -8,7 +8,7 @@ const _defaults = {
   blocks: null
 }
 
-class VisualButtons extends BlockSelector {
+class NewBlockGrid extends BlockSelector {
   constructor (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
     super(settings)
@@ -39,7 +39,7 @@ class VisualButtons extends BlockSelector {
     let currentGroup = null
 
     buttonsHtml.push(`
-        <div class="ni_visualbuttons">
+        <div class="ni_buttons">
           <div class="btn dashed add icon menubtn" data-neo-bn="container.menu">
             ${Craft.t('neo', 'Add a block')}
           </div>`)
@@ -47,7 +47,7 @@ class VisualButtons extends BlockSelector {
     currentGroup = null
     let lastGroupHadBlockTypes = false
     buttonsHtml.push(`
-          <div class="menu ni_visualbuttons_menu" data-neo-bn="container.buttons">`)
+          <div class="menu ni_newblockgrid" data-neo-bn="container.buttons">`)
 
     for (const item of this._items) {
       const type = item.getType()
@@ -77,7 +77,7 @@ class VisualButtons extends BlockSelector {
         buttonsHtml.push(`
               <li>
                 <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">
-                  <svg class="ni_visualbuttons_menu_icon">
+                  <svg class="ni_newblockgrid_icon">
                     <use href="#${hasBlockTypeIcon ? blockTypeIconId : defaultIconId}"></use>
                   </svg>
                   <span>${item.getName()}</span>
@@ -172,6 +172,6 @@ class VisualButtons extends BlockSelector {
 
 export default GarnishBlockSelector.extend({
   init (settings = {}) {
-    this.base(new VisualButtons(settings))
+    this.base(new NewBlockGrid(settings))
   }
 })

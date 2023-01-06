@@ -8,8 +8,8 @@
     ],
 } %}
 
-{# Output the block type icons, for the visual buttons #}
-{% if craft.app.plugins.getPlugin('neo').settings.useVisualButtons %}
+{# Output the block type icons, for the new block grid #}
+{% if craft.app.plugins.getPlugin('neo').settings.useNewBlockGrid %}
     <div class="hidden">
         {% for blockType in blockTypes|filter(bt => bt.iconId is not null) %}
             {{ svg(blockType.icon)|attr({

@@ -24,7 +24,7 @@ return [
     'How you’ll refer to this block type in the templates.' => 'How you’ll refer to this block type in the templates.',
     'Description' => 'Description',
     'Icon' => 'Icon',
-    'The SVG icon to use for this block type, if Neo is set to use visual buttons to add new blocks.' => 'The SVG icon to use for this block type, if Neo is set to use visual buttons to add new blocks.',
+    'The SVG icon to use for this block type, if Neo is set to use the new block grid.' => 'The SVG icon to use for this block type, if Neo is set to use the new block grid.',
     'Enabled' => 'Enabled',
     'Whether this block type is allowed to be used.' => 'Whether this block type is allowed to be used.',
     'Max Blocks' => 'Max Blocks',

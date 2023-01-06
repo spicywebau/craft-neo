@@ -34,7 +34,7 @@ class Settings extends Model
      * @var bool
      * @since 3.6.0
      */
-    public bool $useVisualButtons = false;
+    public bool $useNewBlockGrid = false;
 
     /**
      * @inheritdoc
@@ -42,7 +42,15 @@ class Settings extends Model
     protected function defineRules(): array
     {
         return [
-            [['collapseAllBlocks', 'optimiseSearchIndexing', 'defaultAlwaysShowGroupDropdowns', 'useVisualButtons'], 'boolean'],
+            [
+                [
+                    'collapseAllBlocks',
+                    'optimiseSearchIndexing',
+                    'defaultAlwaysShowGroupDropdowns',
+                    'useNewBlockGrid',
+                ],
+                'boolean',
+            ],
         ];
     }
 }

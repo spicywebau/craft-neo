@@ -9,7 +9,7 @@ import BlockType from './BlockType'
 import Group from './Group'
 import Block from './Block'
 import Buttons from './Buttons'
-import VisualButtons from './VisualButtons'
+import NewBlockGrid from './NewBlockGrid'
 
 import './styles/input.scss'
 
@@ -46,7 +46,7 @@ export default Garnish.Base.extend({
     this._maxLevels = settings.maxLevels
     this._ownerId = null
     this._showBlockTypeHandles = settings.showBlockTypeHandles
-    this._buttonClass = settings.useVisualButtons ? VisualButtons : Buttons
+    this._buttonClass = settings.useNewBlockGrid ? NewBlockGrid : Buttons
 
     const ownerIdElement = $('[name="setId"], [name="entryId"], [name="categoryId"]')
     if (ownerIdElement.length) {
