@@ -4,7 +4,7 @@
   "description": "A Matrix-like field type that uses existing fields",
   "main": "webpack.config.js",
   "scripts": {
-    "build": "./node_modules/.bin/standard && ./node_modules/.bin/webpack --config ./client/build/webpack.config.js"
+    "build": "./node_modules/.bin/standard && ./node_modules/.bin/webpack"
   },
   "repository": {
     "type": "git",
