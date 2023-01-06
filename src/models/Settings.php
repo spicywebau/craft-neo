@@ -31,12 +31,26 @@ class Settings extends Model
     public bool $defaultAlwaysShowGroupDropdowns = true;
 
     /**
+     * @var bool
+     * @since 3.6.0
+     */
+    public bool $useNewBlockGrid = false;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
     {
         return [
-            [['collapseAllBlocks', 'optimiseSearchIndexing', 'defaultAlwaysShowGroupDropdowns'], 'boolean'],
+            [
+                [
+                    'collapseAllBlocks',
+                    'optimiseSearchIndexing',
+                    'defaultAlwaysShowGroupDropdowns',
+                    'useNewBlockGrid',
+                ],
+                'boolean',
+            ],
         ];
     }
 }

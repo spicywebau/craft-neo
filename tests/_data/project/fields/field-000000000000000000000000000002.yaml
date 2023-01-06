@@ -1,0 +1,19 @@
+columnSuffix: '00000002'
+contentColumnType: text
+fieldGroup: fieldgroup-0000000000000000000000002
+handle: plainTextField
+instructions: null
+name: 'Plain Text Field'
+searchable: true
+settings:
+  byteLimit: null
+  charLimit: null
+  code: false
+  columnType: null
+  initialRows: 4
+  multiline: false
+  placeholder: null
+  uiMode: normal
+translationKeyFormat: null
+translationMethod: none
+type: craft\fields\PlainText

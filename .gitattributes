@@ -1,0 +1,10 @@
+/.ddev/ export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/client/ export-ignore
+/codeception.yml export-ignore
+/composer.lock export-ignore
+/ecs.php export-ignore
+/package-lock.json export-ignore
+/package.json export-ignore
+/tests/ export-ignore

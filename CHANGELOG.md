@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased (3.6)
+
+### Added
+- Added the `useNewBlockGrid` plugin setting
+- Added `benf\neo\controllers\Configurator::actionRenderBlockType()`
+- Added `benf\neo\models\BlockType::$iconId`
+- Added `benf\neo\services\BlockTypes::renderBlockTypeSettings()`
+
 ## 3.5.16 - 2023-01-04
 
 ### Fixed

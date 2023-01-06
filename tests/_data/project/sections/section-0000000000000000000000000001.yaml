@@ -1,0 +1,11 @@
+enableVersioning: true
+handle: neoTestChannel
+name: 'Neo Test Channel'
+propagationMethod: all
+siteSettings:
+  site-0000000000000000000000000000001:
+    enabledByDefault: true
+    hasUrls: false
+    template: null
+    uriFormat: null
+type: channel

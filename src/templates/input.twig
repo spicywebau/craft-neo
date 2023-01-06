@@ -8,6 +8,17 @@
     ],
 } %}
 
+{# Output the block type icons, for the new block grid #}
+{% if craft.app.plugins.getPlugin('neo').settings.useNewBlockGrid %}
+    <div class="hidden">
+        {% for blockType in blockTypes|filter(bt => bt.iconId is not null) %}
+            {{ svg(blockType.icon)|attr({
+                id: "ni-icon-#{handle}-#{blockType.handle}",
+            }) }}
+        {% endfor %}
+    </div>
+{% endif %}
+
 <input type="hidden" name="{{ handle }}" value="">
 <div {{ attr(inputAttributes) }}>
     <span aria-live="assertive" class="visually-hidden" data-status-message></span>

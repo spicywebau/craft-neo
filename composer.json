@@ -33,6 +33,11 @@
       "benf\\neo\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "spicyweb\\neotests\\": "tests/"
+    }
+  },
   "extra": {
     "handle": "neo",
     "name": "Neo",
@@ -51,7 +56,12 @@
   "prefer-stable": true,
   "require-dev": {
     "craftcms/rector": "dev-main",
-    "craftcms/ecs": "dev-main"
+    "craftcms/ecs": "dev-main",
+    "codeception/codeception": "^4.0",
+    "codeception/module-phpbrowser": "^1.0.2",
+    "codeception/module-yii2": "^1.1.5",
+    "codeception/module-asserts": "*",
+    "vlucas/phpdotenv": "^3.0"
   },
   "scripts": {
     "check-cs": "ecs check --ansi",

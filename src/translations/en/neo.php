@@ -23,6 +23,8 @@ return [
     'Handle' => 'Handle',
     'How you’ll refer to this block type in the templates.' => 'How you’ll refer to this block type in the templates.',
     'Description' => 'Description',
+    'Icon' => 'Icon',
+    'The SVG icon to use for this block type.' => 'The SVG icon to use for this block type.',
     'Enabled' => 'Enabled',
     'Whether this block type is allowed to be used.' => 'Whether this block type is allowed to be used.',
     'Max Blocks' => 'Max Blocks',

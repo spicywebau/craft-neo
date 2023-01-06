@@ -1,3 +1,5 @@
+@use "sass:math";
+
 $preview-reduction: 80px;
 $topbar-background-color-level-odd: #ebf2fa;
 $topbar-background-color-level-even: #ebf2fa80;
@@ -33,6 +35,41 @@ $topbar-background-color-transparent: #ebf2fa00;
 
             body.ltr & { left:  0; }
             body.rtl & { right: 0; }
+        }
+    }
+
+    &_newblockgrid {
+        width: 500px;
+        max-width: calc(100vw - 98px) !important;
+
+        ul {
+            display: flex;
+            flex-flow: wrap;
+            width: 100%;
+
+            &:not(:last-child) {
+                border-bottom: 1px solid #e3e5e8;
+            }
+
+            > li {
+                display: flex;
+                flex-direction: column;
+                padding: 10px 14px;
+                width: 118px;
+
+                > a {
+                    flex-grow: 1;
+                    padding: 10px 14px !important;
+                    text-align: center !important;
+                    white-space: normal;
+                }
+            }
+        }
+
+        &_icon {
+            margin-bottom: 10px;
+            width: 90px;
+            height: 90px;
         }
     }
 
