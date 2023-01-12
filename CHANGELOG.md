@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.16 - 2023-01-12
 
 ### Added
 - Added `benf\neo\jobs\DeleteBlock`
