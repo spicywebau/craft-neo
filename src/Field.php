@@ -10,6 +10,7 @@ use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
 use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
 use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
 use benf\neo\gql\types\input\Block as NeoBlockInputType;
+use benf\neo\jobs\DeleteBlock;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
@@ -737,9 +738,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             return false;
         }
 
-        $sitesService = Craft::$app->getSites();
-        $elementsService = Craft::$app->getElements();
-
         // Craft hard-deletes element structure nodes even when soft-deleting an element, which means we lose all Neo
         // field structure data (i.e. block order, levels) when its owner is soft-deleted.  We need to get all block
         // structures for this field/owner before soft-deleting the blocks, and re-save them after the blocks are
@@ -747,58 +745,60 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $blockStructures = [];
         $blocksBySite = [];
 
-        // Get the structures for each site
-        $structureRows = (new Query())
-            ->select([
-                'id',
-                'structureId',
-                'ownerSiteId',
-                'ownerId',
-                'fieldId',
-            ])
-            ->from(['{{%neoblockstructures}}'])
-            ->where([
-                'fieldId' => $this->id,
-                'ownerId' => $element->id,
-            ])
-            ->all();
+        if (!$element->hardDelete) {
+            // Get the structures for each site
+            $structureRows = (new Query())
+                ->select([
+                    'id',
+                    'structureId',
+                    'ownerSiteId',
+                    'ownerId',
+                    'fieldId',
+                ])
+                ->from(['{{%neoblockstructures}}'])
+                ->where([
+                    'fieldId' => $this->id,
+                    'ownerId' => $element->id,
+                ])
+                ->all();
 
-        foreach ($structureRows as $row) {
-            $blockStructures[] = new BlockStructure($row);
-        }
-
-        // Get the blocks for each structure
-        foreach ($blockStructures as $blockStructure) {
-            // Site IDs start from 1 -- let's treat non-localized blocks as site 0
-            $key = $blockStructure->ownerSiteId ?? 0;
-
-            $allBlocksQuery = Block::find()
-                ->anyStatus()
-                ->fieldId($this->id)
-                ->ownerId($element->id);
-
-            if ($key !== 0) {
-                $allBlocksQuery->siteId($key);
+            foreach ($structureRows as $row) {
+                $blockStructures[] = new BlockStructure($row);
             }
 
-            $allBlocks = $allBlocksQuery->all();
+            // Get the blocks for each structure
+            foreach ($blockStructures as $blockStructure) {
+                // Site IDs start from 1 -- let's treat non-localized blocks as site 0
+                $key = $blockStructure->ownerSiteId ?? 0;
 
-            // if the neo block structure doesn't have the ownerSiteId set and has blocks
-            // set the ownerSiteId of the neo block structure.
+                $allBlocksQuery = Block::find()
+                    ->anyStatus()
+                    ->fieldId($this->id)
+                    ->ownerId($element->id);
 
-            // it's set from the first block because we got all blocks related to this structure beforehand
-            // so the siteId should be the same for all blocks.
-            if (empty($blockStructure->ownerSiteId) && !empty($allBlocks)) {
-                $blockStructure->ownerSiteId = $allBlocks[0]->siteId;
-                // need to set the new key since the ownersiteid is now set
-                $key = $blockStructure->ownerSiteId;
+                if ($key !== 0) {
+                    $allBlocksQuery->siteId($key);
+                }
+
+                $allBlocks = $allBlocksQuery->all();
+
+                // if the neo block structure doesn't have the ownerSiteId set and has blocks
+                // set the ownerSiteId of the neo block structure.
+
+                // it's set from the first block because we got all blocks related to this structure beforehand
+                // so the siteId should be the same for all blocks.
+                if (empty($blockStructure->ownerSiteId) && !empty($allBlocks)) {
+                    $blockStructure->ownerSiteId = $allBlocks[0]->siteId;
+                    // need to set the new key since the ownersiteid is now set
+                    $key = $blockStructure->ownerSiteId;
+                }
+
+                $blocksBySite[$key] = $allBlocks;
             }
-
-            $blocksBySite[$key] = $allBlocks;
         }
 
         // Delete all Neo blocks for this element and field
-        foreach ($sitesService->getAllSiteIds() as $siteId) {
+        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
             $blocks = Block::find()
                 ->anyStatus()
                 ->fieldId($this->id)
@@ -808,8 +808,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->all();
 
             foreach ($blocks as $block) {
-                $block->deletedWithOwner = true;
-                $elementsService->deleteElement($block);
+                Queue::push(new DeleteBlock([
+                    'blockId' => $block->id,
+                    'siteId' => $siteId,
+                    'deletedWithOwner' => true,
+                    'hardDelete' => $element->hardDelete,
+                ]));
             }
         }
 

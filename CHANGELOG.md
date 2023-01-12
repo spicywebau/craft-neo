@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `benf\neo\jobs\DeleteBlock`
+
+### Fixed
+- Fixed performance issues when applying entry drafts (deletion of the old draft Neo blocks is now performed by queue jobs)
+
 ## 2.13.15 - 2022-07-19
 
 ### Fixed

@@ -67,4 +67,5 @@ return [
     'By converting to Matrix, structural information will be lost.' => 'By converting to Matrix, structural information will be lost.',
     'Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.' => 'Are you sure? This is a one way operation. You cannot undo conversion from Neo to Matrix.',
     'Could not convert Neo field to Matrix' => 'Could not convert Neo field to Matrix',
+    'Deleting old Neo blocks' => 'Deleting old Neo blocks',
 ];
