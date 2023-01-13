@@ -320,7 +320,7 @@ class Plugin extends BasePlugin
                     $svg = Html::tag(
                         'div',
                         Html::modifyTagAttributes(
-                            Html::svg('@benf/neo/icon.svg'),
+                            Html::svg('@benf/neo/resources/default-new-block-icon.svg'),
                             ['id' => 'ni-icon'],
                         ),
                         ['class' => 'hidden'],
