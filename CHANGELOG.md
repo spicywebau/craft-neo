@@ -8,6 +8,7 @@
 - Added `benf\neo\models\BlockType::$iconId`
 - Added `benf\neo\services\BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES`
 - Added `benf\neo\services\BlockTypes::renderBlockTypeSettings()`
+- Added French translation (thanks @scandella)
 
 ### Deprecated
 - Deprecated `benf\neo\assets\SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES`; use `benf\neo\services\BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES` instead
