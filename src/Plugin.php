@@ -70,6 +70,11 @@ class Plugin extends BasePlugin
     public string $minVersionRequired = '2.13.0';
 
     /**
+     * @var bool
+     */
+    public bool $hasCpSettings = true;
+
+    /**
      * @inheritdoc
      */
     public $controllerMap = [
@@ -122,6 +127,16 @@ class Plugin extends BasePlugin
     protected function createSettingsModel(): ?Model
     {
         return new Settings();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function settingsHtml(): ?string
+    {
+        return Craft::$app->getView()->renderTemplate('neo/plugin-settings', [
+            'settings' => $this->getSettings(),
+        ]);
     }
 
     /**

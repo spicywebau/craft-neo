@@ -1,0 +1,35 @@
+{% import '_includes/forms' as forms %}
+
+<div class="settings">
+    {{ forms.lightswitchField({
+        label: 'Collapse all blocks?'|t('neo'),
+        instructions: 'Whether all blocks should display as collapsed when loading an element editor.'|t('neo'),
+        id: 'collapseAllBlocks',
+        name: 'collapseAllBlocks',
+        on: settings.collapseAllBlocks,
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Default ’Always Show Dropdown’ setting'|t('neo'),
+        instructions: 'Whether block type groups will always show as a dropdown menu, if their ’Always Show Dropdown’ setting is set to use the global setting.'|t('neo'),
+        id: 'defaultAlwaysShowGroupDropdowns',
+        name: 'defaultAlwaysShowGroupDropdowns',
+        on: settings.defaultAlwaysShowGroupDropdowns,
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Optimise search indexing?'|t('neo'),
+        instructions: 'Whether to skip updating search indexes for Neo blocks that have no sub-fields set to use their values as search keywords, or that belong to Neo fields that aren’t set to use the field’s values as search keywords.'|t('neo'),
+        id: 'optimiseSearchIndexing',
+        name: 'optimiseSearchIndexing',
+        on: settings.optimiseSearchIndexing,
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Use the new block grid?'|t('neo'),
+        instructions: 'Whether to use the new block grid, instead of new block buttons and dropdowns.'|t('neo'),
+        id: 'useNewBlockGrid',
+        name: 'useNewBlockGrid',
+        on: settings.useNewBlockGrid,
+    }) }}
+</div>
