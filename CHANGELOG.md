@@ -477,6 +477,14 @@
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
 
+## 2.13.16 - 2023-01-12
+
+### Added
+- Added `benf\neo\jobs\DeleteBlock`
+
+### Fixed
+- Fixed performance issues when applying entry drafts (deletion of the old draft Neo blocks is now performed by queue jobs)
+
 ## 2.13.15 - 2022-07-19
 
 ### Fixed
