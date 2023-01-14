@@ -276,6 +276,8 @@ export default Garnish.Base.extend({
       }
     }
 
+    Craft.ElementThumbLoader.retryAll()
+
     if (focusInput && settings && !Garnish.isMobileBrowser()) {
       setTimeout(() => settings.getFocusInput().focus(), 100)
     }
