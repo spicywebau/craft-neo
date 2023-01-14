@@ -32,6 +32,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\feedme\events\RegisterFeedMeFieldsEvent;
 use craft\feedme\services\Fields as FeedMeFields;
+use craft\fields\Assets;
 use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
 use craft\gatsbyhelper\services\Deltas;
 use craft\helpers\Html;
@@ -136,6 +137,9 @@ class Plugin extends BasePlugin
     {
         return Craft::$app->getView()->renderTemplate('neo/plugin-settings', [
             'settings' => $this->getSettings(),
+            'blockTypeIconSourceOptions' => Craft::$app->getFields()
+                ->createField(Assets::class)
+                ->getSourceOptions(),
         ]);
     }
 

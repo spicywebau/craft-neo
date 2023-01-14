@@ -4,6 +4,7 @@
 
 ### Added
 - Added the `useNewBlockGrid` plugin setting
+- Added the `blockTypeIconSources` plugin setting
 - Added `benf\neo\controllers\Configurator::actionRenderBlockType()`
 - Added `benf\neo\models\BlockType::$iconId`
 - Added `benf\neo\services\BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES`

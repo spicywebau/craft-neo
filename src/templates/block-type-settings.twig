@@ -1,5 +1,6 @@
 {% import '_includes/forms' as forms %}
 
+{% set neoSettings = craft.app.plugins.getPlugin('neo').settings %}
 {% set blockTypeSortOrder = blockType ? blockType.sortOrder : '__NEOBLOCKTYPE_SORTORDER__' %}
 
 <div>
@@ -44,7 +45,7 @@
             }
         }) }}
 
-        {% if craft.app.plugins.getPlugin('neo').settings.useNewBlockGrid %}
+        {% if neoSettings.useNewBlockGrid %}
             {{ forms.elementSelectField({
                 id: 'iconId',
                 name: 'iconId',
@@ -56,6 +57,7 @@
                 elementType: 'craft\\elements\\Asset',
                 single: true,
                 viewMode: 'large',
+                sources: neoSettings.blockTypeIconSources,
                 criteria: {
                     kind: 'image',
                     filename: '*.svg',

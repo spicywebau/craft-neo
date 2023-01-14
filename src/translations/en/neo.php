@@ -122,5 +122,7 @@ return [
     'Whether to skip updating search indexes for Neo blocks that have no sub-fields set to use their values as search keywords, or that belong to Neo fields that aren’t set to use the field’s values as search keywords.' => 'Whether to skip updating search indexes for Neo blocks that have no sub-fields set to use their values as search keywords, or that belong to Neo fields that aren’t set to use the field’s values as search keywords.',
     'Use the new block grid?' => 'Use the new block grid?',
     'Whether to use the new block grid, instead of new block buttons and dropdowns.' => 'Whether to use the new block grid, instead of new block buttons and dropdowns.',
+    'Block type icon sources' => 'Block type icon sources',
+    'Which sources do you want to select block type icons from?' => 'Which sources do you want to select block type icons from?',
     'Deleting old Neo blocks' => 'Deleting old Neo blocks',
 ];

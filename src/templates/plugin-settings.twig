@@ -31,5 +31,21 @@
         id: 'useNewBlockGrid',
         name: 'useNewBlockGrid',
         on: settings.useNewBlockGrid,
+        toggle: 'block-type-icon-sources-container',
     }) }}
+
+    {% tag('div') with {
+        id: 'block-type-icon-sources-container',
+        class: not settings.useNewBlockGrid ? 'hidden' : false,
+    } %}
+        {{ forms.checkboxSelectField({
+            label: 'Block type icon sources'|t('neo'),
+            instructions: 'Which sources do you want to select block type icons from?'|t('neo'),
+            id: 'blockTypeIconSources',
+            name: 'blockTypeIconSources',
+            options: blockTypeIconSourceOptions,
+            values: settings.blockTypeIconSources,
+            showAllOption: true,
+        }) }}
+    {% endtag %}
 </div>

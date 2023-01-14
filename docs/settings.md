@@ -15,3 +15,7 @@ This setting, which defaults to `true`, controls whether to skip updating search
 ## `useNewBlockGrid`
 
 This setting, which defaults to `false`, controls whether to use a new block grid on Neo input fields, instead of new block buttons/dropdowns.
+
+## `blockTypeIconSources`
+
+If `useNewBlockGrid` is enabled, this setting, which defaults to `'*'` (allowing all sources), controls which icon asset sources are allowed to be used for setting block type icons.
