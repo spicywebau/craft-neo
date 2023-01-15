@@ -359,6 +359,7 @@ export default Garnish.Base.extend({
       const oldSettings = oldBlockType.getSettings()
       const settingsObj = {
         childBlocks: oldSettings.getChildBlocks(),
+        conditions: oldSettings.getConditions(),
         // Set a timestamp on the handle so it doesn't clash with the old one
         handle: `${oldSettings.getHandle()}_${Date.now()}`,
         id,
@@ -434,6 +435,7 @@ export default Garnish.Base.extend({
         const settings = blockType.getSettings()
         const data = {
           childBlocks: settings.getChildBlocks(),
+          conditions: settings.getConditions(),
           description: settings.getDescription(),
           enabled: settings.getEnabled(),
           iconId: settings.getIconId(),
@@ -471,6 +473,7 @@ export default Garnish.Base.extend({
     const settings = new BlockTypeSettings({
       childBlocks,
       childBlockTypes: this.getBlockTypes(),
+      conditions: data.conditions,
       description: data.description,
       iconId: data.iconId,
       enabled: data.enabled,

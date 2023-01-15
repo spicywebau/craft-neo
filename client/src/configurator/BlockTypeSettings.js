@@ -469,6 +469,50 @@ export default Settings.extend({
     }
   },
 
+  getConditions () {
+    NS.enter(this._templateNs)
+    const baseInputName = NS.toFieldName().replaceAll('\\', '\\\\')
+    NS.leave()
+    const baseConditionInputNameWithExtraSlash = `${baseInputName}[conditions]`
+    const baseConditionInputName = baseConditionInputNameWithExtraSlash.replaceAll('\\\\', '\\')
+    const conditionInputNames = this.$container
+      .find(`[name^="${baseConditionInputNameWithExtraSlash}"]`)
+      .get()
+      .map((condition) => condition.name)
+
+    const allFormData = new window.FormData(this.$container.closest('form').get(0))
+    const conditionsData = {}
+
+    conditionInputNames.forEach((conditionInputName) => {
+      let conditionsSubData = conditionsData
+      const conditionsCurrentPath = [baseConditionInputName]
+      const conditionsDataPath = conditionInputName
+        .replace(baseConditionInputName, '')
+        .slice(1, -1)
+        .split('][')
+
+      conditionsDataPath.forEach((pathStep, i) => {
+        conditionsCurrentPath.push(`[${pathStep}]`)
+
+        if (pathStep !== '' && !(pathStep in conditionsSubData)) {
+          if (pathStep === 'values') {
+            conditionsSubData[pathStep] = []
+          } else if (i < conditionsDataPath.length - 1) {
+            conditionsSubData[pathStep] = {}
+          } else {
+            conditionsSubData[pathStep] = allFormData.get(conditionsCurrentPath.join(''))
+          }
+        } else if (pathStep === '') {
+          conditionsSubData.push(...allFormData.getAll(conditionsCurrentPath.join('')))
+        }
+
+        conditionsSubData = conditionsSubData[pathStep]
+      })
+    })
+
+    return conditionsData
+  },
+
   _refreshChildBlocks () {
     const blockTypes = Array.from(this._childBlockTypes)
     const $options = this.$childBlocksContainer.children()

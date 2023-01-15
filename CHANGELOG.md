@@ -15,6 +15,9 @@
 ### Deprecated
 - Deprecated `benf\neo\assets\SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES`; use `benf\neo\services\BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES` instead
 
+### Fixed
+- Fixed a bug where, when pasting or cloning a block type, the block type conditions weren't being copied
+
 ## 3.5.16 - 2023-01-04
 
 ### Fixed
