@@ -6,6 +6,7 @@ use benf\neo\controllers\Configurator as ConfiguratorController;
 use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;
 use benf\neo\elements\Block;
+use benf\neo\enums\NewBlockButtonStyle;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\gql\interfaces\elements\Block as NeoGqlInterface;
 use benf\neo\integrations\feedme\Field as FeedMeField;
@@ -335,7 +336,7 @@ class Plugin extends BasePlugin
             ElementsController::class,
             ElementsController::EVENT_DEFINE_EDITOR_CONTENT,
             function(DefineElementEditorHtmlEvent $event) {
-                if ($this->getSettings()->useNewBlockGrid && !$event->static) {
+                if ($this->getSettings()->newBlockButtonStyle !== NewBlockButtonStyle::Matrix && !$event->static) {
                     $svg = Html::tag(
                         'div',
                         Html::modifyTagAttributes(

@@ -2,6 +2,7 @@
 
 namespace benf\neo\models;
 
+use benf\neo\enums\NewBlockButtonStyle;
 use craft\base\Model;
 
 /**
@@ -31,13 +32,13 @@ class Settings extends Model
     public bool $defaultAlwaysShowGroupDropdowns = true;
 
     /**
-     * @var bool
+     * @var string
      * @since 3.6.0
      */
-    public bool $useNewBlockGrid = false;
+    public string $newBlockButtonStyle = NewBlockButtonStyle::Matrix;
 
     /**
-     * @var string|array|null The asset sources block type icons can be selected from, if using the new block grid.
+     * @var string|array|null The asset sources block type icons can be selected from.
      * @since 3.6.0
      */
     public string|array|null $blockTypeIconSources = '*';
@@ -47,16 +48,27 @@ class Settings extends Model
      */
     protected function defineRules(): array
     {
-        return [
+        $rules = parent::defineRules();
+        $rules[] = [
             [
-                [
-                    'collapseAllBlocks',
-                    'optimiseSearchIndexing',
-                    'defaultAlwaysShowGroupDropdowns',
-                    'useNewBlockGrid',
-                ],
-                'boolean',
+                'collapseAllBlocks',
+                'optimiseSearchIndexing',
+                'defaultAlwaysShowGroupDropdowns',
+            ],
+            'boolean',
+        ];
+        $rules[] = [
+            [
+                'newBlockButtonStyle'
+            ],
+            'in',
+            'range' => [
+                NewBlockButtonStyle::Matrix,
+                NewBlockButtonStyle::Grid,
+                NewBlockButtonStyle::List,
             ],
         ];
+
+        return $rules;
     }
 }

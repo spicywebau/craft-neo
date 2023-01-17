@@ -156,7 +156,7 @@ class InputAsset extends FieldAsset
             'minLevels' => (int)$field->minLevels,
             'maxLevels' => (int)$field->maxLevels,
             'showBlockTypeHandles' => Craft::$app->getUser()->getIdentity()->getPreference('showFieldHandles'),
-            'useNewBlockGrid' => Neo::$plugin->getSettings()->useNewBlockGrid,
+            'newBlockButtonStyle' => Neo::$plugin->getSettings()->newBlockButtonStyle,
         ];
 
         $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);

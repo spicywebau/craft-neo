@@ -73,6 +73,32 @@ $topbar-background-color-transparent: #ebf2fa00;
         }
     }
 
+    &_newblocklist {
+        h6 {
+            margin-bottom: 14px;
+        }
+
+        ul {
+            width: 100%;
+
+            &:not(:last-child) {
+                padding-bottom: 14px;
+                border-bottom: 1px solid #e3e5e8;
+            }
+
+            > li > a {
+                padding: 8px 24px !important;
+                text-align: center !important;
+                white-space: normal;
+            }
+        }
+
+        &_icon {
+            width: 30px;
+            height: 30px;
+        }
+    }
+
     &_blocks {
 
         > .ni_buttons {

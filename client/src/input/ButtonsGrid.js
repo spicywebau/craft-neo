@@ -2,34 +2,11 @@ import $ from 'jquery'
 import Craft from 'craft'
 import { BlockSelector, GarnishBlockSelector } from './BlockSelector'
 
-const _defaults = {
-  maxBlocks: 0,
-  maxTopBlocks: 0,
-  blocks: null
-}
-
-class NewBlockGrid extends BlockSelector {
-  constructor (settings = {}) {
-    settings = Object.assign({}, _defaults, settings)
-    super(settings)
-
-    this._maxBlocks = settings.maxBlocks | 0
-    this._maxTopBlocks = settings.maxTopBlocks | 0
-
-    this.$container = this._generateButtons()
-
-    const $neo = this.$container.find('[data-neo-bn]')
-    this.$buttonsContainer = $neo.filter('[data-neo-bn="container.buttons"]')
-    this.$menuContainer = $neo.filter('[data-neo-bn="container.menu"]')
-    this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]')
-    this.$groupButtons = $neo.filter('[data-neo-bn="button.group"]')
-
-    if (settings.blocks) {
-      this.updateState(settings.blocks)
-    }
-  }
-
-  _generateButtons () {
+class ButtonsGrid extends BlockSelector {
+  /**
+   * @inheritdoc
+   */
+  renderButtons () {
     const ownerBlockType = this.$ownerContainer?.hasClass('ni_block')
       ? this.$ownerContainer.attr('class').match(/ni_block--([^\s]+)/)[1]
       : null
@@ -120,58 +97,10 @@ class NewBlockGrid extends BlockSelector {
       }
     }
   }
-
-  updateState (blocks = [], additionalCheck = null, block = null) {
-    additionalCheck = typeof additionalCheck === 'boolean' ? additionalCheck : true
-
-    const that = this
-
-    const totalTopBlocks = blocks.filter(block => block.isTopLevel()).length
-    const maxBlocksMet = this._maxBlocks > 0 && blocks.length >= this._maxBlocks
-    const maxTopBlocksMet = this._maxTopBlocks > 0 && totalTopBlocks >= this._maxTopBlocks
-
-    const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
-
-    this.$blockButtons.each(function () {
-      const $button = $(this)
-      let disabled = allDisabled
-
-      if (!disabled) {
-        const blockHasSameType = b => b.getBlockType().getHandle() === blockType.getHandle()
-        const blockType = that.getBlockTypeByButton($button)
-        const blocksOfType = blocks.filter(blockHasSameType)
-        const maxBlocksOfType = blockType.getMaxBlocks()
-
-        const maxSiblingBlocks = blockType.getMaxSiblingBlocks()
-        const siblingBlocksOfType = block !== null
-          ? block.getChildren(blocks).filter(blockHasSameType)
-          // This is at the top level
-          : blocks.filter(b => b.isTopLevel() && b.getBlockType().getHandle() === blockType.getHandle())
-
-        disabled ||= (maxBlocksOfType > 0 && blocksOfType.length >= maxBlocksOfType) ||
-          (maxSiblingBlocks > 0 && siblingBlocksOfType.length >= maxSiblingBlocks)
-      }
-
-      $button.toggleClass('disabled', disabled)
-    })
-
-    this.$groupButtons.each(function () {
-      const $button = $(this)
-      const menu = $button.data('menubtn')
-      let disabled = allDisabled
-
-      if (!disabled && menu) {
-        const $menuButtons = menu.menu.$options
-        disabled = $menuButtons.length === $menuButtons.filter('.disabled').length
-      }
-
-      $button.toggleClass('disabled', disabled)
-    })
-  }
 }
 
 export default GarnishBlockSelector.extend({
   init (settings = {}) {
-    this.base(new NewBlockGrid(settings))
+    this.base(new ButtonsGrid(settings))
   }
 })

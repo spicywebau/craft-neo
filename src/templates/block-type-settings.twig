@@ -45,7 +45,7 @@
             }
         }) }}
 
-        {% if neoSettings.useNewBlockGrid %}
+        {% if neoSettings.newBlockButtonStyle != 'matrix' %}
             {{ forms.elementSelectField({
                 id: 'iconId',
                 name: 'iconId',

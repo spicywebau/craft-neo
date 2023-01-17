@@ -8,8 +8,8 @@
     ],
 } %}
 
-{# Output the block type icons, for the new block grid #}
-{% if craft.app.plugins.getPlugin('neo').settings.useNewBlockGrid %}
+{# Output the block type icons, for the non-Matrix new block styles #}
+{% if craft.app.plugins.getPlugin('neo').settings.newBlockButtonStyle != 'matrix' %}
     <div class="hidden">
         {% for blockType in blockTypes|filter(bt => bt.iconId is not null) %}
             {{ svg(blockType.icon)|attr({

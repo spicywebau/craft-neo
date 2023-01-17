@@ -12,10 +12,14 @@ This setting, which defaults to `true`, controls the global setting for whether 
 
 This setting, which defaults to `true`, controls whether to skip updating search indexes for Neo blocks that have no sub-fields set to use their values as search keywords, or that belong to Neo fields that aren't set to use the field's values as search keywords.
 
-## `useNewBlockGrid`
+## `newBlockButtonStyle`
 
-This setting, which defaults to `false`, controls whether to use a new block grid on Neo input fields, instead of new block buttons/dropdowns.
+This setting, which defaults to `'matrix'`, controls the type of new block buttons/dropdowns that will be used on Neo input fields. The following options ara available:
+
+- `'matrix'`: buttons in the style of a Matrix field's buttons (prior to Neo 3.6.0 the only style available)
+- `'grid'`: a new block grid using block type icons, inspired by [Vizy](https://github.com/verbb/vizy)
+- `'list'`: show new block buttons in a permanent dropdown style, that also shows block type icons
 
 ## `blockTypeIconSources`
 
-If `useNewBlockGrid` is enabled, this setting, which defaults to `'*'` (allowing all sources), controls which icon asset sources are allowed to be used for setting block type icons.
+If `newBlockButtonType` is set to something other than `'matrix'`, this setting, which defaults to `'*'` (allowing all sources), controls which icon asset sources are allowed to be used for setting block type icons.

@@ -25,18 +25,21 @@
         on: settings.optimiseSearchIndexing,
     }) }}
 
-    {{ forms.lightswitchField({
-        label: 'Use the new block grid?'|t('neo'),
-        instructions: 'Whether to use the new block grid, instead of new block buttons and dropdowns.'|t('neo'),
-        id: 'useNewBlockGrid',
-        name: 'useNewBlockGrid',
-        on: settings.useNewBlockGrid,
-        toggle: 'block-type-icon-sources-container',
+    {{ forms.selectField({
+        id: 'newBlockButtonStyle',
+        name: 'newBlockButtonStyle',
+        label: 'New block button style'|t('neo'),
+        instructions: 'Which style to use for Neo’s ’new block’ buttons.'|t('neo'),
+        options: [
+            {label: 'Matrix'|t('app'), value: 'matrix'},
+            {label: 'Grid'|t('neo'), value: 'grid'},
+            {label: 'List'|t('neo'), value: 'list'},
+        ],
+        value: settings.newBlockButtonStyle,
     }) }}
 
     {% tag('div') with {
         id: 'block-type-icon-sources-container',
-        class: not settings.useNewBlockGrid ? 'hidden' : false,
     } %}
         {{ forms.checkboxSelectField({
             label: 'Block type icon sources'|t('neo'),
@@ -49,3 +52,13 @@
         }) }}
     {% endtag %}
 </div>
+
+{% js %}
+    function toggleNewBlockButtonStyle (toggle) {
+        $('#{{ 'block-type-icon-sources-container'|namespaceInputId }}').toggleClass('hidden', !toggle)
+    }
+    toggleNewBlockButtonStyle({{ settings.newBlockButtonStyle != 'matrix' }})
+    $('#{{ 'newBlockButtonStyle'|namespaceInputId }}').on('change', function() {
+        toggleNewBlockButtonStyle($(this).val() !== 'matrix')
+    })
+{% endjs %}
