@@ -14,12 +14,12 @@ This setting, which defaults to `true`, controls whether to skip updating search
 
 ## `newBlockButtonStyle`
 
-This setting, which defaults to `'matrix'`, controls the type of new block buttons/dropdowns that will be used on Neo input fields. The following options ara available:
+This setting, which defaults to `'classic'`, controls the type of new block buttons/dropdowns that will be used on Neo input fields. The following options ara available:
 
-- `'matrix'`: buttons in the style of a Matrix field's buttons (prior to Neo 3.6.0 the only style available)
+- `'classic'`: buttons in the style of a Matrix field's buttons (prior to Neo 3.6.0 the only style available)
 - `'grid'`: a new block grid using block type icons, inspired by [Vizy](https://github.com/verbb/vizy)
 - `'list'`: show new block buttons in a permanent dropdown style, that also shows block type icons
 
 ## `blockTypeIconSources`
 
-If `newBlockButtonType` is set to something other than `'matrix'`, this setting, which defaults to `'*'` (allowing all sources), controls which icon asset sources are allowed to be used for setting block type icons.
+If `newBlockButtonType` is set to something other than `'classic'`, this setting, which defaults to `'*'` (allowing all sources), controls which icon asset sources are allowed to be used for setting block type icons.

@@ -35,7 +35,7 @@ class Settings extends Model
      * @var string
      * @since 3.6.0
      */
-    public string $newBlockButtonStyle = NewBlockButtonStyle::Matrix;
+    public string $newBlockButtonStyle = NewBlockButtonStyle::Classic;
 
     /**
      * @var string|array|null The asset sources block type icons can be selected from.
@@ -63,7 +63,7 @@ class Settings extends Model
             ],
             'in',
             'range' => [
-                NewBlockButtonStyle::Matrix,
+                NewBlockButtonStyle::Classic,
                 NewBlockButtonStyle::Grid,
                 NewBlockButtonStyle::List,
             ],

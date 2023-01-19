@@ -11,7 +11,7 @@ namespace benf\neo\enums;
  */
 abstract class NewBlockButtonStyle
 {
-    public const Matrix = 'matrix';
+    public const Classic = 'classic';
     public const Grid = 'grid';
     public const List = 'list';
 }

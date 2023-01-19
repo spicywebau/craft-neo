@@ -31,7 +31,7 @@
         label: 'New block button style'|t('neo'),
         instructions: 'Which style to use for Neo’s ’new block’ buttons.'|t('neo'),
         options: [
-            {label: 'Matrix'|t('app'), value: 'matrix'},
+            {label: 'Classic'|t('neo'), value: 'classic'},
             {label: 'Grid'|t('neo'), value: 'grid'},
             {label: 'List'|t('neo'), value: 'list'},
         ],
@@ -57,8 +57,8 @@
     function toggleNewBlockButtonStyle (toggle) {
         $('#{{ 'block-type-icon-sources-container'|namespaceInputId }}').toggleClass('hidden', !toggle)
     }
-    toggleNewBlockButtonStyle({{ settings.newBlockButtonStyle != 'matrix' }})
+    toggleNewBlockButtonStyle({{ settings.newBlockButtonStyle != 'classic' }})
     $('#{{ 'newBlockButtonStyle'|namespaceInputId }}').on('change', function() {
-        toggleNewBlockButtonStyle($(this).val() !== 'matrix')
+        toggleNewBlockButtonStyle($(this).val() !== 'classic')
     })
 {% endjs %}

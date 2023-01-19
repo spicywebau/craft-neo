@@ -336,7 +336,7 @@ class Plugin extends BasePlugin
             ElementsController::class,
             ElementsController::EVENT_DEFINE_EDITOR_CONTENT,
             function(DefineElementEditorHtmlEvent $event) {
-                if ($this->getSettings()->newBlockButtonStyle !== NewBlockButtonStyle::Matrix && !$event->static) {
+                if ($this->getSettings()->newBlockButtonStyle !== NewBlockButtonStyle::Classic && !$event->static) {
                     $svg = Html::tag(
                         'div',
                         Html::modifyTagAttributes(
