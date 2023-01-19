@@ -1,7 +1,7 @@
 import $ from 'jquery'
-import { BlockSelector, GarnishBlockSelector } from './BlockSelector'
+import { NewBlockMenu, GarnishNewBlockMenu } from './NewBlockMenu'
 
-class Buttons extends BlockSelector {
+class Buttons extends NewBlockMenu {
   initUi () {
     $('.menubtn', this.$container).menubtn()
     this.updateResponsiveness()
@@ -29,7 +29,7 @@ class Buttons extends BlockSelector {
   }
 }
 
-export default GarnishBlockSelector.extend({
+export default GarnishNewBlockMenu.extend({
   init (settings = {}) {
     this.base(new Buttons(settings))
   }

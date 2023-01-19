@@ -12,7 +12,7 @@ const _defaults = {
   blocks: null
 }
 
-class BlockSelector {
+class NewBlockMenu {
   static BUTTON_INFO = 'data-neo-bn-info'
   _blockTypes = []
   _blockTypeGroups = []
@@ -96,11 +96,11 @@ class BlockSelector {
         if (currentGroup !== null) {
           blockTypesHtml.push(`
             <li>
-              <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">${item.getName()}</a>
+              <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">${item.getName()}</a>
             </li>`)
         } else {
           buttonsHtml.push(`
-          <button${titleAttr} aria-label="${item.getName()}" class="btn dashed${firstButton ? ' add icon' : ''}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">
+          <button${titleAttr} aria-label="${item.getName()}" class="btn dashed${firstButton ? ' add icon' : ''}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">
             ${item.getName()}
           </button>`)
           firstButton = false
@@ -162,7 +162,7 @@ class BlockSelector {
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         buttonsHtml.push(`
             <li>
-              <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">
+              <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">
                 ${item.getName()}
               </a>
             </li>`)
@@ -203,7 +203,7 @@ class BlockSelector {
   }
 
   getBlockTypeByButton ($button) {
-    const btHandle = $button.attr(BlockSelector.BUTTON_INFO)
+    const btHandle = $button.attr(NewBlockMenu.BUTTON_INFO)
 
     return this._blockTypes.find(bt => bt.getHandle() === btHandle)
   }
@@ -259,7 +259,7 @@ class BlockSelector {
   updateResponsiveness () {}
 }
 
-const GarnishBlockSelector = Garnish.Base.extend({
+const GarnishNewBlockMenu = Garnish.Base.extend({
 
   init (buttons) {
     this._buttons = buttons
@@ -301,7 +301,7 @@ const GarnishBlockSelector = Garnish.Base.extend({
 
   '@newBlock' (e) {
     const $button = $(e.currentTarget)
-    const blockTypeHandle = $button.attr(BlockSelector.BUTTON_INFO)
+    const blockTypeHandle = $button.attr(NewBlockMenu.BUTTON_INFO)
     const blockType = this._buttons.getBlockTypes().find(bt => bt.getHandle() === blockTypeHandle)
 
     this.trigger('newBlock', {
@@ -310,4 +310,4 @@ const GarnishBlockSelector = Garnish.Base.extend({
   }
 })
 
-export { BlockSelector, GarnishBlockSelector }
+export { NewBlockMenu, GarnishNewBlockMenu }

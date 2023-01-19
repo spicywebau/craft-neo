@@ -1,8 +1,8 @@
 import $ from 'jquery'
 import Craft from 'craft'
-import { BlockSelector, GarnishBlockSelector } from './BlockSelector'
+import { NewBlockMenu, GarnishNewBlockMenu } from './NewBlockMenu'
 
-class ButtonsGrid extends BlockSelector {
+class ButtonsGrid extends NewBlockMenu {
   /**
    * @inheritdoc
    */
@@ -53,7 +53,7 @@ class ButtonsGrid extends BlockSelector {
         const hasBlockTypeIcon = this.$ownerContainer?.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
         buttonsHtml.push(`
               <li>
-                <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${BlockSelector.BUTTON_INFO}="${item.getHandle()}">
+                <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">
                   <svg class="ni_newblockgrid_icon">
                     <use href="#${hasBlockTypeIcon ? blockTypeIconId : defaultIconId}"></use>
                   </svg>
@@ -99,7 +99,7 @@ class ButtonsGrid extends BlockSelector {
   }
 }
 
-export default GarnishBlockSelector.extend({
+export default GarnishNewBlockMenu.extend({
   init (settings = {}) {
     this.base(new ButtonsGrid(settings))
   }
