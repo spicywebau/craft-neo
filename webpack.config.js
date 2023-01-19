@@ -4,12 +4,12 @@ const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = {
   entry: {
-    main: path.resolve(__dirname, 'client/src/main.js'),
-    configurator: path.resolve(__dirname, 'client/src/configurator.js'),
-    converter: path.resolve(__dirname, 'client/src/converter.js')
+    main: path.resolve(__dirname, 'src/assets/src/main.js'),
+    configurator: path.resolve(__dirname, 'src/assets/src/configurator.js'),
+    converter: path.resolve(__dirname, 'src/assets/src/converter.js')
   },
   output: {
-    path: path.resolve(__dirname, 'src/resources/'),
+    path: path.resolve(__dirname, 'src/assets/dist/'),
     filename: 'neo-[name].js'
   },
   externals: {
@@ -50,7 +50,7 @@ module.exports = {
             ]
           }
         },
-        include: [path.resolve(__dirname, 'client/src')],
+        include: [path.resolve(__dirname, 'src/assets/src')],
         test: /\.jsx?$/
       }
     ]

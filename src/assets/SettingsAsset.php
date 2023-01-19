@@ -34,7 +34,7 @@ class SettingsAsset extends AssetBundle
      */
     public function init(): void
     {
-        $this->sourcePath = '@benf/neo/resources';
+        $this->sourcePath = '@benf/neo/assets/dist';
 
         $this->depends = [
             CpAsset::class,
