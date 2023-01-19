@@ -48,7 +48,7 @@ export default Garnish.Base.extend({
     this._ownerId = null
     this._showBlockTypeHandles = settings.showBlockTypeHandles
 
-    switch (settings.newBlockButtonStyle) {
+    switch (settings.newBlockMenuStyle) {
       case 'grid':
         this._buttonClass = ButtonsGrid
         break

@@ -26,16 +26,16 @@
     }) }}
 
     {{ forms.selectField({
-        id: 'newBlockButtonStyle',
-        name: 'newBlockButtonStyle',
-        label: 'New block button style'|t('neo'),
-        instructions: 'Which style to use for Neo’s ’new block’ buttons.'|t('neo'),
+        id: 'newBlockMenuStyle',
+        name: 'newBlockMenuStyle',
+        label: 'New block menu style'|t('neo'),
+        instructions: 'Which style to use for Neo’s ’new block’ menus.'|t('neo'),
         options: [
             {label: 'Classic'|t('neo'), value: 'classic'},
             {label: 'Grid'|t('neo'), value: 'grid'},
             {label: 'List'|t('neo'), value: 'list'},
         ],
-        value: settings.newBlockButtonStyle,
+        value: settings.newBlockMenuStyle,
     }) }}
 
     {% tag('div') with {
@@ -54,11 +54,11 @@
 </div>
 
 {% js %}
-    function toggleNewBlockButtonStyle (toggle) {
+    function toggleNewBlockMenuStyle (toggle) {
         $('#{{ 'block-type-icon-sources-container'|namespaceInputId }}').toggleClass('hidden', !toggle)
     }
-    toggleNewBlockButtonStyle({{ settings.newBlockButtonStyle != 'classic' }})
-    $('#{{ 'newBlockButtonStyle'|namespaceInputId }}').on('change', function() {
-        toggleNewBlockButtonStyle($(this).val() !== 'classic')
+    toggleNewBlockMenuStyle({{ settings.newBlockMenuStyle != 'classic' }})
+    $('#{{ 'newBlockMenuStyle'|namespaceInputId }}').on('change', function() {
+        toggleNewBlockMenuStyle($(this).val() !== 'classic')
     })
 {% endjs %}

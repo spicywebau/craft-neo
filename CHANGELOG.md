@@ -3,7 +3,7 @@
 ## Unreleased (3.6)
 
 ### Added
-- Added the `newBlockButtonType` plugin setting
+- Added the `newBlockMenuStyle` plugin setting
 - Added the `blockTypeIconSources` plugin setting
 - Added a plugin settings page
 - Added French translations (thanks @scandella)

@@ -2,7 +2,7 @@
 
 namespace benf\neo\models;
 
-use benf\neo\enums\NewBlockButtonStyle;
+use benf\neo\enums\NewBlockMenuStyle;
 use craft\base\Model;
 
 /**
@@ -35,7 +35,7 @@ class Settings extends Model
      * @var string
      * @since 3.6.0
      */
-    public string $newBlockButtonStyle = NewBlockButtonStyle::Classic;
+    public string $newBlockMenuStyle = NewBlockMenuStyle::Classic;
 
     /**
      * @var string|array|null The asset sources block type icons can be selected from.
@@ -59,13 +59,13 @@ class Settings extends Model
         ];
         $rules[] = [
             [
-                'newBlockButtonStyle'
+                'newBlockMenuStyle'
             ],
             'in',
             'range' => [
-                NewBlockButtonStyle::Classic,
-                NewBlockButtonStyle::Grid,
-                NewBlockButtonStyle::List,
+                NewBlockMenuStyle::Classic,
+                NewBlockMenuStyle::Grid,
+                NewBlockMenuStyle::List,
             ],
         ];
 
