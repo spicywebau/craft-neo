@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (3.6)
+## 3.6.0 - 2023-01-27
 
 ### Added
 - Added the `newBlockMenuStyle` plugin setting
