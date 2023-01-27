@@ -34,6 +34,7 @@
         not hasTabs and not isParent ? 'is-empty',
         isParent ? 'is-parent',
         hasErrors ? 'has-errors',
+        not type.ignorePermissions and not currentUser.can("neo-editBlocks:#{type.uid}") ? 'is-disabled-for-user',
     ],
     data: {
         'neo-b-id': blockId,
@@ -164,8 +165,8 @@
                     <div id="{{ actionMenuId }}" class="menu menu--disclosure" data-neo-b="{{ blockId }}.container.menu">
                         <ul class="padded">
                             {% if hasTabs or isParent %}
-                                <li{% if block.collapsed %} class="hidden"{% endif %}><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="{{ 'Collapse'|t('neo') }}">{{ 'Collapse'|t('neo') }}</a></li>
-                                <li{% if not block.collapsed %} class="hidden"{% endif %}><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="{{ 'Expand'|t('neo') }}">{{ 'Expand'|t('neo') }}</a></li>
+                                <li{% if collapsed %} class="hidden"{% endif %}><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="{{ 'Collapse'|t('neo') }}">{{ 'Collapse'|t('neo') }}</a></li>
+                                <li{% if not collapsed %} class="hidden"{% endif %}><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="{{ 'Expand'|t('neo') }}">{{ 'Expand'|t('neo') }}</a></li>
                             {% endif %}
                             <li><a data-icon="disabled" data-action="disable" href="#" type="button" role="button" aria-label="{{ 'Disable'|t('neo') }}">{{ 'Disable'|t('neo') }}</a></li>
                             <li class="hidden"><a data-icon="enabled" data-action="enable" href="#" type="button" role="button" aria-label="{{ 'Enable'|t('neo') }}">{{ 'Enable'|t('neo') }}</a></li>
@@ -179,10 +180,12 @@
                             <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="{{ 'Paste'|t('neo') }}">{{ 'Paste'|t('neo') }}</a></li>
                             <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="{{ 'Clone'|t('neo') }}">{{ 'Clone'|t('neo') }}</a></li>
                         </ul>
-                        <hr>
-                        <ul class="padded">
-                            <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="{{ 'Delete'|t('neo') }}">{{ 'Delete'|t('neo') }}</a></li>
-                        </ul>
+                        {% if type.ignorePermissions or currentUser.can("neo-deleteBlocks:#{type.uid}") %}
+                            <hr>
+                            <ul class="padded">
+                                <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="{{ 'Delete'|t('neo') }}">{{ 'Delete'|t('neo') }}</a></li>
+                            </ul>
+                        {% endif %}
                     </div>
                 </div>
             </div>

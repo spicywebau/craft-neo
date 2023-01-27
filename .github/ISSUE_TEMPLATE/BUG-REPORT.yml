@@ -1,0 +1,59 @@
+name: Bug Report
+description: Let us know about a problem with Neo
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please check to make sure your bug hasn't already been reported before proceeding.
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: Details of the bug you've encountered.
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Instructions that can be followed to reliably reproduce the bug.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behaviour
+    attributes:
+      label: Expected behaviour
+      description: What should be expected to happen instead of the buggy behaviour, if not already covered in the above sections.
+  - type: input
+    id: neo-version
+    attributes:
+      label: Neo version
+    validations:
+      required: true
+  - type: input
+    id: craft-cms-version
+    attributes:
+      label: Craft CMS version
+    validations:
+      required: true
+  - type: input
+    id: neo-propagation-method
+    attributes:
+      label: What is the affected Neo field's propagation method?
+      description: Leave this blank if your Craft install is not multi-site.
+  - type: dropdown
+    id: neo-eager-loading
+    attributes:
+      label: Does this issue involve templating, and if so, is eager-loading used?
+      options:
+        - This is not a templating issue
+        - This is a templating issue, and eager loading is not used
+        - This is a templating issue, and eager loading is used
+    validations:
+      required: true

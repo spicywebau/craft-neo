@@ -5,6 +5,139 @@
 ### Changed
 - Whether a Neo block type's Top Level, Max Sibling Blocks of This Type, Child Blocks or Max Child Blocks settings have been violated is now validated server-side when saving a Neo field's contents, rather than relying on them to be enforced by client-side JavaScript
 
+## 3.6.0 - 2023-01-27
+
+### Added
+- Added the `newBlockMenuStyle` plugin setting
+- Added the `blockTypeIconSources` plugin setting
+- Added a plugin settings page
+- Added French translations (thanks @scandella)
+- Added `benf\neo\controllers\Configurator::actionRenderBlockType()`
+- Added `benf\neo\models\BlockType::$iconId`
+- Added `benf\neo\services\BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES`
+- Added `benf\neo\services\BlockTypes::renderBlockTypeSettings()`
+
+### Deprecated
+- Deprecated `benf\neo\assets\SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES`; use `benf\neo\services\BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES` instead
+
+### Fixed
+- Fixed a bug where, when pasting or cloning a block type, the block type conditions weren't being copied
+
+## 3.5.16 - 2023-01-04
+
+### Fixed
+- Fixed a bug where users who were disallowed from deleting Neo blocks of a certain block type still didn't have the delete option on existing blocks if the block type's Ignore Permissions setting was enabled
+
+## 3.5.15 - 2022-12-28
+
+### Fixed
+- Fixed a bug where new Neo blocks' collapsed states were being lost when saving
+- Fixed a console error that could occur after copying a Neo block if any of the Neo field's block types were being filtered out
+
+## 3.5.14 - 2022-12-21
+
+### Fixed
+- Fixed a bug where revision Neo blocks could be saved at the wrong level
+
+## 3.5.13 - 2022-12-14
+
+### Fixed
+- Fixed a bug where a Neo block type group without a name could have its name set to `null` in the project config, instead of an empty string
+- Fixed an error that occurred when applying a project config if a Neo block type group without a name had its name set to `null` in the project config
+- Fixed an error that occurred when using Field Manager to import Neo field data that was exported by the Craft 3 version of Field Manager
+
+## 3.5.12 - 2022-12-09
+
+### Fixed
+- Fixed block structure issues
+
+## 3.5.11 - 2022-12-09
+
+### Fixed
+- Fixed an error that occurred when merging canonical Neo block changes into their derivative blocks
+- Fixed a bug where disabled nested Neo blocks, and potentially blocks following them in the block structure, could incorrectly be saved at the top level
+- Fixed a bug when using eager loading (including using GraphQL), where querying a Neo block's children would always return no results
+- Fixed a bug where a Neo block type's `conditions` property was not being set in the project config if there were no conditions on the block type
+- Fixed style issues with Neo block type handles on Neo input blocks when using Safari
+
+## 3.5.10 - 2022-12-06
+
+### Fixed
+- Fixed a bug in Neo 3.5.9 where Neo block structures weren't being saved for entry revisions
+
+## 3.5.9 - 2022-12-05
+
+### Fixed
+- Fixed an error that could occur when saving entries using Neo 3.5.8
+
+## 3.5.8 - 2022-12-04
+
+### Fixed
+- Fixed a bug where queries for Neo blocks with a specific owner entry/category could return duplicate blocks, if the entry/category had any drafts and the duplicated blocks were owned by both the entry/category and the drafts
+- Fixed the position of field status indicators within Neo fields in Live Preview
+
+## 3.5.7 - 2022-12-02
+
+### Fixed
+- Fixed a bug where Neo blocks could be scrambled or the "Can not move a node when the target node is same" error could occur when creating a draft
+
+## 3.5.6 - 2022-11-30
+
+### Fixed
+- Fixed a bug where rebuilding the project config would result in Neo block type config YAML files being removed
+
+## 3.5.5 - 2022-11-29
+
+### Fixed
+- Fixed a console error that occurred in Neo 3.5.4 if there was no Neo copied block data in the browser's local storage
+
+## 3.5.4 - 2022-11-28
+
+### Fixed
+- Fixed a bug where Neo child blocks could be cloned to exceed the parent block's max child blocks setting
+
+## 3.5.3 - 2022-11-27
+
+### Fixed
+- Fixed an error that occurred when executing a GraphQL query, if a field previously of the Neo type had been changed to a different type
+
+## 3.5.2 - 2022-11-11
+
+> {note} The migration that runs in this update saves the value of `ignorePermissions` for each block type based on which block types already have any user permissions set - if any have been set, then it will be saved as `false`, otherwise it will be saved as `true`.
+
+### Added
+- Added `benf\neo\models\BlockType::$ignorePermissions` - Adds the ability to set a block type to ignore any user permissions set for it (in the Advanced section of the block type settings)
+
+## 3.5.1 - 2022-11-10
+
+### Fixed
+- Fixed an error that occurred if Feed Me wasn't installed
+
+## 3.5.0 - 2022-11-10
+
+### Added
+- Added support for the Feed Me plugin
+- Added the ability to set user permissions for the creation, deletion and editing of blocks of each block type
+- Added the ability to set whether the child block types of a block type will be shown in their groups (if any)
+- Added `benf\neo\console\controllers\BlockTypesController::$setGroupChildBlockTypes`
+- Added `benf\neo\console\controllers\BlockTypesController::$unsetGroupChildBlockTypes`
+- Added `benf\neo\Field::getBlockTypeFields()`
+- Added `benf\neo\integrations\feedme\Field`
+- Added `benf\neo\models\BlockType::$groupChildBlockTypes`
+- Added `benf\neo\services\Fields::getNeoFields()`
+
+### Changed
+- Updated JavaScript dependencies
+
+### Fixed
+- Fixed a bug where opening a Neo block's actions menu would not close any already open actions menu belonging to another block in the same Neo field
+- Fixed a bug that occurred when using the `collapseAllBlocks` plugin setting, where existing blocks could not be expanded
+
+## 3.4.1 - 2022-11-08
+
+### Fixed
+- Fixed a bug where cloning or copying Neo blocks using the child blocks UI element could cause the parent blocks to be pasted/cloned with some of the child block's content
+
 ## 3.4.0 - 2022-09-29
 
 ### Added
@@ -352,6 +485,14 @@
 
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
+
+## 2.13.16 - 2023-01-12
+
+### Added
+- Added `benf\neo\jobs\DeleteBlock`
+
+### Fixed
+- Fixed performance issues when applying entry drafts (deletion of the old draft Neo blocks is now performed by queue jobs)
 
 ## 2.13.15 - 2022-07-19
 

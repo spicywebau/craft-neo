@@ -11,6 +11,7 @@ use craft\base\GqlInlineFragmentInterface;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\db\Table;
+use craft\elements\Asset;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
@@ -63,6 +64,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public ?string $description = null;
 
     /**
+     * @var int|null The block type's icon, as a Craft asset ID.
+     * @since 3.6.0
+     */
+    public ?int $iconId = null;
+
+    /**
      * @var bool Whether this block type is allowed to be used.
      * @since 3.3.0
      */
@@ -103,6 +110,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public ?int $maxChildBlocks = null;
 
     /**
+     * @var bool Whether the child block types (if any) will be shown in their groups (if any).
+     * @since 3.5.0
+     */
+    public bool $groupChildBlockTypes = true;
+
+    /**
      * @var string[]|string|null The child block types of this block type, either as an array of block type handles, the
      * string '*' representing all of the Neo field's block types, or null if no child block types.
      */
@@ -112,6 +125,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * @var bool Whether this is at the top level of its field.
      */
     public bool $topLevel = true;
+
+    /**
+     * @var bool Whether user permissions for this block type should be ignored.
+     * @since 3.5.2
+     */
+    public bool $ignorePermissions = true;
 
     /**
      * @var array Conditions for the elements this block type can be used on.
@@ -147,6 +166,11 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * @var bool|null
      */
     private ?bool $_hasChildBlocksUiElement = null;
+
+    /**
+     * @var Asset|null
+     */
+    private ?Asset $_icon = null;
 
     /**
      * @inheritdoc
@@ -186,7 +210,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
         return [
             [['id', 'fieldId', 'sortOrder'], 'number', 'integerOnly' => true],
             [['minBlocks', 'maxBlocks', 'minChildBlocks', 'maxChildBlocks', 'minSiblingBlocks'], 'integer', 'min' => 0],
-            [['enabled', 'topLevel'], 'boolean'],
+            [['enabled', 'topLevel', 'groupChildBlockTypes', 'ignorePermissions'], 'boolean'],
         ];
     }
 
@@ -242,6 +266,21 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     }
 
     /**
+     * Gets this block type's icon asset, if an icon is set.
+     *
+     * @return Asset|null
+     * @since 3.6.0
+     */
+    public function getIcon(): ?Asset
+    {
+        if ($this->_icon === null && $this->iconId !== null) {
+            $this->_icon = Craft::$app->getAssets()->getAssetById($this->iconId);
+        }
+
+        return $this->_icon;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getFieldContext(): string
@@ -266,13 +305,16 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public function getConfig(): array
     {
         $group = $this->getGroup();
+        $icon = $this->getIcon();
         $config = [
             'childBlocks' => $this->childBlocks,
             'field' => $this->getField()->uid,
             'group' => $group ? $group->uid : null,
+            'groupChildBlockTypes' => (bool)$this->groupChildBlockTypes,
             'handle' => $this->handle,
             'description' => $this->description,
             'enabled' => $this->enabled,
+            'icon' => $icon?->uid ?? null,
             'minBlocks' => (int)$this->minBlocks,
             'maxBlocks' => (int)$this->maxBlocks,
             'minChildBlocks' => (int)$this->minChildBlocks,
@@ -282,7 +324,8 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'name' => $this->name,
             'sortOrder' => (int)$this->sortOrder,
             'topLevel' => (bool)$this->topLevel,
-            'conditions' => $this->conditions,
+            'ignorePermissions' => (bool)$this->ignorePermissions,
+            'conditions' => $this->conditions ?: null,
         ];
         $fieldLayout = $this->getFieldLayout();
 

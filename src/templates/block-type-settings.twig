@@ -1,5 +1,6 @@
 {% import '_includes/forms' as forms %}
 
+{% set neoSettings = craft.app.plugins.getPlugin('neo').settings %}
 {% set blockTypeSortOrder = blockType ? blockType.sortOrder : '__NEOBLOCKTYPE_SORTORDER__' %}
 
 <div>
@@ -43,6 +44,31 @@
                 'data-neo-bts': 'input.description'
             }
         }) }}
+
+        {% if neoSettings.newBlockMenuStyle != 'classic' %}
+            {{ forms.elementSelectField({
+                id: 'iconId',
+                name: 'iconId',
+                label: 'Icon'|t('neo'),
+                instructions: 'The SVG icon to use for this block type.'|t('neo'),
+                value: blockType ? [blockType.iconId] : null,
+                errors: blockType ? blockType.getErrors('iconId') : null,
+                elements: blockType and blockType.iconId ? [blockType.icon] : null,
+                elementType: 'craft\\elements\\Asset',
+                single: true,
+                viewMode: 'large',
+                sources: neoSettings.blockTypeIconSources,
+                criteria: {
+                    kind: 'image',
+                    filename: '*.svg',
+                },
+                containerAttributes: {
+                    'data-neo-bts': 'container.iconId'
+                },
+            }) }}
+        {% else %}
+            <input type="hidden" name="iconId" value="{{ blockType ? blockType.iconId : '' }}">
+        {% endif %}
 
         <div data-neo-bts="container.enabled">
             {{ forms.lightswitchField({
@@ -161,6 +187,19 @@
             }) }}
         </div>
 
+        <div data-neo-bts="container.groupChildBlockTypes">
+            {{ forms.lightswitchField({
+                id: 'groupChildBlockTypes',
+                name: 'groupChildBlockTypes',
+                label: 'Group Child Block Types'|t('neo'),
+                instructions: 'Will child block types be shown in their groups?'|t('neo'),
+                on: blockType ? blockType.groupChildBlockTypes : true,
+                containerAttributes: {
+                    'data-neo-bts': 'input.groupChildBlockTypes'
+                }
+            }) }}
+        </div>
+
         <div data-neo-bts="container.topLevel">
             {{ forms.lightswitchField({
                 id: 'topLevel',
@@ -178,6 +217,19 @@
 
         <a class="fieldtoggle" data-target="advanced">{{ "Advanced"|t('app') }}</a>
         <div id="advanced" class="hidden">
+            <div data-neo-bts="container.ignorePermissions">
+                {{ forms.lightswitchField({
+                    id: 'ignorePermissions',
+                    name: 'ignorePermissions',
+                    label: 'Ignore Permissions'|t('neo'),
+                    instructions: 'Whether user permissions for this block type should be ignored.'|t('neo'),
+                    on: blockType ? blockType.ignorePermissions : true,
+                    containerAttributes: {
+                        'data-neo-bts': 'input.ignorePermissions'
+                    }
+                }) }}
+            </div>
+
             {% for condition in conditions %}
                 {{ condition|raw }}
             {% endfor %}

@@ -53,6 +53,8 @@ Edits a Neo block type.
 - `--set-max-sibling-blocks`: A new max sibling blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-min-child-blocks`: A new min child blocks value to set for the block type. Set this to 0 to remove the limit.
 - `--set-max-child-blocks`: A new max child blocks value to set for the block type. Set this to 0 to remove the limit.
+- `--set-group-child-block-types`: Whether to set the block type's child block types as being shown in their groups.
+- `--unset-group-child-block-types`: Whether to set the block type's child block types as not being shown in their groups.
 - `--set-child-blocks`: The child block types of this block type, either as comma-separated block type handles, or the string '*' representing all of the Neo field's block types.
 - `--unset-child-blocks`: Whether to set this block type as having no child block types.
 - `--set-top-level`: Whether to set the block type as being allowed at the top level.
@@ -63,6 +65,7 @@ The following restrictions exist on using options:
 - At most one of `--set-description` and `--unset-description` may be used
 - At most one of `--set-enabled` and `--unset-enabled` may be used
 - At most one of `--set-top-level` and `--unset-top-level` may be used
+- At most one of `--set-group-child-block-types` and `--unset-group-child-block-types` may be used
 - At most one of `--set-child-blocks` and `--unset-child-blocks` may be used
 
 ## `neo/fields/reapply-propagation-method`

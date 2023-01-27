@@ -2,6 +2,7 @@
 
 namespace benf\neo\models;
 
+use benf\neo\enums\NewBlockMenuStyle;
 use craft\base\Model;
 
 /**
@@ -31,12 +32,43 @@ class Settings extends Model
     public bool $defaultAlwaysShowGroupDropdowns = true;
 
     /**
+     * @var string
+     * @since 3.6.0
+     */
+    public string $newBlockMenuStyle = NewBlockMenuStyle::Classic;
+
+    /**
+     * @var string|array|null The asset sources block type icons can be selected from.
+     * @since 3.6.0
+     */
+    public string|array|null $blockTypeIconSources = '*';
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
     {
-        return [
-            [['collapseAllBlocks', 'optimiseSearchIndexing', 'defaultAlwaysShowGroupDropdowns'], 'boolean'],
+        $rules = parent::defineRules();
+        $rules[] = [
+            [
+                'collapseAllBlocks',
+                'optimiseSearchIndexing',
+                'defaultAlwaysShowGroupDropdowns',
+            ],
+            'boolean',
         ];
+        $rules[] = [
+            [
+                'newBlockMenuStyle'
+            ],
+            'in',
+            'range' => [
+                NewBlockMenuStyle::Classic,
+                NewBlockMenuStyle::Grid,
+                NewBlockMenuStyle::List,
+            ],
+        ];
+
+        return $rules;
     }
 }

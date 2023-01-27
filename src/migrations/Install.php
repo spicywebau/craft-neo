@@ -2,9 +2,7 @@
 
 namespace benf\neo\migrations;
 
-use benf\neo\Field;
 use benf\neo\Plugin as Neo;
-use Craft;
 use craft\db\Migration;
 
 /**
@@ -74,6 +72,7 @@ class Install extends Migration
                 'name' => $this->string()->notNull(),
                 'handle' => $this->string()->notNull(),
                 'description' => $this->string(),
+                'iconId' => $this->integer(),
                 'enabled' => $this->boolean()->defaultValue(true)->notNull(),
                 'minBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'maxBlocks' => $this->smallInteger()->unsigned(),
@@ -81,8 +80,10 @@ class Install extends Migration
                 'maxSiblingBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'minChildBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),
                 'maxChildBlocks' => $this->smallInteger()->unsigned(),
+                'groupChildBlockTypes' => $this->boolean()->defaultValue(true)->notNull(),
                 'childBlocks' => $this->text(),
                 'topLevel' => $this->boolean()->defaultValue(true)->notNull(),
+                'ignorePermissions' => $this->boolean()->defaultValue(true)->notNull(),
                 'sortOrder' => $this->smallInteger()->unsigned(),
                 'conditions' => $this->text(),
                 'dateCreated' => $this->dateTime()->notNull(),
@@ -162,6 +163,7 @@ class Install extends Migration
                 null);
             $this->addForeignKey(null, '{{%neoblocktypes}}', ['groupId'], '{{%neoblocktypegroups}}', ['id'], 'SET NULL',
                 null);
+            $this->addForeignKey(null, '{{%neoblocktypes}}', ['iconId'], '{{%assets}}', ['id'], 'SET NULL', null);
         }
 
         if (!$hasBlockTypeGroupsTable) {
@@ -177,14 +179,10 @@ class Install extends Migration
     public function safeDown()
     {
         // Convert Neo fields to Matrix fields before dropping Neo tables
-        $fields = Craft::$app->getFields()->getAllFields();
-
-        foreach ($fields as $field) {
-            if ($field instanceof Field) {
-                // Don't bother deleting the old Neo block types and groups during the conversion, since we're about to
-                // drop the tables anyway
-                Neo::$plugin->conversion->convertFieldToMatrix($field, false);
-            }
+        foreach (Neo::$plugin->fields->getNeoFields() as $field) {
+            // Don't bother deleting the old Neo block types and groups during the conversion, since we're about to
+            // drop the tables anyway
+            Neo::$plugin->conversion->convertFieldToMatrix($field, false);
         }
 
         $this->dropTableIfExists('{{%neoblocks_owners}}');

@@ -11,6 +11,7 @@ use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
 use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
 use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
 use benf\neo\gql\types\input\Block as NeoBlockInputType;
+use benf\neo\jobs\DeleteBlock;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
@@ -138,6 +139,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     private ?array $_blockTypeGroups = null;
 
     /**
+     * @var BlockType[]|null The block types' fields.
+     */
+    private ?array $_blockTypeFields = null;
+
+    /**
      * @var string Propagation method
      *
      * This will be set to one of the following:
@@ -247,6 +253,47 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     }
 
     /**
+     * Returns all of the block types' fields.
+     *
+     * @param int[]|null $typeIds The Neo block type IDs to return fields for.
+     * If null, all block type fields will be returned.
+     * @return FieldInterface[]
+     */
+    public function getBlockTypeFields(?array $typeIds = null): array
+    {
+        if (!isset($this->_blockTypeFields)) {
+            $this->_blockTypeFields = [];
+            $fieldsService = Craft::$app->getFields();
+            $blockTypes = array_filter($this->getBlockTypes(), fn($blockType) => $blockType->fieldLayoutId !== null);
+            $layoutIds = array_map(fn($blockType) => $blockType->fieldLayoutId, $blockTypes);
+            $fieldsById = ArrayHelper::index($fieldsService->getAllFields(), 'id');
+            $fieldIdsByLayoutId = $fieldsService->getFieldIdsByLayoutIds($layoutIds);
+            $blockTypesWithFields = array_filter(
+                $blockTypes,
+                fn($blockType) => isset($fieldIdsByLayoutId[$blockType->fieldLayoutId])
+            );
+
+            foreach ($blockTypesWithFields as $blockType) {
+                foreach ($fieldIdsByLayoutId[$blockType->fieldLayoutId] as $fieldId) {
+                    $this->_blockTypeFields[$blockType->id][] = $fieldsById[$fieldId];
+                }
+            }
+        }
+
+        $fields = [];
+
+        foreach ($this->_blockTypeFields as $blockTypeId => $blockTypeFields) {
+            if ($typeIds === null || in_array($blockTypeId, $typeIds)) {
+                foreach (array_filter($blockTypeFields, fn($field) => !isset($fields[$field->id])) as $field) {
+                    $fields[$field->id] = $field;
+                }
+            }
+        }
+
+        return array_values($fields);
+    }
+
+    /**
      * Sets this field's block types.
      *
      * @param array $blockTypes The block types to associate with this field.
@@ -262,7 +309,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $newBlockType = $blockType;
 
             if (!($blockType instanceof BlockType)) {
-                foreach (array_keys($blockType['conditions']) as $elementType) {
+                foreach (array_keys($blockType['conditions'] ?? []) as $elementType) {
                     if (!isset($blockType['conditions'][$elementType]['conditionRules'])) {
                         // Don't bother setting condition data for any element types that have no rules set
                         unset($blockType['conditions'][$elementType]);
@@ -277,15 +324,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->fieldId = $this->id;
                 $newBlockType->name = $blockType['name'];
                 $newBlockType->handle = $blockType['handle'];
-                $newBlockType->enabled = $blockType['enabled'];
-                $newBlockType->description = $blockType['description'];
-                $newBlockType->minBlocks = (int)$blockType['minBlocks'];
-                $newBlockType->maxBlocks = (int)$blockType['maxBlocks'];
-                $newBlockType->minSiblingBlocks = (int)$blockType['minSiblingBlocks'];
-                $newBlockType->maxSiblingBlocks = (int)$blockType['maxSiblingBlocks'];
-                $newBlockType->minChildBlocks = (int)$blockType['minChildBlocks'];
-                $newBlockType->maxChildBlocks = (int)$blockType['maxChildBlocks'];
+                $newBlockType->enabled = $blockType['enabled'] ?? true;
+                $newBlockType->ignorePermissions = $blockType['ignorePermissions'] ?? true;
+                $newBlockType->description = $blockType['description'] ?? '';
+                $newBlockType->iconId = !empty($blockType['iconId']) ? (int)$blockType['iconId'] : null;
+                $newBlockType->minBlocks = (int)($blockType['minBlocks'] ?? 0);
+                $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);
+                $newBlockType->minSiblingBlocks = (int)($blockType['minSiblingBlocks'] ?? 0);
+                $newBlockType->maxSiblingBlocks = (int)($blockType['maxSiblingBlocks'] ?? 0);
+                $newBlockType->minChildBlocks = (int)($blockType['minChildBlocks'] ?? 0);
+                $newBlockType->maxChildBlocks = (int)($blockType['maxChildBlocks'] ?? 0);
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
+                $newBlockType->groupChildBlockTypes = isset($blockType['groupChildBlockTypes']) ? (bool)$blockType['groupChildBlockTypes'] : true;
                 $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
                 $newBlockType->conditions = $blockType['conditions'] ?? [];
@@ -380,15 +430,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $newBlockTypeGroup = $blockTypeGroup;
 
             if (!($blockTypeGroup instanceof BlockTypeGroup)) {
+                $alwaysShowDropdown = $blockTypeGroup['alwaysShowDropdown'] ?? null;
                 $newBlockTypeGroup = new BlockTypeGroup();
                 $newBlockTypeGroup->id = (int)$id;
                 $newBlockTypeGroup->fieldId = $this->id;
                 $newBlockTypeGroup->name = $blockTypeGroup['name'];
                 $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
-                $newBlockTypeGroup->alwaysShowDropdown = match ($blockTypeGroup['alwaysShowDropdown']) {
+                $newBlockTypeGroup->alwaysShowDropdown = match ($alwaysShowDropdown) {
                     BlockTypeGroupDropdown::Show => true,
                     BlockTypeGroupDropdown::Hide => false,
                     BlockTypeGroupDropdown::Global => null,
+                    // Handle cases where `alwaysShowDropdown` is already set to true/false/null
+                    true, false, null => $alwaysShowDropdown,
                 };
             }
 
@@ -494,6 +547,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             return $view->renderTemplate('neo/input', [
                 'handle' => $this->handle,
                 'blocks' => $blocks,
+                'blockTypes' => $filteredBlockTypes,
                 'id' => $view->formatInputId($this->handle),
                 'name' => $this->handle,
                 'translatable' => $this->propagationMethod,
@@ -915,7 +969,6 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             return false;
         }
 
-        $sitesService = Craft::$app->getSites();
         $elementsService = Craft::$app->getElements();
 
         // Craft hard-deletes element structure nodes even when soft-deleting an element, which means we lose all Neo
@@ -925,58 +978,60 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $blockStructures = [];
         $blocksBySite = [];
 
-        // Get the structures for each site
-        $structureRows = (new Query())
-            ->select([
-                'id',
-                'structureId',
-                'siteId',
-                'ownerId',
-                'fieldId',
-            ])
-            ->from(['{{%neoblockstructures}}'])
-            ->where([
-                'fieldId' => $this->id,
-                'ownerId' => $element->id,
-            ])
-            ->all();
+        if (!$element->hardDelete) {
+            // Get the structures for each site
+            $structureRows = (new Query())
+                ->select([
+                    'id',
+                    'structureId',
+                    'siteId',
+                    'ownerId',
+                    'fieldId',
+                ])
+                ->from(['{{%neoblockstructures}}'])
+                ->where([
+                    'fieldId' => $this->id,
+                    'ownerId' => $element->id,
+                ])
+                ->all();
 
-        foreach ($structureRows as $row) {
-            $blockStructures[] = new BlockStructure($row);
-        }
-
-        // Get the blocks for each structure
-        foreach ($blockStructures as $blockStructure) {
-            // Site IDs start from 1 -- let's treat non-localized blocks as site 0
-            $key = $blockStructure->siteId ?? 0;
-
-            $allBlocksQuery = Block::find()
-                ->status(null)
-                ->fieldId($this->id)
-                ->primaryOwnerId($element->id);
-
-            if ($key !== 0) {
-                $allBlocksQuery->siteId($key);
+            foreach ($structureRows as $row) {
+                $blockStructures[] = new BlockStructure($row);
             }
 
-            $allBlocks = $allBlocksQuery->all();
+            // Get the blocks for each structure
+            foreach ($blockStructures as $blockStructure) {
+                // Site IDs start from 1 -- let's treat non-localized blocks as site 0
+                $key = $blockStructure->siteId ?? 0;
 
-            // if the Neo block structure doesn't have the siteId set and has blocks
-            // set the siteId of the Neo block structure.
+                $allBlocksQuery = Block::find()
+                    ->status(null)
+                    ->fieldId($this->id)
+                    ->primaryOwnerId($element->id);
 
-            // it's set from the first block because we got all blocks related to this structure beforehand
-            // so the siteId should be the same for all blocks.
-            if (empty($blockStructure->siteId) && !empty($allBlocks)) {
-                $blockStructure->siteId = $allBlocks[0]->siteId;
-                // need to set the new key since the siteId is now set
-                $key = $blockStructure->siteId;
+                if ($key !== 0) {
+                    $allBlocksQuery->siteId($key);
+                }
+
+                $allBlocks = $allBlocksQuery->all();
+
+                // if the Neo block structure doesn't have the siteId set and has blocks
+                // set the siteId of the Neo block structure.
+
+                // it's set from the first block because we got all blocks related to this structure beforehand
+                // so the siteId should be the same for all blocks.
+                if (empty($blockStructure->siteId) && !empty($allBlocks)) {
+                    $blockStructure->siteId = $allBlocks[0]->siteId;
+                    // need to set the new key since the siteId is now set
+                    $key = $blockStructure->siteId;
+                }
+
+                $blocksBySite[$key] = $allBlocks;
             }
-
-            $blocksBySite[$key] = $allBlocks;
         }
 
         // Delete all Neo blocks for this element and field
-        foreach ($sitesService->getAllSiteIds() as $siteId) {
+        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
             $blocks = Block::find()
                 ->status(null)
                 ->fieldId($this->id)
@@ -986,8 +1041,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->all();
 
             foreach ($blocks as $block) {
-                $block->deletedWithOwner = true;
-                $elementsService->deleteElement($block);
+                Queue::push(new DeleteBlock([
+                    'blockId' => $block->id,
+                    'siteId' => $siteId,
+                    'deletedWithOwner' => true,
+                    'hardDelete' => $element->hardDelete,
+                ]));
             }
         }
 

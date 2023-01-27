@@ -578,9 +578,20 @@ SQL
         // Save the block structures for the draft
         foreach (ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($draft), 'siteId') as $siteId) {
             $blocks = Block::find()
-                ->ownerId($draft->id)
+                ->ownerId($canonical->id)
                 ->fieldId($field->id)
                 ->siteId($siteId)
+                ->structureId(
+                    (new Query())
+                        ->select(['structureId'])
+                        ->from(['{{%neoblockstructures}}'])
+                        ->where([
+                            'fieldId' => $field->id,
+                            'ownerId' => $canonical->id,
+                            'siteId' => $siteId,
+                        ])
+                        ->scalar()
+                )
                 ->unique()
                 ->status(null)
                 ->all();
@@ -644,31 +655,13 @@ SQL
                 ]);
                 $ownershipData[] = [$blockRevisionId, $revision->id, $block->sortOrder];
 
-                // Get the actual blocks, for block structure creation
-                if ($blockRevisionId === $block->id) {
-                    $jobData[$siteId][] = [
-                        'id' => $block->id,
-                        'lft' => $block->lft,
-                        'rgt' => $block->rgt,
-                        'level' => $block->level,
-                    ];
-                } else {
-                    // Querying the database because `getElementById()` doesn't seem to return anything at this point
-                    $jobData[$siteId][] = (new Query())
-                        ->select([
-                            'id' => 'elements.id',
-                            'lft' => 'structureelements.lft',
-                            'rgt' => 'structureelements.rgt',
-                            'level' => 'structureelements.level',
-                        ])
-                        ->from(['elements' => '{{%elements}}'])
-                        ->innerJoin(
-                            ['structureelements' => '{{%structureelements}}'],
-                            '[[structureelements.elementId]] = [[elements.canonicalId]]',
-                        )
-                        ->where(['elements.id' => $blockRevisionId])
-                        ->one();
-                }
+                // Store the job data for block structure creation
+                $jobData[$siteId][] = [
+                    'id' => $blockRevisionId,
+                    'level' => $block->level,
+                    'lft' => $block->lft,
+                    'rgt' => $block->rgt,
+                ];
             }
 
             foreach ($supportedSites ?? [] as $supportedSite) {
@@ -925,6 +918,14 @@ SQL
         }
 
         return $supported;
+    }
+
+    public function getNeoFields(): array
+    {
+        return array_filter(
+            Craft::$app->getFields()->getAllFields(),
+            fn($field) => $field instanceof Field
+        );
     }
 
     // Private Methods

@@ -59,7 +59,7 @@ class InputAsset extends FieldAsset
      */
     public function init(): void
     {
-        $this->sourcePath = '@benf/neo/resources';
+        $this->sourcePath = '@benf/neo/assets/dist';
 
         $this->depends = [
             CpAsset::class,
@@ -156,6 +156,7 @@ class InputAsset extends FieldAsset
             'minLevels' => (int)$field->minLevels,
             'maxLevels' => (int)$field->maxLevels,
             'showBlockTypeHandles' => Craft::$app->getUser()->getIdentity()->getPreference('showFieldHandles'),
+            'newBlockMenuStyle' => Neo::$plugin->getSettings()->newBlockMenuStyle,
         ];
 
         $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);
@@ -173,6 +174,7 @@ class InputAsset extends FieldAsset
      */
     private static function _getBlockTypesJsSettings(Field $field, array $blockTypes, ?ElementInterface $owner = null): array
     {
+        $user = Craft::$app->getUser()->getIdentity();
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
@@ -198,12 +200,16 @@ class InputAsset extends FieldAsset
                 'maxSiblingBlocks' => $blockType->maxSiblingBlocks,
                 'minChildBlocks' => $blockType->minChildBlocks,
                 'maxChildBlocks' => $blockType->maxChildBlocks,
+                'groupChildBlockTypes' => (bool)$blockType->groupChildBlockTypes,
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
                 'tabs' => Neo::$plugin->blocks->renderTabs($block),
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'groupId' => $blockType->groupId,
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
+                'creatableByUser' => $blockType->ignorePermissions || $user->can("neo-createBlocks:{$blockType->uid}"),
+                'deletableByUser' => $blockType->ignorePermissions || $user->can("neo-deleteBlocks:{$blockType->uid}"),
+                'editableByUser' => $blockType->ignorePermissions || $user->can("neo-editBlocks:{$blockType->uid}"),
             ];
         }
 

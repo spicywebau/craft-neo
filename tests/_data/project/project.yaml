@@ -1,0 +1,13 @@
+plugins:
+  neo:
+    edition: standard
+    enabled: true
+    licenseKey: null
+    schemaVersion: 3.5.2
+system:
+  edition: solo
+  live: true
+  name: 'Neo Test'
+  retryDuration: null
+  schemaVersion: 4.0.0.9
+  timeZone: Australia/Melbourne

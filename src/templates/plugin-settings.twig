@@ -1,0 +1,64 @@
+{% import '_includes/forms' as forms %}
+
+<div class="settings">
+    {{ forms.lightswitchField({
+        label: 'Collapse all blocks?'|t('neo'),
+        instructions: 'Whether all blocks should display as collapsed when loading an element editor.'|t('neo'),
+        id: 'collapseAllBlocks',
+        name: 'collapseAllBlocks',
+        on: settings.collapseAllBlocks,
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Default ’Always Show Dropdown’ setting'|t('neo'),
+        instructions: 'Whether block type groups will always show as a dropdown menu, if their ’Always Show Dropdown’ setting is set to use the global setting.'|t('neo'),
+        id: 'defaultAlwaysShowGroupDropdowns',
+        name: 'defaultAlwaysShowGroupDropdowns',
+        on: settings.defaultAlwaysShowGroupDropdowns,
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Optimise search indexing?'|t('neo'),
+        instructions: 'Whether to skip updating search indexes for Neo blocks that have no sub-fields set to use their values as search keywords, or that belong to Neo fields that aren’t set to use the field’s values as search keywords.'|t('neo'),
+        id: 'optimiseSearchIndexing',
+        name: 'optimiseSearchIndexing',
+        on: settings.optimiseSearchIndexing,
+    }) }}
+
+    {{ forms.selectField({
+        id: 'newBlockMenuStyle',
+        name: 'newBlockMenuStyle',
+        label: 'New block menu style'|t('neo'),
+        instructions: 'Which style to use for Neo’s ’new block’ menus.'|t('neo'),
+        options: [
+            {label: 'Classic'|t('neo'), value: 'classic'},
+            {label: 'Grid'|t('neo'), value: 'grid'},
+            {label: 'List'|t('neo'), value: 'list'},
+        ],
+        value: settings.newBlockMenuStyle,
+    }) }}
+
+    {% tag('div') with {
+        id: 'block-type-icon-sources-container',
+    } %}
+        {{ forms.checkboxSelectField({
+            label: 'Block type icon sources'|t('neo'),
+            instructions: 'Which sources do you want to select block type icons from?'|t('neo'),
+            id: 'blockTypeIconSources',
+            name: 'blockTypeIconSources',
+            options: blockTypeIconSourceOptions,
+            values: settings.blockTypeIconSources,
+            showAllOption: true,
+        }) }}
+    {% endtag %}
+</div>
+
+{% js %}
+    function toggleNewBlockMenuStyle (toggle) {
+        $('#{{ 'block-type-icon-sources-container'|namespaceInputId }}').toggleClass('hidden', !toggle)
+    }
+    toggleNewBlockMenuStyle({{ settings.newBlockMenuStyle != 'classic' }})
+    $('#{{ 'newBlockMenuStyle'|namespaceInputId }}').on('change', function() {
+        toggleNewBlockMenuStyle($(this).val() !== 'classic')
+    })
+{% endjs %}

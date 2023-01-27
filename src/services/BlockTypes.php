@@ -2,9 +2,12 @@
 
 namespace benf\neo\services;
 
+use benf\neo\assets\SettingsAsset;
 use benf\neo\elements\Block;
 use benf\neo\errors\BlockTypeNotFoundException;
 use benf\neo\events\BlockTypeEvent;
+use benf\neo\events\SetConditionElementTypesEvent;
+use benf\neo\Field;
 use benf\neo\helpers\Memoize;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
@@ -12,14 +15,27 @@ use benf\neo\Plugin as Neo;
 use benf\neo\records\BlockType as BlockTypeRecord;
 use benf\neo\records\BlockTypeGroup as BlockTypeGroupRecord;
 use Craft;
+use craft\commerce\elements\Order;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Variant;
 use craft\db\Query;
+use craft\db\Table;
+use craft\elements\Address;
+use craft\elements\Asset;
+use craft\elements\Category;
+use craft\elements\Entry;
+use craft\elements\Tag;
+use craft\elements\User;
 use craft\events\ConfigEvent;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
+use yii\base\Event;
 use yii\base\Exception;
 
 /**
@@ -43,6 +59,33 @@ class BlockTypes extends Component
      * @since 2.3.0
      */
     public const EVENT_AFTER_SAVE_BLOCK_TYPE = 'afterSaveNeoBlockType';
+
+    /**
+     * @event SetConditionElementTypesEvent The event that's triggered when setting the element types for setting
+     * conditions on when block types can be used
+     *
+     * ```php
+     * use benf\neo\events\SetConditionElementTypesEvent;
+     * use benf\neo\services\BlockTypes;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     BlockTypes::class,
+     *     BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES,
+     *     function (SetConditionElementTypesEvent $event) {
+     *         $event->elementTypes[] = \some\added\ElementType::class;
+     *     }
+     * );
+     * ```
+     *
+     * @since 3.6.0
+     */
+    public const EVENT_SET_CONDITION_ELEMENT_TYPES = 'setConditionElementTypes';
+
+    /**
+     * @var string[]|null Supported element types for setting conditions on when block types can be used
+     */
+    private ?array $_conditionElementTypes = null;
 
     /**
      * Gets a Neo block type given its ID.
@@ -203,7 +246,9 @@ class BlockTypes extends Component
         $record->name = $blockType->name;
         $record->handle = $blockType->handle;
         $record->description = $blockType->description;
+        $record->iconId = $blockType->iconId;
         $record->enabled = $blockType->enabled;
+        $record->ignorePermissions = $blockType->ignorePermissions;
         $record->sortOrder = $blockType->sortOrder;
         $record->minBlocks = $blockType->minBlocks;
         $record->maxBlocks = $blockType->maxBlocks;
@@ -211,6 +256,7 @@ class BlockTypes extends Component
         $record->maxSiblingBlocks = $blockType->maxSiblingBlocks;
         $record->minChildBlocks = $blockType->minChildBlocks;
         $record->maxChildBlocks = $blockType->maxChildBlocks;
+        $record->groupChildBlockTypes = $blockType->groupChildBlockTypes;
         $record->childBlocks = $blockType->childBlocks;
         $record->topLevel = $blockType->topLevel;
         $record->groupId = $blockType->groupId;
@@ -373,6 +419,10 @@ class BlockTypes extends Component
             $fieldLayout = null;
             $isNew = false;
             $blockType = null;
+            $blockTypeConditions = $data['conditions'] ?? [];
+            $blockTypeIcon = $data['icon'] !== null
+                ? Craft::$app->getElements()->getElementByUid($data['icon'], Asset::class)
+                : null;
 
             if ($record->id !== null) {
                 $result = $this->_createQuery()
@@ -422,7 +472,9 @@ class BlockTypes extends Component
             $record->name = $data['name'];
             $record->handle = $data['handle'];
             $record->description = $data['description'] ?? null;
+            $record->iconId = $blockTypeIcon?->id ?? null;
             $record->enabled = $data['enabled'] ?? true;
+            $record->ignorePermissions = $data['ignorePermissions'] ?? true;
             $record->sortOrder = $data['sortOrder'];
             $record->minBlocks = $data['minBlocks'] ?? 0;
             $record->maxBlocks = $data['maxBlocks'];
@@ -430,9 +482,10 @@ class BlockTypes extends Component
             $record->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
             $record->minChildBlocks = $data['minChildBlocks'] ?? 0;
             $record->maxChildBlocks = $data['maxChildBlocks'];
+            $record->groupChildBlockTypes = $data['groupChildBlockTypes'] ?? true;
             $record->childBlocks = $data['childBlocks'];
             $record->topLevel = $data['topLevel'];
-            $record->conditions = Json::encode($data['conditions'] ?? []);
+            $record->conditions = Json::encode($blockTypeConditions);
             $record->uid = $uid;
             $record->fieldLayoutId = $fieldLayout?->id;
             $record->save(false);
@@ -444,6 +497,7 @@ class BlockTypes extends Component
             $blockType->handle = $data['handle'];
             $blockType->description = $data['description'] ?? null;
             $blockType->enabled = $data['enabled'] ?? true;
+            $blockType->ignorePermissions = $data['ignorePermissions'] ?? true;
             $blockType->sortOrder = $data['sortOrder'];
             $blockType->minBlocks = $data['minBlocks'] ?? 0;
             $blockType->maxBlocks = $data['maxBlocks'];
@@ -451,8 +505,10 @@ class BlockTypes extends Component
             $blockType->maxSiblingBlocks = $data['maxSiblingBlocks'] ?? 0;
             $blockType->minChildBlocks = $data['minChildBlocks'] ?? 0;
             $blockType->maxChildBlocks = $data['maxChildBlocks'];
+            $blockType->groupChildBlockTypes = $data['groupChildBlockTypes'] ?? true;
             $blockType->childBlocks = $data['childBlocks'];
             $blockType->topLevel = $data['topLevel'];
+            $blockType->conditions = $blockTypeConditions;
             $blockType->uid = $uid;
             $blockType->fieldLayoutId = $fieldLayout?->id;
 
@@ -558,7 +614,7 @@ class BlockTypes extends Component
             if ($record) {
                 if ($data) {
                     $record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
-                    $record->name = $data['name'];
+                    $record->name = $data['name'] ?? '';
                     $record->sortOrder = $data['sortOrder'];
                     // If the Craft install was upgraded from Craft 3 / Neo 2 and the project config doesn't have
                     // `alwaysShowDropdown` set, set it to null so it falls back to the global setting
@@ -605,6 +661,33 @@ class BlockTypes extends Component
     }
 
     /**
+     * Renders a Neo block type's settings.
+     *
+     * @param BlockType|null $blockType
+     * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
+     * @return array
+     */
+    public function renderBlockTypeSettings(?BlockType $blockType = null, ?string $baseNamespace = null): array
+    {
+        $view = Craft::$app->getView();
+        $blockTypeId = $blockType?->id ?? '__NEOBLOCKTYPE_ID__';
+        $oldNamespace = $view->getNamespace();
+        $newNamespace = ($baseNamespace ?? $oldNamespace) . '[blockTypes][' . $blockTypeId . ']';
+        $view->setNamespace($newNamespace);
+        $view->startJsBuffer();
+
+        $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
+            'blockType' => $blockType,
+            'conditions' => $this->_getConditions($blockType),
+        ]));
+
+        $js = $view->clearJsBuffer();
+        $view->setNamespace($oldNamespace);
+
+        return [$html, $js];
+    }
+
+    /**
      * Renders a field layout designer for a Neo block type.
      *
      * @param FieldLayout|null $fieldLayout
@@ -633,6 +716,8 @@ class BlockTypes extends Component
     public function getAllBlockTypes(): array
     {
         $results = $this->_createQuery()
+            ->innerJoin(['f' => Table::FIELDS], '[[f.id]] = [[bt.fieldId]]')
+            ->where(['f.type' => Field::class])
             ->all();
 
         foreach ($results as $key => $result) {
@@ -684,13 +769,15 @@ class BlockTypes extends Component
         ];
 
         // Columns that didn't exist in Neo 3.0.0
-        // TODO: move these into `$columns` in Neo 4
         $maybeColumns = [
             'description',
+            'iconId',
             'enabled',
+            'ignorePermissions',
             'minBlocks',
             'minChildBlocks',
             'minSiblingBlocks',
+            'groupChildBlockTypes',
             'conditions',
         ];
 
@@ -701,9 +788,9 @@ class BlockTypes extends Component
         }
 
         return (new Query())
-            ->select($columns)
-            ->from(['{{%neoblocktypes}}'])
-            ->orderBy(['sortOrder' => SORT_ASC]);
+            ->select(array_map(fn($column) => "bt.$column", $columns))
+            ->from(['bt' => '{{%neoblocktypes}}'])
+            ->orderBy(['bt.sortOrder' => SORT_ASC]);
     }
 
     /**
@@ -775,5 +862,83 @@ class BlockTypes extends Component
         }
 
         return $record;
+    }
+
+    /**
+     * Gets the condition builder field HTML for a block type.
+     *
+     * @param BlockType|null $blockType
+     * @return string[]
+     */
+    private function _getConditions(?BlockType $blockType = null): array
+    {
+        if ($this->_conditionElementTypes === null) {
+            // TODO: remove $event1 in Neo 4
+            $event1 = new SetConditionElementTypesEvent([
+                'elementTypes' => $this->_getSupportedConditionElementTypes(),
+            ]);
+            Event::trigger(SettingsAsset::class, SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES, $event1);
+
+            $event2 = new SetConditionElementTypesEvent([
+                'elementTypes' => $event1->elementTypes,
+            ]);
+            $this->trigger(self::EVENT_SET_CONDITION_ELEMENT_TYPES, $event2);
+            $this->_conditionElementTypes = $event2->elementTypes;
+        }
+
+        $conditionsService = Craft::$app->getConditions();
+        $conditionHtml = [];
+        Neo::$isGeneratingConditionHtml = true;
+
+        foreach ($this->_conditionElementTypes as $elementType) {
+            $condition = !empty($blockType?->conditions) && isset($blockType->conditions[$elementType])
+                ? $conditionsService->createCondition($blockType->conditions[$elementType])
+                : $elementType::createCondition();
+            $condition->mainTag = 'div';
+            $condition->id = 'conditions-' . StringHelper::toKebabCase($elementType);
+            $condition->name = "conditions[$elementType]";
+            $condition->forProjectConfig = true;
+
+            $conditionHtml[$elementType] = Cp::fieldHtml($condition->getBuilderHtml(), [
+                'label' => Craft::t('neo', '{type} Condition', [
+                    'type' => StringHelper::mb_ucwords($elementType::displayName()),
+                ]),
+                'instructions' => Craft::t('neo', 'Only allow this block type to be used on {type} if they match the following rules:', [
+                    'type' => $elementType::pluralLowerDisplayName(),
+                ]),
+            ]);
+        }
+
+        Neo::$isGeneratingConditionHtml = false;
+
+        return $conditionHtml;
+    }
+
+    /**
+     * Get the element types supported by Neo for block type conditionals.
+     *
+     * @return string[]
+     */
+    private function _getSupportedConditionElementTypes(): array
+    {
+        // In-built Craft element types
+        $elementTypes = [
+            Entry::class,
+            Category::class,
+            Asset::class,
+            User::class,
+            Tag::class,
+            Address::class,
+        ];
+
+        // Craft Commerce element types
+        if (Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
+            $elementTypes[] = Product::class;
+            $elementTypes[] = Variant::class;
+            $elementTypes[] = Order::class;
+            $elementTypes[] = Subscription::class;
+        }
+
+        return $elementTypes;
     }
 }
