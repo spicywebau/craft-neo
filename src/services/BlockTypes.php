@@ -420,7 +420,7 @@ class BlockTypes extends Component
             $isNew = false;
             $blockType = null;
             $blockTypeConditions = $data['conditions'] ?? [];
-            $blockTypeIcon = $data['icon'] !== null
+            $blockTypeIcon = isset($data['icon'])
                 ? Craft::$app->getElements()->getElementByUid($data['icon'], Asset::class)
                 : null;
 
