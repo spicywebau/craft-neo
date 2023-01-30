@@ -3,6 +3,7 @@
 namespace benf\neo\elements\conditions;
 
 use craft\elements\conditions\ElementCondition;
+use craft\elements\conditions\LevelConditionRule;
 
 /**
  * Class BlockCondition
@@ -19,6 +20,7 @@ class BlockCondition extends ElementCondition
     protected function conditionRuleTypes(): array
     {
         return array_merge(parent::conditionRuleTypes(), [
+            LevelConditionRule::class,
             OwnerCategoryGroupConditionRule::class,
             OwnerEntryTypeConditionRule::class,
             OwnerSectionConditionRule::class,

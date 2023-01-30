@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added the Level option to the Neo block layout element condition rules
 - Added `benf\neo\controllers\Input::actionUpdateVisibleElements()`
 
 ## 3.6.0 - 2023-01-27
