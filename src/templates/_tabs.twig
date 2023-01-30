@@ -1,3 +1,4 @@
+{% set usingFormTabs = usingFormTabs ?? false %}
 {% set blockId = blockId ?? block.id %}
 {% set typeName = block.type.name|t('site') %}
 {% set tabsBtnLabel = "#{typeName} #{'Tabs'|t('neo')}" %}
@@ -17,6 +18,10 @@
 } %}
 
 {% if tabs|length > 1 %}
+    {% if usingFormTabs %}
+        {% set tabs = tabs|map(tab => tab.layoutTab) %}
+    {% endif %}
+
     {% set selectedTabUid = selectedTab ?? (tabs|first).uid %}
     {% set hasErrors = false %}
     <div class="tabs_inner" data-neo-b="{{ blockId }}.container.tabs">
@@ -25,7 +30,8 @@
             {%- set tabHasErrors = tab.elementHasErrors(block) -%}
             <a class="tab {{ selectedTabUid == tab.uid ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
             data-neo-b="{{ blockId }}.button.tab"
-            data-neo-b-info="{{ tabName }}">
+            data-neo-b-info="{{ tabName }}"
+            data-neo-b-tabuid="{{ tab.uid }}">
                 {{ tabName }}{#
                 #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
             </a>
@@ -55,7 +61,8 @@
                         role="button"
                         aria-label="{{ tabName }}"
                         data-neo-b="{{ blockId }}.button.tab"
-                        data-neo-b-info="{{ tabName }}">
+                        data-neo-b-info="{{ tabName }}"
+                        data-neo-b-tabuid="{{ tab.uid }}">
                             {{ tabName }}{#
                             #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
                         </a>

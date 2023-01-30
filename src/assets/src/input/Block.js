@@ -104,7 +104,6 @@ export default Garnish.Base.extend({
     this.$previewContainer = $neo.filter(`[data-neo-b="${this._id}.container.preview"]`)
     this.$settingsButton = $neo.filter(`[data-neo-b="${this._id}.button.actions"]`)
     this.$togglerButton = $neo.filter(`[data-neo-b="${this._id}.button.toggler"]`)
-    this.$tabsButton = $neo.filter(`[data-neo-b="${this._id}.button.tabs"]`)
     this.$enabledInput = $neo.filter(`[data-neo-b="${this._id}.input.enabled"]`)
     this.$levelInput = $neo.filter(`[data-neo-b="${this._id}.input.level"]`)
     this.$collapsedInput = $neo.filter(`[data-neo-b="${this._id}.input.collapsed"]`)
@@ -195,9 +194,11 @@ export default Garnish.Base.extend({
               <div class="tabs_inner" data-neo-b="${this._id}.container.tabs">`)
 
       for (let i = 0; i < typeTabs.length; i++) {
-        const tabName = typeTabs[i].getName()
+        const tab = typeTabs[i]
+        const tabName = tab.getName()
+        const tabUid = tab.getUid()
         elementHtml.push(`
-                <a class="tab ${!i ? 'is-selected' : ''}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>`)
+                <a class="tab ${!i ? 'is-selected' : ''}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}" data-neo-b-tabuid="${tabUid}">${tabName}</a>`)
       }
 
       elementHtml.push(`
@@ -210,10 +211,12 @@ export default Garnish.Base.extend({
                   <ul>`)
 
       for (let i = 0; i < typeTabs.length; i++) {
-        const tabName = typeTabs[i].getName()
+        const tab = typeTabs[i]
+        const tabName = tab.getName()
+        const tabUid = tab.getUid()
         elementHtml.push(`
                     <li>
-                      <a${!i ? ' class="is-selected"' : ''} href="#" type="button" role="button" aria-label="${tabName}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>
+                      <a${!i ? ' class="is-selected"' : ''} href="#" type="button" role="button" aria-label="${tabName}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}" data-neo-b-tabuid="${tabUid}">${tabName}</a>
                     </li>`)
       }
 
@@ -338,7 +341,7 @@ export default Garnish.Base.extend({
     }
 
     this.$form = this.$container.closest('form')
-    this.initTabButtons()
+    this.initTabs()
 
     this._settingsMenu = this.$settingsButton.data('trigger') || new Garnish.DisclosureMenu(this.$settingsButton)
     this._settingsMenu.on('show', () => {
@@ -431,10 +434,12 @@ export default Garnish.Base.extend({
    * @public
    * @since 3.7.0
    */
-  initTabButtons () {
+  initTabs () {
     const $neo = this.$container.find('[data-neo-b]')
+    this.$tabsButton = $neo.filter(`[data-neo-b="${this._id}.button.tabs"]`)
     this.$tabsContainer = $neo.filter(`[data-neo-b="${this._id}.container.tabs"]`)
     this.$tabButton = $neo.filter(`[data-neo-b="${this._id}.button.tab"]`)
+    this.$tabContainer = this.$contentContainer.children('[data-layout-tab]')
 
     this._tabsMenu = this.$tabsButton.data('trigger') || new Garnish.DisclosureMenu(this.$tabsButton)
     this._tabsMenu.on('show', () => this.$container.addClass('active'))
@@ -1001,7 +1006,10 @@ export default Garnish.Base.extend({
     this.$tabButton.removeClass('is-selected')
     this.$tabContainer.addClass('hidden')
     const $tabButton = this.$tabButton.filter(`[data-neo-b-info="${tabName}"]`).addClass('is-selected')
-    const $tabContainer = this.$tabContainer.eq($tabButton.index()).removeClass('hidden')
+    const tabUid = $tabButton.attr('data-neo-b-tabuid')
+    const $tabContainer = this.$tabContainer
+      .filter(`[data-layout-tab="${tabUid}"]`)
+      .removeClass('hidden')
     this.$tabsButton.text(tabName)
     Craft.ElementThumbLoader.retryAll()
 
@@ -1142,6 +1150,13 @@ export default Garnish.Base.extend({
     this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
     this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', cloneDisabled)
     this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
+  },
+
+  namespaceId (id) {
+    NS.enter(this._templateNs)
+    const namespacedId = `${NS.toString('-')}-${Craft.formatInputId(id)}`
+    NS.leave()
+    return namespacedId
   },
 
   toggleSettingsMenu (toggle) {

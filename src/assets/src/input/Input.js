@@ -905,12 +905,16 @@ export default Garnish.Base.extend({
     this._visibleLayoutElements[block.getId()] = visibleLayoutElements
 
     // Update the tabs
-    const $tabsHtml = $(blockData.tabs)
-    const $tabsOuterContainer = block.$contentContainer.find('.tabs')
-    $tabsOuterContainer.find('.tabs_inner + div').remove()
-    $tabsOuterContainer.find('.tabs_inner').remove()
-    $tabsOuterContainer.append($tabsHtml)
-    block.initTabButtons()
+    // Unfortunately can't use `block.getDuplicatedBlockId()` because it doesn't work here for new blocks
+    const idToReplace = blockData.tabs?.match(/data-neo-b="([0-9]+).container.tabs"/)?.pop() ?? null
+    const tabsHtml = idToReplace
+      ? blockData.tabs.replaceAll(idToReplace, block.getId())
+      : blockData.tabs
+    const $tabsHtml = $(tabsHtml)
+    const $tabsOuterContainer = block.$topbarRightContainer.find('.tabs')
+    $tabsOuterContainer.empty().append($tabsHtml)
+    block.initTabs()
+    block.updateResponsiveness()
 
     Craft.appendHeadHtml(blockData.headHtml)
     Craft.appendBodyHtml(blockData.bodyHtml)

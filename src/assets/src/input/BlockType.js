@@ -42,7 +42,14 @@ export default Garnish.Base.extend({
     this._groupChildBlockTypes = settings.groupChildBlockTypes
     this._childBlocks = settings.childBlocks
     this._topLevel = settings.topLevel
-    this._tabs = settings.tabs.tabNames?.map(tab => tab instanceof Tab ? tab : new Tab({ name: tab })) ?? []
+    this._tabs = settings.tabs.tabNames?.map(
+      tab => tab instanceof Tab
+        ? tab
+        : new Tab({
+          name: tab,
+          uid: settings.tabs.tabUids[tab]
+        })
+    ) ?? []
     this._html = settings.tabs.html ?? ''
     this._js = settings.tabs.js ?? ''
     this._defaultVisibleLayoutElements = settings.tabs.visibleLayoutElements ?? {}

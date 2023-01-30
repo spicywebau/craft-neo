@@ -253,13 +253,14 @@ class Input extends Controller
                 ];
             }
 
-            $tabs = $fieldLayout->getTabs();
+            $tabs = $form->tabs;
             if (count($tabs) > 1) {
                 $selectedTab = isset($blockData['selectedTab']) && isset($tabs[$blockData['selectedTab']])
                     ? $blockData['selectedTab']
                     : null;
                 $tabHtml = $view->namespaceInputs(fn() => $view->renderTemplate('neo/_tabs.twig', [
                     'tabs' => $tabs,
+                    'usingFormTabs' => true,
                     'selectedTab' => $selectedTab,
                     'block' => $block,
                 ], View::TEMPLATE_MODE_CP), $namespace);
