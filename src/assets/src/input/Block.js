@@ -99,11 +99,9 @@ export default Garnish.Base.extend({
     this.$topbarLeftContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarLeft"]`)
     this.$topbarRightContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarRight"]`)
     this.$handleContainer = $neo.filter(`[data-neo-b="${this._id}.container.handle"]`)
-    this.$tabsContainer = $neo.filter(`[data-neo-b="${this._id}.container.tabs"]`)
     this.$tabContainer = this.$contentContainer.children('[data-layout-tab]')
     this.$menuContainer = $neo.filter(`[data-neo-b="${this._id}.container.menu"]`)
     this.$previewContainer = $neo.filter(`[data-neo-b="${this._id}.container.preview"]`)
-    this.$tabButton = $neo.filter(`[data-neo-b="${this._id}.button.tab"]`)
     this.$settingsButton = $neo.filter(`[data-neo-b="${this._id}.button.actions"]`)
     this.$togglerButton = $neo.filter(`[data-neo-b="${this._id}.button.toggler"]`)
     this.$tabsButton = $neo.filter(`[data-neo-b="${this._id}.button.tabs"]`)
@@ -340,13 +338,7 @@ export default Garnish.Base.extend({
     }
 
     this.$form = this.$container.closest('form')
-    this._tabsMenu = this.$tabsButton.data('trigger') || new Garnish.DisclosureMenu(this.$tabsButton)
-    this._tabsMenu.on('show', () => this.$container.addClass('active'))
-    this._tabsMenu.on('hide', () => this.$container.removeClass('active'))
-
-    this.$tabButton = this.$tabButton.add(this._tabsMenu.$container.find(`[data-neo-b="${this._id}.button.tab"]`))
-    this.addListener(this.$tabButton, 'click', this['@setTab'])
-    this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
+    this.initTabButtons()
 
     this._settingsMenu = this.$settingsButton.data('trigger') || new Garnish.DisclosureMenu(this.$settingsButton)
     this._settingsMenu.on('show', () => {
@@ -435,6 +427,24 @@ export default Garnish.Base.extend({
     this.trigger('initUi')
   },
 
+  /**
+   * @public
+   * @since 3.7.0
+   */
+  initTabButtons () {
+    const $neo = this.$container.find('[data-neo-b]')
+    this.$tabsContainer = $neo.filter(`[data-neo-b="${this._id}.container.tabs"]`)
+    this.$tabButton = $neo.filter(`[data-neo-b="${this._id}.button.tab"]`)
+
+    this._tabsMenu = this.$tabsButton.data('trigger') || new Garnish.DisclosureMenu(this.$tabsButton)
+    this._tabsMenu.on('show', () => this.$container.addClass('active'))
+    this._tabsMenu.on('hide', () => this.$container.removeClass('active'))
+
+    this.$tabButton = this.$tabButton.add(this._tabsMenu.$container.find(`[data-neo-b="${this._id}.button.tab"]`))
+    this.addListener(this.$tabButton, 'click', this['@setTab'])
+    this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
+  },
+
   destroy () {
     if (this._initialised) {
       this.$foot.remove()
@@ -455,6 +465,15 @@ export default Garnish.Base.extend({
 
   getId () {
     return this._id
+  },
+
+  /**
+   * @public
+   * @returns the ID of the duplicate block, or the ID of this block if it hasn't been duplicated
+   * @since 3.7.0
+   */
+  getDuplicatedBlockId () {
+    return this.$form.data('elementEditor')?.duplicatedElements[this._id] ?? this._id
   },
 
   isTopLevel () {
@@ -919,10 +938,9 @@ export default Garnish.Base.extend({
     if (!this.isNew()) {
       // Use the duplicated block ID if we're on a new provisional draft
       // The server-side code will also apply the new state to the canonical block
-      const thisBlockId = this.getId()
-      const elementEditor = this.$form.data('elementEditor')
-      const duplicatedBlockId = elementEditor?.duplicatedElements[thisBlockId] ?? thisBlockId
-      const sentBlockId = elementEditor?.settings.isProvisionalDraft ? duplicatedBlockId : thisBlockId
+      const sentBlockId = this.$form.data('elementEditor')?.settings.isProvisionalDraft
+        ? this.getDuplicatedBlockId()
+        : this.getId()
       const data = {
         expanded: this.isExpanded() ? 1 : 0,
         blockId: sentBlockId,

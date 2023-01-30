@@ -45,6 +45,7 @@ export default Garnish.Base.extend({
     this._tabs = settings.tabs.tabNames?.map(tab => tab instanceof Tab ? tab : new Tab({ name: tab })) ?? []
     this._html = settings.tabs.html ?? ''
     this._js = settings.tabs.js ?? ''
+    this._defaultVisibleLayoutElements = settings.tabs.visibleLayoutElements ?? {}
     this._hasChildBlocksUiElement = settings.hasChildBlocksUiElement
     this._creatableByUser = settings.creatableByUser
     this._deletableByUser = settings.deletableByUser
@@ -76,6 +77,12 @@ export default Garnish.Base.extend({
 
   getJs (blockId = null) {
     return this._replaceBlockIdPlaceholder(this._js, blockId)
+  },
+
+  getDefaultVisibleLayoutElements () {
+    return {
+      ...this._defaultVisibleLayoutElements
+    }
   },
 
   _replaceBlockIdPlaceholder (input, blockId = null) {

@@ -72,7 +72,9 @@ class Blocks extends Component
         }
 
         $view->startJsBuffer();
-        $html = $view->namespaceInputs($fieldLayout->createForm($block)->render());
+        $fieldLayoutForm = $fieldLayout->createForm($block);
+        $data['visibleLayoutElements'] = $fieldLayoutForm->getVisibleElements();
+        $html = $view->namespaceInputs($fieldLayoutForm->render());
         $data['js'] = $view->clearJsBuffer();
 
         if ($blockType->hasChildBlocksUiElement()) {

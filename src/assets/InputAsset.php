@@ -145,6 +145,8 @@ class InputAsset extends FieldAsset
         self::$filteredBlockTypes = $event->blockTypes;
 
         $jsSettings = [
+            'id' => $field->id,
+            'ownerId' => $owner->id,
             'name' => $name,
             'namespace' => $view->namespaceInputName($name) . '[blocks]',
             'blockTypes' => self::_getBlockTypesJsSettings($field, $event->blockTypes, $owner),

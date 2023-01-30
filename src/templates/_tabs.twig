@@ -1,0 +1,67 @@
+{% set blockId = blockId ?? block.id %}
+{% set typeName = block.type.name|t('site') %}
+{% set tabsBtnLabel = "#{typeName} #{'Tabs'|t('neo')}" %}
+{% set tabsMenuId = "neoblock-tabs-menu-#{blockId}" %}
+{% set tabsBtnAttributes = {
+    type: 'button',
+    role: 'button',
+    title: 'Tabs'|t('neo'),
+    aria: {
+        controls: tabsMenuId,
+        label: tabsBtnLabel,
+    },
+    data: {
+        'disclosure-trigger': true,
+        'neo-b': "#{blockId}.button.tabs",
+    },
+} %}
+
+{% if tabs|length > 1 %}
+    {% set selectedTabUid = selectedTab ?? (tabs|first).uid %}
+    {% set hasErrors = false %}
+    <div class="tabs_inner" data-neo-b="{{ blockId }}.container.tabs">
+        {%- for tab in tabs -%}
+            {%- set tabName = tab.name|t('site') -%}
+            {%- set tabHasErrors = tab.elementHasErrors(block) -%}
+            <a class="tab {{ selectedTabUid == tab.uid ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
+            data-neo-b="{{ blockId }}.button.tab"
+            data-neo-b-info="{{ tabName }}">
+                {{ tabName }}{#
+                #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
+            </a>
+            {%- set hasErrors = (hasErrors or tabHasErrors) -%}
+        {%- endfor -%}
+    </div>
+    <div>
+        <button {{ attr(tabsBtnAttributes) }} class="tabs_btn menubtn{{ hasErrors ? ' has-errors' : '' }}">
+            {% set selectedFound = false %}
+            {% for tab in tabs|filter(tab => selectedTabUid == tab.uid) %}
+                {% set selectedFound = true %}
+                {{ tab.name|t('site') }}
+            {% endfor %}
+            {% if not selectedFound %}
+                {{ (tabs|first).name|t('site') }}
+            {% endif %}
+        </button>
+        <div id="{{ tabsMenuId }}" class="neo_block_tabs-menu menu menu--disclosure">
+            <ul>
+                {% for tab in tabs %}
+                    {%- set tabName = tab.name|t('site') -%}
+                    {%- set tabHasErrors = tab.elementHasErrors(block) -%}
+                    <li>
+                        <a class="{{ selectedTabUid == tab.uid ? 'is-selected' : '' }}{{ tabHasErrors ? ' has-errors' : '' }}"
+                        href="#"
+                        type="button"
+                        role="button"
+                        aria-label="{{ tabName }}"
+                        data-neo-b="{{ blockId }}.button.tab"
+                        data-neo-b-info="{{ tabName }}">
+                            {{ tabName }}{#
+                            #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}

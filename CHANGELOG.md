@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `benf\neo\controllers\Input::actionUpdateVisibleElements()`
+
 ## 3.6.0 - 2023-01-27
 
 ### Added
