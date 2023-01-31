@@ -146,7 +146,7 @@ class InputAsset extends FieldAsset
 
         $jsSettings = [
             'id' => $field->id,
-            'ownerId' => $owner->id,
+            'ownerId' => $owner?->id,
             'name' => $name,
             'namespace' => $view->namespaceInputName($name) . '[blocks]',
             'blockTypes' => self::_getBlockTypesJsSettings($field, $event->blockTypes, $owner),
