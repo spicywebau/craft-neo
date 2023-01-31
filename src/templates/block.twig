@@ -9,6 +9,9 @@
 {% set blockId = getBlockId(block) %}
 {% set isNew = block.id is null %}
 {% set hasErrors = block.hasErrors() %}
+{% set showFormAndTabs = hasTabs or isParent %}
+{% set renderedForm = null %}
+{% set formTabs = null %}
 {% set visibleLayoutElements = {} %}
 
 {# Get the errors specific to the block (i.e. not subfield errors) #}
@@ -61,6 +64,21 @@
     },
 } %}
 
+{# If this block either has tabs or is a parent, get the form HTML now #}
+{# Done like this so we can: #}
+{# 1. use `createForm()` without repeatedly namespacing the child blocks #}
+{# 2. get the form tabs at the same time #}
+{% if showFormAndTabs %}
+    {% set renderedForm %}
+        {% namespace baseInputName %}
+            {% set layoutForm = block.getFieldLayout().createForm(block, static) %}
+            {% set formTabs = layoutForm.tabs %}
+            {% set visibleLayoutElements = layoutForm.getVisibleElements() %}
+            {{ layoutForm.render()|raw }}
+        {% endnamespace %}
+    {% endset %}
+{% endif %}
+
 {% set blockTypeHandleLabel %}{% if currentUser.getPreference('showFieldHandles') %}
     <div class="ni_block_topbar_item handle" data-neo-b="{{ blockId }}.container.handle">
         {% include '_includes/forms/copytextbtn' with {
@@ -96,14 +114,14 @@
         </div>
         <div class="ni_block_topbar_right" data-neo-b="{{ blockId }}.container.topbarRight">
             <div class="ni_block_topbar_item size-full tabs">
-                {% if hasTabs or isParent %}
+                {% if showFormAndTabs %}
                     <div class="tabs_trigger" data-neo-b="{{ blockId }}.button.toggler"></div>
+                    {% include 'neo/_tabs' with {
+                        tabs: formTabs,
+                        block,
+                        blockId,
+                    } only %}
                 {% endif %}
-                {% include 'neo/_tabs' with {
-                    tabs: typeTabs,
-                    block,
-                    blockId,
-                } only %}
             </div>
             <div class="ni_block_topbar_item hidden" data-neo-b="{{ blockId }}.status">
                 <div class="status off" title="{{ "Disabled"|t }}"></div>
@@ -113,7 +131,7 @@
                     <button {{ attr(actionBtnAttributes) }}></button>
                     <div id="{{ actionMenuId }}" class="menu menu--disclosure" data-neo-b="{{ blockId }}.container.menu">
                         <ul class="padded">
-                            {% if hasTabs or isParent %}
+                            {% if showFormAndTabs %}
                                 <li{% if collapsed %} class="hidden"{% endif %}><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="{{ 'Collapse'|t('neo') }}">{{ 'Collapse'|t('neo') }}</a></li>
                                 <li{% if not collapsed %} class="hidden"{% endif %}><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="{{ 'Expand'|t('neo') }}">{{ 'Expand'|t('neo') }}</a></li>
                             {% endif %}
@@ -143,19 +161,11 @@
             </div>
         </div>
     </div>
-    {% if hasTabs or isParent %}
+    {% if showFormAndTabs %}
         <div class="ni_block_body"{{ collapsed ? ' style="opacity: 0; height: 0;"' }} data-neo-b="{{ blockId }}.container.body">
             {% if hasTabs %}
                 <div class="ni_block_content" data-neo-b="{{ blockId }}.container.content">
-                    {# Get the HTML, and replace the child blocks UI element placeholder with actual child blocks #}
-                    {# Done like this so we can use `createForm()` without repeatedly namespacing the child blocks #}
-                    {% set renderedForm %}
-                        {% namespace baseInputName %}
-                            {% set layoutForm = block.getFieldLayout().createForm(block, static) %}
-                            {% set visibleLayoutElements = layoutForm.getVisibleElements() %}
-                            {{ layoutForm.render()|raw }}
-                        {% endnamespace %}
-                    {% endset %}
+                    {# Replace the form HTML's child blocks UI element placeholder with actual child blocks #}
                     {% set splitOnChildBlocks = renderedForm|split('<div data-neo-child-blocks-ui-element="' ~ blockId ~ '" data-layout-element="') %}
                     {{ splitOnChildBlocks[0]|raw }}
                     {% if splitOnChildBlocks|length > 1 %}

@@ -1,4 +1,3 @@
-{% set usingFormTabs = usingFormTabs ?? false %}
 {% set blockId = blockId ?? block.id %}
 {% set typeName = block.type.name|t('site') %}
 {% set tabsBtnLabel = "#{typeName} #{'Tabs'|t('neo')}" %}
@@ -18,10 +17,8 @@
 } %}
 
 {% if tabs|length > 1 %}
-    {% if usingFormTabs %}
-        {% set tabs = tabs|map(tab => tab.layoutTab) %}
-    {% endif %}
-
+    {# Convert the expected form tabs array to layout tabs #}
+    {% set tabs = tabs|map(tab => tab.layoutTab) %}
     {% set selectedTabUid = selectedTab ?? (tabs|first).uid %}
     {% set hasErrors = false %}
     <div class="tabs_inner" data-neo-b="{{ blockId }}.container.tabs">

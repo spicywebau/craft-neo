@@ -268,7 +268,6 @@ class Input extends Controller
                     : null;
                 $tabHtml = $view->namespaceInputs(fn() => $view->renderTemplate('neo/_tabs.twig', [
                     'tabs' => $tabs,
-                    'usingFormTabs' => true,
                     'selectedTab' => $selectedTab,
                     'block' => $block,
                 ], View::TEMPLATE_MODE_CP), $namespace);
