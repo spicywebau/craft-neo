@@ -765,12 +765,14 @@ export default Garnish.Base.extend({
     // A small timeout to let the element editor initialise
     setTimeout(() => {
       this.$form.data('elementEditor')?.on('update', () => {
+        const elementEditor = this.$form.data('elementEditor')
         const data = {
           blocks: {},
           sortOrder: [],
           fieldId: this._id,
           ownerCanonicalId: this._ownerId,
-          ownerDraftId: this.$form.data('elementEditor').settings.draftId,
+          ownerDraftId: elementEditor.settings.draftId,
+          isProvisionalDraft: elementEditor.settings.isProvisionalDraft,
           siteId: this._siteId
         }
         const originalBlockIds = {}

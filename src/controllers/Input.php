@@ -192,12 +192,15 @@ class Input extends Controller
         $fieldId = $request->getRequiredBodyParam('fieldId');
         $ownerCanonicalId = $request->getRequiredBodyParam('ownerCanonicalId');
         $ownerDraftId = $request->getRequiredBodyParam('ownerDraftId');
+        $isProvisionalDraft = $request->getRequiredBodyParam('isProvisionalDraft');
         $siteId = $request->getRequiredBodyParam('siteId');
         $sortOrder = $request->getRequiredBodyParam('sortOrder');
+
         $field = $fieldsService->getFieldById($fieldId);
         $canonicalOwner = $elementsService->getElementById($ownerCanonicalId, null, $siteId);
+        $draftsQueryMethod = $isProvisionalDraft ? 'provisionalDrafts' : 'drafts';
         $blocks = $canonicalOwner::find()
-            ->provisionalDrafts()
+            ->{$draftsQueryMethod}()
             ->draftId($ownerDraftId)
             ->one()
             ->getFieldValue($field->handle)
