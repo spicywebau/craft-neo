@@ -5,6 +5,13 @@
 ### Added
 - Added the Level option to the Neo block layout element condition rules
 - Added `benf\neo\controllers\Input::actionUpdateVisibleElements()`
+- Added `benf\neo\conditions\fields\ParentFieldConditionRuleTrait`
+- Added `benf\neo\conditions\fields\ParentDateFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentLightswitchFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentNumberFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentOptionsFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentRelationalFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentTextFieldConditionRule`
 
 ## 3.6.1 - 2023-01-31
 

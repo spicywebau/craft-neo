@@ -205,6 +205,11 @@ class Input extends Controller
             ->one()
             ->getFieldValue($field->handle)
             ->all();
+
+        foreach ($blocks as $block) {
+            $block->useMemoized($blocks);
+        }
+
         $blockIds = array_map(fn($block) => $block->id, $blocks);
         $returnedBlocksData = [];
 

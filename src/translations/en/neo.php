@@ -110,6 +110,7 @@ return [
     'Owner Tag Group' => 'Owner Tag Group',
     'Owner User Group' => 'Owner User Group',
     'Owner Volume' => 'Owner Volume',
+    'Parent block fields' => 'Parent block fields',
     'Neo - {field}' => 'Neo - {field}',
     'Edit {blockType} blocks' => 'Edit {blockType} blocks',
     'Create blocks' => 'Create blocks',
