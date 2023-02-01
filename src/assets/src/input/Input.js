@@ -93,6 +93,7 @@ export default Garnish.Base.extend({
     this._blocks = []
     this._id = settings.id
     this._name = settings.name
+    this._minBlocks = settings.minBlocks
     this._maxBlocks = settings.maxBlocks
     this._maxTopBlocks = settings.maxTopBlocks
     this._minLevels = settings.minLevels
@@ -243,6 +244,23 @@ export default Garnish.Base.extend({
     this._updateBlockChildren()
     this._updateButtons()
 
+    // Create any required top level blocks, if this field has only one top level block type
+    if (this._minBlocks > 0) {
+      const missingBlockCount = this._minBlocks - this._blocks.length
+      const topLevelBlockTypes = this.getBlockTypes(true)
+
+      if (topLevelBlockTypes.length === 1 && missingBlockCount > 0) {
+        for (let i = this._blocks.length; i < this._minBlocks; i++) {
+          this['@newBlock']({
+            blockType: topLevelBlockTypes[0],
+            createChildBlocks: false,
+            index: i,
+            level: 1
+          })
+        }
+      }
+    }
+
     // Make sure menu states (for pasting blocks) are updated when changing browser tabs
     this.addListener(document, 'visibilitychange.input', () => this._updateButtons())
 
@@ -280,7 +298,7 @@ export default Garnish.Base.extend({
     this._tempButtons?.updateResponsiveness()
   },
 
-  addBlock (block, index = -1, level = 1, animate = null) {
+  addBlock (block, index = -1, level = 1, animate = null, createChildBlocks = true) {
     const blockCount = this._blocks.length
     index = index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount
     animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
@@ -319,6 +337,33 @@ export default Garnish.Base.extend({
     this._updateButtons()
 
     this._visibleLayoutElements[block.getId()] = block.getBlockType().getDefaultVisibleLayoutElements()
+
+    // Create any required child blocks, if this block has only one child block type
+    if (createChildBlocks) {
+      const blockType = block.getBlockType()
+      const minChildBlocks = blockType.getMinChildBlocks()
+
+      if (minChildBlocks > 0) {
+        let childBlockTypes = blockType.getChildBlocks()
+
+        if (childBlockTypes === '*') {
+          childBlockTypes = this.getBlockTypes()
+        }
+
+        if (childBlockTypes.length === 1) {
+          const childBlockType = this.getBlockTypeByHandle(childBlockTypes[0])
+
+          for (let i = 0; i < minChildBlocks; i++) {
+            this['@newBlock']({
+              blockType: childBlockType,
+              createChildBlocks: false,
+              index: index + i,
+              level
+            })
+          }
+        }
+      }
+    }
 
     if (animate) {
       block.$container
@@ -1060,7 +1105,7 @@ export default Garnish.Base.extend({
       showBlockTypeHandle: this._showBlockTypeHandles
     }, true)
 
-    this.addBlock(block, e.index, e.level)
+    this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
   },
 
   '@addBlockAbove' (e) {
