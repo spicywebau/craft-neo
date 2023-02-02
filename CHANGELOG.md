@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug with the format of block type icon data stored in the project config
+
 ## 3.6.1 - 2023-01-31
 
 ### Fixed

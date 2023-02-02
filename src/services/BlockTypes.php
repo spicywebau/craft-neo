@@ -420,9 +420,27 @@ class BlockTypes extends Component
             $isNew = false;
             $blockType = null;
             $blockTypeConditions = $data['conditions'] ?? [];
-            $blockTypeIcon = isset($data['icon'])
-                ? Craft::$app->getElements()->getElementByUid($data['icon'], Asset::class)
-                : null;
+
+            if (!isset($data['icon'])) {
+                $blockTypeIcon = null;
+            } elseif (is_string($data['icon'])) {
+                $blockTypeIcon = Craft::$app->getElements()->getElementByUid($data['icon'], Asset::class);
+            } else {
+                $volumeId = Db::idByUid(Table::VOLUMES, $data['icon']['volume']);
+                $folderId = (new Query())
+                    ->select(['id'])
+                    ->from(Table::VOLUMEFOLDERS)
+                    ->where([
+                        'volumeId' => $volumeId,
+                        'path' => $data['icon']['folderPath'],
+                    ])
+                    ->scalar();
+                $blockTypeIcon = Asset::find()
+                    ->volumeId($volumeId)
+                    ->folderId($folderId)
+                    ->filename($data['icon']['filename'])
+                    ->one();
+            }
 
             if ($record->id !== null) {
                 $result = $this->_createQuery()

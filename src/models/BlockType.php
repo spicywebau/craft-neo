@@ -306,6 +306,17 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     {
         $group = $this->getGroup();
         $icon = $this->getIcon();
+
+        if ($icon) {
+            $iconData = [
+                'volume' => $icon->getVolume()->uid,
+                'folderPath' => $icon->getFolder()->path,
+                'filename' => $icon->getFilename(),
+            ];
+        } else {
+            $iconData = null;
+        }
+
         $config = [
             'childBlocks' => $this->childBlocks,
             'field' => $this->getField()->uid,
@@ -314,7 +325,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'handle' => $this->handle,
             'description' => $this->description,
             'enabled' => $this->enabled,
-            'icon' => $icon?->uid ?? null,
+            'icon' => $iconData,
             'minBlocks' => (int)$this->minBlocks,
             'maxBlocks' => (int)$this->maxBlocks,
             'minChildBlocks' => (int)$this->minChildBlocks,
