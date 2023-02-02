@@ -49,7 +49,7 @@ class ButtonsList extends NewBlockMenu {
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         const defaultIconId = 'ni-icon'
         const blockTypeIconId = `fields-${defaultIconId}-${this.getField().getName()}-${item.getHandle()}`
-        const hasBlockTypeIcon = this.$ownerContainer?.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
+        const hasBlockTypeIcon = this._field?.$container.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
         buttonsHtml.push(`
               <li>
                 <a${titleAttr} class="flex" aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">
