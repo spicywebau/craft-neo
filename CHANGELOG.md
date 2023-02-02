@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.6.2 - 2023-02-02
 
 ### Fixed
 - Fixed a bug where all block types in new block menus on unsaved blocks were showing the default icons, when using new block menu styles that show icons
