@@ -77,7 +77,6 @@ export default Garnish.Base.extend({
     this._field = settings.field
     this._blockType = settings.blockType
     this._id = settings.id
-    this._buttons = settings.buttons
     this._enabled = settings.enabled && this._blockType.getEnabled()
     this._initialEnabled = settings.enabled
     this._modified = settings.modified
@@ -110,6 +109,17 @@ export default Garnish.Base.extend({
     this.$status = $neo.filter(`[data-neo-b="${this._id}.status"]`)
     this.$sortOrder = $neo.filter(`[data-neo-b="${this._id}.sortOrder"]`)
     this.$form = this.$container.closest('form')
+
+    if (settings.buttons !== null) {
+      this._buttons = settings.buttons
+    } else {
+      this._buttons = new this._field.ButtonClass({
+        $ownerContainer: this.$container,
+        field: this._field,
+        items: this._blockType.getChildBlockItems(this._field.getItems()),
+        maxBlocks: this._field.getMaxBlocks()
+      })
+    }
 
     if (this._buttons) {
       this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, { level: this.getLevel() + 1 })))

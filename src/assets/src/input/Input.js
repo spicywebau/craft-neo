@@ -103,13 +103,13 @@ export default Garnish.Base.extend({
 
     switch (settings.newBlockMenuStyle) {
       case 'grid':
-        this._buttonClass = ButtonsGrid
+        this.ButtonClass = ButtonsGrid
         break
       case 'list':
-        this._buttonClass = ButtonsList
+        this.ButtonClass = ButtonsList
         break
       default:
-        this._buttonClass = Buttons
+        this.ButtonClass = Buttons
     }
 
     const ownerIdElement = $('[name="setId"], [name="entryId"], [name="categoryId"]')
@@ -142,7 +142,7 @@ export default Garnish.Base.extend({
     this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]')
     this.$buttonsContainer = $neo.filter('[data-neo="container.buttons"]')
 
-    this._buttons = new this._buttonClass({
+    this._buttons = new this.ButtonClass({
       $ownerContainer: this.$container,
       field: this,
       blockTypes: this.getBlockTypes(true),
@@ -223,7 +223,7 @@ export default Garnish.Base.extend({
         deletableByUser: blockType.isDeletableByUser(),
         editableByUser: blockType.isEditableByUser()
       })
-      bInfo.buttons = new this._buttonClass({
+      bInfo.buttons = new this.ButtonClass({
         $ownerContainer: $block,
         field: this,
         items: blockType.getChildBlockItems(this.getItems()),
@@ -1035,7 +1035,7 @@ export default Garnish.Base.extend({
             tabs: renderedBlock.tabs
           })
 
-          const newButtons = new this._buttonClass({
+          const newButtons = new this.ButtonClass({
             field: this,
             items: newBlockType.getChildBlockItems(this.getItems()),
             maxBlocks: this.getMaxBlocks()
@@ -1096,11 +1096,6 @@ export default Garnish.Base.extend({
       field: this,
       blockType: e.blockType,
       id: blockId,
-      buttons: new this._buttonClass({
-        field: this,
-        items: e.blockType.getChildBlockItems(this.getItems()),
-        maxBlocks: this.getMaxBlocks()
-      }),
       showButtons: !this.atMaxLevels(e.level),
       showBlockTypeHandle: this._showBlockTypeHandles
     }, true)
@@ -1116,7 +1111,7 @@ export default Garnish.Base.extend({
     const index = this._blocks.indexOf(block)
     const parent = this._findParentBlock(index)
     const blocks = this.getBlocks()
-    const buttons = new this._buttonClass({
+    const buttons = new this.ButtonClass({
       $ownerContainer: block.isTopLevel() ? this.$container : block.getParent().$container,
       field: this,
       blockTypes: !parent ? this.getBlockTypes(true) : [],
