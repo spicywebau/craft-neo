@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when updating to Neo 3.6.2 if no Neo fields existed
+
 ## 3.6.2 - 2023-02-02
 
 ### Fixed
