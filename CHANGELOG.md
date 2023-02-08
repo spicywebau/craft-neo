@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- When running Craft garbage collection, Neo will now delete any orphaned Neo block structure data
+
 ### Fixed
 - Fixed an error that occurred when updating to Neo 3.6.2 if no Neo fields existed
 
