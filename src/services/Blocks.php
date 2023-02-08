@@ -8,6 +8,7 @@ use benf\neo\Plugin as Neo;
 use benf\neo\records\BlockStructure as BlockStructureRecord;
 use Craft;
 use craft\db\Query;
+use craft\db\Table;
 use craft\fieldlayoutelements\CustomField;
 use craft\models\Structure;
 use yii\base\Component;
@@ -204,10 +205,11 @@ class Blocks extends Component
      * Deletes a Neo block structure.
      *
      * @param BlockStructure $blockStructure The block structure to delete.
+     * @param bool $hardDelete Whether to hard-delete the underlying structure (the block structure row itself is always hard-deleted).
      * @return bool Whether the deletion was successful.
      * @throws \Throwable
      */
-    public function deleteStructure(BlockStructure $blockStructure): bool
+    public function deleteStructure(BlockStructure $blockStructure, bool $hardDelete = false): bool
     {
         $dbService = Craft::$app->getDb();
         $structuresService = Craft::$app->getStructures();
@@ -218,7 +220,12 @@ class Blocks extends Component
             $transaction = $dbService->beginTransaction();
             try {
                 if ($blockStructure->structureId) {
-                    $structuresService->deleteStructureById($blockStructure->structureId);
+                    $method = $hardDelete ? 'delete' : 'softDelete';
+                    Craft::$app->getDb()->createCommand()
+                        ->{$method}(Table::STRUCTURES, [
+                            'id' => $blockStructure->structureId,
+                        ])
+                        ->execute();
                 }
 
                 $affectedRows = $dbService->createCommand()

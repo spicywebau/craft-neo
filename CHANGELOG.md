@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed an error that occurred when updating to Neo 3.6.2 if no Neo fields existed
+- Fixed a bug where Neo block structures belonging to provisional drafts weren't being deleted when saving the entry
 
 ## 3.6.2 - 2023-02-02
 
