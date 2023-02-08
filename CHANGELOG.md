@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.6.3 - 2023-02-08
 
 ### Changed
 - When running Craft garbage collection, Neo will now delete any orphaned Neo block structure data
