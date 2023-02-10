@@ -43,6 +43,7 @@ class BlockQueryUnitTest extends TestCase
         $draft = Craft::$app->getDrafts()->createDraft($entry);
         $shouldHaveOneBlock = Block::find()
             ->id($firstBlockId)
+            ->ownerId($entry->id)
             ->all();
         $this->assertSame(
             1,
