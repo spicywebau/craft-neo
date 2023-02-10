@@ -17,6 +17,15 @@
 - When opening an element editor page, if a Neo field's Min Blocks setting hasn't been met, and it has only one block type available at the top level, the required blocks will now automatically be created
 - When editing an elemnt and creating a new Neo block, if the block type's Min Child Blocks setting is set, and it has only one child block type available, the required child blocks will now automatically be created (however, the child blocks themselves won't have any required child blocks automatically created, to prevent any potential infinite recursion)
 
+## 3.6.3 - 2023-02-08
+
+### Changed
+- When running Craft garbage collection, Neo will now delete any orphaned Neo block structure data
+
+### Fixed
+- Fixed an error that occurred when updating to Neo 3.6.2 if no Neo fields existed
+- Fixed a bug where Neo block structures belonging to provisional drafts weren't being deleted when saving the entry
+
 ## 3.6.2 - 2023-02-02
 
 ### Fixed

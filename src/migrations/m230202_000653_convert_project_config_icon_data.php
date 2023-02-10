@@ -22,7 +22,7 @@ class m230202_000653_convert_project_config_icon_data extends Migration
         if (version_compare($projectConfig->get('plugins.neo.schemaVersion', true), '3.6.0', '==')) {
             $blockTypes = $projectConfig->get('neoBlockTypes');
 
-            foreach ($blockTypes as $uid => $data) {
+            foreach ($blockTypes ?? [] as $uid => $data) {
                 if (isset($data['icon']) && is_string($data['icon'])) {
                     $icon = $elementsService->getElementByUid($data['icon'], Asset::class);
 
