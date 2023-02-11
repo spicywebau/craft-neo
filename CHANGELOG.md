@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.6.4 - 2023-02-11
 
 ### Changed
 - When Neo block queries have a single `ownerId`, `siteId` and either a single `fieldId` or `id` set, the appropriate `structureId` will now also be set on the query, if it exists and wasn't already set on the query
