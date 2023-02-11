@@ -59,19 +59,40 @@ class BlockQueryUnitTest extends TestCase
     public function testGetsRevisionBlocks(): void
     {
         $entry = $this->_entry();
-        $entryBlocks = $entry->getFieldValue('neoField1')->all();
+        $entryBlocks = $entry->getFieldValue('neoField1')
+            ->status(null)
+            ->all();
         Craft::$app->getElements()->saveElement($entry);
+
+        // Ensure the block structure exists for the revision before proceeding
+        Craft::$app->getQueue()->run();
+
         $revision = Entry::find()->revisionOf($entry)->one();
-        $revisionBlocks = $revision->getFieldValue('neoField1')->all();
+        $revisionBlocks = $revision->getFieldValue('neoField1')
+            ->status(null)
+            ->all();
         $this->assertSame(
             count($entryBlocks),
             count($revisionBlocks)
         );
 
         for ($i = 0; $i < min(count($entryBlocks), count($revisionBlocks)); $i++) {
+            // Ensure correct canonical block
             $this->assertSame(
                 $entryBlocks[$i]->id,
                 $revisionBlocks[$i]->canonicalId
+            );
+
+            // Ensure correct level
+            $this->assertSame(
+                $entryBlocks[$i]->level,
+                $revisionBlocks[$i]->level
+            );
+
+            // Ensure correct enabled state
+            $this->assertSame(
+                $entryBlocks[$i]->enabled,
+                $revisionBlocks[$i]->enabled
             );
         }
     }
