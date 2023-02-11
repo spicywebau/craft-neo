@@ -98,9 +98,17 @@ return [
             'new2' => [
                 'level' => 2,
                 'type' => 'plainText',
-                'enabled' => true,
+                'enabled' => false,
                 'fields' => [
                     'plainTextField' => '2',
+                ],
+            ],
+            'new3' => [
+                'level' => 2,
+                'type' => 'plainText',
+                'enabled' => true,
+                'fields' => [
+                    'plainTextField' => '3',
                 ],
             ],
         ]
