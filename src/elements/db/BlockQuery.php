@@ -380,7 +380,7 @@ class BlockQuery extends ElementQuery
 
             if (
                 $fieldIdForStructure === null &&
-                (is_int($this->id) || is_array($this->id) && count($this->id) === 1)
+                (is_numeric($this->id) || is_array($this->id) && count($this->id) === 1)
             ) {
                 $fieldIdForStructure = (new Query())
                     ->select(['fieldId'])
