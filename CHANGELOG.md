@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when viewing revisions, when using new block menu styles that show icons
+
 ## 3.6.3 - 2023-02-08
 
 ### Changed
