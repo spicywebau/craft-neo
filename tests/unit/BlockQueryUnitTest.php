@@ -52,6 +52,31 @@ class BlockQueryUnitTest extends TestCase
     }
 
     /**
+     * Tests that block queries for revision blocks return the correct results.
+     * Failure of this test indicates either an issue with BlockQuery's retrieval of revision blocks, or an issue with
+     * the creation of block structures for revisions.
+     */
+    public function testGetsRevisionBlocks(): void
+    {
+        $entry = $this->_entry();
+        $entryBlocks = $entry->getFieldValue('neoField1')->all();
+        Craft::$app->getElements()->saveElement($entry);
+        $revision = Entry::find()->revisionOf($entry)->one();
+        $revisionBlocks = $revision->getFieldValue('neoField1')->all();
+        $this->assertSame(
+            count($entryBlocks),
+            count($revisionBlocks)
+        );
+
+        for ($i = 0; $i < min(count($entryBlocks), count($revisionBlocks)); $i++) {
+            $this->assertSame(
+                $entryBlocks[$i]->id,
+                $revisionBlocks[$i]->canonicalId
+            );
+        }
+    }
+
+    /**
      * Gets the entry to use for block children tests.
      *
      * @return Entry
