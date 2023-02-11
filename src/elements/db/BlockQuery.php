@@ -373,6 +373,35 @@ class BlockQuery extends ElementQuery
             throw new InvalidConfigException('Invalid ownerId param value');
         }
 
+        // Add the structure ID if it isn't already set, and we know exactly which field/owner/site structure we need
+        if (!$this->structureId) {
+            $fieldIdForStructure = $this->fieldId !== null && count($this->fieldId) === 1 ? $this->fieldId[0] : null;
+            $ownerIdForStructure = $this->ownerId !== null && count($this->ownerId) === 1 ? $this->ownerId[0] : null;
+
+            if (
+                $fieldIdForStructure === null &&
+                (is_int($this->id) || is_array($this->id) && count($this->id) === 1)
+            ) {
+                $fieldIdForStructure = (new Query())
+                    ->select(['fieldId'])
+                    ->from(['{{%neoblocks}}'])
+                    ->where(['id' => $this->id])
+                    ->scalar();
+            }
+
+            if ($fieldIdForStructure !== null && $ownerIdForStructure !== null) {
+                $blockStructure = \benf\neo\Plugin::$plugin->blocks->getStructure(
+                    $fieldIdForStructure,
+                    $ownerIdForStructure,
+                    (int)$this->siteId
+                );
+
+                if ($blockStructure) {
+                    $this->structureId = $blockStructure->structureId;
+                }
+            }
+        }
+
         $this->joinElementTable('neoblocks');
 
         $ownersCondition = [

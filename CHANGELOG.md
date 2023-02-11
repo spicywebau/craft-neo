@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- When Neo block queries have a single `ownerId`, `siteId` and either a single `fieldId` or `id` set, the appropriate `structureId` will now also be set on the query, if it exists and wasn't already set on the query
+
 ### Fixed
 - Fixed an error that occurred when viewing revisions, when using new block menu styles that show icons
 
