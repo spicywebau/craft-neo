@@ -95,7 +95,7 @@ return [
                     'plainTextField' => '1',
                 ],
             ],
-            'new1' => [
+            'new2' => [
                 'level' => 2,
                 'type' => 'plainText',
                 'enabled' => true,
