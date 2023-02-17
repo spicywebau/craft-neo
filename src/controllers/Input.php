@@ -55,6 +55,7 @@ namespace benf\neo\controllers;
 use benf\neo\elements\Block;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\helpers\ArrayHelper;
 use craft\web\Controller;
 use craft\web\View;
 use yii\web\Response;
@@ -199,6 +200,8 @@ class Input extends Controller
         $field = $fieldsService->getFieldById($fieldId);
         $canonicalOwner = $elementsService->getElementById($ownerCanonicalId, null, $siteId);
         $draftsQueryMethod = $isProvisionalDraft ? 'provisionalDrafts' : 'drafts';
+
+        // Get the blocks belonging to the current draft
         $blocks = $canonicalOwner::find()
             ->{$draftsQueryMethod}()
             ->draftId($ownerDraftId)
@@ -216,11 +219,12 @@ class Input extends Controller
         foreach ($sortOrder as $i => $blockId) {
             $blockData = $blocksData[$blockId];
 
-            if (is_int($blockId)) {
-                $block = Neo::$plugin->blocks->getBlockById((int)$blockId);
-            } else {
-                $block = Neo::$plugin->blocks->getBlockById((int)$blockIds[$i]);
-            }
+            // For block data with ID `newX`, make sure we get the saved version of the block
+            $block = ArrayHelper::firstWhere(
+                $blocks,
+                'id',
+                (int)(is_numeric($blockId) ? $blockId : $blockIds[$i])
+            );
 
             if ($block === null) {
                 continue;
