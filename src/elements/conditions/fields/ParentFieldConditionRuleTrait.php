@@ -32,4 +32,12 @@ trait ParentFieldConditionRuleTrait
     {
         return Craft::t('neo', 'Parent block fields');
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLabel(): string
+    {
+        return $this->field()->name . ' (parent block)';
+    }
 }
