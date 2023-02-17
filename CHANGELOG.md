@@ -18,6 +18,14 @@
 - When opening an element editor page, if a Neo field's Min Blocks setting hasn't been met, and it has only one block type available at the top level, the required blocks will now automatically be created
 - When editing an element and creating a new Neo block, if the block type's Min Child Blocks setting is set, and it has only one child block type available, the required child blocks will now automatically be created (however, the child blocks themselves won't have any required child blocks automatically created, to prevent any potential infinite recursion)
 
+## 3.6.4 - 2023-02-11
+
+### Changed
+- When Neo block queries have a single `ownerId`, `siteId` and either a single `fieldId` or `id` set, the appropriate `structureId` will now also be set on the query, if it exists and wasn't already set on the query
+
+### Fixed
+- Fixed an error that occurred when viewing revisions, when using new block menu styles that show icons
+
 ## 3.6.3 - 2023-02-08
 
 ### Changed
