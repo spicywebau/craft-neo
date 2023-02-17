@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added the ability to set conditions on which global sets a Neo block type can be used for
 - Added the Level option to the Neo block layout element condition rules
 - Added `benf\neo\controllers\Input::actionUpdateVisibleElements()`
 - Added `benf\neo\conditions\fields\ParentFieldConditionRuleTrait`

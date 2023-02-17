@@ -25,6 +25,8 @@ use craft\console\controllers\ResaveController;
 use craft\controllers\ElementsController;
 use craft\db\Query;
 use craft\db\Table;
+use craft\elements\conditions\SlugConditionRule;
+use craft\elements\GlobalSet;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineElementEditorHtmlEvent;
 use craft\events\DefineFieldLayoutElementsEvent;
@@ -356,7 +358,20 @@ class Plugin extends BasePlugin
                 if (self::$isGeneratingConditionHtml) {
                     $event->conditionRuleTypes = array_filter(
                         $event->conditionRuleTypes,
-                        fn($type) => !isset($type['fieldUid'])
+                        function($type) use ($event) {
+                            // No field value conditions allowed as it may make existing blocks invalid
+                            if (isset($type['fieldUid'])) {
+                                return false;
+                            }
+
+                            // Global sets don't have slugs
+                            if ($event->sender->elementType === GlobalSet::class && $type === SlugConditionRule::class) {
+                                return false;
+                            }
+
+                            // Everything else is okay
+                            return true;
+                        }
                     );
                 }
             }
