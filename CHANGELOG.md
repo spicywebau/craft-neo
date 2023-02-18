@@ -20,6 +20,7 @@
 
 ### Fixed
 - Fixed a bug where the default Neo block type icon wasn't displaying when editing elements that don't have drafts, e.g. global sets, Craft Commerce products
+- Fixed a bug with the Add Block Above action, when using the new block menu grid style
 
 ## 3.6.4 - 2023-02-11
 

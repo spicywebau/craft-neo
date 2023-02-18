@@ -49,7 +49,7 @@ class ButtonsGrid extends NewBlockMenu {
 
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         const blockTypeIconId = `fields-ni-icon-${this.getField().getName()}-${item.getHandle()}`
-        const hasBlockTypeIcon = this.$ownerContainer?.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
+        const hasBlockTypeIcon = this._field?.$container.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
         buttonsHtml.push(`
               <li>
                 <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">`)
@@ -83,8 +83,7 @@ class ButtonsGrid extends NewBlockMenu {
     buttonsHtml.push(`
           </ul>
         </div>
-      </div>
-    </div>`)
+      </div>`)
 
     return $(buttonsHtml.join(''))
   }
