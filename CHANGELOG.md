@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.7.0 - 2023-02-21
 
 ### Added
 - Added the ability to set conditions on which global sets a Neo block type can be used for
