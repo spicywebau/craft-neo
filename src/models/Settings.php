@@ -59,7 +59,7 @@ class Settings extends Model
         ];
         $rules[] = [
             [
-                'newBlockMenuStyle'
+                'newBlockMenuStyle',
             ],
             'in',
             'range' => [

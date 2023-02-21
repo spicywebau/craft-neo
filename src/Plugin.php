@@ -242,7 +242,7 @@ class Plugin extends BasePlugin
                             ->select(['structureId'])
                             ->from('{{%neoblockstructures}}')
                             ->column(),
-                    ]
+                    ],
                 ],
             ]);
             $stdout("done\n", Console::FG_GREEN);
