@@ -5,7 +5,7 @@
 ### Added
 - Added the ability to set conditions on which global sets a Neo block type can be used for
 - Added the Level option to the Neo block layout element condition rules
-- Added `benf\neo\controllers\Input::actionUpdateVisibleElements()`
+- Added options to the Neo block layout element condition rules for parent blocks' field values
 - Added `benf\neo\conditions\fields\ParentFieldConditionRuleTrait`
 - Added `benf\neo\conditions\fields\ParentDateFieldConditionRule`
 - Added `benf\neo\conditions\fields\ParentLightswitchFieldConditionRule`
@@ -13,8 +13,10 @@
 - Added `benf\neo\conditions\fields\ParentOptionsFieldConditionRule`
 - Added `benf\neo\conditions\fields\ParentRelationalFieldConditionRule`
 - Added `benf\neo\conditions\fields\ParentTextFieldConditionRule`
+- Added `benf\neo\controllers\Input::actionUpdateVisibleElements()`
 
 ### Changed
+- When using an element editor page, Neo block subfields will now be shown or hidden based on their condition rules after the owner draft is saved
 - When opening an element editor page, if a Neo field's Min Blocks setting hasn't been met, and it has only one block type available at the top level, the required blocks will now automatically be created
 - When editing an element and creating a new Neo block, if the block type's Min Child Blocks setting is set, and it has only one child block type available, the required child blocks will now automatically be created (however, the child blocks themselves won't have any required child blocks automatically created, to prevent any potential infinite recursion)
 
