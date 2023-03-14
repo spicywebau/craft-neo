@@ -205,6 +205,7 @@ class Input extends Controller
         $blocks = $canonicalOwner::find()
             ->{$draftsQueryMethod}()
             ->draftId($ownerDraftId)
+            ->siteId($siteId)
             ->one()
             ->getFieldValue($field->handle)
             ->all();
