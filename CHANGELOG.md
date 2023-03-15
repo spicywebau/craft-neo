@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.7.1 - 2023-03-15
 
 ### Fixed
 - Fixed a bug on multi-site Craft installs, where Neo could check for the wrong site's block data when updating visible field layout elements
