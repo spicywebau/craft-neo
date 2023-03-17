@@ -202,12 +202,14 @@ class Input extends Controller
         $draftsQueryMethod = $isProvisionalDraft ? 'provisionalDrafts' : 'drafts';
 
         // Get the blocks belonging to the current draft
-        $blocks = $canonicalOwner::find()
+        $draft = $canonicalOwner::find()
             ->{$draftsQueryMethod}()
             ->draftId($ownerDraftId)
             ->siteId($siteId)
-            ->one()
+            ->one();
+        $blocks = $draft
             ->getFieldValue($field->handle)
+            ->status(null)
             ->all();
 
         foreach ($blocks as $block) {

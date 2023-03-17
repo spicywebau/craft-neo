@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when updating visible field layout elements after creating a new block, where disabled blocks in the Neo field weren't being accounted for, causing another block's content to appear in the new block
+
 ## 3.7.2 - 2023-03-17
 
 ### Fixed
