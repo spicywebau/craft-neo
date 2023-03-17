@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.7.2 - 2023-03-17
 
 ### Fixed
 - Fixed a bug where, when automatically creating child blocks for a newly created block with Min Child Blocks set, the child blocks would be created at the same level as the parent
