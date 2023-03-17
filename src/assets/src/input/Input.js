@@ -299,6 +299,7 @@ export default Garnish.Base.extend({
   },
 
   addBlock (block, index = -1, level = 1, animate = null, createChildBlocks = true) {
+    this.$form.data('elementEditor')?.pause()
     const blockCount = this._blocks.length
     index = index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount
     animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
@@ -339,30 +340,34 @@ export default Garnish.Base.extend({
     this._visibleLayoutElements[block.getId()] = block.getBlockType().getDefaultVisibleLayoutElements()
 
     // Create any required child blocks, if this block has only one child block type
-    if (createChildBlocks) {
-      const blockType = block.getBlockType()
-      const minChildBlocks = blockType.getMinChildBlocks()
+    const createChildBlocksIfAllowed = () => {
+      if (createChildBlocks) {
+        const blockType = block.getBlockType()
+        const minChildBlocks = blockType.getMinChildBlocks()
 
-      if (minChildBlocks > 0) {
-        let childBlockTypes = blockType.getChildBlocks()
+        if (minChildBlocks > 0) {
+          let childBlockTypes = blockType.getChildBlocks()
 
-        if (childBlockTypes === '*') {
-          childBlockTypes = this.getBlockTypes()
-        }
+          if (childBlockTypes === '*') {
+            childBlockTypes = this.getBlockTypes()
+          }
 
-        if (childBlockTypes.length === 1) {
-          const childBlockType = this.getBlockTypeByHandle(childBlockTypes[0])
+          if (childBlockTypes.length === 1) {
+            const childBlockType = this.getBlockTypeByHandle(childBlockTypes[0])
 
-          for (let i = 0; i < minChildBlocks; i++) {
-            this['@newBlock']({
-              blockType: childBlockType,
-              createChildBlocks: false,
-              index: index + i,
-              level
-            })
+            for (let i = 0; i < minChildBlocks; i++) {
+              this['@newBlock']({
+                blockType: childBlockType,
+                createChildBlocks: false,
+                index: index + i + 1,
+                level: level + 1
+              })
+            }
           }
         }
       }
+
+      this.$form.data('elementEditor')?.resume()
     }
 
     if (animate) {
@@ -374,7 +379,12 @@ export default Garnish.Base.extend({
         .velocity({
           opacity: 1,
           marginBottom: 10
-        }, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(block.$container)))
+        }, 'fast', _ => Garnish.requestAnimationFrame(() => {
+          Garnish.scrollContainerToElement(block.$container)
+          createChildBlocksIfAllowed()
+        }))
+    } else {
+      createChildBlocksIfAllowed()
     }
 
     this.trigger('addBlock', {
