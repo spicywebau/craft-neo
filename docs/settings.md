@@ -23,3 +23,10 @@ This setting, which defaults to `'classic'`, controls the type of new block butt
 ## `blockTypeIconSources`
 
 If `newBlockMenuStyle` is set to something other than `'classic'`, this setting, which defaults to `'*'` (allowing all sources), controls which icon asset sources are allowed to be used for setting block type icons.
+
+## `enableBlockTypeUserPermissions`
+
+Type: `bool`
+Default: `true`
+
+This setting controls whether to allow setting user permissions for creating, editing and deleting blocks of a certain type. Note that, if disabled, resaving a user's or user group's permissions will cause any existing block type permissions to be lost.

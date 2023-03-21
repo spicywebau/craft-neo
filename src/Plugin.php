@@ -285,6 +285,11 @@ class Plugin extends BasePlugin
 
     private function _registerPermissions(): void
     {
+        // Only if the settings allow it
+        if (!$this->getSettings()->enableBlockTypeUserPermissions) {
+            return;
+        }
+
         Event::on(
             UserPermissions::class,
             UserPermissions::EVENT_REGISTER_PERMISSIONS,

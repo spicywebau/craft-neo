@@ -44,6 +44,12 @@ class Settings extends Model
     public string|array|null $blockTypeIconSources = '*';
 
     /**
+     * @var bool Whether to enable the block type user permissions feature.
+     * @since 3.7.4
+     */
+    public bool $enableBlockTypeUserPermissions = true;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -54,6 +60,7 @@ class Settings extends Model
                 'collapseAllBlocks',
                 'optimiseSearchIndexing',
                 'defaultAlwaysShowGroupDropdowns',
+                'enableBlockTypeUserPermissions',
             ],
             'boolean',
         ];

@@ -1,11 +1,12 @@
 {% from 'neo/macros' import getBlockId %}
 
+{% set neoSettings = craft.app.plugins.getPlugin('neo').settings %}
 {% set type = block.type %}
 {% set typeTabs = type.getFieldLayout().getTabs() %}
 {% set typeName = type.name|t('site') %}
 {% set hasTabs = typeTabs is not empty %}
 {% set isParent = static and block.children.exists() or not static and type.childBlocks is not null and type.childBlocks is not empty %}
-{% set collapsed = craft.app.plugins.getPlugin('neo').settings.collapseAllBlocks or block.collapsed %}
+{% set collapsed = neoSettings.collapseAllBlocks or block.collapsed %}
 {% set blockId = getBlockId(block) %}
 {% set isNew = block.id is null %}
 {% set hasErrors = block.hasErrors() %}
@@ -38,7 +39,7 @@
         not hasTabs and not isParent ? 'is-empty',
         isParent ? 'is-parent',
         hasErrors ? 'has-errors',
-        not type.ignorePermissions and not currentUser.can("neo-editBlocks:#{type.uid}") ? 'is-disabled-for-user',
+        neoSettings.enableBlockTypeUserPermissions and not type.ignorePermissions and not currentUser.can("neo-editBlocks:#{type.uid}") ? 'is-disabled-for-user',
     ],
     data: {
         'neo-b-id': blockId,
@@ -147,7 +148,7 @@
                             <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="{{ 'Paste'|t('neo') }}">{{ 'Paste'|t('neo') }}</a></li>
                             <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="{{ 'Clone'|t('neo') }}">{{ 'Clone'|t('neo') }}</a></li>
                         </ul>
-                        {% if type.ignorePermissions or currentUser.can("neo-deleteBlocks:#{type.uid}") %}
+                        {% if not neoSettings.enableBlockTypeUserPermissions or type.ignorePermissions or currentUser.can("neo-deleteBlocks:#{type.uid}") %}
                             <hr>
                             <ul class="padded">
                                 <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="{{ 'Delete'|t('neo') }}">{{ 'Delete'|t('neo') }}</a></li>
