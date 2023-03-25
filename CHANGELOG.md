@@ -5,6 +5,9 @@
 ### Added
 - Added the `enableBlockTypeUserPermissions` plugin setting (defaults to `true`)
 
+### Fixed
+- Fixed an error that occurred when updating Neo blocks' visible field layout elements if the owner element was disabled
+
 ## 3.7.3 - 2023-03-18
 
 ### Fixed

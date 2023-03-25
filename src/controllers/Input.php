@@ -206,6 +206,7 @@ class Input extends Controller
             ->{$draftsQueryMethod}()
             ->draftId($ownerDraftId)
             ->siteId($siteId)
+            ->status(null)
             ->one();
         $blocks = $draft
             ->getFieldValue($field->handle)
