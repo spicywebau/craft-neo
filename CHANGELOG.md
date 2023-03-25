@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.7.4 - 2023-03-25
 
 ### Added
 - Added the `enableBlockTypeUserPermissions` plugin setting (defaults to `true`)
