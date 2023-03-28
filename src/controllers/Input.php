@@ -271,9 +271,9 @@ class Input extends Controller
 
             $tabs = $form->tabs;
             if (count($tabs) > 1) {
-                $selectedTab = isset($blockData['selectedTab']) && isset($tabs[$blockData['selectedTab']])
-                    ? $blockData['selectedTab']
-                    : null;
+                $blockHasValidSelectedTab = isset($blockData['selectedTab']) &&
+                    !empty(array_filter($tabs, fn($tab) => $tab->layoutTab->uid === $blockData['selectedTab']));
+                $selectedTab = $blockHasValidSelectedTab ? $blockData['selectedTab'] : null;
                 $tabHtml = $view->namespaceInputs(fn() => $view->renderTemplate('neo/_tabs.twig', [
                     'tabs' => $tabs,
                     'selectedTab' => $selectedTab,

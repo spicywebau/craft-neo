@@ -834,7 +834,7 @@ export default Garnish.Base.extend({
         this._blocks.forEach((block) => {
           const selectedTabId = block.$contentContainer
             .children('[data-layout-tab]:not(.hidden)')
-            .data('id')
+            .data('layout-tab')
           data.blocks[block.getDuplicatedBlockId()] = {
             selectedTab: selectedTabId ?? null,
             visibleLayoutElements: this._visibleLayoutElements[block.getId()] ?? {}

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when updating Neo blocks' visible field layout elements, where blocks' top bars could display the incorrect selected tabs
+
 ## 3.7.4 - 2023-03-25
 
 ### Added
