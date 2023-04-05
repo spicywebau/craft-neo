@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a JavaScript error that occurred when entry saving failed, if draft autosaving was disabled and new Neo blocks were created containing Redactor fields
+- Fixed a bug where Plain Text and Table fields were converting posted shortcode-looking strings to emoji, for Craft 4.5 and later (thanks @brandonkelly)
 
 ## 3.7.5 - 2023-03-28
 
