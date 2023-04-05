@@ -204,7 +204,7 @@
 {% js %}
     Garnish.on(Neo.Input, 'afterInit', (e) => {
         if (e.target.getName() === '{{ handle }}') {
-            e.target.setVisibleElements({{ blockId }}, '{{ visibleLayoutElements|json_encode|raw }}')
+            e.target.setVisibleElements({{ isNew ? "'#{blockId}'"|raw : blockId }}, '{{ visibleLayoutElements|json_encode|raw }}')
         }
     })
 {% endjs %}
