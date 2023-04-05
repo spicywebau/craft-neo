@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.7.6 - 2023-04-06
 
 ### Fixed
 - Fixed a JavaScript error that occurred when entry saving failed, if draft autosaving was disabled and new Neo blocks were created containing Redactor fields
