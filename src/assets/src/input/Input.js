@@ -902,16 +902,20 @@ export default Garnish.Base.extend({
           visibleLayoutElements[tabInfo.uid].push(elementInfo.uid)
 
           if (typeof elementInfo.html === 'string') {
+            const html = elementInfo.html.replaceAll('__NEOBLOCK__', block.getId())
             const $oldElement = $tabContainer.children(
               `[data-layout-element="${elementInfo.uid}"]`
             )
-            const $newElement = $(elementInfo.html)
+            const $newElement = $(html)
             if ($oldElement.length) {
               $oldElement.replaceWith($newElement)
             } else {
               $newElement.appendTo($tabContainer)
             }
             Craft.initUiElements($newElement)
+            if ($newElement.hasClass('ni_child-blocks-ui-element')) {
+              block.resetButtons()
+            }
             changedElements = true
           }
         } else {
@@ -940,6 +944,10 @@ export default Garnish.Base.extend({
             changedElements = true
           }
         }
+      }
+
+      if (changedElements) {
+        this._updateButtons()
       }
     }
 
@@ -973,8 +981,8 @@ export default Garnish.Base.extend({
     block.initTabs()
     block.updateResponsiveness()
 
-    Craft.appendHeadHtml(blockData.headHtml)
-    Craft.appendBodyHtml(blockData.bodyHtml)
+    Craft.appendHeadHtml(blockData.headHtml.replaceAll('__NEOBLOCK__', block.getId()))
+    Craft.appendBodyHtml(blockData.bodyHtml.replaceAll('__NEOBLOCK__', block.getId()))
 
     // Did any layout elements get added or removed?
     if (changedElements && blockData.initialDeltaValues) {

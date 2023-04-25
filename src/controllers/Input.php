@@ -53,6 +53,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace benf\neo\controllers;
 
 use benf\neo\elements\Block;
+use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\Plugin as Neo;
 use Craft;
 use craft\helpers\ArrayHelper;
@@ -255,10 +256,26 @@ class Input extends Controller
                     /** @var bool $isConditional */
                     /** @var string|bool $elementHtml */
                     if ($isConditional) {
-                        $elementInfo[] = [
+                        $thisElementInfo = [
                             'uid' => $layoutElement->uid,
-                            'html' => $elementHtml,
                         ];
+
+                        if ($layoutElement instanceof ChildBlocksUiElement && is_string($elementHtml)) {
+                            // So we get '__NEOBLOCK__' in the generated HTML/JS and replace it client-side with
+                            // whichever ID is being used there
+                            $overrideBlockId = $block->id;
+                            $block->id = null;
+                            $thisElementInfo['html'] = Neo::$plugin->blocks->replaceChildBlocksUiElementPlaceholder(
+                                $elementHtml,
+                                $block,
+                                $overrideBlockId
+                            );
+                            $block->id = $overrideBlockId;
+                        } else {
+                            $thisElementInfo['html'] = $elementHtml;
+                        }
+
+                        $elementInfo[] = $thisElementInfo;
                     }
                 }
 

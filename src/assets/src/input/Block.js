@@ -89,11 +89,6 @@ export default Garnish.Base.extend({
     const $neo = this.$container.find('[data-neo-b]')
     this.$bodyContainer = $neo.filter(`[data-neo-b="${this._id}.container.body"]`)
     this.$contentContainer = $neo.filter(`[data-neo-b="${this._id}.container.content"]`)
-    this.$childrenContainer = $neo.filter(`[data-neo-b="${this._id}.container.children"]`)
-    this.$childrenWarningsContainer = $neo.filter(`[data-neo-b="${this._id}.container.childrenWarnings"]`)
-    this.$collapsedChildrenContainer = $neo.filter(`[data-neo-b="${this._id}.container.collapsedChildren"]`)
-    this.$blocksContainer = $neo.filter(`[data-neo-b="${this._id}.container.blocks"]`)
-    this.$buttonsContainer = $neo.filter(`[data-neo-b="${this._id}.container.buttons"]`)
     this.$topbarContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbar"]`)
     this.$topbarLeftContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarLeft"]`)
     this.$topbarRightContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarRight"]`)
@@ -109,26 +104,7 @@ export default Garnish.Base.extend({
     this.$status = $neo.filter(`[data-neo-b="${this._id}.status"]`)
     this.$sortOrder = $neo.filter(`[data-neo-b="${this._id}.sortOrder"]`)
     this.$form = this.$container.closest('form')
-
-    if (settings.buttons !== null) {
-      this._buttons = settings.buttons
-    } else {
-      this._buttons = new this._field.ButtonClass({
-        $ownerContainer: this.$container,
-        field: this._field,
-        items: this._blockType.getChildBlockItems(this._field.getItems()),
-        maxBlocks: this._field.getMaxBlocks()
-      })
-    }
-
-    if (this._buttons) {
-      this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, { level: this.getLevel() + 1 })))
-      this.$buttonsContainer.append(this._buttons.$container)
-
-      if (this._buttons.$ownerContainer === null) {
-        this._buttons.$ownerContainer = this.$container
-      }
-    }
+    this.resetButtons(settings.buttons)
 
     let hasErrors = false
     if (this._blockType) {
@@ -1160,6 +1136,38 @@ export default Garnish.Base.extend({
     this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
     this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', cloneDisabled)
     this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
+  },
+
+  resetButtons (settings) {
+    this.$blocksContainer = this.$container.find(`[data-neo-b="${this._id}.container.blocks"]`)
+    this.$buttonsContainer = this.$container.find(`[data-neo-b="${this._id}.container.buttons"]`)
+    this.$childrenContainer = this.$container.find(`[data-neo-b="${this._id}.container.children"]`)
+    this.$childrenWarningsContainer = this.$container.find(`[data-neo-b="${this._id}.container.childrenWarnings"]`)
+    this.$collapsedChildrenContainer = this.$container.find(`[data-neo-b="${this._id}.container.collapsedChildren"]`)
+
+    if (typeof settings !== 'undefined' && settings !== null) {
+      this._buttons = settings
+    } else {
+      this._buttons = new this._field.ButtonClass({
+        $ownerContainer: this.$container,
+        field: this._field,
+        items: this._blockType.getChildBlockItems(this._field.getItems()),
+        maxBlocks: this._field.getMaxBlocks()
+      })
+    }
+
+    if (this._buttons) {
+      this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, { level: this.getLevel() + 1 })))
+      this.$buttonsContainer.append(this._buttons.$container)
+
+      if (this._buttons.$ownerContainer === null) {
+        this._buttons.$ownerContainer = this.$container
+      }
+
+      if (this._initialised) {
+        this._buttons.initUi()
+      }
+    }
   },
 
   namespaceId (id) {

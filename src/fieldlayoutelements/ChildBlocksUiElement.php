@@ -34,14 +34,6 @@ class ChildBlocksUiElement extends BaseUiElement
     /**
      * @inheritdoc
      */
-    protected function conditional(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function formHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
         if ($element && $element->level && $element->fieldId) {
