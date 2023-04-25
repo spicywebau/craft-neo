@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where it was possible to set conditions on a child blocks UI element, which would cause the UI element not to display
+
 ## 3.7.6 - 2023-04-06
 
 ### Fixed
