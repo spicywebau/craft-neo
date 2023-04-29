@@ -40,7 +40,7 @@ class BlockQueryUnitTest extends TestCase
     {
         $entry = $this->_entry();
         $firstBlockId = $entry->getFieldValue('neoField1')->one()->id;
-        $draft = Craft::$app->getDrafts()->createDraft($entry);
+        $draft = $this->_draftOf($entry);
         $shouldHaveOneBlock = Block::find()
             ->id($firstBlockId)
             ->ownerId($entry->id)
@@ -49,6 +49,23 @@ class BlockQueryUnitTest extends TestCase
             1,
             count($shouldHaveOneBlock)
         );
+    }
+
+    /**
+     * Tests that a block query from an entry's only Neo field value, and a `Block::find()` query for that entry's
+     * blocks, returns the same number of blocks if the entry has a draft.
+     * Failure of this test indicates that the latter query is returning duplicate block data, due to incorrect joining
+     * of structure data to block/element data.
+     */
+    public function testOwnerIdGetsLiveBlocks(): void
+    {
+        $entry = $this->_entry();
+        // Ensure the existence of a draft, so the Neo blocks belong to more than one structure
+        $draft = $this->_draftOf($entry);
+        $entryNeoBlockCount1 = $entry->getFieldValue('neoField1')->count();
+        $entryNeoBlockCount2 = Block::find()->owner($entry)->count();
+
+        $this->assertSame($entryNeoBlockCount1, $entryNeoBlockCount2);
     }
 
     /**
@@ -105,5 +122,16 @@ class BlockQueryUnitTest extends TestCase
     private function _entry(): Entry
     {
         return Craft::$app->getElements()->getElementByUid('entry-000000000000000000000000000002', Entry::class);
+    }
+
+    /**
+     * Gets an existing draft version of a given entry, or creates one if it doesn't have any.
+     *
+     * @param Entry $entry
+     * @return Entry draft of $entry
+     */
+    private function _draftOf(Entry $entry): Entry
+    {
+        return Entry::find()->draftOf($entry)->one() ?? Craft::$app->getDrafts()->createDraft($entry);
     }
 }
