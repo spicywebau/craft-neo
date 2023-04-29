@@ -110,6 +110,7 @@ return [
     'Owner Tag Group' => 'Owner Tag Group',
     'Owner User Group' => 'Owner User Group',
     'Owner Volume' => 'Owner Volume',
+    'Parent block fields' => 'Parent block fields',
     'Neo - {field}' => 'Neo - {field}',
     'Edit {blockType} blocks' => 'Edit {blockType} blocks',
     'Create blocks' => 'Create blocks',
@@ -127,5 +128,7 @@ return [
     'List' => 'List',
     'Block type icon sources' => 'Block type icon sources',
     'Which sources do you want to select block type icons from?' => 'Which sources do you want to select block type icons from?',
+    'Enable block type user permissions' => 'Enable block type user permissions',
+    'Whether to allow setting user permissions for creating, editing and deleting blocks of a certain type.' => 'Whether to allow setting user permissions for creating, editing and deleting blocks of a certain type.',
     'Deleting old Neo blocks' => 'Deleting old Neo blocks',
 ];

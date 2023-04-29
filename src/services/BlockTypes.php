@@ -25,6 +25,7 @@ use craft\elements\Address;
 use craft\elements\Asset;
 use craft\elements\Category;
 use craft\elements\Entry;
+use craft\elements\GlobalSet;
 use craft\elements\Tag;
 use craft\elements\User;
 use craft\events\ConfigEvent;
@@ -947,6 +948,7 @@ class BlockTypes extends Component
             User::class,
             Tag::class,
             Address::class,
+            GlobalSet::class,
         ];
 
         // Craft Commerce element types

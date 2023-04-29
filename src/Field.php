@@ -27,6 +27,7 @@ use craft\base\GqlInlineFragmentInterface;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
+use craft\errors\InvalidFieldException;
 use craft\fields\conditions\EmptyFieldConditionRule;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
@@ -593,6 +594,19 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function normalizeValue(mixed $value, ?ElementInterface $element = null): mixed
     {
+        return $this->_normalizeValueInternal($value, $element, false);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function normalizeValueFromRequest(mixed $value, ?ElementInterface $element = null): mixed
+    {
+        return $this->_normalizeValueInternal($value, $element, true);
+    }
+
+    private function _normalizeValueInternal(mixed $value, ?ElementInterface $element, bool $fromRequest): mixed
+    {
         if ($value instanceof ElementQueryInterface) {
             return $value;
         }
@@ -606,7 +620,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $query->setCachedResult([]);
             $query->useMemoized(false);
         } elseif ($element && is_array($value)) {
-            $elements = $this->_createBlocksFromSerializedData($value, $element);
+            $elements = $this->_createBlocksFromSerializedData($value, $element, $fromRequest);
             $query->setCachedResult($elements);
             $query->useMemoized($elements);
         }
@@ -1191,9 +1205,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      *
      * @param array $value The raw field data.
      * @param ElementInterface $element The element associated with this field
+     * @param bool $fromRequest Whether the data came from the request post data
      * @return Block[] The Blocks created from the given data.
      */
-    private function _createBlocksFromSerializedData(array $value, ElementInterface $element): array
+    private function _createBlocksFromSerializedData(array $value, ElementInterface $element, bool $fromRequest): array
     {
         $draftsService = Craft::$app->getDrafts();
         $request = Craft::$app->getRequest();
@@ -1325,7 +1340,16 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             }
 
             if (isset($blockData['fields'])) {
-                $block->setFieldValues($blockData['fields']);
+                foreach ($blockData['fields'] as $fieldHandle => $fieldValue) {
+                    try {
+                        if ($fromRequest) {
+                            $block->setFieldValueFromRequest($fieldHandle, $fieldValue);
+                        } else {
+                            $block->setFieldValue($fieldHandle, $fieldValue);
+                        }
+                    } catch (InvalidFieldException) {
+                    }
+                }
             }
 
             if ($prevBlock) {

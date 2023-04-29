@@ -1,3 +1,52 @@
+/*
+The `_registerDynamicBlockConditions()` and `_updateVisibleElements()` methods are based on a large
+section of `Craft.ElementEditor.saveDraft()` from Craft CMS 4.3.6.1, by Pixel & Tonic, Inc.
+https://github.com/craftcms/cms/blob/4.3.6.1/src/web/assets/cp/src/js/ElementEditor.js#L1144
+Craft CMS is released under the terms of the Craft License, a copy of which is included below.
+https://github.com/craftcms/cms/blob/4.3.6.1/LICENSE.md
+
+Copyright © Pixel & Tonic
+
+Permission is hereby granted to any person obtaining a copy of this software
+(the “Software”) to use, copy, modify, merge, publish and/or distribute copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+1. **Don’t plagiarize.** The above copyright notice and this license shall be
+   included in all copies or substantial portions of the Software.
+
+2. **Don’t use the same license on more than one project.** Each licensed copy
+   of the Software shall be actively installed in no more than one production
+   environment at a time.
+
+3. **Don’t mess with the licensing features.** Software features related to
+   licensing shall not be altered or circumvented in any way, including (but
+   not limited to) license validation, payment prompts, feature restrictions,
+   and update eligibility.
+
+4. **Pay up.** Payment shall be made immediately upon receipt of any notice,
+   prompt, reminder, or other message indicating that a payment is owed.
+
+5. **Follow the law.** All use of the Software shall not violate any applicable
+   law or regulation, nor infringe the rights of any other person or entity.
+
+Failure to comply with the foregoing conditions will automatically and
+immediately result in termination of the permission granted hereby. This
+license does not include any right to receive updates to the Software or
+technical support. Licensees bear all risk related to the quality and
+performance of the Software and any modifications made or obtained to it,
+including liability for actual and consequential harm, such as loss or
+corruption of data, and any necessary service, repair, or correction.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, INCLUDING SPECIAL, INCIDENTAL AND CONSEQUENTIAL DAMAGES, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 import $ from 'jquery'
 import Garnish from 'garnish'
 import Craft from 'craft'
@@ -24,7 +73,8 @@ const _defaults = {
   maxBlocks: 0,
   maxTopBlocks: 0,
   minLevels: 0,
-  maxLevels: 0
+  maxLevels: 0,
+  ownerId: null
 }
 
 export default Garnish.Base.extend({
@@ -32,6 +82,7 @@ export default Garnish.Base.extend({
   _templateNs: [],
   _name: null,
   _siteId: null,
+  _visibleLayoutElements: {},
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -40,12 +91,14 @@ export default Garnish.Base.extend({
     this._blockTypes = []
     this._groups = settings.groups.map(gInfo => new Group(gInfo))
     this._blocks = []
+    this._id = settings.id
     this._name = settings.name
+    this._minBlocks = settings.minBlocks
     this._maxBlocks = settings.maxBlocks
     this._maxTopBlocks = settings.maxTopBlocks
     this._minLevels = settings.minLevels
     this._maxLevels = settings.maxLevels
-    this._ownerId = null
+    this._ownerId = settings.ownerId
     this._showBlockTypeHandles = settings.showBlockTypeHandles
 
     switch (settings.newBlockMenuStyle) {
@@ -191,6 +244,23 @@ export default Garnish.Base.extend({
     this._updateBlockChildren()
     this._updateButtons()
 
+    // Create any required top level blocks, if this field has only one top level block type
+    if (this._minBlocks > 0) {
+      const missingBlockCount = this._minBlocks - this._blocks.length
+      const topLevelBlockTypes = this.getBlockTypes(true)
+
+      if (topLevelBlockTypes.length === 1 && missingBlockCount > 0) {
+        for (let i = this._blocks.length; i < this._minBlocks; i++) {
+          this['@newBlock']({
+            blockType: topLevelBlockTypes[0],
+            createChildBlocks: false,
+            index: i,
+            level: 1
+          })
+        }
+      }
+    }
+
     // Make sure menu states (for pasting blocks) are updated when changing browser tabs
     this.addListener(document, 'visibilitychange.input', () => this._updateButtons())
 
@@ -209,6 +279,8 @@ export default Garnish.Base.extend({
       .filter(block => !block.isExpanded())
       .forEach(block => block.updatePreview())
 
+    this._registerDynamicBlockConditions()
+
     this.trigger('afterInit')
   },
 
@@ -226,7 +298,8 @@ export default Garnish.Base.extend({
     this._tempButtons?.updateResponsiveness()
   },
 
-  addBlock (block, index = -1, level = 1, animate = null) {
+  addBlock (block, index = -1, level = 1, animate = null, createChildBlocks = true) {
+    this.$form.data('elementEditor')?.pause()
     const blockCount = this._blocks.length
     index = index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount
     animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
@@ -264,6 +337,39 @@ export default Garnish.Base.extend({
     this._updateBlockChildren()
     this._updateButtons()
 
+    this._visibleLayoutElements[block.getId()] = block.getBlockType().getDefaultVisibleLayoutElements()
+
+    // Create any required child blocks, if this block has only one child block type
+    const createChildBlocksIfAllowed = () => {
+      if (createChildBlocks) {
+        const blockType = block.getBlockType()
+        const minChildBlocks = blockType.getMinChildBlocks()
+
+        if (minChildBlocks > 0) {
+          let childBlockTypes = blockType.getChildBlocks()
+
+          if (childBlockTypes === '*') {
+            childBlockTypes = this.getBlockTypes()
+          }
+
+          if (childBlockTypes.length === 1) {
+            const childBlockType = this.getBlockTypeByHandle(childBlockTypes[0])
+
+            for (let i = 0; i < minChildBlocks; i++) {
+              this['@newBlock']({
+                blockType: childBlockType,
+                createChildBlocks: false,
+                index: index + i + 1,
+                level: level + 1
+              })
+            }
+          }
+        }
+      }
+
+      this.$form.data('elementEditor')?.resume()
+    }
+
     if (animate) {
       block.$container
         .css({
@@ -273,7 +379,12 @@ export default Garnish.Base.extend({
         .velocity({
           opacity: 1,
           marginBottom: 10
-        }, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(block.$container)))
+        }, 'fast', _ => Garnish.requestAnimationFrame(() => {
+          Garnish.scrollContainerToElement(block.$container)
+          createChildBlocksIfAllowed()
+        }))
+    } else {
+      createChildBlocksIfAllowed()
     }
 
     this.trigger('addBlock', {
@@ -485,6 +596,21 @@ export default Garnish.Base.extend({
     return blocks
   },
 
+  setVisibleElements (blockId, visibleLayoutElements) {
+    // visibleLayoutElements might (will probably) be a JSON-encoded string
+    if (typeof visibleLayoutElements === 'string') {
+      visibleLayoutElements = JSON.parse(visibleLayoutElements)
+    }
+
+    const block = this._blocks.find((block) => block.getId() === blockId)
+
+    if (block === null) {
+      return
+    }
+
+    this._visibleLayoutElements[blockId] = visibleLayoutElements
+  },
+
   _setMatrixClassErrors () {
     // TODO: will need probably need to find a method within php instead of JS
     // temp solution for now.
@@ -686,6 +812,187 @@ export default Garnish.Base.extend({
     return (lastDescendant ? this._blocks.indexOf(lastDescendant) : index) + 1
   },
 
+  /**
+   * TODO: hopefully remove this in the Craft 5 version
+   * @private
+   */
+  _registerDynamicBlockConditions () {
+    // A small timeout to let the element editor initialise
+    setTimeout(() => {
+      this.$form.data('elementEditor')?.on('update', () => {
+        const elementEditor = this.$form.data('elementEditor')
+        const data = {
+          blocks: {},
+          sortOrder: [],
+          fieldId: this._id,
+          ownerCanonicalId: this._ownerId,
+          ownerDraftId: elementEditor.settings.draftId,
+          isProvisionalDraft: elementEditor.settings.isProvisionalDraft,
+          siteId: this._siteId
+        }
+        const originalBlockIds = {}
+        this._blocks.forEach((block) => {
+          const selectedTabId = block.$contentContainer
+            .children('[data-layout-tab]:not(.hidden)')
+            .data('layout-tab')
+          data.blocks[block.getDuplicatedBlockId()] = {
+            selectedTab: selectedTabId ?? null,
+            visibleLayoutElements: this._visibleLayoutElements[block.getId()] ?? {}
+          }
+          data.sortOrder.push(block.getDuplicatedBlockId())
+          originalBlockIds[block.getDuplicatedBlockId()] = block.getId()
+        })
+
+        Craft.queue.push(() => new Promise((resolve, reject) => {
+          Craft.sendActionRequest('POST', 'neo/input/update-visible-elements', { data })
+            .then((response) => {
+              for (const blockId in response.data.blocks) {
+                const block = this._blocks.find((block) => block.getId() === originalBlockIds[blockId])
+                this._updateVisibleElements(
+                  block,
+                  response.data.blocks[blockId],
+                  data.blocks[block.getDuplicatedBlockId()].selectedTabId
+                )
+              }
+              resolve()
+            })
+            .catch(reject)
+        }))
+      })
+    }, 200)
+  },
+
+  /**
+   * TODO: hopefully remove this in the Craft 5 version
+   * @private
+   */
+  _updateVisibleElements (block, blockData, selectedTabId) {
+    let $allTabContainers = $()
+    const visibleLayoutElements = {}
+    let changedElements = false
+
+    for (let i = 0; i < blockData.missingElements.length; i++) {
+      const tabInfo = blockData.missingElements[i]
+      let $tabContainer = block.$contentContainer.children(
+        `[data-layout-tab="${tabInfo.uid}"]`
+      )
+
+      if (!$tabContainer.length) {
+        $tabContainer = $('<div/>', {
+          id: block.namespaceId(tabInfo.id),
+          class: 'flex-fields',
+          'data-id': tabInfo.id,
+          'data-layout-tab': tabInfo.uid
+        })
+        if (tabInfo.id !== selectedTabId) {
+          $tabContainer.addClass('hidden')
+        }
+        $tabContainer.appendTo(block.$contentContainer)
+      }
+
+      $allTabContainers = $allTabContainers.add($tabContainer)
+
+      for (let j = 0; j < tabInfo.elements.length; j++) {
+        const elementInfo = tabInfo.elements[j]
+
+        if (elementInfo.html !== false) {
+          if (!visibleLayoutElements[tabInfo.uid]) {
+            visibleLayoutElements[tabInfo.uid] = []
+          }
+          visibleLayoutElements[tabInfo.uid].push(elementInfo.uid)
+
+          if (typeof elementInfo.html === 'string') {
+            const html = elementInfo.html.replaceAll('__NEOBLOCK__', block.getId())
+            const $oldElement = $tabContainer.children(
+              `[data-layout-element="${elementInfo.uid}"]`
+            )
+            const $newElement = $(html)
+            if ($oldElement.length) {
+              $oldElement.replaceWith($newElement)
+            } else {
+              $newElement.appendTo($tabContainer)
+            }
+            Craft.initUiElements($newElement)
+            if ($newElement.hasClass('ni_child-blocks-ui-element')) {
+              block.resetButtons()
+            }
+            changedElements = true
+          }
+        } else {
+          const $oldElement = $tabContainer.children(
+            `[data-layout-element="${elementInfo.uid}"]`
+          )
+          if (
+            !$oldElement.length ||
+            !Garnish.hasAttr(
+              $oldElement,
+              'data-layout-element-placeholder'
+            )
+          ) {
+            const $placeholder = $('<div/>', {
+              class: 'hidden',
+              'data-layout-element': elementInfo.uid,
+              'data-layout-element-placeholder': ''
+            })
+
+            if ($oldElement.length) {
+              $oldElement.replaceWith($placeholder)
+            } else {
+              $placeholder.appendTo($tabContainer)
+            }
+
+            changedElements = true
+          }
+        }
+      }
+
+      if (changedElements) {
+        this._updateButtons()
+      }
+    }
+
+    // Remove any unused tab content containers
+    // (`[data-layout-tab=""]` == unconditional containers, so ignore those)
+    const $unusedTabContainers = block.$contentContainer
+      .children('[data-layout-tab]')
+      .not($allTabContainers)
+      .not('[data-layout-tab=""]')
+    if ($unusedTabContainers.length) {
+      $unusedTabContainers.remove()
+      changedElements = true
+    }
+
+    // Make the first tab visible if no others are
+    if (!$allTabContainers.filter(':not(.hidden)').length) {
+      $allTabContainers.first().removeClass('hidden')
+    }
+
+    this._visibleLayoutElements[block.getId()] = visibleLayoutElements
+
+    // Update the tabs
+    // Unfortunately can't use `block.getDuplicatedBlockId()` because it doesn't work here for new blocks
+    const idToReplace = blockData.tabs?.match(/data-neo-b="([0-9]+).container.tabs"/)?.pop() ?? null
+    const tabsHtml = idToReplace
+      ? blockData.tabs.replaceAll(idToReplace, block.getId())
+      : blockData.tabs
+    const $tabsHtml = $(tabsHtml)
+    const $tabsOuterContainer = block.$topbarRightContainer.find('.tabs')
+    $tabsOuterContainer.empty().append($tabsHtml)
+    block.initTabs()
+    block.updateResponsiveness()
+
+    Craft.appendHeadHtml(blockData.headHtml.replaceAll('__NEOBLOCK__', block.getId()))
+    Craft.appendBodyHtml(blockData.bodyHtml.replaceAll('__NEOBLOCK__', block.getId()))
+
+    // Did any layout elements get added or removed?
+    if (changedElements && blockData.initialDeltaValues) {
+      Object.assign(
+        this.$form.data('initial-delta-values'),
+        blockData.initialDeltaValues
+      )
+    }
+  },
+
   _duplicate (data, block) {
     this.$form.data('elementEditor')?.pause()
 
@@ -811,7 +1118,7 @@ export default Garnish.Base.extend({
       showBlockTypeHandle: this._showBlockTypeHandles
     }, true)
 
-    this.addBlock(block, e.index, e.level)
+    this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
   },
 
   '@addBlockAbove' (e) {

@@ -12,9 +12,17 @@ export default Garnish.Base.extend({
 
     this._name = settings.name
     this._errors = settings.errors
+    this._uid = settings.uid
   },
 
   getErrors () { return Array.from(this._errors) },
 
-  getName () { return this._name }
+  getName () { return this._name },
+
+  /**
+   * @public
+   * @since 3.7.0
+   * @returns this tab's UID
+   */
+  getUid () { return this._uid }
 })

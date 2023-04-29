@@ -328,14 +328,17 @@ class Fields extends Component
                 $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
                 $otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
 
+                // If propagateAll isn't set, only deal with sites that the element was just propagated to for the first time
                 if (!$owner->propagateAll) {
+                    $preexistingOtherSiteIds = array_diff($otherSiteIds, $owner->newSiteIds);
                     $otherSiteIds = array_intersect($otherSiteIds, $owner->newSiteIds);
+                } else {
+                    $preexistingOtherSiteIds = [];
                 }
 
                 if (!empty($otherSiteIds)) {
-                    // Get the original element and duplicated element for each of those sites
-                    /** @var Element[] $otherTargets */
-                    $otherTargets = $owner::find()
+                    // Get the owner element across each of those sites
+                    $localizedOwners = $owner::find()
                         ->drafts($owner->getIsDraft())
                         ->provisionalDrafts($owner->isProvisionalDraft)
                         ->revisions($owner->getIsRevision())
@@ -353,14 +356,37 @@ class Fields extends Component
                         $owner->setFieldValue($field->handle, $cachedQuery);
                     }
 
-                    foreach ($otherTargets as $otherTarget) {
+                    foreach ($localizedOwners as $localizedOwner) {
                         // Make sure we haven't already duplicated blocks for this site, via propagation from another site
-                        if (isset($handledSiteIds[$otherTarget->siteId])) {
+                        if (isset($handledSiteIds[$localizedOwner->siteId])) {
                             continue;
                         }
-                        $this->duplicateBlocks($field, $owner, $otherTarget);
+
+                        // Find all of the field’s supported sites shared with this target
+                        $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $localizedOwner, $field->propagationKeyFormat);
+
+                        // Do blocks in this target happen to share supported sites with a preexisting site?
+                        if (
+                            !empty($preexistingOtherSiteIds) &&
+                            !empty($sharedPreexistingOtherSiteIds = array_intersect($preexistingOtherSiteIds, $sourceSupportedSiteIds)) &&
+                            $preexistingLocalizedOwner = $owner::find()
+                                ->drafts($owner->getIsDraft())
+                                ->provisionalDrafts($owner->isProvisionalDraft)
+                                ->revisions($owner->getIsRevision())
+                                ->id($owner->id)
+                                ->siteId($sharedPreexistingOtherSiteIds)
+                                ->status(null)
+                                ->one()
+                        ) {
+                            // Just resave Neo blocks for that one site, and let them propagate over to the new site(s) from there
+                            $this->saveValue($field, $preexistingLocalizedOwner);
+                        } else {
+                            // Duplicate the blocks, but **don't track** the duplications, so the edit page doesn’t think
+                            // its blocks have been replaced by the other sites’ blocks
+                            $this->duplicateBlocks($field, $owner, $localizedOwner, trackDuplications: false);
+                        }
+
                         // Make sure we don't duplicate blocks for any of the sites that were just propagated to
-                        $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherTarget, $field->propagationKeyFormat);
                         $handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
                     }
 
@@ -385,10 +411,18 @@ class Fields extends Component
      * @param ElementInterface $target The target element blocks should be duplicated to
      * @param bool $checkOtherSites Whether to duplicate blocks for the source element's other supported sites
      * @param bool $deleteOtherBlocks Whether to delete any blocks that belong to the element, which weren't included in the duplication
+     * @param bool $trackDuplications whether to keep track of the duplications from [[\craft\services\Elements::$duplicatedElementIds]]
+     * and [[\craft\services\Elements::$duplicatedElementSourceIds]]
      * @throws
      */
-    public function duplicateBlocks(Field $field, ElementInterface $source, ElementInterface $target, bool $checkOtherSites = false, bool $deleteOtherBlocks = true): void
-    {
+    public function duplicateBlocks(
+        Field $field,
+        ElementInterface $source,
+        ElementInterface $target,
+        bool $checkOtherSites = false,
+        bool $deleteOtherBlocks = true,
+        bool $trackDuplications = true
+    ): void {
         $elementsService = Craft::$app->getElements();
         $value = $source->getFieldValue($field->handle);
 
@@ -456,7 +490,7 @@ class Fields extends Component
                     ], ['blockId' => $block->id, 'ownerId' => $target->id], updateTimestamp: false);
                     $newBlock = $block;
                 } else {
-                    $newBlock = $elementsService->duplicateElement($block, $newAttributes);
+                    $newBlock = $elementsService->duplicateElement($block, $newAttributes, true, $trackDuplications);
                 }
 
                 $newBlockIds[] = $newBlock->id;

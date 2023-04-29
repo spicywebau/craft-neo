@@ -3,6 +3,72 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug where setting conditions on a child blocks UI element would cause the UI element not to display
+
+## 3.7.6 - 2023-04-06
+
+### Fixed
+- Fixed a JavaScript error that occurred when entry saving failed, if draft autosaving was disabled and new Neo blocks were created containing Redactor fields
+- Fixed a bug where Plain Text and Table fields were converting posted shortcode-looking strings to emoji, for Craft 4.5 and later (thanks @brandonkelly)
+
+## 3.7.5 - 2023-03-28
+
+### Fixed
+- Fixed a bug when updating Neo blocks' visible field layout elements, where blocks' top bars could display the incorrect selected tabs
+
+## 3.7.4 - 2023-03-25
+
+### Added
+- Added the `enableBlockTypeUserPermissions` plugin setting (defaults to `true`)
+
+### Fixed
+- Fixed an error that occurred when updating Neo blocks' visible field layout elements if the owner element was disabled
+
+## 3.7.3 - 2023-03-18
+
+### Fixed
+- Fixed a bug when updating visible field layout elements after creating a new block, where disabled blocks in the Neo field weren't being accounted for, causing another block's content to appear in the new block
+
+## 3.7.2 - 2023-03-17
+
+### Fixed
+- Fixed a bug where, when automatically creating child blocks for a newly created block with Min Child Blocks set, the child blocks would be created at the same level as the parent
+
+## 3.7.1 - 2023-03-15
+
+### Fixed
+- Fixed a bug on multi-site Craft installs, where Neo could check for the wrong site's block data when updating visible field layout elements
+
+## 3.7.0 - 2023-02-21
+
+### Added
+- Added the ability to set conditions on which global sets a Neo block type can be used for
+- Added the Level option to the Neo block layout element condition rules
+- Added options to the Neo block layout element condition rules for parent blocks' field values
+- Added `benf\neo\conditions\fields\ParentFieldConditionRuleTrait`
+- Added `benf\neo\conditions\fields\ParentDateFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentLightswitchFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentNumberFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentOptionsFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentRelationalFieldConditionRule`
+- Added `benf\neo\conditions\fields\ParentTextFieldConditionRule`
+- Added `benf\neo\controllers\Input::actionUpdateVisibleElements()`
+
+### Changed
+- When using an element editor page, Neo block subfields will now be shown or hidden based on their condition rules after the owner draft is saved
+- When opening an element editor page, if a Neo field's Min Blocks setting hasn't been met, and it has only one block type available at the top level, the required blocks will now automatically be created
+- When editing an element and creating a new Neo block, if the block type's Min Child Blocks setting is set, and it has only one child block type available, the required child blocks will now automatically be created (however, the child blocks themselves won't have any required child blocks automatically created, to prevent any potential infinite recursion)
+
+### Fixed
+- Fixed a bug where the default Neo block type icon wasn't displaying when editing elements that don't have drafts, e.g. global sets, Craft Commerce products
+- Fixed a bug with the Add Block Above action, when using the new block menu grid style
+
+## 3.6.4 - 2023-02-11
+
+### Changed
+- When Neo block queries have a single `ownerId`, `siteId` and either a single `fieldId` or `id` set, the appropriate `structureId` will now also be set on the query, if it exists and wasn't already set on the query
+
+### Fixed
 - Fixed an error that occurred when viewing revisions, when using new block menu styles that show icons
 
 ## 3.6.3 - 2023-02-08

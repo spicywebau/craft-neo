@@ -63,7 +63,9 @@ class Blocks extends Component
         $data = [];
 
         foreach ($fieldLayoutTabs as $tab) {
-            $data['tabNames'][] = Craft::t('site', $tab->name);
+            $translatedName = Craft::t('site', $tab->name);
+            $data['tabNames'][] = $translatedName;
+            $data['tabUids'][$translatedName] = $tab->uid;
 
             foreach ($tab->getElements() as $tabElement) {
                 if ($tabElement instanceof CustomField && $isNewBlock) {
@@ -73,23 +75,13 @@ class Blocks extends Component
         }
 
         $view->startJsBuffer();
-        $html = $view->namespaceInputs($fieldLayout->createForm($block)->render());
+        $fieldLayoutForm = $fieldLayout->createForm($block);
+        $data['visibleLayoutElements'] = $fieldLayoutForm->getVisibleElements();
+        $html = $view->namespaceInputs($fieldLayoutForm->render());
         $data['js'] = $view->clearJsBuffer();
-
-        if ($blockType->hasChildBlocksUiElement()) {
-            $data['html'] = preg_replace(
-                '/<div data-neo-child-blocks-ui-element="__NEOBLOCK__" data-layout-element="([a-f0-9-]+)"><\/div>/',
-                $view->renderTemplate('neo/child-blocks', [
-                    'block' => $block,
-                    'handle' => $field->handle,
-                    'static' => false,
-                    'uid' => "$1",
-                ]),
-                $html,
-            );
-        } else {
-            $data['html'] = $html;
-        }
+        $data['html'] = $blockType->hasChildBlocksUiElement()
+            ? $this->replaceChildBlocksUiElementPlaceholder($html, $block)
+            : $html;
 
         // Reset $_isFresh's
         foreach ($fieldLayoutTabs as $tab) {
@@ -304,6 +296,34 @@ class Blocks extends Component
         }
 
         return $success;
+    }
+
+    /**
+     * Replaces the child blocks UI element placeholder in the given HTML with the actual child blocks.
+     *
+     * @param string $html
+     * @param Block $parentBlock
+     * @param int|null $overrideBlockId
+     * @return string
+     * @since 3.7.7
+     */
+    public function replaceChildBlocksUiElementPlaceholder(
+        string $html,
+        Block $parentBlock,
+        ?int $overrideBlockId = null
+    ): string {
+        $dataAttr = (string)($overrideBlockId ?? $parentBlock->id ?? '__NEOBLOCK__');
+
+        return preg_replace(
+            "/<div data-neo-child-blocks-ui-element=\"$dataAttr\" data-layout-element=\"([a-f0-9-]+)\"><\/div>/",
+            Craft::$app->getView()->renderTemplate('neo/child-blocks', [
+                'block' => $parentBlock,
+                'handle' => $parentBlock->getType()->getField()->handle,
+                'static' => false,
+                'uid' => "$1",
+            ]),
+            $html,
+        );
     }
 
     /**

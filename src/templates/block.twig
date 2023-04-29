@@ -1,14 +1,19 @@
 {% from 'neo/macros' import getBlockId %}
 
+{% set neoSettings = craft.app.plugins.getPlugin('neo').settings %}
 {% set type = block.type %}
 {% set typeTabs = type.getFieldLayout().getTabs() %}
 {% set typeName = type.name|t('site') %}
 {% set hasTabs = typeTabs is not empty %}
 {% set isParent = static and block.children.exists() or not static and type.childBlocks is not null and type.childBlocks is not empty %}
-{% set collapsed = craft.app.plugins.getPlugin('neo').settings.collapseAllBlocks or block.collapsed %}
+{% set collapsed = neoSettings.collapseAllBlocks or block.collapsed %}
 {% set blockId = getBlockId(block) %}
 {% set isNew = block.id is null %}
 {% set hasErrors = block.hasErrors() %}
+{% set showFormAndTabs = hasTabs or isParent %}
+{% set renderedForm = null %}
+{% set formTabs = null %}
+{% set visibleLayoutElements = {} %}
 
 {# Get the errors specific to the block (i.e. not subfield errors) #}
 {% set blockErrors = [] %}
@@ -34,7 +39,7 @@
         not hasTabs and not isParent ? 'is-empty',
         isParent ? 'is-parent',
         hasErrors ? 'has-errors',
-        not type.ignorePermissions and not currentUser.can("neo-editBlocks:#{type.uid}") ? 'is-disabled-for-user',
+        neoSettings.enableBlockTypeUserPermissions and not type.ignorePermissions and not currentUser.can("neo-editBlocks:#{type.uid}") ? 'is-disabled-for-user',
     ],
     data: {
         'neo-b-id': blockId,
@@ -44,8 +49,6 @@
 
 {% set actionBtnLabel = "#{typeName} #{'Actions'|t('neo')}" %}
 {% set actionMenuId = "neoblock-action-menu-#{blockId}" %}
-{% set tabsBtnLabel = "#{typeName} #{'Tabs'|t('neo')}" %}
-{% set tabsMenuId = "neoblock-tabs-menu-#{blockId}" %}
 
 {% set actionBtnAttributes = {
     class: ['btn', 'settings', 'icon', 'menubtn'],
@@ -62,19 +65,20 @@
     },
 } %}
 
-{% set tabsBtnAttributes = {
-    type: 'button',
-    role: 'button',
-    title: 'Tabs'|t('neo'),
-    aria: {
-        controls: tabsMenuId,
-        label: tabsBtnLabel,
-    },
-    data: {
-        'disclosure-trigger': true,
-        'neo-b': "#{blockId}.button.tabs",
-    },
-} %}
+{# If this block either has tabs or is a parent, get the form HTML now #}
+{# Done like this so we can: #}
+{# 1. use `createForm()` without repeatedly namespacing the child blocks #}
+{# 2. get the form tabs at the same time #}
+{% if showFormAndTabs %}
+    {% set renderedForm %}
+        {% namespace baseInputName %}
+            {% set layoutForm = block.getFieldLayout().createForm(block, static) %}
+            {% set formTabs = layoutForm.tabs %}
+            {% set visibleLayoutElements = layoutForm.getVisibleElements() %}
+            {{ layoutForm.render()|raw }}
+        {% endnamespace %}
+    {% endset %}
+{% endif %}
 
 {% set blockTypeHandleLabel %}{% if currentUser.getPreference('showFieldHandles') %}
     <div class="ni_block_topbar_item handle" data-neo-b="{{ blockId }}.container.handle">
@@ -111,49 +115,13 @@
         </div>
         <div class="ni_block_topbar_right" data-neo-b="{{ blockId }}.container.topbarRight">
             <div class="ni_block_topbar_item size-full tabs">
-                {% if hasTabs or isParent %}
+                {% if showFormAndTabs %}
                     <div class="tabs_trigger" data-neo-b="{{ blockId }}.button.toggler"></div>
-                {% endif %}
-                {% if typeTabs|length > 1 %}
-                    {% set hasErrors = false %}
-                    <div class="tabs_inner" data-neo-b="{{ blockId }}.container.tabs">
-                        {%- for tab in typeTabs -%}
-                            {%- set tabName = tab.name|t('site') -%}
-                            {%- set tabHasErrors = tab.elementHasErrors(block) -%}
-                            <a class="tab {{ loop.first ? ' is-selected' : '' }} {{ tabHasErrors ? ' has-errors' : '' }}"
-                            data-neo-b="{{ blockId }}.button.tab"
-                            data-neo-b-info="{{ tabName }}">
-                                {{ tabName }}{#
-                                #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
-                            </a>
-                            {%- set hasErrors = (hasErrors or tabHasErrors) -%}
-                        {%- endfor -%}
-                    </div>
-                    <div>
-                        <button {{ attr(tabsBtnAttributes) }} class="tabs_btn menubtn{{ hasErrors ? ' has-errors' : '' }}">
-                            {{ (typeTabs|first).name|t('site') }}
-                        </button>
-                        <div id="{{ tabsMenuId }}" class="neo_block_tabs-menu menu menu--disclosure">
-                            <ul>
-                                {% for tab in typeTabs %}
-                                    {%- set tabName = tab.name|t('site') -%}
-                                    {%- set tabHasErrors = tab.elementHasErrors(block) -%}
-                                    <li>
-                                        <a class="{{ loop.first ? 'is-selected' : '' }}{{ tabHasErrors ? ' has-errors' : '' }}"
-                                        href="#"
-                                        type="button"
-                                        role="button"
-                                        aria-label="{{ tabName }}"
-                                        data-neo-b="{{ blockId }}.button.tab"
-                                        data-neo-b-info="{{ tabName }}">
-                                            {{ tabName }}{#
-                                            #}{% if tabHasErrors %} <span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
+                    {% include 'neo/_tabs' with {
+                        tabs: formTabs,
+                        block,
+                        blockId,
+                    } only %}
                 {% endif %}
             </div>
             <div class="ni_block_topbar_item hidden" data-neo-b="{{ blockId }}.status">
@@ -164,7 +132,7 @@
                     <button {{ attr(actionBtnAttributes) }}></button>
                     <div id="{{ actionMenuId }}" class="menu menu--disclosure" data-neo-b="{{ blockId }}.container.menu">
                         <ul class="padded">
-                            {% if hasTabs or isParent %}
+                            {% if showFormAndTabs %}
                                 <li{% if collapsed %} class="hidden"{% endif %}><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="{{ 'Collapse'|t('neo') }}">{{ 'Collapse'|t('neo') }}</a></li>
                                 <li{% if not collapsed %} class="hidden"{% endif %}><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="{{ 'Expand'|t('neo') }}">{{ 'Expand'|t('neo') }}</a></li>
                             {% endif %}
@@ -180,7 +148,7 @@
                             <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="{{ 'Paste'|t('neo') }}">{{ 'Paste'|t('neo') }}</a></li>
                             <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="{{ 'Clone'|t('neo') }}">{{ 'Clone'|t('neo') }}</a></li>
                         </ul>
-                        {% if type.ignorePermissions or currentUser.can("neo-deleteBlocks:#{type.uid}") %}
+                        {% if not neoSettings.enableBlockTypeUserPermissions or type.ignorePermissions or currentUser.can("neo-deleteBlocks:#{type.uid}") %}
                             <hr>
                             <ul class="padded">
                                 <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="{{ 'Delete'|t('neo') }}">{{ 'Delete'|t('neo') }}</a></li>
@@ -194,17 +162,11 @@
             </div>
         </div>
     </div>
-    {% if hasTabs or isParent %}
+    {% if showFormAndTabs %}
         <div class="ni_block_body"{{ collapsed ? ' style="opacity: 0; height: 0;"' }} data-neo-b="{{ blockId }}.container.body">
             {% if hasTabs %}
                 <div class="ni_block_content" data-neo-b="{{ blockId }}.container.content">
-                    {# Get the HTML, and replace the child blocks UI element placeholder with actual child blocks #}
-                    {# Done like this so we can use `createForm()` without repeatedly namespacing the child blocks #}
-                    {% set renderedForm %}
-                        {% namespace baseInputName %}
-                            {{ block.getFieldLayout().createForm(block, static).render()|raw }}
-                        {% endnamespace %}
-                    {% endset %}
+                    {# Replace the form HTML's child blocks UI element placeholder with actual child blocks #}
                     {% set splitOnChildBlocks = renderedForm|split('<div data-neo-child-blocks-ui-element="' ~ blockId ~ '" data-layout-element="') %}
                     {{ splitOnChildBlocks[0]|raw }}
                     {% if splitOnChildBlocks|length > 1 %}
@@ -238,3 +200,11 @@
         <div class="ni_block_collapsed-children" data-neo-b="{{ blockId }}.container.collapsedChildren"></div>
     {% endif %}
 </div>
+
+{% js %}
+    Garnish.on(Neo.Input, 'afterInit', (e) => {
+        if (e.target.getName() === '{{ handle }}') {
+            e.target.setVisibleElements({{ isNew ? "'#{blockId}'"|raw : blockId }}, '{{ visibleLayoutElements|json_encode|raw }}')
+        }
+    })
+{% endjs %}

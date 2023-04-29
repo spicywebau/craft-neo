@@ -51,6 +51,14 @@
             showAllOption: true,
         }) }}
     {% endtag %}
+
+    {{ forms.lightswitchField({
+        label: 'Enable block type user permissions'|t('neo'),
+        instructions: 'Whether to allow setting user permissions for creating, editing and deleting blocks of a certain type.'|t('neo'),
+        id: 'enableBlockTypeUserPermissions',
+        name: 'enableBlockTypeUserPermissions',
+        on: settings.enableBlockTypeUserPermissions,
+    }) }}
 </div>
 
 {% js %}
