@@ -80,6 +80,8 @@ class BlockQuery extends ElementQuery
      */
     private bool $_useMemoized = false;
 
+    private bool $_doNotJoinBlockStructuresTable = false;
+
     private static $ownersById = [];
 
     // Public methods
@@ -465,7 +467,55 @@ class BlockQuery extends ElementQuery
             );
         }
 
+        if ((!$this->fieldId || !$this->ownerId || !$this->siteId) && $this->id && !$this->structureId) {
+            $this->_doNotJoinBlockStructuresTable = true;
+        }
+
         return parent::beforePrepare();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function afterPrepare(): bool
+    {
+        // Try to narrow down the structure criteria for the blocks we need, so we don't return duplicate blocks because
+        // they belong to a draft as well as the draft's canonical element
+        $structureElementsJoined = false;
+
+        foreach ($this->subQuery->join as $join) {
+            $joinedTable = $join[1];
+
+            if (is_array($joinedTable)) {
+                $joinedTable = end($joinedTable);
+            }
+
+            if (str_starts_with($joinedTable, Table::STRUCTUREELEMENTS)) {
+                $structureElementsJoined = true;
+                break;
+            }
+        }
+
+        if ($structureElementsJoined && !$this->_doNotJoinBlockStructuresTable && !$this->structureId) {
+            $this->subQuery->innerJoin(
+                ['neoblockstructures' => '{{%neoblockstructures}}'],
+                '[[neoblockstructures.structureId]] = [[structureelements.structureId]]',
+            );
+
+            if ($this->fieldId) {
+                $this->subQuery->andWhere(['neoblockstructures.fieldId' => $this->fieldId]);
+            }
+
+            if ($this->ownerId) {
+                $this->subQuery->andWhere(['neoblockstructures.ownerId' => $this->ownerId]);
+            }
+
+            if ($this->siteId) {
+                $this->subQuery->andWhere(['neoblockstructures.siteId' => $this->siteId]);
+            }
+        }
+
+        return parent::afterPrepare();
     }
 
     /**
