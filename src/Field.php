@@ -795,6 +795,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
                 $blocksBySite[$key] = $allBlocks;
             }
+        } else {
+            // If the owner element is being hard-deleted, make sure any block structure data is deleted
+            foreach (ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($element), 'siteId') as $siteId) {
+                while (($blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $siteId)) !== null) {
+                    Neo::$plugin->blocks->deleteStructure($blockStructure, true);
+                }
+            }
         }
 
         // Delete all Neo blocks for this element and field

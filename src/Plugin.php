@@ -5,6 +5,7 @@ use yii\base\Event;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
+use craft\console\Application as ConsoleApplication;
 use craft\console\Controller;
 use craft\console\controllers\ResaveController;
 use craft\db\Query;
@@ -15,6 +16,8 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
 use craft\gatsbyhelper\services\Deltas;
+use craft\helpers\Console;
+use craft\helpers\Db;
 use craft\models\FieldLayout;
 use craft\services\Fields;
 use craft\services\Gc;
@@ -184,9 +187,38 @@ class Plugin extends BasePlugin
     private function _registerGarbageCollection()
     {
         Event::on(Gc::class, Gc::EVENT_RUN, function() {
+            $stdout = function(string $string, ...$format) {
+                if (Craft::$app instanceof ConsoleApplication) {
+                    Console::stdout($string, ...$format);
+                }
+            };
             $gc = Craft::$app->getGc();
             $gc->deletePartialElements(Block::class, '{{%neoblocks}}', 'id');
             $gc->deletePartialElements(Block::class, Table::CONTENT, 'elementId');
+
+            // Delete anything in the structures table that's a Neo block structure, but doesn't exist in the
+            // neoblockstructures table
+            $stdout('    > deleting orphaned Neo block structure data ... ');
+            Db::delete(Table::STRUCTURES, [
+                'and',
+                [
+                    'id' => (new Query())
+                        ->select(['structureId'])
+                        ->from(['se' => Table::STRUCTUREELEMENTS])
+                        ->innerJoin(['nb' => '{{%neoblocks}}'], '[[se.elementId]] = [[nb.id]]')
+                        ->column(),
+                ],
+                [
+                    'not',
+                    [
+                        'id' => (new Query())
+                            ->select(['structureId'])
+                            ->from('{{%neoblockstructures}}')
+                            ->column(),
+                    ]
+                ],
+            ]);
+            $stdout("done\n", Console::FG_GREEN);
         });
     }
 

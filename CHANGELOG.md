@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- When running Craft garbage collection, Neo will now delete any orphaned Neo block structure data
+
+### Fixed
+- Fixed a bug where Neo block structures belonging to provisional drafts weren't being deleted when saving the entry
+
 ## 2.13.16 - 2023-01-12
 
 ### Added
