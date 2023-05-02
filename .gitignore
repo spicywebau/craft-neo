@@ -5,3 +5,6 @@
 /node_modules
 /vendor
 /coverage
+
+# Tests only implemented for 3.x+
+/tests
