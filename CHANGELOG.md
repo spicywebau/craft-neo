@@ -572,6 +572,14 @@
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
 
+## 2.13.17 - 2023-05-02
+
+### Changed
+- When running Craft garbage collection, Neo will now delete any orphaned Neo block structure data
+
+### Fixed
+- Fixed a bug where Neo block structures belonging to provisional drafts weren't being deleted when saving the entry
+
 ## 2.13.16 - 2023-01-12
 
 ### Added

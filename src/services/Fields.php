@@ -1052,7 +1052,7 @@ SQL
 
         // Delete any existing block structures associated with this field/owner/site combination
         while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null) {
-            Neo::$plugin->blocks->deleteStructure($blockStructure);
+            Neo::$plugin->blocks->deleteStructure($blockStructure, true);
         }
 
         $blockStructure = new BlockStructure();
