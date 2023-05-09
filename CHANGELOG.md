@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.7.8 - 2023-05-09
 
 ### Fixed
 - Fixed a bug where pasting or cloning blocks whose types' 'Group Child Block Types' setting was disabled would cause the setting not to be respected on the pasted/cloned block
