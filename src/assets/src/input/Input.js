@@ -1053,19 +1053,12 @@ export default Garnish.Base.extend({
             tabs: renderedBlock.tabs
           })
 
-          const newButtons = new this.ButtonClass({
-            field: this,
-            items: newBlockType.getChildBlockItems(this.getItems()),
-            maxBlocks: this.getMaxBlocks()
-          })
-
           const newBlock = new Block({
             namespace: [...this._templateNs, newId],
             field: this,
             blockType: newBlockType,
             id: newId,
             level: renderedBlock.level | 0,
-            buttons: newButtons,
             enabled: !!renderedBlock.enabled,
             collapsed: !!renderedBlock.collapsed,
             showButtons: !this.atMaxLevels(renderedBlock.level | 0),
