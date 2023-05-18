@@ -577,6 +577,11 @@
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
 
+## 2.13.18 - 2023-05-18
+
+### Changed
+- Neo will no longer create revision block structures using queue jobs if the Craft project's `runQueueAutomatically` general setting is disabled
+
 ## 2.13.17 - 2023-05-02
 
 ### Changed
