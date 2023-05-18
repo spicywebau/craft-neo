@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Neo will no longer create revision block structures using queue jobs if the Craft project's `runQueueAutomatically` general setting is disabled
+
 ## 3.7.8 - 2023-05-09
 
 ### Fixed

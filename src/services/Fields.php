@@ -660,8 +660,12 @@ SQL
         }
 
         $revisionsService = Craft::$app->getRevisions();
+        $queue = Craft::$app->getConfig()->getGeneral()->runQueueAutomatically
+            ? Craft::$app->getQueue()
+            : null;
         $ownershipData = [];
         $jobData = [];
+        $nonJobData = [];
         $processedSites = [];
         $otherSites = [];
 
@@ -689,13 +693,23 @@ SQL
                 ]);
                 $ownershipData[] = [$blockRevisionId, $revision->id, $block->sortOrder];
 
-                // Store the job data for block structure creation
-                $jobData[$siteId][] = [
-                    'id' => $blockRevisionId,
-                    'level' => $block->level,
-                    'lft' => $block->lft,
-                    'rgt' => $block->rgt,
-                ];
+                if ($queue !== null) {
+                    // Store the job data for block structure creation
+                    $jobData[$siteId][] = [
+                        'id' => $blockRevisionId,
+                        'level' => $block->level,
+                        'lft' => $block->lft,
+                        'rgt' => $block->rgt,
+                    ];
+                } else {
+                    // Because querying for blocks with the revision IDs doesn't work yet...
+                    // I wish `$revisionsService->createRevision()` returned the revision element and not just the ID
+                    $cloneBlock = clone $block;
+                    $cloneBlock->id = $blockRevisionId;
+                    $cloneBlock->ownerId = $revision->id;
+                    $cloneBlock->structureId = null;
+                    $nonJobData[$siteId][] = $cloneBlock;
+                }
             }
 
             foreach ($supportedSites ?? [] as $supportedSite) {
@@ -706,7 +720,6 @@ SQL
         }
 
         Db::batchInsert('{{%neoblocks_owners}}', ['blockId', 'ownerId', 'sortOrder'], $ownershipData);
-        $queue = Craft::$app->getQueue();
 
         foreach ($jobData as $siteId => $data) {
             $queue->push(new SaveBlockStructures([
@@ -716,6 +729,10 @@ SQL
                 'otherSupportedSiteIds' => $otherSites[$siteId],
                 'blocks' => $data,
             ]));
+        }
+
+        foreach ($nonJobData as $siteId => $siteBlocks) {
+            $this->_saveNeoStructuresForSites($field, $revision, $nonJobData[$siteId], $siteId);
         }
     }
 
