@@ -105,7 +105,7 @@ Assuming you are using a Neo field on an Entry template:
 	[
 		'neoField.blockTypeHandle:fieldHandle',
 		'neoField.blockTypeHandle:otherFieldHandle.childField',
-        'imageFieldHandle'
+		'imageFieldHandle'
 	]
 ) %}
 ```
@@ -113,7 +113,7 @@ Assuming you are using a Neo field on an Entry template:
 2. Prepare the Memoized functionality of Neo from those eager loaded fields
 
 ```twig
-{% for block in entry.neo %}
+{% for block in entry.neoField %}
 	{% do block.useMemoized(entry.neoField) %}
 {% endfor %}
 ```
@@ -121,7 +121,7 @@ Assuming you are using a Neo field on an Entry template:
 3. Use the field now everything is properly loaded
 
 ```twig
-{% for block in neoBlocks %}
+{% for block in entry.neoField %}
 	{% if block.level == 1 %}
 		{% include '_partials/neoField/' ~ block.type.handle ignore missing %}
 	{% endif %}
