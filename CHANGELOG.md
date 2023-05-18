@@ -5,6 +5,9 @@
 ### Changed
 - Neo will no longer create revision block structures using queue jobs if the Craft project's `runQueueAutomatically` general setting is disabled
 
+### Fixed
+- Fixed a bug where Neo blocks could get detached from entries when sections were enabled for a new site
+
 ## 3.7.8 - 2023-05-09
 
 ### Fixed

@@ -246,7 +246,11 @@ class Fields extends Component
                         $structureModified = true;
                     }
 
-                    $block->primaryOwnerId = $block->ownerId = $owner->id;
+                    $block->ownerId = $owner->id;
+                    // If the block already has an ID and primary owner ID, don't reassign it
+                    if (!$block->id || !$block->primaryOwnerId) {
+                        $block->primaryOwnerId = $owner->id;
+                    }
                     $block->sortOrder = $sortOrder;
                     $elementsService->saveElement($block, false, true, $this->_hasSearchableBlockType($field, $block));
 
