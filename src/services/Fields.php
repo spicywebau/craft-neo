@@ -736,14 +736,27 @@ class Fields extends Component
 
     // Private Methods
     // =========================================================================
-    private function _shouldCreateStructureWithJob($target): bool
-    {
-        // if target is not a draft or revision
-        $duplicate = $target->duplicateOf;
 
-        // return true if creating a revision
-        return $duplicate && $duplicate->draftId === null &&
-            $duplicate->revisionId === null && $target->revisionId;
+    /**
+     * Whether Neo block structures for a given owner element should be created with a job.
+     *
+     * Neo block structures should be created with a job if the owner element is a revision being duplicated from a
+     * live element, and if the Craft project's `runQueueAutomatically` general setting is disabled.
+     *
+     * @param $owner
+     * @return bool
+     */
+    private function _shouldCreateStructureWithJob($owner): bool
+    {
+        if (!Craft::$app->getConfig()->getGeneral()->runQueueAutomatically) {
+            return false;
+        }
+
+        if (($duplicate = $owner->duplicateOf) === null) {
+            return false;
+        }
+
+        return $duplicate->draftId === null && $duplicate->revisionId === null && $owner->revisionId;
     }
 
     /**
