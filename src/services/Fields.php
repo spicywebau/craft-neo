@@ -246,7 +246,7 @@ class Fields extends Component
                         $structureModified = true;
                     }
 
-                    $block->ownerId = $owner->id;
+                    $block->setOwner($owner);
                     // If the block already has an ID and primary owner ID, don't reassign it
                     if (!$block->id || !$block->primaryOwnerId) {
                         $block->primaryOwnerId = $owner->id;
