@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug when validation errors occurred when editing an element that has more than one Neo field, where some blocks could have multiple add block buttons added
+- Fixed a bug when merging live entry changes into a draft, where newly-created blocks could end up in the wrong places in the draft's block structure
 
 ## 3.7.9 - 2023-05-18
 

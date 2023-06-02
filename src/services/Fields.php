@@ -796,7 +796,7 @@ SQL
 
             $derivativeBlocks = Block::find()
                 ->fieldId($field->id)
-                ->primaryOwnerId($owner->id)
+                ->ownerId($owner->id)
                 ->siteId($canonicalOwner->siteId)
                 ->status(null)
                 ->trashed(null)
