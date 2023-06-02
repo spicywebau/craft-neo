@@ -84,7 +84,7 @@ export default Garnish.Base.extend({
     this._renderOldChildBlocksContainer = !settings.blockType.hasChildBlocksUiElement()
     this.$container = generateElement
       ? this._generateElement(settings.showBlockTypeHandle)
-      : $(`[data-neo-b-id=${this._id}]`)
+      : this._field.$container.find(`[data-neo-b-id=${this._id}]`)
 
     const $neo = this.$container.find('[data-neo-b]')
     this.$bodyContainer = $neo.filter(`[data-neo-b="${this._id}.container.body"]`)

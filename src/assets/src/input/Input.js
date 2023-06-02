@@ -223,12 +223,6 @@ export default Garnish.Base.extend({
         deletableByUser: blockType.isDeletableByUser(),
         editableByUser: blockType.isEditableByUser()
       })
-      bInfo.buttons = new this.ButtonClass({
-        $ownerContainer: $block,
-        field: this,
-        items: blockType.getChildBlockItems(this.getItems()),
-        maxBlocks: this.getMaxBlocks()
-      })
       bInfo.showButtons = !this.atMaxLevels(bInfo.level)
 
       const block = new Block(bInfo)

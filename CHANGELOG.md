@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when validation errors occurred when editing an element that has more than one Neo field, where some blocks could have multiple add block buttons added
+
 ## 3.7.9 - 2023-05-18
 
 ### Changed
