@@ -545,6 +545,16 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->useMemoized($value);
             }
 
+            // Explanation: https://github.com/craftcms/cms/blob/4.4.13/src/fields/Matrix.php#L732-L735
+            if (
+                $this->minBlocks != 0 &&
+                count($filteredBlockTypes) === 1 &&
+                (!$element || !$element->hasErrors($this->handle)) &&
+                count($value) < $this->minBlocks
+            ) {
+                $view->setInitialDeltaValue($this->handle, null);
+            }
+
             return $view->renderTemplate('neo/input', [
                 'handle' => $this->handle,
                 'blocks' => $blocks,
