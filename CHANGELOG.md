@@ -6,6 +6,7 @@
 - Fixed a bug when validation errors occurred when editing an element that has more than one Neo field, where some blocks could have multiple add block buttons added
 - Fixed a bug when merging live entry changes into a draft, where newly-created blocks could end up in the wrong places in the draft's block structure
 - Fixed a bug where Neo fields would fail validation if they only contained automatically-added blocks (per the field's Min Blocks setting) and no changes were made to them
+- Fixed a bug where a block type's min and max child blocks settings weren't being cleared if the block type was set to no longer have any valid child block types
 
 ## 3.7.9 - 2023-05-18
 

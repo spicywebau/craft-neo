@@ -320,6 +320,16 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                     }
                 }
 
+                // Ensure min/max child blocks only applies if we're actually allowed to have child blocks
+                $childBlocks = $blockType['childBlocks'] ?: null;
+
+                if (!empty($childBlocks)) {
+                    $minChildBlocks = (int)($blockType['minChildBlocks'] ?? 0);
+                    $maxChildBlocks = (int)($blockType['maxChildBlocks'] ?? 0);
+                } else {
+                    $minChildBlocks = $maxChildBlocks = 0;
+                }
+
                 $newBlockType = new BlockType();
                 $newBlockType->id = (int)$blockTypeId;
                 $newBlockType->fieldId = $this->id;
@@ -333,11 +343,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);
                 $newBlockType->minSiblingBlocks = (int)($blockType['minSiblingBlocks'] ?? 0);
                 $newBlockType->maxSiblingBlocks = (int)($blockType['maxSiblingBlocks'] ?? 0);
-                $newBlockType->minChildBlocks = (int)($blockType['minChildBlocks'] ?? 0);
-                $newBlockType->maxChildBlocks = (int)($blockType['maxChildBlocks'] ?? 0);
+                $newBlockType->minChildBlocks = $minChildBlocks;
+                $newBlockType->maxChildBlocks = $maxChildBlocks;
                 $newBlockType->topLevel = (bool)$blockType['topLevel'];
                 $newBlockType->groupChildBlockTypes = isset($blockType['groupChildBlockTypes']) ? (bool)$blockType['groupChildBlockTypes'] : true;
-                $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
+                $newBlockType->childBlocks = $childBlocks;
                 $newBlockType->sortOrder = (int)$blockType['sortOrder'];
                 $newBlockType->conditions = $blockType['conditions'] ?? [];
                 $newBlockType->groupId = isset($blockType['groupId']) ? (int)$blockType['groupId'] : null;
