@@ -1018,7 +1018,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->limit(null)
                 ->anyStatus()
                 ->siteId($element->siteId)
-                ->orderBy(['sortOrder' => SORT_ASC])
+                ->orderBy(['neoblocks.sortOrder' => SORT_ASC])
                 ->indexBy('id')
                 ->all();
         } else {
