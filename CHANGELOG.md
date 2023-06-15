@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.13.19 - 2023-06-15
 
 ### Fixed
 - Fixed an integrity constraint violation that could occur when saving an existing entry that has a Neo field
