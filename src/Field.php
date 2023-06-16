@@ -1243,7 +1243,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->limit(null)
                 ->status(null)
                 ->siteId($element->siteId)
-                ->orderBy(['neoblocks.sortOrder' => SORT_ASC])
+                ->orderBy(['sortOrder' => SORT_ASC])
                 ->indexBy('id')
                 ->all();
         } else {

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a compatibility issue with the Content Templates plugin and Neo 3.7.11
+
 ## 3.7.11 - 2023-06-16
 
 ### Fixed
