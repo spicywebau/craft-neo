@@ -2,6 +2,7 @@
 
 Neo is officially compatible with some other Craft plugins, listed below:
 
+- [Content Templates](https://github.com/spicywebau/craft-content-templates)
 - [Quick Field](https://github.com/spicywebau/craft-quick-field)
 - [CP Field Inspect](https://github.com/mmikkel/CpFieldInspect-Craft)
 - [Feed Me](https://github.com/craftcms/feed-me)
