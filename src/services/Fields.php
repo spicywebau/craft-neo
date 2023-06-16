@@ -633,7 +633,8 @@ SQL
                 ->unique()
                 ->status(null)
                 ->all();
-            $this->_saveNeoStructuresForSites($field, $draft, $blocks, $siteId);
+            // Opt out of creating structures for other supported sites - we'll be doing that from here if necessary
+            $this->_saveNeoStructuresForSites($field, $draft, $blocks, $siteId, false);
         }
     }
 
@@ -1065,10 +1066,15 @@ SQL
      * @param ElementInterface $owner
      * @param Block[] $blocks Block IDs that should be left alone
      * @param int|null $sId the site ID; if this is null, the owner's site ID will be used
-     * @since 2.4.3
+     * @param bool $saveForOtherSupportedSites
      */
-    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, ?int $sId = null): void
-    {
+    private function _saveNeoStructuresForSites(
+        Field $field,
+        ElementInterface $owner,
+        $blocks,
+        ?int $sId = null,
+        $saveForOtherSupportedSites = true
+    ): void {
         $siteId = $sId ?? $owner->siteId;
 
         // Delete any existing block structures associated with this field/owner/site combination
@@ -1084,23 +1090,25 @@ SQL
         Neo::$plugin->blocks->saveStructure($blockStructure);
         Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
 
-        // if multi site then save the structure for it. since it's all the same then we can use the same structure.
+        // If this is a multi-site Craft project, these blocks have other supported sites and we haven't explicitly
+        // disabled saving of structures for those other sites, then save them for those other sites here, since we've
+        // already built the block structure
+        if (!$saveForOtherSupportedSites) {
+            return;
+        }
+
         $supported = $this->getSupportedSiteIdsExCurrent($field, $owner, $field->propagationKeyFormat);
-        $supportedCount = count($supported);
 
-        if ($supportedCount > 0) {
-            // if has more than 3 sites then use a job instead to lighten the load.
-            foreach ($supported as $s) {
-                while (($mBlockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $s)) !== null) {
-                    Neo::$plugin->blocks->deleteStructure($mBlockStructure);
-                }
-
-                $multiBlockStructure = $blockStructure;
-                $multiBlockStructure->id = null;
-                $multiBlockStructure->siteId = $s;
-
-                Neo::$plugin->blocks->saveStructure($multiBlockStructure);
+        foreach ($supported as $s) {
+            while (($mBlockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $s)) !== null) {
+                Neo::$plugin->blocks->deleteStructure($mBlockStructure);
             }
+
+            $multiBlockStructure = $blockStructure;
+            $multiBlockStructure->id = null;
+            $multiBlockStructure->siteId = $s;
+
+            Neo::$plugin->blocks->saveStructure($multiBlockStructure);
         }
     }
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when creating drafts on multi-site Craft projects with a Neo field's propagation method set to an option other than "Only save blocks in the site they were created in", where some sites could end up without a Neo block structure for the draft
+
 ## 3.7.10 - 2023-06-14
 
 ### Fixed
