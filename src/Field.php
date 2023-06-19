@@ -301,107 +301,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function setBlockTypes(array $blockTypes)
     {
-        $conditionsService = Craft::$app->getConditions();
-        $fieldsService = Craft::$app->getFields();
-        $request = Craft::$app->getRequest();
         $newBlockTypes = [];
 
-        foreach ($blockTypes as $blockTypeId => $blockType) {
-            $newBlockType = $blockType;
-
-            if (!($blockType instanceof BlockType)) {
-                foreach (array_keys($blockType['conditions'] ?? []) as $elementType) {
-                    if (!isset($blockType['conditions'][$elementType]['conditionRules'])) {
-                        // Don't bother setting condition data for any element types that have no rules set
-                        unset($blockType['conditions'][$elementType]);
-                    } else {
-                        // Get the condition config
-                        $blockType['conditions'][$elementType] = $conditionsService->createCondition($blockType['conditions'][$elementType])->getConfig();
-                    }
-                }
-
-                // Ensure min/max child blocks only applies if we're actually allowed to have child blocks
-                $childBlocks = $blockType['childBlocks'] ?: null;
-
-                if (!empty($childBlocks)) {
-                    $minChildBlocks = (int)($blockType['minChildBlocks'] ?? 0);
-                    $maxChildBlocks = (int)($blockType['maxChildBlocks'] ?? 0);
-                } else {
-                    $minChildBlocks = $maxChildBlocks = 0;
-                }
-
-                $newBlockType = new BlockType();
-                $newBlockType->id = (int)$blockTypeId;
-                $newBlockType->fieldId = $this->id;
-                $newBlockType->name = $blockType['name'];
-                $newBlockType->handle = $blockType['handle'];
-                $newBlockType->enabled = $blockType['enabled'] ?? true;
-                $newBlockType->ignorePermissions = $blockType['ignorePermissions'] ?? true;
-                $newBlockType->description = $blockType['description'] ?? '';
-                $newBlockType->iconId = !empty($blockType['iconId']) ? (int)$blockType['iconId'] : null;
-                $newBlockType->minBlocks = (int)($blockType['minBlocks'] ?? 0);
-                $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);
-                $newBlockType->minSiblingBlocks = (int)($blockType['minSiblingBlocks'] ?? 0);
-                $newBlockType->maxSiblingBlocks = (int)($blockType['maxSiblingBlocks'] ?? 0);
-                $newBlockType->minChildBlocks = $minChildBlocks;
-                $newBlockType->maxChildBlocks = $maxChildBlocks;
-                $newBlockType->topLevel = (bool)$blockType['topLevel'];
-                $newBlockType->groupChildBlockTypes = isset($blockType['groupChildBlockTypes']) ? (bool)$blockType['groupChildBlockTypes'] : true;
-                $newBlockType->childBlocks = $childBlocks;
-                $newBlockType->sortOrder = (int)$blockType['sortOrder'];
-                $newBlockType->conditions = $blockType['conditions'] ?? [];
-                $newBlockType->groupId = isset($blockType['groupId']) ? (int)$blockType['groupId'] : null;
-
-                // Allow the `fieldLayoutId` to be set in the blockType settings
-                if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
-                    if ($fieldLayout = $fieldsService->getLayoutById($fieldLayoutId)) {
-                        $newBlockType->setFieldLayout($fieldLayout);
-                        $newBlockType->fieldLayoutId = $fieldLayout->id;
-                    }
-                } elseif ($request->getBodyParam('neoBlockType' . (string)$blockTypeId) !== null) {
-                    // Otherwise, check for a field layout in the POST data
-                    $fieldLayout = $fieldsService->assembleLayoutFromPost('neoBlockType' . (string)$blockTypeId);
-                    $fieldLayout->type = Block::class;
-
-                    // Ensure the field layout ID and UID are set, if they exist
-                    if (is_int($blockTypeId)) {
-                        $layoutResult = (new Query())
-                            ->select([
-                                'bt.fieldLayoutId',
-                                'fl.uid',
-                            ])
-                            ->from('{{%neoblocktypes}} bt')
-                            ->innerJoin('{{%fieldlayouts}} fl', '[[fl.id]] = [[bt.fieldLayoutId]]')
-                            ->where(['bt.id' => $blockTypeId])
-                            ->one();
-
-                        if ($layoutResult !== null) {
-                            $fieldLayout->id = $layoutResult['fieldLayoutId'];
-                            $fieldLayout->uid = $layoutResult['uid'];
-                        }
-                    }
-
-                    $newBlockType->setFieldLayout($fieldLayout);
-                    $newBlockType->fieldLayoutId = $fieldLayout->id;
-                } else {
-                    // No field layout data was sent, which means this is an existing block type whose field layout
-                    // designer was never loaded, and therefore no changes were made to any field layout the block type
-                    // already has
-                    $fieldLayoutId = (new Query())
-                        ->select(['fieldLayoutId'])
-                        ->from('{{%neoblocktypes}}')
-                        ->where(['id' => $blockTypeId])
-                        ->scalar();
-
-                    if ($fieldLayoutId) {
-                        $fieldLayout = $fieldsService->getLayoutById($fieldLayoutId);
-                        $newBlockType->setFieldLayout($fieldLayout);
-                        $newBlockType->fieldLayoutId = $fieldLayoutId;
-                    }
-                }
-            }
-
-            $newBlockTypes[] = $newBlockType;
+        foreach ($blockTypes as $id => $blockType) {
+            $newBlockTypes[] = $blockType instanceof BlockType
+                ? $blockType
+                : $this->_createBlockType($blockType, $id);
         }
 
         $this->_blockTypes = $newBlockTypes;
@@ -438,28 +343,163 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $newBlockTypeGroups = [];
 
         foreach ($blockTypeGroups as $id => $blockTypeGroup) {
-            $newBlockTypeGroup = $blockTypeGroup;
-
-            if (!($blockTypeGroup instanceof BlockTypeGroup)) {
-                $alwaysShowDropdown = $blockTypeGroup['alwaysShowDropdown'] ?? null;
-                $newBlockTypeGroup = new BlockTypeGroup();
-                $newBlockTypeGroup->id = (int)$id;
-                $newBlockTypeGroup->fieldId = $this->id;
-                $newBlockTypeGroup->name = $blockTypeGroup['name'];
-                $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
-                $newBlockTypeGroup->alwaysShowDropdown = match ($alwaysShowDropdown) {
-                    BlockTypeGroupDropdown::Show => true,
-                    BlockTypeGroupDropdown::Hide => false,
-                    BlockTypeGroupDropdown::Global => null,
-                    // Handle cases where `alwaysShowDropdown` is already set to true/false/null
-                    true, false, null => $alwaysShowDropdown,
-                };
-            }
-
-            $newBlockTypeGroups[] = $newBlockTypeGroup;
+            $newBlockTypeGroups[] = $blockTypeGroup instanceof BlockTypeGroup
+                ? $blockTypeGroup
+                : $this->_createGroup($blockTypeGroup, $id);
         }
 
         $this->_blockTypeGroups = $newBlockTypeGroups;
+    }
+
+    /**
+     * Sets the block type / group items for this field.
+     *
+     * @param array $items The block type / group items to associate with this field.
+     */
+    public function setItems(array $items): void
+    {
+        $blockTypes = [];
+        $groups = [];
+
+        foreach ($items['sortOrder'] as $i => $itemId) {
+            $overrides = [
+                'sortOrder' => $i + 1,
+            ];
+
+            if (str_starts_with($itemId, 'blocktype:')) {
+                $itemId = substr($itemId, 10);
+                $item = $items['blockTypes'][$itemId] ?? Neo::$plugin->blockTypes->getById((int)$itemId);
+                $blockTypes[] = isset($items['blockTypes'][$itemId])
+                    ? $this->_createBlockType($overrides + $items['blockTypes'][$itemId])
+                    : Neo::$plugin->blockTypes->getGroupById((int)$itemId);
+            } elseif (str_starts_with($itemId, 'group:')) {
+                $itemId = substr($itemId, 6);
+                $groups[] = isset($items['groups'][$itemId])
+                    ? $this->_createGroup($overrides + $items['groups'][$itemId])
+                    : Neo::$plugin->blockTypes->getGroupById((int)$itemId);
+            }
+        }
+
+        $this->_blockTypes = $blockTypes;
+        $this->_blockTypeGroups = $groups;
+    }
+
+    private function _createBlockType(array $blockType, int|string $id): BlockType
+    {
+        $conditionsService = Craft::$app->getConditions();
+        $fieldsService = Craft::$app->getFields();
+        $request = Craft::$app->getRequest();
+
+        foreach (array_keys($blockType['conditions'] ?? []) as $elementType) {
+            if (!isset($blockType['conditions'][$elementType]['conditionRules'])) {
+                // Don't bother setting condition data for any element types that have no rules set
+                unset($blockType['conditions'][$elementType]);
+            } else {
+                // Get the condition config
+                $blockType['conditions'][$elementType] = $conditionsService->createCondition($blockType['conditions'][$elementType])->getConfig();
+            }
+        }
+
+        // Ensure min/max child blocks only applies if we're actually allowed to have child blocks
+        $childBlocks = $blockType['childBlocks'] ?: null;
+
+        if (!empty($childBlocks)) {
+            $minChildBlocks = (int)($blockType['minChildBlocks'] ?? 0);
+            $maxChildBlocks = (int)($blockType['maxChildBlocks'] ?? 0);
+        } else {
+            $minChildBlocks = $maxChildBlocks = 0;
+        }
+
+        $newBlockType = new BlockType();
+        $newBlockType->id = $id;
+        $newBlockType->fieldId = $this->id;
+        $newBlockType->name = $blockType['name'];
+        $newBlockType->handle = $blockType['handle'];
+        $newBlockType->enabled = $blockType['enabled'] ?? true;
+        $newBlockType->ignorePermissions = $blockType['ignorePermissions'] ?? true;
+        $newBlockType->description = $blockType['description'] ?? '';
+        $newBlockType->iconId = !empty($blockType['iconId']) ? (int)$blockType['iconId'] : null;
+        $newBlockType->minBlocks = (int)($blockType['minBlocks'] ?? 0);
+        $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);
+        $newBlockType->minSiblingBlocks = (int)($blockType['minSiblingBlocks'] ?? 0);
+        $newBlockType->maxSiblingBlocks = (int)($blockType['maxSiblingBlocks'] ?? 0);
+        $newBlockType->minChildBlocks = $minChildBlocks;
+        $newBlockType->maxChildBlocks = $maxChildBlocks;
+        $newBlockType->topLevel = (bool)($blockType['topLevel'] ?? true);
+        $newBlockType->groupChildBlockTypes = isset($blockType['groupChildBlockTypes']) ? (bool)$blockType['groupChildBlockTypes'] : true;
+        $newBlockType->childBlocks = $childBlocks;
+        $newBlockType->sortOrder = (int)$blockType['sortOrder'];
+        $newBlockType->conditions = $blockType['conditions'] ?? [];
+        $newBlockType->groupId = isset($blockType['groupId']) ? (int)$blockType['groupId'] : null;
+
+        // Allow the `fieldLayoutId` to be set in the blockType settings
+        if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
+            if ($fieldLayout = $fieldsService->getLayoutById($fieldLayoutId)) {
+                $newBlockType->setFieldLayout($fieldLayout);
+                $newBlockType->fieldLayoutId = $fieldLayout->id;
+            }
+        } elseif ($request->getBodyParam('neoBlockType' . (string)$id) !== null) {
+            // Otherwise, check for a field layout in the POST data
+            $fieldLayout = $fieldsService->assembleLayoutFromPost('neoBlockType' . (string)$id);
+            $fieldLayout->type = Block::class;
+
+            // Ensure the field layout ID and UID are set, if they exist
+            if (is_int($id)) {
+                $layoutResult = (new Query())
+                    ->select([
+                        'bt.fieldLayoutId',
+                        'fl.uid',
+                    ])
+                    ->from('{{%neoblocktypes}} bt')
+                    ->innerJoin('{{%fieldlayouts}} fl', '[[fl.id]] = [[bt.fieldLayoutId]]')
+                    ->where(['bt.id' => $id])
+                    ->one();
+
+                if ($layoutResult !== null) {
+                    $fieldLayout->id = $layoutResult['fieldLayoutId'];
+                    $fieldLayout->uid = $layoutResult['uid'];
+                }
+            }
+
+            $newBlockType->setFieldLayout($fieldLayout);
+            $newBlockType->fieldLayoutId = $fieldLayout->id;
+        } else {
+            // No field layout data was sent, which means this is an existing block type whose field layout
+            // designer was never loaded, and therefore no changes were made to any field layout the block type
+            // already has
+            $fieldLayoutId = (new Query())
+                ->select(['fieldLayoutId'])
+                ->from('{{%neoblocktypes}}')
+                ->where(['id' => $id])
+                ->scalar();
+
+            if ($fieldLayoutId) {
+                $fieldLayout = $fieldsService->getLayoutById($fieldLayoutId);
+                $newBlockType->setFieldLayout($fieldLayout);
+                $newBlockType->fieldLayoutId = $fieldLayoutId;
+            }
+        }
+
+        return $newBlockType;
+    }
+
+    private function _createGroup(array $blockTypeGroup, int|string $id): BlockTypeGroup
+    {
+        $alwaysShowDropdown = $blockTypeGroup['alwaysShowDropdown'] ?? null;
+        $newBlockTypeGroup = new BlockTypeGroup();
+        $newBlockTypeGroup->id = (int)$id;
+        $newBlockTypeGroup->fieldId = $this->id;
+        $newBlockTypeGroup->name = $blockTypeGroup['name'];
+        $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
+        $newBlockTypeGroup->alwaysShowDropdown = match ($alwaysShowDropdown) {
+            BlockTypeGroupDropdown::Show => true,
+            BlockTypeGroupDropdown::Hide => false,
+            BlockTypeGroupDropdown::Global => null,
+            // Handle cases where `alwaysShowDropdown` is already set to true/false/null
+            true, false, null => $alwaysShowDropdown,
+        };
+
+        return $newBlockTypeGroup;
     }
 
     /**
