@@ -3,7 +3,35 @@
 {% set configurator %}
 <div class="nc_sidebar" data-neo="container.sidebar">
     <div class="nc_sidebar_title">{{ 'Block Types'|t('neo') }}</div>
-    <div class="nc_sidebar_list" data-neo="container.blockTypes"></div>
+    <div class="nc_sidebar_list" data-neo="container.blockTypes">
+        {% for item in items %}
+            {% if item['handle'] is defined %}
+                {# Block type #}
+                <div class="nc_sidebar_list_item{{ item.hasErrors() ? ' has-errors' : '' }}" data-neo-bt="container.{{ item.id }}">
+                    <div class="label" data-neo-bt="text.name">{{ item.name ?? '' }}</div>
+                    <div class="smalltext light code" data-neo-bt="text.handle">{{ item.handle ?? '' }}</div>
+                    <a class="move icon" title="{{ 'Reorder'|t('neo') }}" role="button" data-neo-bt="button.move"></a>
+                    <button class="settings icon menubtn" title="{{ 'Actions'|t('neo') }}" role="button" type="button" data-neo-bt="button.actions"></button>
+                    <div class="menu" data-neo-bt="container.menu">
+                        <ul class="padded">
+                            <li><a data-icon="field" data-action="copy">{{ 'Copy'|t('neo') }}</a></li>
+                            <li class="disabled"><a data-icon="brush" data-action="paste">{{ 'Paste'|t('neo') }}</a></li>
+                            <li><a data-icon="share" data-action="clone">{{ 'Clone'|t('neo') }}</a></li>
+                            <li><a class="error" data-icon="remove" data-action="delete">{{ 'Delete'|t('neo') }}</a></li>
+                        </ul>
+                    </div>
+                    <input type="hidden" name="items[sortOrder][]" value="blocktype:{{ item.id }}" data-neo-bt="input.sortOrder">
+                </div>
+            {% else %}
+                {# Group #}
+                <div class="nc_sidebar_list_item type-heading" data-neo-g="container.{{ item.id }}">
+                    <div class="label" data-neo-g="text.name">{{ item.name ?? '' }}</div>
+                    <a class="move icon" title="{{ 'Reorder'|t('neo') }}" role="button" data-neo-g="button.move"></a>
+                    <input type="hidden" name="items[sortOrder][]" value="group:{{ item.id }}" data-neo-g="input.sortOrder">
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
     <div class="nc_sidebar_buttons btngroup">
         <a class="btn add icon" role="button" data-neo="button.blockType">{{ 'Block type'|t('neo') }}</a>
         <a class="btn type-heading" role="button" data-neo="button.group">{{ 'Group'|t('neo') }}</a>

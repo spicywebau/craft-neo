@@ -355,6 +355,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      * Sets the block type / group items for this field.
      *
      * @param array $items The block type / group items to associate with this field.
+     * @since 3.8.0
      */
     public function setItems(array $items): void
     {
@@ -537,8 +538,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         } else {
             $viewService->registerAssetBundle(SettingsAsset::class);
             $viewService->registerJs(SettingsAsset::createSettingsJs($this));
+            $items = array_merge($this->getBlockTypes(), $this->getGroups());
+            usort($items, fn($a, $b) => $a->sortOrder <=> $b->sortOrder);
 
-            $html = $viewService->renderTemplate('neo/settings', ['neoField' => $this]);
+            $html = $viewService->renderTemplate('neo/settings', [
+                'neoField' => $this,
+                'items' => $items,
+            ]);
         }
 
         return $html;
@@ -956,7 +962,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // be `null`, `getGroups()` will return `Neo::$plugin->blockTypes->getGroupsByFieldId($this->id)` and the groups
         // won't be deleted. By detecting this here, we can set an empty array of groups, so the groups will actually be
         // deleted.
-        if (!$requestService->isConsoleRequest && $requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.groups") === null) {
+        if (!$requestService->isConsoleRequest && $requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.items.groups") === null) {
             $this->setGroups([]);
         }
 

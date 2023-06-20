@@ -22,8 +22,13 @@ export default Item.extend({
 
     this._templateNs = NS.parse(settings.namespace)
     this._fieldLayout = settings.fieldLayout
+    const sidebarItem = this.getField()?.$sidebarContainer.find(`[data-neo-bt="container.${this.getId()}`)
 
-    this.$container = this._generateBlockType(settingsObj)
+    if (sidebarItem?.length > 0) {
+      this.$container = sidebarItem
+    } else {
+      this.$container = this._generateBlockType(settingsObj)
+    }
 
     const $neo = this.$container.find('[data-neo-bt]')
     this.$nameText = $neo.filter('[data-neo-bt="text.name"]')
@@ -49,11 +54,16 @@ export default Item.extend({
   },
 
   _generateBlockType (settings) {
+    const sortOrderNamespace = [...this._templateNs]
+    sortOrderNamespace.pop()
+    NS.enter(sortOrderNamespace)
+    const sortOrderName = NS.fieldName('sortOrder')
+    NS.leave()
     const errors = settings.getErrors()
     const hasErrors = (Array.isArray(errors) ? errors : Object.keys(errors)).length > 0
 
     return $(`
-      <div class="nc_sidebar_list_item${hasErrors ? ' has-errors' : ''}">
+      <div class="nc_sidebar_list_item${hasErrors ? ' has-errors' : ''}" data-neo-bt="container.${this.getId()}">
         <div class="label" data-neo-bt="text.name">${settings.getName()}</div>
         <div class="smalltext light code" data-neo-bt="text.handle">${settings.getHandle()}</div>
         <a class="move icon" title="${Craft.t('neo', 'Reorder')}" role="button" data-neo-bt="button.move"></a>
@@ -66,7 +76,12 @@ export default Item.extend({
             <li><a class="error" data-icon="remove" data-action="delete">${Craft.t('neo', 'Delete')}</a></li>
           </ul>
         </div>
+        <input type="hidden" name="${sortOrderName}[]" value="blocktype:${this.getId()}" data-neo-gs="input.sortOrder">
       </div>`)
+  },
+
+  getId () {
+    return this.getSettings().getId()
   },
 
   getFieldLayout () {

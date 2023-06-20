@@ -32,12 +32,10 @@ export default Settings.extend({
     this.$container = this._generateGroupSettings()
 
     const $neo = this.$container.find('[data-neo-gs]')
-    this.$sortOrderInput = $neo.filter('[data-neo-gs="input.sortOrder"]')
     this.$nameInput = $neo.filter('[data-neo-gs="input.name"]')
     this.$deleteButton = $neo.filter('[data-neo-gs="button.delete"]')
     this.$alwaysShowDropdownContainer = $neo.filter('[data-neo-gs="container.alwaysShowDropdown"]')
 
-    this.setSortOrder(settings.sortOrder)
     this.setName(settings.name)
 
     this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
@@ -50,7 +48,6 @@ export default Settings.extend({
 
   _generateGroupSettings () {
     NS.enter(this._templateNs)
-    const sortOrderName = NS.fieldName('sortOrder')
     const nameInputId = NS.value('name', '-')
     const nameInputName = NS.fieldName('name')
     const alwaysShowDropdownId = NS.value('alwaysShowDropdown', '-')
@@ -82,25 +79,24 @@ export default Settings.extend({
 
     return $(`
       <div>
-      <input type="hidden" name="${sortOrderName}" value="${this.getSortOrder()}" data-neo-gs="input.sortOrder">
-      <div>
-        ${$('<div class="field">').append($nameInput).html()}
-        <div data-neo-gs="container.alwaysShowDropdown">
-          <div class="field">
-            ${Craft.ui.createSelectField({
-              label: Craft.t('neo', 'Always Show Dropdown?'),
-              instructions: Craft.t('neo', 'Whether to show the dropdown for this group if it only has one available block type.'),
-              id: alwaysShowDropdownId,
-              name: alwaysShowDropdownName,
-              options: alwaysShowDropdownOptions,
-              value: this._alwaysShowDropdown ? 'show' : (this._alwaysShowDropdown === false ? 'hide' : 'global')
-            }).html()}
+        <div>
+          ${$('<div class="field">').append($nameInput).html()}
+          <div data-neo-gs="container.alwaysShowDropdown">
+            <div class="field">
+              ${Craft.ui.createSelectField({
+                label: Craft.t('neo', 'Always Show Dropdown?'),
+                instructions: Craft.t('neo', 'Whether to show the dropdown for this group if it only has one available block type.'),
+                id: alwaysShowDropdownId,
+                name: alwaysShowDropdownName,
+                options: alwaysShowDropdownOptions,
+                value: this._alwaysShowDropdown ? 'show' : (this._alwaysShowDropdown === false ? 'hide' : 'global')
+              }).html()}
+            </div>
           </div>
         </div>
-      </div>
-      <hr>
-      <a class="error delete" data-neo-gs="button.delete">${Craft.t('neo', 'Delete group')}</a>
-    </div>`)
+        <hr>
+        <a class="error delete" data-neo-gs="button.delete">${Craft.t('neo', 'Delete group')}</a>
+      </div>`)
   },
 
   getFocusInput () {
@@ -111,10 +107,11 @@ export default Settings.extend({
     return this._id
   },
 
-  setSortOrder (sortOrder) {
-    this.base(sortOrder)
-
-    this.$sortOrderInput.val(this.getSortOrder())
+  /**
+   * @deprecated in 3.8.0
+   */
+  setSortOrder (_) {
+    console.warn('GroupSettings.setSortOrder() is deprecated and no longer used.')
   },
 
   getName () { return this._name },

@@ -60,8 +60,8 @@ export default Garnish.Base.extend({
 
     // Add the existing block types and groups
     const existingItems = []
-    const btNamespace = [...this._templateNs, 'blockTypes']
-    const gNamespace = [...this._templateNs, 'groups']
+    const btNamespace = [...this._templateNs, 'items', 'blockTypes']
+    const gNamespace = [...this._templateNs, 'items', 'groups']
 
     for (const btInfo of settings.blockTypes) {
       const btSettings = new BlockTypeSettings({
@@ -91,6 +91,7 @@ export default Garnish.Base.extend({
 
       const blockType = new BlockType({
         namespace: btNamespace,
+        field: this,
         settings: btSettings
       })
 
@@ -119,13 +120,14 @@ export default Garnish.Base.extend({
 
       const group = new Group({
         namespace: gNamespace,
+        field: this,
         settings: gSettings
       })
 
       existingItems.push(group)
     }
 
-    for (const item of existingItems.sort((a, b) => a.getSettings().getSortOrder() - b.getSettings().getSortOrder())) {
+    for (const item of existingItems.sort((a, b) => a.getSortOrder() - b.getSortOrder())) {
       this.addItem(item)
     }
 
@@ -300,9 +302,7 @@ export default Garnish.Base.extend({
   },
 
   _getNewBlockTypeSettingsHtml (blockTypeId, sortOrder) {
-    return this._blockTypeSettingsHtml
-      .replace(/__NEOBLOCKTYPE_ID__/g, blockTypeId)
-      .replace(/__NEOBLOCKTYPE_SORTORDER__/, sortOrder)
+    return this._blockTypeSettingsHtml.replace(/__NEOBLOCKTYPE_ID__/g, blockTypeId)
   },
 
   _getNewBlockTypeSettingsJs (blockTypeId) {
@@ -323,9 +323,6 @@ export default Garnish.Base.extend({
       const item = this.getItemByElement(element)
 
       if (item) {
-        const settings = item.getSettings()
-        if (settings) settings.setSortOrder(index + 1)
-
         items.push(item)
       }
     })
@@ -334,10 +331,10 @@ export default Garnish.Base.extend({
   },
 
   _createBlockTypeFrom (oldBlockType) {
-    const namespace = [...this._templateNs, 'blockTypes']
+    const namespace = [...this._templateNs, 'items', 'blockTypes']
     const id = BlockTypeSettings.getNewId()
     const selectedItem = this.getSelectedItem()
-    const selectedIndex = selectedItem ? selectedItem.getSettings().getSortOrder() : -1
+    const selectedIndex = selectedItem ? selectedItem.getSortOrder() : -1
 
     if (oldBlockType === null) {
       const settings = new BlockTypeSettings({
@@ -418,7 +415,12 @@ export default Garnish.Base.extend({
   },
 
   _initBlockType (namespace, settings, fieldLayout, index) {
-    const blockType = new BlockType({ namespace, settings, fieldLayout })
+    const blockType = new BlockType({
+      namespace,
+      field: this,
+      settings,
+      fieldLayout
+    })
 
     this.addItem(blockType, index)
     this.selectItem(blockType)
@@ -496,6 +498,7 @@ export default Garnish.Base.extend({
     })
 
     const blockType = new BlockType({
+      field: this,
       settings,
       fieldLayout
     })
@@ -518,7 +521,7 @@ export default Garnish.Base.extend({
   },
 
   '@newGroup' () {
-    const namespace = [...this._templateNs, 'groups']
+    const namespace = [...this._templateNs, 'items', 'groups']
     const id = GroupSettings.getNewId()
 
     const settings = new GroupSettings({
@@ -529,11 +532,12 @@ export default Garnish.Base.extend({
 
     const group = new Group({
       namespace,
+      field: this,
       settings
     })
 
     const selected = this.getSelectedItem()
-    const index = selected ? selected.getSettings().getSortOrder() : -1
+    const index = selected ? selected.getSortOrder() : -1
 
     this.addItem(group, index)
     this.selectItem(group)

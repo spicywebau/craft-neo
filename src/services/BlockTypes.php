@@ -691,7 +691,7 @@ class BlockTypes extends Component
         $view = Craft::$app->getView();
         $blockTypeId = $blockType?->id ?? '__NEOBLOCKTYPE_ID__';
         $oldNamespace = $view->getNamespace();
-        $newNamespace = ($baseNamespace ?? $oldNamespace) . '[blockTypes][' . $blockTypeId . ']';
+        $newNamespace = ($baseNamespace ?? $oldNamespace) . "[items][blockTypes][$blockTypeId]";
         $view->setNamespace($newNamespace);
         $view->startJsBuffer();
 

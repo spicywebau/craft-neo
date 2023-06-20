@@ -36,7 +36,6 @@ export default Settings.extend({
   _initialised: false,
 
   $container: null,
-  $sortOrderInput: new $(),
   $nameInput: new $(),
   $handleInput: new $(),
   $descriptionInput: new $(),
@@ -59,7 +58,6 @@ export default Settings.extend({
     this._errors = settings.errors
     this._settingsChildBlockTypes = settings.childBlockTypes
     this._afterCreateContainer = () => {
-      this.setSortOrder(settings.sortOrder)
       this.setName(settings.name)
       this.setHandle(settings.handle)
       this.setDescription(settings.description)
@@ -93,7 +91,6 @@ export default Settings.extend({
     this._js = containerData.js ?? ''
 
     const $neo = this.$container.find('[data-neo-bts]')
-    this.$sortOrderInput = $neo.filter('[data-neo-bts="input.sortOrder"]')
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
@@ -232,10 +229,11 @@ export default Settings.extend({
     return this._errors
   },
 
-  setSortOrder (sortOrder) {
-    this.base(sortOrder)
-
-    this.$sortOrderInput.val(this.getSortOrder())
+  /**
+   * @deprecated in 3.8.0
+   */
+  setSortOrder (_) {
+    console.warn('BlockTypeSettings.setSortOrder() is deprecated and no longer used.')
   },
 
   getName () { return this._name },
@@ -519,7 +517,7 @@ export default Settings.extend({
 
     const getOption = blockType => $options.get(blockTypes.indexOf(blockType))
 
-    this._childBlockTypes = this._childBlockTypes.sort((a, b) => a.getSettings().getSortOrder() - b.getSettings().getSortOrder())
+    this._childBlockTypes = this._childBlockTypes.sort((a, b) => a.getSortOrder() - b.getSortOrder())
     $options.remove()
 
     for (const blockType of this._childBlockTypes) {
