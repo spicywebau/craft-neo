@@ -121,14 +121,14 @@ class FieldUnitTest extends TestCase
     {
         return array_filter([
             1 => $populateExisting
-                ? ['sortOrder' => 7] + Neo::$plugin->blockTypes->getById(1)->getConfig()
+                ? ['sortOrder' => 7] + Neo::$plugin->blockTypes->getGroupById(1)->getConfig()
                 : null,
             'new1' => [
-                'name' => 'Test Group 1',
+                'name' => 'Test New Group 1',
                 'sortOrder' => '4',
             ],
             'new2' => [
-                'name' => 'Test Group 2',
+                'name' => 'Test New Group 2',
                 'sortOrder' => '1',
             ],
         ]);
