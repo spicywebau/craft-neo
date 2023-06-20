@@ -362,20 +362,31 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $groups = [];
 
         foreach ($items['sortOrder'] as $i => $itemId) {
+            $sortOrder = $i + 1;
             $overrides = [
-                'sortOrder' => $i + 1,
+                'sortOrder' => $sortOrder,
             ];
 
             if (str_starts_with($itemId, 'blocktype:')) {
                 $itemId = substr($itemId, 10);
-                $blockTypes[] = isset($items['blockTypes'][$itemId])
-                    ? $this->_createBlockType($overrides + $items['blockTypes'][$itemId])
-                    : Neo::$plugin->blockTypes->getById((int)$itemId);
+
+                if (isset($items['blockTypes'][$itemId])) {
+                    $blockTypes[] = $this->_createBlockType($overrides + $items['blockTypes'][$itemId], $itemId);
+                } else {
+                    $blockType = Neo::$plugin->blockTypes->getById((int)$itemId);
+                    $blockType->sortOrder = $sortOrder;
+                    $blockTypes[] = $blockType;
+                }
             } elseif (str_starts_with($itemId, 'group:')) {
                 $itemId = substr($itemId, 6);
-                $groups[] = isset($items['groups'][$itemId])
-                    ? $this->_createGroup($overrides + $items['groups'][$itemId])
-                    : Neo::$plugin->blockTypes->getGroupById((int)$itemId);
+
+                if (isset($items['groups'][$itemId])) {
+                    $groups[] = $this->_createGroup($overrides + $items['groups'][$itemId], $itemId);
+                } else {
+                    $group = Neo::$plugin->blockTypes->getGroupById((int)$itemId);
+                    $group->sortOrder = $sortOrder;
+                    $groups[] = $group;
+                }
             }
         }
 
