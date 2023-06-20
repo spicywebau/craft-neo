@@ -368,10 +368,9 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
             if (str_starts_with($itemId, 'blocktype:')) {
                 $itemId = substr($itemId, 10);
-                $item = $items['blockTypes'][$itemId] ?? Neo::$plugin->blockTypes->getById((int)$itemId);
                 $blockTypes[] = isset($items['blockTypes'][$itemId])
                     ? $this->_createBlockType($overrides + $items['blockTypes'][$itemId])
-                    : Neo::$plugin->blockTypes->getGroupById((int)$itemId);
+                    : Neo::$plugin->blockTypes->getById((int)$itemId);
             } elseif (str_starts_with($itemId, 'group:')) {
                 $itemId = substr($itemId, 6);
                 $groups[] = isset($items['groups'][$itemId])
@@ -411,7 +410,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         $newBlockType = new BlockType();
-        $newBlockType->id = $id;
+        $newBlockType->id = (int)$id;
         $newBlockType->fieldId = $this->id;
         $newBlockType->name = $blockType['name'];
         $newBlockType->handle = $blockType['handle'];
