@@ -698,6 +698,7 @@ class BlockTypes extends Component
         $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
             'blockType' => $blockType,
             'conditions' => $this->_getConditions($blockType),
+            'neoField' => $blockType?->getField(),
         ]));
 
         $js = $view->clearJsBuffer();

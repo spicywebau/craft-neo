@@ -196,7 +196,7 @@ export default Settings.extend({
 
     return $(`
       <div>
-        <input type="checkbox" value="${settings.getHandle()}" id="${id}" class="checkbox" name="${name}[]" data-neo-btsc="input">
+        <input type="checkbox" value="${settings.getHandle()}" id="${id}" class="checkbox" name="${name}[]" data-neo-btsc="input.${settings.getId()}">
         <label for="${id}" data-neo-btsc="text.label">${settings.getName()}</label>
       </div>`)
   },
@@ -429,12 +429,17 @@ export default Settings.extend({
   addChildBlockType (blockType) {
     if (!this._childBlockTypes.includes(blockType)) {
       const settings = blockType.getSettings()
-      const $checkbox = this._generateChildBlocksCheckbox(settings)
+      const $existingCheckbox = this.$childBlocksContainer.find(`[data-neo-btsc="input.${settings.getId()}"]`)
+      const $checkbox = $existingCheckbox.length > 0
+        ? $existingCheckbox
+        : this._generateChildBlocksCheckbox(settings)
 
       this._childBlockTypes.push(blockType)
-      this.$childBlocksContainer.append($checkbox)
 
-      this._refreshChildBlocks()
+      if ($existingCheckbox.length === 0) {
+        this.$childBlocksContainer.append($checkbox)
+        this._refreshChildBlocks()
+      }
 
       const select = this._childBlocksSelect
       const allChecked = select.$all.prop('checked')

@@ -143,7 +143,16 @@
                     <input type="checkbox" value="*" id="childBlocks" class="all checkbox" name="childBlocks">
                     <label for="childBlocks"><strong>{{ 'All'|t('neo') }}</strong></label>
                 </div>
-                <div data-neo-bts="container.childBlocks"></div>
+                <div data-neo-bts="container.childBlocks">
+                    {% if neoField is defined and neoField is not null %}
+                        {% for childBlockType in neoField.blockTypes %}
+                            <div>
+                                <input type="checkbox" value="{{ childBlockType.handle }}" id="childBlock-{{ childBlockType.id }}" class="checkbox" name="childBlocks[]" data-neo-btsc="input.{{ childBlockType.id }}">
+                                <label for="childBlock-{{ childBlockType.id }}" data-neo-btsc="text.label">{{ childBlockType.name }}</label>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
             </div>
         {% endset %}
         {{ forms.field({
