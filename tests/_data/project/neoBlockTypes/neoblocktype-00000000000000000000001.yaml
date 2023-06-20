@@ -35,5 +35,5 @@ minBlocks: 0
 minChildBlocks: 0
 minSiblingBlocks: 0
 name: 'Plain Text'
-sortOrder: 1
+sortOrder: 2
 topLevel: true
