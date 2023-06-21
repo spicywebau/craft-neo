@@ -195,7 +195,7 @@ export default Settings.extend({
     NS.leave()
 
     return $(`
-      <div>
+      <div data-neo-btsc="container.${settings.getId()}">
         <input type="checkbox" value="${settings.getHandle()}" id="${id}" class="checkbox" name="${name}[]" data-neo-btsc="input.${settings.getId()}">
         <label for="${id}" data-neo-btsc="text.label">${settings.getName()}</label>
       </div>`)
@@ -438,7 +438,7 @@ export default Settings.extend({
 
       if ($existingCheckbox.length === 0) {
         this.$childBlocksContainer.append($checkbox)
-        this._refreshChildBlocks()
+        this._refreshChildBlocks(blockType)
       }
 
       const select = this._childBlocksSelect
@@ -468,7 +468,7 @@ export default Settings.extend({
       const eventNs = '.childBlock' + this.getId()
       settings.off(eventNs)
 
-      this._refreshChildBlocks()
+      this._refreshChildBlocks(blockType)
     }
   },
 
@@ -516,18 +516,25 @@ export default Settings.extend({
     return conditionsData
   },
 
-  _refreshChildBlocks () {
-    const blockTypes = Array.from(this._childBlockTypes)
-    const $options = this.$childBlocksContainer.children()
+  _refreshChildBlocks (blockType) {
+    const $sidebarContainer = blockType.getField().$sidebarContainer
+    const $sidebarItem = $sidebarContainer.find(`[data-neo-bt="container.${blockType.getId()}"]`)
+    const $refreshedBlockType = this.$childBlocksContainer.children(`[data-neo-btsc="container.${blockType.getId()}"]`)
 
-    const getOption = blockType => $options.get(blockTypes.indexOf(blockType))
+    if ($sidebarItem.length > 0) {
+      // Block type reordered
+      const position = $sidebarItem.index('.nc_sidebar_list_item:not(.type-heading)')
+      const $currentChildBlockTypeAtPos = this.$childBlocksContainer.children().eq(position)
 
-    this._childBlockTypes = this._childBlockTypes.sort((a, b) => a.getSortOrder() - b.getSortOrder())
-    $options.remove()
-
-    for (const blockType of this._childBlockTypes) {
-      const $option = getOption(blockType)
-      this.$childBlocksContainer.append($option)
+      if ($currentChildBlockTypeAtPos.length > 0) {
+        $refreshedBlockType.insertBefore($currentChildBlockTypeAtPos)
+      } else {
+        // Added to the end
+        $refreshedBlockType.appendTo(this.$childBlocksContainer)
+      }
+    } else {
+      // Block type deleted
+      $refreshedBlockType.remove()
     }
   },
 
@@ -553,7 +560,7 @@ export default Settings.extend({
         break
 
       case 'sortOrder':
-        this._refreshChildBlocks()
+        this._refreshChildBlocks(blockType)
         break
     }
   }

@@ -146,7 +146,7 @@
                 <div data-neo-bts="container.childBlocks">
                     {% if neoField is defined and neoField is not null %}
                         {% for childBlockType in neoField.blockTypes %}
-                            <div>
+                            <div data-neo-btsc="container.{{ childBlockType.id }}">
                                 <input type="checkbox" value="{{ childBlockType.handle }}" id="childBlock-{{ childBlockType.id }}" class="checkbox" name="childBlocks[]" data-neo-btsc="input.{{ childBlockType.id }}">
                                 <label for="childBlock-{{ childBlockType.id }}" data-neo-btsc="text.label">{{ childBlockType.name }}</label>
                             </div>
