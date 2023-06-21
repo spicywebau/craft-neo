@@ -182,7 +182,11 @@ export default Garnish.Base.extend({
     }
 
     this._items.push(item)
-    this._updateItemOrder()
+
+    // Only bother updating the item order if the item wasn't just being appended
+    if (index >= 0 && index < this._items.length - 1) {
+      this._updateItemOrder()
+    }
 
     if (item instanceof BlockType) {
       for (const blockType of this.getBlockTypes()) {
