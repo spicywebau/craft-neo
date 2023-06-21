@@ -57,6 +57,7 @@ export default Settings.extend({
     this._fieldLayoutConfig = settings.fieldLayoutConfig
     this._errors = settings.errors
     this._settingsChildBlockTypes = settings.childBlockTypes
+    this._originalSettings = settings
     this._afterCreateContainer = () => {
       this.setName(settings.name)
       this.setHandle(settings.handle)
@@ -73,7 +74,7 @@ export default Settings.extend({
       this.setTopLevel(settings.topLevel)
     }
 
-    if (settings.html !== null) {
+    if (typeof settings.html !== 'undefined' && settings.html !== null) {
       this.createContainer({
         html: settings.html,
         js: settings.js
@@ -119,7 +120,8 @@ export default Settings.extend({
   },
 
   initUi () {
-    if (this._initialised) {
+    // Exit if UI already initialised, or there is no UI to initialise yet
+    if (this._initialised || this.$container === null) {
       return
     }
 
@@ -358,7 +360,7 @@ export default Settings.extend({
     }
   },
 
-  getTopLevel () { return this._topLevel },
+  getTopLevel () { return this._topLevel ?? this._originalSettings.topLevel },
   setTopLevel (topLevel) { this._setLightswitchField('topLevel', topLevel) },
 
   _setLightswitchField (property, value) {

@@ -98,12 +98,17 @@ export default Garnish.Base.extend({
       blockType.on('copy.configurator', () => this._copyBlockType(blockType))
       blockType.on('paste.configurator', () => this._pasteBlockType())
       blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType))
-      blockType.on('beforeLoadFieldLayout.configurator', () => this.$fieldLayoutContainer.append(
-        $('<span class="spinner"/></span>')
-      ))
-      blockType.on('afterLoadFieldLayout.configurator', () => {
+      blockType.on('beforeLoad.configurator', () => {
+        this.$fieldLayoutContainer.append(
+          $('<span class="spinner"/></span>')
+        )
+        this.$settingsContainer.append(
+          $('<span class="spinner"/></span>')
+        )
+      })
+      blockType.on('afterLoad.configurator', () => {
         this.$fieldLayoutContainer.children('.spinner').remove()
-        this._addFieldLayout(blockType.getFieldLayout())
+        this.$settingsContainer.children('.spinner').remove()
       })
       existingItems.push(blockType)
     }
@@ -133,9 +138,11 @@ export default Garnish.Base.extend({
 
     for (const blockType of this.getBlockTypes()) {
       const btSettings = blockType.getSettings()
-      const info = settings.blockTypes.find(i => i.handle === btSettings.getHandle())
 
-      btSettings.setChildBlocks(info.childBlocks)
+      if (btSettings?.$container) {
+        const info = settings.blockTypes.find(i => i.handle === btSettings.getHandle())
+        btSettings.setChildBlocks(info.childBlocks)
+      }
     }
 
     // Make sure menu states (for pasting block types) are updated when changing tabs
@@ -165,9 +172,11 @@ export default Garnish.Base.extend({
       this._insertAt(item.$container, index)
     }
 
-    this._itemSort.addItems(item.$container)
+    if (!this._itemSort.$items.filter(item.$container).length === 0) {
+      this._itemSort.addItems(item.$container)
+    }
 
-    if (settings) {
+    if (settings?.$container) {
       this.$settingsContainer.append(settings.$container)
 
       if (item instanceof BlockType) {
@@ -194,7 +203,9 @@ export default Garnish.Base.extend({
     if (item instanceof BlockType) {
       for (const blockType of this.getBlockTypes()) {
         const btSettings = blockType.getSettings()
-        if (btSettings) btSettings.addChildBlockType(item)
+        if (btSettings?.$container) {
+          btSettings.addChildBlockType(item)
+        }
       }
     }
 
@@ -389,7 +400,7 @@ export default Garnish.Base.extend({
       const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
       this._insertAt($spinner, selectedIndex)
 
-      oldBlockType.loadFieldLayout()
+      oldBlockType.load()
         .then(() => {
           const layout = oldBlockType.getFieldLayout().getConfig()
           const data = {
@@ -439,7 +450,7 @@ export default Garnish.Base.extend({
   },
 
   _copyBlockType (blockType) {
-    blockType.loadFieldLayout()
+    blockType.load()
       .then(() => {
         const settings = blockType.getSettings()
         const data = {

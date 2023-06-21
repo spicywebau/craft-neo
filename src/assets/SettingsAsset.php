@@ -135,7 +135,6 @@ class SettingsAsset extends AssetBundle
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
-            [$settingsHtml, $settingsJs] = Neo::$plugin->blockTypes->renderBlockTypeSettings($blockType);
             $jsBlockTypes[] = [
                 'id' => $blockType->id,
                 'sortOrder' => $blockType->sortOrder,
@@ -155,8 +154,6 @@ class SettingsAsset extends AssetBundle
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
                 'errors' => $blockType->getErrors(),
-                'settingsHtml' => $settingsHtml,
-                'settingsJs' => $settingsJs,
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'fieldLayoutConfig' => $blockType->getFieldLayout()->getConfig(),
                 'groupId' => $blockType->groupId,

@@ -46,6 +46,7 @@ class Configurator extends Controller
      *
      * @return Response
      * @since 3.1.0
+     * @deprecated in 3.8.0, use `actionRenderBlockType()` and access the returned object's `layoutHtml` property instead
      */
     public function actionRenderFieldLayout(): Response
     {
@@ -61,21 +62,25 @@ class Configurator extends Controller
     private function _render(): array
     {
         $request = Craft::$app->getRequest();
+        $blockTypeId = $request->getBodyParam('blockTypeId');
         $settings = $request->getBodyParam('settings');
-        $layoutId = $request->getBodyParam('layoutId');
         $layoutConfig = $request->getBodyParam('layout');
+        $blockType = $blockTypeId ? Neo::$plugin->blockTypes->getById((int)$blockTypeId) : null;
 
         // Prioritise the config
         if ($layoutConfig) {
             $fieldLayout = FieldLayout::createFromConfig($layoutConfig);
             $fieldLayout->type = Block::class;
         } else {
-            $fieldLayout = $layoutId
-                ? Craft::$app->getFields()->getLayoutById($layoutId)
-                : new FieldLayout(['type' => Block::class]);
+            $fieldLayout = $blockType?->getFieldLayout() ?? new FieldLayout(['type' => Block::class]);
         }
 
-        if ($settings) {
+        if ($blockType) {
+            [$settingsHtml, $settingsJs] = Neo::$plugin->blockTypes->renderBlockTypeSettings(
+                $blockType,
+                'types[' . Field::class . ']',
+            );
+        } elseif ($settings) {
             $newBlockType = new BlockType();
             $newBlockType->name = $settings['name'];
             $newBlockType->handle = $settings['handle'];

@@ -13,6 +13,7 @@ const _defaults = {
 export default Item.extend({
 
   _templateNs: [],
+  _loaded: false,
 
   init (settings = {}) {
     this.base(settings)
@@ -21,6 +22,7 @@ export default Item.extend({
     settings = Object.assign({}, _defaults, settings)
 
     this._templateNs = NS.parse(settings.namespace)
+    this._field = settings.field
     this._fieldLayout = settings.fieldLayout
     const sidebarItem = this.getField()?.$sidebarContainer.find(`[data-neo-bt="container.${this.getId()}`)
 
@@ -88,29 +90,51 @@ export default Item.extend({
     return this._fieldLayout
   },
 
+  /**
+   * @deprecated in 3.8.0, use load() instead
+   */
   loadFieldLayout () {
-    if (this._fieldLayout) {
+    this.load()
+  },
+
+  /**
+   * @since 3.8.0
+   * @returns Promise
+   */
+  load () {
+    if (this._loaded) {
       // Already loaded
       return Promise.resolve()
     }
 
-    this.trigger('beforeLoadFieldLayout')
+    this.trigger('beforeLoad')
+    this.trigger('beforeLoadFieldLayout') // TODO: remove in 4.0.0
     const settings = this.getSettings()
     const layout = settings.getFieldLayoutConfig()
     const layoutId = settings.getFieldLayoutId()
-    const data = layout ? { layout } : { layoutId }
+    const data = {
+      blockTypeId: this.getId(),
+      layout
+    }
 
     return new Promise((resolve, reject) => {
-      Craft.sendActionRequest('POST', 'neo/configurator/render-field-layout', { data })
+      Craft.sendActionRequest('POST', 'neo/configurator/render-block-type', { data })
         .then(response => {
           this._fieldLayout = new BlockTypeFieldLayout({
             namespace: [...this._templateNs, this._id],
-            html: response.data.html,
+            html: response.data.layoutHtml,
             id: layoutId,
-            blockTypeId: settings.getId()
+            blockTypeId: data.blockTypeId
           })
+          this._settings.createContainer({
+            html: response.data.settingsHtml.replace(/__NEOBLOCKTYPE_ID__/g, data.blockTypeId),
+            js: response.data.settingsJs.replace(/__NEOBLOCKTYPE_ID__/g, data.blockTypeId)
+          })
+          this._field?.addItem(this)
+          this._loaded = true
 
-          this.trigger('afterLoadFieldLayout')
+          this.trigger('afterLoad')
+          this.trigger('afterLoadFieldLayout') // TODO: remove in 4.0.0
           resolve()
         })
         .catch(reject)
@@ -131,7 +155,7 @@ export default Item.extend({
     if (fieldLayout) {
       fieldLayout.$container.toggleClass('hidden', !selected)
     } else if (selected) {
-      this.loadFieldLayout()
+      this.load()
     }
 
     this.$container.toggleClass('is-selected', selected)
