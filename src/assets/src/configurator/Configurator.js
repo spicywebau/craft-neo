@@ -161,7 +161,10 @@ export default Garnish.Base.extend({
   addItem (item, index = -1) {
     const settings = item.getSettings()
 
-    this._insertAt(item.$container, index)
+    if (!document.contains(item.$container[0])) {
+      this._insertAt(item.$container, index)
+    }
+
     this._itemSort.addItems(item.$container)
 
     if (settings) {
