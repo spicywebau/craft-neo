@@ -1,6 +1,5 @@
 import $ from 'jquery'
 import Craft from 'craft'
-import Garnish from 'garnish'
 import Item from './Item'
 import NS from '../namespace'
 import BlockTypeFieldLayout from './BlockTypeFieldLayout'
@@ -39,7 +38,9 @@ export default Item.extend({
     this.$actionsButton = $neo.filter('[data-neo-bt="button.actions"]')
     this.$actionsMenu = $neo.filter('[data-neo-bt="container.menu"]')
 
-    this._actionsMenu = new Garnish.MenuBtn(this.$actionsButton)
+    // Set up the actions menu
+    this.$actionsButton.menubtn()
+    this._actionsMenu = this.$actionsButton.data('menubtn')
     this._actionsMenu.on('optionSelect', e => this['@actionSelect'](e))
 
     // Stop the actions button click from selecting the block type and closing the menu
@@ -177,6 +178,8 @@ export default Item.extend({
     if ($option.hasClass('disabled')) {
       return
     }
+
+    this._actionsMenu?.hideMenu()
 
     switch ($option.attr('data-action')) {
       case 'copy':
