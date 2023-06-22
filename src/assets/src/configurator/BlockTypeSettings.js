@@ -238,7 +238,7 @@ export default Settings.extend({
     console.warn('BlockTypeSettings.setSortOrder() is deprecated and no longer used.')
   },
 
-  getName () { return this._name },
+  getName () { return this._name ?? this._originalSettings.name },
   setName (name) {
     if (name !== this._name) {
       const oldName = this._name
@@ -256,7 +256,7 @@ export default Settings.extend({
     }
   },
 
-  getHandle () { return this._handle },
+  getHandle () { return this._handle ?? this._originalSettings.handle },
   setHandle (handle) {
     if (handle !== this._handle) {
       const oldHandle = this._handle
