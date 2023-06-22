@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Added
+- Added `benf\neo\Field::setItems()`
+
+### Changed
+- When editing a Neo field's settings, block type settings are now lazy loaded
+
+### Deprecated
+- Deprecated `benf\neo\controllers\Configurator::actionRenderFieldLayout()`
+
+### Fixed
+- Fixed performance issues when loading a Neo field settings page, if the Neo field has a large number of block types
 - Fixed an SQL error that could occur when upgrading to Craft 4, if any `neoblocks` table rows referenced nonexistent element IDs
 
 ## 3.7.12 - 2023-06-16
