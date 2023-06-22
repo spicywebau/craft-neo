@@ -409,6 +409,10 @@ export default Settings.extend({
   },
 
   setChildBlocks (childBlocks) {
+    if (typeof childBlocks === 'undefined') {
+      childBlocks = this._childBlocks
+    }
+
     const select = this._childBlocksSelect
 
     if (childBlocks === true || childBlocks === '*') {

@@ -86,6 +86,7 @@ export default Garnish.Base.extend({
         errors: btInfo.errors,
         fieldLayoutId: btInfo.fieldLayoutId,
         fieldLayoutConfig: btInfo.fieldLayoutConfig,
+        childBlocks: btInfo.childBlocks,
         childBlockTypes: existingItems.filter(item => item instanceof BlockType)
       })
 
@@ -110,7 +111,9 @@ export default Garnish.Base.extend({
         this.$fieldLayoutContainer.children('.spinner').remove()
         this.$settingsContainer.children('.spinner').remove()
         this.addItem(blockType)
-        blockType.getSettings().refreshChildBlockTypes(this.getBlockTypes())
+        const blockTypeSettings = blockType.getSettings()
+        blockTypeSettings?.refreshChildBlockTypes(this.getBlockTypes())
+        blockTypeSettings?.setChildBlocks()
       })
       existingItems.push(blockType)
     }
