@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added `benf\neo\Field::getItems()`
 - Added `benf\neo\Field::setItems()`
 
 ### Changed

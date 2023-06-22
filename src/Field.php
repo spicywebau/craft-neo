@@ -140,6 +140,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     private ?array $_blockTypeGroups = null;
 
     /**
+     * @var Array<BlockType|BlockTypeGroup>|null The block types and groups associated with this field.
+     */
+    private ?array $_items = null;
+
+    /**
      * @var BlockType[]|null The block types' fields.
      */
     private ?array $_blockTypeFields = null;
@@ -354,6 +359,22 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * Sets the block type / group items for this field.
      *
+     * @return array of block type / group items associated with this field
+     * @since 3.8.0
+     */
+    public function getItems(): array
+    {
+        if (!isset($this->_items)) {
+            $this->_items = array_merge($this->getBlockTypes(), $this->getGroups());
+            usort($this->_items, fn($a, $b) => $a->sortOrder <=> $b->sortOrder);
+        }
+
+        return $this->_items;
+    }
+
+    /**
+     * Sets the block type / group items for this field.
+     *
      * @param array $items The block type / group items to associate with this field.
      * @since 3.8.0
      */
@@ -538,12 +559,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         } else {
             $viewService->registerAssetBundle(SettingsAsset::class);
             $viewService->registerJs(SettingsAsset::createSettingsJs($this));
-            $items = array_merge($this->getBlockTypes(), $this->getGroups());
-            usort($items, fn($a, $b) => $a->sortOrder <=> $b->sortOrder);
 
             $html = $viewService->renderTemplate('neo/settings', [
                 'neoField' => $this,
-                'items' => $items,
+                'items' => $this->getItems(),
             ]);
         }
 

@@ -134,12 +134,9 @@ class Fields extends Component
                 }
 
                 // Save the new block types and groups
-                $items = array_merge($field->getBlockTypes(), $field->getGroups());
-                usort($items, fn($a, $b) => $a->sortOrder <=> $b->sortOrder);
-
                 $currentGroup = null;
 
-                foreach ($items as $item) {
+                foreach ($field->getItems() as $item) {
                     $item->fieldId = $field->id;
 
                     if ($item instanceof BlockTypeGroup) {
