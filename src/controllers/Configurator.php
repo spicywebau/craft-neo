@@ -80,32 +80,33 @@ class Configurator extends Controller
                 $blockType,
                 'types[' . Field::class . ']',
             );
-        } elseif ($settings) {
+        } else {
             $newBlockType = new BlockType();
-            $newBlockType->name = $settings['name'];
-            $newBlockType->handle = $settings['handle'];
-            $newBlockType->enabled = $settings['enabled'];
-            $newBlockType->ignorePermissions = $settings['ignorePermissions'];
-            $newBlockType->description = $settings['description'] ?? '';
-            $newBlockType->iconId = $settings['iconId'];
-            $newBlockType->minBlocks = (int)$settings['minBlocks'];
-            $newBlockType->maxBlocks = (int)$settings['maxBlocks'];
-            $newBlockType->minSiblingBlocks = (int)$settings['minSiblingBlocks'];
-            $newBlockType->maxSiblingBlocks = (int)$settings['maxSiblingBlocks'];
-            $newBlockType->minChildBlocks = (int)$settings['minChildBlocks'];
-            $newBlockType->maxChildBlocks = (int)$settings['maxChildBlocks'];
-            $newBlockType->topLevel = (bool)$settings['topLevel'];
-            $newBlockType->groupChildBlockTypes = (bool)($settings['groupChildBlockTypes'] ?? true);
-            $newBlockType->childBlocks = $settings['childBlocks'] ?: null;
-            $newBlockType->sortOrder = (int)$settings['sortOrder'];
-            $newBlockType->conditions = $settings['conditions'] ?? [];
+
+            if ($settings) {
+                $newBlockType->name = $settings['name'];
+                $newBlockType->handle = $settings['handle'];
+                $newBlockType->enabled = $settings['enabled'];
+                $newBlockType->ignorePermissions = $settings['ignorePermissions'];
+                $newBlockType->description = $settings['description'] ?? '';
+                $newBlockType->iconId = $settings['iconId'];
+                $newBlockType->minBlocks = (int)$settings['minBlocks'];
+                $newBlockType->maxBlocks = (int)$settings['maxBlocks'];
+                $newBlockType->minSiblingBlocks = (int)$settings['minSiblingBlocks'];
+                $newBlockType->maxSiblingBlocks = (int)$settings['maxSiblingBlocks'];
+                $newBlockType->minChildBlocks = (int)$settings['minChildBlocks'];
+                $newBlockType->maxChildBlocks = (int)$settings['maxChildBlocks'];
+                $newBlockType->topLevel = (bool)$settings['topLevel'];
+                $newBlockType->groupChildBlockTypes = (bool)($settings['groupChildBlockTypes'] ?? true);
+                $newBlockType->childBlocks = $settings['childBlocks'] ?: null;
+                $newBlockType->sortOrder = (int)$settings['sortOrder'];
+                $newBlockType->conditions = $settings['conditions'] ?? [];
+            }
+
             [$settingsHtml, $settingsJs] = Neo::$plugin->blockTypes->renderBlockTypeSettings(
                 $newBlockType,
                 'types[' . Field::class . ']',
             );
-        } else {
-            $settingsHtml = null;
-            $settingsJs = null;
         }
 
         return [
