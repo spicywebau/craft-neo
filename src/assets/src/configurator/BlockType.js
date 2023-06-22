@@ -36,12 +36,12 @@ export default Item.extend({
     this.$handleText = $neo.filter('[data-neo-bt="text.handle"]')
     this.$moveButton = $neo.filter('[data-neo-bt="button.move"]')
     this.$actionsButton = $neo.filter('[data-neo-bt="button.actions"]')
-    this.$actionsMenu = $neo.filter('[data-neo-bt="container.menu"]')
 
     // Set up the actions menu
     this.$actionsButton.menubtn()
     this._actionsMenu = this.$actionsButton.data('menubtn')
     this._actionsMenu.on('optionSelect', e => this['@actionSelect'](e))
+    this.$actionsMenu = this._actionsMenu.menu.$container
 
     // Stop the actions button click from selecting the block type and closing the menu
     this.addListener(this.$actionsButton, 'click', e => e.stopPropagation())
