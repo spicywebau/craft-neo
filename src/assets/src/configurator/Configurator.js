@@ -345,6 +345,10 @@ export default Garnish.Base.extend({
 
       if (item) {
         items.push(item)
+
+        if (item instanceof BlockType) {
+          item.getSettings().refreshChildBlockTypes()
+        }
       }
     })
 

@@ -440,7 +440,7 @@ export default Settings.extend({
 
       if ($existingCheckbox.length === 0) {
         this.$childBlocksContainer.append($checkbox)
-        this._refreshChildBlocks(blockType)
+        this._refreshChildBlockType(blockType)
       }
 
       const select = this._childBlocksSelect
@@ -470,7 +470,7 @@ export default Settings.extend({
       const eventNs = '.childBlock' + this.getId()
       settings.off(eventNs)
 
-      this._refreshChildBlocks(blockType)
+      this._refreshChildBlockType(blockType)
     }
   },
 
@@ -518,7 +518,14 @@ export default Settings.extend({
     return conditionsData
   },
 
-  _refreshChildBlocks (blockType) {
+  /**
+   * @since 3.8.0
+   */
+  refreshChildBlockTypes () {
+    this._childBlockTypes.forEach((childBlockType) => this._refreshChildBlockType(childBlockType))
+  },
+
+  _refreshChildBlockType (blockType) {
     const $sidebarContainer = blockType.getField().$sidebarContainer
     const $sidebarItem = $sidebarContainer.find(`[data-neo-bt="container.${blockType.getId()}"]`)
     const $refreshedBlockType = this.$childBlocksContainer.children(`[data-neo-btsc="container.${blockType.getId()}"]`)
@@ -559,10 +566,6 @@ export default Settings.extend({
 
       case 'handle':
         $input.val(e.newValue)
-        break
-
-      case 'sortOrder':
-        this._refreshChildBlocks(blockType)
         break
     }
   }
