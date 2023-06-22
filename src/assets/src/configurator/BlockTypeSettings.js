@@ -521,14 +521,23 @@ export default Settings.extend({
   /**
    * @since 3.8.0
    */
-  refreshChildBlockTypes () {
+  refreshChildBlockTypes (childBlockTypes) {
+    if (childBlockTypes) {
+      this._childBlockTypes = childBlockTypes
+    }
+
     this._childBlockTypes.forEach((childBlockType) => this._refreshChildBlockType(childBlockType))
   },
 
   _refreshChildBlockType (blockType) {
     const $sidebarContainer = blockType.getField().$sidebarContainer
     const $sidebarItem = $sidebarContainer.find(`[data-neo-bt="container.${blockType.getId()}"]`)
-    const $refreshedBlockType = this.$childBlocksContainer.children(`[data-neo-btsc="container.${blockType.getId()}"]`)
+    let $refreshedBlockType = this.$childBlocksContainer.children(`[data-neo-btsc="container.${blockType.getId()}"]`)
+
+    if ($refreshedBlockType.length === 0) {
+      // New block type, create checkbox
+      $refreshedBlockType = this._generateChildBlocksCheckbox(blockType.getSettings())
+    }
 
     if ($sidebarItem.length > 0) {
       // Block type reordered

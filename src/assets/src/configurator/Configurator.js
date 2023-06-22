@@ -109,6 +109,8 @@ export default Garnish.Base.extend({
       blockType.on('afterLoad.configurator', () => {
         this.$fieldLayoutContainer.children('.spinner').remove()
         this.$settingsContainer.children('.spinner').remove()
+        this.addItem(blockType)
+        blockType.getSettings().refreshChildBlockTypes(this.getBlockTypes())
       })
       existingItems.push(blockType)
     }

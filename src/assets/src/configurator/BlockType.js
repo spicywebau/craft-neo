@@ -131,7 +131,6 @@ export default Item.extend({
             html: response.data.settingsHtml.replace(/__NEOBLOCKTYPE_ID__/g, data.blockTypeId),
             js: response.data.settingsJs.replace(/__NEOBLOCKTYPE_ID__/g, data.blockTypeId)
           })
-          this._field?.addItem(this)
           this._loaded = true
 
           this.trigger('afterLoad')
