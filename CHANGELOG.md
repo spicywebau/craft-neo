@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed an SQL error that could occur when upgrading to Craft 4, if any `neoblocks` table rows referenced nonexistent element IDs
+
 ## 3.7.12 - 2023-06-16
 
 ### Fixed
