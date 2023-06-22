@@ -243,7 +243,10 @@ export default Garnish.Base.extend({
       this._itemSort.removeItems(item.$container)
 
       item.$container.remove()
-      if (settings) settings.$container.remove()
+
+      if (settings?.$container) {
+        settings.$container.remove()
+      }
 
       if (item instanceof BlockType) {
         const fieldLayout = item.getFieldLayout()
@@ -253,7 +256,7 @@ export default Garnish.Base.extend({
       this.removeListener(item.$container, 'click')
       item.off('.configurator')
 
-      this._updateItemOrder()
+      this._items = this._items.filter((oldItem) => oldItem !== item)
 
       if (this._items.length === 0) {
         this.$mainContainer.addClass('hidden')
