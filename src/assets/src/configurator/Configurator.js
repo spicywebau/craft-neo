@@ -52,7 +52,7 @@ export default Garnish.Base.extend({
     this.$fieldLayoutButton = $neo.filter('[data-neo="button.fieldLayout"]')
 
     this._itemSort = new Garnish.DragSort(null, {
-      container: this.$blockTypeItemsContainer,
+      container: this.$blockTypesContainer,
       handle: '[data-neo-bt="button.move"], [data-neo-g="button.move"]',
       axis: 'y',
       onSortChange: () => this._updateItemOrder()
@@ -172,7 +172,7 @@ export default Garnish.Base.extend({
       this._insertAt(item.$container, index)
     }
 
-    if (!this._itemSort.$items.filter(item.$container).length === 0) {
+    if (this._itemSort.$items.filter(item.$container).length === 0) {
       this._itemSort.addItems(item.$container)
     }
 
