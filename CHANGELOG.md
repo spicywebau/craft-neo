@@ -15,6 +15,8 @@
 ### Fixed
 - Fixed performance issues when loading a Neo field settings page, if the Neo field has a large number of block types
 - Fixed an SQL error that could occur when upgrading to Craft 4, if any `neoblocks` table rows referenced nonexistent element IDs
+- Fixed a bug where the copy and clone actions were still available on blocks for users who didn't have permission to create blocks of its type
+- Fixed a bug where the add block above action was still available on blocks for users who didn't have permission to create any of the sibling block types
 
 ## 3.7.12 - 2023-06-16
 
