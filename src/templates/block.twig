@@ -14,6 +14,7 @@
 {% set renderedForm = null %}
 {% set formTabs = null %}
 {% set visibleLayoutElements = {} %}
+{% set ignorePermissions = not neoSettings.enableBlockTypeUserPermissions or type.ignorePermissions %}
 
 {# Get the errors specific to the block (i.e. not subfield errors) #}
 {% set blockErrors = [] %}
@@ -144,11 +145,15 @@
                         <hr>
                         <ul class="padded">
                             <li><a data-icon="plus" data-action="add" href="#" type="button" role="button" aria-label="{{ 'Add block above'|t('neo') }}">{{ 'Add block above'|t('neo') }}</a></li>
-                            <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="{{ 'Copy'|t('neo') }}">{{ 'Copy'|t('neo') }}</a></li>
+                            {% if ignorePermissions or currentUser.can("neo-createBlocks:#{type.uid}") %}
+                                <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="{{ 'Copy'|t('neo') }}">{{ 'Copy'|t('neo') }}</a></li>
+                            {% endif %}
                             <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="{{ 'Paste'|t('neo') }}">{{ 'Paste'|t('neo') }}</a></li>
-                            <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="{{ 'Clone'|t('neo') }}">{{ 'Clone'|t('neo') }}</a></li>
+                            {% if ignorePermissions or currentUser.can("neo-createBlocks:#{type.uid}") %}
+                                <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="{{ 'Clone'|t('neo') }}">{{ 'Clone'|t('neo') }}</a></li>
+                            {% endif %}
                         </ul>
-                        {% if not neoSettings.enableBlockTypeUserPermissions or type.ignorePermissions or currentUser.can("neo-deleteBlocks:#{type.uid}") %}
+                        {% if ignorePermissions or currentUser.can("neo-deleteBlocks:#{type.uid}") %}
                             <hr>
                             <ul class="padded">
                                 <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="{{ 'Delete'|t('neo') }}">{{ 'Delete'|t('neo') }}</a></li>

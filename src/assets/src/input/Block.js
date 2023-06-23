@@ -1029,6 +1029,10 @@ export default Garnish.Base.extend({
         .filter(bt => typeof bt !== 'undefined')
     }
 
+    // Finally, only allow block types that are allowed to be created by the current user
+    // This is safe since allowedBlockTypes is only used to check if paste/add block actions should be disabled
+    allowedBlockTypes = allowedBlockTypes.filter((bt) => bt.isCreatableByUser())
+
     this.updateMenuStates(
       this._field.getName(),
       blocks,
@@ -1042,6 +1046,7 @@ export default Garnish.Base.extend({
   // Deprecated in 3.0.4; use `updateActionsMenu()` instead
   updateMenuStates (field, blocks = [], maxBlocks = 0, additionalCheck = null, allowedBlockTypes = false, maxTopBlocks = 0) {
     additionalCheck = typeof additionalCheck === 'boolean' ? additionalCheck : true
+    const noAllowedBlockTypes = !allowedBlockTypes || allowedBlockTypes.length === 0
 
     const blockType = this.getBlockType()
     const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
@@ -1054,6 +1059,7 @@ export default Garnish.Base.extend({
     const maxTopBlocksMet = maxTopBlocks > 0 && totalTopBlocks >= maxTopBlocks
 
     const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
+    const addDisabled = allDisabled || noAllowedBlockTypes
     const typeDisabled = maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes
     let cloneDisabled = allDisabled || typeDisabled
 
@@ -1133,9 +1139,22 @@ export default Garnish.Base.extend({
 
     this.$menuContainer.find('[data-action="moveUp"]').parent().toggleClass('hidden', disableMoveUp)
     this.$menuContainer.find('[data-action="moveDown"]').parent().toggleClass('hidden', disableMoveDown)
-    this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
     this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', cloneDisabled)
-    this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
+
+    // Paste/add actions should be hidden if there is no chance of them being enabled later
+    if (noAllowedBlockTypes) {
+      this.$menuContainer.find('[data-action="add"]').parent().toggleClass('hidden', addDisabled)
+      this.$menuContainer.find('[data-action="paste"]').parent().toggleClass('hidden', pasteDisabled)
+    } else {
+      this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', addDisabled)
+      this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
+    }
+
+    // If there are no visible items in the second list, hide the separator as well
+    this.$menuContainer.children('hr').toggleClass(
+      'hidden',
+      this.$menuContainer.children('ul:last-child').children('li:not(.hidden)').length === 0
+    )
   },
 
   resetButtons (settings) {
