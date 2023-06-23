@@ -16,6 +16,7 @@ export default Settings.extend({
 
   _templateNs: [],
 
+  $container: null,
   $sortOrderInput: new $(),
   $nameInput: new $(),
   $handleInput: new $(),
@@ -28,15 +29,31 @@ export default Settings.extend({
     this._id = settings.id
     this._alwaysShowDropdown = settings.alwaysShowDropdown
     this._defaultAlwaysShowGroupDropdowns = settings.defaultAlwaysShowGroupDropdowns
+    this._originalSettings = settings
 
-    this.$container = this._generateGroupSettings()
+    if (typeof settings.html !== 'undefined' && settings.html !== null) {
+      this.createContainer({
+        html: settings.html,
+        js: settings.js
+      })
+    }
+  },
+
+  createContainer (containerData) {
+    // Only create it if it doesn't already exist
+    if (this.$container !== null) {
+      return
+    }
+
+    this.$container = $(containerData.html)
+    this._js = containerData.js ?? ''
 
     const $neo = this.$container.find('[data-neo-gs]')
     this.$nameInput = $neo.filter('[data-neo-gs="input.name"]')
     this.$deleteButton = $neo.filter('[data-neo-gs="button.delete"]')
     this.$alwaysShowDropdownContainer = $neo.filter('[data-neo-gs="container.alwaysShowDropdown"]')
 
-    this.setName(settings.name)
+    this.setName(this._originalSettings.name)
 
     this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
     this.addListener(this.$deleteButton, 'click', () => {
@@ -44,59 +61,6 @@ export default Settings.extend({
         this.destroy()
       }
     })
-  },
-
-  _generateGroupSettings () {
-    NS.enter(this._templateNs)
-    const nameInputId = NS.value('name', '-')
-    const nameInputName = NS.fieldName('name')
-    const alwaysShowDropdownId = NS.value('alwaysShowDropdown', '-')
-    const alwaysShowDropdownName = NS.fieldName('alwaysShowDropdown')
-    NS.leave()
-    const alwaysShowDropdownOptions = [
-      {
-        value: 'show',
-        label: Craft.t('neo', 'Show')
-      },
-      {
-        value: 'hide',
-        label: Craft.t('neo', 'Hide')
-      },
-      {
-        value: 'global',
-        label: this._defaultAlwaysShowGroupDropdowns ? Craft.t('neo', 'Use global setting (Show)') : Craft.t('neo', 'Use global setting (Hide)')
-      }
-    ]
-    const $nameInput = Craft.ui.createTextField({
-      type: 'text',
-      id: nameInputId,
-      name: nameInputName,
-      label: Craft.t('neo', 'Name'),
-      instructions: Craft.t('neo', 'This can be left blank if you just want an unlabeled separator.'),
-      value: this.getName()
-    })
-    $nameInput.find('input').attr('data-neo-gs', 'input.name')
-
-    return $(`
-      <div>
-        <div>
-          ${$('<div class="field">').append($nameInput).html()}
-          <div data-neo-gs="container.alwaysShowDropdown">
-            <div class="field">
-              ${Craft.ui.createSelectField({
-                label: Craft.t('neo', 'Always Show Dropdown?'),
-                instructions: Craft.t('neo', 'Whether to show the dropdown for this group if it only has one available block type.'),
-                id: alwaysShowDropdownId,
-                name: alwaysShowDropdownName,
-                options: alwaysShowDropdownOptions,
-                value: this._alwaysShowDropdown ? 'show' : (this._alwaysShowDropdown === false ? 'hide' : 'global')
-              }).html()}
-            </div>
-          </div>
-        </div>
-        <hr>
-        <a class="error delete" data-neo-gs="button.delete">${Craft.t('neo', 'Delete group')}</a>
-      </div>`)
   },
 
   getFocusInput () {
@@ -114,7 +78,7 @@ export default Settings.extend({
     console.warn('GroupSettings.setSortOrder() is deprecated and no longer used.')
   },
 
-  getName () { return this._name },
+  getName () { return this._name ?? this._originalSettings.name },
   setName (name) {
     if (name !== this._name) {
       const oldName = this._name
@@ -131,7 +95,7 @@ export default Settings.extend({
     }
   },
 
-  getAlwaysShowDropdown () { return this._alwaysShowDropdown },
+  getAlwaysShowDropdown () { return this._alwaysShowDropdown ?? this._originalSettings.alwaysShowDropdown },
 
   _refreshAlwaysShowDropdown (animate) {
     this._refreshSetting(this.$alwaysShowDropdownContainer, !!this._name, animate)

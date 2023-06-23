@@ -1,0 +1,54 @@
+{% import '_includes/forms' as forms %}
+
+{% set neoSettings = craft.app.plugins.getPlugin('neo').settings %}
+{% set alwaysShowDropdownValue = 'global' %}
+
+{% if group %}
+    {% if group.alwaysShowDropdown %}
+        {% set alwaysShowDropdownValue = 'show' %}
+    {% elseif group.alwaysShowDropdown is not null %}
+        {% set alwaysShowDropdownValue = 'hide' %}
+    {% endif %}
+{% endif %}
+
+<div>
+    <div>
+        {{ forms.textField({
+            id: 'name',
+            name: 'name',
+            label: 'Name'|t('neo'),
+            instructions: 'This can be left blank if you just want an unlabeled separator.'|t('neo'),
+            value: group ? group.name : null,
+            errors: group ? group.getErrors('name') : null,
+            inputAttributes: {
+                'data-neo-gs': 'input.name',
+            },
+        }) }}
+
+        <div data-neo-gs="container.alwaysShowDropdown">
+            {{ forms.selectField({
+                label: 'Always Show Dropdown?'|t('neo'),
+                instructions: 'Whether to show the dropdown for this group if it only has one available block type.'|t('neo'),
+                id: 'alwaysShowDropdown',
+                name: 'alwaysShowDropdown',
+                options: [
+                    {
+                        value: 'show',
+                        label: 'Show'|t('neo'),
+                    },
+                    {
+                        value: 'hide',
+                        label: 'Hide'|t('neo'),
+                    },
+                    {
+                        value: 'global',
+                        label: neoSettings.defaultAlwaysShowGroupDropdowns ? 'Use global setting (Show)'|t('neo') : 'Use global setting (Hide)'|t('neo'),
+                    }
+                ],
+                value: alwaysShowDropdownValue,
+            }) }}
+        </div>
+    </div>
+    <hr>
+    <a class="error delete" data-neo-gs="button.delete">{{ 'Delete group'|t('neo') }}</a>
+</div>

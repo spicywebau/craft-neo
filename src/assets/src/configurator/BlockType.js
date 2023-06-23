@@ -99,8 +99,7 @@ export default Item.extend({
   },
 
   /**
-   * @since 3.8.0
-   * @returns Promise
+   * @inheritDoc
    */
   load () {
     if (this._loaded) {

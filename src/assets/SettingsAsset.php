@@ -115,6 +115,7 @@ class SettingsAsset extends AssetBundle
             'blockTypeSettingsHtml' => $blockTypeSettingsHtml,
             'blockTypeSettingsJs' => $blockTypeSettingsJs,
             'fieldLayoutHtml' => $fieldLayoutHtml,
+            'blockTypeGroupSettingsHtml' => Neo::$plugin->blockTypes->renderBlockTypeGroupSettings()[0],
             'defaultAlwaysShowGroupDropdowns' => Neo::$plugin->settings->defaultAlwaysShowGroupDropdowns,
         ];
 

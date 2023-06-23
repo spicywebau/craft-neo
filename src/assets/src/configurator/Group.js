@@ -53,6 +53,36 @@ export default Item.extend({
       </div>`)
   },
 
+  /**
+   * @inheritDoc
+   */
+  load () {
+    if (this._loaded) {
+      // Already loaded
+      return Promise.resolve()
+    }
+
+    this.trigger('beforeLoad')
+    const data = {
+      groupId: this.getId()
+    }
+
+    return new Promise((resolve, reject) => {
+      Craft.sendActionRequest('POST', 'neo/configurator/render-block-type-group', { data })
+        .then(response => {
+          this.getSettings().createContainer({
+            html: response.data.settingsHtml.replace(/__NEOBLOCKTYPEGROUP_ID__/g, data.groupId),
+            js: response.data.settingsJs.replace(/__NEOBLOCKTYPEGROUP_ID__/g, data.groupId)
+          })
+          this._loaded = true
+
+          this.trigger('afterLoad')
+          resolve()
+        })
+        .catch(reject)
+    })
+  },
+
   getId () {
     return this.getSettings().getId()
   },
@@ -63,8 +93,12 @@ export default Item.extend({
     const settings = this.getSettings()
     const selected = this.isSelected()
 
-    if (settings) {
+    if (settings?.$container ?? false) {
       settings.$container.toggleClass('hidden', !selected)
+    }
+
+    if (selected) {
+      this.load()
     }
 
     this.$container.toggleClass('is-selected', selected)

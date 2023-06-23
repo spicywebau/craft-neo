@@ -7,7 +7,7 @@
 - Added `benf\neo\Field::setItems()`
 
 ### Changed
-- When editing a Neo field's settings, block type settings are now lazy loaded
+- When editing a Neo field's settings, block type and block type group settings are now lazy loaded
 
 ### Deprecated
 - Deprecated `benf\neo\controllers\Configurator::actionRenderFieldLayout()`

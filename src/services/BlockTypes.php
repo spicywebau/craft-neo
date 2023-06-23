@@ -729,6 +729,32 @@ class BlockTypes extends Component
     }
 
     /**
+     * Renders a Neo block type's settings.
+     *
+     * @param BlockTypeGroup|null $group
+     * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
+     * @return array
+     */
+    public function renderBlockTypeGroupSettings(?BlockTypeGroup $group = null, ?string $baseNamespace = null): array
+    {
+        $view = Craft::$app->getView();
+        $groupId = $group?->id ?? '__NEOBLOCKTYPEGROUP_ID__';
+        $oldNamespace = $view->getNamespace();
+        $newNamespace = ($baseNamespace ?? $oldNamespace) . "[items][groups][$groupId]";
+        $view->setNamespace($newNamespace);
+        $view->startJsBuffer();
+
+        $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-group-settings', [
+            'group' => $group,
+        ]));
+
+        $js = $view->clearJsBuffer();
+        $view->setNamespace($oldNamespace);
+
+        return [$html, $js];
+    }
+
+    /**
      * Returns all the block types.
      *
      * @return BlockType[]

@@ -19,7 +19,8 @@ const _defaults = {
   groups: [],
   blockTypeSettingsHtml: '',
   blockTypeSettingsJs: '',
-  fieldLayoutHtml: ''
+  fieldLayoutHtml: '',
+  groupSettingsHtml: ''
 }
 
 export default Garnish.Base.extend({
@@ -38,6 +39,7 @@ export default Garnish.Base.extend({
     this._blockTypeSettingsHtml = settings.blockTypeSettingsHtml
     this._blockTypeSettingsJs = settings.blockTypeSettingsJs
     this._fieldLayoutHtml = settings.fieldLayoutHtml
+    this._blockTypeGroupSettingsHtml = settings.blockTypeGroupSettingsHtml
     this._items = []
 
     const $neo = this.$container.find('[data-neo]')
@@ -134,6 +136,13 @@ export default Garnish.Base.extend({
         settings: gSettings
       })
 
+      group.on('beforeLoad.configurator', () => this.$settingsContainer.append(
+        $('<span class="spinner"/></span>')
+      ))
+      group.on('afterLoad.configurator', () => {
+        this.$settingsContainer.children('.spinner').remove()
+        this.addItem(group)
+      })
       existingItems.push(group)
     }
 
@@ -327,7 +336,7 @@ export default Garnish.Base.extend({
     this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout')
   },
 
-  _getNewBlockTypeSettingsHtml (blockTypeId, sortOrder) {
+  _getNewBlockTypeSettingsHtml (blockTypeId) {
     return this._blockTypeSettingsHtml.replace(/__NEOBLOCKTYPE_ID__/g, blockTypeId)
   },
 
@@ -340,6 +349,10 @@ export default Garnish.Base.extend({
       /&quot;uid&quot;:&quot;([a-f0-9-]+)&quot;/,
       `&quot;uid&quot;:&quot;${uuidv4()}&quot;`
     )
+  },
+
+  _getNewBlockTypeGroupSettingsHtml (groupId) {
+    return this._blockTypeGroupSettingsHtml.replace(/__NEOBLOCKTYPEGROUP_ID__/g, groupId)
   },
 
   _updateItemOrder () {
@@ -372,7 +385,7 @@ export default Garnish.Base.extend({
         id,
         namespace: [...namespace, id],
         sortOrder: this._items.length,
-        html: this._getNewBlockTypeSettingsHtml(id, selectedIndex),
+        html: this._getNewBlockTypeSettingsHtml(id),
         js: this._getNewBlockTypeSettingsJs(id)
       })
       const fieldLayout = new BlockTypeFieldLayout({
@@ -556,6 +569,7 @@ export default Garnish.Base.extend({
 
     const settings = new GroupSettings({
       namespace: [...namespace, id],
+      html: this._getNewBlockTypeGroupSettingsHtml(id),
       sortOrder: this._items.length,
       id
     })

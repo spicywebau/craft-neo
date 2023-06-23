@@ -18,6 +18,14 @@ export default Garnish.Base.extend({
 
   /**
    * @since 3.8.0
+   * @returns Promise
+   */
+  load () {
+    return Promise.resolve()
+  },
+
+  /**
+   * @since 3.8.0
    * @returns the Neo field this item belongs to
    */
   getField () {

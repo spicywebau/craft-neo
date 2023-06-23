@@ -31,13 +31,36 @@ class Configurator extends Controller
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $renderedData = $this->_render();
+        $renderedData = $this->_renderBlockType();
 
         return $this->asJson([
             'success' => true,
             'settingsHtml' => $renderedData['settingsHtml'],
             'settingsJs' => $renderedData['settingsJs'],
             'layoutHtml' => $renderedData['layoutHtml'],
+        ]);
+    }
+
+    /**
+     * Renders settings for block type groups.
+     *
+     * @return Response
+     * @since 3.8.0
+     */
+    public function actionRenderBlockTypeGroup(): Response
+    {
+        $request = Craft::$app->getRequest();
+        $groupId = $request->getBodyParam('groupId');
+        $group = $groupId ? Neo::$plugin->blockTypes->getGroupById((int)$groupId) : null;
+        [$html, $js] =  Neo::$plugin->blockTypes->renderBlockTypeGroupSettings(
+            $group,
+            'types[' . Field::class . ']',
+        );
+
+        return $this->asJson([
+            'success' => true,
+            'settingsHtml' => $html,
+            'settingsJs' => $js,
         ]);
     }
 
@@ -55,11 +78,11 @@ class Configurator extends Controller
 
         return $this->asJson([
             'success' => true,
-            'html' => $this->_render()['layoutHtml'],
+            'html' => $this->_renderBlockType()['layoutHtml'],
         ]);
     }
 
-    private function _render(): array
+    private function _renderBlockType(): array
     {
         $request = Craft::$app->getRequest();
         $blockTypeId = $request->getBodyParam('blockTypeId');
