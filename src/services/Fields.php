@@ -422,7 +422,7 @@ class Fields extends Component
         ElementInterface $target,
         bool $checkOtherSites = false,
         bool $deleteOtherBlocks = true,
-        bool $trackDuplications = true
+        bool $trackDuplications = true,
     ): void {
         $elementsService = Craft::$app->getElements();
         $value = $source->getFieldValue($field->handle);
@@ -1070,7 +1070,7 @@ SQL
         ElementInterface $owner,
         $blocks,
         ?int $sId = null,
-        $saveForOtherSupportedSites = true
+        $saveForOtherSupportedSites = true,
     ): void {
         $siteId = $sId ?? $owner->siteId;
 

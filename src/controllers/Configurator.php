@@ -52,7 +52,7 @@ class Configurator extends Controller
         $request = Craft::$app->getRequest();
         $groupId = $request->getBodyParam('groupId');
         $group = $groupId ? Neo::$plugin->blockTypes->getGroupById((int)$groupId) : null;
-        [$html, $js] =  Neo::$plugin->blockTypes->renderBlockTypeGroupSettings(
+        [$html, $js] = Neo::$plugin->blockTypes->renderBlockTypeGroupSettings(
             $group,
             'types[' . Field::class . ']',
         );

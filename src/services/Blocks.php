@@ -310,7 +310,7 @@ class Blocks extends Component
     public function replaceChildBlocksUiElementPlaceholder(
         string $html,
         Block $parentBlock,
-        ?int $overrideBlockId = null
+        ?int $overrideBlockId = null,
     ): string {
         $dataAttr = (string)($overrideBlockId ?? $parentBlock->id ?? '__NEOBLOCK__');
 
