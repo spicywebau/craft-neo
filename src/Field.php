@@ -976,19 +976,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $requestService = Craft::$app->getRequest();
         $class = Self::class;
 
-        // Later, the field saving process will call `getGroups()` when trying to delete old groups. If this request is
-        // coming from the field settings page and all groups were deleted by the user, `$this->_blockTypeGroups` will
-        // be `null`, `getGroups()` will return `Neo::$plugin->blockTypes->getGroupsByFieldId($this->id)` and the groups
-        // won't be deleted. By detecting this here, we can set an empty array of groups, so the groups will actually be
-        // deleted.
-        if (!$requestService->isConsoleRequest && $requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.items.groups") === null) {
-            $this->setGroups([]);
-        }
-
         // If a block type doesn't already have a field layout set, check for POST data from the field layout designer
         foreach ($this->getBlockTypes() as $blockType) {
-            if (!$blockType->fieldLayout) {
-                $fieldLayout = $fieldsService->assembleLayoutFromPost("types.{$class}.blockTypes.{$blockType->id}");
+            if (!$blockType->fieldLayout && $requestService->getBodyParam("types.{$class}.items.blockTypes.{$blockType->id}") !== null) {
+                $fieldLayout = $fieldsService->assembleLayoutFromPost("types.{$class}.items.blockTypes.{$blockType->id}");
                 $fieldLayout->type = $class;
                 $blockType->setFieldLayout($fieldLayout);
             }
