@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.8.0 - 2023-06-24
 
 ### Added
 - Added `benf\neo\Field::getItems()`
