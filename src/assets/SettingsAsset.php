@@ -134,10 +134,11 @@ class SettingsAsset extends AssetBundle
     {
         $view = Craft::$app->getView();
         $jsBlockTypes = [];
+        $newX = 0;
 
         foreach ($blockTypes as $blockType) {
             $jsBlockTypes[] = [
-                'id' => $blockType->id,
+                'id' => $blockType->id ?: 'new' . $newX++,
                 'sortOrder' => $blockType->sortOrder,
                 'name' => $blockType->name,
                 'handle' => $blockType->handle,
@@ -173,10 +174,11 @@ class SettingsAsset extends AssetBundle
     private static function _getBlockTypeGroupsJsSettings(array $blockTypeGroups): array
     {
         $jsBlockTypeGroups = [];
+        $newX = 0;
 
         foreach ($blockTypeGroups as $blockTypeGroup) {
             $jsBlockTypeGroups[] = [
-                'id' => $blockTypeGroup->id,
+                'id' => $blockTypeGroup->id ?: 'new' . $newX++,
                 'sortOrder' => $blockTypeGroup->sortOrder,
                 'name' => Craft::t('site', $blockTypeGroup->name),
                 'alwaysShowDropdown' => $blockTypeGroup->alwaysShowDropdown,

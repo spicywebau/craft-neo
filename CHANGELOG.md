@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed visual bugs and loss of newly created block type and block type group data if validation errors occurred when saving a Neo field, and there had been more than one block type or block type group created
+
 ## 3.8.0 - 2023-06-24
 
 ### Added

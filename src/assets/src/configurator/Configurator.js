@@ -375,7 +375,11 @@ export default Garnish.Base.extend({
 
   _createBlockTypeFrom (oldBlockType) {
     const namespace = [...this._templateNs, 'items', 'blockTypes']
-    const id = BlockTypeSettings.getNewId()
+    let id
+    do {
+      id = BlockTypeSettings.getNewId()
+    } while (this.$blockTypesContainer.find(`[data-neo-bt="container.${id}"]`).length > 0)
+
     const selectedItem = this.getSelectedItem()
     const selectedIndex = selectedItem ? selectedItem.getSortOrder() : -1
 
@@ -565,7 +569,10 @@ export default Garnish.Base.extend({
 
   '@newGroup' () {
     const namespace = [...this._templateNs, 'items', 'groups']
-    const id = GroupSettings.getNewId()
+    let id
+    do {
+      id = GroupSettings.getNewId()
+    } while (this.$blockTypesContainer.find(`[data-neo-g="container.${id}"]`).length > 0)
 
     const settings = new GroupSettings({
       namespace: [...namespace, id],
