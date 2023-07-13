@@ -813,8 +813,9 @@ export default Garnish.Base.extend({
   _registerDynamicBlockConditions () {
     // A small timeout to let the element editor initialise
     setTimeout(() => {
-      this.$form.data('elementEditor')?.on('update', () => {
-        const elementEditor = this.$form.data('elementEditor')
+      const elementEditor = this.$form.data('elementEditor')
+      elementEditor?.on('update', () => {
+        const siteId = elementEditor.settings.siteId
         const data = {
           blocks: {},
           sortOrder: [],
@@ -822,7 +823,7 @@ export default Garnish.Base.extend({
           ownerCanonicalId: this._ownerId,
           ownerDraftId: elementEditor.settings.draftId,
           isProvisionalDraft: elementEditor.settings.isProvisionalDraft,
-          siteId: this._siteId
+          siteId
         }
         const originalBlockIds = {}
         this._blocks.forEach((block) => {

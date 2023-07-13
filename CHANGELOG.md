@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a server error that occurred when using a slideout editor to edit an element with a Neo field
+
 ## 3.8.1 - 2023-07-07
 
 ### Fixed
