@@ -841,6 +841,12 @@ export default Garnish.Base.extend({
         Craft.queue.push(() => new Promise((resolve, reject) => {
           Craft.sendActionRequest('POST', 'neo/input/update-visible-elements', { data })
             .then((response) => {
+              // If the draft's been updated since, ignore the response, since we'll get a new one soon anyway
+              if (elementEditor.submittingForm) {
+                reject(Error('Form being resaved'))
+                return
+              }
+
               for (const blockId in response.data.blocks) {
                 const block = this._blocks.find((block) => block.getId() === originalBlockIds[blockId])
                 this._updateVisibleElements(

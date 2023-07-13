@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a server error that occurred when using a slideout editor to edit an element with a Neo field
+- Fixed a bug with applying dynamic Neo subfield conditions after a draft autosave, if the draft was resaved while Neo was checking which fields should be visible
 
 ## 3.8.1 - 2023-07-07
 
