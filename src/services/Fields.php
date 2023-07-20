@@ -1075,7 +1075,12 @@ SQL
         $siteId = $sId ?? $owner->siteId;
 
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null) {
+        $blockStructures = Neo::$plugin->blocks->getStructures([
+            'fieldId' => $field->id,
+            'ownerId' => $owner->id,
+            'siteId' => $siteId,
+        ]);
+        foreach ($blockStructures as $blockStructure) {
             Neo::$plugin->blocks->deleteStructure($blockStructure, true);
         }
 
@@ -1097,8 +1102,13 @@ SQL
         $supported = $this->getSupportedSiteIdsExCurrent($field, $owner, $field->propagationKeyFormat);
 
         foreach ($supported as $s) {
-            while (($mBlockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $s)) !== null) {
-                Neo::$plugin->blocks->deleteStructure($mBlockStructure);
+            $otherBlockStructures = Neo::$plugin->blocks->getStructures([
+                'fieldId' => $field->id,
+                'ownerId' => $owner->id,
+                'siteId' => $s,
+            ]);
+            foreach ($otherBlockStructures as $otherBlockStructure) {
+                Neo::$plugin->blocks->deleteStructure($otherBlockStructure);
             }
 
             $multiBlockStructure = $blockStructure;

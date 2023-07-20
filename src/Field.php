@@ -1131,7 +1131,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         } else {
             // If the owner element is being hard-deleted, make sure any block structure data is deleted
             foreach (ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($element), 'siteId') as $siteId) {
-                while (($blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, $siteId)) !== null) {
+                $blockStructures = Neo::$plugin->blocks->getStructures([
+                    'fieldId' => $this->id,
+                    'ownerId' => $element->id,
+                    'siteId' => $siteId,
+                ]);
+                foreach ($blockStructures as $blockStructure) {
                     Neo::$plugin->blocks->deleteStructure($blockStructure, true);
                 }
             }
@@ -1157,11 +1162,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             }
         }
 
-        // Recreate the block structures with the original block data
-        foreach ($blockStructures as $blockStructure) {
-            $key = $blockStructure->siteId ?? 0;
-            Neo::$plugin->blocks->saveStructure($blockStructure);
-            Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
+        // Recreate the block structures with the original block data, if not hard-deleting the owner
+        if (!$element->hardDelete) {
+            foreach ($blockStructures as $blockStructure) {
+                $key = $blockStructure->siteId ?? 0;
+                Neo::$plugin->blocks->saveStructure($blockStructure);
+                Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
+            }
         }
 
         return true;

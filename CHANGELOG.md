@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `benf\neo\services\Blocks::getStructures()`
+
+### Fixed
+- Fixed timeouts caused by Neo that could occur when saving an entry, if Craft is running with a clustered/load-balanced DB service
+
 ## 3.8.2 - 2023-07-13
 
 ### Fixed

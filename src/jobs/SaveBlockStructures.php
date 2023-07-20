@@ -49,7 +49,12 @@ class SaveBlockStructures extends BaseJob
         $blocks = [];
 
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $this->siteId)) !== null) {
+        $blockStructures = Neo::$plugin->blocks->getStructures([
+            'fieldId' => $this->fieldId,
+            'ownerId' => $this->ownerId,
+            'siteId' => $this->siteId,
+        ]);
+        foreach ($blockStructures as $blockStructure) {
             Neo::$plugin->blocks->deleteStructure($blockStructure);
         }
 
@@ -80,8 +85,13 @@ class SaveBlockStructures extends BaseJob
 
             // Now do the other supported sites
             foreach ($this->otherSupportedSiteIds as $siteId) {
-                while (($mBlockStructure = Neo::$plugin->blocks->getStructure($this->fieldId, $this->ownerId, $siteId)) !== null) {
-                    Neo::$plugin->blocks->deleteStructure($mBlockStructure);
+                $otherBlockStructures = Neo::$plugin->blocks->getStructures([
+                    'fieldId' => $this->fieldId,
+                    'ownerId' => $this->ownerId,
+                    'siteId' => $siteId,
+                ]);
+                foreach ($otherBlockStructures as $otherBlockStructure) {
+                    Neo::$plugin->blocks->deleteStructure($otherBlockStructure);
                 }
 
                 $multiBlockStructure = $blockStructure;

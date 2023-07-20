@@ -98,6 +98,21 @@ class Blocks extends Component
     }
 
     /**
+     * Gets Neo block structures matching the given criteria.
+     *
+     * @param array|null $criteria
+     * @return BlockStructure[] The block structures found.
+     * @since 3.8.3
+     */
+    public function getStructures(?array $criteria = null): array
+    {
+        return $this->_createStructureQuery($criteria)
+            ->collect()
+            ->map(fn($result) => new BlockStructure($result))
+            ->all();
+    }
+
+    /**
      * Gets a Neo block structure.
      * Looks for a block structure associated with a given field ID and owner ID, and optionally the owner's site ID.
      *
@@ -107,22 +122,12 @@ class Blocks extends Component
      */
     public function getStructure(int $fieldId, int $ownerId, ?int $siteId = null): ?BlockStructure
     {
-        $blockStructure = null;
-
-        $query = $this->_createStructureQuery()
-            ->where([
-                'fieldId' => $fieldId,
-                'ownerId' => $ownerId,
-                'siteId' => $siteId,
-            ]);
-
-        $result = $query->one();
-
-        if ($result) {
-            $blockStructure = new BlockStructure($result);
-        }
-
-        return $blockStructure;
+        $result = $this->_createStructureQuery([
+            'fieldId' => $fieldId,
+            'ownerId' => $ownerId,
+            'siteId' => $siteId,
+        ])->one();
+        return $result !== null ? new BlockStructure($result) : null;
     }
 
     /**
@@ -133,17 +138,8 @@ class Blocks extends Component
      */
     public function getStructureById(int $id): ?BlockStructure
     {
-        $blockStructure = null;
-
-        $result = $this->_createStructureQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if ($result) {
-            $blockStructure = new BlockStructure($result);
-        }
-
-        return $blockStructure;
+        $result = $this->_createStructureQuery(['id' => $id])->one();
+        return $result !== null ? new BlockStructure($result) : null;
     }
 
     /**
@@ -329,11 +325,12 @@ class Blocks extends Component
     /**
      * Creates a basic Neo block structure query.
      *
+     * @param array|null $criteria
      * @return Query
      */
-    private function _createStructureQuery(): Query
+    private function _createStructureQuery(?array $criteria = null): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'structureId',
@@ -342,5 +339,11 @@ class Blocks extends Component
                 'fieldId',
             ])
             ->from(['{{%neoblockstructures}}']);
+
+        if ($criteria !== null) {
+            $query->where($criteria);
+        }
+
+        return $query;
     }
 }
