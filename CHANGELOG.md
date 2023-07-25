@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.8.3 - 2023-07-25
 
 ### Added
 - Added `benf\neo\services\Blocks::getStructures()`
