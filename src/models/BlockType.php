@@ -323,7 +323,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
             'group' => $group ? $group->uid : null,
             'groupChildBlockTypes' => (bool)$this->groupChildBlockTypes,
             'handle' => $this->handle,
-            'description' => $this->description,
+            'description' => $this->description ?? '',
             'enabled' => $this->enabled,
             'icon' => $iconData,
             'minBlocks' => (int)$this->minBlocks,

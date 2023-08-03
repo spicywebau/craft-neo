@@ -490,7 +490,7 @@ class BlockTypes extends Component
             $record->groupId = $groupId;
             $record->name = $data['name'];
             $record->handle = $data['handle'];
-            $record->description = $data['description'] ?? null;
+            $record->description = $data['description'] ?? '';
             $record->iconId = $blockTypeIcon?->id ?? null;
             $record->enabled = $data['enabled'] ?? true;
             $record->ignorePermissions = $data['ignorePermissions'] ?? true;
@@ -514,7 +514,7 @@ class BlockTypes extends Component
             $blockType->groupId = $groupId;
             $blockType->name = $data['name'];
             $blockType->handle = $data['handle'];
-            $blockType->description = $data['description'] ?? null;
+            $blockType->description = $data['description'] ?? '';
             $blockType->enabled = $data['enabled'] ?? true;
             $blockType->ignorePermissions = $data['ignorePermissions'] ?? true;
             $blockType->sortOrder = $data['sortOrder'];
