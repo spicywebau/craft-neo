@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.8.4 - 2023-08-03
 
 ### Fixed
 - Fixed a bug where empty block type descriptions could be inconsistently set to either `''` or `null` (should now be consistently set to `''`)
