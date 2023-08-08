@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that caused content loss of new Neo blocks' subfields, if the new block was created between a provisional draft saving and dynamic Neo subfield conditions being applied
+
 ## 3.8.4 - 2023-08-03
 
 ### Fixed

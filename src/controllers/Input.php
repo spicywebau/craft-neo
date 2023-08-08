@@ -236,7 +236,7 @@ class Input extends Controller
             }
 
             $view = Craft::$app->getView();
-            $namespace = "fields[{$field->handle}][blocks][{$block->id}]";
+            $namespace = "fields[{$field->handle}][blocks][{$blockId}]";
             $fieldLayout = $block->getFieldLayout();
             $form = $fieldLayout->createForm($block, false, [
                 'namespace' => $namespace,
