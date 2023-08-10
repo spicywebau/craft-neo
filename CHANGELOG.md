@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.8.6 - 2023-08-10
 
 ### Fixed
 - Fixed an error that could occur during Craft garbage collection if the `neoblockstructures` table contained more than 65535 rows
