@@ -100,13 +100,13 @@ Assuming you are using a Neo field on an Entry template:
 
 ```twig
 {% do craft.app.elements.eagerLoadElements(
-	className(entry),
-	[entry],
-	[
-		'neoField.blockTypeHandle:fieldHandle',
-		'neoField.blockTypeHandle:otherFieldHandle.childField',
-		'imageFieldHandle'
-	]
+    className(entry),
+    [entry],
+    [
+        'neoField.blockTypeHandle:fieldHandle',
+        'neoField.blockTypeHandle:otherFieldHandle.childField',
+        'imageFieldHandle'
+    ]
 ) %}
 ```
 
@@ -114,7 +114,7 @@ Assuming you are using a Neo field on an Entry template:
 
 ```twig
 {% for block in entry.neoField %}
-	{% do block.useMemoized(entry.neoField) %}
+    {% do block.useMemoized(entry.neoField) %}
 {% endfor %}
 ```
 
@@ -122,8 +122,8 @@ Assuming you are using a Neo field on an Entry template:
 
 ```twig
 {% for block in entry.neoField %}
-	{% if block.level == 1 %}
-		{% include '_partials/neoField/' ~ block.type.handle ignore missing %}
-	{% endif %}
+    {% if block.level == 1 %}
+        {% include '_partials/neoField/' ~ block.type.handle ignore missing %}
+    {% endif %}
 {% endfor %}
 ```
