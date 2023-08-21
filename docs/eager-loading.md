@@ -94,7 +94,7 @@ From here on out, eager-loading behaves the same way as the Matrix field type. [
 
 ### Complete Example
 
-Assuming you are using a Neo field on an Entry template:
+Assuming you are using a Neo field with the handle `neoField` on an entry template, and a Neo block type with the handle `blockTypeHandle`, which has nested fields `fieldHandle` and `otherFieldHandle`:
 
 1. Eager load the Neo fields (along with any other fields valid for Eager Loading).
 
