@@ -5,12 +5,14 @@ import Garnish from 'garnish'
 import Craft from 'craft'
 
 import NS from '../namespace'
+import Tab from './BlockTypeTab'
 
 import { addFieldLinks } from '../plugins/cpfieldinspect/main'
 
 const _defaults = {
   namespace: [],
   blockType: null,
+  tabs: null,
   id: null,
   level: 1,
   buttons: null,
@@ -69,6 +71,9 @@ export default Garnish.Base.extend({
   _modified: true,
   _initialState: null,
   _forceModified: false,
+  _tabs: null,
+  _html: null,
+  _js: null,
 
   init (settings = {}, generateElement = false) {
     settings = Object.assign({}, _defaults, settings)
@@ -76,6 +81,20 @@ export default Garnish.Base.extend({
     this._templateNs = NS.parse(settings.namespace)
     this._field = settings.field
     this._blockType = settings.blockType
+    if (settings.tabs !== null) {
+      this._tabs = settings.tabs.tabNames?.map(
+        tab => tab instanceof Tab
+          ? tab
+          : new Tab({
+            name: tab,
+            uid: settings.tabs.tabUids[tab]
+          })
+      ) ?? []
+    } else {
+      this._tabs = null
+    }
+    this._html = settings.tabs?.html ?? null
+    this._js = settings.tabs?.js ?? null
     this._id = settings.id
     this._enabled = settings.enabled && this._blockType.getEnabled()
     this._initialEnabled = settings.enabled
@@ -108,8 +127,8 @@ export default Garnish.Base.extend({
 
     let hasErrors = false
     if (this._blockType) {
-      for (const tab of this._blockType.getTabs()) {
-        const selector = `[data-neo-b-info="${tab.getName()}"]`
+      for (const tabName of this._blockType.getTabNames()) {
+        const selector = `[data-neo-b-info="${tabName}"]`
 
         if (this.$tabContainer.filter(selector).find('ul.errors').length > 0) {
           hasErrors = true
@@ -133,8 +152,8 @@ export default Garnish.Base.extend({
     NS.leave()
 
     const type = this._blockType
-    const typeTabs = type.getTabs()
-    const hasTabs = typeTabs.length > 0
+    const tabs = this._tabs ?? type.getTabs()
+    const hasTabs = tabs.length > 0
     const isParent = type.isParent()
     const actionBtnLabel = `${type.getName()} ${Craft.t('neo', 'Actions')}`
     const actionMenuId = `neoblock-action-menu-${this._id}`
@@ -175,12 +194,12 @@ export default Garnish.Base.extend({
               <div class="tabs_trigger" data-neo-b="${this._id}.button.toggler"></div>`)
     }
 
-    if (typeTabs.length > 1) {
+    if (tabs.length > 1) {
       elementHtml.push(`
               <div class="tabs_inner" data-neo-b="${this._id}.container.tabs">`)
 
-      for (let i = 0; i < typeTabs.length; i++) {
-        const tab = typeTabs[i]
+      for (let i = 0; i < tabs.length; i++) {
+        const tab = tabs[i]
         const tabName = tab.getName()
         const tabUid = tab.getUid()
         elementHtml.push(`
@@ -191,13 +210,13 @@ export default Garnish.Base.extend({
               </div>
               <div>
                 <button type="button" role="button" title=${Craft.t('neo', 'Tabs')} aria-controls="${tabsMenuId}" aria-label="${tabsBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.tabs" class="tabs_btn menubtn">
-                  ${typeTabs[0].getName()}
+                  ${tabs[0].getName()}
                 </button>
                 <div id="${tabsMenuId}" class="neo_block_tabs-menu menu menu--disclosure">
                   <ul>`)
 
-      for (let i = 0; i < typeTabs.length; i++) {
-        const tab = typeTabs[i]
+      for (let i = 0; i < tabs.length; i++) {
+        const tab = tabs[i]
         const tabName = tab.getName()
         const tabUid = tab.getUid()
         elementHtml.push(`
@@ -268,7 +287,7 @@ export default Garnish.Base.extend({
       if (hasTabs) {
         elementHtml.push(`
           <div class="ni_block_content" data-neo-b="${this._id}.container.content">
-            ${type.getHtml(this._id)}
+            ${this.getHtml()}
           </div>`)
       }
 
@@ -319,7 +338,7 @@ export default Garnish.Base.extend({
       return
     }
 
-    this.$foot = $(this._blockType.getJs(this._id)).filter(_resourceFilter)
+    this.$foot = $(this.getJs()).filter(_resourceFilter)
     Garnish.$bod.append(this.$foot)
 
     if (callInitUiElements) {
@@ -434,6 +453,24 @@ export default Garnish.Base.extend({
     this.$tabButton = this.$tabButton.add(this._tabsMenu.$container.find(`[data-neo-b="${this._id}.button.tab"]`))
     this.addListener(this.$tabButton, 'click', this['@setTab'])
     this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
+  },
+
+  /**
+   * @since 3.9.0
+   */
+  getHtml () {
+    return this._html !== null
+      ? this._html.replace(/__NEOBLOCK__/g, this._id)
+      : this._blockType.getHtml(this._id)
+  },
+
+  /**
+   * @since 3.9.0
+   */
+  getJs () {
+    return this._js !== null
+      ? this._js.replace(/__NEOBLOCK__/g, this._id)
+      : this._blockType.getJs(this._id)
   },
 
   destroy () {

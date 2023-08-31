@@ -1,5 +1,6 @@
 import Garnish from 'garnish'
-
+import Craft from 'craft'
+import NS from '../namespace'
 import Tab from './BlockTypeTab'
 
 const _defaults = {
@@ -14,7 +15,8 @@ const _defaults = {
   groupChildBlockTypes: true,
   childBlocks: false,
   topLevel: true,
-  tabs: [],
+  tabs: null,
+  tabNames: [],
   hasChildBlocksUiElement: false,
   creatableByUser: true,
   deletableByUser: true,
@@ -42,17 +44,22 @@ export default Garnish.Base.extend({
     this._groupChildBlockTypes = settings.groupChildBlockTypes
     this._childBlocks = settings.childBlocks
     this._topLevel = settings.topLevel
-    this._tabs = settings.tabs.tabNames?.map(
-      tab => tab instanceof Tab
-        ? tab
-        : new Tab({
-          name: tab,
-          uid: settings.tabs.tabUids[tab]
-        })
-    ) ?? []
-    this._html = settings.tabs.html ?? ''
-    this._js = settings.tabs.js ?? ''
-    this._defaultVisibleLayoutElements = settings.tabs.visibleLayoutElements ?? {}
+    this._tabNames = settings.tabNames
+    if (settings.tabs !== null) {
+      this._tabs = settings.tabs.tabNames?.map(
+        tab => tab instanceof Tab
+          ? tab
+          : new Tab({
+            name: tab,
+            uid: settings.tabs.tabUids[tab]
+          })
+      ) ?? []
+    } else {
+      this._tabs = null
+    }
+    this._html = settings.tabs?.html ?? ''
+    this._js = settings.tabs?.js ?? ''
+    this._defaultVisibleLayoutElements = settings.tabs?.visibleLayoutElements ?? {}
     this._hasChildBlocksUiElement = settings.hasChildBlocksUiElement
     this._creatableByUser = settings.creatableByUser
     this._deletableByUser = settings.deletableByUser
@@ -76,7 +83,36 @@ export default Garnish.Base.extend({
   getGroupChildBlockTypes () { return this._groupChildBlockTypes },
   getChildBlocks () { return this._childBlocks },
   getTopLevel () { return this._topLevel },
+  getTabNames () { return this._tabNames },
+
   getTabs () { return Array.from(this._tabs) },
+  async loadTabs () {
+    if (this._tabs !== null) {
+      return
+    }
+
+    const data = {
+      namespace: NS.toFieldName(),
+      blocks: [{
+        collapsed: false,
+        enabled: true,
+        level: 1,
+        type: this._id
+      }]
+    }
+    const renderedBlocks = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
+    if (renderedBlocks.data.success) {
+      const tabs = renderedBlocks.data.blocks[0].tabs
+      this._tabs = tabs.tabNames?.map(
+        tab => new Tab({
+          name: tab,
+          uid: tabs.tabUids[tab]
+        })
+      ) ?? []
+      this._html = tabs.html
+      this._js = tabs.js
+    }
+  },
 
   getHtml (blockId = null) {
     return this._replaceBlockIdPlaceholder(this._html, blockId)

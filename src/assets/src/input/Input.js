@@ -205,24 +205,7 @@ export default Garnish.Base.extend({
         return
       }
 
-      bInfo.blockType = new BlockType({
-        id: blockType.getId(),
-        fieldLayoutId: blockType.getFieldLayoutId(),
-        name: blockType.getName(),
-        handle: blockType.getHandle(),
-        enabled: blockType.getEnabled(),
-        description: blockType.getDescription(),
-        maxBlocks: blockType.getMaxBlocks(),
-        maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
-        maxChildBlocks: blockType.getMaxChildBlocks(),
-        groupChildBlockTypes: blockType.getGroupChildBlockTypes(),
-        childBlocks: blockType.getChildBlocks(),
-        topLevel: blockType.getTopLevel(),
-        hasChildBlocksUiElement: blockType.hasChildBlocksUiElement(),
-        creatableByUser: blockType.isCreatableByUser(),
-        deletableByUser: blockType.isDeletableByUser(),
-        editableByUser: blockType.isEditableByUser()
-      })
+      bInfo.blockType = blockType
       bInfo.showButtons = !this.atMaxLevels(bInfo.level)
 
       const block = new Block(bInfo)
@@ -1033,31 +1016,11 @@ export default Garnish.Base.extend({
 
         for (const renderedBlock of e.blocks) {
           const newId = Block.getNewId()
-
-          const blockType = this.getBlockTypeById(renderedBlock.type)
-          const newBlockType = new BlockType({
-            id: blockType.getId(),
-            fieldLayoutId: blockType.getFieldLayoutId(),
-            name: blockType.getName(),
-            handle: blockType.getHandle(),
-            enabled: blockType.getEnabled(),
-            maxBlocks: blockType.getMaxBlocks(),
-            maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
-            maxChildBlocks: blockType.getMaxChildBlocks(),
-            groupChildBlockTypes: blockType.getGroupChildBlockTypes(),
-            childBlocks: blockType.getChildBlocks(),
-            topLevel: blockType.getTopLevel(),
-            hasChildBlocksUiElement: blockType.hasChildBlocksUiElement(),
-            creatableByUser: blockType.isCreatableByUser(),
-            deletableByUser: blockType.isDeletableByUser(),
-            editableByUser: blockType.isEditableByUser(),
-            tabs: renderedBlock.tabs
-          })
-
           const newBlock = new Block({
             namespace: [...this._templateNs, newId],
             field: this,
-            blockType: newBlockType,
+            blockType: this.getBlockTypeById(renderedBlock.type),
+            tabs: renderedBlock.tabs,
             id: newId,
             level: renderedBlock.level | 0,
             enabled: !!renderedBlock.enabled,
@@ -1101,7 +1064,8 @@ export default Garnish.Base.extend({
     })
   },
 
-  '@newBlock' (e) {
+  async '@newBlock' (e) {
+    await e.blockType.loadTabs()
     const blockId = Block.getNewId()
     const block = new Block({
       namespace: [...this._templateNs, blockId],

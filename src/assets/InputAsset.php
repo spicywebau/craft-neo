@@ -207,7 +207,11 @@ class InputAsset extends FieldAsset
                 'groupChildBlockTypes' => (bool)$blockType->groupChildBlockTypes,
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
-                'tabs' => Neo::$plugin->blocks->renderTabs($block),
+                'tabNames' => array_map(
+                    fn($tab) => Craft::t('site', $tab->name),
+                    $blockType->getFieldLayout()->getTabs()
+                ),
+                'tabs' => null,
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'groupId' => $blockType->groupId,
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
