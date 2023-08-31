@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where Neo block structure data would be lost when soft-deleting an entry
+- Fixed an error that could occur when applying Neo block type project config changes
 
 ## 3.8.6 - 2023-08-10
 
