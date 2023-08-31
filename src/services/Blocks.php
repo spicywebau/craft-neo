@@ -28,11 +28,12 @@ class Blocks extends Component
      *
      * @param int $blockId The Neo block ID to look for.
      * @param int|null $siteId The site the Neo block should belong to.
+     * @param array $criteria
      * @return Block|null The Neo block found, if any.
      */
-    public function getBlockById(int $blockId, ?int $siteId = null): ?Block
+    public function getBlockById(int $blockId, ?int $siteId = null, array $criteria = []): ?Block
     {
-        return Craft::$app->getElements()->getElementById($blockId, Block::class, $siteId);
+        return Craft::$app->getElements()->getElementById($blockId, Block::class, $siteId, $criteria);
     }
 
     /**

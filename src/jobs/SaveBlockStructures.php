@@ -61,7 +61,7 @@ class SaveBlockStructures extends BaseJob
         $this->setProgress($queue, 0.3);
 
         foreach ($this->blocks as $b) {
-            $neoBlock = Neo::$plugin->blocks->getBlockById($b['id'], $this->siteId);
+            $neoBlock = Neo::$plugin->blocks->getBlockById($b['id'], $this->siteId, ['trashed' => null]);
 
             if ($neoBlock) {
                 $neoBlock->lft = (int)$b['lft'];

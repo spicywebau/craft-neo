@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Neo block structure data would be lost when soft-deleting an entry
+
 ## 3.8.6 - 2023-08-10
 
 ### Fixed

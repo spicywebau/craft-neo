@@ -12,6 +12,7 @@ use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
 use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
 use benf\neo\gql\types\input\Block as NeoBlockInputType;
 use benf\neo\jobs\DeleteBlock;
+use benf\neo\jobs\SaveBlockStructures;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
@@ -1166,8 +1167,22 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         if (!$element->hardDelete) {
             foreach ($blockStructures as $blockStructure) {
                 $key = $blockStructure->siteId ?? 0;
-                Neo::$plugin->blocks->saveStructure($blockStructure);
-                Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
+                $siteId = $key ?: 1;
+                Queue::push(new SaveBlockStructures([
+                    'fieldId' => $this->id,
+                    'ownerId' => $element->id,
+                    'siteId' => $siteId,
+                    'otherSupportedSiteIds' => [],
+                    'blocks' => array_map(
+                        fn($block) => [
+                            'id' => $block->id,
+                            'level' => $block->level,
+                            'lft' => $block->lft,
+                            'rgt' => $block->rgt,
+                        ],
+                        $blocksBySite[$key]
+                    ),
+                ]));
             }
         }
 
