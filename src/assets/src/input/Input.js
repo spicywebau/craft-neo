@@ -1018,15 +1018,8 @@ export default Garnish.Base.extend({
 
   _duplicate (data, block) {
     this.$form.data('elementEditor')?.pause()
-
-    let spinnerComplete = false
-    let spinnerCallback = function () {}
     this._addSpinnerAfter(block)
-    this._animateSpinnerThen(() => {
-      spinnerComplete = true
-    })
-
-    Craft.postActionRequest('neo/input/render-blocks', data, e => {
+    this._animateSpinnerThen(() => Craft.postActionRequest('neo/input/render-blocks', data, e => {
       if (e.success && e.blocks.length > 0) {
         const newBlocks = []
 
@@ -1048,36 +1041,30 @@ export default Garnish.Base.extend({
           newBlocks.push(newBlock)
         }
 
-        spinnerCallback = () => {
-          let newIndex = this._getNextBlockIndex(block)
+        let newIndex = this._getNextBlockIndex(block)
 
-          for (const newBlock of newBlocks) {
-            this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
-          }
-
-          if (!Garnish.prefersReducedMotion()) {
-            const firstBlock = newBlocks[0]
-
-            firstBlock.$container
-              .css({
-                opacity: 0,
-                marginBottom: this._$spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
-              })
-              .velocity({
-                opacity: 1,
-                marginBottom: 10
-              }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
-          }
-
-          this._removeSpinner()
-          this.$form.data('elementEditor')?.resume()
+        for (const newBlock of newBlocks) {
+          this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
         }
 
-        if (spinnerComplete) {
-          spinnerCallback()
+        if (!Garnish.prefersReducedMotion()) {
+          const firstBlock = newBlocks[0]
+
+          firstBlock.$container
+            .css({
+              opacity: 0,
+              marginBottom: this._$spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
+            })
+            .velocity({
+              opacity: 1,
+              marginBottom: 10
+            }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
         }
+
+        this._removeSpinner()
+        this.$form.data('elementEditor')?.resume()
       }
-    })
+    }))
   },
 
   async '@newBlock' (e) {
