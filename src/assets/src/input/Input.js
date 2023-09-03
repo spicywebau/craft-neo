@@ -83,6 +83,7 @@ export default Garnish.Base.extend({
   _name: null,
   _siteId: null,
   _visibleLayoutElements: {},
+  _newBlockId: 0,
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -1016,6 +1017,14 @@ export default Garnish.Base.extend({
     this._$spinner.remove()
   },
 
+  _getNewBlockId () {
+    while (this.$blocksContainer.find(`[data-neo-b-id="new${this._newBlockId}"]`).length > 0) {
+      this._newBlockId++
+    }
+
+    return `new${this._newBlockId++}`
+  },
+
   _duplicate (data, block) {
     this.$form.data('elementEditor')?.pause()
     this._addSpinnerAfter(block)
@@ -1024,7 +1033,7 @@ export default Garnish.Base.extend({
         const newBlocks = []
 
         for (const renderedBlock of e.blocks) {
-          const newId = Block.getNewId()
+          const newId = this._getNewBlockId()
           const newBlock = new Block({
             namespace: [...this._templateNs, newId],
             field: this,
@@ -1069,7 +1078,7 @@ export default Garnish.Base.extend({
 
   async '@newBlock' (e) {
     const createTheBlock = () => {
-      const blockId = Block.getNewId()
+      const blockId = this._getNewBlockId()
       const block = new Block({
         namespace: [...this._templateNs, blockId],
         field: this,
@@ -1088,7 +1097,10 @@ export default Garnish.Base.extend({
       return
     }
 
+    const elementEditor = this.$form.data('elementEditor')
+
     try {
+      elementEditor?.pause()
       const level = e.level ?? 1
       let siblingBlock
       let addAfter = true
@@ -1121,6 +1133,8 @@ export default Garnish.Base.extend({
     } catch (error) {
       this._removeSpinner()
       Craft.cp.displayError(error)
+    } finally {
+      elementEditor?.resume()
     }
   },
 

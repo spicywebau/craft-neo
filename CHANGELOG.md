@@ -10,6 +10,7 @@
 - Fixed a bug where Neo block structure data would be lost when soft-deleting an entry
 - Fixed an error that could occur when applying Neo block type project config changes
 - Fixed a bug with the placement of block type handles on input blocks on Craft 4.5, for users who have their preferences set to show field handles in edit forms
+- Fixed a bug when trying to save an entry before draft autosaving had completed following the creation of a Neo block, where any further changes to the Neo field would cause that block's contents to disappear
 
 ## 3.8.6 - 2023-08-10
 

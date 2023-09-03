@@ -1372,6 +1372,9 @@ export default Garnish.Base.extend({
 {
   _totalNewBlocks: 0,
 
+  /**
+   * @deprecated in 3.9.0
+   */
   getNewId () {
     return `new${this._totalNewBlocks++}`
   }
