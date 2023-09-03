@@ -222,6 +222,11 @@ class Input extends Controller
         $returnedBlocksData = [];
 
         foreach ($sortOrder as $i => $blockId) {
+            // Ignore new blocks for which we don't yet have saved data
+            if (!is_numeric($blockId) && !array_key_exists($i, $blockIds)) {
+                continue;
+            }
+
             $blockData = $blocksData[$blockId];
 
             // For block data with ID `newX`, make sure we get the saved version of the block
