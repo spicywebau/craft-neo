@@ -3,11 +3,13 @@
 ## Unreleased
 
 ### Changed
+- Neo now requires Craft 4.5.0 or later
 - Field layout tabs for new Neo input blocks of a certain block type are now lazy loaded when a block of that type is first created
 
 ### Fixed
 - Fixed a bug where Neo block structure data would be lost when soft-deleting an entry
 - Fixed an error that could occur when applying Neo block type project config changes
+- Fixed a bug with the placement of block type handles on input blocks on Craft 4.5, for users who have their preferences set to show field handles in edit forms
 
 ## 3.8.6 - 2023-08-10
 
