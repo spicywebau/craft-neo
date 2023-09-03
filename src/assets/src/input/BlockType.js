@@ -85,7 +85,7 @@ export default Garnish.Base.extend({
   getTopLevel () { return this._topLevel },
   getTabNames () { return this._tabNames },
 
-  getTabs () { return Array.from(this._tabs) },
+  getTabs () { return this._tabs !== null ? Array.from(this._tabs) : null },
   async loadTabs () {
     if (this._tabs !== null) {
       return

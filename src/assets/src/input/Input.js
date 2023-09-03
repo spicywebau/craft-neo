@@ -101,6 +101,9 @@ export default Garnish.Base.extend({
     this._ownerId = settings.ownerId
     this._showBlockTypeHandles = settings.showBlockTypeHandles
 
+    const animate = !Garnish.prefersReducedMotion()
+    this._$spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : Craft.t('neo', 'Loading')}</div>`)
+
     switch (settings.newBlockMenuStyle) {
       case 'grid':
         this.ButtonClass = ButtonsGrid
@@ -977,38 +980,51 @@ export default Garnish.Base.extend({
     }
   },
 
-  _duplicate (data, block) {
-    this.$form.data('elementEditor')?.pause()
-
-    const animate = !Garnish.prefersReducedMotion()
-    const $spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : 'Loading block'}</div>`)
-
+  _addSpinnerAfter (block) {
     if (typeof block !== 'undefined') {
-      block.$container.after($spinner)
+      block.$container.after(this._$spinner)
     } else {
-      this.$blocksContainer.prepend($spinner)
+      this.$blocksContainer.prepend(this._$spinner)
     }
+  },
 
-    let spinnerComplete = false
-    let spinnerCallback = function () {}
+  _addSpinnerBefore (block) {
+    if (typeof block !== 'undefined') {
+      block.$container.before(this._$spinner)
+    } else {
+      this.$blocksContainer.append(this._$spinner)
+    }
+  },
 
-    if (animate) {
-      $spinner
+  _animateSpinnerThen (callback) {
+    if (!Garnish.prefersReducedMotion()) {
+      this._$spinner
         .css({
           opacity: 0,
-          marginBottom: -($spinner.outerHeight())
+          marginBottom: -(this._$spinner.outerHeight())
         })
         .velocity({
           opacity: 1,
           marginBottom: 10
-        }, 'fast', () => {
-          spinnerComplete = true
-          spinnerCallback()
-        })
+        }, 'fast', () => callback())
     } else {
-      spinnerComplete = true
-      spinnerCallback()
+      callback()
     }
+  },
+
+  _removeSpinner () {
+    this._$spinner.remove()
+  },
+
+  _duplicate (data, block) {
+    this.$form.data('elementEditor')?.pause()
+
+    let spinnerComplete = false
+    let spinnerCallback = function () {}
+    this._addSpinnerAfter(block)
+    this._animateSpinnerThen(() => {
+      spinnerComplete = true
+    })
 
     Craft.postActionRequest('neo/input/render-blocks', data, e => {
       if (e.success && e.blocks.length > 0) {
@@ -1039,13 +1055,13 @@ export default Garnish.Base.extend({
             this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
           }
 
-          if (animate) {
+          if (!Garnish.prefersReducedMotion()) {
             const firstBlock = newBlocks[0]
 
             firstBlock.$container
               .css({
                 opacity: 0,
-                marginBottom: $spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
+                marginBottom: this._$spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
               })
               .velocity({
                 opacity: 1,
@@ -1053,7 +1069,7 @@ export default Garnish.Base.extend({
               }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
           }
 
-          $spinner.remove()
+          this._removeSpinner()
           this.$form.data('elementEditor')?.resume()
         }
 
@@ -1065,18 +1081,60 @@ export default Garnish.Base.extend({
   },
 
   async '@newBlock' (e) {
-    await e.blockType.loadTabs()
-    const blockId = Block.getNewId()
-    const block = new Block({
-      namespace: [...this._templateNs, blockId],
-      field: this,
-      blockType: e.blockType,
-      id: blockId,
-      showButtons: !this.atMaxLevels(e.level),
-      showBlockTypeHandle: this._showBlockTypeHandles
-    }, true)
+    const createTheBlock = () => {
+      const blockId = Block.getNewId()
+      const block = new Block({
+        namespace: [...this._templateNs, blockId],
+        field: this,
+        blockType: e.blockType,
+        id: blockId,
+        showButtons: !this.atMaxLevels(e.level),
+        showBlockTypeHandle: this._showBlockTypeHandles
+      }, true)
 
-    this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
+      this._removeSpinner()
+      this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
+    }
+
+    if (e.blockType.getTabs() !== null) {
+      createTheBlock()
+      return
+    }
+
+    try {
+      const level = e.level ?? 1
+      let siblingBlock
+      let addAfter = true
+
+      for (let i = typeof e.index !== 'undefined' ? e.index - 1 : this._blocks.length - 1; i >= 0; i--) {
+        // Look for the previous block at the same level as the new block, to add the spinner after
+        if (this._blocks[i].getLevel() === level) {
+          siblingBlock = this._blocks[i]
+          break
+        }
+
+        // If we've gone to a lower level, any future block we find at the same level won't be a
+        // sibling of the new block, so we need to add the spinner before the last block we checked
+        if (this._blocks[i].getLevel() < level) {
+          siblingBlock = this._blocks[i + 1]
+          addAfter = false
+        }
+      }
+
+      if (addAfter) {
+        this._addSpinnerAfter(siblingBlock)
+      } else {
+        this._addSpinnerBefore(siblingBlock)
+      }
+
+      this._animateSpinnerThen(async () => {
+        await e.blockType.loadTabs()
+        createTheBlock()
+      })
+    } catch (error) {
+      this._removeSpinner()
+      Craft.cp.displayError(error)
+    }
   },
 
   '@addBlockAbove' (e) {
