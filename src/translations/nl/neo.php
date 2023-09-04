@@ -72,9 +72,7 @@ return [
     'Neo Blocks' => 'Neo Blokken',
     'Configuration' => 'Configuratie',
     'Define the types of blocks that can be created within this Neo field, as well as the fields each block type is made up of.' => 'Definiëer de type blokken die kunnen worden aangemaakt binnen dit Neo veld, en de velden waar elk blok type uit bestaat.',
-
-    'Propagation Method' => 'Propagation Method',
-    
+    'Propagation Method' => 'Propagation Methode',
     'Which sites should blocks be saved to?' => 'Naar welke sites moeten blokken opgeslagen worden?',
     'Only save blocks to the site they were created in' => 'Sla blokken alleen op voor de site waarin ze gemaakt zijn',
     'Save blocks to other sites in the same site group' => 'Sla blokken op voor elke site binnen dezelfde site groep',
