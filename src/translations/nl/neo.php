@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'Tabs' => 'Tabs',
+    'Tabs' => 'Tabbladen',
     'Select' => 'Selecteer',
     'Disabled' => 'Uitgeschakeld',
     'Actions' => 'Acties',
