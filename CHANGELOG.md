@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added Dutch translations (thanks @lavandongen)
+
 ### Changed
 - Neo now requires Craft 4.5.0 or later
 - Field layout tabs for new Neo input blocks of a certain block type are now lazy loaded when a block of that type is first created
