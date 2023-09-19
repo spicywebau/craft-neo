@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.9.0 - 2023-09-19
 
 ### Added
 - Added Dutch translations (thanks @lavandongen)
