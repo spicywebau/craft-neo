@@ -318,7 +318,18 @@ export default Garnish.Base.extend({
     this._updateBlockChildren()
     this._updateButtons()
 
-    this._visibleLayoutElements[block.getId()] = block.getBlockType().getDefaultVisibleLayoutElements()
+    // Construct the block's visible layout elements, since they might not be the default visible
+    // layout elements for the block type, e.g. if pasting a block
+    const visibleLayoutElements = {}
+    block.$contentContainer.children('[data-layout-tab]').each((_, layoutTab) => {
+      const $layoutTab = $(layoutTab)
+      const tabUid = $layoutTab.attr('data-layout-tab')
+      visibleLayoutElements[tabUid] = []
+      $layoutTab.children('[data-layout-element]').each((_, layoutElement) => {
+        visibleLayoutElements[tabUid].push($(layoutElement).attr('data-layout-element'))
+      })
+    })
+    this._visibleLayoutElements[block.getId()] = visibleLayoutElements
 
     // Create any required child blocks, if this block has only one child block type
     const createChildBlocksIfAllowed = () => {

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that occurred when pasting Neo input blocks that use the child block UI element and have descendants, where the descendants would disappear after updating visible field layout elements for the Neo field
+
 ## 3.9.0 - 2023-09-19
 
 ### Added
