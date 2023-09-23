@@ -133,7 +133,7 @@ export default Garnish.Base.extend({
     for (const btInfo of settings.blockTypes) {
       // Filter out the block type if its group isn't included
       if (btInfo.groupId === null || typeof setGroupIds[btInfo.groupId] !== 'undefined') {
-        const blockType = new BlockType(btInfo)
+        const blockType = new BlockType(Object.assign({ field: this }, btInfo))
         this._blockTypes.push(blockType)
         tempBlockTypes[blockType.getHandle()] = blockType
       }
@@ -601,6 +601,13 @@ export default Garnish.Base.extend({
     }
 
     this._visibleLayoutElements[blockId] = visibleLayoutElements
+  },
+
+  /**
+   * @since 3.9.2
+   */
+  getNamespace () {
+    return Array.from(this._templateNs)
   },
 
   _setMatrixClassErrors () {

@@ -5,6 +5,7 @@ import Tab from './BlockTypeTab'
 
 const _defaults = {
   id: -1,
+  field: null,
   fieldLayoutId: -1,
   sortOrder: 0,
   name: '',
@@ -29,6 +30,7 @@ export default Garnish.Base.extend({
     settings = Object.assign({}, _defaults, settings)
 
     this._id = settings.id | 0
+    this._field = settings.field
     this._fieldLayoutId = settings.fieldLayoutId | 0
     this._sortOrder = settings.sortOrder | 0
     this._name = settings.name
@@ -91,6 +93,7 @@ export default Garnish.Base.extend({
       return
     }
 
+    NS.enter(this._field.getNamespace())
     const data = {
       namespace: NS.toFieldName(),
       blocks: [{
@@ -100,6 +103,8 @@ export default Garnish.Base.extend({
         type: this._id
       }]
     }
+    NS.leave()
+
     const renderedBlocks = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
     if (renderedBlocks.data.success) {
       const tabs = renderedBlocks.data.blocks[0].tabs

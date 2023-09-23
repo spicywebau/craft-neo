@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where content of newly created Neo blocks would be lost on owner element save
+
 ## 3.9.1 - 2023-09-22
 
 ### Fixed
