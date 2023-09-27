@@ -100,6 +100,7 @@ export default Garnish.Base.extend({
         collapsed: false,
         enabled: true,
         level: 1,
+        ownerId: this._field?.getOwnerId(),
         type: this._id
       }]
     }

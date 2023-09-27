@@ -610,6 +610,13 @@ export default Garnish.Base.extend({
     return Array.from(this._templateNs)
   },
 
+  /**
+   * @since 3.9.3
+   */
+  getOwnerId () {
+    return this._ownerId
+  },
+
   _setMatrixClassErrors () {
     // TODO: will need probably need to find a method within php instead of JS
     // temp solution for now.

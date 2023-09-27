@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where empty field layout tabs on Neo block types would be duplicated when saving the Neo field
+- Fixed an error that occurred when creating a new block that contains a Vizy field
 
 ## 3.9.2 - 2023-09-23
 
