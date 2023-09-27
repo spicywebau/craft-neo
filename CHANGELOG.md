@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.9.3 - 2023-09-27
 
 ### Added
 - Added the `enableLazyLoadingNewBlocks` plugin setting (defaults to `true`; setting to `false` will revert to pre-3.9.0 behaviour)
