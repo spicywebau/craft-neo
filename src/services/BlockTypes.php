@@ -35,7 +35,6 @@ use craft\helpers\Json;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
-use craft\models\FieldLayoutTab;
 use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
