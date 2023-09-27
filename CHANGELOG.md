@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the `enableLazyLoadingNewBlocks` plugin setting (defaults to `true`; setting to `false` will revert to pre-3.9.0 behaviour)
+
 ### Fixed
 - Fixed a bug where empty field layout tabs on Neo block types would be duplicated when saving the Neo field
 - Fixed an error that occurred when creating a new block that contains a Vizy field

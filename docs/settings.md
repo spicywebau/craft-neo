@@ -30,3 +30,10 @@ Type: `bool`
 Default: `true`
 
 This setting controls whether to allow setting user permissions for creating, editing and deleting blocks of a certain type. Note that, if disabled, resaving a user's or user group's permissions will cause any existing block type permissions to be lost.
+
+## `enableLazyLoadingNewBlocks`
+
+Type: `bool`
+Default: `true`
+
+This setting controls whether to lazy load input block HTML for the first new block of a type created after loading an element editor page.

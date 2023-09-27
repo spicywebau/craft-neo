@@ -177,7 +177,9 @@ class InputAsset extends FieldAsset
     private static function _getBlockTypesJsSettings(Field $field, array $blockTypes, ?ElementInterface $owner = null): array
     {
         $user = Craft::$app->getUser()->getIdentity();
-        $disablePermissions = !Neo::$plugin->getSettings()->enableBlockTypeUserPermissions;
+        $pluginSettings = Neo::$plugin->getSettings();
+        $loadTabs = !$pluginSettings->enableLazyLoadingNewBlocks;
+        $disablePermissions = !$pluginSettings->enableBlockTypeUserPermissions;
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
@@ -211,7 +213,7 @@ class InputAsset extends FieldAsset
                     fn($tab) => Craft::t('site', $tab->name),
                     $blockType->getFieldLayout()->getTabs()
                 ),
-                'tabs' => null,
+                'tabs' => $loadTabs ? Neo::$plugin->blocks->renderTabs($block) : null,
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'groupId' => $blockType->groupId,
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
