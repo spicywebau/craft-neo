@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.9.4 - 2023-09-27
 
 ### Fixed
 - Fixed a bug where nested fields that depend on external CSS or JavaScript files weren't loading correctly when lazy loading new blocks
