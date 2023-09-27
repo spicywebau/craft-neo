@@ -82,6 +82,7 @@ class Input extends Controller
         $this->requirePostRequest();
 
         $requestService = Craft::$app->getRequest();
+        $view = $this->getView();
 
         $blocks = $requestService->getRequiredBodyParam('blocks');
         $namespace = $requestService->getParam('namespace');
@@ -121,6 +122,8 @@ class Input extends Controller
         return $this->asJson([
             'success' => true,
             'blocks' => $renderedBlocks,
+            'bodyHtml' => $view->getBodyHtml(),
+            'headHtml' => $view->getHeadHtml(),
         ]);
     }
 

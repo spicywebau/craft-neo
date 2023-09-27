@@ -108,6 +108,14 @@ export default Garnish.Base.extend({
 
     const renderedBlocks = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
     if (renderedBlocks.data.success) {
+      if (renderedBlocks.data.headHtml) {
+        Craft.appendHeadHtml(renderedBlocks.data.headHtml)
+      }
+
+      if (renderedBlocks.data.bodyHtml) {
+        Craft.appendBodyHtml(renderedBlocks.data.bodyHtml)
+      }
+
       const tabs = renderedBlocks.data.blocks[0].tabs
       this._tabs = tabs.tabNames?.map(
         tab => new Tab({
