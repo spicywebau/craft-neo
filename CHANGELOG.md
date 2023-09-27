@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where nested fields that depend on external CSS or JavaScript files weren't loading correctly when lazy loading new blocks
+- Fixed an error that could occur when upgrading from Craft 3 to Craft 4 (thanks @oliver-amann)
 
 ## 3.9.3 - 2023-09-27
 
