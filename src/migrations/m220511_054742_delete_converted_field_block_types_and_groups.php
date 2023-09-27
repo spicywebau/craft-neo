@@ -36,11 +36,15 @@ class m220511_054742_delete_converted_field_block_types_and_groups extends Migra
             ->column();
 
         foreach ($blockTypeUids as $blockTypeUid) {
-            $projectConfig->remove("neoBlockTypes.$blockTypeUid");
+            if ($projectConfig->get("neoBlockTypes.$blockTypeUid", true) !== null) {
+                $projectConfig->remove("neoBlockTypes.$blockTypeUid");
+            }
         }
 
         foreach ($blockTypeGroupUids as $blockTypeGroupUid) {
-            $projectConfig->remove("neoBlockTypeGroups.$blockTypeGroupUid");
+            if ($projectConfig->get("neoBlockTypeGroups.$blockTypeGroupUid", true) !== null) {
+                $projectConfig->remove("neoBlockTypeGroups.$blockTypeGroupUid");
+            }
         }
 
         return true;
