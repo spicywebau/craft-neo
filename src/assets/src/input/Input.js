@@ -84,6 +84,7 @@ export default Garnish.Base.extend({
   _siteId: null,
   _visibleLayoutElements: {},
   _newBlockId: 0,
+  _newBlockCount: 0,
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -280,6 +281,7 @@ export default Garnish.Base.extend({
   },
 
   addBlock (block, index = -1, level = 1, animate = null, createChildBlocks = true) {
+    this._newBlockCount++
     this.$form.data('elementEditor')?.pause()
     const blockCount = this._blocks.length
     index = index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount
@@ -827,6 +829,18 @@ export default Garnish.Base.extend({
     setTimeout(() => {
       const elementEditor = this.$form.data('elementEditor')
       elementEditor?.on('update', () => {
+        // If the draft's being resaved, wait until we get the next event
+        if (elementEditor.submittingForm) {
+          return
+        }
+
+        // Don't update visible elements if the draft save was the result of creating a new block
+        if (this._newBlockCount > 0) {
+          this._newBlockCount--
+          return
+        }
+
+        elementEditor.pause()
         const siteId = elementEditor.settings.siteId
         const data = {
           blocks: {},
@@ -853,12 +867,6 @@ export default Garnish.Base.extend({
         Craft.queue.push(() => new Promise((resolve, reject) => {
           Craft.sendActionRequest('POST', 'neo/input/update-visible-elements', { data })
             .then((response) => {
-              // If the draft's been updated since, ignore the response, since we'll get a new one soon anyway
-              if (elementEditor.submittingForm) {
-                reject(Error('Form being resaved'))
-                return
-              }
-
               for (const blockId in response.data.blocks) {
                 const block = this._blocks.find((block) => block.getId() === originalBlockIds[blockId])
                 this._updateVisibleElements(
@@ -870,6 +878,7 @@ export default Garnish.Base.extend({
               resolve()
             })
             .catch(reject)
+            .finally(() => elementEditor.resume())
         }))
       })
     }, 200)

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that occurred when using the child block UI element, where creating the parent block and then creating the child block before the draft had finished saving would cause blocks to be lost
+
 ## 3.9.4 - 2023-09-27
 
 ### Fixed
