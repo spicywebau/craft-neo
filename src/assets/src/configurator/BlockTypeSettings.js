@@ -569,7 +569,7 @@ export default Settings.extend({
 
   '@onChildBlockTypeChange' (e, blockType, $checkbox) {
     const $neo = $checkbox.find('[data-neo-btsc]')
-    const $input = $neo.filter('[data-neo-btsc="input"]')
+    const $input = $neo.filter(`[data-neo-btsc="input.${blockType.getSettings().getId()}"]`)
     const $labelText = $neo.filter('[data-neo-btsc="text.label"]')
 
     switch (e.property) {

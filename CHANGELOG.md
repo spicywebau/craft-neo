@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug that occurred when using the child block UI element, where creating the parent block and then creating the child block before the draft had finished saving would cause blocks to be lost
+- Fixed a bug when creating at least two block types at once, where parent-child relations set between the new block types would not be saved
 
 ## 3.9.4 - 2023-09-27
 
