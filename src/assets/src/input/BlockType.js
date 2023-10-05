@@ -96,6 +96,7 @@ export default Garnish.Base.extend({
     NS.enter(this._field.getNamespace())
     const data = {
       namespace: NS.toFieldName(),
+      siteId: this._field?.getSiteId(),
       blocks: [{
         collapsed: false,
         enabled: true,

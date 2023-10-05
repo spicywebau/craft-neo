@@ -619,6 +619,13 @@ export default Garnish.Base.extend({
     return this._ownerId
   },
 
+  /**
+   * @since 3.9.5
+   */
+  getSiteId () {
+    return this._siteId
+  },
+
   _setMatrixClassErrors () {
     // TODO: will need probably need to find a method within php instead of JS
     // temp solution for now.
