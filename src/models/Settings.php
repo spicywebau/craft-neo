@@ -2,6 +2,7 @@
 
 namespace benf\neo\models;
 
+use benf\neo\enums\BlockTypeIconSelectMode;
 use benf\neo\enums\NewBlockMenuStyle;
 use craft\base\Model;
 
@@ -38,10 +39,22 @@ class Settings extends Model
     public string $newBlockMenuStyle = NewBlockMenuStyle::Classic;
 
     /**
+     * @var string Whether to select block type icons from a path or from asset sources.
+     * @since 3.10.0
+     */
+    public string $blockTypeIconSelectMode = BlockTypeIconSelectMode::Sources;
+
+    /**
      * @var string|array|null The asset sources block type icons can be selected from.
      * @since 3.6.0
      */
     public string|array|null $blockTypeIconSources = '*';
+
+    /**
+     * @var string|null The path block type icons can be selected from.
+     * @since 3.10.0
+     */
+    public ?string $blockTypeIconPath = '@webroot';
 
     /**
      * @var bool Whether to enable the block type user permissions feature.

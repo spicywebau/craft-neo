@@ -145,6 +145,7 @@ class SettingsAsset extends AssetBundle
                 'enabled' => $blockType->enabled,
                 'ignorePermissions' => $blockType->ignorePermissions,
                 'description' => $blockType->description,
+                'iconFilename' => $blockType->iconFilename,
                 'iconId' => $blockType->iconId,
                 'minBlocks' => $blockType->minBlocks,
                 'maxBlocks' => $blockType->maxBlocks,

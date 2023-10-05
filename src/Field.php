@@ -451,6 +451,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $newBlockType->enabled = $blockType['enabled'] ?? true;
         $newBlockType->ignorePermissions = $blockType['ignorePermissions'] ?? true;
         $newBlockType->description = $blockType['description'] ?? '';
+        $newBlockType->iconFilename = $blockType['iconFilename'] ?? '';
         $newBlockType->iconId = !empty($blockType['iconId']) ? (int)$blockType['iconId'] : null;
         $newBlockType->minBlocks = (int)($blockType['minBlocks'] ?? 0);
         $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);

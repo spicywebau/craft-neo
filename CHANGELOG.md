@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added the `blockTypeIconPath` plugin setting
+- Added the `blockTypeIconSelectMode` plugin setting
+- Added `benf\neo\enums\BlockTypeIconSelectMode`
+- Added `benf\neo\models\BlockType::$iconFilename`
+- Added `benf\neo\models\BlockType::getIconPath()`
+- Added `benf\neo\services\BlockTypes::getIconPath()`
+
 ## 3.9.5 - 2023-10-06
 
 ### Fixed

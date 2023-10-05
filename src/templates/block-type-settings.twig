@@ -43,27 +43,43 @@
         }) }}
 
         {% if neoSettings.newBlockMenuStyle != 'classic' %}
-            {{ forms.elementSelectField({
-                id: 'iconId',
-                name: 'iconId',
-                label: 'Icon'|t('neo'),
-                instructions: 'The SVG icon to use for this block type.'|t('neo'),
-                value: blockType ? [blockType.iconId] : null,
-                errors: blockType ? blockType.getErrors('iconId') : null,
-                elements: blockType and blockType.iconId ? [blockType.icon] : null,
-                elementType: 'craft\\elements\\Asset',
-                single: true,
-                viewMode: 'large',
-                sources: neoSettings.blockTypeIconSources,
-                criteria: {
-                    kind: 'image',
-                    filename: '*.svg',
-                },
-                containerAttributes: {
-                    'data-neo-bts': 'container.iconId'
-                },
-            }) }}
+            {% if neoSettings.blockTypeIconSelectMode == 'sources' %}
+                {{ forms.elementSelectField({
+                    id: 'iconId',
+                    name: 'iconId',
+                    label: 'Icon'|t('neo'),
+                    instructions: 'The SVG icon to use for this block type.'|t('neo'),
+                    value: blockType ? [blockType.iconId] : null,
+                    errors: blockType ? blockType.getErrors('iconId') : null,
+                    elements: blockType and blockType.iconId ? [blockType.icon] : null,
+                    elementType: 'craft\\elements\\Asset',
+                    single: true,
+                    viewMode: 'large',
+                    sources: neoSettings.blockTypeIconSources,
+                    criteria: {
+                        kind: 'image',
+                        filename: '*.svg',
+                    },
+                    containerAttributes: {
+                        'data-neo-bts': 'container.iconId'
+                    },
+                }) }}
+            {% else %}
+                {# TODO: icon selection based on Content Templates #}
+                {{ forms.textField({
+                    id: 'iconFilename',
+                    name: 'iconFilename',
+                    label: 'Icon Filename'|t('neo'),
+                    instructions: 'The SVG icon to use for this block type.'|t('neo'),
+                    value: blockType ? blockType.iconFilename : null,
+                    errors: blockType ? blockType.getErrors('iconFilename') : null,
+                    inputAttributes: {
+                        'data-neo-bts': 'input.iconFilename',
+                    },
+                }) }}
+            {% endif %}
         {% else %}
+            <input type="hidden" name="iconFilename" value="{{ blockType ? blockType.iconFilename : '' }}">
             <input type="hidden" name="iconId" value="{{ blockType ? blockType.iconId : '' }}">
         {% endif %}
 

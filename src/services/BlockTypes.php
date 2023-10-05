@@ -29,8 +29,10 @@ use craft\elements\GlobalSet;
 use craft\elements\Tag;
 use craft\elements\User;
 use craft\events\ConfigEvent;
+use craft\helpers\App;
 use craft\helpers\Cp;
 use craft\helpers\Db;
+use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
@@ -247,6 +249,7 @@ class BlockTypes extends Component
         $record->name = $blockType->name;
         $record->handle = $blockType->handle;
         $record->description = $blockType->description;
+        $record->iconFilename = $blockType->iconFilename;
         $record->iconId = $blockType->iconId;
         $record->enabled = $blockType->enabled;
         $record->ignorePermissions = $blockType->ignorePermissions;
@@ -472,6 +475,7 @@ class BlockTypes extends Component
             $record->name = $data['name'];
             $record->handle = $data['handle'];
             $record->description = $data['description'] ?? '';
+            $record->iconFilename = $data['iconFilename'] ?? '';
             $record->iconId = $blockTypeIcon?->id ?? null;
             $record->enabled = $data['enabled'] ?? true;
             $record->ignorePermissions = $data['ignorePermissions'] ?? true;
@@ -772,6 +776,47 @@ class BlockTypes extends Component
     }
 
     /**
+     * Gets the path of the given block type's icon, if an icon filename is set and the file exists.
+     *
+     * @param string $blockType
+     * @param array|null $transform The width and height to scale/crop the image to.
+     * @return string|null
+     * @since 3.10.0
+     */
+    public function getIconPath(BlockType $blockType, ?array $transform = null): ?string
+    {
+        if ($blockType->iconFilename === null) {
+            return null;
+        }
+
+        $iconFolder = Neo::$plugin->getSettings()->blockTypeIconPath;
+        $generalConfig = Craft::$app->getConfig()->getGeneral();
+        $resourceBasePath = rtrim(App::parseEnv($generalConfig->resourceBasePath), DIRECTORY_SEPARATOR);
+        FileHelper::createDirectory($resourceBasePath . DIRECTORY_SEPARATOR . 'neo');
+        $imagePath = rtrim(App::parseEnv($iconFolder), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($blockType->iconFilename, DIRECTORY_SEPARATOR);
+        $extension = FileHelper::getExtensionByMimeType(FileHelper::getMimeType($imagePath));
+        $size = $transform !== null ? "{$transform['width']}x{$transform['height']}" : 'full';
+        $relativeImageDest = 'neo' . DIRECTORY_SEPARATOR . hash('sha256', $imagePath) . "-$size.$extension";
+        $imageDestPath = $resourceBasePath . DIRECTORY_SEPARATOR . $relativeImageDest;
+
+        if (!file_exists($imageDestPath)) {
+            try {
+                $image = Craft::$app->getImages()->loadImage($imagePath);
+
+                if ($transform !== null) {
+                    $image->scaleAndCrop($transform['width'], $transform['height']);
+                }
+
+                $image->saveAs($imageDestPath);
+            } catch (\Exception $e) {
+                return null;
+            }
+        }
+
+        return $imageDestPath;
+    }
+
+    /**
      * Creates a basic Neo block type query.
      *
      * @return Query
@@ -798,6 +843,7 @@ class BlockTypes extends Component
         // Columns that didn't exist in Neo 3.0.0
         $maybeColumns = [
             'description',
+            'iconFilename',
             'iconId',
             'enabled',
             'ignorePermissions',
