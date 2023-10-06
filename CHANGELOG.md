@@ -6,10 +6,14 @@
 - Added the `blockTypeIconPath` plugin setting
 - Added the `blockTypeIconSelectMode` plugin setting
 - Added `benf\neo\enums\BlockTypeIconSelectMode`
+- Added `benf\neo\jobs\ResaveFieldBlockStructures`
 - Added `benf\neo\models\BlockType::$iconFilename`
 - Added `benf\neo\models\BlockType::getIconPath()`
 - Added `benf\neo\services\BlockTypes::getIconPath()`
 - Added `benf\neo\services\Fields::applyPropagationMethod()`
+
+### Fixed
+- Fixed a bug where applying a propagation method change to a Neo field would not create new block structures for the duplicated blocks
 
 ## 3.9.5 - 2023-10-06
 

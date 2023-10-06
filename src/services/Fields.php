@@ -6,6 +6,7 @@ use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
 use benf\neo\Field;
 use benf\neo\helpers\Memoize;
+use benf\neo\jobs\ResaveFieldBlockStructures;
 use benf\neo\jobs\SaveBlockStructures;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockTypeGroup;
@@ -998,6 +999,9 @@ SQL
             'criteria' => [
                 'fieldId' => $field->id,
             ],
+        ]));
+        Queue::push(new ResaveFieldBlockStructures([
+            'fieldId' => $field->id,
         ]));
     }
 
