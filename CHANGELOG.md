@@ -5,6 +5,7 @@
 ### Added
 - Added the `blockTypeIconPath` plugin setting
 - Added the `blockTypeIconSelectMode` plugin setting
+- Added `benf\neo\console\controllers\BlockTypesController::actionConvertIcons()`
 - Added `benf\neo\enums\BlockTypeIconSelectMode`
 - Added `benf\neo\jobs\ResaveFieldBlockStructures`
 - Added `benf\neo\models\BlockType::$iconFilename`

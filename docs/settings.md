@@ -20,9 +20,17 @@ This setting, which defaults to `'classic'`, controls the type of new block butt
 - `'grid'`: a new block grid using block type icons, inspired by [Vizy](https://github.com/verbb/vizy)
 - `'list'`: show new block buttons in a permanent dropdown style, that also shows block type icons
 
+## `blockTypeIconSelectMode`
+
+This setting, which currently defaults to `'sources'` (block type icons are selected from asset sources), controls whether to select block type icons from asset sources or from non-asset SVG files in a specific folder.
+
+## `blockTypeIconPath`
+
+If `newBlockMenuStyle` is set to something other than `'classic'` and `blockTypeIconSelectMode` is set to `'path'`, this setting, which defaults to `'@webroot'`, sets the folder from which non-asset SVG files can be set as block type icons.
+
 ## `blockTypeIconSources`
 
-If `newBlockMenuStyle` is set to something other than `'classic'`, this setting, which defaults to `'*'` (allowing all sources), controls which icon asset sources are allowed to be used for setting block type icons.
+If `newBlockMenuStyle` is set to something other than `'classic'` and `blockTypeIconSelectMode` is set to `'sources'`, this setting, which defaults to `'*'` (allowing all sources), controls which icon asset sources are allowed to be used for setting block type icons.
 
 ## `enableBlockTypeUserPermissions`
 
