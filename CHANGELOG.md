@@ -9,6 +9,7 @@
 - Added `benf\neo\models\BlockType::$iconFilename`
 - Added `benf\neo\models\BlockType::getIconPath()`
 - Added `benf\neo\services\BlockTypes::getIconPath()`
+- Added `benf\neo\services\Fields::applyPropagationMethod()`
 
 ## 3.9.5 - 2023-10-06
 

@@ -18,6 +18,9 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
+use craft\helpers\Queue;
+use craft\i18n\Translation;
+use craft\queue\jobs\ApplyNewPropagationMethod;
 use craft\services\Structures;
 use Illuminate\Support\Collection;
 use yii\base\Component;
@@ -979,6 +982,23 @@ SQL
             Craft::$app->getFields()->getAllFields(),
             fn($field) => $field instanceof Field
         );
+    }
+
+    /**
+     * Applies a Neo field's propagation method to its blocks.
+     *
+     * @param Field $field
+     * @since 3.10.0
+     */
+    public function applyPropagationMethod(Field $field): void
+    {
+        Queue::push(new ApplyNewPropagationMethod([
+            'description' => Translation::prep('neo', 'Applying new propagation method to Neo blocks'),
+            'elementType' => Block::class,
+            'criteria' => [
+                'fieldId' => $field->id,
+            ],
+        ]));
     }
 
     // Private Methods

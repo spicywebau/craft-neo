@@ -36,8 +36,6 @@ use craft\helpers\Gql as GqlHelper;
 use craft\helpers\Html;
 use craft\helpers\Queue;
 use craft\helpers\StringHelper;
-use craft\i18n\Translation;
-use craft\queue\jobs\ApplyNewPropagationMethod;
 use craft\services\Elements;
 use craft\validators\ArrayValidator;
 use GraphQL\Type\Definition\Type;
@@ -1002,13 +1000,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $oldPropagationKeyFormat = $this->oldSettings['propagationKeyFormat'] ?? null;
 
             if ($this->propagationMethod !== $oldPropagationMethod || $this->propagationKeyFormat !== $oldPropagationKeyFormat) {
-                Queue::push(new ApplyNewPropagationMethod([
-                    'description' => Translation::prep('neo', 'Applying new propagation method to Neo blocks'),
-                    'elementType' => Block::class,
-                    'criteria' => [
-                        'fieldId' => $this->id,
-                    ],
-                ]));
+                Neo::$plugin->fields->applyPropagationMethod($this);
             }
         }
 
