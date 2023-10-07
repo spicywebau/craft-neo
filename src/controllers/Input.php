@@ -82,6 +82,7 @@ class Input extends Controller
         $this->requirePostRequest();
 
         $requestService = Craft::$app->getRequest();
+        $view = $this->getView();
 
         $blocks = $requestService->getRequiredBodyParam('blocks');
         $namespace = $requestService->getParam('namespace');
@@ -121,6 +122,8 @@ class Input extends Controller
         return $this->asJson([
             'success' => true,
             'blocks' => $renderedBlocks,
+            'bodyHtml' => $view->getBodyHtml(),
+            'headHtml' => $view->getHeadHtml(),
         ]);
     }
 
@@ -222,6 +225,11 @@ class Input extends Controller
         $returnedBlocksData = [];
 
         foreach ($sortOrder as $i => $blockId) {
+            // Ignore new blocks for which we don't yet have saved data
+            if (!is_numeric($blockId) && !array_key_exists($i, $blockIds)) {
+                continue;
+            }
+
             $blockData = $blocksData[$blockId];
 
             // For block data with ID `newX`, make sure we get the saved version of the block
@@ -236,7 +244,7 @@ class Input extends Controller
             }
 
             $view = Craft::$app->getView();
-            $namespace = "fields[{$field->handle}][blocks][{$block->id}]";
+            $namespace = "fields[{$field->handle}][blocks][{$blockId}]";
             $fieldLayout = $block->getFieldLayout();
             $form = $fieldLayout->createForm($block, false, [
                 'namespace' => $namespace,

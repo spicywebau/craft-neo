@@ -3,11 +3,11 @@ plugins:
     edition: standard
     enabled: true
     licenseKey: null
-    schemaVersion: 3.6.2
+    schemaVersion: 3.10.0
 system:
   edition: solo
   live: true
   name: 'Neo Test'
   retryDuration: null
-  schemaVersion: 4.4.0.4
+  schemaVersion: 4.5.3.0
   timeZone: Australia/Melbourne

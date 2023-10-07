@@ -66,7 +66,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public string $schemaVersion = '3.6.2';
+    public string $schemaVersion = '3.10.0';
 
     /**
      * @inheritdoc
@@ -226,25 +226,23 @@ class Plugin extends BasePlugin
             // Delete anything in the structures table that's a Neo block structure, but doesn't exist in the
             // neoblockstructures table
             $stdout('    > deleting orphaned Neo block structure data ... ');
-            Db::delete(Table::STRUCTURES, [
-                'and',
-                [
-                    'id' => (new Query())
-                        ->select(['structureId'])
-                        ->from(['se' => Table::STRUCTUREELEMENTS])
-                        ->innerJoin(['nb' => '{{%neoblocks}}'], '[[se.elementId]] = [[nb.id]]')
-                        ->column(),
-                ],
-                [
-                    'not',
-                    [
-                        'id' => (new Query())
-                            ->select(['structureId'])
-                            ->from('{{%neoblockstructures}}')
-                            ->column(),
-                    ],
-                ],
-            ]);
+            $neoStructureIds = (new Query())
+                ->select(['structureId'])
+                ->from(['se' => Table::STRUCTUREELEMENTS])
+                ->innerJoin(['nb' => '{{%neoblocks}}'], '[[se.elementId]] = [[nb.id]]')
+                ->column();
+            $neoStructureIdsNotToDelete = (new Query())
+                ->select(['structureId'])
+                ->from('{{%neoblockstructures}}')
+                ->column();
+            $neoStructureIdsToDelete = array_diff($neoStructureIds, $neoStructureIdsNotToDelete);
+
+            foreach (array_chunk($neoStructureIdsToDelete, 1000) as $neoStructureIdChunk) {
+                Db::delete(Table::STRUCTURES, [
+                    'id' => $neoStructureIdChunk,
+                ]);
+            }
+
             $stdout("done\n", Console::FG_GREEN);
         });
     }

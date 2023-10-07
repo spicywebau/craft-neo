@@ -1,0 +1,34 @@
+{% set value = value ?: null %}
+
+<div class="nc_icon-select" data-neo-bts="container.iconFilename">
+    <div class="nc_icon-select-show" data-icon-select-show>
+        <img src="{{ initialIconUrl ?? '' }}">
+        {% if value != null %}
+            <p>{{ value }}</p>
+        {% else %}
+            <p>{{ 'None set'|t('neo') }}</p>
+        {% endif %}
+    </div>
+
+    <input type="hidden" name="iconFilename" value="{{ value ?? '' }}">
+    <div class="btn dashed add icon menubtn" data-icon-select-set>
+        {% if value == null %}
+            {{ 'Add'|t('neo') }}
+        {% else %}
+            {{ 'Replace'|t('neo') }}
+        {% endif %}
+    </div>
+    <div class="menu nc_icon-select-menu">
+        <ul class="padded">
+            {% for filename, iconUrl in iconUrls %}
+                <li>
+                    <a aria-label="{{ filename }}" data-icon-select-item>
+                        <img src="{{ iconUrl }}">
+                        <span>{{ filename }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="btn dashed delete icon{{ value == null ? ' hidden' }}" data-icon-select-remove>{{ 'Remove'|t('neo') }}</div>
+</div>

@@ -351,4 +351,53 @@ $content-padding: var(--padding);
             }
         }
     }
+
+    &_icon-select {
+
+        > .btn {
+            margin-top: 8px;
+        }
+
+        &-show {
+            > img {
+                margin: 0;
+            }
+
+            > p {
+                margin: 0;
+            }
+        }
+
+        &-menu {
+            width: 388px;
+
+            > ul {
+                display: flex;
+                flex-flow: row wrap;
+                width: 100%;
+
+                > li {
+                    display: flex;
+                    flex-direction: column;
+                    padding: 10px !important;
+                    width: 120px !important;
+
+                    > a {
+                        flex-grow: 1;
+                        padding: 10px !important;
+                        width: 120px !important;
+                        text-align: center !important;
+                        white-space: normal;
+                        cursor: pointer;
+                        body.ltr & { transform: translateX(4px); }
+                        body.rtl & { transform: translateX(-4px); }
+
+                        > img {
+                            margin: 0 auto;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

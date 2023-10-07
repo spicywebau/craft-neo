@@ -94,13 +94,7 @@ class FieldsController extends Controller
             });
 
             foreach ($neoFields as $field) {
-                Queue::push(new ApplyNewPropagationMethod([
-                    'description' => Translation::prep('neo', 'Applying new propagation method to Neo blocks'),
-                    'elementType' => Block::class,
-                    'criteria' => [
-                        'fieldId' => $field->id,
-                    ],
-                ]));
+                Neo::$plugin->fields->applyPropagationMethod($field);
             }
 
             $this->stdout($this->_jobMessage(count($neoFields)) . PHP_EOL);

@@ -90,6 +90,9 @@ class SettingsAsset extends AssetBundle
             'Delete group',
             'Couldn’t copy block type.',
             'Couldn’t create new block type.',
+            'Add',
+            'Replace',
+            'None set',
         ]);
 
         parent::registerAssetFiles($view);
@@ -115,6 +118,7 @@ class SettingsAsset extends AssetBundle
             'blockTypeSettingsHtml' => $blockTypeSettingsHtml,
             'blockTypeSettingsJs' => $blockTypeSettingsJs,
             'fieldLayoutHtml' => $fieldLayoutHtml,
+            'blockTypeGroupSettingsHtml' => Neo::$plugin->blockTypes->renderBlockTypeGroupSettings()[0],
             'defaultAlwaysShowGroupDropdowns' => Neo::$plugin->settings->defaultAlwaysShowGroupDropdowns,
         ];
 
@@ -133,17 +137,18 @@ class SettingsAsset extends AssetBundle
     {
         $view = Craft::$app->getView();
         $jsBlockTypes = [];
+        $newX = 0;
 
         foreach ($blockTypes as $blockType) {
-            [$settingsHtml, $settingsJs] = Neo::$plugin->blockTypes->renderBlockTypeSettings($blockType);
             $jsBlockTypes[] = [
-                'id' => $blockType->id,
+                'id' => $blockType->id ?: 'new' . $newX++,
                 'sortOrder' => $blockType->sortOrder,
                 'name' => $blockType->name,
                 'handle' => $blockType->handle,
                 'enabled' => $blockType->enabled,
                 'ignorePermissions' => $blockType->ignorePermissions,
                 'description' => $blockType->description,
+                'iconFilename' => $blockType->iconFilename,
                 'iconId' => $blockType->iconId,
                 'minBlocks' => $blockType->minBlocks,
                 'maxBlocks' => $blockType->maxBlocks,
@@ -155,8 +160,6 @@ class SettingsAsset extends AssetBundle
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
                 'errors' => $blockType->getErrors(),
-                'settingsHtml' => $settingsHtml,
-                'settingsJs' => $settingsJs,
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'fieldLayoutConfig' => $blockType->getFieldLayout()->getConfig(),
                 'groupId' => $blockType->groupId,
@@ -175,10 +178,11 @@ class SettingsAsset extends AssetBundle
     private static function _getBlockTypeGroupsJsSettings(array $blockTypeGroups): array
     {
         $jsBlockTypeGroups = [];
+        $newX = 0;
 
         foreach ($blockTypeGroups as $blockTypeGroup) {
             $jsBlockTypeGroups[] = [
-                'id' => $blockTypeGroup->id,
+                'id' => $blockTypeGroup->id ?: 'new' . $newX++,
                 'sortOrder' => $blockTypeGroup->sortOrder,
                 'name' => Craft::t('site', $blockTypeGroup->name),
                 'alwaysShowDropdown' => $blockTypeGroup->alwaysShowDropdown,

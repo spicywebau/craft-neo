@@ -2,6 +2,157 @@
 
 ## Unreleased
 
+### Added
+- Added the `blockTypeIconPath` plugin setting
+- Added the `blockTypeIconSelectMode` plugin setting
+- Added `benf\neo\console\controllers\BlockTypesController::actionConvertIcons()`
+- Added `benf\neo\enums\BlockTypeIconSelectMode`
+- Added `benf\neo\jobs\ResaveFieldBlockStructures`
+- Added `benf\neo\models\BlockType::$iconFilename`
+- Added `benf\neo\models\BlockType::getIconPath()`
+- Added `benf\neo\models\BlockType::getIconUrl()`
+- Added `benf\neo\services\BlockTypes::getAllIconFilenames()`
+- Added `benf\neo\services\BlockTypes::getIconPath()`
+- Added `benf\neo\services\BlockTypes::getIconUrl()`
+- Added `benf\neo\services\Fields::applyPropagationMethod()`
+
+### Fixed
+- Fixed a bug where applying a propagation method change to a Neo field would not create new block structures for the duplicated blocks
+
+## 3.9.5 - 2023-10-06
+
+### Fixed
+- Fixed a bug that occurred when using the child block UI element, where creating the parent block and then creating the child block before the draft had finished saving would cause blocks to be lost
+- Fixed a bug when creating at least two block types at once, where parent-child relations set between the new block types would not be saved
+- Fixed a bug when lazy loading new blocks, where relation element fields in new blocks would show elements from the default site, rather than the active site
+- Fixed an error that could occur when lazy loading new blocks
+
+## 3.9.4 - 2023-09-27
+
+### Fixed
+- Fixed a bug where nested fields that depend on external CSS or JavaScript files weren't loading correctly when lazy loading new blocks
+- Fixed an error that could occur when upgrading from Craft 3 to Craft 4 (thanks @oliver-amann)
+
+## 3.9.3 - 2023-09-27
+
+### Added
+- Added the `enableLazyLoadingNewBlocks` plugin setting (defaults to `true`; setting to `false` will revert to pre-3.9.0 behaviour)
+
+### Fixed
+- Fixed a bug where empty field layout tabs on Neo block types would be duplicated when saving the Neo field
+- Fixed an error that occurred when creating a new block that contains a Vizy field
+
+## 3.9.2 - 2023-09-23
+
+### Fixed
+- Fixed a bug where content of newly created Neo blocks would be lost on owner element save
+
+## 3.9.1 - 2023-09-22
+
+### Fixed
+- Fixed a bug that occurred when pasting Neo input blocks that use the child block UI element and have descendants, where the descendants would disappear after updating visible field layout elements for the Neo field
+
+## 3.9.0 - 2023-09-19
+
+### Added
+- Added Dutch translations (thanks @lavandongen)
+
+### Changed
+- Neo now requires Craft 4.5.0 or later
+- Field layout tabs for new Neo input blocks of a certain block type are now lazy loaded when a block of that type is first created
+
+### Fixed
+- Fixed a bug where Neo block structure data would be lost when soft-deleting an entry
+- Fixed an error that could occur when applying Neo block type project config changes
+- Fixed a bug with the placement of block type handles on input blocks on Craft 4.5, for users who have their preferences set to show field handles in edit forms
+- Fixed a bug when trying to save an entry before draft autosaving had completed following the creation of a Neo block, where any further changes to the Neo field would cause that block's contents to disappear
+- Fixed an error that occurred when saving an entry that uses a Neo field, if one of that field's block types had been deleted, and any block type that used the deleted block type as a child block type had not been edited
+
+## 3.8.6 - 2023-08-10
+
+### Fixed
+- Fixed an error that could occur during Craft garbage collection if the `neoblockstructures` table contained more than 65535 rows
+
+## 3.8.5 - 2023-08-08
+
+### Fixed
+- Fixed a bug that caused content loss of new Neo blocks' subfields, if the new block was created between a provisional draft saving and dynamic Neo subfield conditions being applied
+
+## 3.8.4 - 2023-08-03
+
+### Fixed
+- Fixed a bug where empty block type descriptions could be inconsistently set to either `''` or `null` (should now be consistently set to `''`)
+
+## 3.8.3 - 2023-07-25
+
+### Added
+- Added `benf\neo\services\Blocks::getStructures()`
+
+### Fixed
+- Fixed timeouts caused by Neo that could occur when saving an entry, if Craft is running with a clustered/load-balanced DB service
+
+## 3.8.2 - 2023-07-13
+
+### Fixed
+- Fixed a server error that occurred when using a slideout editor to edit an element with a Neo field
+- Fixed a bug with applying dynamic Neo subfield conditions after a draft autosave, if the draft was resaved while Neo was checking which fields should be visible
+
+## 3.8.1 - 2023-07-07
+
+### Fixed
+- Fixed visual bugs and loss of newly created block type and block type group data if validation errors occurred when saving a Neo field, and there had been more than one block type or block type group created
+
+## 3.8.0 - 2023-06-24
+
+### Added
+- Added `benf\neo\Field::getItems()`
+- Added `benf\neo\Field::setItems()`
+
+### Changed
+- When editing a Neo field's settings, block type and block type group settings are now lazy loaded
+
+### Deprecated
+- Deprecated `benf\neo\controllers\Configurator::actionRenderFieldLayout()`
+
+### Fixed
+- Fixed performance issues when loading a Neo field settings page, if the Neo field has a large number of block types
+- Fixed an SQL error that could occur when upgrading to Craft 4, if any `neoblocks` table rows referenced nonexistent element IDs
+- Fixed a bug where the copy and clone actions were still available on blocks for users who didn't have permission to create blocks of its type
+- Fixed a bug where the add block above action was still available on blocks for users who didn't have permission to create any of the sibling block types
+
+## 3.7.12 - 2023-06-16
+
+### Fixed
+- Fixed a compatibility issue with the Content Templates plugin and Neo 3.7.11
+
+## 3.7.11 - 2023-06-16
+
+### Fixed
+- Fixed a bug when creating drafts on multi-site Craft projects with a Neo field's propagation method set to an option other than "Only save blocks in the site they were created in", where some sites could end up without a Neo block structure for the draft
+
+## 3.7.10 - 2023-06-14
+
+### Fixed
+- Fixed a bug when validation errors occurred when editing an element that has more than one Neo field, where some blocks could have multiple add block buttons added
+- Fixed a bug when merging live entry changes into a draft, where newly-created blocks could end up in the wrong places in the draft's block structure
+- Fixed a bug where Neo fields would fail validation if they only contained automatically-added blocks (per the field's Min Blocks setting) and no changes were made to them
+- Fixed a bug where a block type's min and max child blocks settings weren't being cleared if the block type was set to no longer have any valid child block types
+
+## 3.7.9 - 2023-05-18
+
+### Changed
+- Neo will no longer create revision block structures using queue jobs if the Craft project's `runQueueAutomatically` general setting is disabled
+
+### Fixed
+- Fixed a bug where Neo blocks could get detached from entries when sections were enabled for a new site
+
+## 3.7.8 - 2023-05-09
+
+### Fixed
+- Fixed a bug where pasting or cloning blocks whose types' 'Group Child Block Types' setting was disabled would cause the setting not to be respected on the pasted/cloned block
+
+## 3.7.7 - 2023-05-01
+
 ### Fixed
 - Fixed a bug where setting conditions on a child blocks UI element would cause the UI element not to display
 
@@ -571,6 +722,24 @@
 
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
+
+## 2.13.19 - 2023-06-15
+
+### Fixed
+- Fixed an integrity constraint violation that could occur when saving an existing entry that has a Neo field
+
+## 2.13.18 - 2023-05-18
+
+### Changed
+- Neo will no longer create revision block structures using queue jobs if the Craft project's `runQueueAutomatically` general setting is disabled
+
+## 2.13.17 - 2023-05-02
+
+### Changed
+- When running Craft garbage collection, Neo will now delete any orphaned Neo block structure data
+
+### Fixed
+- Fixed a bug where Neo block structures belonging to provisional drafts weren't being deleted when saving the entry
 
 ## 2.13.16 - 2023-01-12
 

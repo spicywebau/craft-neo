@@ -1,11 +1,18 @@
 {% import '_includes/forms' as forms %}
 
-{% set neoSettings = craft.app.plugins.getPlugin('neo').settings %}
-{% set blockTypeSortOrder = blockType ? blockType.sortOrder : '__NEOBLOCKTYPE_SORTORDER__' %}
+{% set neo = craft.app.plugins.getPlugin('neo') %}
+{% set iconTransform = {
+    width: 100,
+    height: 100,
+} %}
+{% set iconUrls = {} %}
+{% for iconFilename in neo.blockTypes.getAllIconFilenames() %}
+    {% set iconUrls = iconUrls|merge({
+        (iconFilename): neo.blockTypes.getIconUrl(iconFilename, iconTransform),
+    }) %}
+{% endfor %}
 
 <div>
-    <input type="hidden" name="sortOrder" value="{{ blockTypeSortOrder }}" data-neo-bts="input.sortOrder">
-
     <div>
         {{ forms.textField({
             id: 'name',
@@ -45,28 +52,47 @@
             }
         }) }}
 
-        {% if neoSettings.newBlockMenuStyle != 'classic' %}
-            {{ forms.elementSelectField({
-                id: 'iconId',
-                name: 'iconId',
-                label: 'Icon'|t('neo'),
-                instructions: 'The SVG icon to use for this block type.'|t('neo'),
-                value: blockType ? [blockType.iconId] : null,
-                errors: blockType ? blockType.getErrors('iconId') : null,
-                elements: blockType and blockType.iconId ? [blockType.icon] : null,
-                elementType: 'craft\\elements\\Asset',
-                single: true,
-                viewMode: 'large',
-                sources: neoSettings.blockTypeIconSources,
-                criteria: {
-                    kind: 'image',
-                    filename: '*.svg',
-                },
-                containerAttributes: {
-                    'data-neo-bts': 'container.iconId'
-                },
-            }) }}
+        {% if neo.settings.newBlockMenuStyle != 'classic' %}
+            {% if neo.settings.blockTypeIconSelectMode == 'sources' %}
+                {{ forms.elementSelectField({
+                    id: 'iconId',
+                    name: 'iconId',
+                    label: 'Icon'|t('neo'),
+                    instructions: 'The SVG icon to use for this block type.'|t('neo'),
+                    value: blockType ? [blockType.iconId] : null,
+                    errors: blockType ? blockType.getErrors('iconId') : null,
+                    elements: blockType and blockType.iconId ? [blockType.icon] : null,
+                    elementType: 'craft\\elements\\Asset',
+                    single: true,
+                    viewMode: 'large',
+                    sources: neo.settings.blockTypeIconSources,
+                    criteria: {
+                        kind: 'image',
+                        filename: '*.svg',
+                    },
+                    containerAttributes: {
+                        'data-neo-bts': 'container.iconId'
+                    },
+                }) }}
+                <input type="hidden" name="iconFilename" value="{{ blockType ? blockType.iconFilename : '' }}">
+            {% else %}
+                {{ forms.field({
+                    id: 'iconFilename',
+                    name: 'iconFilename',
+                    label: 'Icon'|t('neo'),
+                    instructions: 'The SVG icon to use for this block type.'|t('neo'),
+                    value: blockType ? blockType.iconFilename : null,
+                    errors: blockType ? blockType.getErrors('iconFilename') : null,
+                    inputAttributes: {
+                        'data-neo-bts': 'input.iconFilename',
+                    },
+                    initialIconUrl: blockType ? blockType.getIconUrl(iconTransform) : null,
+                    iconUrls,
+                }, 'template:neo/_block-type-icon-input') }}
+                <input type="hidden" name="iconId" value="{{ blockType ? blockType.iconId : '' }}">
+            {% endif %}
         {% else %}
+            <input type="hidden" name="iconFilename" value="{{ blockType ? blockType.iconFilename : '' }}">
             <input type="hidden" name="iconId" value="{{ blockType ? blockType.iconId : '' }}">
         {% endif %}
 
@@ -146,7 +172,16 @@
                     <input type="checkbox" value="*" id="childBlocks" class="all checkbox" name="childBlocks">
                     <label for="childBlocks"><strong>{{ 'All'|t('neo') }}</strong></label>
                 </div>
-                <div data-neo-bts="container.childBlocks"></div>
+                <div data-neo-bts="container.childBlocks">
+                    {% if neoField is defined and neoField is not null %}
+                        {% for childBlockType in neoField.blockTypes %}
+                            <div data-neo-btsc="container.{{ childBlockType.id }}">
+                                <input type="checkbox" value="{{ childBlockType.handle }}" id="childBlock-{{ childBlockType.id }}" class="checkbox" name="childBlocks[]" data-neo-btsc="input.{{ childBlockType.id }}">
+                                <label for="childBlock-{{ childBlockType.id }}" data-neo-btsc="text.label">{{ childBlockType.name }}</label>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
             </div>
         {% endset %}
         {{ forms.field({

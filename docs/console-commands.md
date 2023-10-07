@@ -22,6 +22,10 @@ Edits a Neo block type group.
 
 Please note that at most one of `--set-name` and `--blank-name` can be specified.
 
+## `neo/block-types/convert-icons`
+
+Converts the icon settings from the asset source format to the filename format, for all block types that have an icon asset set but not a filename. See the documentation for the [`blockTypeIconSelectMode`](settings.md#blocktypeiconselectmode) plugin setting for more information.
+
 ## `neo/block-types/delete`
 
 Deletes a Neo block type.

@@ -72,6 +72,7 @@ class Install extends Migration
                 'name' => $this->string()->notNull(),
                 'handle' => $this->string()->notNull(),
                 'description' => $this->string(),
+                'iconFilename' => $this->string(),
                 'iconId' => $this->integer(),
                 'enabled' => $this->boolean()->defaultValue(true)->notNull(),
                 'minBlocks' => $this->smallInteger()->unsigned()->defaultValue(0),

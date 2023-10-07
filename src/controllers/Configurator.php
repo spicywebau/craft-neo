@@ -31,7 +31,7 @@ class Configurator extends Controller
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $renderedData = $this->_render();
+        $renderedData = $this->_renderBlockType();
 
         return $this->asJson([
             'success' => true,
@@ -42,10 +42,34 @@ class Configurator extends Controller
     }
 
     /**
+     * Renders settings for block type groups.
+     *
+     * @return Response
+     * @since 3.8.0
+     */
+    public function actionRenderBlockTypeGroup(): Response
+    {
+        $request = Craft::$app->getRequest();
+        $groupId = $request->getBodyParam('groupId');
+        $group = $groupId ? Neo::$plugin->blockTypes->getGroupById((int)$groupId) : null;
+        [$html, $js] = Neo::$plugin->blockTypes->renderBlockTypeGroupSettings(
+            $group,
+            'types[' . Field::class . ']',
+        );
+
+        return $this->asJson([
+            'success' => true,
+            'settingsHtml' => $html,
+            'settingsJs' => $js,
+        ]);
+    }
+
+    /**
      * Renders field layout designers for block types.
      *
      * @return Response
      * @since 3.1.0
+     * @deprecated in 3.8.0, use `actionRenderBlockType()` and access the returned object's `layoutHtml` property instead
      */
     public function actionRenderFieldLayout(): Response
     {
@@ -54,53 +78,59 @@ class Configurator extends Controller
 
         return $this->asJson([
             'success' => true,
-            'html' => $this->_render()['layoutHtml'],
+            'html' => $this->_renderBlockType()['layoutHtml'],
         ]);
     }
 
-    private function _render(): array
+    private function _renderBlockType(): array
     {
         $request = Craft::$app->getRequest();
+        $blockTypeId = $request->getBodyParam('blockTypeId');
         $settings = $request->getBodyParam('settings');
-        $layoutId = $request->getBodyParam('layoutId');
         $layoutConfig = $request->getBodyParam('layout');
+        $blockType = $blockTypeId ? Neo::$plugin->blockTypes->getById((int)$blockTypeId) : null;
 
         // Prioritise the config
         if ($layoutConfig) {
             $fieldLayout = FieldLayout::createFromConfig($layoutConfig);
             $fieldLayout->type = Block::class;
         } else {
-            $fieldLayout = $layoutId
-                ? Craft::$app->getFields()->getLayoutById($layoutId)
-                : new FieldLayout(['type' => Block::class]);
+            $fieldLayout = $blockType?->getFieldLayout() ?? new FieldLayout(['type' => Block::class]);
         }
 
-        if ($settings) {
+        if ($blockType) {
+            [$settingsHtml, $settingsJs] = Neo::$plugin->blockTypes->renderBlockTypeSettings(
+                $blockType,
+                'types[' . Field::class . ']',
+            );
+        } else {
             $newBlockType = new BlockType();
-            $newBlockType->name = $settings['name'];
-            $newBlockType->handle = $settings['handle'];
-            $newBlockType->enabled = $settings['enabled'];
-            $newBlockType->ignorePermissions = $settings['ignorePermissions'];
-            $newBlockType->description = $settings['description'] ?? '';
-            $newBlockType->iconId = $settings['iconId'];
-            $newBlockType->minBlocks = (int)$settings['minBlocks'];
-            $newBlockType->maxBlocks = (int)$settings['maxBlocks'];
-            $newBlockType->minSiblingBlocks = (int)$settings['minSiblingBlocks'];
-            $newBlockType->maxSiblingBlocks = (int)$settings['maxSiblingBlocks'];
-            $newBlockType->minChildBlocks = (int)$settings['minChildBlocks'];
-            $newBlockType->maxChildBlocks = (int)$settings['maxChildBlocks'];
-            $newBlockType->topLevel = (bool)$settings['topLevel'];
-            $newBlockType->groupChildBlockTypes = (bool)($settings['groupChildBlockTypes'] ?? true);
-            $newBlockType->childBlocks = $settings['childBlocks'] ?: null;
-            $newBlockType->sortOrder = (int)$settings['sortOrder'];
-            $newBlockType->conditions = $settings['conditions'] ?? [];
+
+            if ($settings) {
+                $newBlockType->name = $settings['name'];
+                $newBlockType->handle = $settings['handle'];
+                $newBlockType->enabled = $settings['enabled'];
+                $newBlockType->ignorePermissions = $settings['ignorePermissions'];
+                $newBlockType->description = $settings['description'] ?? '';
+                $newBlockType->iconFilename = $settings['iconFilename'] ?? '';
+                $newBlockType->iconId = $settings['iconId'];
+                $newBlockType->minBlocks = (int)$settings['minBlocks'];
+                $newBlockType->maxBlocks = (int)$settings['maxBlocks'];
+                $newBlockType->minSiblingBlocks = (int)$settings['minSiblingBlocks'];
+                $newBlockType->maxSiblingBlocks = (int)$settings['maxSiblingBlocks'];
+                $newBlockType->minChildBlocks = (int)$settings['minChildBlocks'];
+                $newBlockType->maxChildBlocks = (int)$settings['maxChildBlocks'];
+                $newBlockType->topLevel = (bool)$settings['topLevel'];
+                $newBlockType->groupChildBlockTypes = (bool)($settings['groupChildBlockTypes'] ?? true);
+                $newBlockType->childBlocks = $settings['childBlocks'] ?: null;
+                $newBlockType->sortOrder = (int)$settings['sortOrder'];
+                $newBlockType->conditions = $settings['conditions'] ?? [];
+            }
+
             [$settingsHtml, $settingsJs] = Neo::$plugin->blockTypes->renderBlockTypeSettings(
                 $newBlockType,
                 'types[' . Field::class . ']',
             );
-        } else {
-            $settingsHtml = null;
-            $settingsJs = null;
         }
 
         return [
