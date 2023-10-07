@@ -1,6 +1,16 @@
 {% import '_includes/forms' as forms %}
 
-{% set neoSettings = craft.app.plugins.getPlugin('neo').settings %}
+{% set neo = craft.app.plugins.getPlugin('neo') %}
+{% set iconTransform = {
+    width: 100,
+    height: 100,
+} %}
+{% set iconUrls = {} %}
+{% for iconFilename in neo.blockTypes.getAllIconFilenames() %}
+    {% set iconUrls = iconUrls|merge({
+        (iconFilename): neo.blockTypes.getIconUrl(iconFilename, iconTransform),
+    }) %}
+{% endfor %}
 
 <div>
     <div>
@@ -42,8 +52,8 @@
             }
         }) }}
 
-        {% if neoSettings.newBlockMenuStyle != 'classic' %}
-            {% if neoSettings.blockTypeIconSelectMode == 'sources' %}
+        {% if neo.settings.newBlockMenuStyle != 'classic' %}
+            {% if neo.settings.blockTypeIconSelectMode == 'sources' %}
                 {{ forms.elementSelectField({
                     id: 'iconId',
                     name: 'iconId',
@@ -55,7 +65,7 @@
                     elementType: 'craft\\elements\\Asset',
                     single: true,
                     viewMode: 'large',
-                    sources: neoSettings.blockTypeIconSources,
+                    sources: neo.settings.blockTypeIconSources,
                     criteria: {
                         kind: 'image',
                         filename: '*.svg',
@@ -64,19 +74,22 @@
                         'data-neo-bts': 'container.iconId'
                     },
                 }) }}
+                <input type="hidden" name="iconFilename" value="{{ blockType ? blockType.iconFilename : '' }}">
             {% else %}
-                {# TODO: icon selection based on Content Templates #}
-                {{ forms.textField({
+                {{ forms.field({
                     id: 'iconFilename',
                     name: 'iconFilename',
-                    label: 'Icon Filename'|t('neo'),
+                    label: 'Icon'|t('neo'),
                     instructions: 'The SVG icon to use for this block type.'|t('neo'),
                     value: blockType ? blockType.iconFilename : null,
                     errors: blockType ? blockType.getErrors('iconFilename') : null,
                     inputAttributes: {
                         'data-neo-bts': 'input.iconFilename',
                     },
-                }) }}
+                    initialIconUrl: blockType ? blockType.getIconUrl(iconTransform) : null,
+                    iconUrls,
+                }, 'template:neo/_block-type-icon-input') }}
+                <input type="hidden" name="iconId" value="{{ blockType ? blockType.iconId : '' }}">
             {% endif %}
         {% else %}
             <input type="hidden" name="iconFilename" value="{{ blockType ? blockType.iconFilename : '' }}">

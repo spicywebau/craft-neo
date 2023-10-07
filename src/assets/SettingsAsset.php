@@ -90,6 +90,9 @@ class SettingsAsset extends AssetBundle
             'Delete group',
             'Couldn’t copy block type.',
             'Couldn’t create new block type.',
+            'Add',
+            'Replace',
+            'None set',
         ]);
 
         parent::registerAssetFiles($view);

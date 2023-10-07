@@ -91,6 +91,11 @@ class BlockTypes extends Component
     private ?array $_conditionElementTypes = null;
 
     /**
+     * @var array
+     */
+    private array $_iconTransforms = [];
+
+    /**
      * Gets a Neo block type given its ID.
      *
      * @param int $id The block type ID to check.
@@ -776,44 +781,102 @@ class BlockTypes extends Component
     }
 
     /**
-     * Gets the path of the given block type's icon, if an icon filename is set and the file exists.
+     * Gets the filenames of all SVG files in the folder set as the `blockTypeIconPath` plugin setting.
      *
-     * @param string $blockType
+     * @return string[]
+     * @since 3.10.0
+     */
+    public function getAllIconFilenames(): array
+    {
+        $iconFolderPath = App::parseEnv(Neo::$plugin->getSettings()->blockTypeIconPath);
+        $iconPaths = FileHelper::findFiles($iconFolderPath, [
+            'only' => [
+                '*.svg',
+            ],
+            'recursive' => false,
+        ]);
+
+        return array_map(
+            fn($path) => substr($path, strlen($iconFolderPath) + 1),
+            $iconPaths
+        );
+    }
+
+    /**
+     * Gets the path of a block type's icon, if an icon filename is set and the file exists.
+     *
+     * @param BlockType|string $blockTypeOrFilename
      * @param array|null $transform The width and height to scale/crop the image to.
      * @return string|null
      * @since 3.10.0
      */
-    public function getIconPath(BlockType $blockType, ?array $transform = null): ?string
+    public function getIconPath(BlockType|string $blockTypeOrFilename, ?array $transform = null): ?string
     {
-        if ($blockType->iconFilename === null) {
-            return null;
-        }
+        $iconFilename = $blockTypeOrFilename instanceof BlockType
+            ? $blockTypeOrFilename->iconFilename
+            : $blockTypeOrFilename;
 
-        $iconFolder = Neo::$plugin->getSettings()->blockTypeIconPath;
-        $generalConfig = Craft::$app->getConfig()->getGeneral();
-        $resourceBasePath = rtrim(App::parseEnv($generalConfig->resourceBasePath), DIRECTORY_SEPARATOR);
-        FileHelper::createDirectory($resourceBasePath . DIRECTORY_SEPARATOR . 'neo');
-        $imagePath = rtrim(App::parseEnv($iconFolder), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($blockType->iconFilename, DIRECTORY_SEPARATOR);
-        $extension = FileHelper::getExtensionByMimeType(FileHelper::getMimeType($imagePath));
-        $size = $transform !== null ? "{$transform['width']}x{$transform['height']}" : 'full';
-        $relativeImageDest = 'neo' . DIRECTORY_SEPARATOR . hash('sha256', $imagePath) . "-$size.$extension";
-        $imageDestPath = $resourceBasePath . DIRECTORY_SEPARATOR . $relativeImageDest;
+        return $iconFilename !== null
+            ? $this->_transformIcon($iconFilename, $transform)[0]
+            : null;
+    }
 
-        if (!file_exists($imageDestPath)) {
-            try {
-                $image = Craft::$app->getImages()->loadImage($imagePath);
+    /**
+     * Gets the URL of a block type's icon, if an icon filename is set and the file exists.
+     *
+     * @param BlockType|string $blockTypeOrFilename
+     * @param array|null $transform The width and height to scale/crop the image to.
+     * @return string|null
+     * @since 3.10.0
+     */
+    public function getIconUrl(BlockType|string $blockTypeOrFilename, ?array $transform = null): ?string
+    {
+        $iconFilename = $blockTypeOrFilename instanceof BlockType
+            ? $blockTypeOrFilename->iconFilename
+            : $blockTypeOrFilename;
 
-                if ($transform !== null) {
-                    $image->scaleAndCrop($transform['width'], $transform['height']);
+        return $iconFilename !== null
+            ? $this->_transformIcon($iconFilename, $transform)[1]
+            : null;
+    }
+
+    private function _transformIcon(string $filename, ?array $transform = null): array
+    {
+        $key = $transform !== null
+            ? $filename . Json::encode($transform)
+            : $filename;
+
+        if (!isset($this->_iconTransforms[$key])) {
+            $iconFolder = Neo::$plugin->getSettings()->blockTypeIconPath;
+            $generalConfig = Craft::$app->getConfig()->getGeneral();
+            $resourceBasePath = rtrim(App::parseEnv($generalConfig->resourceBasePath), DIRECTORY_SEPARATOR);
+            $resourceBaseUrl = rtrim(App::parseEnv($generalConfig->resourceBaseUrl), DIRECTORY_SEPARATOR);
+            FileHelper::createDirectory($resourceBasePath . DIRECTORY_SEPARATOR . 'neo');
+            $imagePath = rtrim(App::parseEnv($iconFolder), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
+            $extension = FileHelper::getExtensionByMimeType(FileHelper::getMimeType($imagePath));
+            $size = $transform !== null ? "{$transform['width']}x{$transform['height']}" : 'full';
+            $relativeImageDest = 'neo' . DIRECTORY_SEPARATOR . hash('sha256', $imagePath) . "-$size.$extension";
+            $imageDestPath = $resourceBasePath . DIRECTORY_SEPARATOR . $relativeImageDest;
+            $imageDestUrl = $resourceBaseUrl . DIRECTORY_SEPARATOR . $relativeImageDest;
+
+            if (!file_exists($imageDestPath)) {
+                try {
+                    $image = Craft::$app->getImages()->loadImage($imagePath);
+
+                    if ($transform !== null) {
+                        $image->scaleAndCrop($transform['width'], $transform['height']);
+                    }
+
+                    $image->saveAs($imageDestPath);
+                } catch (\Exception $e) {
+                    return null;
                 }
-
-                $image->saveAs($imageDestPath);
-            } catch (\Exception $e) {
-                return null;
             }
+
+            $this->_iconTransforms[$key] = [$imageDestPath, $imageDestUrl];
         }
 
-        return $imageDestPath;
+        return $this->_iconTransforms[$key];
     }
 
     /**

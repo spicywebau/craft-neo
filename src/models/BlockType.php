@@ -283,6 +283,17 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     }
 
     /**
+     * Gets this block type's icon URL, if an icon filename is set.
+     *
+     * @return string|null
+     * @since 3.10.0
+     */
+    public function getIconUrl(?array $transform = null): ?string
+    {
+        return Neo::$plugin->blockTypes->getIconUrl($this, $transform);
+    }
+
+    /**
      * Gets this block type's icon asset, if an icon is set.
      *
      * @return Asset|null

@@ -3,6 +3,7 @@ import Craft from 'craft'
 import Garnish from 'garnish'
 import NS from '../namespace'
 import Settings from './Settings'
+import BlockTypeIconSelect from './BlockTypeIconSelect'
 
 const _defaults = {
   namespace: [],
@@ -45,6 +46,7 @@ export default Settings.extend({
   $maxSiblingBlocksInput: new $(),
   $minChildBlocksInput: new $(),
   $maxChildBlocksInput: new $(),
+  $iconContainer: new $(),
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -58,6 +60,7 @@ export default Settings.extend({
     this._errors = settings.errors
     this._settingsChildBlockTypes = settings.childBlockTypes
     this._originalSettings = settings
+    this._iconSelector = null
     this._afterCreateContainer = () => {
       this.setName(settings.name)
       this.setHandle(settings.handle)
@@ -72,6 +75,10 @@ export default Settings.extend({
       this.setMinChildBlocks(settings.minChildBlocks)
       this.setMaxChildBlocks(settings.maxChildBlocks)
       this.setTopLevel(settings.topLevel)
+
+      if (this.$iconContainer.length > 0) {
+        this._iconSelector = new BlockTypeIconSelect(this.$iconContainer[0])
+      }
     }
 
     if (typeof settings.html !== 'undefined' && settings.html !== null) {
@@ -95,6 +102,7 @@ export default Settings.extend({
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
+    this.$iconContainer = $neo.filter('[data-neo-bts="container.iconFilename"]')
     this.$iconIdContainer = $neo.filter('[data-neo-bts="container.iconId"]')
     this.$enabledInput = $neo.filter('[data-neo-bts="input.enabled"]')
     this.$enabledContainer = $neo.filter('[data-neo-bts="container.enabled"]')

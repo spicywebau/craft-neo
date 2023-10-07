@@ -10,7 +10,10 @@
 - Added `benf\neo\jobs\ResaveFieldBlockStructures`
 - Added `benf\neo\models\BlockType::$iconFilename`
 - Added `benf\neo\models\BlockType::getIconPath()`
+- Added `benf\neo\models\BlockType::getIconUrl()`
+- Added `benf\neo\services\BlockTypes::getAllIconFilenames()`
 - Added `benf\neo\services\BlockTypes::getIconPath()`
+- Added `benf\neo\services\BlockTypes::getIconUrl()`
 - Added `benf\neo\services\Fields::applyPropagationMethod()`
 
 ### Fixed
