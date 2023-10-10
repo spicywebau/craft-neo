@@ -111,6 +111,6 @@ return [
                     'plainTextField' => '3',
                 ],
             ],
-        ]
-    ]
+        ],
+    ],
 ];
