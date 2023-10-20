@@ -338,10 +338,9 @@ export default Garnish.Base.extend({
       return
     }
 
-    this.$foot = $(this.getJs()).filter(_resourceFilter)
-    Garnish.$bod.append(this.$foot)
-
     if (callInitUiElements) {
+      this.$foot = $(this.getJs()).filter(_resourceFilter)
+      Garnish.$bod.append(this.$foot)
       Craft.initUiElements(this.$contentContainer)
     }
 

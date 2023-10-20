@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when the `enableLazyLoadingNewBlocks` plugin setting was disabled, where JavaScript was being initialised twice for each existing block
+
 ## 3.9.5 - 2023-10-06
 
 ### Fixed
