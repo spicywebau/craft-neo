@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug when the `enableLazyLoadingNewBlocks` plugin setting was disabled, where JavaScript was being initialised twice for each existing block
 - Fixed a bug where published Neo blocks could be merged into the wrong place in a draft block structure in some cases
+- Fixed an error that could occur when saving an entry containing a Neo field
 
 ## 3.9.5 - 2023-10-06
 
