@@ -1158,6 +1158,7 @@ export default Garnish.Base.extend({
         if (this._blocks[i].getLevel() < level) {
           siblingBlock = this._blocks[i + 1]
           addAfter = false
+          break
         }
       }
 
