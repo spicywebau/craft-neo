@@ -474,7 +474,7 @@ export default Garnish.Base.extend({
 
   destroy () {
     if (this._initialised) {
-      this.$foot.remove()
+      this.$foot?.remove()
 
       clearInterval(this._detectChangeInterval)
 

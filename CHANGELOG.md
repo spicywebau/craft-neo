@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug with the spinner placement when lazy loading new blocks, when a new block was created with the add block above action
 - Fixed a bug where conditionally hidden fields on new blocks would not display the first time conditions were met for it to display
+Fixed a JavaScript error that occurred when deleting saved parent blocks
 
 ## 3.9.6 - 2023-10-20
 
