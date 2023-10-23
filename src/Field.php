@@ -31,6 +31,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\errors\InvalidFieldException;
 use craft\fields\conditions\EmptyFieldConditionRule;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Gql as GqlHelper;
 use craft\helpers\Html;
@@ -1187,6 +1188,48 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterElementDelete(ElementInterface $element): void
+    {
+        // Ensure draft/revision block structures aren't marked as deleted, in case $element gets restored
+        if (!$element->hardDelete) {
+            $draftIds = (new Query())
+                ->select(['id'])
+                ->from(Table::DRAFTS)
+                ->where(['canonicalId' => $element->id])
+                ->column();
+            $revisionIds = (new Query())
+                ->select(['id'])
+                ->from(Table::REVISIONS)
+                ->where(['canonicalId' => $element->id])
+                ->column();
+            $draftRevisionElementIds = (new Query())
+                ->select(['id'])
+                ->from(Table::ELEMENTS)
+                ->where([
+                    'or',
+                    ['draftId' => $draftIds],
+                    ['revisionId' => $revisionIds],
+                ])
+                ->column();
+            $structureIds = (new Query())
+                ->select(['structureId'])
+                ->from('{{%neoblockstructures}}')
+                ->where([
+                    'ownerId' => $draftRevisionElementIds,
+                    'fieldId' => $this->id,
+                ])
+                ->column();
+            Db::update(
+                Table::STRUCTURES,
+                ['dateDeleted' => null],
+                ['id' => $structureIds],
+            );
+        }
     }
 
     /**
