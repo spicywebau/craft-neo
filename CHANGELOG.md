@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.9.7 - 2023-10-23
 
 ### Fixed
 - Fixed a bug with the spinner placement when lazy loading new blocks, when a new block was created with the add block above action
