@@ -197,15 +197,25 @@ class Plugin extends BasePlugin
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $blockTypeData = [];
             $blockTypeGroupData = [];
+            $sortOrderData = [];
 
             foreach ($this->blockTypes->getAllBlockTypes() as $blockType) {
-                $blockTypeData[$blockType['uid']] = $blockType->getConfig();
+                $config = $blockType->getConfig();
+                $sortOrderData[$config['field']][$config['sortOrder']] = "blockType:$blockType->uid";
+                unset($config['sortOrder']);
+                $blockTypeData[$blockType['uid']] = $config;
             }
 
             foreach ($this->blockTypes->getAllBlockTypeGroups() as $blockTypeGroup) {
-                $blockTypeGroupData[$blockTypeGroup['uid']] = $blockTypeGroup->getConfig();
+                $config = $blockTypeGroup->getConfig();
+                $sortOrderData[$config['field']][$config['sortOrder']] = "blockTypeGroup:$blockTypeGroup->uid";
+                unset($config['sortOrder']);
+                $blockTypeGroupData[$blockTypeGroup['uid']] = $config;
             }
 
+            $event->config['neo'] = [
+                'orders' => $sortOrderData,
+            ];
             $event->config['neoBlockTypes'] = $blockTypeData;
             $event->config['neoBlockTypeGroups'] = $blockTypeGroupData;
         });
