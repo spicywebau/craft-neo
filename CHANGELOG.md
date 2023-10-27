@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.9.8 - 2023-10-27
 
 ### Added
 - Added `benf\neo\services\BlockTypes::renderSettings()`
