@@ -66,7 +66,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public string $schemaVersion = '3.10.0';
+    public string $schemaVersion = '3.10.0.1';
 
     /**
      * @inheritdoc
@@ -197,15 +197,30 @@ class Plugin extends BasePlugin
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $blockTypeData = [];
             $blockTypeGroupData = [];
+            $sortOrderData = [];
 
             foreach ($this->blockTypes->getAllBlockTypes() as $blockType) {
-                $blockTypeData[$blockType['uid']] = $blockType->getConfig();
+                $config = $blockType->getConfig();
+                $sortOrderData[$config['field']][$config['sortOrder'] - 1] = "blockType:$blockType->uid";
+                unset($config['sortOrder']);
+                $blockTypeData[$blockType['uid']] = $config;
             }
 
             foreach ($this->blockTypes->getAllBlockTypeGroups() as $blockTypeGroup) {
-                $blockTypeGroupData[$blockTypeGroup['uid']] = $blockTypeGroup->getConfig();
+                $config = $blockTypeGroup->getConfig();
+                $sortOrderData[$config['field']][$config['sortOrder'] - 1] = "blockTypeGroup:$blockTypeGroup->uid";
+                unset($config['sortOrder']);
+                $blockTypeGroupData[$blockTypeGroup['uid']] = $config;
             }
 
+            // Reset the sort order array keys, in case anything's been deleted recently
+            foreach ($sortOrderData as $fieldUid => $order) {
+                $sortOrderData[$fieldUid] = array_values($order);
+            }
+
+            $event->config['neo'] = [
+                'orders' => $sortOrderData,
+            ];
             $event->config['neoBlockTypes'] = $blockTypeData;
             $event->config['neoBlockTypeGroups'] = $blockTypeGroupData;
         });

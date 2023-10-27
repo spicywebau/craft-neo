@@ -294,7 +294,7 @@ class BlockTypes extends Component
             return false;
         }
 
-        $projectConfigService = Craft::$app->getProjectConfig();
+        $projectConfig = Craft::$app->getProjectConfig();
         $isNew = $blockType->getIsNew();
 
         if ($isNew) {
@@ -305,7 +305,7 @@ class BlockTypes extends Component
             $blockType->uid = Db::uidById('{{%neoblocktypes}}', $blockType->id);
         }
 
-        $data = $blockType->getConfig();
+        $config = $blockType->getConfig();
         $event = new BlockTypeEvent([
             'blockType' => $blockType,
             'isNew' => $isNew,
@@ -314,7 +314,10 @@ class BlockTypes extends Component
         $this->trigger(self::EVENT_BEFORE_SAVE_BLOCK_TYPE, $event);
 
         $path = 'neoBlockTypes.' . $blockType->uid;
-        $projectConfigService->set($path, $data);
+        $sortOrder = $config['sortOrder'] - 1;
+        unset($config['sortOrder']);
+        $projectConfig->set('neo.orders.' . $config['field'] . ".$sortOrder", "blockType:$blockType->uid");
+        $projectConfig->set($path, $config);
 
         return true;
     }
@@ -328,7 +331,7 @@ class BlockTypes extends Component
      */
     public function saveGroup(BlockTypeGroup $blockTypeGroup): bool
     {
-        $projectConfigService = Craft::$app->getProjectConfig();
+        $projectConfig = Craft::$app->getProjectConfig();
 
         if ($blockTypeGroup->getIsNew()) {
             $blockTypeGroup->uid = StringHelper::UUID();
@@ -337,7 +340,11 @@ class BlockTypes extends Component
         }
 
         $path = 'neoBlockTypeGroups.' . $blockTypeGroup->uid;
-        $projectConfigService->set($path, $blockTypeGroup->getConfig());
+        $config = $blockTypeGroup->getConfig();
+        $sortOrder = $config['sortOrder'] - 1;
+        unset($config['sortOrder']);
+        $projectConfig->set('neo.orders.' . $config['field'] . ".$sortOrder", "blockTypeGroup:$blockTypeGroup->uid");
+        $projectConfig->set($path, $config);
 
         if ($blockTypeGroup->getIsNew()) {
             $blockTypeGroup->id = Db::idByUid('{{%neoblocktypegroups}}', $blockTypeGroup->uid);
@@ -355,7 +362,17 @@ class BlockTypes extends Component
      */
     public function delete(BlockType $blockType): bool
     {
-        Craft::$app->getProjectConfig()->remove('neoBlockTypes.' . $blockType->uid);
+        $projectConfig = Craft::$app->getProjectConfig();
+        $fieldSortOrderPath = 'neo.orders.' . $blockType->getConfig()['field'];
+        $fieldSortOrder = $projectConfig->get($fieldSortOrderPath);
+        $key = array_search($blockType->uid, $fieldSortOrder);
+
+        if ($key) {
+            unset($fieldSortOrder[$key]);
+        }
+
+        $projectConfig->set($fieldSortOrderPath, array_values($fieldSortOrder));
+        $projectConfig->remove('neoBlockTypes.' . $blockType->uid);
 
         return true;
     }
@@ -370,7 +387,17 @@ class BlockTypes extends Component
      */
     public function deleteGroup(BlockTypeGroup $blockTypeGroup): bool
     {
-        Craft::$app->getProjectConfig()->remove('neoBlockTypeGroups.' . $blockTypeGroup->uid);
+        $projectConfig = Craft::$app->getProjectConfig();
+        $fieldSortOrderPath = 'neo.orders.' . $blockTypeGroup->getConfig()['field'];
+        $fieldSortOrder = $projectConfig->get($fieldSortOrderPath);
+        $key = array_search($blockTypeGroup->uid, $fieldSortOrder);
+
+        if ($key) {
+            unset($fieldSortOrder[$key]);
+        }
+
+        $projectConfig->set($fieldSortOrderPath, array_values($fieldSortOrder));
+        $projectConfig->remove('neoBlockTypeGroups.' . $blockTypeGroup->uid);
 
         return true;
     }
@@ -410,6 +437,7 @@ class BlockTypes extends Component
 
         // Make sure the fields have been synced
         ProjectConfigHelper::ensureAllFieldsProcessed();
+        $projectConfig->processConfigChanges('neo.orders.' . $data['field']);
 
         $fieldId = Db::idByUid('{{%fields}}', $data['field']);
 
@@ -475,6 +503,11 @@ class BlockTypes extends Component
                 $fieldsService->saveLayout($fieldLayout);
             }
 
+            $sortOrder = array_search(
+                "blockType:$uid",
+                $projectConfig->get('neo.orders.' . $data['field'])
+            ) + 1;
+
             $record->fieldId = $fieldId;
             $record->groupId = $groupId;
             $record->name = $data['name'];
@@ -484,7 +517,7 @@ class BlockTypes extends Component
             $record->iconId = $blockTypeIcon?->id ?? null;
             $record->enabled = $data['enabled'] ?? true;
             $record->ignorePermissions = $data['ignorePermissions'] ?? true;
-            $record->sortOrder = $data['sortOrder'];
+            $record->sortOrder = $sortOrder;
             $record->minBlocks = $data['minBlocks'] ?? 0;
             $record->maxBlocks = $data['maxBlocks'];
             $record->minSiblingBlocks = $data['minSiblingBlocks'] ?? 0;
@@ -507,7 +540,7 @@ class BlockTypes extends Component
             $blockType->description = $data['description'] ?? '';
             $blockType->enabled = $data['enabled'] ?? true;
             $blockType->ignorePermissions = $data['ignorePermissions'] ?? true;
-            $blockType->sortOrder = $data['sortOrder'];
+            $blockType->sortOrder = $sortOrder;
             $blockType->minBlocks = $data['minBlocks'] ?? 0;
             $blockType->maxBlocks = $data['maxBlocks'];
             $blockType->minSiblingBlocks = $data['minSiblingBlocks'] ?? 0;
@@ -611,6 +644,8 @@ class BlockTypes extends Component
 
         $data = $event->newValue;
         $dbService = Craft::$app->getDb();
+        $projectConfig = Craft::$app->getProjectConfig();
+        $projectConfig->processConfigChanges('neo.orders.' . $data['field']);
         $transaction = $dbService->beginTransaction();
 
         try {
@@ -624,14 +659,17 @@ class BlockTypes extends Component
                 if ($data) {
                     $record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
                     $record->name = $data['name'] ?? '';
-                    $record->sortOrder = $data['sortOrder'];
+                    $record->sortOrder = array_search(
+                        "blockTypeGroup:$uid",
+                        $projectConfig->get('neo.orders.' . $data['field'])
+                    ) + 1;
                     // If the Craft install was upgraded from Craft 3 / Neo 2 and the project config doesn't have
                     // `alwaysShowDropdown` set, set it to null so it falls back to the global setting
                     $record->alwaysShowDropdown = $data['alwaysShowDropdown'] ?? null;
                     $record->uid = $uid;
                     $record->save(false);
                 } else {
-                    // if $data is unavailable then it
+                    // An existing record is being deleted
                     $record->delete();
                 }
             }
@@ -672,11 +710,26 @@ class BlockTypes extends Component
     /**
      * Renders a Neo block type's settings.
      *
+     * @deprecated in 3.9.8; use `renderSettings()` instead
      * @param BlockType|null $blockType
      * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
      * @return array
      */
     public function renderBlockTypeSettings(?BlockType $blockType = null, ?string $baseNamespace = null): array
+    {
+        $settings = $this->renderSettings($blockType, $baseNamespace);
+        return [$settings['settingsHtml'], $settings['settingsJs']];
+    }
+
+    /**
+     * Renders a Neo block type's settings.
+     *
+     * @since 3.9.8
+     * @param BlockType|null $blockType
+     * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
+     * @return array
+     */
+    public function renderSettings(?BlockType $blockType = null, ?string $baseNamespace = null): array
     {
         $view = Craft::$app->getView();
         $blockTypeId = $blockType?->id ?? '__NEOBLOCKTYPE_ID__';
@@ -685,7 +738,7 @@ class BlockTypes extends Component
         $view->setNamespace($newNamespace);
         $view->startJsBuffer();
 
-        $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
+        $template = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
             'blockType' => $blockType,
             'conditions' => $this->_getConditions($blockType),
             'neoField' => $blockType?->getField(),
@@ -694,7 +747,12 @@ class BlockTypes extends Component
         $js = $view->clearJsBuffer();
         $view->setNamespace($oldNamespace);
 
-        return [$html, $js];
+        return [
+            'settingsHtml' => $template,
+            'settingsJs' => $js,
+            'bodyHtml' => $blockType ? $view->getBodyHtml() : null,
+            'headHtml' => $blockType ? $view->getHeadHtml() : null,
+        ];
     }
 
     /**

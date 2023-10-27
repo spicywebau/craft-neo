@@ -324,12 +324,12 @@ export default Garnish.Base.extend({
     // layout elements for the block type, e.g. if pasting a block
     const visibleLayoutElements = {}
     block.$contentContainer.children('[data-layout-tab]').each((_, layoutTab) => {
-      const $layoutTab = $(layoutTab)
-      const tabUid = $layoutTab.attr('data-layout-tab')
+      const tabUid = layoutTab.getAttribute('data-layout-tab')
       visibleLayoutElements[tabUid] = []
-      $layoutTab.children('[data-layout-element]').each((_, layoutElement) => {
-        visibleLayoutElements[tabUid].push($(layoutElement).attr('data-layout-element'))
-      })
+      layoutTab.querySelectorAll(':scope > [data-layout-element]:not([data-layout-element-placeholder])')
+        .forEach((layoutElement) => {
+          visibleLayoutElements[tabUid].push(layoutElement.getAttribute('data-layout-element'))
+        })
     })
     this._visibleLayoutElements[block.getId()] = visibleLayoutElements
 
@@ -1158,6 +1158,7 @@ export default Garnish.Base.extend({
         if (this._blocks[i].getLevel() < level) {
           siblingBlock = this._blocks[i + 1]
           addAfter = false
+          break
         }
       }
 

@@ -37,6 +37,8 @@ class Configurator extends Controller
             'success' => true,
             'settingsHtml' => $renderedData['settingsHtml'],
             'settingsJs' => $renderedData['settingsJs'],
+            'bodyHtml' => $renderedData['bodyHtml'],
+            'headHtml' => $renderedData['headHtml'],
             'layoutHtml' => $renderedData['layoutHtml'],
         ]);
     }
@@ -99,7 +101,7 @@ class Configurator extends Controller
         }
 
         if ($blockType) {
-            [$settingsHtml, $settingsJs] = Neo::$plugin->blockTypes->renderBlockTypeSettings(
+            $renderedSettings = Neo::$plugin->blockTypes->renderSettings(
                 $blockType,
                 'types[' . Field::class . ']',
             );
@@ -127,15 +129,17 @@ class Configurator extends Controller
                 $newBlockType->conditions = $settings['conditions'] ?? [];
             }
 
-            [$settingsHtml, $settingsJs] = Neo::$plugin->blockTypes->renderBlockTypeSettings(
+            $renderedSettings = Neo::$plugin->blockTypes->renderSettings(
                 $newBlockType,
                 'types[' . Field::class . ']',
             );
         }
 
         return [
-            'settingsHtml' => $settingsHtml,
-            'settingsJs' => $settingsJs,
+            'settingsHtml' => $renderedSettings['settingsHtml'],
+            'settingsJs' => $renderedSettings['settingsJs'],
+            'bodyHtml' => $renderedSettings['bodyHtml'],
+            'headHtml' => $renderedSettings['headHtml'],
             'layoutHtml' => Neo::$plugin->blockTypes->renderFieldLayoutDesigner($fieldLayout),
         ];
     }
