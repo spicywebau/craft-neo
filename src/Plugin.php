@@ -201,16 +201,21 @@ class Plugin extends BasePlugin
 
             foreach ($this->blockTypes->getAllBlockTypes() as $blockType) {
                 $config = $blockType->getConfig();
-                $sortOrderData[$config['field']][$config['sortOrder']] = "blockType:$blockType->uid";
+                $sortOrderData[$config['field']][$config['sortOrder'] - 1] = "blockType:$blockType->uid";
                 unset($config['sortOrder']);
                 $blockTypeData[$blockType['uid']] = $config;
             }
 
             foreach ($this->blockTypes->getAllBlockTypeGroups() as $blockTypeGroup) {
                 $config = $blockTypeGroup->getConfig();
-                $sortOrderData[$config['field']][$config['sortOrder']] = "blockTypeGroup:$blockTypeGroup->uid";
+                $sortOrderData[$config['field']][$config['sortOrder'] - 1] = "blockTypeGroup:$blockTypeGroup->uid";
                 unset($config['sortOrder']);
                 $blockTypeGroupData[$blockTypeGroup['uid']] = $config;
+            }
+
+            // Reset the sort order array keys, in case anything's been deleted recently
+            foreach ($sortOrderData as $fieldUid => $order) {
+                $sortOrderData[$fieldUid] = array_values($order);
             }
 
             $event->config['neo'] = [
