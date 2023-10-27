@@ -16,6 +16,9 @@
 - Added `benf\neo\services\BlockTypes::getIconUrl()`
 - Added `benf\neo\services\Fields::applyPropagationMethod()`
 
+### Changed
+- Block type and block type groups now have their sort orders stored in a per-field ordered array in the project config
+
 ### Fixed
 - Fixed a bug where applying a propagation method change to a Neo field would not create new block structures for the duplicated blocks
 
