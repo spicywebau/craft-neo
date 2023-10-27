@@ -338,10 +338,9 @@ export default Garnish.Base.extend({
       return
     }
 
-    this.$foot = $(this.getJs()).filter(_resourceFilter)
-    Garnish.$bod.append(this.$foot)
-
     if (callInitUiElements) {
+      this.$foot = $(this.getJs()).filter(_resourceFilter)
+      Garnish.$bod.append(this.$foot)
       Craft.initUiElements(this.$contentContainer)
     }
 
@@ -475,7 +474,7 @@ export default Garnish.Base.extend({
 
   destroy () {
     if (this._initialised) {
-      this.$foot.remove()
+      this.$foot?.remove()
 
       clearInterval(this._detectChangeInterval)
 

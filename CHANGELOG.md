@@ -19,6 +19,32 @@
 ### Fixed
 - Fixed a bug where applying a propagation method change to a Neo field would not create new block structures for the duplicated blocks
 
+## 3.9.8 - 2023-10-27
+
+### Added
+- Added `benf\neo\services\BlockTypes::renderSettings()`
+
+### Deprecated
+- Deprecated `benf\neo\services\BlockTypes::renderBlockTypeSettings()`
+
+### Fixed
+- Fixed a JavaScript error that occurred when loading the settings for a block type using the 'related to' condition
+
+## 3.9.7 - 2023-10-23
+
+### Fixed
+- Fixed a bug with the spinner placement when lazy loading new blocks, when a new block was created with the add block above action
+- Fixed a bug where conditionally hidden fields on new blocks would not display the first time conditions were met for it to display
+- Fixed a JavaScript error that occurred when deleting saved parent blocks
+- Fixed a bug where Craft garbage collection would delete block structures for drafts and revisions of elements that had been deleted and restored
+
+## 3.9.6 - 2023-10-20
+
+### Fixed
+- Fixed a bug when the `enableLazyLoadingNewBlocks` plugin setting was disabled, where JavaScript was being initialised twice for each existing block
+- Fixed a bug where published Neo blocks could be merged into the wrong place in a draft block structure in some cases
+- Fixed an error that could occur when saving an entry containing a Neo field
+
 ## 3.9.5 - 2023-10-06
 
 ### Fixed

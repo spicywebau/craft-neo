@@ -858,8 +858,15 @@ SQL
                     if (count($allBlocks) > 1) {
                         $prevBlock = $allBlocks[count($allBlocks) - 2];
 
-                        // If $prevBlock->level is lower, $newBlock is the first child block and we need to prepend
-                        $method = $prevBlock->level < $newBlock->level ? 'prepend' : 'moveAfter';
+                        if ($prevBlock->level < $newBlock->level) {
+                            // $newBlock is the first child block and we need to prepend
+                            $method = 'prepend';
+                        } elseif ($prevBlock->level === $newBlock->level && $prevBlock->sortOrder === $newBlock->sortOrder) {
+                            // $prevBlock was duplicated from the canonical owner, created above $newBlock
+                            $method = 'moveBefore';
+                        } else {
+                            $method = 'moveAfter';
+                        }
 
                         // If $prevBlock->level is higher, then $newBlock is a sibling of one of $prevBlock's ancestors,
                         // so we'll need to move $newBlock after that ancestor
