@@ -120,6 +120,14 @@ export default Item.extend({
     return new Promise((resolve, reject) => {
       Craft.sendActionRequest('POST', 'neo/configurator/render-block-type', { data })
         .then(response => {
+          if (response.data.headHtml) {
+            Craft.appendHeadHtml(response.data.headHtml)
+          }
+
+          if (response.data.bodyHtml) {
+            Craft.appendBodyHtml(response.data.bodyHtml)
+          }
+
           this._fieldLayout = new BlockTypeFieldLayout({
             namespace: [...this._templateNs, this._id],
             html: response.data.layoutHtml,

@@ -663,11 +663,26 @@ class BlockTypes extends Component
     /**
      * Renders a Neo block type's settings.
      *
+     * @deprecated in 3.9.8; use `renderSettings()` instead
      * @param BlockType|null $blockType
      * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
      * @return array
      */
     public function renderBlockTypeSettings(?BlockType $blockType = null, ?string $baseNamespace = null): array
+    {
+        $settings = $this->renderSettings($blockType, $baseNamespace);
+        return [$settings['settingsHtml'], $settings['settingsJs']];
+    }
+
+    /**
+     * Renders a Neo block type's settings.
+     *
+     * @since 3.9.8
+     * @param BlockType|null $blockType
+     * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
+     * @return array
+     */
+    public function renderSettings(?BlockType $blockType = null, ?string $baseNamespace = null): array
     {
         $view = Craft::$app->getView();
         $blockTypeId = $blockType?->id ?? '__NEOBLOCKTYPE_ID__';
@@ -676,7 +691,7 @@ class BlockTypes extends Component
         $view->setNamespace($newNamespace);
         $view->startJsBuffer();
 
-        $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
+        $template = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
             'blockType' => $blockType,
             'conditions' => $this->_getConditions($blockType),
             'neoField' => $blockType?->getField(),
@@ -685,7 +700,12 @@ class BlockTypes extends Component
         $js = $view->clearJsBuffer();
         $view->setNamespace($oldNamespace);
 
-        return [$html, $js];
+        return [
+            'settingsHtml' => $template,
+            'settingsJs' => $js,
+            'bodyHtml' => $blockType ? $view->getBodyHtml() : null,
+            'headHtml' => $blockType ? $view->getHeadHtml() : null,
+        ];
     }
 
     /**

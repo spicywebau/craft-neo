@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `benf\neo\services\BlockTypes::renderSettings()`
+
+### Deprecated
+- Deprecated `benf\neo\services\BlockTypes::renderBlockTypeSettings()`
+
+### Fixed
+- Fixed a JavaScript error that occurred when loading the settings for a block type using the 'related to' condition
+
 ## 3.9.7 - 2023-10-23
 
 ### Fixed
