@@ -503,10 +503,15 @@ class BlockTypes extends Component
                 $fieldsService->saveLayout($fieldLayout);
             }
 
-            $sortOrder = array_search(
+            // Find the sort order for this block type based on the orders saved in the project config
+            // If the sort order isn't found, assume it was passed in the old format
+            $searchedSortOrder = array_search(
                 "blockType:$uid",
-                $projectConfig->get('neo.orders.' . $data['field'])
-            ) + 1;
+                $projectConfig->get('neo.orders.' . $data['field']) ?? []
+            );
+            $sortOrder = $searchedSortOrder !== false
+                ? $searchedSortOrder + 1
+                : $data['sortOrder'];
 
             $record->fieldId = $fieldId;
             $record->groupId = $groupId;
@@ -659,10 +664,17 @@ class BlockTypes extends Component
                 if ($data) {
                     $record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
                     $record->name = $data['name'] ?? '';
-                    $record->sortOrder = array_search(
+
+                    // Find the sort order for this group based on the orders saved in the project config
+                    // If the sort order isn't found, assume it was passed in the old format
+                    $searchedSortOrder = array_search(
                         "blockTypeGroup:$uid",
-                        $projectConfig->get('neo.orders.' . $data['field'])
-                    ) + 1;
+                        $projectConfig->get('neo.orders.' . $data['field']) ?? []
+                    );
+                    $record->sortOrder = $searchedSortOrder !== false
+                        ? $searchedSortOrder + 1
+                        : $data['sortOrder'];
+
                     // If the Craft install was upgraded from Craft 3 / Neo 2 and the project config doesn't have
                     // `alwaysShowDropdown` set, set it to null so it falls back to the global setting
                     $record->alwaysShowDropdown = $data['alwaysShowDropdown'] ?? null;
