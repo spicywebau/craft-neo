@@ -3,7 +3,7 @@ plugins:
     edition: standard
     enabled: true
     licenseKey: null
-    schemaVersion: 3.10.0.1
+    schemaVersion: 4.0.0
 system:
   edition: solo
   live: true

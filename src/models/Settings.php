@@ -40,7 +40,7 @@ class Settings extends Model
 
     /**
      * @var string Whether to select block type icons from a path or from asset sources.
-     * @since 3.10.0
+     * @since 4.0.0
      */
     public string $blockTypeIconSelectMode = BlockTypeIconSelectMode::Sources;
 
@@ -52,7 +52,7 @@ class Settings extends Model
 
     /**
      * @var string|null The path block type icons can be selected from.
-     * @since 3.10.0
+     * @since 4.0.0
      */
     public ?string $blockTypeIconPath = '@webroot';
 

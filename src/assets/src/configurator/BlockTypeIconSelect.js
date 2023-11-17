@@ -2,7 +2,7 @@ import Craft from 'craft'
 
 /**
  * Class for managing the selected icon for a block type.
- * @since 3.10.0
+ * @since 4.0.0
  */
 export default class BlockTypeIconSelect {
   /**

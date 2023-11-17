@@ -854,7 +854,7 @@ class BlockTypes extends Component
      * Gets the filenames of all SVG files in the folder set as the `blockTypeIconPath` plugin setting.
      *
      * @return string[]
-     * @since 3.10.0
+     * @since 4.0.0
      */
     public function getAllIconFilenames(): array
     {
@@ -878,7 +878,7 @@ class BlockTypes extends Component
      * @param BlockType|string $blockTypeOrFilename
      * @param array|null $transform The width and height to scale/crop the image to.
      * @return string|null
-     * @since 3.10.0
+     * @since 4.0.0
      */
     public function getIconPath(BlockType|string $blockTypeOrFilename, ?array $transform = null): ?string
     {
@@ -897,7 +897,7 @@ class BlockTypes extends Component
      * @param BlockType|string $blockTypeOrFilename
      * @param array|null $transform The width and height to scale/crop the image to.
      * @return string|null
-     * @since 3.10.0
+     * @since 4.0.0
      */
     public function getIconUrl(BlockType|string $blockTypeOrFilename, ?array $transform = null): ?string
     {

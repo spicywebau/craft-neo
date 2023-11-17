@@ -17,7 +17,7 @@ use craft\queue\BaseJob;
  *
  * @package benf\neo\jobs
  * @author Spicy Web <plugins@spicyweb.com.au>
- * @since 3.10.0
+ * @since 4.0.0
  */
 class ResaveFieldBlockStructures extends BaseJob
 {

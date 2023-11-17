@@ -2,11 +2,6 @@
 
 ## Unreleased (4.x)
 
-### Changed
-- Whether a Neo block type's Top Level, Max Sibling Blocks of This Type, Child Blocks or Max Child Blocks settings have been violated is now validated server-side when saving a Neo field's contents, rather than relying on them to be enforced by client-side JavaScript
-
-## Unreleased
-
 ### Added
 - Added the `blockTypeIconPath` plugin setting
 - Added the `blockTypeIconSelectMode` plugin setting
@@ -23,6 +18,7 @@
 
 ### Changed
 - Block type and block type groups now have their sort orders stored in a per-field ordered array in the project config
+- Whether a Neo block type's Top Level, Max Sibling Blocks of This Type, Child Blocks or Max Child Blocks settings have been violated is now validated server-side when saving a Neo field's contents, rather than relying on them to be enforced by client-side JavaScript
 
 ### Fixed
 - Fixed a bug where applying a propagation method change to a Neo field would not create new block structures for the duplicated blocks
