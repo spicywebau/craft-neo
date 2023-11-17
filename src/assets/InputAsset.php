@@ -11,6 +11,7 @@ use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
 use craft\helpers\Json;
+use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use yii\base\Event;
 
@@ -22,7 +23,7 @@ use yii\base\Event;
  * @author Benjamin Fleming
  * @since 3.0.0
  */
-class InputAsset extends FieldAsset
+class InputAsset extends AssetBundle
 {
     /**
      * Event that allows filtering what block types are available for a given field.

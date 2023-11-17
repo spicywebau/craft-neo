@@ -20,6 +20,20 @@
 - Block type and block type groups now have their sort orders stored in a per-field ordered array in the project config
 - Whether a Neo block type's Top Level, Max Sibling Blocks of This Type, Child Blocks or Max Child Blocks settings have been violated is now validated server-side when saving a Neo field's contents, rather than relying on them to be enforced by client-side JavaScript
 
+### Removed
+- Removed `benf\neo\assets\FieldAsset`; use `benf\neo\assets\InputAsset` instead
+- Removed `benf\neo\assets\SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES`; use `benf\neo\services\BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES` instead
+- Removed `benf\neo\controllers\Configurator::actionRenderFieldLayout()`; use `benf\neo\controllers\Configurator::actionRenderBlockType()` and access the returned array's `layoutHtml` value instead
+- Removed `benf\neo\services\BlockTypes::renderBlockTypeSettings()`; use `benf\neo\services\BlockTypes::renderSettings()` and access the returned array's `settingsHtml` and `settingsJs` values instead
+- Removed `benf\neo\tasks\DuplicateNeoStructureTask`; use `benf\neo\jobs\SaveBlockStructures` instead
+- Removed the `Block.getNewId()` JavaScript method
+- Removed the `Block.updateMenuStates()` JavaScript method; use `Block.updateActionsMenu()` instead
+- Removed the `BlockType.loadFieldLayout()` JavaScript method; use `BlockType.load()` instead
+- Removed the `BlockTypeSettings.setSortOrder()` JavaScript method
+- Removed the `GroupSettings.setSortOrder()` JavaScript method
+- Removed the `Settings.getSortOrder()` JavaScript method
+- Removed the `Settings.setSortOrder()` JavaScript method
+
 ### Fixed
 - Fixed a bug where applying a propagation method change to a Neo field would not create new block structures for the duplicated blocks
 

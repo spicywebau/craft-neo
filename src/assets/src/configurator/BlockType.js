@@ -92,13 +92,6 @@ export default Item.extend({
   },
 
   /**
-   * @deprecated in 3.8.0, use load() instead
-   */
-  loadFieldLayout () {
-    this.load()
-  },
-
-  /**
    * @inheritDoc
    */
   load () {
@@ -108,7 +101,6 @@ export default Item.extend({
     }
 
     this.trigger('beforeLoad')
-    this.trigger('beforeLoadFieldLayout') // TODO: remove in 4.0.0
     const settings = this.getSettings()
     const layout = settings.getFieldLayoutConfig()
     const layoutId = settings.getFieldLayoutId()
@@ -141,7 +133,6 @@ export default Item.extend({
           this._loaded = true
 
           this.trigger('afterLoad')
-          this.trigger('afterLoadFieldLayout') // TODO: remove in 4.0.0
           resolve()
         })
         .catch(reject)

@@ -2,7 +2,6 @@
 
 namespace benf\neo\services;
 
-use benf\neo\assets\SettingsAsset;
 use benf\neo\elements\Block;
 use benf\neo\errors\BlockTypeNotFoundException;
 use benf\neo\events\BlockTypeEvent;
@@ -722,20 +721,6 @@ class BlockTypes extends Component
     /**
      * Renders a Neo block type's settings.
      *
-     * @deprecated in 3.9.8; use `renderSettings()` instead
-     * @param BlockType|null $blockType
-     * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
-     * @return array
-     */
-    public function renderBlockTypeSettings(?BlockType $blockType = null, ?string $baseNamespace = null): array
-    {
-        $settings = $this->renderSettings($blockType, $baseNamespace);
-        return [$settings['settingsHtml'], $settings['settingsJs']];
-    }
-
-    /**
-     * Renders a Neo block type's settings.
-     *
      * @since 3.9.8
      * @param BlockType|null $blockType
      * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
@@ -1079,17 +1064,11 @@ class BlockTypes extends Component
     private function _getConditions(?BlockType $blockType = null): array
     {
         if ($this->_conditionElementTypes === null) {
-            // TODO: remove $event1 in Neo 4
-            $event1 = new SetConditionElementTypesEvent([
+            $event = new SetConditionElementTypesEvent([
                 'elementTypes' => $this->_getSupportedConditionElementTypes(),
             ]);
-            Event::trigger(SettingsAsset::class, SettingsAsset::EVENT_SET_CONDITION_ELEMENT_TYPES, $event1);
-
-            $event2 = new SetConditionElementTypesEvent([
-                'elementTypes' => $event1->elementTypes,
-            ]);
-            $this->trigger(self::EVENT_SET_CONDITION_ELEMENT_TYPES, $event2);
-            $this->_conditionElementTypes = $event2->elementTypes;
+            $this->trigger(self::EVENT_SET_CONDITION_ELEMENT_TYPES, $event);
+            $this->_conditionElementTypes = $event->elementTypes;
         }
 
         $conditionsService = Craft::$app->getConditions();

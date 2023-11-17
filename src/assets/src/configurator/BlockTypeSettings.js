@@ -239,13 +239,6 @@ export default Settings.extend({
     return this._errors
   },
 
-  /**
-   * @deprecated in 3.8.0
-   */
-  setSortOrder (_) {
-    console.warn('BlockTypeSettings.setSortOrder() is deprecated and no longer used.')
-  },
-
   getName () { return this._name ?? this._originalSettings.name },
   setName (name) {
     if (name !== this._name) {

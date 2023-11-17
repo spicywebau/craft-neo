@@ -1069,19 +1069,10 @@ export default Garnish.Base.extend({
     // This is safe since allowedBlockTypes is only used to check if paste/add block actions should be disabled
     allowedBlockTypes = allowedBlockTypes.filter((bt) => bt.isCreatableByUser())
 
-    this.updateMenuStates(
-      this._field.getName(),
-      blocks,
-      this._field.getMaxBlocks(),
-      true,
-      allowedBlockTypes,
-      this._level === 1 ? this._field.getMaxTopBlocks() : 0
-    )
-  },
-
-  // Deprecated in 3.0.4; use `updateActionsMenu()` instead
-  updateMenuStates (field, blocks = [], maxBlocks = 0, additionalCheck = null, allowedBlockTypes = false, maxTopBlocks = 0) {
-    additionalCheck = typeof additionalCheck === 'boolean' ? additionalCheck : true
+    const field = this._field.getName()
+    const maxBlocks = this._field.getMaxBlocks()
+    const additionalCheck = true
+    const maxTopBlocks = this._level === 1 ? this._field.getMaxTopBlocks() : 0
     const noAllowedBlockTypes = !allowedBlockTypes || allowedBlockTypes.length === 0
 
     const blockType = this.getBlockType()
@@ -1366,15 +1357,5 @@ export default Garnish.Base.extend({
     const tabName = $tab.attr('data-neo-b-info')
 
     this.selectTab(tabName)
-  }
-},
-{
-  _totalNewBlocks: 0,
-
-  /**
-   * @deprecated in 3.9.0
-   */
-  getNewId () {
-    return `new${this._totalNewBlocks++}`
   }
 })
