@@ -996,7 +996,7 @@ SQL
      * Applies a Neo field's propagation method to its blocks.
      *
      * @param Field $field
-     * @since 3.10.0
+     * @since 4.0.0
      */
     public function applyPropagationMethod(Field $field): void
     {

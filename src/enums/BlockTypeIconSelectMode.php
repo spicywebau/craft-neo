@@ -7,7 +7,7 @@ namespace benf\neo\enums;
  *
  * @package benf\neo\enums
  * @author Spicy Web <plugins@spicyweb.com.au>
- * @since 3.10.0
+ * @since 4.0.0
  */
 abstract class BlockTypeIconSelectMode
 {

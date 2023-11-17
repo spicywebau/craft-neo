@@ -276,11 +276,13 @@ class Block extends Element implements BlockElementInterface
         $validates = parent::validate($attributeNames, $clearErrors);
 
         if ($this->getScenario() === Element::SCENARIO_LIVE) {
-            // Check the block type's min child blocks
+            // Check the block type's min/max child blocks
             $blockType = $this->getType();
+            $childCount = $this->getChildren()->count();
             $minChildBlocks = $blockType->minChildBlocks;
+            $maxChildBlocks = $blockType->maxChildBlocks;
 
-            if ($minChildBlocks > 0 && $this->getChildren()->count() < $minChildBlocks) {
+            if ($childCount < $minChildBlocks) {
                 $validates = false;
                 $this->addError(
                     '__NEO_MIN_CHILD_BLOCKS__',
@@ -289,6 +291,48 @@ class Block extends Element implements BlockElementInterface
                         'min' => $minChildBlocks,
                     ])
                 );
+            }
+
+            if ($maxChildBlocks > 0 && $childCount > $maxChildBlocks) {
+                $validates = false;
+                $this->addError(
+                    '__NEO_MAX_CHILD_BLOCKS__',
+                    Craft::t('neo', 'Blocks of type {type} must have at most {max, number} child {max, plural, one{block} other{blocks}}.', [
+                        'type' => Craft::t('site', $blockType->name),
+                        'max' => $maxChildBlocks,
+                    ])
+                );
+            }
+
+            // Check whether the block type is at the top level and allowed to exist there
+            if ($this->level == 1 && !$blockType->topLevel) {
+                $validates = false;
+                $this->addError(
+                    '__NEO_TOP_LEVEL__',
+                    Craft::t('neo', 'Blocks of type {type} are not allowed at the top level.', [
+                        'type' => Craft::t('site', $blockType->name),
+                    ])
+                );
+            }
+
+            // Check whether this block is a valid child block for its parent
+            if (($parent = $this->getParent()) !== null) {
+                $parentBlockType = $parent->getType();
+                $parentAllowedChildTypes = $parentBlockType->childBlocks;
+
+                if (
+                    empty($parentAllowedChildTypes) ||
+                    is_array($parentAllowedChildTypes) && !in_array($blockType->handle, $parentAllowedChildTypes)
+                ) {
+                    $validates = false;
+                    $this->addError(
+                        '__NEO_CHILD_BLOCKS__',
+                        Craft::t('neo', 'Blocks of type {childType} are not allowed as children of blocks of type {parentType}.', [
+                            'childType' => Craft::t('site', $blockType->name),
+                            'parentType' => Craft::t('site', $parentBlockType->name),
+                        ])
+                    );
+                }
             }
         }
 

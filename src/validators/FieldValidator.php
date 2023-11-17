@@ -3,6 +3,7 @@
 namespace benf\neo\validators;
 
 use benf\neo\elements\Block;
+use benf\neo\Field;
 use Craft;
 use yii\validators\Validator;
 
@@ -79,9 +80,20 @@ class FieldValidator extends Validator
     public ?string $tooFewSiblingBlocks = null;
 
     /**
+     * @var string|null A user-defined error message to be used if a block type's `maxSiblingBlocks` setting is violated.
+     * @since 4.0.0
+     */
+    public ?string $tooManySiblingBlocks = null;
+
+    /**
      * @var Block[]
      */
     private array $_blocks = [];
+
+    /**
+     * @var Field
+     */
+    private ?Field $_field = null;
 
     /**
      * @var Block[]
@@ -95,17 +107,71 @@ class FieldValidator extends Validator
     {
         $this->_setDefaultErrorMessages();
 
-        $field = $model->getFieldLayout()->getFieldByHandle($attribute);
-        $value = $model->$attribute;
-        $this->_blocks = $value->status(null)->all();
+        $this->_field = $model->getFieldLayout()->getFieldByHandle($attribute);
+        $this->_blocks = $model->$attribute->status(null)->all();
         $this->_enabledBlocks = array_filter($this->_blocks, fn($block) => $block->enabled);
 
         $this->_checkTopLevelBlocks($model, $attribute);
         $this->_checkMinLevels($model, $attribute);
         $this->_checkMaxLevels($model, $attribute);
+        $this->_checkBlockTypeBlockConstraints($model, $attribute);
+    }
 
-        // Check for block type block constraints
-        // TODO: validate max sibling blocks by type in Neo 4, arguably a breaking change before then
+    /**
+     * Adds an error if the field violates its min or max top-level blocks settings.
+     */
+    private function _checkTopLevelBlocks($model, $attribute): void
+    {
+        if ($this->minTopBlocks !== null || $this->maxTopBlocks !== null) {
+            $topBlocks = array_filter($this->_enabledBlocks, fn($block) => (int)$block->level === 1);
+
+            if ($this->minTopBlocks !== null && count($topBlocks) < $this->minTopBlocks) {
+                $this->addError($model, $attribute, $this->tooFewTopBlocks, ['minTopBlocks' => $this->minTopBlocks]);
+            }
+
+            if ($this->maxTopBlocks !== null && count($topBlocks) > $this->maxTopBlocks) {
+                $this->addError($model, $attribute, $this->tooManyTopBlocks, ['maxTopBlocks' => $this->maxTopBlocks]);
+            }
+        }
+    }
+
+    /**
+     * Adds an error if the field exceeds its min levels.
+     */
+    private function _checkMinLevels($model, $attribute): void
+    {
+        $minLevels = $this->minLevels;
+
+        if ($minLevels !== null) {
+            $blocksAtMinLevels = array_filter($this->_enabledBlocks, fn($block) => ((int)$block->level) >= $minLevels);
+
+            if (empty($blocksAtMinLevels)) {
+                $this->addError($model, $attribute, $this->exceedsMinLevels, ['minLevels' => $this->minLevels]);
+            }
+        }
+    }
+
+    /**
+     * Adds an error if the field exceeds its max levels.
+     */
+    private function _checkMaxLevels($model, $attribute): void
+    {
+        $maxLevels = $this->maxLevels;
+
+        if ($maxLevels !== null) {
+            $tooHighBlocks = array_filter($this->_enabledBlocks, fn($block) => ((int)$block->level) > $maxLevels);
+
+            if (!empty($tooHighBlocks)) {
+                $this->addError($model, $attribute, $this->exceedsMaxLevels, ['maxLevels' => $this->maxLevels]);
+            }
+        }
+    }
+
+    /**
+     * Adds errors if block type block constraints are violated.
+     */
+    private function _checkBlockTypeBlockConstraints($model, $attribute): void
+    {
         $blockTypesCount = [];
         $blockTypesById = [];
         $blockTypesByHandle = [];
@@ -114,7 +180,7 @@ class FieldValidator extends Validator
         $blockSiblingCount = [];
         $blockAncestors = [null];
         $lastBlock = null;
-        $blockTypes = $field->getBlockTypes();
+        $blockTypes = $this->_field->getBlockTypes();
         $newCounter = 0;
 
         foreach ($blockTypes as $blockType) {
@@ -208,7 +274,7 @@ class FieldValidator extends Validator
             }
         }
 
-        // Check the block sibling counts for any violations of minSiblingBlocks
+        // Check the block sibling counts for any violations of minSiblingBlocks or maxSiblingBlocks
         foreach ($blockSiblingCount as $childBlockTypeCount) {
             $childBlockTypes = array_map(fn($id) => $blockTypesById[$id], array_keys($childBlockTypeCount));
 
@@ -224,56 +290,21 @@ class FieldValidator extends Validator
                         ]
                     );
                 }
-            }
-        }
-    }
 
-    /**
-     * Adds an error if the field violates its min or max top-level blocks settings.
-     */
-    private function _checkTopLevelBlocks($model, $attribute): void
-    {
-        if ($this->minTopBlocks !== null || $this->maxTopBlocks !== null) {
-            $topBlocks = array_filter($this->_enabledBlocks, fn($block) => (int)$block->level === 1);
-
-            if ($this->minTopBlocks !== null && count($topBlocks) < $this->minTopBlocks) {
-                $this->addError($model, $attribute, $this->tooFewTopBlocks, ['minTopBlocks' => $this->minTopBlocks]);
-            }
-
-            if ($this->maxTopBlocks !== null && count($topBlocks) > $this->maxTopBlocks) {
-                $this->addError($model, $attribute, $this->tooManyTopBlocks, ['maxTopBlocks' => $this->maxTopBlocks]);
-            }
-        }
-    }
-
-    /**
-     * Adds an error if the field exceeds its min levels.
-     */
-    private function _checkMinLevels($model, $attribute): void
-    {
-        $minLevels = $this->minLevels;
-
-        if ($minLevels !== null) {
-            $blocksAtMinLevels = array_filter($this->_enabledBlocks, fn($block) => ((int)$block->level) >= $minLevels);
-
-            if (empty($blocksAtMinLevels)) {
-                $this->addError($model, $attribute, $this->exceedsMinLevels, ['minLevels' => $this->minLevels]);
-            }
-        }
-    }
-
-    /**
-     * Adds an error if the field exceeds its max levels.
-     */
-    private function _checkMaxLevels($model, $attribute): void
-    {
-        $maxLevels = $this->maxLevels;
-
-        if ($maxLevels !== null) {
-            $tooHighBlocks = array_filter($this->_enabledBlocks, fn($block) => ((int)$block->level) > $maxLevels);
-
-            if (!empty($tooHighBlocks)) {
-                $this->addError($model, $attribute, $this->exceedsMaxLevels, ['maxLevels' => $this->maxLevels]);
+                if (
+                    $childBlockType->maxSiblingBlocks > 0 &&
+                    $childBlockType->maxSiblingBlocks < $childBlockTypeCount[$childBlockType->id]
+                ) {
+                    $this->addError(
+                        $model,
+                        $attribute,
+                        $this->tooManySiblingBlocks,
+                        [
+                            'maxSiblingBlocks' => $childBlockType->maxSiblingBlocks,
+                            'blockType' => $childBlockType->name,
+                        ]
+                    );
+                }
             }
         }
     }
@@ -309,6 +340,10 @@ class FieldValidator extends Validator
 
         if ($this->tooFewSiblingBlocks === null) {
             $this->tooFewSiblingBlocks = Craft::t('neo', '{attribute} should not contain any instances of fewer than {minSiblingBlocks, number} sibling {minSiblingBlocks, plural, one{block} other{blocks}} of type {blockType}.');
+        }
+
+        if ($this->tooManySiblingBlocks === null) {
+            $this->tooManySiblingBlocks = Craft::t('neo', '{attribute} should not contain any instances of more than {maxSiblingBlocks, number} sibling {maxSiblingBlocks, plural, one{block} other{blocks}} of type {blockType}.');
         }
     }
 }

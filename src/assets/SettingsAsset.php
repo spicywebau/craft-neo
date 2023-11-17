@@ -24,12 +24,6 @@ use craft\web\assets\cp\CpAsset;
 class SettingsAsset extends AssetBundle
 {
     /**
-     * @since 3.2.0
-     * @deprecated in 3.6.0; use `benf\neo\services\BlockTypes::EVENT_SET_CONDITION_ELEMENT_TYPES` instead
-     */
-    public const EVENT_SET_CONDITION_ELEMENT_TYPES = 'setConditionElementTypes';
-
-    /**
      * @inheritdoc
      */
     public function init(): void
@@ -108,15 +102,15 @@ class SettingsAsset extends AssetBundle
     {
         $blockTypes = $field->getBlockTypes();
         $blockTypeGroups = $field->getGroups();
-        [$blockTypeSettingsHtml, $blockTypeSettingsJs] = Neo::$plugin->blockTypes->renderBlockTypeSettings();
+        $settings = Neo::$plugin->blockTypes->renderSettings();
         $fieldLayoutHtml = Neo::$plugin->blockTypes->renderFieldLayoutDesigner(new FieldLayout(['type' => Block::class]));
 
         $jsSettings = [
             'namespace' => Craft::$app->getView()->getNamespace(),
             'blockTypes' => self::_getBlockTypesJsSettings($blockTypes),
             'groups' => self::_getBlockTypeGroupsJsSettings($blockTypeGroups),
-            'blockTypeSettingsHtml' => $blockTypeSettingsHtml,
-            'blockTypeSettingsJs' => $blockTypeSettingsJs,
+            'blockTypeSettingsHtml' => $settings['settingsHtml'],
+            'blockTypeSettingsJs' => $settings['settingsJs'],
             'fieldLayoutHtml' => $fieldLayoutHtml,
             'blockTypeGroupSettingsHtml' => Neo::$plugin->blockTypes->renderBlockTypeGroupSettings()[0],
             'defaultAlwaysShowGroupDropdowns' => Neo::$plugin->settings->defaultAlwaysShowGroupDropdowns,

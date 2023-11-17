@@ -65,7 +65,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
 
     /**
      * @var string|null The block type's icon filename.
-     * @since 3.10.0
+     * @since 4.0.0
      */
     public ?string $iconFilename = null;
 
@@ -275,7 +275,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * Gets this block type's icon path, if an icon filename is set.
      *
      * @return string|null
-     * @since 3.10.0
+     * @since 4.0.0
      */
     public function getIconPath(?array $transform = null): ?string
     {
@@ -286,7 +286,7 @@ class BlockType extends Model implements GqlInlineFragmentInterface
      * Gets this block type's icon URL, if an icon filename is set.
      *
      * @return string|null
-     * @since 3.10.0
+     * @since 4.0.0
      */
     public function getIconUrl(?array $transform = null): ?string
     {

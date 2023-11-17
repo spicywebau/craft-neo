@@ -66,24 +66,6 @@ class Configurator extends Controller
         ]);
     }
 
-    /**
-     * Renders field layout designers for block types.
-     *
-     * @return Response
-     * @since 3.1.0
-     * @deprecated in 3.8.0, use `actionRenderBlockType()` and access the returned object's `layoutHtml` property instead
-     */
-    public function actionRenderFieldLayout(): Response
-    {
-        $this->requireAcceptsJson();
-        $this->requirePostRequest();
-
-        return $this->asJson([
-            'success' => true,
-            'html' => $this->_renderBlockType()['layoutHtml'],
-        ]);
-    }
-
     private function _renderBlockType(): array
     {
         $request = Craft::$app->getRequest();

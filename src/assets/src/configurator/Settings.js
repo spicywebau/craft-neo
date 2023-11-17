@@ -5,20 +5,6 @@ export default Garnish.Base.extend({
 
   $container: new $(),
 
-  /**
-   * @deprecated in 3.8.0
-   */
-  getSortOrder (_) {
-    console.warn('Settings.getSortOrder() is deprecated. Use Item.getSortOrder() instead.')
-  },
-
-  /**
-   * @deprecated in 3.8.0
-   */
-  setSortOrder (_) {
-    console.warn('Settings.setSortOrder() is deprecated and no longer used.')
-  },
-
   getFocusElement () {
     return new $()
   },
