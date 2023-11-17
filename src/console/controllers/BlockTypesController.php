@@ -8,7 +8,9 @@ use benf\neo\Plugin as Neo;
 use Craft;
 use craft\console\Controller;
 use craft\db\Query;
+use craft\helpers\App;
 use craft\helpers\Console;
+use craft\helpers\FileHelper;
 use craft\helpers\StringHelper;
 use yii\console\ExitCode;
 
@@ -276,6 +278,46 @@ class BlockTypesController extends Controller
         }
 
         $projectConfig->set($typePath, $typeConfig);
+        $this->stdout('Done.' . PHP_EOL);
+
+        return ExitCode::OK;
+    }
+
+    /**
+     * Converts block type icon settings from the asset format to the filename format.
+     *
+     * @return int
+     */
+    public function actionConvertIcons(): int
+    {
+        $projectConfig = Craft::$app->getProjectConfig();
+        $assetIdFilenameMap = [];
+        $iconFolderPath = App::parseEnv(Neo::$plugin->getSettings()->blockTypeIconPath);
+
+        // Get all block types that have an icon asset set, that don't already have a filename set
+        // in the new format that we don't want to overwrite
+        $blockTypes = array_filter(
+            Neo::$plugin->blockTypes->getAllBlockTypes(),
+            fn($blockType) => $blockType->iconId !== null && empty($blockType->iconFilename)
+        );
+        $this->stdout('Converting the icons of ' . count($blockTypes) . ' block types... ');
+
+        foreach ($blockTypes as $blockType) {
+            if (!isset($assetIdFilenameMap[$blockType->iconId])) {
+                $assetIdFilenameMap[$blockType->iconId] = $blockType->id . '.svg';
+                $fileContents = $blockType->getIcon()->getContents();
+                FileHelper::writeToFile(
+                    $iconFolderPath . DIRECTORY_SEPARATOR . $assetIdFilenameMap[$blockType->iconId],
+                    $fileContents
+                );
+            }
+
+            $projectConfig->set(
+                'neoBlockTypes.' . $blockType->uid . '.iconFilename',
+                $assetIdFilenameMap[$blockType->iconId]
+            );
+        }
+
         $this->stdout('Done.' . PHP_EOL);
 
         return ExitCode::OK;

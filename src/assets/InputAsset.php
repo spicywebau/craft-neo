@@ -145,6 +145,8 @@ class InputAsset extends FieldAsset
         self::$filteredBlockTypes = $event->blockTypes;
 
         $jsSettings = [
+            'id' => $field->id,
+            'ownerId' => $owner?->id,
             'name' => $name,
             'namespace' => $view->namespaceInputName($name) . '[blocks]',
             'blockTypes' => self::_getBlockTypesJsSettings($field, $event->blockTypes, $owner),
@@ -175,6 +177,9 @@ class InputAsset extends FieldAsset
     private static function _getBlockTypesJsSettings(Field $field, array $blockTypes, ?ElementInterface $owner = null): array
     {
         $user = Craft::$app->getUser()->getIdentity();
+        $pluginSettings = Neo::$plugin->getSettings();
+        $loadTabs = !$pluginSettings->enableLazyLoadingNewBlocks;
+        $disablePermissions = !$pluginSettings->enableBlockTypeUserPermissions;
         $jsBlockTypes = [];
 
         foreach ($blockTypes as $blockType) {
@@ -187,6 +192,7 @@ class InputAsset extends FieldAsset
                 $block->siteId = $owner->siteId;
             }
 
+            $ignorePermissions = $disablePermissions || $blockType->ignorePermissions;
             $jsBlockTypes[] = [
                 'id' => $blockType->id,
                 'sortOrder' => $blockType->sortOrder,
@@ -203,13 +209,17 @@ class InputAsset extends FieldAsset
                 'groupChildBlockTypes' => (bool)$blockType->groupChildBlockTypes,
                 'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson($blockType->childBlocks) : $blockType->childBlocks,
                 'topLevel' => (bool)$blockType->topLevel,
-                'tabs' => Neo::$plugin->blocks->renderTabs($block),
+                'tabNames' => array_map(
+                    fn($tab) => Craft::t('site', $tab->name),
+                    $blockType->getFieldLayout()->getTabs()
+                ),
+                'tabs' => $loadTabs ? Neo::$plugin->blocks->renderTabs($block) : null,
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'groupId' => $blockType->groupId,
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),
-                'creatableByUser' => $blockType->ignorePermissions || $user->can("neo-createBlocks:{$blockType->uid}"),
-                'deletableByUser' => $blockType->ignorePermissions || $user->can("neo-deleteBlocks:{$blockType->uid}"),
-                'editableByUser' => $blockType->ignorePermissions || $user->can("neo-editBlocks:{$blockType->uid}"),
+                'creatableByUser' => $ignorePermissions || $user->can("neo-createBlocks:{$blockType->uid}"),
+                'deletableByUser' => $ignorePermissions || $user->can("neo-deleteBlocks:{$blockType->uid}"),
+                'editableByUser' => $ignorePermissions || $user->can("neo-editBlocks:{$blockType->uid}"),
             ];
         }
 

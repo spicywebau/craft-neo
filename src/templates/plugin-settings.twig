@@ -39,26 +39,73 @@
     }) }}
 
     {% tag('div') with {
-        id: 'block-type-icon-sources-container',
+        id: 'block-type-icon-container',
     } %}
-        {{ forms.checkboxSelectField({
-            label: 'Block type icon sources'|t('neo'),
-            instructions: 'Which sources do you want to select block type icons from?'|t('neo'),
-            id: 'blockTypeIconSources',
-            name: 'blockTypeIconSources',
-            options: blockTypeIconSourceOptions,
-            values: settings.blockTypeIconSources,
-            showAllOption: true,
+        {{ forms.selectField({
+            id: 'blockTypeIconSelectMode',
+            name: 'blockTypeIconSelectMode',
+            label: 'Block type icon select mode'|t('neo'),
+            instructions: 'Which style to use to select block type icons.'|t('neo'),
+            options: [
+                {label: 'Path'|t('neo'), value: 'path'},
+                {label: 'Sources'|t('neo'), value: 'sources'},
+            ],
+            value: settings.blockTypeIconSelectMode,
         }) }}
+
+        {% tag('div') with {
+            id: 'block-type-icon-path-container',
+        } %}
+            {{ forms.autosuggestField({
+                label: 'Block type icon path'|t('neo'),
+                instructions: 'The path of the folder to select block type icons from.'|t('neo'),
+                id: 'blockTypeIconPath',
+                name: 'blockTypeIconPath',
+                suggestEnvVars: true,
+                suggestAliases: true,
+                value: settings.blockTypeIconPath,
+                errors: settings.getErrors('blockTypeIconPath'),
+            }) }}
+        {% endtag %}
+        {% tag('div') with {
+            id: 'block-type-icon-sources-container',
+        } %}
+            {{ forms.checkboxSelectField({
+                label: 'Block type icon sources'|t('neo'),
+                instructions: 'Which sources do you want to select block type icons from?'|t('neo'),
+                id: 'blockTypeIconSources',
+                name: 'blockTypeIconSources',
+                options: blockTypeIconSourceOptions,
+                values: settings.blockTypeIconSources,
+                showAllOption: true,
+            }) }}
+        {% endtag %}
     {% endtag %}
+
+    {{ forms.lightswitchField({
+        label: 'Enable block type user permissions'|t('neo'),
+        instructions: 'Whether to allow setting user permissions for creating, editing and deleting blocks of a certain type.'|t('neo'),
+        id: 'enableBlockTypeUserPermissions',
+        name: 'enableBlockTypeUserPermissions',
+        on: settings.enableBlockTypeUserPermissions,
+    }) }}
 </div>
 
 {% js %}
     function toggleNewBlockMenuStyle (toggle) {
-        $('#{{ 'block-type-icon-sources-container'|namespaceInputId }}').toggleClass('hidden', !toggle)
+        $('#{{ 'block-type-icon-container'|namespaceInputId }}').toggleClass('hidden', !toggle)
     }
     toggleNewBlockMenuStyle({{ settings.newBlockMenuStyle != 'classic' }})
     $('#{{ 'newBlockMenuStyle'|namespaceInputId }}').on('change', function() {
         toggleNewBlockMenuStyle($(this).val() !== 'classic')
+    })
+
+    function toggleNewBlockIconSelectStyle (toggle) {
+        $('#{{ 'block-type-icon-path-container'|namespaceInputId }}').toggleClass('hidden', !toggle)
+        $('#{{ 'block-type-icon-sources-container'|namespaceInputId }}').toggleClass('hidden', toggle)
+    }
+    toggleNewBlockIconSelectStyle({{ settings.blockTypeIconSelectMode != 'sources' ? 'true' : 'false' }})
+    $('#{{ 'blockTypeIconSelectMode'|namespaceInputId }}').on('change', function() {
+        toggleNewBlockIconSelectStyle($(this).val() !== 'sources')
     })
 {% endjs %}

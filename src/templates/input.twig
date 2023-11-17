@@ -7,15 +7,28 @@
         translatable ? 'is-translatable',
     ],
 } %}
+{% set neoSettings = craft.app.plugins.getPlugin('neo').settings %}
 
 {# Output the block type icons, for the non-Matrix new block styles #}
-{% if craft.app.plugins.getPlugin('neo').settings.newBlockMenuStyle != 'classic' %}
+{% if neoSettings.newBlockMenuStyle != 'classic' %}
     <div class="hidden">
-        {% for blockType in blockTypes|filter(bt => bt.iconId is not null) %}
-            {{ svg(blockType.icon)|attr({
-                id: "ni-icon-#{handle}-#{blockType.handle}",
-            }) }}
-        {% endfor %}
+        {% if neoSettings.blockTypeIconSelectMode == 'sources' %}
+            {% for blockType in (blockTypes ?? [])|filter(bt => bt.iconId is not null) %}
+                {{ svg(blockType.icon)|attr({
+                    id: "ni-icon-#{handle}-#{blockType.handle}",
+                }) }}
+            {% endfor %}
+        {% else %}
+            {% for blockType in (blockTypes ?? [])|filter(bt => bt.iconFilename is not null) %}
+                {% set iconPath = blockType.getIconPath({
+                    width: 30,
+                    height: 30,
+                }) %}
+                {{ svg(iconPath)|attr({
+                    id: "ni-icon-#{handle}-#{blockType.handle}",
+                }) }}
+            {% endfor %}
+        {% endif %}
     </div>
 {% endif %}
 

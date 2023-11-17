@@ -6,7 +6,6 @@ use benf\neo\controllers\Configurator as ConfiguratorController;
 use benf\neo\controllers\Conversion as ConversionController;
 use benf\neo\controllers\Input as InputController;
 use benf\neo\elements\Block;
-use benf\neo\enums\NewBlockMenuStyle;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\gql\interfaces\elements\Block as NeoGqlInterface;
 use benf\neo\integrations\feedme\Field as FeedMeField;
@@ -19,12 +18,14 @@ use Craft;
 use craft\base\conditions\BaseCondition;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
+use craft\console\Application as ConsoleApplication;
 use craft\console\Controller;
 use craft\console\controllers\ResaveController;
-use craft\controllers\ElementsController;
+use craft\db\Query;
 use craft\db\Table;
+use craft\elements\conditions\SlugConditionRule;
+use craft\elements\GlobalSet;
 use craft\events\DefineConsoleActionsEvent;
-use craft\events\DefineElementEditorHtmlEvent;
 use craft\events\DefineFieldLayoutElementsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -36,7 +37,8 @@ use craft\feedme\services\Fields as FeedMeFields;
 use craft\fields\Assets;
 use craft\gatsbyhelper\events\RegisterIgnoredTypesEvent;
 use craft\gatsbyhelper\services\Deltas;
-use craft\helpers\Html;
+use craft\helpers\Console;
+use craft\helpers\Db;
 use craft\models\FieldLayout;
 use craft\services\Fields;
 use craft\services\Gc;
@@ -64,7 +66,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public string $schemaVersion = '3.6.0';
+    public string $schemaVersion = '3.10.0.1';
 
     /**
      * @inheritdoc
@@ -120,7 +122,6 @@ class Plugin extends BasePlugin
         $this->_registerGatsbyHelper();
         $this->_registerFeedMeSupport();
         $this->_registerConditionFieldRuleRemoval();
-        $this->_registerDefaultBlockTypeIcon();
     }
 
     /**
@@ -196,15 +197,30 @@ class Plugin extends BasePlugin
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $blockTypeData = [];
             $blockTypeGroupData = [];
+            $sortOrderData = [];
 
             foreach ($this->blockTypes->getAllBlockTypes() as $blockType) {
-                $blockTypeData[$blockType['uid']] = $blockType->getConfig();
+                $config = $blockType->getConfig();
+                $sortOrderData[$config['field']][$config['sortOrder'] - 1] = "blockType:$blockType->uid";
+                unset($config['sortOrder']);
+                $blockTypeData[$blockType['uid']] = $config;
             }
 
             foreach ($this->blockTypes->getAllBlockTypeGroups() as $blockTypeGroup) {
-                $blockTypeGroupData[$blockTypeGroup['uid']] = $blockTypeGroup->getConfig();
+                $config = $blockTypeGroup->getConfig();
+                $sortOrderData[$config['field']][$config['sortOrder'] - 1] = "blockTypeGroup:$blockTypeGroup->uid";
+                unset($config['sortOrder']);
+                $blockTypeGroupData[$blockTypeGroup['uid']] = $config;
             }
 
+            // Reset the sort order array keys, in case anything's been deleted recently
+            foreach ($sortOrderData as $fieldUid => $order) {
+                $sortOrderData[$fieldUid] = array_values($order);
+            }
+
+            $event->config['neo'] = [
+                'orders' => $sortOrderData,
+            ];
             $event->config['neoBlockTypes'] = $blockTypeData;
             $event->config['neoBlockTypeGroups'] = $blockTypeGroupData;
         });
@@ -213,9 +229,36 @@ class Plugin extends BasePlugin
     private function _registerGarbageCollection(): void
     {
         Event::on(Gc::class, Gc::EVENT_RUN, function() {
+            $stdout = function(string $string, ...$format) {
+                if (Craft::$app instanceof ConsoleApplication) {
+                    Console::stdout($string, ...$format);
+                }
+            };
             $gc = Craft::$app->getGc();
             $gc->deletePartialElements(Block::class, '{{%neoblocks}}', 'id');
             $gc->deletePartialElements(Block::class, Table::CONTENT, 'elementId');
+
+            // Delete anything in the structures table that's a Neo block structure, but doesn't exist in the
+            // neoblockstructures table
+            $stdout('    > deleting orphaned Neo block structure data ... ');
+            $neoStructureIds = (new Query())
+                ->select(['structureId'])
+                ->from(['se' => Table::STRUCTUREELEMENTS])
+                ->innerJoin(['nb' => '{{%neoblocks}}'], '[[se.elementId]] = [[nb.id]]')
+                ->column();
+            $neoStructureIdsNotToDelete = (new Query())
+                ->select(['structureId'])
+                ->from('{{%neoblockstructures}}')
+                ->column();
+            $neoStructureIdsToDelete = array_diff($neoStructureIds, $neoStructureIdsNotToDelete);
+
+            foreach (array_chunk($neoStructureIdsToDelete, 1000) as $neoStructureIdChunk) {
+                Db::delete(Table::STRUCTURES, [
+                    'id' => $neoStructureIdChunk,
+                ]);
+            }
+
+            $stdout("done\n", Console::FG_GREEN);
         });
     }
 
@@ -255,6 +298,11 @@ class Plugin extends BasePlugin
 
     private function _registerPermissions(): void
     {
+        // Only if the settings allow it
+        if (!$this->getSettings()->enableBlockTypeUserPermissions) {
+            return;
+        }
+
         Event::on(
             UserPermissions::class,
             UserPermissions::EVENT_REGISTER_PERMISSIONS,
@@ -323,29 +371,21 @@ class Plugin extends BasePlugin
                 if (self::$isGeneratingConditionHtml) {
                     $event->conditionRuleTypes = array_filter(
                         $event->conditionRuleTypes,
-                        fn($type) => !isset($type['fieldUid'])
-                    );
-                }
-            }
-        );
-    }
+                        function($type) use ($event) {
+                            // No field value conditions allowed as it may make existing blocks invalid
+                            if (isset($type['fieldUid'])) {
+                                return false;
+                            }
 
-    private function _registerDefaultBlockTypeIcon()
-    {
-        Event::on(
-            ElementsController::class,
-            ElementsController::EVENT_DEFINE_EDITOR_CONTENT,
-            function(DefineElementEditorHtmlEvent $event) {
-                if ($this->getSettings()->newBlockMenuStyle !== NewBlockMenuStyle::Classic && !$event->static) {
-                    $svg = Html::tag(
-                        'div',
-                        Html::modifyTagAttributes(
-                            Html::svg('@benf/neo/resources/default-new-block-icon.svg'),
-                            ['id' => 'ni-icon'],
-                        ),
-                        ['class' => 'hidden'],
+                            // Global sets don't have slugs
+                            if ($event->sender->elementType === GlobalSet::class && $type === SlugConditionRule::class) {
+                                return false;
+                            }
+
+                            // Everything else is okay
+                            return true;
+                        }
                     );
-                    $event->html = $svg . $event->html;
                 }
             }
         );

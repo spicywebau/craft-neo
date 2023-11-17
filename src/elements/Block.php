@@ -398,6 +398,21 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
+    public function getLocalized(): ElementQueryInterface|Collection
+    {
+        $query = parent::getLocalized();
+
+        if ($query instanceof BlockQuery && $this->ownerId !== null) {
+            // Maintain the same ownerId for queried blocks
+            $query->ownerId($this->ownerId);
+        }
+
+        return $query;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getFieldLayout(): ?FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();

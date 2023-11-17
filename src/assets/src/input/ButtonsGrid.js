@@ -48,15 +48,24 @@ class ButtonsGrid extends NewBlockMenu {
         }
 
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
-        const defaultIconId = 'ni-icon'
-        const blockTypeIconId = `fields-${defaultIconId}-${this.getField().getName()}-${item.getHandle()}`
-        const hasBlockTypeIcon = this.$ownerContainer?.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
+        const blockTypeIconId = `fields-ni-icon-${this.getField().getName()}-${item.getHandle()}`
+        const hasBlockTypeIcon = this._field?.$container.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
         buttonsHtml.push(`
               <li>
-                <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">
+                <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">`)
+
+        if (hasBlockTypeIcon) {
+          buttonsHtml.push(`
                   <svg class="ni_newblockgrid_icon">
-                    <use href="#${hasBlockTypeIcon ? blockTypeIconId : defaultIconId}"></use>
-                  </svg>
+                    <use href="#${blockTypeIconId}"></use>
+                  </svg>`)
+        } else {
+          buttonsHtml.push(`
+                  <div class="ni_newblockgrid_icon defaulticon">
+                  </div>`)
+        }
+
+        buttonsHtml.push(`
                   <span>${item.getName()}</span>
                 </a>
               </li>`)
@@ -74,8 +83,7 @@ class ButtonsGrid extends NewBlockMenu {
     buttonsHtml.push(`
           </ul>
         </div>
-      </div>
-    </div>`)
+      </div>`)
 
     return $(buttonsHtml.join(''))
   }

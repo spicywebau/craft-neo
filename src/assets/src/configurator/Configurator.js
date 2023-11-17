@@ -19,7 +19,8 @@ const _defaults = {
   groups: [],
   blockTypeSettingsHtml: '',
   blockTypeSettingsJs: '',
-  fieldLayoutHtml: ''
+  fieldLayoutHtml: '',
+  groupSettingsHtml: ''
 }
 
 export default Garnish.Base.extend({
@@ -38,6 +39,7 @@ export default Garnish.Base.extend({
     this._blockTypeSettingsHtml = settings.blockTypeSettingsHtml
     this._blockTypeSettingsJs = settings.blockTypeSettingsJs
     this._fieldLayoutHtml = settings.fieldLayoutHtml
+    this._blockTypeGroupSettingsHtml = settings.blockTypeGroupSettingsHtml
     this._items = []
 
     const $neo = this.$container.find('[data-neo]')
@@ -52,7 +54,7 @@ export default Garnish.Base.extend({
     this.$fieldLayoutButton = $neo.filter('[data-neo="button.fieldLayout"]')
 
     this._itemSort = new Garnish.DragSort(null, {
-      container: this.$blockTypeItemsContainer,
+      container: this.$blockTypesContainer,
       handle: '[data-neo-bt="button.move"], [data-neo-g="button.move"]',
       axis: 'y',
       onSortChange: () => this._updateItemOrder()
@@ -60,8 +62,8 @@ export default Garnish.Base.extend({
 
     // Add the existing block types and groups
     const existingItems = []
-    const btNamespace = [...this._templateNs, 'blockTypes']
-    const gNamespace = [...this._templateNs, 'groups']
+    const btNamespace = [...this._templateNs, 'items', 'blockTypes']
+    const gNamespace = [...this._templateNs, 'items', 'groups']
 
     for (const btInfo of settings.blockTypes) {
       const btSettings = new BlockTypeSettings({
@@ -86,23 +88,34 @@ export default Garnish.Base.extend({
         errors: btInfo.errors,
         fieldLayoutId: btInfo.fieldLayoutId,
         fieldLayoutConfig: btInfo.fieldLayoutConfig,
+        childBlocks: btInfo.childBlocks,
         childBlockTypes: existingItems.filter(item => item instanceof BlockType)
       })
 
       const blockType = new BlockType({
         namespace: btNamespace,
+        field: this,
         settings: btSettings
       })
 
       blockType.on('copy.configurator', () => this._copyBlockType(blockType))
       blockType.on('paste.configurator', () => this._pasteBlockType())
       blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType))
-      blockType.on('beforeLoadFieldLayout.configurator', () => this.$fieldLayoutContainer.append(
-        $('<span class="spinner"/></span>')
-      ))
-      blockType.on('afterLoadFieldLayout.configurator', () => {
+      blockType.on('beforeLoad.configurator', () => {
+        this.$fieldLayoutContainer.append(
+          $('<span class="spinner"/></span>')
+        )
+        this.$settingsContainer.append(
+          $('<span class="spinner"/></span>')
+        )
+      })
+      blockType.on('afterLoad.configurator', () => {
         this.$fieldLayoutContainer.children('.spinner').remove()
-        this._addFieldLayout(blockType.getFieldLayout())
+        this.$settingsContainer.children('.spinner').remove()
+        this.addItem(blockType)
+        const blockTypeSettings = blockType.getSettings()
+        blockTypeSettings?.refreshChildBlockTypes(this.getBlockTypes())
+        blockTypeSettings?.setChildBlocks()
       })
       existingItems.push(blockType)
     }
@@ -119,21 +132,31 @@ export default Garnish.Base.extend({
 
       const group = new Group({
         namespace: gNamespace,
+        field: this,
         settings: gSettings
       })
 
+      group.on('beforeLoad.configurator', () => this.$settingsContainer.append(
+        $('<span class="spinner"/></span>')
+      ))
+      group.on('afterLoad.configurator', () => {
+        this.$settingsContainer.children('.spinner').remove()
+        this.addItem(group)
+      })
       existingItems.push(group)
     }
 
-    for (const item of existingItems.sort((a, b) => a.getSettings().getSortOrder() - b.getSettings().getSortOrder())) {
+    for (const item of existingItems.sort((a, b) => a.getSortOrder() - b.getSortOrder())) {
       this.addItem(item)
     }
 
     for (const blockType of this.getBlockTypes()) {
       const btSettings = blockType.getSettings()
-      const info = settings.blockTypes.find(i => i.handle === btSettings.getHandle())
 
-      btSettings.setChildBlocks(info.childBlocks)
+      if (btSettings?.$container) {
+        const info = settings.blockTypes.find(i => i.handle === btSettings.getHandle())
+        btSettings.setChildBlocks(info.childBlocks)
+      }
     }
 
     // Make sure menu states (for pasting block types) are updated when changing tabs
@@ -159,10 +182,15 @@ export default Garnish.Base.extend({
   addItem (item, index = -1) {
     const settings = item.getSettings()
 
-    this._insertAt(item.$container, index)
-    this._itemSort.addItems(item.$container)
+    if (!document.contains(item.$container[0])) {
+      this._insertAt(item.$container, index)
+    }
 
-    if (settings) {
+    if (this._itemSort.$items.filter(item.$container).length === 0) {
+      this._itemSort.addItems(item.$container)
+    }
+
+    if (settings?.$container) {
       this.$settingsContainer.append(settings.$container)
 
       if (item instanceof BlockType) {
@@ -180,12 +208,18 @@ export default Garnish.Base.extend({
     }
 
     this._items.push(item)
-    this._updateItemOrder()
+
+    // Only bother updating the item order if the item wasn't just being appended
+    if (index >= 0 && index < this._items.length - 1) {
+      this._updateItemOrder()
+    }
 
     if (item instanceof BlockType) {
       for (const blockType of this.getBlockTypes()) {
         const btSettings = blockType.getSettings()
-        if (btSettings) btSettings.addChildBlockType(item)
+        if (btSettings?.$container) {
+          btSettings.addChildBlockType(item)
+        }
       }
     }
 
@@ -223,7 +257,10 @@ export default Garnish.Base.extend({
       this._itemSort.removeItems(item.$container)
 
       item.$container.remove()
-      if (settings) settings.$container.remove()
+
+      if (settings?.$container) {
+        settings.$container.remove()
+      }
 
       if (item instanceof BlockType) {
         const fieldLayout = item.getFieldLayout()
@@ -233,7 +270,7 @@ export default Garnish.Base.extend({
       this.removeListener(item.$container, 'click')
       item.off('.configurator')
 
-      this._updateItemOrder()
+      this._items = this._items.filter((oldItem) => oldItem !== item)
 
       if (this._items.length === 0) {
         this.$mainContainer.addClass('hidden')
@@ -299,10 +336,8 @@ export default Garnish.Base.extend({
     this.$fieldLayoutButton.toggleClass('is-selected', tab === 'fieldLayout')
   },
 
-  _getNewBlockTypeSettingsHtml (blockTypeId, sortOrder) {
-    return this._blockTypeSettingsHtml
-      .replace(/__NEOBLOCKTYPE_ID__/g, blockTypeId)
-      .replace(/__NEOBLOCKTYPE_SORTORDER__/, sortOrder)
+  _getNewBlockTypeSettingsHtml (blockTypeId) {
+    return this._blockTypeSettingsHtml.replace(/__NEOBLOCKTYPE_ID__/g, blockTypeId)
   },
 
   _getNewBlockTypeSettingsJs (blockTypeId) {
@@ -316,6 +351,10 @@ export default Garnish.Base.extend({
     )
   },
 
+  _getNewBlockTypeGroupSettingsHtml (groupId) {
+    return this._blockTypeGroupSettingsHtml.replace(/__NEOBLOCKTYPEGROUP_ID__/g, groupId)
+  },
+
   _updateItemOrder () {
     const items = []
 
@@ -323,10 +362,11 @@ export default Garnish.Base.extend({
       const item = this.getItemByElement(element)
 
       if (item) {
-        const settings = item.getSettings()
-        if (settings) settings.setSortOrder(index + 1)
-
         items.push(item)
+
+        if (item instanceof BlockType) {
+          item.getSettings().refreshChildBlockTypes()
+        }
       }
     })
 
@@ -334,10 +374,14 @@ export default Garnish.Base.extend({
   },
 
   _createBlockTypeFrom (oldBlockType) {
-    const namespace = [...this._templateNs, 'blockTypes']
-    const id = BlockTypeSettings.getNewId()
+    const namespace = [...this._templateNs, 'items', 'blockTypes']
+    let id
+    do {
+      id = BlockTypeSettings.getNewId()
+    } while (this.$blockTypesContainer.find(`[data-neo-bt="container.${id}"]`).length > 0)
+
     const selectedItem = this.getSelectedItem()
-    const selectedIndex = selectedItem ? selectedItem.getSettings().getSortOrder() : -1
+    const selectedIndex = selectedItem ? selectedItem.getSortOrder() : -1
 
     if (oldBlockType === null) {
       const settings = new BlockTypeSettings({
@@ -345,7 +389,7 @@ export default Garnish.Base.extend({
         id,
         namespace: [...namespace, id],
         sortOrder: this._items.length,
-        html: this._getNewBlockTypeSettingsHtml(id, selectedIndex),
+        html: this._getNewBlockTypeSettingsHtml(id),
         js: this._getNewBlockTypeSettingsJs(id)
       })
       const fieldLayout = new BlockTypeFieldLayout({
@@ -385,7 +429,7 @@ export default Garnish.Base.extend({
       const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
       this._insertAt($spinner, selectedIndex)
 
-      oldBlockType.loadFieldLayout()
+      oldBlockType.load()
         .then(() => {
           const layout = oldBlockType.getFieldLayout().getConfig()
           const data = {
@@ -418,7 +462,12 @@ export default Garnish.Base.extend({
   },
 
   _initBlockType (namespace, settings, fieldLayout, index) {
-    const blockType = new BlockType({ namespace, settings, fieldLayout })
+    const blockType = new BlockType({
+      namespace,
+      field: this,
+      settings,
+      fieldLayout
+    })
 
     this.addItem(blockType, index)
     this.selectItem(blockType)
@@ -430,7 +479,7 @@ export default Garnish.Base.extend({
   },
 
   _copyBlockType (blockType) {
-    blockType.loadFieldLayout()
+    blockType.load()
       .then(() => {
         const settings = blockType.getSettings()
         const data = {
@@ -496,6 +545,7 @@ export default Garnish.Base.extend({
     })
 
     const blockType = new BlockType({
+      field: this,
       settings,
       fieldLayout
     })
@@ -518,22 +568,27 @@ export default Garnish.Base.extend({
   },
 
   '@newGroup' () {
-    const namespace = [...this._templateNs, 'groups']
-    const id = GroupSettings.getNewId()
+    const namespace = [...this._templateNs, 'items', 'groups']
+    let id
+    do {
+      id = GroupSettings.getNewId()
+    } while (this.$blockTypesContainer.find(`[data-neo-g="container.${id}"]`).length > 0)
 
     const settings = new GroupSettings({
       namespace: [...namespace, id],
+      html: this._getNewBlockTypeGroupSettingsHtml(id),
       sortOrder: this._items.length,
       id
     })
 
     const group = new Group({
       namespace,
+      field: this,
       settings
     })
 
     const selected = this.getSelectedItem()
-    const index = selected ? selected.getSettings().getSortOrder() : -1
+    const index = selected ? selected.getSortOrder() : -1
 
     this.addItem(group, index)
     this.selectItem(group)

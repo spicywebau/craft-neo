@@ -1,3 +1,52 @@
+/*
+The `_registerDynamicBlockConditions()` and `_updateVisibleElements()` methods are based on a large
+section of `Craft.ElementEditor.saveDraft()` from Craft CMS 4.3.6.1, by Pixel & Tonic, Inc.
+https://github.com/craftcms/cms/blob/4.3.6.1/src/web/assets/cp/src/js/ElementEditor.js#L1144
+Craft CMS is released under the terms of the Craft License, a copy of which is included below.
+https://github.com/craftcms/cms/blob/4.3.6.1/LICENSE.md
+
+Copyright © Pixel & Tonic
+
+Permission is hereby granted to any person obtaining a copy of this software
+(the “Software”) to use, copy, modify, merge, publish and/or distribute copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+1. **Don’t plagiarize.** The above copyright notice and this license shall be
+   included in all copies or substantial portions of the Software.
+
+2. **Don’t use the same license on more than one project.** Each licensed copy
+   of the Software shall be actively installed in no more than one production
+   environment at a time.
+
+3. **Don’t mess with the licensing features.** Software features related to
+   licensing shall not be altered or circumvented in any way, including (but
+   not limited to) license validation, payment prompts, feature restrictions,
+   and update eligibility.
+
+4. **Pay up.** Payment shall be made immediately upon receipt of any notice,
+   prompt, reminder, or other message indicating that a payment is owed.
+
+5. **Follow the law.** All use of the Software shall not violate any applicable
+   law or regulation, nor infringe the rights of any other person or entity.
+
+Failure to comply with the foregoing conditions will automatically and
+immediately result in termination of the permission granted hereby. This
+license does not include any right to receive updates to the Software or
+technical support. Licensees bear all risk related to the quality and
+performance of the Software and any modifications made or obtained to it,
+including liability for actual and consequential harm, such as loss or
+corruption of data, and any necessary service, repair, or correction.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, INCLUDING SPECIAL, INCIDENTAL AND CONSEQUENTIAL DAMAGES, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 import $ from 'jquery'
 import Garnish from 'garnish'
 import Craft from 'craft'
@@ -24,7 +73,8 @@ const _defaults = {
   maxBlocks: 0,
   maxTopBlocks: 0,
   minLevels: 0,
-  maxLevels: 0
+  maxLevels: 0,
+  ownerId: null
 }
 
 export default Garnish.Base.extend({
@@ -32,6 +82,9 @@ export default Garnish.Base.extend({
   _templateNs: [],
   _name: null,
   _siteId: null,
+  _visibleLayoutElements: {},
+  _newBlockId: 0,
+  _newBlockCount: 0,
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -40,23 +93,28 @@ export default Garnish.Base.extend({
     this._blockTypes = []
     this._groups = settings.groups.map(gInfo => new Group(gInfo))
     this._blocks = []
+    this._id = settings.id
     this._name = settings.name
+    this._minBlocks = settings.minBlocks
     this._maxBlocks = settings.maxBlocks
     this._maxTopBlocks = settings.maxTopBlocks
     this._minLevels = settings.minLevels
     this._maxLevels = settings.maxLevels
-    this._ownerId = null
+    this._ownerId = settings.ownerId
     this._showBlockTypeHandles = settings.showBlockTypeHandles
+
+    const animate = !Garnish.prefersReducedMotion()
+    this._$spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : Craft.t('neo', 'Loading')}</div>`)
 
     switch (settings.newBlockMenuStyle) {
       case 'grid':
-        this._buttonClass = ButtonsGrid
+        this.ButtonClass = ButtonsGrid
         break
       case 'list':
-        this._buttonClass = ButtonsList
+        this.ButtonClass = ButtonsList
         break
       default:
-        this._buttonClass = Buttons
+        this.ButtonClass = Buttons
     }
 
     const ownerIdElement = $('[name="setId"], [name="entryId"], [name="categoryId"]')
@@ -76,7 +134,7 @@ export default Garnish.Base.extend({
     for (const btInfo of settings.blockTypes) {
       // Filter out the block type if its group isn't included
       if (btInfo.groupId === null || typeof setGroupIds[btInfo.groupId] !== 'undefined') {
-        const blockType = new BlockType(btInfo)
+        const blockType = new BlockType(Object.assign({ field: this }, btInfo))
         this._blockTypes.push(blockType)
         tempBlockTypes[blockType.getHandle()] = blockType
       }
@@ -89,7 +147,7 @@ export default Garnish.Base.extend({
     this.$blocksContainer = $neo.filter('[data-neo="container.blocks"]')
     this.$buttonsContainer = $neo.filter('[data-neo="container.buttons"]')
 
-    this._buttons = new this._buttonClass({
+    this._buttons = new this.ButtonClass({
       $ownerContainer: this.$container,
       field: this,
       blockTypes: this.getBlockTypes(true),
@@ -152,30 +210,7 @@ export default Garnish.Base.extend({
         return
       }
 
-      bInfo.blockType = new BlockType({
-        id: blockType.getId(),
-        fieldLayoutId: blockType.getFieldLayoutId(),
-        name: blockType.getName(),
-        handle: blockType.getHandle(),
-        enabled: blockType.getEnabled(),
-        description: blockType.getDescription(),
-        maxBlocks: blockType.getMaxBlocks(),
-        maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
-        maxChildBlocks: blockType.getMaxChildBlocks(),
-        groupChildBlockTypes: blockType.getGroupChildBlockTypes(),
-        childBlocks: blockType.getChildBlocks(),
-        topLevel: blockType.getTopLevel(),
-        hasChildBlocksUiElement: blockType.hasChildBlocksUiElement(),
-        creatableByUser: blockType.isCreatableByUser(),
-        deletableByUser: blockType.isDeletableByUser(),
-        editableByUser: blockType.isEditableByUser()
-      })
-      bInfo.buttons = new this._buttonClass({
-        $ownerContainer: $block,
-        field: this,
-        items: blockType.getChildBlockItems(this.getItems()),
-        maxBlocks: this.getMaxBlocks()
-      })
+      bInfo.blockType = blockType
       bInfo.showButtons = !this.atMaxLevels(bInfo.level)
 
       const block = new Block(bInfo)
@@ -190,6 +225,23 @@ export default Garnish.Base.extend({
     this._updateBlockOrder()
     this._updateBlockChildren()
     this._updateButtons()
+
+    // Create any required top level blocks, if this field has only one top level block type
+    if (this._minBlocks > 0) {
+      const missingBlockCount = this._minBlocks - this._blocks.length
+      const topLevelBlockTypes = this.getBlockTypes(true)
+
+      if (topLevelBlockTypes.length === 1 && missingBlockCount > 0) {
+        for (let i = this._blocks.length; i < this._minBlocks; i++) {
+          this['@newBlock']({
+            blockType: topLevelBlockTypes[0],
+            createChildBlocks: false,
+            index: i,
+            level: 1
+          })
+        }
+      }
+    }
 
     // Make sure menu states (for pasting blocks) are updated when changing browser tabs
     this.addListener(document, 'visibilitychange.input', () => this._updateButtons())
@@ -209,6 +261,8 @@ export default Garnish.Base.extend({
       .filter(block => !block.isExpanded())
       .forEach(block => block.updatePreview())
 
+    this._registerDynamicBlockConditions()
+
     this.trigger('afterInit')
   },
 
@@ -226,7 +280,9 @@ export default Garnish.Base.extend({
     this._tempButtons?.updateResponsiveness()
   },
 
-  addBlock (block, index = -1, level = 1, animate = null) {
+  addBlock (block, index = -1, level = 1, animate = null, createChildBlocks = true) {
+    this._newBlockCount++
+    this.$form.data('elementEditor')?.pause()
     const blockCount = this._blocks.length
     index = index >= 0 ? Math.max(0, Math.min(index, blockCount)) : blockCount
     animate = !Garnish.prefersReducedMotion() && (typeof animate === 'boolean' ? animate : true)
@@ -264,6 +320,50 @@ export default Garnish.Base.extend({
     this._updateBlockChildren()
     this._updateButtons()
 
+    // Construct the block's visible layout elements, since they might not be the default visible
+    // layout elements for the block type, e.g. if pasting a block
+    const visibleLayoutElements = {}
+    block.$contentContainer.children('[data-layout-tab]').each((_, layoutTab) => {
+      const tabUid = layoutTab.getAttribute('data-layout-tab')
+      visibleLayoutElements[tabUid] = []
+      layoutTab.querySelectorAll(':scope > [data-layout-element]:not([data-layout-element-placeholder])')
+        .forEach((layoutElement) => {
+          visibleLayoutElements[tabUid].push(layoutElement.getAttribute('data-layout-element'))
+        })
+    })
+    this._visibleLayoutElements[block.getId()] = visibleLayoutElements
+
+    // Create any required child blocks, if this block has only one child block type
+    const createChildBlocksIfAllowed = () => {
+      if (createChildBlocks) {
+        const blockType = block.getBlockType()
+        const minChildBlocks = blockType.getMinChildBlocks()
+
+        if (minChildBlocks > 0) {
+          let childBlockTypes = blockType.getChildBlocks()
+
+          if (childBlockTypes === '*') {
+            childBlockTypes = this.getBlockTypes()
+          }
+
+          if (childBlockTypes.length === 1) {
+            const childBlockType = this.getBlockTypeByHandle(childBlockTypes[0])
+
+            for (let i = 0; i < minChildBlocks; i++) {
+              this['@newBlock']({
+                blockType: childBlockType,
+                createChildBlocks: false,
+                index: index + i + 1,
+                level: level + 1
+              })
+            }
+          }
+        }
+      }
+
+      this.$form.data('elementEditor')?.resume()
+    }
+
     if (animate) {
       block.$container
         .css({
@@ -273,7 +373,12 @@ export default Garnish.Base.extend({
         .velocity({
           opacity: 1,
           marginBottom: 10
-        }, 'fast', e => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(block.$container)))
+        }, 'fast', _ => Garnish.requestAnimationFrame(() => {
+          Garnish.scrollContainerToElement(block.$container)
+          createChildBlocksIfAllowed()
+        }))
+    } else {
+      createChildBlocksIfAllowed()
     }
 
     this.trigger('addBlock', {
@@ -485,6 +590,42 @@ export default Garnish.Base.extend({
     return blocks
   },
 
+  setVisibleElements (blockId, visibleLayoutElements) {
+    // visibleLayoutElements might (will probably) be a JSON-encoded string
+    if (typeof visibleLayoutElements === 'string') {
+      visibleLayoutElements = JSON.parse(visibleLayoutElements)
+    }
+
+    const block = this._blocks.find((block) => block.getId() === blockId)
+
+    if (block === null) {
+      return
+    }
+
+    this._visibleLayoutElements[blockId] = visibleLayoutElements
+  },
+
+  /**
+   * @since 3.9.2
+   */
+  getNamespace () {
+    return Array.from(this._templateNs)
+  },
+
+  /**
+   * @since 3.9.3
+   */
+  getOwnerId () {
+    return this._ownerId
+  },
+
+  /**
+   * @since 3.9.5
+   */
+  getSiteId () {
+    return this._siteId
+  },
+
   _setMatrixClassErrors () {
     // TODO: will need probably need to find a method within php instead of JS
     // temp solution for now.
@@ -686,79 +827,261 @@ export default Garnish.Base.extend({
     return (lastDescendant ? this._blocks.indexOf(lastDescendant) : index) + 1
   },
 
-  _duplicate (data, block) {
-    this.$form.data('elementEditor')?.pause()
+  /**
+   * TODO: hopefully remove this in the Craft 5 version
+   * @private
+   */
+  _registerDynamicBlockConditions () {
+    // A small timeout to let the element editor initialise
+    setTimeout(() => {
+      const elementEditor = this.$form.data('elementEditor')
+      elementEditor?.on('update', () => {
+        // If the draft's being resaved, wait until we get the next event
+        if (elementEditor.submittingForm) {
+          return
+        }
 
-    const animate = !Garnish.prefersReducedMotion()
-    const $spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : 'Loading block'}</div>`)
+        // Don't update visible elements if the draft save was the result of creating a new block
+        if (this._newBlockCount > 0) {
+          this._newBlockCount--
+          return
+        }
 
-    if (typeof block !== 'undefined') {
-      block.$container.after($spinner)
-    } else {
-      this.$blocksContainer.prepend($spinner)
+        elementEditor.pause()
+        const siteId = elementEditor.settings.siteId
+        const data = {
+          blocks: {},
+          sortOrder: [],
+          fieldId: this._id,
+          ownerCanonicalId: this._ownerId,
+          ownerDraftId: elementEditor.settings.draftId,
+          isProvisionalDraft: elementEditor.settings.isProvisionalDraft,
+          siteId
+        }
+        const originalBlockIds = {}
+        this._blocks.forEach((block) => {
+          const selectedTabId = block.$contentContainer
+            .children('[data-layout-tab]:not(.hidden)')
+            .data('layout-tab')
+          data.blocks[block.getDuplicatedBlockId()] = {
+            selectedTab: selectedTabId ?? null,
+            visibleLayoutElements: this._visibleLayoutElements[block.getId()] ?? {}
+          }
+          data.sortOrder.push(block.getDuplicatedBlockId())
+          originalBlockIds[block.getDuplicatedBlockId()] = block.getId()
+        })
+
+        Craft.queue.push(() => new Promise((resolve, reject) => {
+          Craft.sendActionRequest('POST', 'neo/input/update-visible-elements', { data })
+            .then((response) => {
+              for (const blockId in response.data.blocks) {
+                const block = this._blocks.find((block) => block.getId() === originalBlockIds[blockId])
+                this._updateVisibleElements(
+                  block,
+                  response.data.blocks[blockId],
+                  data.blocks[block.getDuplicatedBlockId()].selectedTabId
+                )
+              }
+              resolve()
+            })
+            .catch(reject)
+            .finally(() => elementEditor.resume())
+        }))
+      })
+    }, 200)
+  },
+
+  /**
+   * TODO: hopefully remove this in the Craft 5 version
+   * @private
+   */
+  _updateVisibleElements (block, blockData, selectedTabId) {
+    let $allTabContainers = $()
+    const visibleLayoutElements = {}
+    let changedElements = false
+
+    for (let i = 0; i < blockData.missingElements.length; i++) {
+      const tabInfo = blockData.missingElements[i]
+      let $tabContainer = block.$contentContainer.children(
+        `[data-layout-tab="${tabInfo.uid}"]`
+      )
+
+      if (!$tabContainer.length) {
+        $tabContainer = $('<div/>', {
+          id: block.namespaceId(tabInfo.id),
+          class: 'flex-fields',
+          'data-id': tabInfo.id,
+          'data-layout-tab': tabInfo.uid
+        })
+        if (tabInfo.id !== selectedTabId) {
+          $tabContainer.addClass('hidden')
+        }
+        $tabContainer.appendTo(block.$contentContainer)
+      }
+
+      $allTabContainers = $allTabContainers.add($tabContainer)
+
+      for (let j = 0; j < tabInfo.elements.length; j++) {
+        const elementInfo = tabInfo.elements[j]
+
+        if (elementInfo.html !== false) {
+          if (!visibleLayoutElements[tabInfo.uid]) {
+            visibleLayoutElements[tabInfo.uid] = []
+          }
+          visibleLayoutElements[tabInfo.uid].push(elementInfo.uid)
+
+          if (typeof elementInfo.html === 'string') {
+            const html = elementInfo.html.replaceAll('__NEOBLOCK__', block.getId())
+            const $oldElement = $tabContainer.children(
+              `[data-layout-element="${elementInfo.uid}"]`
+            )
+            const $newElement = $(html)
+            if ($oldElement.length) {
+              $oldElement.replaceWith($newElement)
+            } else {
+              $newElement.appendTo($tabContainer)
+            }
+            Craft.initUiElements($newElement)
+            if ($newElement.hasClass('ni_child-blocks-ui-element')) {
+              block.resetButtons()
+            }
+            changedElements = true
+          }
+        } else {
+          const $oldElement = $tabContainer.children(
+            `[data-layout-element="${elementInfo.uid}"]`
+          )
+          if (
+            !$oldElement.length ||
+            !Garnish.hasAttr(
+              $oldElement,
+              'data-layout-element-placeholder'
+            )
+          ) {
+            const $placeholder = $('<div/>', {
+              class: 'hidden',
+              'data-layout-element': elementInfo.uid,
+              'data-layout-element-placeholder': ''
+            })
+
+            if ($oldElement.length) {
+              $oldElement.replaceWith($placeholder)
+            } else {
+              $placeholder.appendTo($tabContainer)
+            }
+
+            changedElements = true
+          }
+        }
+      }
+
+      if (changedElements) {
+        this._updateButtons()
+      }
     }
 
-    let spinnerComplete = false
-    let spinnerCallback = function () {}
+    // Remove any unused tab content containers
+    // (`[data-layout-tab=""]` == unconditional containers, so ignore those)
+    const $unusedTabContainers = block.$contentContainer
+      .children('[data-layout-tab]')
+      .not($allTabContainers)
+      .not('[data-layout-tab=""]')
+    if ($unusedTabContainers.length) {
+      $unusedTabContainers.remove()
+      changedElements = true
+    }
 
-    if (animate) {
-      $spinner
+    // Make the first tab visible if no others are
+    if (!$allTabContainers.filter(':not(.hidden)').length) {
+      $allTabContainers.first().removeClass('hidden')
+    }
+
+    this._visibleLayoutElements[block.getId()] = visibleLayoutElements
+
+    // Update the tabs
+    // Unfortunately can't use `block.getDuplicatedBlockId()` because it doesn't work here for new blocks
+    const idToReplace = blockData.tabs?.match(/data-neo-b="([0-9]+).container.tabs"/)?.pop() ?? null
+    const tabsHtml = idToReplace
+      ? blockData.tabs.replaceAll(idToReplace, block.getId())
+      : blockData.tabs
+    const $tabsHtml = $(tabsHtml)
+    const $tabsOuterContainer = block.$topbarRightContainer.find('.tabs')
+    $tabsOuterContainer.empty().append($tabsHtml)
+    block.initTabs()
+    block.updateResponsiveness()
+
+    Craft.appendHeadHtml(blockData.headHtml.replaceAll('__NEOBLOCK__', block.getId()))
+    Craft.appendBodyHtml(blockData.bodyHtml.replaceAll('__NEOBLOCK__', block.getId()))
+
+    // Did any layout elements get added or removed?
+    if (changedElements && blockData.initialDeltaValues) {
+      Object.assign(
+        this.$form.data('initial-delta-values'),
+        blockData.initialDeltaValues
+      )
+    }
+  },
+
+  _addSpinnerAfter (block) {
+    if (typeof block !== 'undefined') {
+      block.$container.after(this._$spinner)
+    } else {
+      this.$blocksContainer.prepend(this._$spinner)
+    }
+  },
+
+  _addSpinnerBefore (block) {
+    if (typeof block !== 'undefined') {
+      block.$container.before(this._$spinner)
+    } else {
+      this.$blocksContainer.append(this._$spinner)
+    }
+  },
+
+  _animateSpinnerThen (callback) {
+    if (!Garnish.prefersReducedMotion()) {
+      this._$spinner
         .css({
           opacity: 0,
-          marginBottom: -($spinner.outerHeight())
+          marginBottom: -(this._$spinner.outerHeight())
         })
         .velocity({
           opacity: 1,
           marginBottom: 10
-        }, 'fast', () => {
-          spinnerComplete = true
-          spinnerCallback()
-        })
+        }, 'fast', () => callback())
     } else {
-      spinnerComplete = true
-      spinnerCallback()
+      callback()
+    }
+  },
+
+  _removeSpinner () {
+    this._$spinner.remove()
+  },
+
+  _getNewBlockId () {
+    while (this.$blocksContainer.find(`[data-neo-b-id="new${this._newBlockId}"]`).length > 0) {
+      this._newBlockId++
     }
 
-    Craft.postActionRequest('neo/input/render-blocks', data, e => {
+    return `new${this._newBlockId++}`
+  },
+
+  _duplicate (data, block) {
+    this.$form.data('elementEditor')?.pause()
+    this._addSpinnerAfter(block)
+    this._animateSpinnerThen(() => Craft.postActionRequest('neo/input/render-blocks', data, e => {
       if (e.success && e.blocks.length > 0) {
         const newBlocks = []
 
         for (const renderedBlock of e.blocks) {
-          const newId = Block.getNewId()
-
-          const blockType = this.getBlockTypeById(renderedBlock.type)
-          const newBlockType = new BlockType({
-            id: blockType.getId(),
-            fieldLayoutId: blockType.getFieldLayoutId(),
-            name: blockType.getName(),
-            handle: blockType.getHandle(),
-            enabled: blockType.getEnabled(),
-            maxBlocks: blockType.getMaxBlocks(),
-            maxSiblingBlocks: blockType.getMaxSiblingBlocks(),
-            maxChildBlocks: blockType.getMaxChildBlocks(),
-            groupChildBlockTypes: blockType.getGroupChildBlockTypes(),
-            childBlocks: blockType.getChildBlocks(),
-            topLevel: blockType.getTopLevel(),
-            hasChildBlocksUiElement: blockType.hasChildBlocksUiElement(),
-            creatableByUser: blockType.isCreatableByUser(),
-            deletableByUser: blockType.isDeletableByUser(),
-            editableByUser: blockType.isEditableByUser(),
-            tabs: renderedBlock.tabs
-          })
-
-          const newButtons = new this._buttonClass({
-            field: this,
-            items: newBlockType.getChildBlockItems(this.getItems()),
-            maxBlocks: this.getMaxBlocks()
-          })
-
+          const newId = this._getNewBlockId()
           const newBlock = new Block({
             namespace: [...this._templateNs, newId],
             field: this,
-            blockType: newBlockType,
+            blockType: this.getBlockTypeById(renderedBlock.type),
+            tabs: renderedBlock.tabs,
             id: newId,
             level: renderedBlock.level | 0,
-            buttons: newButtons,
             enabled: !!renderedBlock.enabled,
             collapsed: !!renderedBlock.collapsed,
             showButtons: !this.atMaxLevels(renderedBlock.level | 0),
@@ -768,55 +1091,93 @@ export default Garnish.Base.extend({
           newBlocks.push(newBlock)
         }
 
-        spinnerCallback = () => {
-          let newIndex = this._getNextBlockIndex(block)
+        let newIndex = this._getNextBlockIndex(block)
 
-          for (const newBlock of newBlocks) {
-            this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
-          }
-
-          if (animate) {
-            const firstBlock = newBlocks[0]
-
-            firstBlock.$container
-              .css({
-                opacity: 0,
-                marginBottom: $spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
-              })
-              .velocity({
-                opacity: 1,
-                marginBottom: 10
-              }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
-          }
-
-          $spinner.remove()
-          this.$form.data('elementEditor')?.resume()
+        for (const newBlock of newBlocks) {
+          this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
         }
 
-        if (spinnerComplete) {
-          spinnerCallback()
+        if (!Garnish.prefersReducedMotion()) {
+          const firstBlock = newBlocks[0]
+
+          firstBlock.$container
+            .css({
+              opacity: 0,
+              marginBottom: this._$spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
+            })
+            .velocity({
+              opacity: 1,
+              marginBottom: 10
+            }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
         }
+
+        this._removeSpinner()
+        this.$form.data('elementEditor')?.resume()
       }
-    })
+    }))
   },
 
-  '@newBlock' (e) {
-    const blockId = Block.getNewId()
-    const block = new Block({
-      namespace: [...this._templateNs, blockId],
-      field: this,
-      blockType: e.blockType,
-      id: blockId,
-      buttons: new this._buttonClass({
+  async '@newBlock' (e) {
+    const createTheBlock = () => {
+      const blockId = this._getNewBlockId()
+      const block = new Block({
+        namespace: [...this._templateNs, blockId],
         field: this,
-        items: e.blockType.getChildBlockItems(this.getItems()),
-        maxBlocks: this.getMaxBlocks()
-      }),
-      showButtons: !this.atMaxLevels(e.level),
-      showBlockTypeHandle: this._showBlockTypeHandles
-    }, true)
+        blockType: e.blockType,
+        id: blockId,
+        showButtons: !this.atMaxLevels(e.level),
+        showBlockTypeHandle: this._showBlockTypeHandles
+      }, true)
 
-    this.addBlock(block, e.index, e.level)
+      this._removeSpinner()
+      this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
+    }
+
+    if (e.blockType.getTabs() !== null) {
+      createTheBlock()
+      return
+    }
+
+    const elementEditor = this.$form.data('elementEditor')
+
+    try {
+      elementEditor?.pause()
+      const level = e.level ?? 1
+      let siblingBlock
+      let addAfter = true
+
+      for (let i = typeof e.index !== 'undefined' ? e.index - 1 : this._blocks.length - 1; i >= 0; i--) {
+        // Look for the previous block at the same level as the new block, to add the spinner after
+        if (this._blocks[i].getLevel() === level) {
+          siblingBlock = this._blocks[i]
+          break
+        }
+
+        // If we've gone to a lower level, any future block we find at the same level won't be a
+        // sibling of the new block, so we need to add the spinner before the last block we checked
+        if (this._blocks[i].getLevel() < level) {
+          siblingBlock = this._blocks[i + 1]
+          addAfter = false
+          break
+        }
+      }
+
+      if (addAfter) {
+        this._addSpinnerAfter(siblingBlock)
+      } else {
+        this._addSpinnerBefore(siblingBlock)
+      }
+
+      this._animateSpinnerThen(async () => {
+        await e.blockType.loadTabs()
+        createTheBlock()
+      })
+    } catch (error) {
+      this._removeSpinner()
+      Craft.cp.displayError(error)
+    } finally {
+      elementEditor?.resume()
+    }
   },
 
   '@addBlockAbove' (e) {
@@ -827,7 +1188,7 @@ export default Garnish.Base.extend({
     const index = this._blocks.indexOf(block)
     const parent = this._findParentBlock(index)
     const blocks = this.getBlocks()
-    const buttons = new this._buttonClass({
+    const buttons = new this.ButtonClass({
       $ownerContainer: block.isTopLevel() ? this.$container : block.getParent().$container,
       field: this,
       blockTypes: !parent ? this.getBlockTypes(true) : [],

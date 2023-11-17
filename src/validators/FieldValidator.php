@@ -223,11 +223,12 @@ class FieldValidator extends Validator
 
             // Create the sibling count for this parent block if this block is the first of its children
             if (!isset($blockSiblingCount[$parentId])) {
+                $blockTypesToMap = $atTopLevel ? $topLevelBlockTypeHandles : $childBlockTypes[$parent->typeId];
                 $blockSiblingCount[$parentId] = array_fill_keys(
-                    array_map(
-                        fn($handle) => $blockTypesByHandle[$handle]->id,
-                        $atTopLevel ? $topLevelBlockTypeHandles : $childBlockTypes[$parent->typeId]
-                    ),
+                    array_filter(array_map(
+                        fn($handle) => isset($blockTypesByHandle[$handle]) ? $blockTypesByHandle[$handle]->id : null,
+                        $blockTypesToMap ?? []
+                    )),
                     0
                 );
             }

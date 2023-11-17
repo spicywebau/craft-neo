@@ -5,6 +5,15 @@ $topbar-background-color-level-odd: #ebf2fa;
 $topbar-background-color-level-even: #ebf2fa80;
 $topbar-background-color-transparent: #ebf2fa00;
 
+@mixin icon {
+    width: 30px;
+    height: 30px;
+
+    &.defaulticon {
+        background-image: url(../icons/default-new-block-icon.svg);
+    }
+}
+
 .neo-input {
 
     &.is-static {
@@ -67,9 +76,8 @@ $topbar-background-color-transparent: #ebf2fa00;
         }
 
         &_icon {
+            @include icon;
             margin: 0 auto 10px;
-            width: 30px;
-            height: 30px;
         }
     }
 
@@ -94,8 +102,7 @@ $topbar-background-color-transparent: #ebf2fa00;
         }
 
         &_icon {
-            width: 30px;
-            height: 30px;
+            @include icon;
         }
     }
 
@@ -220,17 +227,8 @@ $topbar-background-color-transparent: #ebf2fa00;
 
                 &.handle {
                     display: flex;
-                    align-items: center;
-                    transform: translateY(2px);
-
-                    > .copytextbtn {
-                        height: 20px;
-                        transform: translateY(-2px);
-
-                        > input {
-                            line-height: 1;
-                        }
-                    }
+                    transform: translateY(3px);
+                    line-height: 1.42;
                 }
 
                 &.preview-container {

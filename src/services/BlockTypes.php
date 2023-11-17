@@ -25,11 +25,14 @@ use craft\elements\Address;
 use craft\elements\Asset;
 use craft\elements\Category;
 use craft\elements\Entry;
+use craft\elements\GlobalSet;
 use craft\elements\Tag;
 use craft\elements\User;
 use craft\events\ConfigEvent;
+use craft\helpers\App;
 use craft\helpers\Cp;
 use craft\helpers\Db;
+use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
@@ -86,6 +89,11 @@ class BlockTypes extends Component
      * @var string[]|null Supported element types for setting conditions on when block types can be used
      */
     private ?array $_conditionElementTypes = null;
+
+    /**
+     * @var array
+     */
+    private array $_iconTransforms = [];
 
     /**
      * Gets a Neo block type given its ID.
@@ -246,6 +254,7 @@ class BlockTypes extends Component
         $record->name = $blockType->name;
         $record->handle = $blockType->handle;
         $record->description = $blockType->description;
+        $record->iconFilename = $blockType->iconFilename;
         $record->iconId = $blockType->iconId;
         $record->enabled = $blockType->enabled;
         $record->ignorePermissions = $blockType->ignorePermissions;
@@ -285,7 +294,7 @@ class BlockTypes extends Component
             return false;
         }
 
-        $projectConfigService = Craft::$app->getProjectConfig();
+        $projectConfig = Craft::$app->getProjectConfig();
         $isNew = $blockType->getIsNew();
 
         if ($isNew) {
@@ -296,7 +305,7 @@ class BlockTypes extends Component
             $blockType->uid = Db::uidById('{{%neoblocktypes}}', $blockType->id);
         }
 
-        $data = $blockType->getConfig();
+        $config = $blockType->getConfig();
         $event = new BlockTypeEvent([
             'blockType' => $blockType,
             'isNew' => $isNew,
@@ -305,7 +314,10 @@ class BlockTypes extends Component
         $this->trigger(self::EVENT_BEFORE_SAVE_BLOCK_TYPE, $event);
 
         $path = 'neoBlockTypes.' . $blockType->uid;
-        $projectConfigService->set($path, $data);
+        $sortOrder = $config['sortOrder'] - 1;
+        unset($config['sortOrder']);
+        $projectConfig->set('neo.orders.' . $config['field'] . ".$sortOrder", "blockType:$blockType->uid");
+        $projectConfig->set($path, $config);
 
         return true;
     }
@@ -319,7 +331,7 @@ class BlockTypes extends Component
      */
     public function saveGroup(BlockTypeGroup $blockTypeGroup): bool
     {
-        $projectConfigService = Craft::$app->getProjectConfig();
+        $projectConfig = Craft::$app->getProjectConfig();
 
         if ($blockTypeGroup->getIsNew()) {
             $blockTypeGroup->uid = StringHelper::UUID();
@@ -328,7 +340,11 @@ class BlockTypes extends Component
         }
 
         $path = 'neoBlockTypeGroups.' . $blockTypeGroup->uid;
-        $projectConfigService->set($path, $blockTypeGroup->getConfig());
+        $config = $blockTypeGroup->getConfig();
+        $sortOrder = $config['sortOrder'] - 1;
+        unset($config['sortOrder']);
+        $projectConfig->set('neo.orders.' . $config['field'] . ".$sortOrder", "blockTypeGroup:$blockTypeGroup->uid");
+        $projectConfig->set($path, $config);
 
         if ($blockTypeGroup->getIsNew()) {
             $blockTypeGroup->id = Db::idByUid('{{%neoblocktypegroups}}', $blockTypeGroup->uid);
@@ -346,7 +362,17 @@ class BlockTypes extends Component
      */
     public function delete(BlockType $blockType): bool
     {
-        Craft::$app->getProjectConfig()->remove('neoBlockTypes.' . $blockType->uid);
+        $projectConfig = Craft::$app->getProjectConfig();
+        $fieldSortOrderPath = 'neo.orders.' . $blockType->getConfig()['field'];
+        $fieldSortOrder = $projectConfig->get($fieldSortOrderPath);
+        $key = array_search($blockType->uid, $fieldSortOrder);
+
+        if ($key) {
+            unset($fieldSortOrder[$key]);
+        }
+
+        $projectConfig->set($fieldSortOrderPath, array_values($fieldSortOrder));
+        $projectConfig->remove('neoBlockTypes.' . $blockType->uid);
 
         return true;
     }
@@ -361,7 +387,17 @@ class BlockTypes extends Component
      */
     public function deleteGroup(BlockTypeGroup $blockTypeGroup): bool
     {
-        Craft::$app->getProjectConfig()->remove('neoBlockTypeGroups.' . $blockTypeGroup->uid);
+        $projectConfig = Craft::$app->getProjectConfig();
+        $fieldSortOrderPath = 'neo.orders.' . $blockTypeGroup->getConfig()['field'];
+        $fieldSortOrder = $projectConfig->get($fieldSortOrderPath);
+        $key = array_search($blockTypeGroup->uid, $fieldSortOrder);
+
+        if ($key) {
+            unset($fieldSortOrder[$key]);
+        }
+
+        $projectConfig->set($fieldSortOrderPath, array_values($fieldSortOrder));
+        $projectConfig->remove('neoBlockTypeGroups.' . $blockTypeGroup->uid);
 
         return true;
     }
@@ -401,6 +437,7 @@ class BlockTypes extends Component
 
         // Make sure the fields have been synced
         ProjectConfigHelper::ensureAllFieldsProcessed();
+        $projectConfig->processConfigChanges('neo.orders.' . $data['field']);
 
         $fieldId = Db::idByUid('{{%fields}}', $data['field']);
 
@@ -420,9 +457,27 @@ class BlockTypes extends Component
             $isNew = false;
             $blockType = null;
             $blockTypeConditions = $data['conditions'] ?? [];
-            $blockTypeIcon = $data['icon'] !== null
-                ? Craft::$app->getElements()->getElementByUid($data['icon'], Asset::class)
-                : null;
+
+            if (!isset($data['icon'])) {
+                $blockTypeIcon = null;
+            } elseif (is_string($data['icon'])) {
+                $blockTypeIcon = Craft::$app->getElements()->getElementByUid($data['icon'], Asset::class);
+            } else {
+                $volumeId = Db::idByUid(Table::VOLUMES, $data['icon']['volume']);
+                $folderId = (new Query())
+                    ->select(['id'])
+                    ->from(Table::VOLUMEFOLDERS)
+                    ->where([
+                        'volumeId' => $volumeId,
+                        'path' => $data['icon']['folderPath'],
+                    ])
+                    ->scalar();
+                $blockTypeIcon = Asset::find()
+                    ->volumeId($volumeId)
+                    ->folderId($folderId)
+                    ->filename($data['icon']['filename'])
+                    ->one();
+            }
 
             if ($record->id !== null) {
                 $result = $this->_createQuery()
@@ -441,25 +496,6 @@ class BlockTypes extends Component
 
             if ($fieldLayoutConfig !== null) {
                 $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
-
-                // If the field layout config had any blank tabs from before Neo 2.8 / Craft 3.5, make sure they're kept
-                $layoutTabs = $fieldLayout->getTabs();
-                $setNewTabs = false;
-
-                for ($i = 0; $i < count($fieldLayoutConfig['tabs']); $i++) {
-                    $tabConfig = isset($fieldLayoutConfig['tabs'][$i]) ? $fieldLayoutConfig['tabs'][$i] : null;
-
-                    if ($tabConfig && !isset($tabConfig['fields']) && !isset($tabConfig['elements'])) {
-                        $tab = FieldLayoutTab::createFromConfig($tabConfig);
-                        array_splice($layoutTabs, $i, 0, [$tab]);
-                        $setNewTabs = true;
-                    }
-                }
-
-                if ($setNewTabs) {
-                    $fieldLayout->setTabs($layoutTabs);
-                }
-
                 $fieldLayout->id = $record->fieldLayoutId;
                 $fieldLayout->type = Block::class;
                 $fieldLayout->uid = key($data['fieldLayouts']);
@@ -467,15 +503,26 @@ class BlockTypes extends Component
                 $fieldsService->saveLayout($fieldLayout);
             }
 
+            // Find the sort order for this block type based on the orders saved in the project config
+            // If the sort order isn't found, assume it was passed in the old format
+            $searchedSortOrder = array_search(
+                "blockType:$uid",
+                $projectConfig->get('neo.orders.' . $data['field']) ?? []
+            );
+            $sortOrder = $searchedSortOrder !== false
+                ? $searchedSortOrder + 1
+                : $data['sortOrder'];
+
             $record->fieldId = $fieldId;
             $record->groupId = $groupId;
             $record->name = $data['name'];
             $record->handle = $data['handle'];
-            $record->description = $data['description'] ?? null;
+            $record->description = $data['description'] ?? '';
+            $record->iconFilename = $data['iconFilename'] ?? '';
             $record->iconId = $blockTypeIcon?->id ?? null;
             $record->enabled = $data['enabled'] ?? true;
             $record->ignorePermissions = $data['ignorePermissions'] ?? true;
-            $record->sortOrder = $data['sortOrder'];
+            $record->sortOrder = $sortOrder;
             $record->minBlocks = $data['minBlocks'] ?? 0;
             $record->maxBlocks = $data['maxBlocks'];
             $record->minSiblingBlocks = $data['minSiblingBlocks'] ?? 0;
@@ -495,10 +542,10 @@ class BlockTypes extends Component
             $blockType->groupId = $groupId;
             $blockType->name = $data['name'];
             $blockType->handle = $data['handle'];
-            $blockType->description = $data['description'] ?? null;
+            $blockType->description = $data['description'] ?? '';
             $blockType->enabled = $data['enabled'] ?? true;
             $blockType->ignorePermissions = $data['ignorePermissions'] ?? true;
-            $blockType->sortOrder = $data['sortOrder'];
+            $blockType->sortOrder = $sortOrder;
             $blockType->minBlocks = $data['minBlocks'] ?? 0;
             $blockType->maxBlocks = $data['maxBlocks'];
             $blockType->minSiblingBlocks = $data['minSiblingBlocks'] ?? 0;
@@ -602,6 +649,8 @@ class BlockTypes extends Component
 
         $data = $event->newValue;
         $dbService = Craft::$app->getDb();
+        $projectConfig = Craft::$app->getProjectConfig();
+        $projectConfig->processConfigChanges('neo.orders.' . $data['field']);
         $transaction = $dbService->beginTransaction();
 
         try {
@@ -615,14 +664,24 @@ class BlockTypes extends Component
                 if ($data) {
                     $record->fieldId = Db::idByUid('{{%fields}}', $data['field']);
                     $record->name = $data['name'] ?? '';
-                    $record->sortOrder = $data['sortOrder'];
+
+                    // Find the sort order for this group based on the orders saved in the project config
+                    // If the sort order isn't found, assume it was passed in the old format
+                    $searchedSortOrder = array_search(
+                        "blockTypeGroup:$uid",
+                        $projectConfig->get('neo.orders.' . $data['field']) ?? []
+                    );
+                    $record->sortOrder = $searchedSortOrder !== false
+                        ? $searchedSortOrder + 1
+                        : $data['sortOrder'];
+
                     // If the Craft install was upgraded from Craft 3 / Neo 2 and the project config doesn't have
                     // `alwaysShowDropdown` set, set it to null so it falls back to the global setting
                     $record->alwaysShowDropdown = $data['alwaysShowDropdown'] ?? null;
                     $record->uid = $uid;
                     $record->save(false);
                 } else {
-                    // if $data is unavailable then it
+                    // An existing record is being deleted
                     $record->delete();
                 }
             }
@@ -663,28 +722,49 @@ class BlockTypes extends Component
     /**
      * Renders a Neo block type's settings.
      *
+     * @deprecated in 3.9.8; use `renderSettings()` instead
      * @param BlockType|null $blockType
      * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
      * @return array
      */
     public function renderBlockTypeSettings(?BlockType $blockType = null, ?string $baseNamespace = null): array
     {
+        $settings = $this->renderSettings($blockType, $baseNamespace);
+        return [$settings['settingsHtml'], $settings['settingsJs']];
+    }
+
+    /**
+     * Renders a Neo block type's settings.
+     *
+     * @since 3.9.8
+     * @param BlockType|null $blockType
+     * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
+     * @return array
+     */
+    public function renderSettings(?BlockType $blockType = null, ?string $baseNamespace = null): array
+    {
         $view = Craft::$app->getView();
         $blockTypeId = $blockType?->id ?? '__NEOBLOCKTYPE_ID__';
         $oldNamespace = $view->getNamespace();
-        $newNamespace = ($baseNamespace ?? $oldNamespace) . '[blockTypes][' . $blockTypeId . ']';
+        $newNamespace = ($baseNamespace ?? $oldNamespace) . "[items][blockTypes][$blockTypeId]";
         $view->setNamespace($newNamespace);
         $view->startJsBuffer();
 
-        $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
+        $template = $view->namespaceInputs($view->renderTemplate('neo/block-type-settings', [
             'blockType' => $blockType,
             'conditions' => $this->_getConditions($blockType),
+            'neoField' => $blockType?->getField(),
         ]));
 
         $js = $view->clearJsBuffer();
         $view->setNamespace($oldNamespace);
 
-        return [$html, $js];
+        return [
+            'settingsHtml' => $template,
+            'settingsJs' => $js,
+            'bodyHtml' => $blockType ? $view->getBodyHtml() : null,
+            'headHtml' => $blockType ? $view->getHeadHtml() : null,
+        ];
     }
 
     /**
@@ -706,6 +786,32 @@ class BlockTypes extends Component
         $view->clearJsBuffer();
 
         return $html;
+    }
+
+    /**
+     * Renders a Neo block type's settings.
+     *
+     * @param BlockTypeGroup|null $group
+     * @param string|null $baseNamespace A base namespace to use instead of `Craft::$app->getView()->getNamespace()`
+     * @return array
+     */
+    public function renderBlockTypeGroupSettings(?BlockTypeGroup $group = null, ?string $baseNamespace = null): array
+    {
+        $view = Craft::$app->getView();
+        $groupId = $group?->id ?? '__NEOBLOCKTYPEGROUP_ID__';
+        $oldNamespace = $view->getNamespace();
+        $newNamespace = ($baseNamespace ?? $oldNamespace) . "[items][groups][$groupId]";
+        $view->setNamespace($newNamespace);
+        $view->startJsBuffer();
+
+        $html = $view->namespaceInputs($view->renderTemplate('neo/block-type-group-settings', [
+            'group' => $group,
+        ]));
+
+        $js = $view->clearJsBuffer();
+        $view->setNamespace($oldNamespace);
+
+        return [$html, $js];
     }
 
     /**
@@ -745,6 +851,105 @@ class BlockTypes extends Component
     }
 
     /**
+     * Gets the filenames of all SVG files in the folder set as the `blockTypeIconPath` plugin setting.
+     *
+     * @return string[]
+     * @since 3.10.0
+     */
+    public function getAllIconFilenames(): array
+    {
+        $iconFolderPath = App::parseEnv(Neo::$plugin->getSettings()->blockTypeIconPath);
+        $iconPaths = FileHelper::findFiles($iconFolderPath, [
+            'only' => [
+                '*.svg',
+            ],
+            'recursive' => false,
+        ]);
+
+        return array_map(
+            fn($path) => substr($path, strlen($iconFolderPath) + 1),
+            $iconPaths
+        );
+    }
+
+    /**
+     * Gets the path of a block type's icon, if an icon filename is set and the file exists.
+     *
+     * @param BlockType|string $blockTypeOrFilename
+     * @param array|null $transform The width and height to scale/crop the image to.
+     * @return string|null
+     * @since 3.10.0
+     */
+    public function getIconPath(BlockType|string $blockTypeOrFilename, ?array $transform = null): ?string
+    {
+        $iconFilename = $blockTypeOrFilename instanceof BlockType
+            ? $blockTypeOrFilename->iconFilename
+            : $blockTypeOrFilename;
+
+        return $iconFilename !== null
+            ? $this->_transformIcon($iconFilename, $transform)[0]
+            : null;
+    }
+
+    /**
+     * Gets the URL of a block type's icon, if an icon filename is set and the file exists.
+     *
+     * @param BlockType|string $blockTypeOrFilename
+     * @param array|null $transform The width and height to scale/crop the image to.
+     * @return string|null
+     * @since 3.10.0
+     */
+    public function getIconUrl(BlockType|string $blockTypeOrFilename, ?array $transform = null): ?string
+    {
+        $iconFilename = $blockTypeOrFilename instanceof BlockType
+            ? $blockTypeOrFilename->iconFilename
+            : $blockTypeOrFilename;
+
+        return $iconFilename !== null
+            ? $this->_transformIcon($iconFilename, $transform)[1]
+            : null;
+    }
+
+    private function _transformIcon(string $filename, ?array $transform = null): array
+    {
+        $key = $transform !== null
+            ? $filename . Json::encode($transform)
+            : $filename;
+
+        if (!isset($this->_iconTransforms[$key])) {
+            $iconFolder = Neo::$plugin->getSettings()->blockTypeIconPath;
+            $generalConfig = Craft::$app->getConfig()->getGeneral();
+            $resourceBasePath = rtrim(App::parseEnv($generalConfig->resourceBasePath), DIRECTORY_SEPARATOR);
+            $resourceBaseUrl = rtrim(App::parseEnv($generalConfig->resourceBaseUrl), DIRECTORY_SEPARATOR);
+            FileHelper::createDirectory($resourceBasePath . DIRECTORY_SEPARATOR . 'neo');
+            $imagePath = rtrim(App::parseEnv($iconFolder), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
+            $extension = FileHelper::getExtensionByMimeType(FileHelper::getMimeType($imagePath));
+            $size = $transform !== null ? "{$transform['width']}x{$transform['height']}" : 'full';
+            $relativeImageDest = 'neo' . DIRECTORY_SEPARATOR . hash('sha256', $imagePath) . "-$size.$extension";
+            $imageDestPath = $resourceBasePath . DIRECTORY_SEPARATOR . $relativeImageDest;
+            $imageDestUrl = $resourceBaseUrl . DIRECTORY_SEPARATOR . $relativeImageDest;
+
+            if (!file_exists($imageDestPath)) {
+                try {
+                    $image = Craft::$app->getImages()->loadImage($imagePath);
+
+                    if ($transform !== null) {
+                        $image->scaleAndCrop($transform['width'], $transform['height']);
+                    }
+
+                    $image->saveAs($imageDestPath);
+                } catch (\Exception $e) {
+                    return null;
+                }
+            }
+
+            $this->_iconTransforms[$key] = [$imageDestPath, $imageDestUrl];
+        }
+
+        return $this->_iconTransforms[$key];
+    }
+
+    /**
      * Creates a basic Neo block type query.
      *
      * @return Query
@@ -771,6 +976,7 @@ class BlockTypes extends Component
         // Columns that didn't exist in Neo 3.0.0
         $maybeColumns = [
             'description',
+            'iconFilename',
             'iconId',
             'enabled',
             'ignorePermissions',
@@ -929,6 +1135,7 @@ class BlockTypes extends Component
             User::class,
             Tag::class,
             Address::class,
+            GlobalSet::class,
         ];
 
         // Craft Commerce element types

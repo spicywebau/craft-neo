@@ -8,6 +8,7 @@ use benf\neo\Plugin as Neo;
 use benf\neo\records\BlockStructure as BlockStructureRecord;
 use Craft;
 use craft\db\Query;
+use craft\db\Table;
 use craft\fieldlayoutelements\CustomField;
 use craft\models\Structure;
 use yii\base\Component;
@@ -27,11 +28,12 @@ class Blocks extends Component
      *
      * @param int $blockId The Neo block ID to look for.
      * @param int|null $siteId The site the Neo block should belong to.
+     * @param array $criteria
      * @return Block|null The Neo block found, if any.
      */
-    public function getBlockById(int $blockId, ?int $siteId = null): ?Block
+    public function getBlockById(int $blockId, ?int $siteId = null, array $criteria = []): ?Block
     {
-        return Craft::$app->getElements()->getElementById($blockId, Block::class, $siteId);
+        return Craft::$app->getElements()->getElementById($blockId, Block::class, $siteId, $criteria);
     }
 
     /**
@@ -62,7 +64,9 @@ class Blocks extends Component
         $data = [];
 
         foreach ($fieldLayoutTabs as $tab) {
-            $data['tabNames'][] = Craft::t('site', $tab->name);
+            $translatedName = Craft::t('site', $tab->name);
+            $data['tabNames'][] = $translatedName;
+            $data['tabUids'][$translatedName] = $tab->uid;
 
             foreach ($tab->getElements() as $tabElement) {
                 if ($tabElement instanceof CustomField && $isNewBlock) {
@@ -72,23 +76,13 @@ class Blocks extends Component
         }
 
         $view->startJsBuffer();
-        $html = $view->namespaceInputs($fieldLayout->createForm($block)->render());
+        $fieldLayoutForm = $fieldLayout->createForm($block);
+        $data['visibleLayoutElements'] = $fieldLayoutForm->getVisibleElements();
+        $html = $view->namespaceInputs($fieldLayoutForm->render());
         $data['js'] = $view->clearJsBuffer();
-
-        if ($blockType->hasChildBlocksUiElement()) {
-            $data['html'] = preg_replace(
-                '/<div data-neo-child-blocks-ui-element="__NEOBLOCK__" data-layout-element="([a-f0-9-]+)"><\/div>/',
-                $view->renderTemplate('neo/child-blocks', [
-                    'block' => $block,
-                    'handle' => $field->handle,
-                    'static' => false,
-                    'uid' => "$1",
-                ]),
-                $html,
-            );
-        } else {
-            $data['html'] = $html;
-        }
+        $data['html'] = $blockType->hasChildBlocksUiElement()
+            ? $this->replaceChildBlocksUiElementPlaceholder($html, $block)
+            : $html;
 
         // Reset $_isFresh's
         foreach ($fieldLayoutTabs as $tab) {
@@ -105,6 +99,21 @@ class Blocks extends Component
     }
 
     /**
+     * Gets Neo block structures matching the given criteria.
+     *
+     * @param array|null $criteria
+     * @return BlockStructure[] The block structures found.
+     * @since 3.8.3
+     */
+    public function getStructures(?array $criteria = null): array
+    {
+        return $this->_createStructureQuery($criteria)
+            ->collect()
+            ->map(fn($result) => new BlockStructure($result))
+            ->all();
+    }
+
+    /**
      * Gets a Neo block structure.
      * Looks for a block structure associated with a given field ID and owner ID, and optionally the owner's site ID.
      *
@@ -114,22 +123,12 @@ class Blocks extends Component
      */
     public function getStructure(int $fieldId, int $ownerId, ?int $siteId = null): ?BlockStructure
     {
-        $blockStructure = null;
-
-        $query = $this->_createStructureQuery()
-            ->where([
-                'fieldId' => $fieldId,
-                'ownerId' => $ownerId,
-                'siteId' => $siteId,
-            ]);
-
-        $result = $query->one();
-
-        if ($result) {
-            $blockStructure = new BlockStructure($result);
-        }
-
-        return $blockStructure;
+        $result = $this->_createStructureQuery([
+            'fieldId' => $fieldId,
+            'ownerId' => $ownerId,
+            'siteId' => $siteId,
+        ])->one();
+        return $result !== null ? new BlockStructure($result) : null;
     }
 
     /**
@@ -140,17 +139,8 @@ class Blocks extends Component
      */
     public function getStructureById(int $id): ?BlockStructure
     {
-        $blockStructure = null;
-
-        $result = $this->_createStructureQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if ($result) {
-            $blockStructure = new BlockStructure($result);
-        }
-
-        return $blockStructure;
+        $result = $this->_createStructureQuery(['id' => $id])->one();
+        return $result !== null ? new BlockStructure($result) : null;
     }
 
     /**
@@ -204,10 +194,11 @@ class Blocks extends Component
      * Deletes a Neo block structure.
      *
      * @param BlockStructure $blockStructure The block structure to delete.
+     * @param bool $hardDelete Whether to hard-delete the underlying structure (the block structure row itself is always hard-deleted).
      * @return bool Whether the deletion was successful.
      * @throws \Throwable
      */
-    public function deleteStructure(BlockStructure $blockStructure): bool
+    public function deleteStructure(BlockStructure $blockStructure, bool $hardDelete = false): bool
     {
         $dbService = Craft::$app->getDb();
         $structuresService = Craft::$app->getStructures();
@@ -218,7 +209,12 @@ class Blocks extends Component
             $transaction = $dbService->beginTransaction();
             try {
                 if ($blockStructure->structureId) {
-                    $structuresService->deleteStructureById($blockStructure->structureId);
+                    $method = $hardDelete ? 'delete' : 'softDelete';
+                    Craft::$app->getDb()->createCommand()
+                        ->{$method}(Table::STRUCTURES, [
+                            'id' => $blockStructure->structureId,
+                        ])
+                        ->execute();
                 }
 
                 $affectedRows = $dbService->createCommand()
@@ -300,13 +296,42 @@ class Blocks extends Component
     }
 
     /**
+     * Replaces the child blocks UI element placeholder in the given HTML with the actual child blocks.
+     *
+     * @param string $html
+     * @param Block $parentBlock
+     * @param int|null $overrideBlockId
+     * @return string
+     * @since 3.7.7
+     */
+    public function replaceChildBlocksUiElementPlaceholder(
+        string $html,
+        Block $parentBlock,
+        ?int $overrideBlockId = null,
+    ): string {
+        $dataAttr = (string)($overrideBlockId ?? $parentBlock->id ?? '__NEOBLOCK__');
+
+        return preg_replace(
+            "/<div data-neo-child-blocks-ui-element=\"$dataAttr\" data-layout-element=\"([a-f0-9-]+)\"><\/div>/",
+            Craft::$app->getView()->renderTemplate('neo/child-blocks', [
+                'block' => $parentBlock,
+                'handle' => $parentBlock->getType()->getField()->handle,
+                'static' => false,
+                'uid' => "$1",
+            ]),
+            $html,
+        );
+    }
+
+    /**
      * Creates a basic Neo block structure query.
      *
+     * @param array|null $criteria
      * @return Query
      */
-    private function _createStructureQuery(): Query
+    private function _createStructureQuery(?array $criteria = null): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'structureId',
@@ -315,5 +340,11 @@ class Blocks extends Component
                 'fieldId',
             ])
             ->from(['{{%neoblockstructures}}']);
+
+        if ($criteria !== null) {
+            $query->where($criteria);
+        }
+
+        return $query;
     }
 }

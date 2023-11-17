@@ -3,6 +3,7 @@ import Craft from 'craft'
 import Garnish from 'garnish'
 import NS from '../namespace'
 import Settings from './Settings'
+import BlockTypeIconSelect from './BlockTypeIconSelect'
 
 const _defaults = {
   namespace: [],
@@ -36,7 +37,6 @@ export default Settings.extend({
   _initialised: false,
 
   $container: null,
-  $sortOrderInput: new $(),
   $nameInput: new $(),
   $handleInput: new $(),
   $descriptionInput: new $(),
@@ -46,6 +46,7 @@ export default Settings.extend({
   $maxSiblingBlocksInput: new $(),
   $minChildBlocksInput: new $(),
   $maxChildBlocksInput: new $(),
+  $iconContainer: new $(),
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -58,8 +59,9 @@ export default Settings.extend({
     this._fieldLayoutConfig = settings.fieldLayoutConfig
     this._errors = settings.errors
     this._settingsChildBlockTypes = settings.childBlockTypes
+    this._originalSettings = settings
+    this._iconSelector = null
     this._afterCreateContainer = () => {
-      this.setSortOrder(settings.sortOrder)
       this.setName(settings.name)
       this.setHandle(settings.handle)
       this.setDescription(settings.description)
@@ -73,9 +75,13 @@ export default Settings.extend({
       this.setMinChildBlocks(settings.minChildBlocks)
       this.setMaxChildBlocks(settings.maxChildBlocks)
       this.setTopLevel(settings.topLevel)
+
+      if (this.$iconContainer.length > 0) {
+        this._iconSelector = new BlockTypeIconSelect(this.$iconContainer[0])
+      }
     }
 
-    if (settings.html !== null) {
+    if (typeof settings.html !== 'undefined' && settings.html !== null) {
       this.createContainer({
         html: settings.html,
         js: settings.js
@@ -93,10 +99,10 @@ export default Settings.extend({
     this._js = containerData.js ?? ''
 
     const $neo = this.$container.find('[data-neo-bts]')
-    this.$sortOrderInput = $neo.filter('[data-neo-bts="input.sortOrder"]')
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
+    this.$iconContainer = $neo.filter('[data-neo-bts="container.iconFilename"]')
     this.$iconIdContainer = $neo.filter('[data-neo-bts="container.iconId"]')
     this.$enabledInput = $neo.filter('[data-neo-bts="input.enabled"]')
     this.$enabledContainer = $neo.filter('[data-neo-bts="container.enabled"]')
@@ -122,7 +128,8 @@ export default Settings.extend({
   },
 
   initUi () {
-    if (this._initialised) {
+    // Exit if UI already initialised, or there is no UI to initialise yet
+    if (this._initialised || this.$container === null) {
       return
     }
 
@@ -198,8 +205,8 @@ export default Settings.extend({
     NS.leave()
 
     return $(`
-      <div>
-        <input type="checkbox" value="${settings.getHandle()}" id="${id}" class="checkbox" name="${name}[]" data-neo-btsc="input">
+      <div data-neo-btsc="container.${settings.getId()}">
+        <input type="checkbox" value="${settings.getHandle()}" id="${id}" class="checkbox" name="${name}[]" data-neo-btsc="input.${settings.getId()}">
         <label for="${id}" data-neo-btsc="text.label">${settings.getName()}</label>
       </div>`)
   },
@@ -232,13 +239,14 @@ export default Settings.extend({
     return this._errors
   },
 
-  setSortOrder (sortOrder) {
-    this.base(sortOrder)
-
-    this.$sortOrderInput.val(this.getSortOrder())
+  /**
+   * @deprecated in 3.8.0
+   */
+  setSortOrder (_) {
+    console.warn('BlockTypeSettings.setSortOrder() is deprecated and no longer used.')
   },
 
-  getName () { return this._name },
+  getName () { return this._name ?? this._originalSettings.name },
   setName (name) {
     if (name !== this._name) {
       const oldName = this._name
@@ -256,7 +264,7 @@ export default Settings.extend({
     }
   },
 
-  getHandle () { return this._handle },
+  getHandle () { return this._handle ?? this._originalSettings.handle },
   setHandle (handle) {
     if (handle !== this._handle) {
       const oldHandle = this._handle
@@ -360,7 +368,7 @@ export default Settings.extend({
     }
   },
 
-  getTopLevel () { return this._topLevel },
+  getTopLevel () { return this._topLevel ?? this._originalSettings.topLevel },
   setTopLevel (topLevel) { this._setLightswitchField('topLevel', topLevel) },
 
   _setLightswitchField (property, value) {
@@ -409,6 +417,10 @@ export default Settings.extend({
   },
 
   setChildBlocks (childBlocks) {
+    if (typeof childBlocks === 'undefined') {
+      childBlocks = this._childBlocks
+    }
+
     const select = this._childBlocksSelect
 
     if (childBlocks === true || childBlocks === '*') {
@@ -431,12 +443,17 @@ export default Settings.extend({
   addChildBlockType (blockType) {
     if (!this._childBlockTypes.includes(blockType)) {
       const settings = blockType.getSettings()
-      const $checkbox = this._generateChildBlocksCheckbox(settings)
+      const $existingCheckbox = this.$childBlocksContainer.find(`[data-neo-btsc="input.${settings.getId()}"]`)
+      const $checkbox = $existingCheckbox.length > 0
+        ? $existingCheckbox
+        : this._generateChildBlocksCheckbox(settings)
 
       this._childBlockTypes.push(blockType)
-      this.$childBlocksContainer.append($checkbox)
 
-      this._refreshChildBlocks()
+      if ($existingCheckbox.length === 0) {
+        this.$childBlocksContainer.append($checkbox)
+        this._refreshChildBlockType(blockType)
+      }
 
       const select = this._childBlocksSelect
       const allChecked = select.$all.prop('checked')
@@ -465,7 +482,7 @@ export default Settings.extend({
       const eventNs = '.childBlock' + this.getId()
       settings.off(eventNs)
 
-      this._refreshChildBlocks()
+      this._refreshChildBlockType(blockType)
     }
   },
 
@@ -513,18 +530,41 @@ export default Settings.extend({
     return conditionsData
   },
 
-  _refreshChildBlocks () {
-    const blockTypes = Array.from(this._childBlockTypes)
-    const $options = this.$childBlocksContainer.children()
+  /**
+   * @since 3.8.0
+   */
+  refreshChildBlockTypes (childBlockTypes) {
+    if (childBlockTypes) {
+      this._childBlockTypes = childBlockTypes
+    }
 
-    const getOption = blockType => $options.get(blockTypes.indexOf(blockType))
+    this._childBlockTypes.forEach((childBlockType) => this._refreshChildBlockType(childBlockType))
+  },
 
-    this._childBlockTypes = this._childBlockTypes.sort((a, b) => a.getSettings().getSortOrder() - b.getSettings().getSortOrder())
-    $options.remove()
+  _refreshChildBlockType (blockType) {
+    const $sidebarContainer = blockType.getField().$sidebarContainer
+    const $sidebarItem = $sidebarContainer.find(`[data-neo-bt="container.${blockType.getId()}"]`)
+    let $refreshedBlockType = this.$childBlocksContainer.children(`[data-neo-btsc="container.${blockType.getId()}"]`)
 
-    for (const blockType of this._childBlockTypes) {
-      const $option = getOption(blockType)
-      this.$childBlocksContainer.append($option)
+    if ($refreshedBlockType.length === 0) {
+      // New block type, create checkbox
+      $refreshedBlockType = this._generateChildBlocksCheckbox(blockType.getSettings())
+    }
+
+    if ($sidebarItem.length > 0) {
+      // Block type reordered
+      const position = $sidebarItem.index('.nc_sidebar_list_item:not(.type-heading)')
+      const $currentChildBlockTypeAtPos = this.$childBlocksContainer.children().eq(position)
+
+      if ($currentChildBlockTypeAtPos.length > 0) {
+        $refreshedBlockType.insertBefore($currentChildBlockTypeAtPos)
+      } else {
+        // Added to the end
+        $refreshedBlockType.appendTo(this.$childBlocksContainer)
+      }
+    } else {
+      // Block type deleted
+      $refreshedBlockType.remove()
     }
   },
 
@@ -537,7 +577,7 @@ export default Settings.extend({
 
   '@onChildBlockTypeChange' (e, blockType, $checkbox) {
     const $neo = $checkbox.find('[data-neo-btsc]')
-    const $input = $neo.filter('[data-neo-btsc="input"]')
+    const $input = $neo.filter(`[data-neo-btsc="input.${blockType.getSettings().getId()}"]`)
     const $labelText = $neo.filter('[data-neo-btsc="text.label"]')
 
     switch (e.property) {
@@ -547,10 +587,6 @@ export default Settings.extend({
 
       case 'handle':
         $input.val(e.newValue)
-        break
-
-      case 'sortOrder':
-        this._refreshChildBlocks()
         break
     }
   }

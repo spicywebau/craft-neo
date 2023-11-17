@@ -91,3 +91,39 @@ The `useMemoized` method can be called without passing it an argument, which tel
 ## Eager loading fields inside Neo blocks
 
 From here on out, eager-loading behaves the same way as the Matrix field type. [Refer to the official Craft documentation](https://docs.craftcms.com/v3/dev/eager-loading-elements.html#eager-loading-elements-related-to-matrix-blocks).
+
+### Complete Example
+
+Assuming you are using a Neo field with the handle `neoField` on an entry template, and a Neo block type with the handle `blockTypeHandle`, which has nested fields `fieldHandle` and `otherFieldHandle`:
+
+1. Eager load the Neo fields (along with any other fields valid for Eager Loading).
+
+```twig
+{% do craft.app.elements.eagerLoadElements(
+    className(entry),
+    [entry],
+    [
+        'neoField.blockTypeHandle:fieldHandle',
+        'neoField.blockTypeHandle:otherFieldHandle.childField',
+        'imageFieldHandle'
+    ]
+) %}
+```
+
+2. Prepare the Memoized functionality of Neo from those eager loaded fields
+
+```twig
+{% for block in entry.neoField %}
+    {% do block.useMemoized(entry.neoField) %}
+{% endfor %}
+```
+
+3. Use the field now everything is properly loaded
+
+```twig
+{% for block in entry.neoField %}
+    {% if block.level == 1 %}
+        {% include '_partials/neoField/' ~ block.type.handle ignore missing %}
+    {% endif %}
+{% endfor %}
+```

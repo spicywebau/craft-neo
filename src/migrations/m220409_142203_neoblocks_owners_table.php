@@ -16,6 +16,7 @@ class m220409_142203_neoblocks_owners_table extends Migration
     public function safeUp(): bool
     {
         $blocksTable = '{{%neoblocks}}';
+        $elementsTable = Table::ELEMENTS;
         $ownersTable = '{{%neoblocks_owners}}';
 
         $this->dropTableIfExists($ownersTable);
@@ -30,12 +31,29 @@ class m220409_142203_neoblocks_owners_table extends Migration
         $this->addForeignKey(null, $ownersTable, ['blockId'], $blocksTable, ['id'], 'CASCADE', null);
         $this->addForeignKey(null, $ownersTable, ['ownerId'], Table::ELEMENTS, ['id'], 'CASCADE', null);
 
+        // Delete orphaned block rows
+        if ($this->db->getIsMysql()) {
+            $this->execute(<<<SQL
+DELETE [[b]].* FROM $blocksTable [[b]]
+LEFT JOIN $elementsTable [[e]] ON [[e.id]] = [[b.ownerId]]
+WHERE [[e.id]] IS NULL
+SQL);
+        } else {
+            $this->execute(<<<SQL
+DELETE FROM $blocksTable
+USING $blocksTable [[b]]
+LEFT JOIN $elementsTable [[e]] ON [[e.id]] = [[b.ownerId]]
+WHERE
+  $blocksTable.[[id]] = [[b.id]] AND
+  [[e.id]] IS NULL
+SQL);
+        }
+
         $this->execute(<<<SQL
 INSERT INTO $ownersTable ([[blockId]], [[ownerId]], [[sortOrder]]) 
 SELECT [[id]], [[ownerId]], COALESCE([[sortOrder]], 1) 
 FROM $blocksTable
-SQL
-        );
+SQL);
 
         $this->dropIndexIfExists($blocksTable, ['sortOrder'], false);
         $this->dropColumn($blocksTable, 'sortOrder');

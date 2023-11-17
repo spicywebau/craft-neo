@@ -4,23 +4,19 @@ import Garnish from 'garnish'
 export default Garnish.Base.extend({
 
   $container: new $(),
-  _sortOrder: 0,
 
-  getSortOrder () {
-    return this._sortOrder
+  /**
+   * @deprecated in 3.8.0
+   */
+  getSortOrder (_) {
+    console.warn('Settings.getSortOrder() is deprecated. Use Item.getSortOrder() instead.')
   },
 
-  setSortOrder (sortOrder) {
-    const oldSortOrder = this._sortOrder
-    this._sortOrder = sortOrder | 0
-
-    if (oldSortOrder !== this._sortOrder) {
-      this.trigger('change', {
-        property: 'sortOrder',
-        oldValue: oldSortOrder,
-        newValue: this._sortOrder
-      })
-    }
+  /**
+   * @deprecated in 3.8.0
+   */
+  setSortOrder (_) {
+    console.warn('Settings.setSortOrder() is deprecated and no longer used.')
   },
 
   getFocusElement () {

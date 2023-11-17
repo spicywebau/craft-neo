@@ -5,12 +5,14 @@ import Garnish from 'garnish'
 import Craft from 'craft'
 
 import NS from '../namespace'
+import Tab from './BlockTypeTab'
 
 import { addFieldLinks } from '../plugins/cpfieldinspect/main'
 
 const _defaults = {
   namespace: [],
   blockType: null,
+  tabs: null,
   id: null,
   level: 1,
   buttons: null,
@@ -69,6 +71,9 @@ export default Garnish.Base.extend({
   _modified: true,
   _initialState: null,
   _forceModified: false,
+  _tabs: null,
+  _html: null,
+  _js: null,
 
   init (settings = {}, generateElement = false) {
     settings = Object.assign({}, _defaults, settings)
@@ -76,8 +81,21 @@ export default Garnish.Base.extend({
     this._templateNs = NS.parse(settings.namespace)
     this._field = settings.field
     this._blockType = settings.blockType
+    if (settings.tabs !== null) {
+      this._tabs = settings.tabs.tabNames?.map(
+        tab => tab instanceof Tab
+          ? tab
+          : new Tab({
+            name: tab,
+            uid: settings.tabs.tabUids[tab]
+          })
+      ) ?? []
+    } else {
+      this._tabs = null
+    }
+    this._html = settings.tabs?.html ?? null
+    this._js = settings.tabs?.js ?? null
     this._id = settings.id
-    this._buttons = settings.buttons
     this._enabled = settings.enabled && this._blockType.getEnabled()
     this._initialEnabled = settings.enabled
     this._modified = settings.modified
@@ -85,48 +103,32 @@ export default Garnish.Base.extend({
     this._renderOldChildBlocksContainer = !settings.blockType.hasChildBlocksUiElement()
     this.$container = generateElement
       ? this._generateElement(settings.showBlockTypeHandle)
-      : $(`[data-neo-b-id=${this._id}]`)
+      : this._field.$container.find(`[data-neo-b-id=${this._id}]`)
 
     const $neo = this.$container.find('[data-neo-b]')
     this.$bodyContainer = $neo.filter(`[data-neo-b="${this._id}.container.body"]`)
     this.$contentContainer = $neo.filter(`[data-neo-b="${this._id}.container.content"]`)
-    this.$childrenContainer = $neo.filter(`[data-neo-b="${this._id}.container.children"]`)
-    this.$childrenWarningsContainer = $neo.filter(`[data-neo-b="${this._id}.container.childrenWarnings"]`)
-    this.$collapsedChildrenContainer = $neo.filter(`[data-neo-b="${this._id}.container.collapsedChildren"]`)
-    this.$blocksContainer = $neo.filter(`[data-neo-b="${this._id}.container.blocks"]`)
-    this.$buttonsContainer = $neo.filter(`[data-neo-b="${this._id}.container.buttons"]`)
     this.$topbarContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbar"]`)
     this.$topbarLeftContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarLeft"]`)
     this.$topbarRightContainer = $neo.filter(`[data-neo-b="${this._id}.container.topbarRight"]`)
     this.$handleContainer = $neo.filter(`[data-neo-b="${this._id}.container.handle"]`)
-    this.$tabsContainer = $neo.filter(`[data-neo-b="${this._id}.container.tabs"]`)
     this.$tabContainer = this.$contentContainer.children('[data-layout-tab]')
     this.$menuContainer = $neo.filter(`[data-neo-b="${this._id}.container.menu"]`)
     this.$previewContainer = $neo.filter(`[data-neo-b="${this._id}.container.preview"]`)
-    this.$tabButton = $neo.filter(`[data-neo-b="${this._id}.button.tab"]`)
     this.$settingsButton = $neo.filter(`[data-neo-b="${this._id}.button.actions"]`)
     this.$togglerButton = $neo.filter(`[data-neo-b="${this._id}.button.toggler"]`)
-    this.$tabsButton = $neo.filter(`[data-neo-b="${this._id}.button.tabs"]`)
     this.$enabledInput = $neo.filter(`[data-neo-b="${this._id}.input.enabled"]`)
     this.$levelInput = $neo.filter(`[data-neo-b="${this._id}.input.level"]`)
     this.$collapsedInput = $neo.filter(`[data-neo-b="${this._id}.input.collapsed"]`)
     this.$status = $neo.filter(`[data-neo-b="${this._id}.status"]`)
     this.$sortOrder = $neo.filter(`[data-neo-b="${this._id}.sortOrder"]`)
     this.$form = this.$container.closest('form')
-
-    if (this._buttons) {
-      this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, { level: this.getLevel() + 1 })))
-      this.$buttonsContainer.append(this._buttons.$container)
-
-      if (this._buttons.$ownerContainer === null) {
-        this._buttons.$ownerContainer = this.$container
-      }
-    }
+    this.resetButtons(settings.buttons)
 
     let hasErrors = false
     if (this._blockType) {
-      for (const tab of this._blockType.getTabs()) {
-        const selector = `[data-neo-b-info="${tab.getName()}"]`
+      for (const tabName of this._blockType.getTabNames()) {
+        const selector = `[data-neo-b-info="${tabName}"]`
 
         if (this.$tabContainer.filter(selector).find('ul.errors').length > 0) {
           hasErrors = true
@@ -150,8 +152,8 @@ export default Garnish.Base.extend({
     NS.leave()
 
     const type = this._blockType
-    const typeTabs = type.getTabs()
-    const hasTabs = typeTabs.length > 0
+    const tabs = this._tabs ?? type.getTabs()
+    const hasTabs = tabs.length > 0
     const isParent = type.isParent()
     const actionBtnLabel = `${type.getName()} ${Craft.t('neo', 'Actions')}`
     const actionMenuId = `neoblock-action-menu-${this._id}`
@@ -192,30 +194,34 @@ export default Garnish.Base.extend({
               <div class="tabs_trigger" data-neo-b="${this._id}.button.toggler"></div>`)
     }
 
-    if (typeTabs.length > 1) {
+    if (tabs.length > 1) {
       elementHtml.push(`
               <div class="tabs_inner" data-neo-b="${this._id}.container.tabs">`)
 
-      for (let i = 0; i < typeTabs.length; i++) {
-        const tabName = typeTabs[i].getName()
+      for (let i = 0; i < tabs.length; i++) {
+        const tab = tabs[i]
+        const tabName = tab.getName()
+        const tabUid = tab.getUid()
         elementHtml.push(`
-                <a class="tab ${!i ? 'is-selected' : ''}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>`)
+                <a class="tab ${!i ? 'is-selected' : ''}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}" data-neo-b-tabuid="${tabUid}">${tabName}</a>`)
       }
 
       elementHtml.push(`
               </div>
               <div>
                 <button type="button" role="button" title=${Craft.t('neo', 'Tabs')} aria-controls="${tabsMenuId}" aria-label="${tabsBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.tabs" class="tabs_btn menubtn">
-                  ${typeTabs[0].getName()}
+                  ${tabs[0].getName()}
                 </button>
                 <div id="${tabsMenuId}" class="neo_block_tabs-menu menu menu--disclosure">
                   <ul>`)
 
-      for (let i = 0; i < typeTabs.length; i++) {
-        const tabName = typeTabs[i].getName()
+      for (let i = 0; i < tabs.length; i++) {
+        const tab = tabs[i]
+        const tabName = tab.getName()
+        const tabUid = tab.getUid()
         elementHtml.push(`
                     <li>
-                      <a${!i ? ' class="is-selected"' : ''} href="#" type="button" role="button" aria-label="${tabName}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}">${tabName}</a>
+                      <a${!i ? ' class="is-selected"' : ''} href="#" type="button" role="button" aria-label="${tabName}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}" data-neo-b-tabuid="${tabUid}">${tabName}</a>
                     </li>`)
       }
 
@@ -281,7 +287,7 @@ export default Garnish.Base.extend({
       if (hasTabs) {
         elementHtml.push(`
           <div class="ni_block_content" data-neo-b="${this._id}.container.content">
-            ${type.getHtml(this._id)}
+            ${this.getHtml()}
           </div>`)
       }
 
@@ -332,21 +338,14 @@ export default Garnish.Base.extend({
       return
     }
 
-    this.$foot = $(this._blockType.getJs(this._id)).filter(_resourceFilter)
-    Garnish.$bod.append(this.$foot)
-
     if (callInitUiElements) {
+      this.$foot = $(this.getJs()).filter(_resourceFilter)
+      Garnish.$bod.append(this.$foot)
       Craft.initUiElements(this.$contentContainer)
     }
 
     this.$form = this.$container.closest('form')
-    this._tabsMenu = this.$tabsButton.data('trigger') || new Garnish.DisclosureMenu(this.$tabsButton)
-    this._tabsMenu.on('show', () => this.$container.addClass('active'))
-    this._tabsMenu.on('hide', () => this.$container.removeClass('active'))
-
-    this.$tabButton = this.$tabButton.add(this._tabsMenu.$container.find(`[data-neo-b="${this._id}.button.tab"]`))
-    this.addListener(this.$tabButton, 'click', this['@setTab'])
-    this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
+    this.initTabs()
 
     this._settingsMenu = this.$settingsButton.data('trigger') || new Garnish.DisclosureMenu(this.$settingsButton)
     this._settingsMenu.on('show', () => {
@@ -435,9 +434,47 @@ export default Garnish.Base.extend({
     this.trigger('initUi')
   },
 
+  /**
+   * @public
+   * @since 3.7.0
+   */
+  initTabs () {
+    const $neo = this.$container.find('[data-neo-b]')
+    this.$tabsButton = $neo.filter(`[data-neo-b="${this._id}.button.tabs"]`)
+    this.$tabsContainer = $neo.filter(`[data-neo-b="${this._id}.container.tabs"]`)
+    this.$tabButton = $neo.filter(`[data-neo-b="${this._id}.button.tab"]`)
+    this.$tabContainer = this.$contentContainer.children('[data-layout-tab]')
+
+    this._tabsMenu = this.$tabsButton.data('trigger') || new Garnish.DisclosureMenu(this.$tabsButton)
+    this._tabsMenu.on('show', () => this.$container.addClass('active'))
+    this._tabsMenu.on('hide', () => this.$container.removeClass('active'))
+
+    this.$tabButton = this.$tabButton.add(this._tabsMenu.$container.find(`[data-neo-b="${this._id}.button.tab"]`))
+    this.addListener(this.$tabButton, 'click', this['@setTab'])
+    this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
+  },
+
+  /**
+   * @since 3.9.0
+   */
+  getHtml () {
+    return this._html !== null
+      ? this._html.replace(/__NEOBLOCK__/g, this._id)
+      : this._blockType.getHtml(this._id)
+  },
+
+  /**
+   * @since 3.9.0
+   */
+  getJs () {
+    return this._js !== null
+      ? this._js.replace(/__NEOBLOCK__/g, this._id)
+      : this._blockType.getJs(this._id)
+  },
+
   destroy () {
     if (this._initialised) {
-      this.$foot.remove()
+      this.$foot?.remove()
 
       clearInterval(this._detectChangeInterval)
 
@@ -455,6 +492,15 @@ export default Garnish.Base.extend({
 
   getId () {
     return this._id
+  },
+
+  /**
+   * @public
+   * @returns the ID of the duplicate block, or the ID of this block if it hasn't been duplicated
+   * @since 3.7.0
+   */
+  getDuplicatedBlockId () {
+    return this.$form.data('elementEditor')?.duplicatedElements[this._id] ?? this._id
   },
 
   isTopLevel () {
@@ -919,10 +965,9 @@ export default Garnish.Base.extend({
     if (!this.isNew()) {
       // Use the duplicated block ID if we're on a new provisional draft
       // The server-side code will also apply the new state to the canonical block
-      const thisBlockId = this.getId()
-      const elementEditor = this.$form.data('elementEditor')
-      const duplicatedBlockId = elementEditor?.duplicatedElements[thisBlockId] ?? thisBlockId
-      const sentBlockId = elementEditor?.settings.isProvisionalDraft ? duplicatedBlockId : thisBlockId
+      const sentBlockId = this.$form.data('elementEditor')?.settings.isProvisionalDraft
+        ? this.getDuplicatedBlockId()
+        : this.getId()
       const data = {
         expanded: this.isExpanded() ? 1 : 0,
         blockId: sentBlockId,
@@ -983,7 +1028,10 @@ export default Garnish.Base.extend({
     this.$tabButton.removeClass('is-selected')
     this.$tabContainer.addClass('hidden')
     const $tabButton = this.$tabButton.filter(`[data-neo-b-info="${tabName}"]`).addClass('is-selected')
-    const $tabContainer = this.$tabContainer.eq($tabButton.index()).removeClass('hidden')
+    const tabUid = $tabButton.attr('data-neo-b-tabuid')
+    const $tabContainer = this.$tabContainer
+      .filter(`[data-layout-tab="${tabUid}"]`)
+      .removeClass('hidden')
     this.$tabsButton.text(tabName)
     Craft.ElementThumbLoader.retryAll()
 
@@ -1017,6 +1065,10 @@ export default Garnish.Base.extend({
         .filter(bt => typeof bt !== 'undefined')
     }
 
+    // Finally, only allow block types that are allowed to be created by the current user
+    // This is safe since allowedBlockTypes is only used to check if paste/add block actions should be disabled
+    allowedBlockTypes = allowedBlockTypes.filter((bt) => bt.isCreatableByUser())
+
     this.updateMenuStates(
       this._field.getName(),
       blocks,
@@ -1030,6 +1082,7 @@ export default Garnish.Base.extend({
   // Deprecated in 3.0.4; use `updateActionsMenu()` instead
   updateMenuStates (field, blocks = [], maxBlocks = 0, additionalCheck = null, allowedBlockTypes = false, maxTopBlocks = 0) {
     additionalCheck = typeof additionalCheck === 'boolean' ? additionalCheck : true
+    const noAllowedBlockTypes = !allowedBlockTypes || allowedBlockTypes.length === 0
 
     const blockType = this.getBlockType()
     const blocksOfType = blocks.filter(b => b.getBlockType().getHandle() === blockType.getHandle())
@@ -1042,6 +1095,7 @@ export default Garnish.Base.extend({
     const maxTopBlocksMet = maxTopBlocks > 0 && totalTopBlocks >= maxTopBlocks
 
     const allDisabled = maxBlocksMet || maxTopBlocksMet || !additionalCheck
+    const addDisabled = allDisabled || noAllowedBlockTypes
     const typeDisabled = maxBlockTypes > 0 && blocksOfType.length >= maxBlockTypes
     let cloneDisabled = allDisabled || typeDisabled
 
@@ -1121,9 +1175,61 @@ export default Garnish.Base.extend({
 
     this.$menuContainer.find('[data-action="moveUp"]').parent().toggleClass('hidden', disableMoveUp)
     this.$menuContainer.find('[data-action="moveDown"]').parent().toggleClass('hidden', disableMoveDown)
-    this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', allDisabled)
     this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', cloneDisabled)
-    this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
+
+    // Paste/add actions should be hidden if there is no chance of them being enabled later
+    if (noAllowedBlockTypes) {
+      this.$menuContainer.find('[data-action="add"]').parent().toggleClass('hidden', addDisabled)
+      this.$menuContainer.find('[data-action="paste"]').parent().toggleClass('hidden', pasteDisabled)
+    } else {
+      this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', addDisabled)
+      this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
+    }
+
+    // If there are no visible items in the second list, hide the separator as well
+    this.$menuContainer.children('hr').toggleClass(
+      'hidden',
+      this.$menuContainer.children('ul:last-child').children('li:not(.hidden)').length === 0
+    )
+  },
+
+  resetButtons (settings) {
+    this.$blocksContainer = this.$container.find(`[data-neo-b="${this._id}.container.blocks"]`)
+    this.$buttonsContainer = this.$container.find(`[data-neo-b="${this._id}.container.buttons"]`)
+    this.$childrenContainer = this.$container.find(`[data-neo-b="${this._id}.container.children"]`)
+    this.$childrenWarningsContainer = this.$container.find(`[data-neo-b="${this._id}.container.childrenWarnings"]`)
+    this.$collapsedChildrenContainer = this.$container.find(`[data-neo-b="${this._id}.container.collapsedChildren"]`)
+
+    if (typeof settings !== 'undefined' && settings !== null) {
+      this._buttons = settings
+    } else {
+      this._buttons = new this._field.ButtonClass({
+        $ownerContainer: this.$container,
+        field: this._field,
+        items: this._blockType.getChildBlockItems(this._field.getItems()),
+        maxBlocks: this._field.getMaxBlocks()
+      })
+    }
+
+    if (this._buttons) {
+      this._buttons.on('newBlock', e => this.trigger('newBlock', Object.assign(e, { level: this.getLevel() + 1 })))
+      this.$buttonsContainer.append(this._buttons.$container)
+
+      if (this._buttons.$ownerContainer === null) {
+        this._buttons.$ownerContainer = this.$container
+      }
+
+      if (this._initialised) {
+        this._buttons.initUi()
+      }
+    }
+  },
+
+  namespaceId (id) {
+    NS.enter(this._templateNs)
+    const namespacedId = `${NS.toString('-')}-${Craft.formatInputId(id)}`
+    NS.leave()
+    return namespacedId
   },
 
   toggleSettingsMenu (toggle) {
@@ -1265,6 +1371,9 @@ export default Garnish.Base.extend({
 {
   _totalNewBlocks: 0,
 
+  /**
+   * @deprecated in 3.9.0
+   */
   getNewId () {
     return `new${this._totalNewBlocks++}`
   }

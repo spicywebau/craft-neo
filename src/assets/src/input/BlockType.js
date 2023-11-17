@@ -1,9 +1,11 @@
 import Garnish from 'garnish'
-
+import Craft from 'craft'
+import NS from '../namespace'
 import Tab from './BlockTypeTab'
 
 const _defaults = {
   id: -1,
+  field: null,
   fieldLayoutId: -1,
   sortOrder: 0,
   name: '',
@@ -14,7 +16,8 @@ const _defaults = {
   groupChildBlockTypes: true,
   childBlocks: false,
   topLevel: true,
-  tabs: [],
+  tabs: null,
+  tabNames: [],
   hasChildBlocksUiElement: false,
   creatableByUser: true,
   deletableByUser: true,
@@ -27,6 +30,7 @@ export default Garnish.Base.extend({
     settings = Object.assign({}, _defaults, settings)
 
     this._id = settings.id | 0
+    this._field = settings.field
     this._fieldLayoutId = settings.fieldLayoutId | 0
     this._sortOrder = settings.sortOrder | 0
     this._name = settings.name
@@ -42,9 +46,22 @@ export default Garnish.Base.extend({
     this._groupChildBlockTypes = settings.groupChildBlockTypes
     this._childBlocks = settings.childBlocks
     this._topLevel = settings.topLevel
-    this._tabs = settings.tabs.tabNames?.map(tab => tab instanceof Tab ? tab : new Tab({ name: tab })) ?? []
-    this._html = settings.tabs.html ?? ''
-    this._js = settings.tabs.js ?? ''
+    this._tabNames = settings.tabNames
+    if (settings.tabs !== null) {
+      this._tabs = settings.tabs.tabNames?.map(
+        tab => tab instanceof Tab
+          ? tab
+          : new Tab({
+            name: tab,
+            uid: settings.tabs.tabUids[tab]
+          })
+      ) ?? []
+    } else {
+      this._tabs = null
+    }
+    this._html = settings.tabs?.html ?? ''
+    this._js = settings.tabs?.js ?? ''
+    this._defaultVisibleLayoutElements = settings.tabs?.visibleLayoutElements ?? {}
     this._hasChildBlocksUiElement = settings.hasChildBlocksUiElement
     this._creatableByUser = settings.creatableByUser
     this._deletableByUser = settings.deletableByUser
@@ -68,7 +85,49 @@ export default Garnish.Base.extend({
   getGroupChildBlockTypes () { return this._groupChildBlockTypes },
   getChildBlocks () { return this._childBlocks },
   getTopLevel () { return this._topLevel },
-  getTabs () { return Array.from(this._tabs) },
+  getTabNames () { return this._tabNames },
+
+  getTabs () { return this._tabs !== null ? Array.from(this._tabs) : null },
+  async loadTabs () {
+    if (this._tabs !== null) {
+      return
+    }
+
+    NS.enter(this._field.getNamespace())
+    const data = {
+      namespace: NS.toFieldName(),
+      siteId: this._field?.getSiteId(),
+      blocks: [{
+        collapsed: false,
+        enabled: true,
+        level: 1,
+        ownerId: this._field?.getOwnerId(),
+        type: this._id
+      }]
+    }
+    NS.leave()
+
+    const renderedBlocks = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
+    if (renderedBlocks.data.success) {
+      if (renderedBlocks.data.headHtml) {
+        Craft.appendHeadHtml(renderedBlocks.data.headHtml)
+      }
+
+      if (renderedBlocks.data.bodyHtml) {
+        Craft.appendBodyHtml(renderedBlocks.data.bodyHtml)
+      }
+
+      const tabs = renderedBlocks.data.blocks[0].tabs
+      this._tabs = tabs.tabNames?.map(
+        tab => new Tab({
+          name: tab,
+          uid: tabs.tabUids[tab]
+        })
+      ) ?? []
+      this._html = tabs.html
+      this._js = tabs.js
+    }
+  },
 
   getHtml (blockId = null) {
     return this._replaceBlockIdPlaceholder(this._html, blockId)
@@ -76,6 +135,12 @@ export default Garnish.Base.extend({
 
   getJs (blockId = null) {
     return this._replaceBlockIdPlaceholder(this._js, blockId)
+  },
+
+  getDefaultVisibleLayoutElements () {
+    return {
+      ...this._defaultVisibleLayoutElements
+    }
   },
 
   _replaceBlockIdPlaceholder (input, blockId = null) {

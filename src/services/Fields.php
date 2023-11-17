@@ -6,6 +6,7 @@ use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
 use benf\neo\Field;
 use benf\neo\helpers\Memoize;
+use benf\neo\jobs\ResaveFieldBlockStructures;
 use benf\neo\jobs\SaveBlockStructures;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockTypeGroup;
@@ -18,6 +19,9 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
+use craft\helpers\Queue;
+use craft\i18n\Translation;
+use craft\queue\jobs\ApplyNewPropagationMethod;
 use craft\services\Structures;
 use Illuminate\Support\Collection;
 use yii\base\Component;
@@ -134,12 +138,9 @@ class Fields extends Component
                 }
 
                 // Save the new block types and groups
-                $items = array_merge($field->getBlockTypes(), $field->getGroups());
-                usort($items, fn($a, $b) => $a->sortOrder <=> $b->sortOrder);
-
                 $currentGroup = null;
 
-                foreach ($items as $item) {
+                foreach ($field->getItems() as $item) {
                     $item->fieldId = $field->id;
 
                     if ($item instanceof BlockTypeGroup) {
@@ -246,7 +247,11 @@ class Fields extends Component
                         $structureModified = true;
                     }
 
-                    $block->primaryOwnerId = $block->ownerId = $owner->id;
+                    $block->setOwner($owner);
+                    // If the block already has an ID and primary owner ID, don't reassign it
+                    if (!$block->id || !$block->primaryOwnerId) {
+                        $block->primaryOwnerId = $owner->id;
+                    }
                     $block->sortOrder = $sortOrder;
                     $elementsService->saveElement($block, false, true, $this->_hasSearchableBlockType($field, $block));
 
@@ -328,14 +333,17 @@ class Fields extends Component
                 $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
                 $otherSiteIds = array_diff($ownerSiteIds, $fieldSiteIds);
 
+                // If propagateAll isn't set, only deal with sites that the element was just propagated to for the first time
                 if (!$owner->propagateAll) {
+                    $preexistingOtherSiteIds = array_diff($otherSiteIds, $owner->newSiteIds);
                     $otherSiteIds = array_intersect($otherSiteIds, $owner->newSiteIds);
+                } else {
+                    $preexistingOtherSiteIds = [];
                 }
 
                 if (!empty($otherSiteIds)) {
-                    // Get the original element and duplicated element for each of those sites
-                    /** @var Element[] $otherTargets */
-                    $otherTargets = $owner::find()
+                    // Get the owner element across each of those sites
+                    $localizedOwners = $owner::find()
                         ->drafts($owner->getIsDraft())
                         ->provisionalDrafts($owner->isProvisionalDraft)
                         ->revisions($owner->getIsRevision())
@@ -353,14 +361,37 @@ class Fields extends Component
                         $owner->setFieldValue($field->handle, $cachedQuery);
                     }
 
-                    foreach ($otherTargets as $otherTarget) {
+                    foreach ($localizedOwners as $localizedOwner) {
                         // Make sure we haven't already duplicated blocks for this site, via propagation from another site
-                        if (isset($handledSiteIds[$otherTarget->siteId])) {
+                        if (isset($handledSiteIds[$localizedOwner->siteId])) {
                             continue;
                         }
-                        $this->duplicateBlocks($field, $owner, $otherTarget);
+
+                        // Find all of the field’s supported sites shared with this target
+                        $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $localizedOwner, $field->propagationKeyFormat);
+
+                        // Do blocks in this target happen to share supported sites with a preexisting site?
+                        if (
+                            !empty($preexistingOtherSiteIds) &&
+                            !empty($sharedPreexistingOtherSiteIds = array_intersect($preexistingOtherSiteIds, $sourceSupportedSiteIds)) &&
+                            $preexistingLocalizedOwner = $owner::find()
+                                ->drafts($owner->getIsDraft())
+                                ->provisionalDrafts($owner->isProvisionalDraft)
+                                ->revisions($owner->getIsRevision())
+                                ->id($owner->id)
+                                ->siteId($sharedPreexistingOtherSiteIds)
+                                ->status(null)
+                                ->one()
+                        ) {
+                            // Just resave Neo blocks for that one site, and let them propagate over to the new site(s) from there
+                            $this->saveValue($field, $preexistingLocalizedOwner);
+                        } else {
+                            // Duplicate the blocks, but **don't track** the duplications, so the edit page doesn’t think
+                            // its blocks have been replaced by the other sites’ blocks
+                            $this->duplicateBlocks($field, $owner, $localizedOwner, trackDuplications: false);
+                        }
+
                         // Make sure we don't duplicate blocks for any of the sites that were just propagated to
-                        $sourceSupportedSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $otherTarget, $field->propagationKeyFormat);
                         $handledSiteIds = array_merge($handledSiteIds, array_flip($sourceSupportedSiteIds));
                     }
 
@@ -385,10 +416,18 @@ class Fields extends Component
      * @param ElementInterface $target The target element blocks should be duplicated to
      * @param bool $checkOtherSites Whether to duplicate blocks for the source element's other supported sites
      * @param bool $deleteOtherBlocks Whether to delete any blocks that belong to the element, which weren't included in the duplication
+     * @param bool $trackDuplications whether to keep track of the duplications from [[\craft\services\Elements::$duplicatedElementIds]]
+     * and [[\craft\services\Elements::$duplicatedElementSourceIds]]
      * @throws
      */
-    public function duplicateBlocks(Field $field, ElementInterface $source, ElementInterface $target, bool $checkOtherSites = false, bool $deleteOtherBlocks = true): void
-    {
+    public function duplicateBlocks(
+        Field $field,
+        ElementInterface $source,
+        ElementInterface $target,
+        bool $checkOtherSites = false,
+        bool $deleteOtherBlocks = true,
+        bool $trackDuplications = true,
+    ): void {
         $elementsService = Craft::$app->getElements();
         $value = $source->getFieldValue($field->handle);
 
@@ -456,7 +495,7 @@ class Fields extends Component
                     ], ['blockId' => $block->id, 'ownerId' => $target->id], updateTimestamp: false);
                     $newBlock = $block;
                 } else {
-                    $newBlock = $elementsService->duplicateElement($block, $newAttributes);
+                    $newBlock = $elementsService->duplicateElement($block, $newAttributes, true, $trackDuplications);
                 }
 
                 $newBlockIds[] = $newBlock->id;
@@ -595,7 +634,8 @@ SQL
                 ->unique()
                 ->status(null)
                 ->all();
-            $this->_saveNeoStructuresForSites($field, $draft, $blocks, $siteId);
+            // Opt out of creating structures for other supported sites - we'll be doing that from here if necessary
+            $this->_saveNeoStructuresForSites($field, $draft, $blocks, $siteId, false);
         }
     }
 
@@ -626,8 +666,12 @@ SQL
         }
 
         $revisionsService = Craft::$app->getRevisions();
+        $queue = Craft::$app->getConfig()->getGeneral()->runQueueAutomatically
+            ? Craft::$app->getQueue()
+            : null;
         $ownershipData = [];
         $jobData = [];
+        $nonJobData = [];
         $processedSites = [];
         $otherSites = [];
 
@@ -655,13 +699,23 @@ SQL
                 ]);
                 $ownershipData[] = [$blockRevisionId, $revision->id, $block->sortOrder];
 
-                // Store the job data for block structure creation
-                $jobData[$siteId][] = [
-                    'id' => $blockRevisionId,
-                    'level' => $block->level,
-                    'lft' => $block->lft,
-                    'rgt' => $block->rgt,
-                ];
+                if ($queue !== null) {
+                    // Store the job data for block structure creation
+                    $jobData[$siteId][] = [
+                        'id' => $blockRevisionId,
+                        'level' => $block->level,
+                        'lft' => $block->lft,
+                        'rgt' => $block->rgt,
+                    ];
+                } else {
+                    // Because querying for blocks with the revision IDs doesn't work yet...
+                    // I wish `$revisionsService->createRevision()` returned the revision element and not just the ID
+                    $cloneBlock = clone $block;
+                    $cloneBlock->id = $blockRevisionId;
+                    $cloneBlock->ownerId = $revision->id;
+                    $cloneBlock->structureId = null;
+                    $nonJobData[$siteId][] = $cloneBlock;
+                }
             }
 
             foreach ($supportedSites ?? [] as $supportedSite) {
@@ -672,7 +726,6 @@ SQL
         }
 
         Db::batchInsert('{{%neoblocks_owners}}', ['blockId', 'ownerId', 'sortOrder'], $ownershipData);
-        $queue = Craft::$app->getQueue();
 
         foreach ($jobData as $siteId => $data) {
             $queue->push(new SaveBlockStructures([
@@ -682,6 +735,10 @@ SQL
                 'otherSupportedSiteIds' => $otherSites[$siteId],
                 'blocks' => $data,
             ]));
+        }
+
+        foreach ($nonJobData as $siteId => $siteBlocks) {
+            $this->_saveNeoStructuresForSites($field, $revision, $nonJobData[$siteId], $siteId);
         }
     }
 
@@ -741,7 +798,7 @@ SQL
 
             $derivativeBlocks = Block::find()
                 ->fieldId($field->id)
-                ->primaryOwnerId($owner->id)
+                ->ownerId($owner->id)
                 ->siteId($canonicalOwner->siteId)
                 ->status(null)
                 ->trashed(null)
@@ -801,8 +858,15 @@ SQL
                     if (count($allBlocks) > 1) {
                         $prevBlock = $allBlocks[count($allBlocks) - 2];
 
-                        // If $prevBlock->level is lower, $newBlock is the first child block and we need to prepend
-                        $method = $prevBlock->level < $newBlock->level ? 'prepend' : 'moveAfter';
+                        if ($prevBlock->level < $newBlock->level) {
+                            // $newBlock is the first child block and we need to prepend
+                            $method = 'prepend';
+                        } elseif ($prevBlock->level === $newBlock->level && $prevBlock->sortOrder === $newBlock->sortOrder) {
+                            // $prevBlock was duplicated from the canonical owner, created above $newBlock
+                            $method = 'moveBefore';
+                        } else {
+                            $method = 'moveAfter';
+                        }
 
                         // If $prevBlock->level is higher, then $newBlock is a sibling of one of $prevBlock's ancestors,
                         // so we'll need to move $newBlock after that ancestor
@@ -928,6 +992,26 @@ SQL
         );
     }
 
+    /**
+     * Applies a Neo field's propagation method to its blocks.
+     *
+     * @param Field $field
+     * @since 3.10.0
+     */
+    public function applyPropagationMethod(Field $field): void
+    {
+        Queue::push(new ApplyNewPropagationMethod([
+            'description' => Translation::prep('neo', 'Applying new propagation method to Neo blocks'),
+            'elementType' => Block::class,
+            'criteria' => [
+                'fieldId' => $field->id,
+            ],
+        ]));
+        Queue::push(new ResaveFieldBlockStructures([
+            'fieldId' => $field->id,
+        ]));
+    }
+
     // Private Methods
     // =========================================================================
 
@@ -1010,15 +1094,25 @@ SQL
      * @param ElementInterface $owner
      * @param Block[] $blocks Block IDs that should be left alone
      * @param int|null $sId the site ID; if this is null, the owner's site ID will be used
-     * @since 2.4.3
+     * @param bool $saveForOtherSupportedSites
      */
-    private function _saveNeoStructuresForSites(Field $field, ElementInterface $owner, $blocks, ?int $sId = null): void
-    {
+    private function _saveNeoStructuresForSites(
+        Field $field,
+        ElementInterface $owner,
+        $blocks,
+        ?int $sId = null,
+        $saveForOtherSupportedSites = true,
+    ): void {
         $siteId = $sId ?? $owner->siteId;
 
         // Delete any existing block structures associated with this field/owner/site combination
-        while (($blockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $siteId)) !== null) {
-            Neo::$plugin->blocks->deleteStructure($blockStructure);
+        $blockStructures = Neo::$plugin->blocks->getStructures([
+            'fieldId' => $field->id,
+            'ownerId' => $owner->id,
+            'siteId' => $siteId,
+        ]);
+        foreach ($blockStructures as $blockStructure) {
+            Neo::$plugin->blocks->deleteStructure($blockStructure, true);
         }
 
         $blockStructure = new BlockStructure();
@@ -1029,23 +1123,30 @@ SQL
         Neo::$plugin->blocks->saveStructure($blockStructure);
         Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
 
-        // if multi site then save the structure for it. since it's all the same then we can use the same structure.
+        // If this is a multi-site Craft project, these blocks have other supported sites and we haven't explicitly
+        // disabled saving of structures for those other sites, then save them for those other sites here, since we've
+        // already built the block structure
+        if (!$saveForOtherSupportedSites) {
+            return;
+        }
+
         $supported = $this->getSupportedSiteIdsExCurrent($field, $owner, $field->propagationKeyFormat);
-        $supportedCount = count($supported);
 
-        if ($supportedCount > 0) {
-            // if has more than 3 sites then use a job instead to lighten the load.
-            foreach ($supported as $s) {
-                while (($mBlockStructure = Neo::$plugin->blocks->getStructure($field->id, $owner->id, $s)) !== null) {
-                    Neo::$plugin->blocks->deleteStructure($mBlockStructure);
-                }
-
-                $multiBlockStructure = $blockStructure;
-                $multiBlockStructure->id = null;
-                $multiBlockStructure->siteId = $s;
-
-                Neo::$plugin->blocks->saveStructure($multiBlockStructure);
+        foreach ($supported as $s) {
+            $otherBlockStructures = Neo::$plugin->blocks->getStructures([
+                'fieldId' => $field->id,
+                'ownerId' => $owner->id,
+                'siteId' => $s,
+            ]);
+            foreach ($otherBlockStructures as $otherBlockStructure) {
+                Neo::$plugin->blocks->deleteStructure($otherBlockStructure);
             }
+
+            $multiBlockStructure = $blockStructure;
+            $multiBlockStructure->id = null;
+            $multiBlockStructure->siteId = $s;
+
+            Neo::$plugin->blocks->saveStructure($multiBlockStructure);
         }
     }
 

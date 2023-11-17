@@ -64,6 +64,12 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     public ?string $description = null;
 
     /**
+     * @var string|null The block type's icon filename.
+     * @since 3.10.0
+     */
+    public ?string $iconFilename = null;
+
+    /**
      * @var int|null The block type's icon, as a Craft asset ID.
      * @since 3.6.0
      */
@@ -266,6 +272,28 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     }
 
     /**
+     * Gets this block type's icon path, if an icon filename is set.
+     *
+     * @return string|null
+     * @since 3.10.0
+     */
+    public function getIconPath(?array $transform = null): ?string
+    {
+        return Neo::$plugin->blockTypes->getIconPath($this, $transform);
+    }
+
+    /**
+     * Gets this block type's icon URL, if an icon filename is set.
+     *
+     * @return string|null
+     * @since 3.10.0
+     */
+    public function getIconUrl(?array $transform = null): ?string
+    {
+        return Neo::$plugin->blockTypes->getIconUrl($this, $transform);
+    }
+
+    /**
      * Gets this block type's icon asset, if an icon is set.
      *
      * @return Asset|null
@@ -306,15 +334,27 @@ class BlockType extends Model implements GqlInlineFragmentInterface
     {
         $group = $this->getGroup();
         $icon = $this->getIcon();
+
+        if ($icon) {
+            $iconData = [
+                'volume' => $icon->getVolume()->uid,
+                'folderPath' => $icon->getFolder()->path,
+                'filename' => $icon->getFilename(),
+            ];
+        } else {
+            $iconData = null;
+        }
+
         $config = [
             'childBlocks' => $this->childBlocks,
             'field' => $this->getField()->uid,
             'group' => $group ? $group->uid : null,
             'groupChildBlockTypes' => (bool)$this->groupChildBlockTypes,
             'handle' => $this->handle,
-            'description' => $this->description,
+            'description' => $this->description ?? '',
             'enabled' => $this->enabled,
-            'icon' => $icon?->uid ?? null,
+            'iconFilename' => $this->iconFilename ?? '',
+            'icon' => $iconData,
             'minBlocks' => (int)$this->minBlocks,
             'maxBlocks' => (int)$this->maxBlocks,
             'minChildBlocks' => (int)$this->minChildBlocks,

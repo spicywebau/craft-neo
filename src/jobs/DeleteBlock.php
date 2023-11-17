@@ -14,7 +14,7 @@ use craft\queue\BaseJob;
  * @author Spicy Web <plugins@spicyweb.com.au>
  * @since 2.13.16
  */
-Class DeleteBlock extends BaseJob
+class DeleteBlock extends BaseJob
 {
     /**
      * @var int

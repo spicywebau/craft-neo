@@ -12,6 +12,7 @@ use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
 use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
 use benf\neo\gql\types\input\Block as NeoBlockInputType;
 use benf\neo\jobs\DeleteBlock;
+use benf\neo\jobs\SaveBlockStructures;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
@@ -27,15 +28,15 @@ use craft\base\GqlInlineFragmentInterface;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
+use craft\errors\InvalidFieldException;
 use craft\fields\conditions\EmptyFieldConditionRule;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Gql as GqlHelper;
 use craft\helpers\Html;
 use craft\helpers\Queue;
 use craft\helpers\StringHelper;
-use craft\i18n\Translation;
-use craft\queue\jobs\ApplyNewPropagationMethod;
 use craft\services\Elements;
 use craft\validators\ArrayValidator;
 use GraphQL\Type\Definition\Type;
@@ -137,6 +138,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      * @var BlockTypeGroup[]|null The block type groups associated with this field.
      */
     private ?array $_blockTypeGroups = null;
+
+    /**
+     * @var Array<BlockType|BlockTypeGroup>|null The block types and groups associated with this field.
+     */
+    private ?array $_items = null;
 
     /**
      * @var BlockType[]|null The block types' fields.
@@ -300,97 +306,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function setBlockTypes(array $blockTypes)
     {
-        $conditionsService = Craft::$app->getConditions();
-        $fieldsService = Craft::$app->getFields();
-        $request = Craft::$app->getRequest();
         $newBlockTypes = [];
 
-        foreach ($blockTypes as $blockTypeId => $blockType) {
-            $newBlockType = $blockType;
-
-            if (!($blockType instanceof BlockType)) {
-                foreach (array_keys($blockType['conditions'] ?? []) as $elementType) {
-                    if (!isset($blockType['conditions'][$elementType]['conditionRules'])) {
-                        // Don't bother setting condition data for any element types that have no rules set
-                        unset($blockType['conditions'][$elementType]);
-                    } else {
-                        // Get the condition config
-                        $blockType['conditions'][$elementType] = $conditionsService->createCondition($blockType['conditions'][$elementType])->getConfig();
-                    }
-                }
-
-                $newBlockType = new BlockType();
-                $newBlockType->id = (int)$blockTypeId;
-                $newBlockType->fieldId = $this->id;
-                $newBlockType->name = $blockType['name'];
-                $newBlockType->handle = $blockType['handle'];
-                $newBlockType->enabled = $blockType['enabled'] ?? true;
-                $newBlockType->ignorePermissions = $blockType['ignorePermissions'] ?? true;
-                $newBlockType->description = $blockType['description'] ?? '';
-                $newBlockType->iconId = !empty($blockType['iconId']) ? (int)$blockType['iconId'] : null;
-                $newBlockType->minBlocks = (int)($blockType['minBlocks'] ?? 0);
-                $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);
-                $newBlockType->minSiblingBlocks = (int)($blockType['minSiblingBlocks'] ?? 0);
-                $newBlockType->maxSiblingBlocks = (int)($blockType['maxSiblingBlocks'] ?? 0);
-                $newBlockType->minChildBlocks = (int)($blockType['minChildBlocks'] ?? 0);
-                $newBlockType->maxChildBlocks = (int)($blockType['maxChildBlocks'] ?? 0);
-                $newBlockType->topLevel = (bool)$blockType['topLevel'];
-                $newBlockType->groupChildBlockTypes = isset($blockType['groupChildBlockTypes']) ? (bool)$blockType['groupChildBlockTypes'] : true;
-                $newBlockType->childBlocks = $blockType['childBlocks'] ?: null;
-                $newBlockType->sortOrder = (int)$blockType['sortOrder'];
-                $newBlockType->conditions = $blockType['conditions'] ?? [];
-                $newBlockType->groupId = isset($blockType['groupId']) ? (int)$blockType['groupId'] : null;
-
-                // Allow the `fieldLayoutId` to be set in the blockType settings
-                if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
-                    if ($fieldLayout = $fieldsService->getLayoutById($fieldLayoutId)) {
-                        $newBlockType->setFieldLayout($fieldLayout);
-                        $newBlockType->fieldLayoutId = $fieldLayout->id;
-                    }
-                } elseif ($request->getBodyParam('neoBlockType' . (string)$blockTypeId) !== null) {
-                    // Otherwise, check for a field layout in the POST data
-                    $fieldLayout = $fieldsService->assembleLayoutFromPost('neoBlockType' . (string)$blockTypeId);
-                    $fieldLayout->type = Block::class;
-
-                    // Ensure the field layout ID and UID are set, if they exist
-                    if (is_int($blockTypeId)) {
-                        $layoutResult = (new Query())
-                            ->select([
-                                'bt.fieldLayoutId',
-                                'fl.uid',
-                            ])
-                            ->from('{{%neoblocktypes}} bt')
-                            ->innerJoin('{{%fieldlayouts}} fl', '[[fl.id]] = [[bt.fieldLayoutId]]')
-                            ->where(['bt.id' => $blockTypeId])
-                            ->one();
-
-                        if ($layoutResult !== null) {
-                            $fieldLayout->id = $layoutResult['fieldLayoutId'];
-                            $fieldLayout->uid = $layoutResult['uid'];
-                        }
-                    }
-
-                    $newBlockType->setFieldLayout($fieldLayout);
-                    $newBlockType->fieldLayoutId = $fieldLayout->id;
-                } else {
-                    // No field layout data was sent, which means this is an existing block type whose field layout
-                    // designer was never loaded, and therefore no changes were made to any field layout the block type
-                    // already has
-                    $fieldLayoutId = (new Query())
-                        ->select(['fieldLayoutId'])
-                        ->from('{{%neoblocktypes}}')
-                        ->where(['id' => $blockTypeId])
-                        ->scalar();
-
-                    if ($fieldLayoutId) {
-                        $fieldLayout = $fieldsService->getLayoutById($fieldLayoutId);
-                        $newBlockType->setFieldLayout($fieldLayout);
-                        $newBlockType->fieldLayoutId = $fieldLayoutId;
-                    }
-                }
-            }
-
-            $newBlockTypes[] = $newBlockType;
+        foreach ($blockTypes as $id => $blockType) {
+            $newBlockTypes[] = $blockType instanceof BlockType
+                ? $blockType
+                : $this->_createBlockType($blockType, $id);
         }
 
         $this->_blockTypes = $newBlockTypes;
@@ -427,28 +348,191 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $newBlockTypeGroups = [];
 
         foreach ($blockTypeGroups as $id => $blockTypeGroup) {
-            $newBlockTypeGroup = $blockTypeGroup;
-
-            if (!($blockTypeGroup instanceof BlockTypeGroup)) {
-                $alwaysShowDropdown = $blockTypeGroup['alwaysShowDropdown'] ?? null;
-                $newBlockTypeGroup = new BlockTypeGroup();
-                $newBlockTypeGroup->id = (int)$id;
-                $newBlockTypeGroup->fieldId = $this->id;
-                $newBlockTypeGroup->name = $blockTypeGroup['name'];
-                $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
-                $newBlockTypeGroup->alwaysShowDropdown = match ($alwaysShowDropdown) {
-                    BlockTypeGroupDropdown::Show => true,
-                    BlockTypeGroupDropdown::Hide => false,
-                    BlockTypeGroupDropdown::Global => null,
-                    // Handle cases where `alwaysShowDropdown` is already set to true/false/null
-                    true, false, null => $alwaysShowDropdown,
-                };
-            }
-
-            $newBlockTypeGroups[] = $newBlockTypeGroup;
+            $newBlockTypeGroups[] = $blockTypeGroup instanceof BlockTypeGroup
+                ? $blockTypeGroup
+                : $this->_createGroup($blockTypeGroup, $id);
         }
 
         $this->_blockTypeGroups = $newBlockTypeGroups;
+    }
+
+    /**
+     * Sets the block type / group items for this field.
+     *
+     * @return array of block type / group items associated with this field
+     * @since 3.8.0
+     */
+    public function getItems(): array
+    {
+        if (!isset($this->_items)) {
+            $this->_items = array_merge($this->getBlockTypes(), $this->getGroups());
+            usort($this->_items, fn($a, $b) => $a->sortOrder <=> $b->sortOrder);
+        }
+
+        return $this->_items;
+    }
+
+    /**
+     * Sets the block type / group items for this field.
+     *
+     * @param array $items The block type / group items to associate with this field.
+     * @since 3.8.0
+     */
+    public function setItems(array $items): void
+    {
+        $blockTypes = [];
+        $groups = [];
+
+        foreach ($items['sortOrder'] as $i => $itemId) {
+            $sortOrder = $i + 1;
+            $overrides = [
+                'sortOrder' => $sortOrder,
+            ];
+
+            if (str_starts_with($itemId, 'blocktype:')) {
+                $itemId = substr($itemId, 10);
+
+                if (isset($items['blockTypes'][$itemId])) {
+                    $blockTypes[] = $this->_createBlockType($overrides + $items['blockTypes'][$itemId], $itemId);
+                } else {
+                    $blockType = Neo::$plugin->blockTypes->getById((int)$itemId);
+                    $blockType->sortOrder = $sortOrder;
+                    $blockTypes[] = $blockType;
+                }
+            } elseif (str_starts_with($itemId, 'group:')) {
+                $itemId = substr($itemId, 6);
+
+                if (isset($items['groups'][$itemId])) {
+                    $groups[] = $this->_createGroup($overrides + $items['groups'][$itemId], $itemId);
+                } else {
+                    $group = Neo::$plugin->blockTypes->getGroupById((int)$itemId);
+                    $group->sortOrder = $sortOrder;
+                    $groups[] = $group;
+                }
+            }
+        }
+
+        $this->_blockTypes = $blockTypes;
+        $this->_blockTypeGroups = $groups;
+    }
+
+    private function _createBlockType(array $blockType, int|string $id): BlockType
+    {
+        $conditionsService = Craft::$app->getConditions();
+        $fieldsService = Craft::$app->getFields();
+        $request = Craft::$app->getRequest();
+
+        foreach (array_keys($blockType['conditions'] ?? []) as $elementType) {
+            if (!isset($blockType['conditions'][$elementType]['conditionRules'])) {
+                // Don't bother setting condition data for any element types that have no rules set
+                unset($blockType['conditions'][$elementType]);
+            } else {
+                // Get the condition config
+                $blockType['conditions'][$elementType] = $conditionsService->createCondition($blockType['conditions'][$elementType])->getConfig();
+            }
+        }
+
+        // Ensure min/max child blocks only applies if we're actually allowed to have child blocks
+        $childBlocks = $blockType['childBlocks'] ?: null;
+
+        if (!empty($childBlocks)) {
+            $minChildBlocks = (int)($blockType['minChildBlocks'] ?? 0);
+            $maxChildBlocks = (int)($blockType['maxChildBlocks'] ?? 0);
+        } else {
+            $minChildBlocks = $maxChildBlocks = 0;
+        }
+
+        $newBlockType = new BlockType();
+        $newBlockType->id = (int)$id;
+        $newBlockType->fieldId = $this->id;
+        $newBlockType->name = $blockType['name'];
+        $newBlockType->handle = $blockType['handle'];
+        $newBlockType->enabled = $blockType['enabled'] ?? true;
+        $newBlockType->ignorePermissions = $blockType['ignorePermissions'] ?? true;
+        $newBlockType->description = $blockType['description'] ?? '';
+        $newBlockType->iconFilename = $blockType['iconFilename'] ?? '';
+        $newBlockType->iconId = !empty($blockType['iconId']) ? (int)$blockType['iconId'] : null;
+        $newBlockType->minBlocks = (int)($blockType['minBlocks'] ?? 0);
+        $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);
+        $newBlockType->minSiblingBlocks = (int)($blockType['minSiblingBlocks'] ?? 0);
+        $newBlockType->maxSiblingBlocks = (int)($blockType['maxSiblingBlocks'] ?? 0);
+        $newBlockType->minChildBlocks = $minChildBlocks;
+        $newBlockType->maxChildBlocks = $maxChildBlocks;
+        $newBlockType->topLevel = (bool)($blockType['topLevel'] ?? true);
+        $newBlockType->groupChildBlockTypes = isset($blockType['groupChildBlockTypes']) ? (bool)$blockType['groupChildBlockTypes'] : true;
+        $newBlockType->childBlocks = $childBlocks;
+        $newBlockType->sortOrder = (int)$blockType['sortOrder'];
+        $newBlockType->conditions = $blockType['conditions'] ?? [];
+        $newBlockType->groupId = isset($blockType['groupId']) ? (int)$blockType['groupId'] : null;
+
+        // Allow the `fieldLayoutId` to be set in the blockType settings
+        if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
+            if ($fieldLayout = $fieldsService->getLayoutById($fieldLayoutId)) {
+                $newBlockType->setFieldLayout($fieldLayout);
+                $newBlockType->fieldLayoutId = $fieldLayout->id;
+            }
+        } elseif ($request->getBodyParam('neoBlockType' . (string)$id) !== null) {
+            // Otherwise, check for a field layout in the POST data
+            $fieldLayout = $fieldsService->assembleLayoutFromPost('neoBlockType' . (string)$id);
+            $fieldLayout->type = Block::class;
+
+            // Ensure the field layout ID and UID are set, if they exist
+            if (is_int($id)) {
+                $layoutResult = (new Query())
+                    ->select([
+                        'bt.fieldLayoutId',
+                        'fl.uid',
+                    ])
+                    ->from('{{%neoblocktypes}} bt')
+                    ->innerJoin('{{%fieldlayouts}} fl', '[[fl.id]] = [[bt.fieldLayoutId]]')
+                    ->where(['bt.id' => $id])
+                    ->one();
+
+                if ($layoutResult !== null) {
+                    $fieldLayout->id = $layoutResult['fieldLayoutId'];
+                    $fieldLayout->uid = $layoutResult['uid'];
+                }
+            }
+
+            $newBlockType->setFieldLayout($fieldLayout);
+            $newBlockType->fieldLayoutId = $fieldLayout->id;
+        } else {
+            // No field layout data was sent, which means this is an existing block type whose field layout
+            // designer was never loaded, and therefore no changes were made to any field layout the block type
+            // already has
+            $fieldLayoutId = (new Query())
+                ->select(['fieldLayoutId'])
+                ->from('{{%neoblocktypes}}')
+                ->where(['id' => $id])
+                ->scalar();
+
+            if ($fieldLayoutId) {
+                $fieldLayout = $fieldsService->getLayoutById($fieldLayoutId);
+                $newBlockType->setFieldLayout($fieldLayout);
+                $newBlockType->fieldLayoutId = $fieldLayoutId;
+            }
+        }
+
+        return $newBlockType;
+    }
+
+    private function _createGroup(array $blockTypeGroup, int|string $id): BlockTypeGroup
+    {
+        $alwaysShowDropdown = $blockTypeGroup['alwaysShowDropdown'] ?? null;
+        $newBlockTypeGroup = new BlockTypeGroup();
+        $newBlockTypeGroup->id = (int)$id;
+        $newBlockTypeGroup->fieldId = $this->id;
+        $newBlockTypeGroup->name = $blockTypeGroup['name'];
+        $newBlockTypeGroup->sortOrder = (int)$blockTypeGroup['sortOrder'];
+        $newBlockTypeGroup->alwaysShowDropdown = match ($alwaysShowDropdown) {
+            BlockTypeGroupDropdown::Show => true,
+            BlockTypeGroupDropdown::Hide => false,
+            BlockTypeGroupDropdown::Global => null,
+            // Handle cases where `alwaysShowDropdown` is already set to true/false/null
+            true, false, null => $alwaysShowDropdown,
+        };
+
+        return $newBlockTypeGroup;
     }
 
     /**
@@ -477,7 +561,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $viewService->registerAssetBundle(SettingsAsset::class);
             $viewService->registerJs(SettingsAsset::createSettingsJs($this));
 
-            $html = $viewService->renderTemplate('neo/settings', ['neoField' => $this]);
+            $html = $viewService->renderTemplate('neo/settings', [
+                'neoField' => $this,
+                'items' => $this->getItems(),
+            ]);
         }
 
         return $html;
@@ -544,6 +631,16 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->useMemoized($value);
             }
 
+            // Explanation: https://github.com/craftcms/cms/blob/4.4.13/src/fields/Matrix.php#L732-L735
+            if (
+                $this->minBlocks != 0 &&
+                count($filteredBlockTypes) === 1 &&
+                (!$element || !$element->hasErrors($this->handle)) &&
+                count($value) < $this->minBlocks
+            ) {
+                $view->setInitialDeltaValue($this->handle, null);
+            }
+
             return $view->renderTemplate('neo/input', [
                 'handle' => $this->handle,
                 'blocks' => $blocks,
@@ -593,6 +690,19 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public function normalizeValue(mixed $value, ?ElementInterface $element = null): mixed
     {
+        return $this->_normalizeValueInternal($value, $element, false);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function normalizeValueFromRequest(mixed $value, ?ElementInterface $element = null): mixed
+    {
+        return $this->_normalizeValueInternal($value, $element, true);
+    }
+
+    private function _normalizeValueInternal(mixed $value, ?ElementInterface $element, bool $fromRequest): mixed
+    {
         if ($value instanceof ElementQueryInterface) {
             return $value;
         }
@@ -606,7 +716,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $query->setCachedResult([]);
             $query->useMemoized(false);
         } elseif ($element && is_array($value)) {
-            $elements = $this->_createBlocksFromSerializedData($value, $element);
+            $elements = $this->_createBlocksFromSerializedData($value, $element, $fromRequest);
             $query->setCachedResult($elements);
             $query->useMemoized($elements);
         }
@@ -867,19 +977,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $requestService = Craft::$app->getRequest();
         $class = Self::class;
 
-        // Later, the field saving process will call `getGroups()` when trying to delete old groups. If this request is
-        // coming from the field settings page and all groups were deleted by the user, `$this->_blockTypeGroups` will
-        // be `null`, `getGroups()` will return `Neo::$plugin->blockTypes->getGroupsByFieldId($this->id)` and the groups
-        // won't be deleted. By detecting this here, we can set an empty array of groups, so the groups will actually be
-        // deleted.
-        if (!$requestService->isConsoleRequest && $requestService->getBodyParam("types.{$class}") !== null && $requestService->getBodyParam("types.{$class}.groups") === null) {
-            $this->setGroups([]);
-        }
-
         // If a block type doesn't already have a field layout set, check for POST data from the field layout designer
         foreach ($this->getBlockTypes() as $blockType) {
-            if (!$blockType->fieldLayout) {
-                $fieldLayout = $fieldsService->assembleLayoutFromPost("types.{$class}.blockTypes.{$blockType->id}");
+            if (!$blockType->fieldLayout && $requestService->getBodyParam("types.{$class}.items.blockTypes.{$blockType->id}") !== null) {
+                $fieldLayout = $fieldsService->assembleLayoutFromPost("types.{$class}.items.blockTypes.{$blockType->id}");
                 $fieldLayout->type = $class;
                 $blockType->setFieldLayout($fieldLayout);
             }
@@ -900,13 +1001,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $oldPropagationKeyFormat = $this->oldSettings['propagationKeyFormat'] ?? null;
 
             if ($this->propagationMethod !== $oldPropagationMethod || $this->propagationKeyFormat !== $oldPropagationKeyFormat) {
-                Queue::push(new ApplyNewPropagationMethod([
-                    'description' => Translation::prep('neo', 'Applying new propagation method to Neo blocks'),
-                    'elementType' => Block::class,
-                    'criteria' => [
-                        'fieldId' => $this->id,
-                    ],
-                ]));
+                Neo::$plugin->fields->applyPropagationMethod($this);
             }
         }
 
@@ -1028,6 +1123,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
 
                 $blocksBySite[$key] = $allBlocks;
             }
+        } else {
+            // If the owner element is being hard-deleted, make sure any block structure data is deleted
+            foreach (ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($element), 'siteId') as $siteId) {
+                $blockStructures = Neo::$plugin->blocks->getStructures([
+                    'fieldId' => $this->id,
+                    'ownerId' => $element->id,
+                    'siteId' => $siteId,
+                ]);
+                foreach ($blockStructures as $blockStructure) {
+                    Neo::$plugin->blocks->deleteStructure($blockStructure, true);
+                }
+            }
         }
 
         // Delete all Neo blocks for this element and field
@@ -1050,14 +1157,72 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             }
         }
 
-        // Recreate the block structures with the original block data
-        foreach ($blockStructures as $blockStructure) {
-            $key = $blockStructure->siteId ?? 0;
-            Neo::$plugin->blocks->saveStructure($blockStructure);
-            Neo::$plugin->blocks->buildStructure($blocksBySite[$key], $blockStructure);
+        // Recreate the block structures with the original block data, if not hard-deleting the owner
+        if (!$element->hardDelete) {
+            foreach ($blockStructures as $blockStructure) {
+                $key = $blockStructure->siteId ?? 0;
+                $siteId = $key ?: 1;
+                Queue::push(new SaveBlockStructures([
+                    'fieldId' => $this->id,
+                    'ownerId' => $element->id,
+                    'siteId' => $siteId,
+                    'otherSupportedSiteIds' => [],
+                    'blocks' => array_map(
+                        fn($block) => [
+                            'id' => $block->id,
+                            'level' => $block->level,
+                            'lft' => $block->lft,
+                            'rgt' => $block->rgt,
+                        ],
+                        $blocksBySite[$key]
+                    ),
+                ]));
+            }
         }
 
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterElementDelete(ElementInterface $element): void
+    {
+        // Ensure draft/revision block structures aren't marked as deleted, in case $element gets restored
+        if (!$element->hardDelete) {
+            $draftIds = (new Query())
+                ->select(['id'])
+                ->from(Table::DRAFTS)
+                ->where(['canonicalId' => $element->id])
+                ->column();
+            $revisionIds = (new Query())
+                ->select(['id'])
+                ->from(Table::REVISIONS)
+                ->where(['canonicalId' => $element->id])
+                ->column();
+            $draftRevisionElementIds = (new Query())
+                ->select(['id'])
+                ->from(Table::ELEMENTS)
+                ->where([
+                    'or',
+                    ['draftId' => $draftIds],
+                    ['revisionId' => $revisionIds],
+                ])
+                ->column();
+            $structureIds = (new Query())
+                ->select(['structureId'])
+                ->from('{{%neoblockstructures}}')
+                ->where([
+                    'ownerId' => $draftRevisionElementIds,
+                    'fieldId' => $this->id,
+                ])
+                ->column();
+            Db::update(
+                Table::STRUCTURES,
+                ['dateDeleted' => null],
+                ['id' => $structureIds],
+            );
+        }
     }
 
     /**
@@ -1184,9 +1349,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      *
      * @param array $value The raw field data.
      * @param ElementInterface $element The element associated with this field
+     * @param bool $fromRequest Whether the data came from the request post data
      * @return Block[] The Blocks created from the given data.
      */
-    private function _createBlocksFromSerializedData(array $value, ElementInterface $element): array
+    private function _createBlocksFromSerializedData(array $value, ElementInterface $element, bool $fromRequest): array
     {
         $draftsService = Craft::$app->getDrafts();
         $request = Craft::$app->getRequest();
@@ -1318,7 +1484,16 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             }
 
             if (isset($blockData['fields'])) {
-                $block->setFieldValues($blockData['fields']);
+                foreach ($blockData['fields'] as $fieldHandle => $fieldValue) {
+                    try {
+                        if ($fromRequest) {
+                            $block->setFieldValueFromRequest($fieldHandle, $fieldValue);
+                        } else {
+                            $block->setFieldValue($fieldHandle, $fieldValue);
+                        }
+                    } catch (InvalidFieldException) {
+                    }
+                }
             }
 
             if ($prevBlock) {
