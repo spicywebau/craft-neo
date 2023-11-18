@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (4.x)
+## 4.0.0-beta.1 - 2023-11-18
 
 ### Added
 - Added the `blockTypeIconPath` plugin setting
