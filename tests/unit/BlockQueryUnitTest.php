@@ -14,6 +14,7 @@ use UnitTester;
  *
  * @package spicyweb\neotests\unit
  * @author Spicy Web <plugins@spicyweb.com.au>
+ * @since 4.0.0
  */
 class BlockQueryUnitTest extends TestCase
 {

@@ -13,7 +13,7 @@ use UnitTester;
  *
  * @package spicyweb\neotests\unit
  * @author Spicy Web <plugins@spicyweb.com.au>
- * @since 3.8.0
+ * @since 4.0.0
  */
 class BlockStructureUnitTest extends TestCase
 {
