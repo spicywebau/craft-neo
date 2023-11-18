@@ -80,7 +80,10 @@ class BlockQuery extends ElementQuery
      */
     private bool $_useMemoized = false;
 
-    private bool $_doNotJoinBlockStructuresTable = false;
+    /**
+     * @var bool Whether to join the `neoblockstructures` table to the query.
+     */
+    private bool $_joinBlockStructuresTable = true;
 
     private static $ownersById = [];
 
@@ -468,7 +471,7 @@ class BlockQuery extends ElementQuery
         }
 
         if ((!$this->fieldId || !$this->ownerId || !$this->siteId) && $this->id && !$this->structureId) {
-            $this->_doNotJoinBlockStructuresTable = true;
+            $this->_joinBlockStructuresTable = false;
         }
 
         return parent::beforePrepare();
@@ -496,7 +499,7 @@ class BlockQuery extends ElementQuery
             }
         }
 
-        if ($structureElementsJoined && !$this->_doNotJoinBlockStructuresTable && !$this->structureId) {
+        if ($structureElementsJoined && $this->_joinBlockStructuresTable && !$this->structureId) {
             $this->subQuery->innerJoin(
                 ['neoblockstructures' => '{{%neoblockstructures}}'],
                 '[[neoblockstructures.structureId]] = [[structureelements.structureId]]',
