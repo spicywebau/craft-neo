@@ -38,6 +38,11 @@
 - Fixed a bug where applying a propagation method change to a Neo field would not create new block structures for the duplicated blocks
 - Fixed a bug where queries for Neo blocks with a specific owner entry/category could return duplicate blocks, if the entry/category had any drafts and the duplicated blocks were owned by both the entry/category and the drafts
 
+## 3.9.9 - 2023-11-24
+
+### Fixed
+- Fixed a bug when lazy loading new blocks in a slideout element editor, where the new blocks' field values weren't being saved
+
 ## 3.9.8 - 2023-10-27
 
 ### Added
