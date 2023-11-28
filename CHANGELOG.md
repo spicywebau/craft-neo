@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an exception that occurred when accessing a Neo field settings page, if the `blockTypeIconSelectMode` plugin setting was set to `'path'`, and the `blockTypeIconPath` plugin setting was set to a folder that doesn't exist
+
 ## 4.0.0-beta.1 - 2023-11-18
 
 ### Added

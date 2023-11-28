@@ -39,6 +39,7 @@ use craft\models\FieldLayout;
 use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 
 /**
  * Class BlockTypes
@@ -843,18 +844,23 @@ class BlockTypes extends Component
      */
     public function getAllIconFilenames(): array
     {
-        $iconFolderPath = App::parseEnv(Neo::$plugin->getSettings()->blockTypeIconPath);
-        $iconPaths = FileHelper::findFiles($iconFolderPath, [
-            'only' => [
-                '*.svg',
-            ],
-            'recursive' => false,
-        ]);
+        try {
+            $iconFolderPath = App::parseEnv(Neo::$plugin->getSettings()->blockTypeIconPath);
+            $iconPaths = FileHelper::findFiles($iconFolderPath, [
+                'only' => [
+                    '*.svg',
+                ],
+                'recursive' => false,
+            ]);
 
-        return array_map(
-            fn($path) => substr($path, strlen($iconFolderPath) + 1),
-            $iconPaths
-        );
+            return array_map(
+                fn($path) => substr($path, strlen($iconFolderPath) + 1),
+                $iconPaths
+            );
+        } catch (InvalidArgumentException $e) {
+            // The icon folder doesn't exist
+            return [];
+        }
     }
 
     /**
