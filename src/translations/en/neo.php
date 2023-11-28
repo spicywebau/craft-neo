@@ -26,6 +26,7 @@ return [
     'Icon' => 'Icon',
     'The SVG icon to use for this block type.' => 'The SVG icon to use for this block type.',
     'None set' => 'None set',
+    'No icons are available to select.' => 'No icons are available to select.',
     'Add' => 'Add',
     'Replace' => 'Replace',
     'Remove' => 'Remove',

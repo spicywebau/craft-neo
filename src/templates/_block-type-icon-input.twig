@@ -11,24 +11,28 @@
     </div>
 
     <input type="hidden" name="iconFilename" value="{{ value ?? '' }}">
-    <div class="btn dashed add icon menubtn" data-icon-select-set>
-        {% if value == null %}
-            {{ 'Add'|t('neo') }}
-        {% else %}
-            {{ 'Replace'|t('neo') }}
-        {% endif %}
-    </div>
-    <div class="menu nc_icon-select-menu">
-        <ul class="padded">
-            {% for filename, iconUrl in iconUrls %}
-                <li>
-                    <a aria-label="{{ filename }}" data-icon-select-item>
-                        <img src="{{ iconUrl }}">
-                        <span>{{ filename }}</span>
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% if iconUrls is not empty %}
+        <div class="btn dashed add icon menubtn" data-icon-select-set>
+            {% if value == null %}
+                {{ 'Add'|t('neo') }}
+            {% else %}
+                {{ 'Replace'|t('neo') }}
+            {% endif %}
+        </div>
+        <div class="menu nc_icon-select-menu">
+            <ul class="padded">
+                {% for filename, iconUrl in iconUrls %}
+                    <li>
+                        <a aria-label="{{ filename }}" data-icon-select-item>
+                            <img src="{{ iconUrl }}">
+                            <span>{{ filename }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <p>{{ 'No icons are available to select.'|t('neo') }}</p>
+    {% endif %}
     <div class="btn dashed delete icon{{ value == null ? ' hidden' }}" data-icon-select-remove>{{ 'Remove'|t('neo') }}</div>
 </div>
