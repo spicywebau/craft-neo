@@ -849,7 +849,9 @@ export default Garnish.Base.extend({
 
         elementEditor.pause()
         const siteId = elementEditor.settings.siteId
+        NS.enter(this.getNamespace())
         const data = {
+          namespace: NS.toFieldName(),
           blocks: {},
           sortOrder: [],
           fieldId: this._id,
@@ -858,6 +860,7 @@ export default Garnish.Base.extend({
           isProvisionalDraft: elementEditor.settings.isProvisionalDraft,
           siteId
         }
+        NS.leave()
         const originalBlockIds = {}
         this._blocks.forEach((block) => {
           const selectedTabId = block.$contentContainer

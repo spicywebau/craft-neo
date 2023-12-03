@@ -203,6 +203,7 @@ class Input extends Controller
         $sortOrder = $request->getRequiredBodyParam('sortOrder');
 
         $field = $fieldsService->getFieldById($fieldId);
+        $namespace = $request->getBodyParam('namespace', "fields[{$field->handle}][blocks]");
         $canonicalOwner = $elementsService->getElementById($ownerCanonicalId, null, $siteId);
         $draftsQueryMethod = $isProvisionalDraft ? 'provisionalDrafts' : 'drafts';
 
@@ -245,10 +246,10 @@ class Input extends Controller
             }
 
             $view = Craft::$app->getView();
-            $namespace = "fields[{$field->handle}][blocks][{$blockId}]";
+            $blockNamespace = "{$namespace}[{$blockId}]";
             $fieldLayout = $block->getFieldLayout();
             $form = $fieldLayout->createForm($block, false, [
-                'namespace' => $namespace,
+                'namespace' => $blockNamespace,
                 'registerDeltas' => false,
                 'visibleElements' => $blockData['visibleLayoutElements'],
             ]);
@@ -304,7 +305,7 @@ class Input extends Controller
                     'tabs' => $tabs,
                     'selectedTab' => $selectedTab,
                     'block' => $block,
-                ], View::TEMPLATE_MODE_CP), $namespace);
+                ], View::TEMPLATE_MODE_CP), $blockNamespace);
             } else {
                 $tabHtml = null;
             }
