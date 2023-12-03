@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where previously existing block types' sort orders were not updated in the database when saving a Neo field
+
 ## 4.0.0-beta.2 - 2023-11-28
 
 ### Fixed

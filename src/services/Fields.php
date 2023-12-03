@@ -137,19 +137,28 @@ class Fields extends Component
                     Neo::$plugin->blockTypes->deleteGroup($blockTypeGroup);
                 }
 
-                // Save the new block types and groups
+                // Save the new block types and groups, ensuring sort orders in the database are reset
                 $currentGroup = null;
 
-                foreach ($field->getItems() as $item) {
+                foreach ($field->getItems() as $sortOrder => $item) {
                     $item->fieldId = $field->id;
+                    $item->sortOrder = $sortOrder + 1;
 
                     if ($item instanceof BlockTypeGroup) {
+                        $table = '{{%neoblocktypegroups}}';
                         $currentGroup = $item;
                         Neo::$plugin->blockTypes->saveGroup($item);
                     } else {
+                        $table = '{{%neoblocktypes}}';
                         $item->groupId = $currentGroup?->id;
                         Neo::$plugin->blockTypes->save($item, false);
                     }
+
+                    Db::update($table, [
+                        'sortOrder' => $item->sortOrder,
+                    ], [
+                        'id' => $item->id,
+                    ], [], false);
                 }
 
                 $transaction->commit();
