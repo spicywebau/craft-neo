@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.9.10 - 2023-12-03
 
 ### Fixed
 - Fixed a bug when lazy loading new blocks in a slideout element editor, where the values of new blocks' fields affected by condition rules weren't being saved
