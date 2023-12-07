@@ -1480,6 +1480,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->setCollapsed((bool)$blockData['collapsed']);
             }
 
+            // Allow setting the UID for the block element
+            if (isset($blockData['uid'])) {
+                $block->uid = $blockData['uid'];
+            }
+
             // Skip disabled blocks on Live Preview requests
             if ($hideDisabledBlocks && !$block->enabled) {
                 continue;
