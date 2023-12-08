@@ -177,7 +177,7 @@ export default Garnish.Base.extend({
         <div class="ni_block_topbar" data-neo-b="${this._id}.container.topbar">
           <div class="ni_block_topbar_left" data-neo-b="${this._id}.container.topbarLeft">
             <div class="ni_block_topbar_item" data-neo-b="${this._id}.select">
-              <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')} aria-label="${Craft.t('neo', 'Select')}"></div>
+              <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')}" aria-label="${Craft.t('neo', 'Select')}"></div>
             </div>
             <div class="ni_block_topbar_item title">
               <span class="blocktype" data-neo-b="${this._id}.select">${type.getName()}</span>
