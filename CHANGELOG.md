@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Add `uid` handling for blocks when converting from serialised blocks (thanks @engram-design)
+
+### Fixed
+- Fixed invalid HTML being generated for new blocks' top bar checkboxes (thanks @engram-design)
+
 ## 3.9.10 - 2023-12-03
 
 ### Fixed
