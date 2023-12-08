@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.9.11 - 2023-12-08
 
 ### Added
 - Add `uid` handling for blocks when converting from serialised blocks (thanks @engram-design)
