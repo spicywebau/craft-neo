@@ -48,6 +48,14 @@
 - Fixed a bug where applying a propagation method change to a Neo field would not create new block structures for the duplicated blocks
 - Fixed a bug where queries for Neo blocks with a specific owner entry/category could return duplicate blocks, if the entry/category had any drafts and the duplicated blocks were owned by both the entry/category and the drafts
 
+## 3.9.11 - 2023-12-08
+
+### Added
+- Add `uid` handling for blocks when converting from serialised blocks (thanks @engram-design)
+
+### Fixed
+- Fixed invalid HTML being generated for new blocks' top bar checkboxes (thanks @engram-design)
+
 ## 3.9.10 - 2023-12-03
 
 ### Fixed
