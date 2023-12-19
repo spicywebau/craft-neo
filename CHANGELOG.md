@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- `benf\neo\elements\Block::getOwner()` will now return `null` if the block's owner no longer exists, instead of throwing `yii\base\InvalidConfigException`
+
 ## 4.0.0-beta.3 - 2023-12-05
 
 ### Fixed

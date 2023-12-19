@@ -453,7 +453,8 @@ class Block extends Element implements BlockElementInterface
             }
 
             if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null) {
-                throw new InvalidConfigException('Invalid owner ID: ' . $this->ownerId);
+                // The owner has been deleted
+                return null;
             }
         }
 
