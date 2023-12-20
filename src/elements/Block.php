@@ -369,7 +369,7 @@ class Block extends Element implements BlockElementInterface
     public function getSupportedSites(): array
     {
         try {
-            $owner = $this->getOwner();
+            $owner = $this->getOwner() ?? $this->duplicateOf;
         } catch (InvalidConfigException $e) {
             $owner = $this->duplicateOf;
         }
