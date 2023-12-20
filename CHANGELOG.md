@@ -1,24 +1,8 @@
 # Changelog
 
-## Unreleased
+## 4.0.0 - 2023-12-20
 
-### Changed
-- `benf\neo\elements\Block::getOwner()` will now return `null` if the block's owner no longer exists, instead of throwing `yii\base\InvalidConfigException`
-
-### Fixed
-- Fixed an error that occurred when lazy loading a new block that requires at least two child blocks
-
-## 4.0.0-beta.3 - 2023-12-05
-
-### Fixed
-- Fixed a bug where previously existing block types' sort orders were not updated in the database when saving a Neo field
-
-## 4.0.0-beta.2 - 2023-11-28
-
-### Fixed
-- Fixed an exception that occurred when accessing a Neo field settings page, if the `blockTypeIconSelectMode` plugin setting was set to `'path'`, and the `blockTypeIconPath` plugin setting was set to a folder that doesn't exist
-
-## 4.0.0-beta.1 - 2023-11-18
+> {note} If you are a developer of a plugin or module that extends Neo functionality, check the [upgrade guide](https://github.com/spicywebau/craft-neo/blob/4.x/docs/upgrade-guides/neo-4.md).
 
 ### Added
 - Added the `blockTypeIconPath` plugin setting
@@ -37,6 +21,7 @@
 ### Changed
 - Block type and block type groups now have their sort orders stored in a per-field ordered array in the project config
 - Whether a Neo block type's Top Level, Max Sibling Blocks of This Type, Child Blocks or Max Child Blocks settings have been violated is now validated server-side when saving a Neo field's contents, rather than relying on them to be enforced by client-side JavaScript
+- `benf\neo\elements\Block::getOwner()` will now return `null` if the block's owner no longer exists, instead of throwing `yii\base\InvalidConfigException`
 
 ### Removed
 - Removed `benf\neo\assets\FieldAsset`; use `benf\neo\assets\InputAsset` instead
@@ -55,6 +40,7 @@
 ### Fixed
 - Fixed a bug where applying a propagation method change to a Neo field would not create new block structures for the duplicated blocks
 - Fixed a bug where queries for Neo blocks with a specific owner entry/category could return duplicate blocks, if the entry/category had any drafts and the duplicated blocks were owned by both the entry/category and the drafts
+- Fixed an error that occurred when lazy loading a new block that requires at least two child blocks
 
 ## 3.9.11 - 2023-12-08
 
