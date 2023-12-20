@@ -5,6 +5,9 @@
 ### Changed
 - `benf\neo\elements\Block::getOwner()` will now return `null` if the block's owner no longer exists, instead of throwing `yii\base\InvalidConfigException`
 
+### Fixed
+- Fixed an error that occurred when lazy loading a new block that requires at least two child blocks
+
 ## 4.0.0-beta.3 - 2023-12-05
 
 ### Fixed

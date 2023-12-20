@@ -1146,10 +1146,13 @@ export default Garnish.Base.extend({
     try {
       elementEditor?.pause()
       const level = e.level ?? 1
+      const loopStartingPoint = typeof e.index !== 'undefined'
+        ? Math.min(e.index - 1, this._blocks.length - 1)
+        : this._blocks.length - 1
       let siblingBlock
       let addAfter = true
 
-      for (let i = typeof e.index !== 'undefined' ? e.index - 1 : this._blocks.length - 1; i >= 0; i--) {
+      for (let i = loopStartingPoint; i >= 0; i--) {
         // Look for the previous block at the same level as the new block, to add the spinner after
         if (this._blocks[i].getLevel() === level) {
           siblingBlock = this._blocks[i]
