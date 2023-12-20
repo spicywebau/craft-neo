@@ -1,12 +1,12 @@
-# Updating to Craft 3.4 and 2.7.x+
+# Upgrading to Craft 3.4 and 2.7.x+
 
-There are some steps required when updating to Craft 3.4 and neo 2.7.x+ from older versions. This is because craft 3.4 re-saves the entries before neo has a chance to add the database changes which throws an error when saving.
+There are some steps required when updating to Craft 3.4 and Neo 2.7.x+ from older versions. This is because Craft 3.4 re-saves the entries before Neo has a chance to add the database changes which throws an error when saving.
 
 ## Steps
 
 1. Edit your composer.json.
 
-    Craft should be `3.4.0` and neo `2.6.5.1`. Your composer.json for craft and neo should look like this:
+    Craft should be `3.4.0` and Neo `2.6.5.1`. Your composer.json for Craft and Neo should look like this:
     ```
     "craftcms/cms": "3.4.0",
     "spicyweb/craft-neo": "2.6.5.1",
