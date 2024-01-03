@@ -71,6 +71,7 @@ class Configurator extends Controller
         $request = Craft::$app->getRequest();
         $blockTypeId = $request->getBodyParam('blockTypeId');
         $settings = $request->getBodyParam('settings');
+        $errors = $request->getBodyParam('errors', []);
         $layoutConfig = $request->getBodyParam('layout');
         $blockType = $blockTypeId ? Neo::$plugin->blockTypes->getById((int)$blockTypeId) : null;
 
@@ -83,6 +84,13 @@ class Configurator extends Controller
         }
 
         if ($blockType) {
+            // Apply errors before rendering settings
+            foreach ($errors as $attr => $attrErrors) {
+                foreach ($attrErrors as $attrError) {
+                    $blockType->addError($attr, $attrError);
+                }
+            }
+
             $renderedSettings = Neo::$plugin->blockTypes->renderSettings(
                 $blockType,
                 'types[' . Field::class . ']',

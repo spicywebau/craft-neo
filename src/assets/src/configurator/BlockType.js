@@ -106,6 +106,7 @@ export default Item.extend({
     const layoutId = settings.getFieldLayoutId()
     const data = {
       blockTypeId: this.getId(),
+      errors: settings.getErrors(),
       layout
     }
 

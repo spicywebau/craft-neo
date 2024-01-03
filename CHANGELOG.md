@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where validation error messages on block type settings would not display after saving the Neo field failed
+
 ## 4.0.0 - 2023-12-20
 
 > {note} If you are a developer of a plugin or module that extends Neo functionality, check the [upgrade guide](https://github.com/spicywebau/craft-neo/blob/4.x/docs/upgrade-guides/neo-4.md).
