@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.1 - 2024-01-03
 
 ### Fixed
 - Fixed a bug where validation error messages on block type settings would not display after saving the Neo field failed
