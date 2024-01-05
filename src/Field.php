@@ -1399,7 +1399,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         $blocks = [];
         $prevBlock = null;
 
-        foreach ($newSortOrder as $blockId) {
+        foreach ($newSortOrder as $i => $blockId) {
             if (isset($newBlockData[$blockId])) {
                 $blockData = $newBlockData[$blockId];
             } elseif (
@@ -1461,6 +1461,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->primaryOwnerId = $block->ownerId = $element->id;
                 $block->siteId = $element->siteId;
                 $block->enabled = (bool)($blockData['enabled'] ?? true);
+                $block->unsavedId = $i;
             }
 
             $blockLevel = (int)($blockData['level'] ?? $block->level);

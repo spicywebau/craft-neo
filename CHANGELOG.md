@@ -1,5 +1,8 @@
 # Changelog
 
+### Fixed
+- Fixed a bug when saving an entry, where new Neo blocks could have incorrect validation errors concerning invalid child block types
+
 ## 4.0.1 - 2024-01-03
 
 ### Fixed
