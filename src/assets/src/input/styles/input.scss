@@ -418,8 +418,13 @@ $topbar-background-color-transparent: #ebf2fa00;
             }
         }
 
-        &_body {
-            padding: 0 14px 14px;
+        &_body > * {
+            padding-left: 14px;
+            padding-right: 14px;
+
+            &:last-child {
+                padding-bottom: 14px;
+            }
         }
 
         &_content {
@@ -428,10 +433,10 @@ $topbar-background-color-transparent: #ebf2fa00;
             }
 
             &:not(.is-tab-unselected) > [data-layout-tab] {
-                padding: 14px 0 0;
+                padding-top: 14px;
 
                 &.is-blank {
-                    padding: 0;
+                    padding-top: 0;
                     border-top: 0;
                 }
 
@@ -456,7 +461,8 @@ $topbar-background-color-transparent: #ebf2fa00;
         }
 
         &_children {
-            padding: 14px 0 7px;
+            padding-top: 14px;
+            padding-bottom: 18px !important;
 
             @media screen and (prefers-reduced-motion: no-preference) {
                 transition: background-color 0.5s;
@@ -580,6 +586,10 @@ $topbar-background-color-transparent: #ebf2fa00;
                 .ni_block_collapsed-children_child {
                     margin-top: 0;
                 }
+            }
+
+            .ni_block_body {
+                pointer-events: none;
             }
         }
 
