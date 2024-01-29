@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.3 - 2024-01-29
 
 ### Fixed
 - Fixed a bug where field layout elements of collapsed Neo blocks could be interacted with
