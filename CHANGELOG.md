@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where field layout elements of collapsed Neo blocks could be interacted with
+- Fixed a "Column 'structureId' in where clause is ambiguous" error that could occur when merging canonical block changes into derivative blocks
 
 ## 4.0.2 - 2024-01-05
 
