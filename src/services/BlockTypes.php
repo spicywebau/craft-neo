@@ -922,6 +922,12 @@ class BlockTypes extends Component
                 $resourceBaseUrl = rtrim(App::parseEnv($generalConfig->resourceBaseUrl), DIRECTORY_SEPARATOR);
                 FileHelper::createDirectory($resourceBasePath . DIRECTORY_SEPARATOR . 'neo');
                 $imagePath = rtrim(App::parseEnv($iconFolder), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
+
+                // Make sure the file exists
+                if (!file_exists($imagePath)) {
+                    return null;
+                }
+
                 $extension = FileHelper::getExtensionByMimeType(FileHelper::getMimeType($imagePath));
                 $size = $transform !== null ? "{$transform['width']}x{$transform['height']}" : 'full';
                 $relativeImageDest = 'neo' . DIRECTORY_SEPARATOR . hash('sha256', $imagePath) . "-$size.$extension";
