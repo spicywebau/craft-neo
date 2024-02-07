@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when editing a Neo field if a block type had an icon path set to an empty file
+
 ## 4.0.3 - 2024-01-29
 
 ### Fixed

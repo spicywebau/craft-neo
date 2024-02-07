@@ -873,13 +873,11 @@ class BlockTypes extends Component
      */
     public function getIconPath(BlockType|string $blockTypeOrFilename, ?array $transform = null): ?string
     {
-        $iconFilename = $blockTypeOrFilename instanceof BlockType
-            ? $blockTypeOrFilename->iconFilename
-            : $blockTypeOrFilename;
+        if (($icon = $this->_getIcon($blockTypeOrFilename, $transform)) === null) {
+            return null;
+        }
 
-        return $iconFilename !== null
-            ? $this->_transformIcon($iconFilename, $transform)[0]
-            : null;
+        return $icon[0];
     }
 
     /**
@@ -892,52 +890,66 @@ class BlockTypes extends Component
      */
     public function getIconUrl(BlockType|string $blockTypeOrFilename, ?array $transform = null): ?string
     {
+        if (($icon = $this->_getIcon($blockTypeOrFilename, $transform)) === null) {
+            return null;
+        }
+
+        return $icon[1];
+    }
+
+    private function _getIcon(BlockType|string $blockTypeOrFilename, ?array $transform = null): ?array
+    {
         $iconFilename = $blockTypeOrFilename instanceof BlockType
             ? $blockTypeOrFilename->iconFilename
             : $blockTypeOrFilename;
 
         return $iconFilename !== null
-            ? $this->_transformIcon($iconFilename, $transform)[1]
+            ? $this->_transformIcon($iconFilename, $transform)
             : null;
     }
 
-    private function _transformIcon(string $filename, ?array $transform = null): array
+    private function _transformIcon(string $filename, ?array $transform = null): ?array
     {
-        $key = $transform !== null
-            ? $filename . Json::encode($transform)
-            : $filename;
+        try {
+            $key = $transform !== null
+                ? $filename . Json::encode($transform)
+                : $filename;
 
-        if (!isset($this->_iconTransforms[$key])) {
-            $iconFolder = Neo::$plugin->getSettings()->blockTypeIconPath;
-            $generalConfig = Craft::$app->getConfig()->getGeneral();
-            $resourceBasePath = rtrim(App::parseEnv($generalConfig->resourceBasePath), DIRECTORY_SEPARATOR);
-            $resourceBaseUrl = rtrim(App::parseEnv($generalConfig->resourceBaseUrl), DIRECTORY_SEPARATOR);
-            FileHelper::createDirectory($resourceBasePath . DIRECTORY_SEPARATOR . 'neo');
-            $imagePath = rtrim(App::parseEnv($iconFolder), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
-            $extension = FileHelper::getExtensionByMimeType(FileHelper::getMimeType($imagePath));
-            $size = $transform !== null ? "{$transform['width']}x{$transform['height']}" : 'full';
-            $relativeImageDest = 'neo' . DIRECTORY_SEPARATOR . hash('sha256', $imagePath) . "-$size.$extension";
-            $imageDestPath = $resourceBasePath . DIRECTORY_SEPARATOR . $relativeImageDest;
-            $imageDestUrl = $resourceBaseUrl . DIRECTORY_SEPARATOR . $relativeImageDest;
+            if (!isset($this->_iconTransforms[$key])) {
+                $iconFolder = Neo::$plugin->getSettings()->blockTypeIconPath;
+                $generalConfig = Craft::$app->getConfig()->getGeneral();
+                $resourceBasePath = rtrim(App::parseEnv($generalConfig->resourceBasePath), DIRECTORY_SEPARATOR);
+                $resourceBaseUrl = rtrim(App::parseEnv($generalConfig->resourceBaseUrl), DIRECTORY_SEPARATOR);
+                FileHelper::createDirectory($resourceBasePath . DIRECTORY_SEPARATOR . 'neo');
+                $imagePath = rtrim(App::parseEnv($iconFolder), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
+                $extension = FileHelper::getExtensionByMimeType(FileHelper::getMimeType($imagePath));
+                $size = $transform !== null ? "{$transform['width']}x{$transform['height']}" : 'full';
+                $relativeImageDest = 'neo' . DIRECTORY_SEPARATOR . hash('sha256', $imagePath) . "-$size.$extension";
+                $imageDestPath = $resourceBasePath . DIRECTORY_SEPARATOR . $relativeImageDest;
+                $imageDestUrl = $resourceBaseUrl . DIRECTORY_SEPARATOR . $relativeImageDest;
 
-            if (!file_exists($imageDestPath)) {
-                try {
-                    $image = Craft::$app->getImages()->loadImage($imagePath);
+                if (!file_exists($imageDestPath)) {
+                    try {
+                        $image = Craft::$app->getImages()->loadImage($imagePath);
 
-                    if ($transform !== null) {
-                        $image->scaleAndCrop($transform['width'], $transform['height']);
+                        if ($transform !== null) {
+                            $image->scaleAndCrop($transform['width'], $transform['height']);
+                        }
+
+                        $image->saveAs($imageDestPath);
+                    } catch (\Exception $e) {
+                        return null;
                     }
-
-                    $image->saveAs($imageDestPath);
-                } catch (\Exception $e) {
-                    return null;
                 }
+
+                $this->_iconTransforms[$key] = [$imageDestPath, $imageDestUrl];
             }
 
-            $this->_iconTransforms[$key] = [$imageDestPath, $imageDestUrl];
+            return $this->_iconTransforms[$key];
+        } catch (InvalidArgumentException $e) {
+            // Not a valid icon
+            return null;
         }
-
-        return $this->_iconTransforms[$key];
     }
 
     /**
