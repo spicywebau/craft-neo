@@ -929,24 +929,20 @@ class BlockTypes extends Component
                 $imageDestUrl = $resourceBaseUrl . DIRECTORY_SEPARATOR . $relativeImageDest;
 
                 if (!file_exists($imageDestPath)) {
-                    try {
-                        $image = Craft::$app->getImages()->loadImage($imagePath);
+                    $image = Craft::$app->getImages()->loadImage($imagePath);
 
-                        if ($transform !== null) {
-                            $image->scaleAndCrop($transform['width'], $transform['height']);
-                        }
-
-                        $image->saveAs($imageDestPath);
-                    } catch (\Exception $e) {
-                        return null;
+                    if ($transform !== null) {
+                        $image->scaleAndCrop($transform['width'], $transform['height']);
                     }
+
+                    $image->saveAs($imageDestPath);
                 }
 
                 $this->_iconTransforms[$key] = [$imageDestPath, $imageDestUrl];
             }
 
             return $this->_iconTransforms[$key];
-        } catch (InvalidArgumentException $e) {
+        } catch (\Exception $e) {
             // Not a valid icon
             return null;
         }
