@@ -400,37 +400,36 @@ export default Garnish.Base.extend({
 
       this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
     } else {
-      const oldSettings = oldBlockType.getSettings()
-      const settingsObj = {
-        childBlocks: oldSettings.getChildBlocks(),
-        conditions: oldSettings.getConditions(),
-        // Set a timestamp on the handle so it doesn't clash with the old one
-        handle: `${oldSettings.getHandle()}_${Date.now()}`,
-        id,
-        minBlocks: oldSettings.getMinBlocks(),
-        maxBlocks: oldSettings.getMaxBlocks(),
-        minChildBlocks: oldSettings.getMinChildBlocks(),
-        maxChildBlocks: oldSettings.getMaxChildBlocks(),
-        minSiblingBlocks: oldSettings.getMinSiblingBlocks(),
-        maxSiblingBlocks: oldSettings.getMaxSiblingBlocks(),
-        name: oldSettings.getName(),
-        description: oldSettings.getDescription(),
-        iconId: oldSettings.getIconId(),
-        enabled: oldSettings.getEnabled(),
-        ignorePermissions: oldSettings.getIgnorePermissions(),
-        sortOrder: this._items.length,
-        topLevel: oldSettings.getTopLevel()
-      }
-      const settings = new BlockTypeSettings({
-        ...settingsObj,
-        childBlockTypes: this.getBlockTypes(),
-        namespace: [...namespace, id]
-      })
       const $spinner = $('<div class="nc_sidebar_list_item type-spinner"><span class="spinner"></span></div>')
       this._insertAt($spinner, selectedIndex)
-
       oldBlockType.load()
         .then(() => {
+          const oldSettings = oldBlockType.getSettings()
+          const settingsObj = {
+            childBlocks: oldSettings.getChildBlocks(),
+            conditions: oldSettings.getConditions(),
+            // Set a timestamp on the handle so it doesn't clash with the old one
+            handle: `${oldSettings.getHandle()}_${Date.now()}`,
+            id,
+            minBlocks: oldSettings.getMinBlocks(),
+            maxBlocks: oldSettings.getMaxBlocks(),
+            minChildBlocks: oldSettings.getMinChildBlocks(),
+            maxChildBlocks: oldSettings.getMaxChildBlocks(),
+            minSiblingBlocks: oldSettings.getMinSiblingBlocks(),
+            maxSiblingBlocks: oldSettings.getMaxSiblingBlocks(),
+            name: oldSettings.getName(),
+            description: oldSettings.getDescription(),
+            iconId: oldSettings.getIconId(),
+            enabled: oldSettings.getEnabled(),
+            ignorePermissions: oldSettings.getIgnorePermissions(),
+            sortOrder: this._items.length,
+            topLevel: oldSettings.getTopLevel()
+          }
+          const settings = new BlockTypeSettings({
+            ...settingsObj,
+            childBlockTypes: this.getBlockTypes(),
+            namespace: [...namespace, id]
+          })
           const layout = oldBlockType.getFieldLayout().getConfig()
           const data = {
             settings: settingsObj,
