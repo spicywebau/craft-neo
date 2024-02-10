@@ -7,6 +7,7 @@
 - Fixed an error that occurred when editing a Neo field if a block type had an icon path set to nonexistent file
 - Fixed an error that occurred when cloning a block type that hadn't had its settings rendered yet
 - Fixed a bug where pasting a block type would not paste the field layout
+- Fixed a bug where external Neo field block type / group sort order changes were not applied when applying project config changes
 
 ## 4.0.3 - 2024-01-29
 

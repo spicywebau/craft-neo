@@ -181,6 +181,7 @@ class Plugin extends BasePlugin
     private function _registerProjectConfigApply(): void
     {
         Craft::$app->getProjectConfig()
+            ->onUpdate('neo.orders.{uid}', [$this->blockTypes, 'handleChangedOrders'])
             ->onAdd('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
             ->onUpdate('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
             ->onRemove('neoBlockTypes.{uid}', [$this->blockTypes, 'handleDeletedBlockType'])

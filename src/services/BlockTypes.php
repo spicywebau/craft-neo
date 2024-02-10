@@ -422,6 +422,36 @@ class BlockTypes extends Component
     }
 
     /**
+     * Handles Neo field sort order changes made while applying external project config changes.
+     *
+     * @param ConfigEvent $event
+     * @throws \Throwable
+     * @since 4.0.5
+     */
+    public function handleChangedOrders(ConfigEvent $event): void
+    {
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        // Non-external changes handled elsewhere
+        if (!$projectConfig->getIsApplyingExternalChanges()) {
+            return;
+        }
+
+        $fieldUid = $event->tokenMatches[0];
+        $items = $event->newValue;
+
+        foreach ($items as $i => $item) {
+            [$itemType, $itemUid] = explode(':', $item);
+            $table = $itemType === 'blockType' ? '{{%neoblocktypes}}' : '{{%neoblocktypegroups}}';
+            Db::update($table, [
+                'sortOrder' => $i + 1,
+            ], [
+                'uid' => $itemUid,
+            ]);
+        }
+    }
+
+    /**
      * Handles a Neo block type change.
      *
      * @param ConfigEvent $event
