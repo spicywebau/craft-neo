@@ -93,7 +93,7 @@ class Configurator extends Controller
 
             $renderedSettings = Neo::$plugin->blockTypes->renderSettings(
                 $blockType,
-                'types[' . Field::class . ']',
+                'types[' . str_replace('\\', '-', Field::class) . ']',
             );
         } else {
             $newBlockType = new BlockType();
