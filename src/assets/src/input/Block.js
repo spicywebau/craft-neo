@@ -500,7 +500,7 @@ export default Garnish.Base.extend({
    * @since 3.7.0
    */
   getDuplicatedBlockId () {
-    return this.$form.data('elementEditor')?.duplicatedElements[this._id] ?? this._id
+    return this.$form.data('elementEditor')?.draftElementIds[this._id] ?? this._id
   },
 
   isTopLevel () {
