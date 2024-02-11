@@ -39,6 +39,7 @@ export default Garnish.Base.extend({
     NS.enter(this._templateNs)
 
     this._fld = new Craft.FieldLayoutDesigner(this.$container, {
+      elementType: 'benf\\neo\\elements\\Block',
       customizableTabs: true,
       customizableUi: true
     })
