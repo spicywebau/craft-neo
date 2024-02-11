@@ -17,7 +17,7 @@ class BlockCondition extends ElementCondition
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
         $parentConditionRuleTypes = parent::conditionRuleTypes();
         $fieldConditionRuleTypes = [];

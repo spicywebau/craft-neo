@@ -28,6 +28,7 @@ use craft\base\GqlInlineFragmentInterface;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
+use craft\enums\AttributeStatus;
 use craft\errors\InvalidFieldException;
 use craft\fields\conditions\EmptyFieldConditionRule;
 use craft\helpers\ArrayHelper;
@@ -72,9 +73,17 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public static function hasContentColumn(): bool
+    public static function icon(): string
     {
-        return false;
+        return '@benf/neo/icon.svg';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function dbType(): array|string|null
+    {
+        return null;
     }
 
     /**
@@ -90,7 +99,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    public static function valueType(): string
+    public static function phpType(): string
     {
         return BlockQuery::class;
     }
@@ -573,7 +582,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * @inheritdoc
      */
-    protected function inputHtml(mixed $value, ?ElementInterface $element = null): string
+    protected function inputHtml(mixed $value, ?ElementInterface $element = null, bool $inline = false): string
     {
         // `inputHtml` being called a second time with namespace depth > 1 when there's an error...
         if ($this->_inputHtmlException !== null) {
@@ -806,7 +815,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function getStatus(ElementInterface $element): ?array
     {
         return $element->isFieldOutdated($this->handle) ? [
-            Element::ATTR_STATUS_OUTDATED,
+            AttributeStatus::Outdated,
             Craft::t('app', 'This field was updated in the Current revision.'),
         ] : null;
     }

@@ -9,11 +9,14 @@ use benf\neo\models\BlockType;
 use benf\neo\Plugin as Neo;
 use benf\neo\records\Block as BlockRecord;
 use Craft;
-use craft\base\BlockElementInterface;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\base\NestedElementInterface;
+use craft\base\NestedElementTrait;
 use craft\elements\conditions\ElementConditionInterface;
+use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\ElementCollection;
 use craft\helpers\Db;
 use craft\models\FieldLayout;
 use Illuminate\Support\Collection;
@@ -28,8 +31,13 @@ use yii\base\InvalidConfigException;
  * @author Benjamin Fleming
  * @since 2.0.0
  */
-class Block extends Element implements BlockElementInterface
+class Block extends Element implements NestedElementInterface
 {
+    use NestedElementTrait {
+        attributes as traitAttributes;
+        extraFields as traitExtraFields;
+    }
+
     /**
      * @inheritdoc
      */
@@ -152,36 +160,14 @@ class Block extends Element implements BlockElementInterface
     public ?int $fieldId = null;
 
     /**
-     * @var int|null
-     * @since 3.0.0
-     */
-    public ?int $primaryOwnerId = null;
-
-    /**
-     * @var int|null The owner ID.
-     */
-    public ?int $ownerId = null;
-
-    /**
      * @var int|null The block type ID.
      */
     public ?int $typeId = null;
 
     /**
-     * @var bool
+     * @var bool|null
      */
-    public bool $deletedWithOwner = false;
-
-    /**
-     * @var bool
-     * @since 3.0.0
-     */
-    public bool $saveOwnership = true;
-
-    /**
-     * @var ElementInterface|null The owner.
-     */
-    private ?ElementInterface $_owner = null;
+    public ?bool $deletedWithOwner = false;
 
     /**
      * @var array|null Any eager-loaded elements for this block type.
@@ -192,12 +178,6 @@ class Block extends Element implements BlockElementInterface
      * @var bool|null Whether this block should display as collapsed.
      */
     public ?bool $_collapsed = null;
-
-    /**
-     * @var int|null
-     * @since 2.7.0
-     */
-    public ?int $sortOrder = null;
 
     /**
      * @var int|null
@@ -369,6 +349,7 @@ class Block extends Element implements BlockElementInterface
     public function getSupportedSites(): array
     {
         try {
+            $this->_owner = false;
             $owner = $this->getOwner() ?? $this->duplicateOf;
         } catch (InvalidConfigException $e) {
             $owner = $this->duplicateOf;
@@ -398,7 +379,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getLocalized(): ElementQueryInterface|Collection
+    public function getLocalized(): ElementQueryInterface|ElementCollection
     {
         $query = parent::getLocalized();
 
@@ -437,39 +418,6 @@ class Block extends Element implements BlockElementInterface
         }
 
         return $blockType;
-    }
-
-    /**
-     * Returns this block's owner, if it has one.
-     *
-     * @return ElementInterface|null
-     * @throws
-     */
-    public function getOwner(): ?ElementInterface
-    {
-        if ($this->_owner === null) {
-            if ($this->ownerId === null) {
-                throw new InvalidConfigException('Neo block is missing its owner ID');
-            }
-
-            if (($this->_owner = Craft::$app->getElements()->getElementById($this->ownerId, null, $this->siteId)) === null) {
-                // The owner has been deleted
-                return null;
-            }
-        }
-
-        return $this->_owner;
-    }
-
-    /**
-     * Sets this block's owner.
-     *
-     * @param ElementInterface|null $owner
-     */
-    public function setOwner(?ElementInterface $owner = null)
-    {
-        $this->_owner = $owner;
-        $this->ownerId = $owner->id;
     }
 
     /**
@@ -556,12 +504,12 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getEagerLoadedElements(string $handle): ?Collection
+    public function getEagerLoadedElements(string $handle): ?ElementCollection
     {
         $blockTypeHandle = $this->_getTypeHandlePrefix() . $handle;
 
         if (isset($this->_eagerLoadedBlockTypeElements[$blockTypeHandle])) {
-            return new Collection($this->_eagerLoadedBlockTypeElements[$blockTypeHandle]);
+            return new ElementCollection($this->_eagerLoadedBlockTypeElements[$blockTypeHandle]);
         }
 
         return parent::getEagerLoadedElements($handle);
@@ -570,7 +518,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements): void
+    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         $typeHandlePrefix = $this->_getTypeHandlePrefix();
         $hasMatchingHandlePrefix = strpos($handle, $typeHandlePrefix) === 0;
@@ -768,7 +716,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getAncestors(?int $dist = null): ElementQueryInterface|Collection
+    public function getAncestors(?int $dist = null): ElementQueryInterface|ElementCollection
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -828,7 +776,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getDescendants(?int $dist = null): ElementQueryInterface|Collection
+    public function getDescendants(?int $dist = null): ElementQueryInterface|ElementCollection
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -867,7 +815,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getChildren(): ElementQueryInterface|Collection
+    public function getChildren(): ElementQueryInterface|ElementCollection
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();
@@ -900,7 +848,7 @@ class Block extends Element implements BlockElementInterface
     /**
      * @inheritdoc
      */
-    public function getSiblings(): ElementQueryInterface|Collection
+    public function getSiblings(): ElementQueryInterface|ElementCollection
     {
         // If the request is in Live Preview mode, use the Neo-extended block query, which supports Live Preview mode
         $isLivePreview = Craft::$app->getRequest()->getIsLivePreview();

@@ -9,5 +9,5 @@ system:
   live: true
   name: 'Neo Test'
   retryDuration: null
-  schemaVersion: 4.5.3.0
+  schemaVersion: 5.0.0.19
   timeZone: Australia/Melbourne

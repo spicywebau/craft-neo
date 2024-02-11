@@ -29,7 +29,7 @@ use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutElementsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
-use craft\events\RegisterConditionRuleTypesEvent;
+use craft\events\RegisterConditionRulesEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\feedme\events\RegisterFeedMeFieldsEvent;
@@ -366,11 +366,11 @@ class Plugin extends BasePlugin
     {
         Event::on(
             BaseCondition::class,
-            BaseCondition::EVENT_REGISTER_CONDITION_RULE_TYPES,
-            function(RegisterConditionRuleTypesEvent $event) {
+            BaseCondition::EVENT_REGISTER_CONDITION_RULES,
+            function(RegisterConditionRulesEvent $event) {
                 if (self::$isGeneratingConditionHtml) {
-                    $event->conditionRuleTypes = array_filter(
-                        $event->conditionRuleTypes,
+                    $event->conditionRules = array_filter(
+                        $event->conditionRules,
                         function($type) use ($event) {
                             // No field value conditions allowed as it may make existing blocks invalid
                             if (isset($type['fieldUid'])) {

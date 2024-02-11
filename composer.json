@@ -25,8 +25,8 @@
     "rss": "https://github.com/spicywebau/craft-neo/commits/4.x.atom"
   },
   "require": {
-    "craftcms/cms": "^4.5.0",
-    "php": "^8.0.2"
+    "craftcms/cms": "^5.0.0-beta.1",
+    "php": "^8.2"
   },
   "autoload": {
     "psr-4": {
@@ -57,11 +57,12 @@
   "require-dev": {
     "craftcms/rector": "dev-main",
     "craftcms/ecs": "dev-main",
-    "codeception/codeception": "^4.0",
-    "codeception/module-phpbrowser": "^1.0.2",
-    "codeception/module-yii2": "^1.1.5",
-    "codeception/module-asserts": "*",
-    "vlucas/phpdotenv": "^3.0"
+    "codeception/codeception": "^5.0.11",
+    "codeception/module-asserts": "^3.0.0",
+    "codeception/module-phpbrowser": "^3.0.0",
+    "codeception/module-rest": "^3.3.2",
+    "codeception/module-yii2": "^1.1.9",
+    "vlucas/phpdotenv": "^5.0"
   },
   "scripts": {
     "check-cs": "ecs check --ansi",
