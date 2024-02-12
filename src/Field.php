@@ -1040,7 +1040,8 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 Neo::$plugin->fields->duplicateOwnership($this, $element->duplicateOf, $element);
             } elseif ($element->getIsRevision()) {
                 Neo::$plugin->fields->createRevisionBlocks($this, $element->duplicateOf, $element);
-            } else {
+            // getIsUnpublishedDraft is needed for "save as new" duplication
+            } elseif (!$element->getIsDraft() || $element->getIsUnpublishedDraft()) {
                 Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true, !$isNew);
             }
             $resetValue = true;

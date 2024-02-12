@@ -15,6 +15,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
+use craft\elements\ElementCollection;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
@@ -228,7 +229,7 @@ class Fields extends Component
         $this->_rebuildIfDeleted = false;
         $value = $owner->getFieldValue($field->handle);
 
-        if ($value instanceof Collection) {
+        if ($value instanceof ElementCollection) {
             $blocks = $value->all();
             $saveAll = true;
         } else {
@@ -250,7 +251,7 @@ class Fields extends Component
         try {
             foreach ($blocks as $block) {
                 $sortOrder++;
-                if ($saveAll || !$block->id || $block->dirty) {
+                if ($saveAll || !$block->id || $block->dirty || $block->forceSave) {
                     // Check if the sortOrder has changed and we need to resave the block structure
                     if ((int)$block->sortOrder !== $sortOrder) {
                         $structureModified = true;
@@ -397,7 +398,7 @@ class Fields extends Component
                         } else {
                             // Duplicate the blocks, but **don't track** the duplications, so the edit page doesn’t think
                             // its blocks have been replaced by the other sites’ blocks
-                            $this->duplicateBlocks($field, $owner, $localizedOwner, trackDuplications: false);
+                            $this->duplicateBlocks($field, $owner, $localizedOwner, force: true);
                         }
 
                         // Make sure we don't duplicate blocks for any of the sites that were just propagated to
@@ -425,8 +426,7 @@ class Fields extends Component
      * @param ElementInterface $target The target element blocks should be duplicated to
      * @param bool $checkOtherSites Whether to duplicate blocks for the source element's other supported sites
      * @param bool $deleteOtherBlocks Whether to delete any blocks that belong to the element, which weren't included in the duplication
-     * @param bool $trackDuplications whether to keep track of the duplications from [[\craft\services\Elements::$duplicatedElementIds]]
-     * and [[\craft\services\Elements::$duplicatedElementSourceIds]]
+     * @param bool $force Whether to force duplication, even if it looks like only the block ownership was duplicated
      * @throws
      */
     public function duplicateBlocks(
@@ -435,7 +435,7 @@ class Fields extends Component
         ElementInterface $target,
         bool $checkOtherSites = false,
         bool $deleteOtherBlocks = true,
-        bool $trackDuplications = true,
+        bool $force = false,
     ): void {
         $elementsService = Craft::$app->getElements();
         $value = $source->getFieldValue($field->handle);
@@ -504,7 +504,7 @@ class Fields extends Component
                     ], ['blockId' => $block->id, 'ownerId' => $target->id], updateTimestamp: false);
                     $newBlock = $block;
                 } else {
-                    $newBlock = $elementsService->duplicateElement($block, $newAttributes, true, $trackDuplications);
+                    $newBlock = $elementsService->duplicateElement($block, $newAttributes);
                 }
 
                 $newBlockIds[] = $newBlock->id;
