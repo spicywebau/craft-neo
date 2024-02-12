@@ -236,7 +236,6 @@ class Plugin extends BasePlugin
             };
             $gc = Craft::$app->getGc();
             $gc->deletePartialElements(Block::class, '{{%neoblocks}}', 'id');
-            $gc->deletePartialElements(Block::class, Table::CONTENT, 'elementId');
 
             // Delete anything in the structures table that's a Neo block structure, but doesn't exist in the
             // neoblockstructures table
