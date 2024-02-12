@@ -181,12 +181,12 @@ class Plugin extends BasePlugin
     private function _registerProjectConfigApply(): void
     {
         Craft::$app->getProjectConfig()
-            ->onAdd('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
-            ->onUpdate('neoBlockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
-            ->onRemove('neoBlockTypes.{uid}', [$this->blockTypes, 'handleDeletedBlockType'])
-            ->onAdd('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
-            ->onUpdate('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
-            ->onRemove('neoBlockTypeGroups.{uid}', [$this->blockTypes, 'handleDeletedBlockTypeGroup']);
+            ->onAdd('neo.blockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
+            ->onUpdate('neo.blockTypes.{uid}', [$this->blockTypes, 'handleChangedBlockType'])
+            ->onRemove('neo.blockTypes.{uid}', [$this->blockTypes, 'handleDeletedBlockType'])
+            ->onAdd('neo.blockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
+            ->onUpdate('neo.blockTypeGroups.{uid}', [$this->blockTypes, 'handleChangedBlockTypeGroup'])
+            ->onRemove('neo.blockTypeGroups.{uid}', [$this->blockTypes, 'handleDeletedBlockTypeGroup']);
     }
 
     /**
@@ -219,10 +219,10 @@ class Plugin extends BasePlugin
             }
 
             $event->config['neo'] = [
+                'blockTypes' => $blockTypeData,
+                'blockTypeGroups' => $blockTypeGroupData,
                 'orders' => $sortOrderData,
             ];
-            $event->config['neoBlockTypes'] = $blockTypeData;
-            $event->config['neoBlockTypeGroups'] = $blockTypeGroupData;
         });
     }
 

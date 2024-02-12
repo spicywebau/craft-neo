@@ -313,7 +313,7 @@ class BlockTypes extends Component
 
         $this->trigger(self::EVENT_BEFORE_SAVE_BLOCK_TYPE, $event);
 
-        $path = 'neoBlockTypes.' . $blockType->uid;
+        $path = 'neo.blockTypes.' . $blockType->uid;
         $sortOrder = $config['sortOrder'] - 1;
         unset($config['sortOrder']);
         $projectConfig->set('neo.orders.' . $config['field'] . ".$sortOrder", "blockType:$blockType->uid");
@@ -339,7 +339,7 @@ class BlockTypes extends Component
             $blockTypeGroup->uid = Db::uidById('{{%neoblocktypegroups}}', $blockTypeGroup->id);
         }
 
-        $path = 'neoBlockTypeGroups.' . $blockTypeGroup->uid;
+        $path = 'neo.blockTypeGroups.' . $blockTypeGroup->uid;
         $config = $blockTypeGroup->getConfig();
         $sortOrder = $config['sortOrder'] - 1;
         unset($config['sortOrder']);
@@ -372,7 +372,7 @@ class BlockTypes extends Component
         }
 
         $projectConfig->set($fieldSortOrderPath, array_values($fieldSortOrder));
-        $projectConfig->remove('neoBlockTypes.' . $blockType->uid);
+        $projectConfig->remove('neo.blockTypes.' . $blockType->uid);
 
         return true;
     }
@@ -397,7 +397,7 @@ class BlockTypes extends Component
         }
 
         $projectConfig->set($fieldSortOrderPath, array_values($fieldSortOrder));
-        $projectConfig->remove('neoBlockTypeGroups.' . $blockTypeGroup->uid);
+        $projectConfig->remove('neo.blockTypeGroups.' . $blockTypeGroup->uid);
 
         return true;
     }

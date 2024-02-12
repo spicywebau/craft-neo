@@ -94,7 +94,7 @@ class BlockTypeGroupsController extends Controller
         if ($this->deleteBlockTypes) {
             $this->stdout('Deleting the group\'s block types...' . PHP_EOL);
             foreach ($blockTypeUids as $blockTypeUid) {
-                $projectConfig->remove('neoBlockTypes.' . $blockTypeUid);
+                $projectConfig->remove('neo.blockTypes.' . $blockTypeUid);
             }
         } elseif (!empty($blockTypeUids)) {
             $this->stdout('Reassigning the group\'s block types to the field\'s previous group...' . PHP_EOL);
@@ -107,13 +107,13 @@ class BlockTypeGroupsController extends Controller
                 ->scalar();
 
             foreach ($blockTypeUids as $blockTypeUid) {
-                $projectConfig->set('neoBlockTypes.' . $blockTypeUid . '.group', $prevGroupUid);
+                $projectConfig->set('neo.blockTypes.' . $blockTypeUid . '.group', $prevGroupUid);
             }
         }
 
         // Now we can delete the group
         $this->stdout('Deleting the group...' . PHP_EOL);
-        $projectConfig->remove('neoBlockTypeGroups.' . $group->uid);
+        $projectConfig->remove('neo.blockTypeGroups.' . $group->uid);
         $this->stdout('Done.' . PHP_EOL);
 
         return ExitCode::OK;
@@ -155,7 +155,7 @@ class BlockTypeGroupsController extends Controller
         }
 
         $projectConfig = Craft::$app->getProjectConfig();
-        $groupPath = 'neoBlockTypeGroups.' . $groupUid;
+        $groupPath = 'neo.blockTypeGroups.' . $groupUid;
         $groupConfig = $projectConfig->get($groupPath);
 
         if ($this->setName || $this->blankName) {

@@ -186,7 +186,7 @@ class BlockTypesController extends Controller
         }
 
         $this->stdout('Deleting the block type...' . PHP_EOL);
-        Craft::$app->getProjectConfig()->remove('neoBlockTypes.' . $blockType->uid);
+        Craft::$app->getProjectConfig()->remove('neo.blockTypes.' . $blockType->uid);
         $this->stdout('Done.' . PHP_EOL);
 
         return ExitCode::OK;
@@ -207,7 +207,7 @@ class BlockTypesController extends Controller
         }
 
         $projectConfig = Craft::$app->getProjectConfig();
-        $typePath = 'neoBlockTypes.' . $blockType->uid;
+        $typePath = 'neo.blockTypes.' . $blockType->uid;
         $typeConfig = $projectConfig->get($typePath);
 
         if ($this->setName) {
@@ -313,7 +313,7 @@ class BlockTypesController extends Controller
             }
 
             $projectConfig->set(
-                'neoBlockTypes.' . $blockType->uid . '.iconFilename',
+                'neo.blockTypes.' . $blockType->uid . '.iconFilename',
                 $assetIdFilenameMap[$blockType->iconId]
             );
         }
