@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.5 - 2024-02-14
 
 ### Added
 - Added `benf\neo\jobs\ApplyNeoPropagationMethod`
