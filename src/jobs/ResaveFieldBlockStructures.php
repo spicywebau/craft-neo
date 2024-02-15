@@ -27,6 +27,11 @@ class ResaveFieldBlockStructures extends BaseJob
     public ?int $fieldId = null;
 
     /**
+     * @var array Optional override structure data, nested by site ID -> owner ID -> block ID
+     */
+    public array $structureOverrides = [];
+
+    /**
      * @inheritdoc
      */
     public function execute($queue): void
@@ -59,6 +64,17 @@ class ResaveFieldBlockStructures extends BaseJob
                     ->status(null)
                     ->siteId($siteId)
                     ->all();
+
+                // Ensure any passed-in structure data is prioritised
+                foreach ($blocks[$siteId] as $block) {
+                    $overrideStructureData = $this->structureOverrides[$siteId][$ownerId][$block->id] ?? null;
+
+                    if ($overrideStructureData !== null) {
+                        $block->level = $overrideStructureData['level'];
+                        $block->lft = $overrideStructureData['lft'];
+                        $block->rgt = $overrideStructureData['rgt'];
+                    }
+                }
             }
 
             // Now it's safe to recreate the block structures

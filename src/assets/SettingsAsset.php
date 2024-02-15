@@ -134,6 +134,10 @@ class SettingsAsset extends AssetBundle
         $newX = 0;
 
         foreach ($blockTypes as $blockType) {
+            // Ensure the field layout UID is set with the config, to prevent the UID from being regenerated on save
+            $fieldLayout = $blockType->getFieldLayout();
+            $fieldLayoutConfig = $fieldLayout->getConfig();
+            $fieldLayoutConfig['uid'] = $fieldLayout->uid;
             $jsBlockTypes[] = [
                 'id' => $blockType->id ?: 'new' . $newX++,
                 'sortOrder' => $blockType->sortOrder,
@@ -155,7 +159,7 @@ class SettingsAsset extends AssetBundle
                 'topLevel' => (bool)$blockType->topLevel,
                 'errors' => $blockType->getErrors(),
                 'fieldLayoutId' => $blockType->fieldLayoutId,
-                'fieldLayoutConfig' => $blockType->getFieldLayout()->getConfig(),
+                'fieldLayoutConfig' => $fieldLayoutConfig,
                 'groupId' => $blockType->groupId,
             ];
         }

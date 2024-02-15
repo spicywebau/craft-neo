@@ -8,6 +8,7 @@ const _defaults = {
   html: '',
   layout: null,
   id: -1,
+  uid: null,
   blockId: null,
   blockName: ''
 }
@@ -21,6 +22,7 @@ export default Garnish.Base.extend({
 
     this._templateNs = NS.parse(settings.namespace)
     this._id = settings.id | 0
+    this._uid = settings.uid
     this._blockTypeId = settings.blockTypeId
 
     this.$container = $(settings.html).find('.layoutdesigner')
@@ -68,12 +70,22 @@ export default Garnish.Base.extend({
     return this._id
   },
 
+  /**
+   * @since 4.0.5
+   */
+  getUid () {
+    return this._uid
+  },
+
   getBlockTypeId () {
     return this._blockTypeId
   },
 
   getConfig () {
-    const newConfig = { tabs: [] }
+    const newConfig = {
+      tabs: [],
+      uid: this._uid
+    }
 
     for (const tab of this._fld.config.tabs) {
       const newElements = []

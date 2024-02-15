@@ -102,7 +102,8 @@ export default Item.extend({
 
     this.trigger('beforeLoad')
     const settings = this.getSettings()
-    const layout = settings.getFieldLayoutConfig()
+    // Don't overwrite the field layout if it's already set (e.g. if pasting a block type)
+    const layout = this.getFieldLayout()?.getConfig() ?? settings.getFieldLayoutConfig()
     const layoutId = settings.getFieldLayoutId()
     const data = {
       blockTypeId: this.getId(),

@@ -6,7 +6,7 @@ use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
 use benf\neo\Field;
 use benf\neo\helpers\Memoize;
-use benf\neo\jobs\ResaveFieldBlockStructures;
+use benf\neo\jobs\ApplyNeoPropagationMethod;
 use benf\neo\jobs\SaveBlockStructures;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockTypeGroup;
@@ -21,8 +21,6 @@ use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Queue;
-use craft\i18n\Translation;
-use craft\queue\jobs\ApplyNewPropagationMethod;
 use craft\services\Structures;
 use Illuminate\Support\Collection;
 use yii\base\Component;
@@ -1009,15 +1007,10 @@ SQL
      */
     public function applyPropagationMethod(Field $field): void
     {
-        Queue::push(new ApplyNewPropagationMethod([
-            'description' => Translation::prep('neo', 'Applying new propagation method to Neo blocks'),
-            'elementType' => Block::class,
+        Queue::push(new ApplyNeoPropagationMethod([
             'criteria' => [
                 'fieldId' => $field->id,
             ],
-        ]));
-        Queue::push(new ResaveFieldBlockStructures([
-            'fieldId' => $field->id,
         ]));
     }
 

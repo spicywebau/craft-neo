@@ -1,10 +1,18 @@
 # Changelog
 
-## Unreleased
+## 4.0.5 - 2024-02-14
+
+### Added
+- Added `benf\neo\jobs\ApplyNeoPropagationMethod`
 
 ### Fixed
 - Fixed an error that occurred when editing a Neo field if a block type had an icon path set to an empty file
 - Fixed an error that occurred when editing a Neo field if a block type had an icon path set to nonexistent file
+- Fixed an error that occurred when cloning a block type that hadn't had its settings rendered yet
+- Fixed a bug where pasting a block type would not paste the field layout
+- Fixed a bug where external Neo field block type / group sort order changes were not applied when applying project config changes
+- Fixed a bug where block type field layout UIDs would change when saving the block type
+- Fixed a 'There was a problem getting the parent element' error that could occur when applying Neo field propagation method changes
 
 ## 4.0.3 - 2024-01-29
 
