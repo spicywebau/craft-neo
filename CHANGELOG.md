@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.6 - 2024-02-23
 
 ### Added
 - Added `benf\neo\jobs\DeleteBlocks` (thanks @engram-design)
