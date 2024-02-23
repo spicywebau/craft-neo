@@ -11,7 +11,7 @@ use benf\neo\gql\arguments\elements\Block as NeoBlockArguments;
 use benf\neo\gql\resolvers\elements\Block as NeoBlockResolver;
 use benf\neo\gql\types\generators\BlockType as NeoBlockTypeGenerator;
 use benf\neo\gql\types\input\Block as NeoBlockInputType;
-use benf\neo\jobs\DeleteBlock;
+use benf\neo\jobs\DeleteBlocks;
 use benf\neo\jobs\SaveBlockStructures;
 use benf\neo\models\BlockStructure;
 use benf\neo\models\BlockType;
@@ -1148,24 +1148,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         // Delete all Neo blocks for this element and field
-        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
-            $blocks = Block::find()
-                ->status(null)
-                ->fieldId($this->id)
-                ->siteId($siteId)
-                ->primaryOwnerId($element->id)
-                ->inReverse()
-                ->all();
-
-            foreach ($blocks as $block) {
-                Queue::push(new DeleteBlock([
-                    'blockId' => $block->id,
-                    'siteId' => $siteId,
-                    'deletedWithOwner' => true,
-                    'hardDelete' => $element->hardDelete,
-                ]));
-            }
-        }
+        Queue::push(new DeleteBlocks([
+            'fieldId' => $this->id,
+            'elementId' => $element->id,
+            'hardDelete' => $element->hardDelete,
+        ]));
 
         // Recreate the block structures with the original block data, if not hard-deleting the owner
         if (!$element->hardDelete) {

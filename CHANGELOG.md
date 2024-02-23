@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.0.6 - 2024-02-23
+
+### Added
+- Added `benf\neo\jobs\DeleteBlocks` (thanks @engram-design)
+
+### Changed
+- When deleting a Craft element, queue jobs for deleting Neo blocks owned by the element will now be generated on a per-Neo-field basis, rather than a per-Neo-block basis (thanks @engram-design)
+
+### Fixed
+- Fixed a display bug with the contents of collapsed block previews on blocks that contain asset fields
+
 ## 4.0.5 - 2024-02-14
 
 ### Added
@@ -819,6 +830,14 @@
 
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
+
+## 2.13.20 - 2024-02-23
+
+### Added
+- Added `benf\neo\jobs\DeleteBlocks` (thanks @engram-design)
+
+### Changed
+- When deleting a Craft element, queue jobs for deleting Neo blocks owned by the element will now be generated on a per-Neo-field basis, rather than a per-Neo-block basis (thanks @engram-design)
 
 ## 2.13.19 - 2023-06-15
 

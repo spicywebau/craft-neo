@@ -264,6 +264,7 @@ $topbar-background-color-transparent: #ebf2fa00;
 
                         img,
                         &_color {
+                            display: inline-block;
                             vertical-align: top;
                             margin-top: 15px;
                             transform: translateY(-50%);
@@ -275,7 +276,6 @@ $topbar-background-color-transparent: #ebf2fa00;
                         }
 
                         &_color {
-                            display: inline-block;
                             width: 16px;
                             height: 16px;
                             border-radius: 50%;
