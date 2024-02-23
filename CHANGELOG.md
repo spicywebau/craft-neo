@@ -8,6 +8,9 @@
 ### Changed
 - When deleting a Craft element, queue jobs for deleting Neo blocks owned by the element will now be generated on a per-Neo-field basis, rather than a per-Neo-block basis (thanks @engram-design)
 
+### Fixed
+- Fixed a display bug with the contents of collapsed block previews on blocks that contain asset fields
+
 ## 4.0.5 - 2024-02-14
 
 ### Added
