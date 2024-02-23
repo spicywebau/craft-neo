@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.13.20 - 2024-02-23
+
+### Added
+- Added `benf\neo\jobs\DeleteBlocks` (thanks @engram-design)
+
+### Changed
+- When deleting a Craft element, queue jobs for deleting Neo blocks owned by the element will now be generated on a per-Neo-field basis, rather than a per-Neo-block basis (thanks @engram-design)
+
 ## 2.13.19 - 2023-06-15
 
 ### Fixed
