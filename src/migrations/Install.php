@@ -21,7 +21,6 @@ class Install extends Migration
     public function safeUp()
     {
         $hasBlocksTable = $this->db->tableExists('{{%neoblocks}}');
-        $hasBlocksOwnersTable = $this->db->tableExists('{{%neoblocks_owners}}');
         $hasBlockStructuresTable = $this->db->tableExists('{{%neoblockstructures}}');
         $hasBlockTypesTable = $this->db->tableExists('{{%neoblocktypes}}');
         $hasBlockTypeGroupsTable = $this->db->tableExists('{{%neoblocktypegroups}}');
@@ -38,15 +37,6 @@ class Install extends Migration
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'PRIMARY KEY([[id]])',
-            ]);
-        }
-
-        if (!$hasBlocksOwnersTable) {
-            $this->createTable('{{%neoblocks_owners}}', [
-                'blockId' => $this->integer()->notNull(),
-                'ownerId' => $this->integer()->notNull(),
-                'sortOrder' => $this->smallInteger()->unsigned()->notNull(),
-                'PRIMARY KEY([[blockId]], [[ownerId]])',
             ]);
         }
 
@@ -143,11 +133,6 @@ class Install extends Migration
             $this->addForeignKey(null, '{{%neoblocks}}', ['typeId'], '{{%neoblocktypes}}', ['id'], 'CASCADE', null);
         }
 
-        if (!$hasBlocksOwnersTable) {
-            $this->addForeignKey(null, '{{%neoblocks_owners}}', ['blockId'], '{{%neoblocks}}', ['id'], 'CASCADE', null);
-            $this->addForeignKey(null, '{{%neoblocks_owners}}', ['ownerId'], '{{%elements}}', ['id'], 'CASCADE', null);
-        }
-
         if (!$hasBlockStructuresTable) {
             $this->addForeignKey(null, '{{%neoblockstructures}}', ['structureId'], '{{%structures}}', ['id'], 'CASCADE',
                 null);
@@ -186,7 +171,6 @@ class Install extends Migration
             Neo::$plugin->conversion->convertFieldToMatrix($field, false);
         }
 
-        $this->dropTableIfExists('{{%neoblocks_owners}}');
         $this->dropTableIfExists('{{%neoblocks}}');
         $this->dropTableIfExists('{{%neoblockstructures}}');
         $this->dropTableIfExists('{{%neoblocktypes}}');

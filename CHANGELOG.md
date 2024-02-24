@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+## Removed
+- Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
+
 ## 4.0.6 - 2024-02-23
 
 ### Added

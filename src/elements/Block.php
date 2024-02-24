@@ -13,6 +13,7 @@ use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\base\NestedElementInterface;
 use craft\base\NestedElementTrait;
+use craft\db\Table;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
@@ -582,16 +583,16 @@ class Block extends Element implements NestedElementInterface
             // ownerId will be null when creating a revision
             if ($this->saveOwnership) {
                 if ($isNew) {
-                    Db::insert('{{%neoblocks_owners}}', [
-                        'blockId' => $this->id,
+                    Db::insert(Table::ELEMENTS_OWNERS, [
+                        'elementId' => $this->id,
                         'ownerId' => $this->ownerId,
                         'sortOrder' => $this->sortOrder ?? 0,
                     ]);
                 } else {
-                    Db::update('{{%neoblocks_owners}}', [
+                    Db::update(Table::ELEMENTS_OWNERS, [
                         'sortOrder' => $this->sortOrder ?? 0,
                     ], [
-                        'blockId' => $this->id,
+                        'elementId' => $this->id,
                         'ownerId' => $this->ownerId,
                     ]);
                 }

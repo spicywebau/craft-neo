@@ -787,10 +787,10 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 (new Query())
                     ->from(["neoblocks_$ns" => '{{%neoblocks}}'])
                     ->innerJoin(["elements_$ns" => Table::ELEMENTS], "[[elements_$ns.id]] = [[neoblocks_$ns.id]]")
-                    ->innerJoin(["neoblocks_owners_$ns" => '{{%neoblocks_owners}}'], [
+                    ->innerJoin(["elements_owners_$ns" => Table::ELEMENTS_OWNERS], [
                         'and',
-                        "[[neoblocks_owners_$ns.blockId]] = [[elements_$ns.id]]",
-                        "[[neoblocks_owners_$ns.ownerId]] = [[elements.id]]",
+                        "[[elements_owners_$ns.elementId]] = [[elements_$ns.id]]",
+                        "[[elements_owners_$ns.ownerId]] = [[elements.id]]",
                     ])
                     ->andWhere([
                         "neoblocks_$ns.fieldId" => $this->id,
@@ -915,14 +915,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // Return any relation data on these elements, defined with this field.
         $map = (new Query())
             ->select([
-                'source' => 'neoblocks_owners.ownerId',
+                'source' => 'elements_owners.ownerId',
                 'target' => 'neoblocks.id',
             ])
             ->from(['neoblocks' => '{{%neoblocks}}'])
-            ->innerJoin(['neoblocks_owners' => '{{%neoblocks_owners}}'], [
+            ->innerJoin(['elements_owners' => Table::ELEMENTS_OWNERS], [
                 'and',
-                '[[neoblocks_owners.blockId]] = [[neoblocks.id]]',
-                ['neoblocks_owners.ownerId' => $sourceElementIds],
+                '[[elements_owners.elementId]] = [[neoblocks.id]]',
+                ['elements_owners.ownerId' => $sourceElementIds],
             ])
             ->where(['neoblocks.fieldId' => $this->id])
             // Join structural information to get the ordering of the blocks.
@@ -930,7 +930,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 '{{%neoblockstructures}} neoblockstructures',
                 [
                     'and',
-                    '[[neoblockstructures.ownerId]] = [[neoblocks_owners.ownerId]]',
+                    '[[neoblockstructures.ownerId]] = [[elements_owners.ownerId]]',
                     '[[neoblockstructures.fieldId]] = [[neoblocks.fieldId]]',
                     '[[neoblockstructures.siteId]] = ' . Craft::$app->getSites()->getCurrentSite()->id,
                 ]
@@ -943,7 +943,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                     '[[structureelements.elementId]] = [[neoblocks.id]]',
                 ]
             )
-            ->orderBy(['[[neoblocks_owners.sortOrder]]' => SORT_ASC])
+            ->orderBy(['[[elements_owners.sortOrder]]' => SORT_ASC])
             ->all();
 
         if (count($sourceElements) === 1) {

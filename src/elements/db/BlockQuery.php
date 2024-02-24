@@ -66,7 +66,7 @@ class BlockQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected array $defaultOrderBy = ['neoblocks_owners.sortOrder' => SORT_ASC];
+    protected array $defaultOrderBy = ['elements_owners.sortOrder' => SORT_ASC];
 
     // Private properties
 
@@ -411,19 +411,19 @@ class BlockQuery extends ElementQuery
 
         $ownersCondition = [
             'and',
-            '[[neoblocks_owners.blockId]] = [[elements.id]]',
-            $this->ownerId ? ['neoblocks_owners.ownerId' => $this->ownerId] : '[[neoblocks_owners.ownerId]] = [[neoblocks.primaryOwnerId]]',
+            '[[elements_owners.elementId]] = [[elements.id]]',
+            $this->ownerId ? ['elements_owners.ownerId' => $this->ownerId] : '[[elements_owners.ownerId]] = [[neoblocks.primaryOwnerId]]',
         ];
 
-        $this->query->innerJoin(['neoblocks_owners' => '{{%neoblocks_owners}}'], $ownersCondition);
-        $this->subQuery->innerJoin(['neoblocks_owners' => '{{%neoblocks_owners}}'], $ownersCondition);
+        $this->query->innerJoin(['elements_owners' => Table::ELEMENTS_OWNERS], $ownersCondition);
+        $this->subQuery->innerJoin(['elements_owners' => Table::ELEMENTS_OWNERS], $ownersCondition);
 
         $this->query->addSelect([
             'neoblocks.fieldId',
             'neoblocks.primaryOwnerId',
             'neoblocks.typeId',
-            'neoblocks_owners.ownerId',
-            'neoblocks_owners.sortOrder',
+            'elements_owners.ownerId',
+            'elements_owners.sortOrder',
         ]);
 
         if ($this->fieldId) {
@@ -450,7 +450,7 @@ class BlockQuery extends ElementQuery
         if (!$allowOwnerDrafts || !$allowOwnerRevisions) {
             $this->subQuery->innerJoin(
                 ['owners' => Table::ELEMENTS],
-                $this->ownerId ? '[[owners.id]] = [[neoblocks_owners.ownerId]]' : '[[owners.id]] = [[neoblocks.primaryOwnerId]]'
+                $this->ownerId ? '[[owners.id]] = [[elements_owners.ownerId]]' : '[[owners.id]] = [[neoblocks.primaryOwnerId]]'
             );
 
             if (!$allowOwnerDrafts) {

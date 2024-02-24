@@ -271,18 +271,18 @@ class Fields extends Component
                     if ($block->getIsDraft()) {
                         $canonicalBlockId = $block->getCanonicalId();
                         $draftsService->removeDraftData($block);
-                        Db::delete('{{%neoblocks_owners}}', [
-                            'blockId' => $canonicalBlockId,
+                        Db::delete(Table::ELEMENTS_OWNERS, [
+                            'elementId' => $canonicalBlockId,
                             'ownerId' => $owner->id,
                         ]);
                     }
                 } elseif ((int)$block->sortOrder !== $sortOrder) {
                     // Just update its sortOrder
                     $block->sortOrder = $sortOrder;
-                    Db::update('{{%neoblocks_owners}}', [
+                    Db::update(Table::ELEMENTS_OWNERS, [
                         'sortOrder' => $sortOrder,
                     ], [
-                        'blockId' => $block->id,
+                        'elementId' => $block->id,
                         'ownerId' => $owner->id,
                     ], [], false);
 
@@ -474,16 +474,16 @@ class Fields extends Component
                     ) {
                         $newBlock = $elementsService->updateCanonicalElement($block, $newAttributes);
                         $alreadyHasOwnerRow = (new Query())
-                            ->from(['{{%neoblocks_owners}}'])
+                            ->from([Table::ELEMENTS_OWNERS])
                             ->where([
-                                'blockId' => $newBlock->id,
+                                'elementId' => $newBlock->id,
                                 'ownerId' => $target->id,
                             ])
                             ->exists();
 
                         if (!$alreadyHasOwnerRow) {
-                            Db::insert('{{%neoblocks_owners}}', [
-                                'blockId' => $newBlock->id,
+                            Db::insert(Table::ELEMENTS_OWNERS, [
+                                'elementId' => $newBlock->id,
                                 'ownerId' => $target->id,
                                 'sortOrder' => $newBlock->sortOrder,
                             ]);
@@ -497,9 +497,9 @@ class Fields extends Component
                     }
                 } elseif ($block->primaryOwnerId === $target->id && $source->id !== $target->id) {
                     // Only the block ownership was duplicated, so just update its sort order for the target element
-                    Db::update('{{%neoblocks_owners}}', [
+                    Db::update(Table::ELEMENTS_OWNERS, [
                         'sortOrder' => $block->sortOrder,
-                    ], ['blockId' => $block->id, 'ownerId' => $target->id], updateTimestamp: false);
+                    ], ['elementId' => $block->id, 'ownerId' => $target->id], updateTimestamp: false);
                     $newBlock = $block;
                 } else {
                     $newBlock = $elementsService->duplicateElement($block, $newAttributes);
@@ -608,20 +608,8 @@ class Fields extends Component
             throw new InvalidArgumentException('The target element must be a draft.');
         }
 
-        $blocksTable = '{{%neoblocks}}';
-        $ownersTable = '{{%neoblocks_owners}}';
-
-        // Duplicate into the owners table
-        Craft::$app->getDb()->createCommand(<<<SQL
-INSERT INTO $ownersTable ([[blockId]], [[ownerId]], [[sortOrder]]) 
-SELECT [[o.blockId]], '$draft->id', [[o.sortOrder]] 
-FROM $ownersTable AS [[o]]
-INNER JOIN $blocksTable AS [[b]] ON [[b.id]] = [[o.blockId]] AND [[b.primaryOwnerId]] = '$canonical->id' AND [[b.fieldId]] = '$field->id'
-WHERE [[o.ownerId]] = '$canonical->id'
-SQL
-        )->execute();
-
         // Save the block structures for the draft
+        // Its nested element ownership will be duplicated by Drafts::createDraft()
         foreach (ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($draft), 'siteId') as $siteId) {
             $blocks = Block::find()
                 ->ownerId($canonical->id)
@@ -732,7 +720,7 @@ SQL
             $otherSites[$siteId] = $supportedSites;
         }
 
-        Db::batchInsert('{{%neoblocks_owners}}', ['blockId', 'ownerId', 'sortOrder'], $ownershipData);
+        Db::batchInsert(Table::ELEMENTS_OWNERS, ['elementId', 'ownerId', 'sortOrder'], $ownershipData);
 
         foreach ($jobData as $siteId => $data) {
             $queue->push(new SaveBlockStructures([
@@ -1077,8 +1065,8 @@ SQL
         }
 
         if ($deleteOwnership) {
-            Db::delete('{{%neoblocks_owners}}', [
-                'blockId' => $deleteOwnership,
+            Db::delete(Table::ELEMENTS_OWNERS, [
+                'elementId' => $deleteOwnership,
                 'ownerId' => $owner->id,
             ]);
         }
