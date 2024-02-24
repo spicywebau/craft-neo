@@ -71,7 +71,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public string $minVersionRequired = '2.13.0';
+    public string $minVersionRequired = '3.6.2';
 
     /**
      * @var bool
