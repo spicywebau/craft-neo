@@ -1072,11 +1072,12 @@ export default Garnish.Base.extend({
   _duplicate (data, block) {
     this.$form.data('elementEditor')?.pause()
     this._addSpinnerAfter(block)
-    this._animateSpinnerThen(() => Craft.postActionRequest('neo/input/render-blocks', data, e => {
-      if (e.success && e.blocks.length > 0) {
+    this._animateSpinnerThen(async () => {
+      try {
+        const response = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
         const newBlocks = []
 
-        for (const renderedBlock of e.blocks) {
+        for (const renderedBlock of response.data.blocks) {
           const newId = this._getNewBlockId()
           const newBlock = new Block({
             namespace: [...this._templateNs, newId],
@@ -1100,7 +1101,7 @@ export default Garnish.Base.extend({
           this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
         }
 
-        if (!Garnish.prefersReducedMotion()) {
+        if (!Garnish.prefersReducedMotion() && newBlocks.length > 0) {
           const firstBlock = newBlocks[0]
 
           firstBlock.$container
@@ -1113,11 +1114,13 @@ export default Garnish.Base.extend({
               marginBottom: 10
             }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
         }
-
+      } catch (err) {
+        Craft.cp.displayError(err.message)
+      } finally {
         this._removeSpinner()
         this.$form.data('elementEditor')?.resume()
       }
-    }))
+    })
   },
 
   async '@newBlock' (e) {

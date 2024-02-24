@@ -107,14 +107,15 @@ export default Garnish.Base.extend({
     }
     NS.leave()
 
-    const renderedBlocks = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
-    if (renderedBlocks.data.success) {
+    try {
+      const renderedBlocks = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
+
       if (renderedBlocks.data.headHtml) {
-        Craft.appendHeadHtml(renderedBlocks.data.headHtml)
+        await Craft.appendHeadHtml(renderedBlocks.data.headHtml)
       }
 
       if (renderedBlocks.data.bodyHtml) {
-        Craft.appendBodyHtml(renderedBlocks.data.bodyHtml)
+        await Craft.appendBodyHtml(renderedBlocks.data.bodyHtml)
       }
 
       const tabs = renderedBlocks.data.blocks[0].tabs
@@ -126,6 +127,8 @@ export default Garnish.Base.extend({
       ) ?? []
       this._html = tabs.html
       this._js = tabs.js
+    } catch (err) {
+      Craft.cp.displayError(err.message)
     }
   },
 

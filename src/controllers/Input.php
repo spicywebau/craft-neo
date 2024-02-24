@@ -120,8 +120,7 @@ class Input extends Controller
             ];
         }
 
-        return $this->asJson([
-            'success' => true,
+        return $this->asSuccess(data: [
             'blocks' => $renderedBlocks,
             'bodyHtml' => $view->getBodyHtml(),
             'headHtml' => $view->getHeadHtml(),
