@@ -1,9 +1,11 @@
 @use "sass:math";
 
 $preview-reduction: 80px;
-$topbar-background-color-level-odd: #ebf2fa;
+$topbar-background-color-level-odd: var(--gray-050);
 $topbar-background-color-level-even: #ebf2fa80;
 $topbar-background-color-transparent: #ebf2fa00;
+$block-background-color-level-odd: var(--white);
+$block-background-color-level-even: var(--gray-050);
 
 @mixin icon {
     width: 30px;
@@ -122,9 +124,9 @@ $topbar-background-color-transparent: #ebf2fa00;
         box-sizing: border-box;
         width: 100%;
         margin-bottom: 10px;
-        border-radius: 4px;
-        border: 1px solid #e3e5e8;
-        background-color: #f3f7fc;
+        border-radius: var(--large-border-radius);
+        border: 2px solid var(--gray-100);
+        background-color: $block-background-color-level-odd;
         padding: 0;
 
         &:focus {
@@ -140,9 +142,9 @@ $topbar-background-color-transparent: #ebf2fa00;
             height: 30px;
             line-height: 30px;
             background-color: $topbar-background-color-level-odd;
-            color: #8f98a3;
+            color: var(--custom-text-color,var(--light-text-color));
             padding: 0 14px;
-            border-radius: 4px 4px 0 0;
+            border-radius: var(--large-border-radius) var(--large-border-radius) 0 0;
 
             @media screen and (prefers-reduced-motion: no-preference) {
                 transition: background-color 0.5s;
@@ -344,7 +346,7 @@ $topbar-background-color-transparent: #ebf2fa00;
                             border-bottom-width: 1px;
                             border-bottom-style: solid;
                             margin-bottom: -1px;
-                            background-color: #f3f7fc;
+                            background-color: $block-background-color-level-odd;
                             color: #576575;
 
                             &.is-blank {
@@ -363,7 +365,19 @@ $topbar-background-color-transparent: #ebf2fa00;
                     }
                 }
 
-                &.block-settings {
+                &.actions {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--xs);
+                    min-height: calc(var(--lh) + 10px);
+                    cursor: default;
+                }
+
+                .block-checkbox {
+                    transform: translateY(2px);
+                }
+
+                .block-settings {
                     .settings {
                         padding: 0 8px;
                         height: 20px;
@@ -382,26 +396,14 @@ $topbar-background-color-transparent: #ebf2fa00;
                     }
                 }
 
+                .block-reorder {
+                    transform: translateY(-2px);
+
+                }
+
                 .invisible {
                     visibility: hidden;
                     pointer-events: none;
-                }
-
-                > .checkbox {
-                    position: relative;
-                    display: block;
-                    height: 100%;
-                    color: #29323d;
-
-                    &::before {
-                        position: absolute;
-                        top: 50%;
-                        margin-top: -8px;
-                    }
-
-                    &::after {
-                        display: none;
-                    }
                 }
 
                 > .status {
@@ -502,7 +504,7 @@ $topbar-background-color-transparent: #ebf2fa00;
         }
 
         &.is-level-even {
-            background-color: #fbfcfd;
+            background-color: $block-background-color-level-even;
 
             > .ni_block_topbar {
                 background-color: $topbar-background-color-level-even;
@@ -523,7 +525,7 @@ $topbar-background-color-transparent: #ebf2fa00;
                     }
 
                     &.is-selected {
-                        background-color: #fbfcfd;
+                        background-color: $block-background-color-level-even;
                     }
                 }
             }
@@ -628,6 +630,10 @@ $topbar-background-color-transparent: #ebf2fa00;
 
         + .ni_block_errors > .errors {
             margin-top: 0;
+        }
+
+        &:last-child > *:last-child {
+            padding-bottom: 0 !important;
         }
     }
 }

@@ -176,9 +176,6 @@ export default Garnish.Base.extend({
     elementHtml.push(`
         <div class="ni_block_topbar" data-neo-b="${this._id}.container.topbar">
           <div class="ni_block_topbar_left" data-neo-b="${this._id}.container.topbarLeft">
-            <div class="ni_block_topbar_item" data-neo-b="${this._id}.select">
-              <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')}" aria-label="${Craft.t('neo', 'Select')}"></div>
-            </div>
             <div class="ni_block_topbar_item title">
               <span class="blocktype" data-neo-b="${this._id}.select">${type.getName()}</span>
             </div>
@@ -236,46 +233,49 @@ export default Garnish.Base.extend({
             <div class="ni_block_topbar_item hidden" data-neo-b="${this._id}.status">
               <div class="status off" title="${Craft.t('neo', 'Disabled')}"></div>
             </div>
-            <div class="ni_block_topbar_item block-settings">
-              <div>
-                <button class="btn settings icon menubtn" type="button" role="button" title="${Craft.t('neo', 'Actions')}" aria-controls="${actionMenuId}" aria-label="${actionBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.actions"></button>
-                <div id="${actionMenuId}" class="menu menu--disclosure" data-neo-b="${this._id}.container.menu">
-                  <ul class="padded">`)
+            <div class="ni_block_topbar_item actions">
+              <div data-neo-b="${this._id}.select">
+                <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')}" aria-label="${Craft.t('neo', 'Select')}"></div>
+              </div>
+              <div class="block-settings">
+                <div>
+                  <button class="btn action-btn menubtn" type="button" role="button" title="${Craft.t('neo', 'Actions')}" aria-controls="${actionMenuId}" aria-label="${actionBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.actions"></button>
+                  <div id="${actionMenuId}" class="menu menu--disclosure" data-neo-b="${this._id}.container.menu">
+                    <ul>`)
 
     if (hasTabs || isParent) {
       elementHtml.push(`
-                    <li><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Collapse')}">${Craft.t('neo', 'Collapse')}</a></li>
-                    <li class="hidden"><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Expand')}">${Craft.t('neo', 'Expand')}</a></li>`)
+                      <li><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Collapse')}">${Craft.t('neo', 'Collapse')}</a></li>
+                      <li class="hidden"><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Expand')}">${Craft.t('neo', 'Expand')}</a></li>`)
     }
 
     elementHtml.push(`
-                    <li><a data-icon="disabled" data-action="disable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Disable')}">${Craft.t('neo', 'Disable')}</a></li>
-                    <li class="hidden"><a data-icon="enabled" data-action="enable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Enable')}">${Craft.t('neo', 'Enable')}</a></li>
-                    <li class="hidden"><a data-icon="uarr" data-action="moveUp" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move up')}">${Craft.t('neo', 'Move up')}</a></li>
-                    <li class="hidden"><a data-icon="darr" data-action="moveDown" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move down')}">${Craft.t('neo', 'Move down')}</a></li>
-                  </ul>
-                  <hr>
-                  <ul class="padded">
-                    <li><a data-icon="plus" data-action="add" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Add block above')}">${Craft.t('neo', 'Add block above')}</a></li>
-                    <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Copy')}">${Craft.t('neo', 'Copy')}</a></li>
-                    <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Paste')}">${Craft.t('neo', 'Paste')}</a></li>
-                    <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Clone')}">${Craft.t('neo', 'Clone')}</a></li>
-                  </ul>`)
+                      <li><a data-icon="disabled" data-action="disable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Disable')}">${Craft.t('neo', 'Disable')}</a></li>
+                      <li class="hidden"><a data-icon="enabled" data-action="enable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Enable')}">${Craft.t('neo', 'Enable')}</a></li>
+                      <li class="hidden"><a data-icon="uarr" data-action="moveUp" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move up')}">${Craft.t('neo', 'Move up')}</a></li>
+                      <li class="hidden"><a data-icon="darr" data-action="moveDown" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move down')}">${Craft.t('neo', 'Move down')}</a></li>
+                    </ul>
+                    <hr class="padded">
+                    <ul>
+                      <li><a data-icon="plus" data-action="add" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Add block above')}">${Craft.t('neo', 'Add block above')}</a></li>
+                      <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Copy')}">${Craft.t('neo', 'Copy')}</a></li>
+                      <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Paste')}">${Craft.t('neo', 'Paste')}</a></li>
+                      <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Clone')}">${Craft.t('neo', 'Clone')}</a></li>
+                    </ul>`)
 
     if (type.isDeletableByUser()) {
       elementHtml.push(`
-                  <hr>
-                  <ul class="padded">
-                    <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Delete')}">${Craft.t('neo', 'Delete')}</a></li>
-                  </ul>`)
+                    <hr class="padded">
+                    <ul>
+                      <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Delete')}">${Craft.t('neo', 'Delete')}</a></li>
+                    </ul>`)
     }
 
     elementHtml.push(`
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="ni_block_topbar_item block-reorder">
-              <a class="move icon" title="${Craft.t('neo', 'Reorder')}" aria-label="${Craft.t('neo', 'Reorder')}" role="button" data-neo-b="${this._id}.button.move"></a>
+              <a class="block-reorder move icon" title="${Craft.t('neo', 'Reorder')}" aria-label="${Craft.t('neo', 'Reorder')}" role="button" data-neo-b="${this._id}.button.move"></a>
             </div>
           </div>
         </div>`)

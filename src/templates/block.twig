@@ -52,7 +52,7 @@
 {% set actionMenuId = "neoblock-action-menu-#{blockId}" %}
 
 {% set actionBtnAttributes = {
-    class: ['btn', 'settings', 'icon', 'menubtn'],
+    class: ['btn', 'action-btn', 'menubtn'],
     type: 'button',
     role: 'button',
     title: 'Actions'|t('neo'),
@@ -102,9 +102,6 @@
 
     <div class="ni_block_topbar" data-neo-b="{{ blockId }}.container.topbar">
         <div class="ni_block_topbar_left" data-neo-b="{{ blockId }}.container.topbarLeft">
-            <div class="ni_block_topbar_item" data-neo-b="{{ blockId }}.select">
-                <div class="checkbox block-checkbox" title="{{ "Select"|t('neo') }}" aria-label="{{ 'Select'|t('neo') }}"></div>
-            </div>
             <div class="ni_block_topbar_item title">
                 <span class="blocktype{{ hasErrors ? ' has-errors' }}" data-neo-b="{{ blockId }}.select">{{ typeName }}</span>{#
                 #}{% if block.hasErrors() %}<span data-icon="alert" aria-label="{{ 'Error'|t('neo') }}"></span>{% endif %}
@@ -128,42 +125,45 @@
             <div class="ni_block_topbar_item hidden" data-neo-b="{{ blockId }}.status">
                 <div class="status off" title="{{ "Disabled"|t }}"></div>
             </div>
-            <div class="ni_block_topbar_item block-settings">
-                <div>
-                    <button {{ attr(actionBtnAttributes) }}></button>
-                    <div id="{{ actionMenuId }}" class="menu menu--disclosure" data-neo-b="{{ blockId }}.container.menu">
-                        <ul class="padded">
-                            {% if showFormAndTabs %}
-                                <li{% if collapsed %} class="hidden"{% endif %}><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="{{ 'Collapse'|t('neo') }}">{{ 'Collapse'|t('neo') }}</a></li>
-                                <li{% if not collapsed %} class="hidden"{% endif %}><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="{{ 'Expand'|t('neo') }}">{{ 'Expand'|t('neo') }}</a></li>
-                            {% endif %}
-                            <li><a data-icon="disabled" data-action="disable" href="#" type="button" role="button" aria-label="{{ 'Disable'|t('neo') }}">{{ 'Disable'|t('neo') }}</a></li>
-                            <li class="hidden"><a data-icon="enabled" data-action="enable" href="#" type="button" role="button" aria-label="{{ 'Enable'|t('neo') }}">{{ 'Enable'|t('neo') }}</a></li>
-                            <li class="hidden"><a data-icon="uarr" data-action="moveUp" href="#" type="button" role="button" aria-label="{{ 'Move up'|t('neo') }}">{{ 'Move up'|t('neo') }}</a></li>
-                            <li class="hidden"><a data-icon="darr" data-action="moveDown" href="#" type="button" role="button" aria-label="{{ 'Move down'|t('neo') }}">{{ 'Move down'|t('neo') }}</a></li>
-                        </ul>
-                        <hr>
-                        <ul class="padded">
-                            <li><a data-icon="plus" data-action="add" href="#" type="button" role="button" aria-label="{{ 'Add block above'|t('neo') }}">{{ 'Add block above'|t('neo') }}</a></li>
-                            {% if ignorePermissions or currentUser.can("neo-createBlocks:#{type.uid}") %}
-                                <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="{{ 'Copy'|t('neo') }}">{{ 'Copy'|t('neo') }}</a></li>
-                            {% endif %}
-                            <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="{{ 'Paste'|t('neo') }}">{{ 'Paste'|t('neo') }}</a></li>
-                            {% if ignorePermissions or currentUser.can("neo-createBlocks:#{type.uid}") %}
-                                <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="{{ 'Clone'|t('neo') }}">{{ 'Clone'|t('neo') }}</a></li>
-                            {% endif %}
-                        </ul>
-                        {% if ignorePermissions or currentUser.can("neo-deleteBlocks:#{type.uid}") %}
-                            <hr>
-                            <ul class="padded">
-                                <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="{{ 'Delete'|t('neo') }}">{{ 'Delete'|t('neo') }}</a></li>
+            <div class="ni_block_topbar_item actions">
+                <div data-neo-b="{{ blockId }}.select">
+                    <div class="checkbox block-checkbox" title="{{ 'Select'|t('neo') }}" aria-label="{{ 'Select'|t('neo') }}"></div>
+                </div>
+                <div class="block-settings">
+                    <div>
+                        <button {{ attr(actionBtnAttributes) }}></button>
+                        <div id="{{ actionMenuId }}" class="menu menu--disclosure" data-neo-b="{{ blockId }}.container.menu">
+                            <ul>
+                                {% if showFormAndTabs %}
+                                    <li{% if collapsed %} class="hidden"{% endif %}><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="{{ 'Collapse'|t('neo') }}">{{ 'Collapse'|t('neo') }}</a></li>
+                                    <li{% if not collapsed %} class="hidden"{% endif %}><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="{{ 'Expand'|t('neo') }}">{{ 'Expand'|t('neo') }}</a></li>
+                                {% endif %}
+                                <li><a data-icon="disabled" data-action="disable" href="#" type="button" role="button" aria-label="{{ 'Disable'|t('neo') }}">{{ 'Disable'|t('neo') }}</a></li>
+                                <li class="hidden"><a data-icon="enabled" data-action="enable" href="#" type="button" role="button" aria-label="{{ 'Enable'|t('neo') }}">{{ 'Enable'|t('neo') }}</a></li>
+                                <li class="hidden"><a data-icon="uarr" data-action="moveUp" href="#" type="button" role="button" aria-label="{{ 'Move up'|t('neo') }}">{{ 'Move up'|t('neo') }}</a></li>
+                                <li class="hidden"><a data-icon="darr" data-action="moveDown" href="#" type="button" role="button" aria-label="{{ 'Move down'|t('neo') }}">{{ 'Move down'|t('neo') }}</a></li>
                             </ul>
-                        {% endif %}
+                            <hr class="padded">
+                            <ul>
+                                <li><a data-icon="plus" data-action="add" href="#" type="button" role="button" aria-label="{{ 'Add block above'|t('neo') }}">{{ 'Add block above'|t('neo') }}</a></li>
+                                {% if ignorePermissions or currentUser.can("neo-createBlocks:#{type.uid}") %}
+                                    <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="{{ 'Copy'|t('neo') }}">{{ 'Copy'|t('neo') }}</a></li>
+                                {% endif %}
+                                <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="{{ 'Paste'|t('neo') }}">{{ 'Paste'|t('neo') }}</a></li>
+                                {% if ignorePermissions or currentUser.can("neo-createBlocks:#{type.uid}") %}
+                                    <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="{{ 'Clone'|t('neo') }}">{{ 'Clone'|t('neo') }}</a></li>
+                                {% endif %}
+                            </ul>
+                            {% if ignorePermissions or currentUser.can("neo-deleteBlocks:#{type.uid}") %}
+                                <hr class="padded">
+                                <ul>
+                                    <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="{{ 'Delete'|t('neo') }}">{{ 'Delete'|t('neo') }}</a></li>
+                                </ul>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="ni_block_topbar_item block-reorder">
-                <a class="move icon" title="{{ 'Reorder'|t('neo') }}" aria-label="{{ 'Reorder'|t('neo') }}" role="button" data-neo-b="{{ blockId }}.button.move"></a>
+                <a class="block-reorder move icon" title="{{ 'Reorder'|t('neo') }}" aria-label="{{ 'Reorder'|t('neo') }}" role="button" data-neo-b="{{ blockId }}.button.move"></a>
             </div>
         </div>
     </div>
