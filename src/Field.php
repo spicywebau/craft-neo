@@ -21,13 +21,16 @@ use benf\neo\validators\FieldValidator;
 use Craft;
 use craft\base\EagerLoadingFieldInterface;
 use craft\base\Element;
+use craft\base\ElementContainerFieldInterface;
 use craft\base\ElementInterface;
 use craft\base\Field as BaseField;
 use craft\base\GqlInlineFragmentFieldInterface;
 use craft\base\GqlInlineFragmentInterface;
+use craft\base\NestedElementInterface;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\enums\AttributeStatus;
 use craft\errors\InvalidFieldException;
 use craft\fields\conditions\EmptyFieldConditionRule;
@@ -51,7 +54,10 @@ use yii\base\InvalidArgumentException;
  * @author Benjamin Fleming
  * @since 2.0.0
  */
-class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFragmentFieldInterface
+class Field extends BaseField implements
+    EagerLoadingFieldInterface,
+    ElementContainerFieldInterface,
+    GqlInlineFragmentFieldInterface
 {
     public const PROPAGATION_METHOD_NONE = 'none';
     public const PROPAGATION_METHOD_SITE_GROUP = 'siteGroup';
@@ -716,8 +722,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             return $value;
         }
 
-        $query = Block::find();
-        $this->_populateQuery($query, $element);
+        $query = $this->_createBlockQuery($element);
 
         // Set the initially matched elements if $value is already set, which is the case if there was a validation
         // error or we're loading an entry revision.
@@ -1052,14 +1057,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $resetValue = true;
         }
 
-        // Repopulate the Neo block query if this is a new element
-        if ($resetValue || $isNew) {
-            $value = $element->getFieldValue($this->handle);
-            if ($value instanceof BlockQuery) {
-                $this->_populateQuery($value, $element);
-            }
-            $value->clearCachedResult();
-            $value->useMemoized(false);
+        // Always reset the value if the owner is new
+        if ($isNew || $resetValue) {
+            $dirtyFields = $element->getDirtyFields();
+            $element->setFieldValue($this->handle, $this->_createBlockQuery($element));
+            $element->setDirtyFields($dirtyFields, false);
         }
 
         parent::afterElementPropagate($element, $isNew);
@@ -1238,7 +1240,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->siteId($supportedSite['siteId'])
                 ->primaryOwnerId($element->id)
                 ->trashed()
-                ->andWhere(['neoblocks.deletedWithOwner' => true])
+                ->andWhere(['elements.deletedWithOwner' => true])
                 ->all();
 
             foreach ($blocks as $block) {
@@ -1247,6 +1249,155 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         parent::afterElementRestore($element);
+    }
+
+    // ElementContainerFieldInterface methods
+
+    /**
+     * @inheritdoc
+     */
+    public function getFieldLayoutProviders(): array
+    {
+        return $this->getBlockTypes();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUriFormatForElement(NestedElementInterface $element): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRouteForElement(NestedElementInterface $element): mixed
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSupportedSitesForElement(NestedElementInterface $element): array
+    {
+        try {
+            $owner = $element->getOwner();
+        } catch (InvalidConfigException) {
+            $owner = $element->duplicateOf;
+        }
+
+        return !$owner
+            ? [Craft::$app->getSites()->getPrimarySite()->id]
+            : ElementHelper::supportedSitesForElement($owner);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canViewElement(NestedElementInterface $element, User $user): ?bool
+    {
+        $owner = $element->getOwner();
+        return $owner && Craft::$app->getElements()->canView($owner, $user);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canSaveElement(NestedElementInterface $element, User $user): ?bool
+    {
+        $owner = $element->getOwner();
+
+        if (!$owner || !Craft::$app->getElements()->canSave($owner, $user)) {
+            return false;
+        }
+
+        // If this is a new block, make sure we aren't hitting the Max Block limit
+        if (!$element->id && $element->getIsCanonical() && $this->_maxBlocksReached($owner)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDuplicateElement(NestedElementInterface $element, User $user): ?bool
+    {
+        $owner = $element->getOwner();
+
+        if (!$owner || !Craft::$app->getElements()->canSave($owner, $user)) {
+            return false;
+        }
+
+        // Make sure we aren't hitting the Max Blocks limit
+        return !$this->_maxBlocksReached($owner);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDeleteElement(NestedElementInterface $element, User $user): ?bool
+    {
+        $owner = $element->getOwner();
+
+        if (!$owner || !Craft::$app->getElements()->canSave($owner, $user)) {
+            return false;
+        }
+
+        // Make sure we aren't hitting the Min Blocks limit
+        return !$this->_minBlocksReached($owner);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDeleteElementForSite(NestedElementInterface $element, User $user): ?bool
+    {
+        $owner = $element->getOwner();
+
+        if (!$owner || !Craft::$app->getElements()->canSave($owner, $user)) {
+            return false;
+        }
+
+        // Make sure we aren't hitting the Min Blocks limit
+        return !$this->_minBlocksReached($owner);
+    }
+
+    private function _minBlocksReached(ElementInterface $owner): bool
+    {
+        return (
+            $this->minBlocks &&
+            $this->minBlocks >= $this->_totalBlocks($owner)
+        );
+    }
+
+    private function _maxBlocksReached(ElementInterface $owner): bool
+    {
+        return (
+            $this->maxBlocks &&
+            $this->maxBlocks <= $this->_totalBlocks($owner)
+        );
+    }
+
+    private function _totalBlocks(ElementInterface $owner): int
+    {
+        /** @var EntryQuery|ElementCollection $value */
+        $value = $owner->getFieldValue($this->handle);
+
+        if ($value instanceof BlockQuery) {
+            return (clone $value)
+                ->drafts(null)
+                ->status(null)
+                ->site('*')
+                ->limit(null)
+                ->unique()
+                ->count();
+        }
+
+        return $value->count();
     }
 
     /**
@@ -1423,11 +1574,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             // Existing block?
             if (isset($oldBlocksById[$blockId])) {
                 $block = $oldBlocksById[$blockId];
-                $dirty = !empty($blockData);
+                $forceSave = !empty($blockData);
                 $blockEnabled = (bool)($blockData['enabled'] ?? $block->enabled);
 
                 // Is this a derivative element, and does the block primarily belong to the canonical?
-                if ($dirty && $element->getIsDerivative() && $block->primaryOwnerId === $element->getCanonicalId()) {
+                if ($forceSave && $element->getIsDerivative() && $block->primaryOwnerId === $element->getCanonicalId()) {
                     // Duplicate it as a draft. (We'll drop its draft status from `Fields::saveValue`.)
                     $block = $draftsService->createDraft($block, $user->getId(), null, null, [
                         'canonicalId' => $block->id,
@@ -1445,7 +1596,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                     $block->enabled = $blockEnabled;
                 }
 
-                $block->dirty = $dirty;
+                $block->forceSave = $forceSave;
             } else {
                 // Make sure it's a valid block type
                 if (!isset($blockData['type']) || !isset($blockTypes[$blockData['type']])) {
@@ -1530,16 +1681,15 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     /**
      * Sets some default properties on a Neo block query on this field, given its owner element.
      *
-     * @param BlockQuery $query
-     * @param ElementInterface|null $element
+     * @param ElementInterface|null $owner
      */
-    private function _populateQuery(BlockQuery $query, ?ElementInterface $element = null): void
+    private function _createBlockQuery(?ElementInterface $owner): BlockQuery
     {
-        // Existing element?
-        $existingElement = $element && $element->id;
+        $query = Block::find();
 
-        if ($element && $element->id) {
-            $query->ownerId = $element->id;
+        // Existing element?
+        if ($owner && $owner->id) {
+            $query->ownerId = $owner->id;
 
             // Clear out id=false if this query was populated previously
             if ($query->id === false) {
@@ -1547,24 +1697,29 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             }
 
             // If the owner is a revision, allow revision blocks to be returned as well
-            if ($element->getIsRevision()) {
+            if ($owner->getIsRevision()) {
                 $query
                     ->revisions(null)
                     ->trashed(null);
             }
 
             // If the owner element exists, set the appropriate block structure
-            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $element->id, (int)$element->siteId);
+            $blockStructure = Neo::$plugin->blocks->getStructure($this->id, $owner->id, (int)$owner->siteId);
 
             if ($blockStructure) {
                 $query->structureId($blockStructure->structureId);
             }
+
+            // Prepare the query for lazy eager loading
+            $query->prepForEagerLoading($this->handle, $owner);
         } else {
             $query->id = false;
         }
 
         $query
             ->fieldId($this->id)
-            ->siteId($element->siteId ?? null);
+            ->siteId($owner->siteId ?? null);
+
+        return $query;
     }
 }

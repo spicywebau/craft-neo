@@ -33,7 +33,6 @@ class Install extends Migration
                 'primaryOwnerId' => $this->integer()->notNull(),
                 'fieldId' => $this->integer()->notNull(),
                 'typeId' => $this->integer()->notNull(),
-                'deletedWithOwner' => $this->boolean()->null(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'PRIMARY KEY([[id]])',

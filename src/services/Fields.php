@@ -235,7 +235,12 @@ class Fields extends Component
             if ($blocks !== null) {
                 $saveAll = false;
             } else {
-                $blocks = (clone $value)->status(null)->all();
+                $blocks = (clone $value)
+                    ->drafts(null)
+                    ->savedDraftsOnly()
+                    ->status(null)
+                    ->limit(null)
+                    ->all();
                 $saveAll = true;
             }
         }
@@ -249,9 +254,9 @@ class Fields extends Component
         try {
             foreach ($blocks as $block) {
                 $sortOrder++;
-                if ($saveAll || !$block->id || $block->dirty || $block->forceSave) {
-                    // Check if the sortOrder has changed and we need to resave the block structure
-                    if ((int)$block->sortOrder !== $sortOrder) {
+                if ($saveAll || !$block->id || $block->forceSave) {
+                    // Check if the sort order has changed and we need to resave the block structure
+                    if ((int)$block->getSortOrder() !== $sortOrder) {
                         $structureModified = true;
                     }
 
@@ -260,7 +265,7 @@ class Fields extends Component
                     if (!$block->id || !$block->primaryOwnerId) {
                         $block->primaryOwnerId = $owner->id;
                     }
-                    $block->sortOrder = $sortOrder;
+                    $block->setSortOrder($sortOrder);
                     $elementsService->saveElement($block, false, true, $this->_hasSearchableBlockType($field, $block));
 
                     if (!$neoSettings->collapseAllBlocks) {
@@ -276,9 +281,9 @@ class Fields extends Component
                             'ownerId' => $owner->id,
                         ]);
                     }
-                } elseif ((int)$block->sortOrder !== $sortOrder) {
-                    // Just update its sortOrder
-                    $block->sortOrder = $sortOrder;
+                } elseif ((int)$block->getSortOrder() !== $sortOrder) {
+                    // Just update its sort order
+                    $block->setSortOrder($sortOrder);
                     Db::update(Table::ELEMENTS_OWNERS, [
                         'sortOrder' => $sortOrder,
                     ], [
@@ -289,7 +294,7 @@ class Fields extends Component
                     $structureModified = true;
                 }
 
-                // check if block level has been changed
+                // Check if the block level has changed and we need to resave the block structure
                 if ((!$structureModified && $block->level !== (int)$block->oldLevel) || !$block->structureId || !$block->id) {
                     $structureModified = true;
                 }
@@ -448,6 +453,7 @@ class Fields extends Component
         $transaction = Craft::$app->getDb()->beginTransaction();
 
         try {
+            $setCanonicalId = $target->getIsDerivative() && $target->getCanonical()->id !== $target->id;
             $newBlocks = [];
             $newBlocksTaskData = [];
 
@@ -458,12 +464,12 @@ class Fields extends Component
                 $collapsed = $block->getCollapsed();
                 $newBlock = null;
                 $newAttributes = [
-                    'canonicalId' => $target->getIsDerivative() ? $block->id : null,
-                    'primaryOwnerId' => $target->id,
+                    'canonicalId' => $setCanonicalId ? $block->id : null,
+                    'primaryOwner' => $target,
                     'owner' => $target,
                     'siteId' => $target->siteId,
-                    'structureId' => null,
                     'propagating' => false,
+                    'sortOrder' => $block->getSortOrder(),
                 ];
 
                 if ($target->updatingFromDerivative && $block->getIsDerivative()) {
@@ -473,21 +479,13 @@ class Fields extends Component
                         (!$source::trackChanges() || $source->isFieldModified($field->handle, true))
                     ) {
                         $newBlock = $elementsService->updateCanonicalElement($block, $newAttributes);
-                        $alreadyHasOwnerRow = (new Query())
-                            ->from([Table::ELEMENTS_OWNERS])
-                            ->where([
-                                'elementId' => $newBlock->id,
-                                'ownerId' => $target->id,
-                            ])
-                            ->exists();
-
-                        if (!$alreadyHasOwnerRow) {
-                            Db::insert(Table::ELEMENTS_OWNERS, [
-                                'elementId' => $newBlock->id,
-                                'ownerId' => $target->id,
-                                'sortOrder' => $newBlock->sortOrder,
-                            ]);
-                        }
+                        Db::upsert(Table::ELEMENTS_OWNERS, [
+                            'elementId' => $newBlock->id,
+                            'ownerId' => $target->id,
+                            'sortOrder' => $block->getSortOrder(),
+                        ], [
+                            'sortOrder' => $block->getSortOrder(),
+                        ], updateTimestamp: false);
                     } else {
                         $newBlock = $block->getCanonical();
 
@@ -497,9 +495,14 @@ class Fields extends Component
                     }
                 } elseif ($block->primaryOwnerId === $target->id && $source->id !== $target->id) {
                     // Only the block ownership was duplicated, so just update its sort order for the target element
-                    Db::update(Table::ELEMENTS_OWNERS, [
-                        'sortOrder' => $block->sortOrder,
-                    ], ['elementId' => $block->id, 'ownerId' => $target->id], updateTimestamp: false);
+                    // (use upsert in case the row doesn’t exist though)
+                    Db::upsert(Table::ELEMENTS_OWNERS, [
+                        'elementId' => $block->id,
+                        'ownerId' => $target->id,
+                        'sortOrder' => $block->getSortOrder(),
+                    ], [
+                        'sortOrder' => $block->getSortOrder(),
+                    ], updateTimestamp: false);
                     $newBlock = $block;
                 } else {
                     $newBlock = $elementsService->duplicateElement($block, $newAttributes);
@@ -523,6 +526,7 @@ class Fields extends Component
                 ];
                 $newBlocks[] = $newBlock;
             }
+
             // Delete any blocks that shouldn't be there anymore
             if ($deleteOtherBlocks) {
                 $this->_deleteOtherBlocks($field, $target, $newBlockIds);
@@ -535,6 +539,7 @@ class Fields extends Component
             $transaction->rollBack();
             throw $e;
         }
+
         // Duplicate blocks for other sites as well?
         if ($checkOtherSites && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
             // Find the target's site IDs that *aren't* supported by this site's Neo blocks

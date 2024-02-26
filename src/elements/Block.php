@@ -166,11 +166,6 @@ class Block extends Element implements NestedElementInterface
     public ?int $typeId = null;
 
     /**
-     * @var bool|null
-     */
-    public ?bool $deletedWithOwner = false;
-
-    /**
      * @var array|null Any eager-loaded elements for this block type.
      */
     private ?array $_eagerLoadedBlockTypeElements = null;
@@ -350,7 +345,6 @@ class Block extends Element implements NestedElementInterface
     public function getSupportedSites(): array
     {
         try {
-            $this->_owner = false;
             $owner = $this->getOwner() ?? $this->duplicateOf;
         } catch (InvalidConfigException $e) {
             $owner = $this->duplicateOf;
@@ -600,26 +594,6 @@ class Block extends Element implements NestedElementInterface
         }
 
         parent::afterSave($isNew);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function beforeDelete(): bool
-    {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
-        // Update this block's DB row with whether it was deleted with its owner element
-        Craft::$app->getDb()
-            ->createCommand()
-            ->update('{{%neoblocks}}', [
-                'deletedWithOwner' => $this->deletedWithOwner,
-            ], ['id' => $this->id], [], false)
-            ->execute();
-
-        return true;
     }
 
     /**

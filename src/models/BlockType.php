@@ -7,6 +7,7 @@ use benf\neo\Field;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\base\FieldLayoutProviderInterface;
 use craft\base\GqlInlineFragmentInterface;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
@@ -15,6 +16,7 @@ use craft\elements\Asset;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use craft\models\FieldLayout;
 
 /**
  * Class BlockType
@@ -24,7 +26,7 @@ use craft\helpers\StringHelper;
  * @author Benjamin Fleming
  * @since 2.0.0
  */
-class BlockType extends Model implements GqlInlineFragmentInterface
+class BlockType extends Model implements FieldLayoutProviderInterface, GqlInlineFragmentInterface
 {
     /**
      * @var int|null The block type ID.
@@ -410,5 +412,23 @@ class BlockType extends Model implements GqlInlineFragmentInterface
         }
 
         return $this->_hasChildBlocksUiElement = false;
+    }
+
+    // FieldLayoutProviderInterface methods
+
+    /**
+     * @inheritdoc
+     */
+    public function getHandle(): ?string
+    {
+        return $this->handle;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFieldLayout(): FieldLayout
+    {
+        return $this->getBehavior('fieldLayout')->getFieldLayout();
     }
 }
