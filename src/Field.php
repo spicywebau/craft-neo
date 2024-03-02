@@ -44,6 +44,7 @@ use craft\helpers\StringHelper;
 use craft\services\Elements;
 use craft\validators\ArrayValidator;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Collection;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -1507,6 +1508,22 @@ class Field extends BaseField implements
         $user = Craft::$app->getUser();
         $blockTypes = ArrayHelper::index(Neo::$plugin->blockTypes->getByFieldId($this->id), 'handle');
 
+        // Were the blocks posted by UUID or ID?
+        $uids = (
+            (isset($value['blocks']) && str_starts_with(array_key_first($value['blocks']), 'uid:')) ||
+            (isset($value['sortOrder']) && StringHelper::isUUID(reset($value['sortOrder'])))
+        );
+
+        if ($uids) {
+            // strip out the `uid:` key prefixes
+            if (isset($value['blocks'])) {
+                $value['blocks'] = array_combine(
+                    array_map(fn(string $key) => StringHelper::removeLeft($key, 'uid:'), array_keys($value['blocks'])),
+                    array_values($value['blocks']),
+                );
+            }
+        }
+
         // Get the old blocks
         if ($element->id) {
             $oldBlocksById = Block::find()
@@ -1516,10 +1533,32 @@ class Field extends BaseField implements
                 ->status(null)
                 ->siteId($element->siteId)
                 ->orderBy(['sortOrder' => SORT_ASC])
-                ->indexBy('id')
+                ->indexBy($uids ? 'uid' : 'id')
                 ->all();
         } else {
             $oldBlocksById = [];
+        }
+
+        if ($uids) {
+            // Get the canonical block UUIDs in case the data was posted with them
+            $derivatives = Collection::make($oldBlocksById)
+                ->filter(fn(Block $block) => $block->getIsDerivative())
+                ->keyBy(fn(Block $block) => $block->getCanonicalId());
+
+            if ($derivatives->isNotEmpty()) {
+                $canonicalUids = (new Query())
+                    ->select(['id', 'uid'])
+                    ->from(Table::ELEMENTS)
+                    ->where(['id' => $derivatives->keys()->all()])
+                    ->pairs();
+                $derivativeUidMap = [];
+                $canonicalUidMap = [];
+                foreach ($canonicalUids as $canonicalId => $canonicalUid) {
+                    $derivativeUid = $derivatives->get($canonicalId)->uid;
+                    $derivativeUidMap[$canonicalUid] = $derivativeUid;
+                    $canonicalUidMap[$derivativeUid] = $canonicalUid;
+                }
+            }
         }
 
         // Should we ignore disabled blocks?
@@ -1543,7 +1582,6 @@ class Field extends BaseField implements
             $newSortOrder = array_keys($value);
         }
 
-        /** @var Block[] $blocks */
         $blocks = [];
         $prevBlock = null;
 
@@ -1551,11 +1589,12 @@ class Field extends BaseField implements
             if (isset($newBlockData[$blockId])) {
                 $blockData = $newBlockData[$blockId];
             } elseif (
-                isset(Elements::$duplicatedElementSourceIds[$blockId]) &&
-                isset($newBlockData[Elements::$duplicatedElementSourceIds[$blockId]])
+                $uids &&
+                isset($canonicalUidMap[$blockId]) &&
+                isset($newBlockData[$canonicalUidMap[$blockId]])
             ) {
-                // $blockId is a duplicated block's ID, but the data was sent with the original block ID
-                $blockData = $newBlockData[Elements::$duplicatedElementSourceIds[$blockId]];
+                // $blockId is a draft block's UUID, but the data was sent with the canonical block UUID
+                $entryData = $newBlockData[$canonicalUidMap[$blockId]];
             } else {
                 $blockData = [];
             }
@@ -1563,12 +1602,12 @@ class Field extends BaseField implements
             // If this is a preexisting block but we don't have a record of it,
             // check to see if it was recently duplicated.
             if (
-                !str_starts_with($blockId, 'new') &&
+                $uids &&
                 !isset($oldBlocksById[$blockId]) &&
-                isset(Elements::$duplicatedElementIds[$blockId]) &&
-                isset($oldBlocksById[Elements::$duplicatedElementIds[$blockId]])
+                isset($derivativeUidMap[$blockId]) &&
+                isset($oldBlocksById[$derivativeUidMap[$blockId]])
             ) {
-                $blockId = Elements::$duplicatedElementIds[$blockId];
+                $blockId = $derivativeUidMap[$blockId];
             }
 
             // Existing block?
@@ -1578,7 +1617,7 @@ class Field extends BaseField implements
                 $blockEnabled = (bool)($blockData['enabled'] ?? $block->enabled);
 
                 // Is this a derivative element, and does the block primarily belong to the canonical?
-                if ($forceSave && $element->getIsDerivative() && $block->primaryOwnerId === $element->getCanonicalId()) {
+                if ($forceSave && $element->getIsDerivative() && $block->getPrimaryOwnerId() === $element->getCanonicalId()) {
                     // Duplicate it as a draft. (We'll drop its draft status from `Fields::saveValue`.)
                     $block = $draftsService->createDraft($block, $user->getId(), null, null, [
                         'canonicalId' => $block->id,
@@ -1606,15 +1645,20 @@ class Field extends BaseField implements
                 $block = new Block();
                 $block->fieldId = $this->id;
                 $block->typeId = $blockTypes[$blockData['type']]->id;
-                $block->primaryOwnerId = $block->ownerId = $element->id;
+                $block->setPrimaryOwner($element);
+                $block->setOwner($element);
                 $block->siteId = $element->siteId;
                 $block->enabled = (bool)($blockData['enabled'] ?? true);
                 $block->unsavedId = $i;
+
+                // Use the provided UUID, so the block can persist across future autosaves
+                if ($uids) {
+                    $block->uid = $blockId;
+                }
             }
 
             $blockLevel = (int)($blockData['level'] ?? $block->level);
 
-            $block->setOwner($element);
             $block->oldLevel = $block->level;
             $block->level = $blockLevel;
 
@@ -1632,9 +1676,15 @@ class Field extends BaseField implements
                 continue;
             }
 
+            $block->setOwner($element);
+
             // Set the content post location on the block if we can
             if ($baseBlockFieldNamespace) {
-                $block->setFieldParamNamespace("$baseBlockFieldNamespace.$blockId.fields");
+                if ($uids) {
+                    $block->setFieldParamNamespace("$baseBlockFieldNamespace.uid:$blockId.fields");
+                } else {
+                    $block->setFieldParamNamespace("$baseBlockFieldNamespace.$blockId.fields");
+                }
             }
 
             if (isset($blockData['fields'])) {
