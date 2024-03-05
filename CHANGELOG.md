@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed missing `getField()` method on blocks
+- Fixed an error that occurred when changing the propagation method for a Neo field with no blocks
 
 ## 4.0.6 - 2024-02-23
 
