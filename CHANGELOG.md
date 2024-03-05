@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed missing `getField()` method on blocks
+
 ## 4.0.6 - 2024-02-23
 
 ### Added

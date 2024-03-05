@@ -235,6 +235,11 @@ class Block extends Element implements BlockElementInterface
     private bool $_useMemoized = false;
 
     /**
+     * @var Field|null The Neo field associated with this block.
+     */
+    private ?Field $_field = null;
+
+    /**
      * @inheritdoc
      */
     public function attributes(): array
@@ -378,7 +383,7 @@ class Block extends Element implements BlockElementInterface
             return [Craft::$app->getSites()->getPrimarySite()->id];
         }
 
-        $field = $this->_getField();
+        $field = $this->getField();
         return Neo::$plugin->fields->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
     }
 
@@ -976,6 +981,20 @@ class Block extends Element implements BlockElementInterface
     }
 
     /**
+     * Returns the Neo field associated with this block.
+     *
+     * @return Field
+     */
+    public function getField(): Field
+    {
+        if (!$this->_field) {
+            $this->_field = Craft::$app->getFields()->getFieldById($this->fieldId);
+        }
+
+        return $this->_field;
+    }
+
+    /**
      * Returns a basic query for any blocks that are relatives of this block.
      *
      * @return BlockQuery
@@ -1004,18 +1023,5 @@ class Block extends Element implements BlockElementInterface
         $typeHandlePrefix = $type->handle . ':';
 
         return $typeHandlePrefix;
-    }
-
-    // Private Methods
-    // =========================================================================
-    /**
-     * Returns the Neo field.
-     *
-     * @return Field
-     */
-    private function _getField(): Field
-    {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return Craft::$app->getFields()->getFieldById($this->fieldId);
     }
 }
