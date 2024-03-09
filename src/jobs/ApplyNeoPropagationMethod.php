@@ -94,7 +94,7 @@ class ApplyNeoPropagationMethod extends ApplyNewPropagationMethod
 
         // Ensure block structures are regenerated after duplicating the blocks
         if ($this->itemOffset === $this->totalItems()) {
-            foreach ($this->structureData as $fieldId => $fieldStructureData) {
+            foreach ($this->structureData ?? [] as $fieldId => $fieldStructureData) {
                 Queue::push(new ResaveFieldBlockStructures([
                     'fieldId' => $fieldId,
                     'structureOverrides' => $fieldStructureData,

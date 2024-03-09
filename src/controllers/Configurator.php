@@ -105,7 +105,7 @@ class Configurator extends Controller
                 $newBlockType->ignorePermissions = $settings['ignorePermissions'];
                 $newBlockType->description = $settings['description'] ?? '';
                 $newBlockType->iconFilename = $settings['iconFilename'] ?? '';
-                $newBlockType->iconId = $settings['iconId'];
+                $newBlockType->iconId = $settings['iconId'] ?? null;
                 $newBlockType->minBlocks = (int)$settings['minBlocks'];
                 $newBlockType->maxBlocks = (int)$settings['maxBlocks'];
                 $newBlockType->minSiblingBlocks = (int)$settings['minSiblingBlocks'];

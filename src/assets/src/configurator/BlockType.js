@@ -37,6 +37,11 @@ export default Item.extend({
     this.$moveButton = $neo.filter('[data-neo-bt="button.move"]')
     this.$actionsButton = $neo.filter('[data-neo-bt="button.actions"]')
 
+    // If new block type, set settings / field layout designer as already loaded
+    if (/^new([0-9]+)$/.test(String(this.getId()))) {
+      this._loaded = true
+    }
+
     // Set up the actions menu
     this.$actionsButton.menubtn()
     this._actionsMenu = this.$actionsButton.data('menubtn')

@@ -5,6 +5,14 @@
 ## Removed
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 
+## 4.0.7 - 2024-03-09
+
+### Fixed
+- Fixed missing `getField()` method on blocks
+- Fixed an error that occurred when changing the propagation method for a Neo field with no blocks
+- Fixed an error that could occur when cloning block types, if Neo's `blockTypeIconSelectMode` plugin setting is set to `'path'`
+- Fixed a bug where field layout designers for new block types could be reloaded when cloning those block types
+
 ## 4.0.6 - 2024-02-23
 
 ### Added
