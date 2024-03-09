@@ -4,10 +4,10 @@ namespace benf\neo\gql\types\elements;
 
 use benf\neo\gql\interfaces\elements\Block as NeoBlockInterface;
 use craft\elements\db\ElementQuery;
+use craft\elements\ElementCollection;
 use craft\fields\BaseRelationField;
 use craft\gql\types\elements\Element;
 use GraphQL\Type\Definition\ResolveInfo;
-use Illuminate\Support\Collection;
 
 /**
  * Class MatrixBlock
@@ -64,7 +64,7 @@ class Block extends Element
 
                         if (is_array($fieldValue)) {
                             // Eager loaded, but ended up with an array instead of a collection
-                            $block->setFieldValue($field->handle, Collection::make($fieldValue));
+                            $block->setFieldValue($field->handle, ElementCollection::make($fieldValue));
                         } elseif ($fieldValue instanceof ElementQuery) {
                             // Wasn't eager loaded
                             $block->getBehavior('customFields')->{$field->handle} = $fieldValue->collect();
@@ -73,7 +73,7 @@ class Block extends Element
                 }
             }
 
-            return Collection::make($children);
+            return ElementCollection::make($children);
         }
 
         return parent::resolve($source, $arguments, $context, $resolveInfo);

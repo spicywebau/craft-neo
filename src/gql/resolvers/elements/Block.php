@@ -4,10 +4,10 @@ namespace benf\neo\gql\resolvers\elements;
 
 use benf\neo\elements\Block as BlockElement;
 use benf\neo\elements\db\BlockQuery;
+use craft\elements\ElementCollection;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Gql as GqlHelper;
 use GraphQL\Type\Definition\ResolveInfo;
-use Illuminate\Support\Collection;
 
 /**
  * Class Block
@@ -28,7 +28,7 @@ class Block extends ElementResolver
         // If we have all blocks, memoize them to avoid database calls for child block queries
         if (
             $query instanceof BlockQuery && $query->level == 0 ||
-            $query instanceof Collection && isset($arguments['level']) && $arguments['level'] == 0
+            $query instanceof ElementCollection && isset($arguments['level']) && $arguments['level'] == 0
         ) {
             foreach ($blocks as $block) {
                 $block->useMemoized($blocks);
@@ -65,7 +65,7 @@ class Block extends ElementResolver
                     return (int)$block->level === $level;
                 });
 
-            return Collection::make(!empty($newBlocks) ? $newBlocks : $query);
+            return ElementCollection::make(!empty($newBlocks) ? $newBlocks : $query);
         }
 
         // We require level 1 unless the arguments say otherwise
