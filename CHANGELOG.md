@@ -1,9 +1,14 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-beta.1 - 2024-03-10
 
-## Removed
+### Added
+- Added Craft 5 compatibility
+
+### Removed
+- Removed Craft 4 compatibility
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
+- Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 - Removed `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`; new blocks are now always lazy loaded
 - Removed `benf\neo\services\Blocks::renderTabs()`
 
