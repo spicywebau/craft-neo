@@ -9,7 +9,6 @@ use benf\neo\records\BlockStructure as BlockStructureRecord;
 use Craft;
 use craft\db\Query;
 use craft\db\Table;
-use craft\fieldlayoutelements\CustomField;
 use craft\models\Structure;
 use yii\base\Component;
 
@@ -34,68 +33,6 @@ class Blocks extends Component
     public function getBlockById(int $blockId, ?int $siteId = null, array $criteria = []): ?Block
     {
         return Craft::$app->getElements()->getElementById($blockId, Block::class, $siteId, $criteria);
-    }
-
-    /**
-     * Renders a Neo block's tabs.
-     *
-     * @param Block $block The Neo block having its tabs rendered.
-     * @param string|null $namespace
-     * @throws
-     * @return array The tabs data.
-     */
-    public function renderTabs(Block $block, ?string $namespace = null): array
-    {
-        $view = Craft::$app->getView();
-        $blockType = $block->getType();
-        $field = $blockType->getField();
-
-        $namespace = $namespace ?? $view->namespaceInputName($field->handle);
-        $oldNamespace = $view->getNamespace();
-        $newNamespace = $namespace . '[blocks][__NEOBLOCK__]';
-        $view->setNamespace($newNamespace);
-
-        // Ensure that this block is actually new, and not just a pasted or cloned block
-        // New blocks won't have their levels set at this stage, whereas they will be set for pasted/cloned blocks
-        $isNewBlock = $block->id === null && $block->level === null;
-
-        $fieldLayout = $blockType->getFieldLayout();
-        $fieldLayoutTabs = $fieldLayout->getTabs();
-        $data = [];
-
-        foreach ($fieldLayoutTabs as $tab) {
-            $translatedName = Craft::t('site', $tab->name);
-            $data['tabNames'][] = $translatedName;
-            $data['tabUids'][$translatedName] = $tab->uid;
-
-            foreach ($tab->getElements() as $tabElement) {
-                if ($tabElement instanceof CustomField && $isNewBlock) {
-                    $tabElement->getField()->setIsFresh(true);
-                }
-            }
-        }
-
-        $view->startJsBuffer();
-        $fieldLayoutForm = $fieldLayout->createForm($block);
-        $data['visibleLayoutElements'] = $fieldLayoutForm->getVisibleElements();
-        $html = $view->namespaceInputs($fieldLayoutForm->render());
-        $data['js'] = $view->clearJsBuffer();
-        $data['html'] = $blockType->hasChildBlocksUiElement()
-            ? $this->replaceChildBlocksUiElementPlaceholder($html, $block)
-            : $html;
-
-        // Reset $_isFresh's
-        foreach ($fieldLayoutTabs as $tab) {
-            foreach ($tab->getElements() as $tabElement) {
-                if ($tabElement instanceof CustomField && $isNewBlock) {
-                    $tabElement->getField()->setIsFresh(null);
-                }
-            }
-        }
-
-        $view->setNamespace($oldNamespace);
-
-        return $data;
     }
 
     /**

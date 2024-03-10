@@ -63,12 +63,6 @@ class Settings extends Model
     public bool $enableBlockTypeUserPermissions = true;
 
     /**
-     * @var bool Whether to lazy load input block HTML for the first new block of a type.
-     * @since 3.9.3
-     */
-    public bool $enableLazyLoadingNewBlocks = true;
-
-    /**
      * @inheritdoc
      */
     protected function defineRules(): array

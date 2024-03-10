@@ -83,7 +83,6 @@ export default Garnish.Base.extend({
   _name: null,
   _siteId: null,
   _visibleLayoutElements: {},
-  _newBlockId: 0,
   _newBlockCount: 0,
 
   init (settings = {}) {
@@ -264,6 +263,15 @@ export default Garnish.Base.extend({
     this._registerDynamicBlockConditions()
 
     this.trigger('afterInit')
+  },
+
+  /**
+   * @public
+   * @returns the field's ID
+   * @since 5.0.0
+   */
+  getId () {
+    return this._id
   },
 
   getName () {
@@ -1031,6 +1039,8 @@ export default Garnish.Base.extend({
     } else {
       this.$blocksContainer.prepend(this._$spinner)
     }
+
+    this._animateSpinner()
   },
 
   _addSpinnerBefore (block) {
@@ -1039,111 +1049,92 @@ export default Garnish.Base.extend({
     } else {
       this.$blocksContainer.append(this._$spinner)
     }
+
+    this._animateSpinner()
   },
 
-  _animateSpinnerThen (callback) {
-    if (!Garnish.prefersReducedMotion()) {
-      this._$spinner
-        .css({
-          opacity: 0,
-          marginBottom: -(this._$spinner.outerHeight())
-        })
-        .velocity({
-          opacity: 1,
-          marginBottom: 10
-        }, 'fast', () => callback())
-    } else {
-      callback()
+  _animateSpinner () {
+    if (Garnish.prefersReducedMotion()) {
+      return Promise.resolve()
     }
+
+    return new Promise((resolve, reject) => {
+      try {
+        this._$spinner
+          .css({
+            opacity: 0,
+            marginBottom: -(this._$spinner.outerHeight())
+          })
+          .velocity({
+            opacity: 1,
+            marginBottom: 10
+          }, 'fast', () => resolve())
+      } catch (err) {
+        reject(err)
+      }
+    })
   },
 
   _removeSpinner () {
     this._$spinner.remove()
   },
 
-  _getNewBlockId () {
-    while (this.$blocksContainer.find(`[data-neo-b-id="new${this._newBlockId}"]`).length > 0) {
-      this._newBlockId++
-    }
+  async _duplicate (data, block) {
+    try {
+      this.$form.data('elementEditor')?.pause()
+      await this._addSpinnerAfter(block)
+      const response = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
+      const newBlocks = []
 
-    return `new${this._newBlockId++}`
-  },
+      for (const renderedBlock of response.data.blocks) {
+        const newBlockId = renderedBlock.id
+        const newBlock = new Block({
+          namespace: [...this._templateNs, newBlockId],
+          field: this,
+          blockType: this.getBlockTypeById(renderedBlock.type),
+          blockHtml: renderedBlock.blockHtml,
+          bodyHtml: renderedBlock.bodyHtml,
+          headHtml: renderedBlock.headHtml,
+          id: newBlockId,
+          uuid: renderedBlock.uuid,
+          level: renderedBlock.level | 0,
+          enabled: !!renderedBlock.enabled,
+          collapsed: !!renderedBlock.collapsed,
+          showButtons: !this.atMaxLevels(renderedBlock.level | 0),
+          showBlockTypeHandle: this._showBlockTypeHandles
+        }, true)
 
-  _duplicate (data, block) {
-    this.$form.data('elementEditor')?.pause()
-    this._addSpinnerAfter(block)
-    this._animateSpinnerThen(async () => {
-      try {
-        const response = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
-        const newBlocks = []
-
-        for (const renderedBlock of response.data.blocks) {
-          const newId = this._getNewBlockId()
-          const newBlock = new Block({
-            namespace: [...this._templateNs, newId],
-            field: this,
-            blockType: this.getBlockTypeById(renderedBlock.type),
-            tabs: renderedBlock.tabs,
-            id: newId,
-            level: renderedBlock.level | 0,
-            enabled: !!renderedBlock.enabled,
-            collapsed: !!renderedBlock.collapsed,
-            showButtons: !this.atMaxLevels(renderedBlock.level | 0),
-            showBlockTypeHandle: this._showBlockTypeHandles
-          }, true)
-
-          newBlocks.push(newBlock)
-        }
-
-        let newIndex = this._getNextBlockIndex(block)
-
-        for (const newBlock of newBlocks) {
-          this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
-        }
-
-        if (!Garnish.prefersReducedMotion() && newBlocks.length > 0) {
-          const firstBlock = newBlocks[0]
-
-          firstBlock.$container
-            .css({
-              opacity: 0,
-              marginBottom: this._$spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
-            })
-            .velocity({
-              opacity: 1,
-              marginBottom: 10
-            }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
-        }
-      } catch (err) {
-        Craft.cp.displayError(err.message)
-      } finally {
-        this._removeSpinner()
-        this.$form.data('elementEditor')?.resume()
+        newBlocks.push(newBlock)
       }
-    })
+
+      let newIndex = this._getNextBlockIndex(block)
+
+      for (const newBlock of newBlocks) {
+        this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
+      }
+
+      if (!Garnish.prefersReducedMotion() && newBlocks.length > 0) {
+        const firstBlock = newBlocks[0]
+
+        firstBlock.$container
+          .css({
+            opacity: 0,
+            marginBottom: this._$spinner.outerHeight() - firstBlock.$container.outerHeight() + 10
+          })
+          .velocity({
+            opacity: 1,
+            marginBottom: 10
+          }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
+      }
+    } catch (err) {
+      Craft.cp.displayError(err.message)
+    } finally {
+      this._removeSpinner()
+      this.$form.data('elementEditor')?.resume()
+    }
   },
 
   async '@newBlock' (e) {
-    const createTheBlock = () => {
-      const blockId = this._getNewBlockId()
-      const block = new Block({
-        namespace: [...this._templateNs, blockId],
-        field: this,
-        blockType: e.blockType,
-        id: blockId,
-        showButtons: !this.atMaxLevels(e.level),
-        showBlockTypeHandle: this._showBlockTypeHandles
-      }, true)
-
-      this._removeSpinner()
-      this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
-    }
-
-    if (e.blockType.getTabs() !== null) {
-      createTheBlock()
-      return
-    }
-
     const elementEditor = this.$form.data('elementEditor')
 
     try {
@@ -1172,15 +1163,28 @@ export default Garnish.Base.extend({
       }
 
       if (addAfter) {
-        this._addSpinnerAfter(siblingBlock)
+        await this._addSpinnerAfter(siblingBlock)
       } else {
-        this._addSpinnerBefore(siblingBlock)
+        await this._addSpinnerBefore(siblingBlock)
       }
 
-      this._animateSpinnerThen(async () => {
-        await e.blockType.loadTabs()
-        createTheBlock()
-      })
+      const newBlock = await e.blockType.newBlock()
+      const blockId = newBlock.id
+      const block = new Block({
+        namespace: [...this._templateNs, blockId],
+        field: this,
+        blockType: e.blockType,
+        id: blockId,
+        uuid: newBlock.uuid,
+        blockHtml: newBlock.blockHtml,
+        bodyHtml: newBlock.bodyHtml,
+        headHtml: newBlock.headHtml,
+        showButtons: !this.atMaxLevels(e.level),
+        showBlockTypeHandle: this._showBlockTypeHandles
+      }, true)
+
+      this._removeSpinner()
+      this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
     } catch (error) {
       this._removeSpinner()
       Craft.cp.displayError(error)
@@ -1305,6 +1309,7 @@ export default Garnish.Base.extend({
 
       const data = {
         namespace: NS.toFieldName(),
+        fieldId: this._id,
         siteId: this._siteId,
         blocks
       }
@@ -1336,6 +1341,7 @@ export default Garnish.Base.extend({
 
     const data = {
       namespace: NS.toFieldName(),
+      fieldId: this._id,
       siteId: this._siteId,
       blocks: [
         getBlockData(block),

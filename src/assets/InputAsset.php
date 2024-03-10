@@ -179,7 +179,6 @@ class InputAsset extends AssetBundle
     {
         $user = Craft::$app->getUser()->getIdentity();
         $pluginSettings = Neo::$plugin->getSettings();
-        $loadTabs = !$pluginSettings->enableLazyLoadingNewBlocks;
         $disablePermissions = !$pluginSettings->enableBlockTypeUserPermissions;
         $jsBlockTypes = [];
 
@@ -214,7 +213,6 @@ class InputAsset extends AssetBundle
                     fn($tab) => Craft::t('site', $tab->name),
                     $blockType->getFieldLayout()->getTabs()
                 ),
-                'tabs' => $loadTabs ? Neo::$plugin->blocks->renderTabs($block) : null,
                 'fieldLayoutId' => $blockType->fieldLayoutId,
                 'groupId' => $blockType->groupId,
                 'hasChildBlocksUiElement' => $blockType->hasChildBlocksUiElement(),

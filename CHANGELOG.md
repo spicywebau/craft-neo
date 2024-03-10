@@ -4,6 +4,8 @@
 
 ## Removed
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
+- Removed `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`; new blocks are now always lazy loaded
+- Removed `benf\neo\services\Blocks::renderTabs()`
 
 ## 4.0.7 - 2024-03-09
 

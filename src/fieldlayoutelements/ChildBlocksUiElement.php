@@ -42,8 +42,8 @@ class ChildBlocksUiElement extends BaseUiElement
             $blockId = '__NEOBLOCK__';
         }
 
-        // This will be replaced in `block.twig` and `benf\neo\services\Blocks::renderTabs()`; done like this so we can
-        // use `craft\models\FieldLayout::createForm()` without repeatedly namespacing the child blocks
+        // This will be replaced in `block.twig`; done like this so we can use `craft\models\FieldLayout::createForm()`
+        // without repeatedly namespacing the child blocks
         return '<div data-neo-child-blocks-ui-element="' . $blockId . '"></div>';
     }
 }

@@ -1,7 +1,6 @@
 import Garnish from 'garnish'
 import Craft from 'craft'
 import NS from '../namespace'
-import Tab from './BlockTypeTab'
 
 const _defaults = {
   id: -1,
@@ -16,7 +15,6 @@ const _defaults = {
   groupChildBlockTypes: true,
   childBlocks: false,
   topLevel: true,
-  tabs: null,
   tabNames: [],
   hasChildBlocksUiElement: false,
   creatableByUser: true,
@@ -47,18 +45,6 @@ export default Garnish.Base.extend({
     this._childBlocks = settings.childBlocks
     this._topLevel = settings.topLevel
     this._tabNames = settings.tabNames
-    if (settings.tabs !== null) {
-      this._tabs = settings.tabs.tabNames?.map(
-        tab => tab instanceof Tab
-          ? tab
-          : new Tab({
-            name: tab,
-            uid: settings.tabs.tabUids[tab]
-          })
-      ) ?? []
-    } else {
-      this._tabs = null
-    }
     this._html = settings.tabs?.html ?? ''
     this._js = settings.tabs?.js ?? ''
     this._defaultVisibleLayoutElements = settings.tabs?.visibleLayoutElements ?? {}
@@ -87,15 +73,11 @@ export default Garnish.Base.extend({
   getTopLevel () { return this._topLevel },
   getTabNames () { return this._tabNames },
 
-  getTabs () { return this._tabs !== null ? Array.from(this._tabs) : null },
-  async loadTabs () {
-    if (this._tabs !== null) {
-      return
-    }
-
+  async newBlock () {
     NS.enter(this._field.getNamespace())
     const data = {
       namespace: NS.toFieldName(),
+      fieldId: this._field?.getId(),
       siteId: this._field?.getSiteId(),
       blocks: [{
         collapsed: false,
@@ -106,48 +88,15 @@ export default Garnish.Base.extend({
       }]
     }
     NS.leave()
+    const response = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
 
-    try {
-      const renderedBlocks = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
-
-      if (renderedBlocks.data.headHtml) {
-        await Craft.appendHeadHtml(renderedBlocks.data.headHtml)
-      }
-
-      if (renderedBlocks.data.bodyHtml) {
-        await Craft.appendBodyHtml(renderedBlocks.data.bodyHtml)
-      }
-
-      const tabs = renderedBlocks.data.blocks[0].tabs
-      this._tabs = tabs.tabNames?.map(
-        tab => new Tab({
-          name: tab,
-          uid: tabs.tabUids[tab]
-        })
-      ) ?? []
-      this._html = tabs.html
-      this._js = tabs.js
-    } catch (err) {
-      Craft.cp.displayError(err.message)
-    }
-  },
-
-  getHtml (blockId = null) {
-    return this._replaceBlockIdPlaceholder(this._html, blockId)
-  },
-
-  getJs (blockId = null) {
-    return this._replaceBlockIdPlaceholder(this._js, blockId)
+    return response.data.blocks[0]
   },
 
   getDefaultVisibleLayoutElements () {
     return {
       ...this._defaultVisibleLayoutElements
     }
-  },
-
-  _replaceBlockIdPlaceholder (input, blockId = null) {
-    return blockId !== null ? input.replace(/__NEOBLOCK__/g, blockId) : input
   },
 
   getChildBlockItems (items) {
