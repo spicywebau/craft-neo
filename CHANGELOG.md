@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-beta.2 - 2024-03-11
 
 ### Added
 - Added `benf\neo\models\BlockType::$color` and the `neoblocktypes.color` column
