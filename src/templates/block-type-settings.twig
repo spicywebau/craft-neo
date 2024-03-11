@@ -96,6 +96,17 @@
             <input type="hidden" name="iconId" value="{{ blockType ? blockType.iconId : '' }}">
         {% endif %}
 
+        {{ forms.colorSelectField({
+            label: 'Color'|t('neo'),
+            id: 'color',
+            name: 'color',
+            value: blockType ? blockType.color : null,
+            errors: blockType ? blockType.getErrors('color') : null,
+            data: {
+                'error-key': 'color',
+            },
+        }) }}
+
         <div data-neo-bts="container.enabled">
             {{ forms.lightswitchField({
                 id: 'enabled',

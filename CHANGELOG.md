@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+- Added `benf\neo\models\BlockType::$color` and the `neoblocktypes.color` column
+
+### Changed
+- `benf\neo\models\BlockType` now implements `craft\base\Colorable`
+
 ### Removed
 - Removed `benf\neo\Field::PROPAGATION_METHOD_ALL`; use `craft\enums\PropagationMethod::All` instead
 - Removed `benf\neo\Field::PROPAGATION_METHOD_CUSTOM`; use `craft\enums\PropagationMethod::Custom` instead

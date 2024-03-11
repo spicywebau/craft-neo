@@ -148,6 +148,7 @@ class SettingsAsset extends AssetBundle
                 'description' => $blockType->description,
                 'iconFilename' => $blockType->iconFilename,
                 'iconId' => $blockType->iconId,
+                'color' => $blockType->color?->value,
                 'minBlocks' => $blockType->minBlocks,
                 'maxBlocks' => $blockType->maxBlocks,
                 'minSiblingBlocks' => $blockType->minSiblingBlocks,

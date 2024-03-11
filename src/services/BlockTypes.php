@@ -27,6 +27,7 @@ use craft\elements\Entry;
 use craft\elements\GlobalSet;
 use craft\elements\Tag;
 use craft\elements\User;
+use craft\enums\Color;
 use craft\events\ConfigEvent;
 use craft\helpers\App;
 use craft\helpers\Cp;
@@ -256,6 +257,7 @@ class BlockTypes extends Component
         $record->description = $blockType->description;
         $record->iconFilename = $blockType->iconFilename;
         $record->iconId = $blockType->iconId;
+        $record->color = $blockType->color?->value;
         $record->enabled = $blockType->enabled;
         $record->ignorePermissions = $blockType->ignorePermissions;
         $record->sortOrder = $blockType->sortOrder;
@@ -550,6 +552,7 @@ class BlockTypes extends Component
             $record->description = $data['description'] ?? '';
             $record->iconFilename = $data['iconFilename'] ?? '';
             $record->iconId = $blockTypeIcon?->id ?? null;
+            $record->color = $data['color'] ?? null;
             $record->enabled = $data['enabled'] ?? true;
             $record->ignorePermissions = $data['ignorePermissions'] ?? true;
             $record->sortOrder = $sortOrder;
@@ -573,6 +576,9 @@ class BlockTypes extends Component
             $blockType->name = $data['name'];
             $blockType->handle = $data['handle'];
             $blockType->description = $data['description'] ?? '';
+            $blockType->color = !empty($record->color) && $record->color !== '__blank__'
+                ? Color::from($record->color)
+                : null;
             $blockType->enabled = $data['enabled'] ?? true;
             $blockType->ignorePermissions = $data['ignorePermissions'] ?? true;
             $blockType->sortOrder = $sortOrder;
@@ -1013,6 +1019,7 @@ class BlockTypes extends Component
             'description',
             'iconFilename',
             'iconId',
+            'color',
             'enabled',
             'ignorePermissions',
             'minBlocks',

@@ -200,6 +200,7 @@ class InputAsset extends AssetBundle
                 'handle' => $blockType->handle,
                 'enabled' => $blockType->enabled,
                 'description' => $blockType->description,
+                'color' => $blockType->color?->value,
                 'minBlocks' => $blockType->minBlocks,
                 'maxBlocks' => $blockType->maxBlocks,
                 'minSiblingBlocks' => $blockType->minSiblingBlocks,

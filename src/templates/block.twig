@@ -32,23 +32,6 @@
 {%- endset %}
 
 {% set baseInputName = "#{handle}[blocks][uid:#{block.uid}]" %}
-{% set blockAttributes = {
-    class: [
-        'ni_block',
-        "ni_block--#{type.handle}",
-        collapsed ? 'is-collapsed' : 'is-expanded',
-        not hasTabs and not isParent ? 'is-empty',
-        isParent ? 'is-parent',
-        hasErrors ? 'has-errors',
-        neoSettings.enableBlockTypeUserPermissions and not type.ignorePermissions and not currentUser.can("neo-editBlocks:#{type.uid}") ? 'is-disabled-for-user',
-    ],
-    data: {
-        'neo-b-id': blockId,
-        'neo-b-uuid': block.uid,
-        'neo-b-name': "#{typeName}",
-    },
-} %}
-
 {% set actionBtnLabel = "#{typeName} #{'Actions'|t('neo')}" %}
 {% set actionMenuId = "neoblock-action-menu-#{blockId}" %}
 
@@ -92,7 +75,25 @@
     </div>
 {% endif %}{% endset %}
 
-<div {{ attr(blockAttributes) }}>
+{% tag 'div' with {
+    class: [
+        'ni_block',
+        "ni_block--#{type.handle}",
+        collapsed ? 'is-collapsed' : 'is-expanded',
+        not hasTabs and not isParent ? 'is-empty',
+        isParent ? 'is-parent',
+        hasErrors ? 'has-errors',
+        neoSettings.enableBlockTypeUserPermissions and not type.ignorePermissions and not currentUser.can("neo-editBlocks:#{type.uid}") ? 'is-disabled-for-user',
+    ]|filter,
+    style: {
+        'border-color': type.color.cssVar(100) ?? null,
+    }|filter,
+    data: {
+        'neo-b-id': blockId,
+        'neo-b-uuid': block.uid,
+        'neo-b-name': "#{typeName}",
+    },
+} %}
     {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': blockId ~ '.input.type'}) }}
     {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '', {'data-neo-b': blockId ~ '.input.enabled'}) }}
     {{ hiddenInput("#{baseInputName}[level]", block.level, {'data-neo-b': blockId ~ '.input.level'}) }}
@@ -101,7 +102,16 @@
         {% do view.registerDeltaName(baseInputName) %}
     {% endif %}
 
-    <div class="ni_block_topbar" data-neo-b="{{ blockId }}.container.topbar">
+    {% tag 'div' with {
+        class: 'ni_block_topbar',
+        style: {
+            'background-color': type.color.cssVar(50) ?? null,
+            '--custom-text-color': type.color.cssVar(900) ?? null,
+        }|filter,
+        data: {
+            'neo-b': "#{blockId}.container.topbar",
+        },
+    } %}
         <div class="ni_block_topbar_left" data-neo-b="{{ blockId }}.container.topbarLeft">
             <div class="ni_block_topbar_item title">
                 <span class="blocktype{{ hasErrors ? ' has-errors' }}" data-neo-b="{{ blockId }}.select">{{ typeName }}</span>{#
@@ -113,7 +123,16 @@
             </div>
         </div>
         <div class="ni_block_topbar_right" data-neo-b="{{ blockId }}.container.topbarRight">
-            <div class="ni_block_topbar_item size-full tabs">
+            {% tag 'div' with {
+                class: [
+                    'ni_block_topbar_item',
+                    'size-full',
+                    'tabs',
+                ],
+                style: {
+                    '--custom-sel-tab-shadow-color': entryType.color.cssVar(200) ?? null,
+                }|filter,
+            } %}
                 {% if showFormAndTabs %}
                     <div class="tabs_trigger" data-neo-b="{{ blockId }}.button.toggler"></div>
                     {% include 'neo/_tabs' with {
@@ -122,7 +141,7 @@
                         blockId,
                     } only %}
                 {% endif %}
-            </div>
+            {% endtag %}
             <div class="ni_block_topbar_item hidden" data-neo-b="{{ blockId }}.status">
                 <div class="status off" title="{{ "Disabled"|t }}"></div>
             </div>
@@ -167,7 +186,7 @@
                 <a class="block-reorder move icon" title="{{ 'Reorder'|t('neo') }}" aria-label="{{ 'Reorder'|t('neo') }}" role="button" data-neo-b="{{ blockId }}.button.move"></a>
             </div>
         </div>
-    </div>
+    {% endtag %}
     {% if showFormAndTabs %}
         <div class="ni_block_body"{{ collapsed ? ' style="opacity: 0; height: 0;"' }} data-neo-b="{{ blockId }}.container.body">
             {% if hasTabs %}
@@ -205,7 +224,7 @@
     {% if isParent %}
         <div class="ni_block_collapsed-children" data-neo-b="{{ blockId }}.container.collapsedChildren"></div>
     {% endif %}
-</div>
+{% endtag %}
 
 {% js %}
     Garnish.on(Neo.Input, 'afterInit', (e) => {

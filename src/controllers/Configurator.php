@@ -106,6 +106,7 @@ class Configurator extends Controller
                 $newBlockType->description = $settings['description'] ?? '';
                 $newBlockType->iconFilename = $settings['iconFilename'] ?? '';
                 $newBlockType->iconId = $settings['iconId'] ?? null;
+                $newBlockType->color = $settings['color'] ?? null;
                 $newBlockType->minBlocks = (int)$settings['minBlocks'];
                 $newBlockType->maxBlocks = (int)$settings['maxBlocks'];
                 $newBlockType->minSiblingBlocks = (int)$settings['minSiblingBlocks'];

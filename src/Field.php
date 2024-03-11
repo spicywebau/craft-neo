@@ -32,6 +32,7 @@ use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\enums\AttributeStatus;
+use craft\enums\Color;
 use craft\enums\PropagationMethod;
 use craft\errors\InvalidFieldException;
 use craft\fields\conditions\EmptyFieldConditionRule;
@@ -451,6 +452,9 @@ class Field extends BaseField implements
         $newBlockType->description = $blockType['description'] ?? '';
         $newBlockType->iconFilename = $blockType['iconFilename'] ?? '';
         $newBlockType->iconId = !empty($blockType['iconId']) ? (int)$blockType['iconId'] : null;
+        $newBlockType->color = !empty($blockType['color']) && $blockType['color'] !== '__blank__'
+            ? Color::from($blockType['color'])
+            : null;
         $newBlockType->minBlocks = (int)($blockType['minBlocks'] ?? 0);
         $newBlockType->maxBlocks = (int)($blockType['maxBlocks'] ?? 0);
         $newBlockType->minSiblingBlocks = (int)($blockType['minSiblingBlocks'] ?? 0);

@@ -7,12 +7,14 @@ use benf\neo\Field;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\base\Colorable;
 use craft\base\FieldLayoutProviderInterface;
 use craft\base\GqlInlineFragmentInterface;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\db\Table;
 use craft\elements\Asset;
+use craft\enums\Color;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
@@ -26,7 +28,10 @@ use craft\models\FieldLayout;
  * @author Benjamin Fleming
  * @since 2.0.0
  */
-class BlockType extends Model implements FieldLayoutProviderInterface, GqlInlineFragmentInterface
+class BlockType extends Model implements
+    FieldLayoutProviderInterface,
+    GqlInlineFragmentInterface,
+    Colorable
 {
     /**
      * @var int|null The block type ID.
@@ -76,6 +81,12 @@ class BlockType extends Model implements FieldLayoutProviderInterface, GqlInline
      * @since 3.6.0
      */
     public ?int $iconId = null;
+
+    /**
+     * @var Color|null Color
+     * @since 5.0.0
+     */
+    public ?Color $color = null;
 
     /**
      * @var bool Whether this block type is allowed to be used.
@@ -313,6 +324,14 @@ class BlockType extends Model implements FieldLayoutProviderInterface, GqlInline
     /**
      * @inheritdoc
      */
+    public function getColor(): ?Color
+    {
+        return $this->color;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getFieldContext(): string
     {
         return 'global';
@@ -357,6 +376,7 @@ class BlockType extends Model implements FieldLayoutProviderInterface, GqlInline
             'enabled' => $this->enabled,
             'iconFilename' => $this->iconFilename ?? '',
             'icon' => $iconData,
+            'color' => $this->color?->value,
             'minBlocks' => (int)$this->minBlocks,
             'maxBlocks' => (int)$this->maxBlocks,
             'minChildBlocks' => (int)$this->minChildBlocks,
