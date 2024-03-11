@@ -32,6 +32,7 @@ use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\enums\AttributeStatus;
+use craft\enums\PropagationMethod;
 use craft\errors\InvalidFieldException;
 use craft\fields\conditions\EmptyFieldConditionRule;
 use craft\helpers\ArrayHelper;
@@ -60,15 +61,6 @@ class Field extends BaseField implements
     ElementContainerFieldInterface,
     GqlInlineFragmentFieldInterface
 {
-    public const PROPAGATION_METHOD_NONE = 'none';
-    public const PROPAGATION_METHOD_SITE_GROUP = 'siteGroup';
-    public const PROPAGATION_METHOD_LANGUAGE = 'language';
-    /**
-     * @since 2.12.0
-     */
-    public const PROPAGATION_METHOD_CUSTOM = 'custom';
-    public const PROPAGATION_METHOD_ALL = 'all';
-
     /**
      * @inheritdoc
      */
@@ -166,27 +158,27 @@ class Field extends BaseField implements
     private ?array $_blockTypeFields = null;
 
     /**
-     * @var string Propagation method
+     * @var PropagationMethod
      *
      * This will be set to one of the following:
      *
-     * - `none` – Only save blocks in the site they were created in
-     * - `siteGroup` – Save blocks to other sites in the same site group
-     * - `language` – Save blocks to other sites with the same language
-     * - `all` – Save blocks to all sites supported by the owner element
-     * - `custom` – Save blocks to sites depending on the [[propagationKeyFormat]] value
+     * - `PropagationMethod::None` – Only save blocks in the site they were created in
+     * - `PropagationMethod::SiteGroup` – Save blocks to other sites in the same site group
+     * - `PropagationMethod::Language` – Save blocks to other sites with the same language
+     * - `PropagationMethod::All` – Save blocks to all sites supported by the owner element
+     * - `PropagationMethod::Custom` – Save blocks to sites depending on the [[propagationKeyFormat]] value
      *
      * @since 2.4.0
      */
-    public string $propagationMethod = self::PROPAGATION_METHOD_ALL;
+    public PropagationMethod $propagationMethod = PropagationMethod::All;
 
     /**
-     * @var string|null The old propagation method for this field
+     * @var PropagationMethod|null The old propagation method for this field
      */
-    private ?string $_oldPropagationMethod = null;
+    private ?PropagationMethod $_oldPropagationMethod = null;
 
     /**
-     * @var string|null The field’s propagation key format, if [[propagationMethod]] is `custom`
+     * @var string|null The field’s propagation key format, if [[propagationMethod]] is `PropagationMethod::Custom`
      * @since 2.12.0
      */
     public ?string $propagationKeyFormat = null;
@@ -238,15 +230,6 @@ class Field extends BaseField implements
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
-        $rules[] = [
-            ['propagationMethod'], 'in', 'range' => [
-                self::PROPAGATION_METHOD_NONE,
-                self::PROPAGATION_METHOD_SITE_GROUP,
-                self::PROPAGATION_METHOD_LANGUAGE,
-                self::PROPAGATION_METHOD_CUSTOM,
-                self::PROPAGATION_METHOD_ALL,
-            ],
-        ];
         $rules[] = [['blockTypes'], ArrayValidator::class, 'min' => 1, 'skipOnEmpty' => false];
         $rules[] = [['minBlocks', 'maxBlocks', 'maxTopBlocks', 'minLevels', 'maxLevels'], 'integer', 'min' => 0];
 
@@ -812,7 +795,7 @@ class Field extends BaseField implements
      */
     public function getIsTranslatable(?ElementInterface $element = null): bool
     {
-        return $this->propagationMethod !== self::PROPAGATION_METHOD_ALL;
+        return $this->propagationMethod !== PropagationMethod::All;
     }
 
     /**
@@ -1012,7 +995,8 @@ class Field extends BaseField implements
         Neo::$plugin->fields->save($this);
 
         if ($this->oldSettings !== null) {
-            $oldPropagationMethod = $this->oldSettings['propagationMethod'] ?? self::PROPAGATION_METHOD_ALL;
+            $oldPropagationMethod = PropagationMethod::tryFrom($this->oldSettings['propagationMethod'] ?? '')
+                ?? PropagationMethod::All;
             $oldPropagationKeyFormat = $this->oldSettings['propagationKeyFormat'] ?? null;
 
             if ($this->propagationMethod !== $oldPropagationMethod || $this->propagationKeyFormat !== $oldPropagationKeyFormat) {

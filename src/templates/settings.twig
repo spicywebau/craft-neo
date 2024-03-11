@@ -83,14 +83,15 @@
             { value: 'all', label: 'Save blocks to all sites the owner element is saved in' | t('neo') },
             { value: 'custom', label: 'Custom…'|t('app') },
         ],
-        value: neoField.propagationMethod,
+        value: neoField.propagationMethod.value,
         toggle: true,
         targetPrefix: 'propagation-method-',
+        errors: neoField.getErrors('propagationMethod'),
     }) }}
 
     {% tag 'div' with {
         id: 'propagation-method-custom',
-        class: neoField.propagationMethod != 'custom' ? 'hidden' : null,
+        class: neoField.propagationMethod.value != 'custom' ? 'hidden' : null,
     } %}
         {{ forms.textField({
             label: 'Propagation Key Format'|t('app'),
@@ -103,12 +104,12 @@
         }) }}
     {% endtag %}
 
-    {% if neoField.id and neoField.propagationMethod != 'none' %}
+    {% if neoField.id and neoField.propagationMethod.value != 'none' %}
         {% js %}
             (function() {
                 var showingWarning = false;
                 $("#{{ 'propagationMethod'|namespaceInputId }}").on('change', function() {
-                    if ($(this).val() !== '{{ neoField.propagationMethod }}') {
+                    if ($(this).val() !== '{{ neoField.propagationMethod.value }}') {
                         if (!showingWarning) {
                             $('<p/>', {'class': 'warning', text: "{{ 'Applying this change to existing blocks can take some time.'|t('app')|e('js') }}"})
                                 .appendTo($("#{{ 'propagationMethod-field'|namespaceInputId }}"));

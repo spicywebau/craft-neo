@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Removed
+- Removed `benf\neo\Field::PROPAGATION_METHOD_ALL`; use `craft\enums\PropagationMethod::All` instead
+- Removed `benf\neo\Field::PROPAGATION_METHOD_CUSTOM`; use `craft\enums\PropagationMethod::Custom` instead
+- Removed `benf\neo\Field::PROPAGATION_METHOD_LANGUAGE`; use `craft\enums\PropagationMethod::Language` instead
+- Removed `benf\neo\Field::PROPAGATION_METHOD_NONE`; use `craft\enums\PropagationMethod::None` instead
+- Removed `benf\neo\Field::PROPAGATION_METHOD_SITE_GROUP`; use `craft\enums\PropagationMethod::SiteGroup` instead
+
 ## 5.0.0-beta.1 - 2024-03-10
 
 ### Added

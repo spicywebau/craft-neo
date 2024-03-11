@@ -16,6 +16,7 @@ use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\ElementCollection;
+use craft\enums\PropagationMethod;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
@@ -339,7 +340,7 @@ class Fields extends Component
             }
 
             if (
-                $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL &&
+                $field->propagationMethod !== PropagationMethod::All &&
                 ($owner->propagateAll || !empty($owner->newSiteIds))
             ) {
                 $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
@@ -541,7 +542,7 @@ class Fields extends Component
         }
 
         // Duplicate blocks for other sites as well?
-        if ($checkOtherSites && $field->propagationMethod !== Field::PROPAGATION_METHOD_ALL) {
+        if ($checkOtherSites && $field->propagationMethod !== PropagationMethod::All) {
             // Find the target's site IDs that *aren't* supported by this site's Neo blocks
             $targetSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($target), 'siteId');
             $fieldSiteIds = $this->getSupportedSiteIds($field->propagationMethod, $target, $field->propagationKeyFormat);
@@ -908,14 +909,14 @@ class Fields extends Component
     /**
      * Returns the site IDs that are supported by Neo blocks for the given propagation method and owner element.
      *
-     * @param string $propagationMethod
+     * @param PropagationMethod $propagationMethod
      * @param ElementInterface $owner
      * @param string|null $propagationKeyFormat
      * @return int[]
      * @throws
      * @since 2.5.10
      */
-    public function getSupportedSiteIds(string $propagationMethod, ElementInterface $owner, ?string $propagationKeyFormat = null): array
+    public function getSupportedSiteIds(PropagationMethod $propagationMethod, ElementInterface $owner, ?string $propagationKeyFormat = null): array
     {
         /** @var Element $owner */
         /** @var Site[] $allSites */
@@ -923,7 +924,7 @@ class Fields extends Component
         $ownerSiteIds = ArrayHelper::getColumn(ElementHelper::supportedSitesForElement($owner), 'siteId');
         $siteIds = [];
 
-        if ($propagationMethod === Field::PROPAGATION_METHOD_CUSTOM && $propagationKeyFormat !== null) {
+        if ($propagationMethod === PropagationMethod::Custom && $propagationKeyFormat !== null) {
             $view = Craft::$app->getView();
             $elementsService = Craft::$app->getElements();
             $propagationKey = $view->renderObjectTemplate($propagationKeyFormat, $owner);
@@ -931,16 +932,16 @@ class Fields extends Component
 
         foreach ($ownerSiteIds as $siteId) {
             switch ($propagationMethod) {
-                case Field::PROPAGATION_METHOD_NONE:
+                case PropagationMethod::None:
                     $include = $siteId == $owner->siteId;
                     break;
-                case Field::PROPAGATION_METHOD_SITE_GROUP:
+                case PropagationMethod::SiteGroup:
                     $include = $allSites[$siteId]->groupId == $allSites[$owner->siteId]->groupId;
                     break;
-                case Field::PROPAGATION_METHOD_LANGUAGE:
+                case PropagationMethod::Language:
                     $include = $allSites[$siteId]->language == $allSites[$owner->siteId]->language;
                     break;
-                case Field::PROPAGATION_METHOD_CUSTOM:
+                case PropagationMethod::Custom:
                     if (!isset($propagationKey)) {
                         $include = true;
                     } else {
@@ -1023,7 +1024,7 @@ class Fields extends Component
         $supportedSites = $this->getSupportedSiteIds($field->propagationMethod, $owner, $field->propagationKeyFormat);
         $supportedSitesCount = count($supportedSites);
 
-        if ($supportedSitesCount > 1 && $field->propagationMethod !== Field::PROPAGATION_METHOD_NONE) {
+        if ($supportedSitesCount > 1 && $field->propagationMethod !== PropagationMethod::None) {
             foreach ($supportedSites as $site) {
                 $this->_deleteNeoBlocksAndStructures($field, $owner, $except, $site);
             }
