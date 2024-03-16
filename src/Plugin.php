@@ -40,6 +40,7 @@ use craft\gatsbyhelper\services\Deltas;
 use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\models\FieldLayout;
+use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Gc;
 use craft\services\Gql;
@@ -111,6 +112,7 @@ class Plugin extends BasePlugin
         Craft::$app->view->registerTwigExtension(new TwigExtension());
 
         $this->_registerFieldType();
+        $this->_registerElementType();
         $this->_registerTwigVariable();
         $this->_registerGqlType();
         $this->_registerProjectConfigApply();
@@ -152,6 +154,16 @@ class Plugin extends BasePlugin
     {
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Field::class;
+        });
+    }
+
+    /**
+     * Registers the Neo block element type.
+     */
+    private function _registerElementType(): void
+    {
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = Block::class;
         });
     }
 
