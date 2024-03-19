@@ -10,8 +10,8 @@ additional_hostnames: []
 additional_fqdns:
   - "craft-neo.test"
 database:
-  type: mariadb
-  version: "10.4"
+  type: mysql
+  version: "8.0"
 nfs_mount_enabled: false
 mutagen_enabled: false
 use_dns_when_possible: true
