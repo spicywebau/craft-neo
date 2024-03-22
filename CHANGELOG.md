@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where soft-deleted Neo blocks that were not deleted with their owner element were not being cleaned up by Craft garbage collection
+- Fixed a bug where Neo blocks that were initially created for a newly-added site within a draft could be lost when applying the draft
 
 ## 4.0.7 - 2024-03-09
 

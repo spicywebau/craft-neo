@@ -448,6 +448,7 @@ class Fields extends Component
         $transaction = Craft::$app->getDb()->beginTransaction();
 
         try {
+            $setCanonicalId = $target->getIsDerivative() && $target->getCanonical()->id !== $target->id;
             $newBlocks = [];
             $newBlocksTaskData = [];
 
@@ -458,7 +459,7 @@ class Fields extends Component
                 $collapsed = $block->getCollapsed();
                 $newBlock = null;
                 $newAttributes = [
-                    'canonicalId' => $target->getIsDerivative() ? $block->id : null,
+                    'canonicalId' => $setCanonicalId ? $block->id : null,
                     'primaryOwnerId' => $target->id,
                     'owner' => $target,
                     'siteId' => $target->siteId,
