@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.8 - 2024-03-22
 
 ### Fixed
 - Fixed a bug where soft-deleted Neo blocks that were not deleted with their owner element were not being cleaned up by Craft garbage collection
