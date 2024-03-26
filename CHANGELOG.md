@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when changing a Neo field's propagation method, if a Neo block structure for that field exists for an owner element that no longer has the field on its field layout
+
 ## 4.0.8 - 2024-03-22
 
 ### Fixed

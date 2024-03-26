@@ -7,6 +7,7 @@ use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
 use craft\db\Query;
+use craft\errors\InvalidFieldException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\i18n\Translation;
@@ -54,16 +55,22 @@ class ResaveFieldBlockStructures extends BaseJob
                 'status' => null,
                 'trashed' => null,
             ]);
-            $supportedSiteIds = $this->_supportedSiteIds($owner);
+            $supportedSiteIds = $owner !== null
+                ? $this->_supportedSiteIds($owner)
+                : [];
             $blocks = [];
 
             // Get the blocks with the existing structure data first
             foreach ($supportedSiteIds as $siteId) {
-                $blockQuery = clone $owner->getFieldValue($field->handle);
-                $blocks[$siteId] = $blockQuery
-                    ->status(null)
-                    ->siteId($siteId)
-                    ->all();
+                try {
+                    $blocks[$siteId] = (clone $owner->getFieldValue($field->handle))
+                        ->status(null)
+                        ->siteId($siteId)
+                        ->all();
+                } catch (InvalidFieldException $e) {
+                    // Field has since been deleted from the owner's field layout
+                    continue;
+                }
 
                 // Ensure any passed-in structure data is prioritised
                 foreach ($blocks[$siteId] as $block) {
@@ -79,6 +86,10 @@ class ResaveFieldBlockStructures extends BaseJob
 
             // Now it's safe to recreate the block structures
             foreach ($supportedSiteIds as $siteId) {
+                if (!isset($blocks[$siteId])) {
+                    continue;
+                }
+
                 $oldBlockStructures = Neo::$plugin->blocks->getStructures([
                     'fieldId' => $this->fieldId,
                     'ownerId' => $ownerId,
