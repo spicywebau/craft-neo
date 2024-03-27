@@ -27,6 +27,17 @@
 - Removed `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`; new blocks are now always lazy loaded
 - Removed `benf\neo\services\Blocks::renderTabs()`
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when changing a Neo field's propagation method, if a Neo block structure for that field exists for an owner element that no longer has the field on its field layout
+
+## 4.0.8 - 2024-03-22
+
+### Fixed
+- Fixed a bug where soft-deleted Neo blocks that were not deleted with their owner element were not being cleaned up by Craft garbage collection
+- Fixed a bug where Neo blocks that were initially created for a newly-added site within a draft could be lost when applying the draft
+
 ## 4.0.7 - 2024-03-09
 
 ### Fixed
@@ -865,6 +876,11 @@
 
 ### Fixed
 - Fixed a bug where it was possible to create a Neo field with no block types
+
+## 2.13.21 - 2024-03-21
+
+### Fixed
+- Fixed an error that could occur during Craft garbage collection if the `neoblockstructures` table contained more than 65535 rows
 
 ## 2.13.20 - 2024-02-23
 
