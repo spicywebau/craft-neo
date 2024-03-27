@@ -72,6 +72,10 @@ The following restrictions exist on using options:
 - At most one of `--set-group-child-block-types` and `--unset-group-child-block-types` may be used
 - At most one of `--set-child-blocks` and `--unset-child-blocks` may be used
 
+## `neo/block-types/fix-field-layouts`
+
+Ensures each block type has a unique field layout. Checks all block types and has no options.
+
 ## `neo/fields/reapply-propagation-method`
 
 This command reapplies the propagation methods for Neo fields' blocks, optionally on a per-block-structure basis.

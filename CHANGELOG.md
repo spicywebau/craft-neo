@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added `benf\neo\console\controllers\BlockTypesController::actionFixFieldLayouts()` (`php craft neo/block-types/fix-field-layouts` console command)
+
 ### Fixed
 - Fixed an error that could occur when changing a Neo field's propagation method, if a Neo block structure for that field exists for an owner element that no longer has the field on its field layout
 
