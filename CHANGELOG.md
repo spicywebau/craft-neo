@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where content would be lost when upgrading from Craft 4
+
 ## 5.0.0-beta.2 - 2024-03-11
 
 ### Added
