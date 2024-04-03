@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-beta.3 - 2024-04-03
+
+> {note} See also the release notes for [4.0.8](https://github.com/spicywebau/craft-neo/blob/5.x/CHANGELOG.md#408---2024-03-22) and [4.1.0](https://github.com/spicywebau/craft-neo/blob/5.x/CHANGELOG.md#410---2024-04-03).
 
 ### Fixed
 - Fixed a bug where content would be lost when upgrading from Craft 4
