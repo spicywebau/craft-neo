@@ -27,10 +27,15 @@
 - Removed `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`; new blocks are now always lazy loaded
 - Removed `benf\neo\services\Blocks::renderTabs()`
 
-## Unreleased
+## 4.1.0 - 2024-04-03
+
+### Added
+- Added `benf\neo\console\controllers\BlockTypesController::actionFixFieldLayouts()` (`php craft neo/block-types/fix-field-layouts` console command)
+- Added `benf\neo\console\controllers\FieldsController::actionFixBlockStructureSiteIds()` (`php craft neo/fields/fix-block-structure-site-ids` console command)
 
 ### Fixed
 - Fixed an error that could occur when changing a Neo field's propagation method, if a Neo block structure for that field exists for an owner element that no longer has the field on its field layout
+- Fixed a bug where deleting an entry for a site wasn't propagating to Neo blocks for that entry/site
 
 ## 4.0.8 - 2024-03-22
 

@@ -1216,6 +1216,22 @@ class Field extends BaseField implements
     /**
      * @inheritdoc
      */
+    public function beforeElementDeleteForSite(ElementInterface $element): bool
+    {
+        $elementsService = Craft::$app->getElements();
+        Block::find()
+            ->primaryOwnerId($element->id)
+            ->status(null)
+            ->siteId($element->siteId)
+            ->collect()
+            ->each(fn($block) => $elementsService->deleteElementForSite($block));
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function afterElementRestore(ElementInterface $element): void
     {
         $elementsService = Craft::$app->getElements();

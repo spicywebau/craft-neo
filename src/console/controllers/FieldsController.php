@@ -10,6 +10,7 @@ use craft\console\Controller;
 use craft\db\Query;
 use craft\db\Table;
 use craft\enums\PropagationMethod;
+use craft\helpers\Db;
 use craft\helpers\Queue;
 use craft\i18n\Translation;
 use craft\queue\jobs\ApplyNewPropagationMethod;
@@ -54,6 +55,24 @@ class FieldsController extends Controller
         }
 
         return $options;
+    }
+
+    /**
+     * Changes `null` block structure site IDs to the primary site ID.
+     *
+     * @return int
+     * @since 4.1.0
+     */
+    public function actionFixBlockStructureSiteIds(): int
+    {
+        Db::update('{{%neoblockstructures}}', [
+            'siteId' => Craft::$app->getSites()->getPrimarySite()->id,
+        ], [
+            'siteId' => null,
+        ]);
+        $this->stdout('Done.' . PHP_EOL);
+
+        return ExitCode::OK;
     }
 
     /**

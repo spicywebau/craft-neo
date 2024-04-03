@@ -2,6 +2,7 @@
 
 namespace benf\neo\console\controllers;
 
+use benf\neo\elements\Block;
 use benf\neo\errors\BlockTypeNotFoundException;
 use benf\neo\models\BlockType;
 use benf\neo\Plugin as Neo;
@@ -10,6 +11,7 @@ use craft\console\Controller;
 use craft\db\Query;
 use craft\helpers\App;
 use craft\helpers\Console;
+use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\StringHelper;
 use yii\console\ExitCode;
@@ -316,6 +318,65 @@ class BlockTypesController extends Controller
                 'neo.blockTypes.' . $blockType->uid . '.iconFilename',
                 $assetIdFilenameMap[$blockType->iconId]
             );
+        }
+
+        $this->stdout('Done.' . PHP_EOL);
+
+        return ExitCode::OK;
+    }
+
+    /**
+     * Ensures each block type has a unique field layout.
+     *
+     * @return int
+     * @since 4.1.0
+     */
+    public function actionFixFieldLayouts(): int
+    {
+        $fieldsService = Craft::$app->getFields();
+        $projectConfig = Craft::$app->getProjectConfig();
+        $processedFieldLayouts = [];
+        $newLayouts = [];
+
+        foreach (Neo::$plugin->blockTypes->getAllBlockTypes() as $blockType) {
+            if ($blockType->fieldLayoutId === null) {
+                continue;
+            }
+
+            if (!isset($processedFieldLayouts[$blockType->fieldLayoutId])) {
+                $processedFieldLayouts[$blockType->fieldLayoutId] = true;
+                continue;
+            }
+
+            $layout = $blockType->getFieldLayout();
+
+            // Reset all tab/element UUIDs
+            foreach ($layout->tabs as $tab) {
+                $tab->uid = StringHelper::UUID();
+
+                foreach ($tab->elements as $element) {
+                    $element->uid = StringHelper::UUID();
+                }
+            }
+
+            $newLayouts[$blockType->uid] = [
+                StringHelper::UUID(),
+                $layout->getConfig(),
+            ];
+        }
+
+        // Clear out the duplicate layout IDs
+        Db::update('{{%neoblocktypes}}', [
+            'fieldLayoutId' => null,
+        ], [
+            'uid' => array_keys($newLayouts),
+        ]);
+
+        // Set the new layout in the project config
+        foreach ($newLayouts as $blockTypeUuid => $layoutData) {
+            $projectConfig->set("neoBlockTypes.$blockTypeUuid.fieldLayouts", [
+                $layoutData[0] => $layoutData[1],
+            ]);
         }
 
         $this->stdout('Done.' . PHP_EOL);
