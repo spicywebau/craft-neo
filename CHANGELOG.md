@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-beta.4 - 2024-04-03
 
 ### Fixed
 - Fixed a bug where action menus would not open on new blocks that contained at least one dropdown field
