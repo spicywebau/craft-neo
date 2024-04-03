@@ -116,7 +116,7 @@ class Input extends Controller
                 $block->setFieldValues($rawBlock['content']);
             }
 
-            Craft::$app->getElements()->saveElement($block);
+            Craft::$app->getElements()->saveElement($block, false);
 
             $html = $view->renderTemplate('neo/block.twig', [
                 'handle' => $namespace ?? $field->handle,
