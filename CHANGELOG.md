@@ -8,6 +8,7 @@
 
 ### Fixed
 - Fixed an error that could occur when changing a Neo field's propagation method, if a Neo block structure for that field exists for an owner element that no longer has the field on its field layout
+- Fixed a bug where deleting an entry for a site wasn't propagating to Neo blocks for that entry/site
 
 ## 4.0.8 - 2024-03-22
 
