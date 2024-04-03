@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.1.0 - 2024-04-03
 
 ### Added
 - Added `benf\neo\console\controllers\BlockTypesController::actionFixFieldLayouts()` (`php craft neo/block-types/fix-field-layouts` console command)
