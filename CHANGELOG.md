@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when validation errors occurred on new block types when trying to save a Neo field, where the new block types' settings and field layout designer would not load when selected
+
 ## 4.1.0 - 2024-04-03
 
 ### Added

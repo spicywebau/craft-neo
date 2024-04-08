@@ -450,7 +450,7 @@ export default Garnish.Base.extend({
                 })
 
                 this.$blockTypesContainer.find('.type-spinner').remove()
-                this._initBlockType(namespace, settings, fieldLayout, selectedIndex)
+                this._initBlockType(namespace, settings, fieldLayout, selectedIndex, true)
                 resolve()
               })
               .catch(reject)
@@ -460,12 +460,13 @@ export default Garnish.Base.extend({
     }
   },
 
-  _initBlockType (namespace, settings, fieldLayout, index) {
+  _initBlockType (namespace, settings, fieldLayout, index, alreadyLoaded = false) {
     const blockType = new BlockType({
       namespace,
       field: this,
       settings,
-      fieldLayout
+      fieldLayout,
+      alreadyLoaded
     })
 
     this.addItem(blockType, index)
