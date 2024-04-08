@@ -3,9 +3,9 @@
 ## 5.0.0-beta.5 - 2024-04-08
 
 ### Added
-- Removed `benf\neo\services\Conversion::convertBlockToEntry()`
-- Removed `benf\neo\services\Conversion::convertBlockTypeToEntryType()`
-- Removed `benf\neo\services\Conversion::convertBlockTypesToEntryTypes()`
+- Added `benf\neo\services\Conversion::convertBlockToEntry()`
+- Added `benf\neo\services\Conversion::convertBlockTypeToEntryType()`
+- Added `benf\neo\services\Conversion::convertBlockTypesToEntryTypes()`
 
 ### Removed
 - Removed `benf\neo\services\Conversion::convertBlockToToMatrix()`
