@@ -6,7 +6,8 @@ import BlockTypeFieldLayout from './BlockTypeFieldLayout'
 
 const _defaults = {
   namespace: [],
-  fieldLayout: null
+  fieldLayout: null,
+  alreadyLoaded: false
 }
 
 export default Item.extend({
@@ -23,6 +24,7 @@ export default Item.extend({
     this._templateNs = NS.parse(settings.namespace)
     this._field = settings.field
     this._fieldLayout = settings.fieldLayout
+    this._loaded = settings.alreadyLoaded
     const sidebarItem = this.getField()?.$sidebarContainer.find(`[data-neo-bt="container.${this.getId()}`)
 
     if (sidebarItem?.length > 0) {
@@ -36,11 +38,6 @@ export default Item.extend({
     this.$handleText = $neo.filter('[data-neo-bt="text.handle"]')
     this.$moveButton = $neo.filter('[data-neo-bt="button.move"]')
     this.$actionsButton = $neo.filter('[data-neo-bt="button.actions"]')
-
-    // If new block type, set settings / field layout designer as already loaded
-    if (/^new([0-9]+)$/.test(String(this.getId()))) {
-      this._loaded = true
-    }
 
     // Set up the actions menu
     this.$actionsButton.menubtn()

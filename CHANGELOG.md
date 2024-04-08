@@ -39,6 +39,11 @@
 - Removed `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`; new blocks are now always lazy loaded
 - Removed `benf\neo\services\Blocks::renderTabs()`
 
+## 4.1.1 - 2024-04-08
+
+### Fixed
+- Fixed a bug when validation errors occurred on new block types when trying to save a Neo field, where the new block types' settings and field layout designer would not load when selected
+
 ## 4.1.0 - 2024-04-03
 
 ### Added
