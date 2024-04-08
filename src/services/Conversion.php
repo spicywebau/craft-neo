@@ -4,18 +4,18 @@ namespace benf\neo\services;
 
 use benf\neo\elements\Block;
 use benf\neo\Field;
-use benf\neo\models\BlockType as NeoBlockType;
+use benf\neo\models\BlockType;
 use benf\neo\Plugin as Neo;
 use Craft;
 use craft\db\Query;
-use craft\elements\MatrixBlock;
-use craft\fieldlayoutelements\CustomField;
+use craft\db\Table;
+use craft\elements\Entry;
 use craft\fields\Matrix as MatrixField;
 use craft\helpers\ArrayHelper;
-use craft\models\MatrixBlockType;
-use verbb\supertable\elements\db\SuperTableBlockQuery;
-use verbb\supertable\fields\SuperTableField;
-use verbb\supertable\models\SuperTableBlockTypeModel as SuperTableBlockType;
+use craft\helpers\StringHelper;
+use craft\models\EntryType;
+use craft\models\FieldLayout;
+use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -41,6 +41,7 @@ class Conversion extends Component
      */
     public function convertFieldToMatrix(Field $neoField, bool $deleteOldBlockTypesAndGroups = true): bool
     {
+        $elementsService = Craft::$app->getElements();
         $fieldsService = Craft::$app->getFields();
         $globalFields = [];
 
@@ -52,25 +53,25 @@ class Conversion extends Component
         $transaction = $dbService->beginTransaction();
 
         try {
-            // Save a mapping of block type handles to their Neo ID for use later on when migrating content.
+            // Save a mapping of block type UIDs to their Neo ID for use later on when migrating content.
             $neoBlockTypeIds = [];
             $neoBlockTypes = $neoField->getBlockTypes();
             $neoBlockTypeGroups = $neoField->getGroups();
 
             foreach ($neoBlockTypes as $neoBlockType) {
-                $neoBlockTypeIds[$neoBlockType->handle] = $neoBlockType->id;
+                $neoBlockTypeIds[$neoBlockType->uid] = $neoBlockType->id;
             }
 
             $matrixField = new MatrixField();
             $matrixField->id = $neoField->id;
-            $matrixField->groupId = $neoField->groupId;
             $matrixField->name = $neoField->name;
             $matrixField->handle = $neoField->handle;
-            $matrixBlockTypes = $this->getNewBlockTypesData($neoBlockTypes);
-            $matrixField->setBlockTypes($matrixBlockTypes);
+            $matrixEntryTypes = $this->convertBlockTypesToEntryTypes($neoBlockTypes);
+            $matrixField->setEntryTypes($matrixEntryTypes);
             $matrixField->minEntries = (int)$neoField->minBlocks;
             $matrixField->maxEntries = (int)$neoField->maxBlocks;
             $matrixField->propagationMethod = $neoField->propagationMethod;
+            $matrixField->viewMode = $matrixField::VIEW_MODE_BLOCKS;
             $matrixField->uid = $neoField->uid;
 
             if (!$fieldsService->saveField($matrixField, false)) {
@@ -78,11 +79,11 @@ class Conversion extends Component
             }
 
             $neoBlocks = [];
-            $matrixBlocks = [];
-            $matrixBlockTypeIdsByBlockId = [];
-            $neoToMatrixBlockTypeIds = [];
-            $neoToMatrixBlockIds = [];
-            $matrixBlockTypeFieldIds = [];
+            $matrixEntries = [];
+            $matrixEntryTypeIdsByEntryId = [];
+            $neoToMatrixTypeIds = [];
+            $neoToMatrixElementIds = [];
+            $matrixEntryTypeFieldIds = [];
             $newRelations = [];
 
             // Find all blocks for this field from each site.
@@ -104,76 +105,72 @@ class Conversion extends Component
 
             foreach ($neoBlocks as $neoBlock) {
                 $neoBlockType = $neoBlock->getType();
-                $matrixBlockType = ArrayHelper::firstWhere($matrixField->getBlockTypes(), 'handle', $neoBlockType->handle);
-                $matrixBlock = $this->convertBlockToMatrix($neoBlock, $matrixBlockType);
+                $matrixEntryType = ArrayHelper::firstWhere($matrixField->getEntryTypes(), 'handle', $neoBlockType->handle);
+                $matrixEntry = $this->convertBlockToEntry($neoBlock, $matrixEntryType);
 
-                // The Neo block's block type ID is added here so it can be grabbed (and replaced with the Matrix block
-                // type ID) when looping over these Matrix blocks later on.
-                $matrixBlock->id = $neoBlock->id;
-                $matrixBlock->typeId = $neoBlock->typeId;
-                $matrixBlocks[] = $matrixBlock;
+                // The Neo block's block type ID is added here so it can be grabbed (and replaced with the Matrix entry
+                // type ID) when looping over these Matrix entries later on
+                $matrixEntry->id = $neoBlock->id;
+                $matrixEntry->typeId = $neoBlock->typeId;
+                $matrixEntries[] = $matrixEntry;
             }
 
-            // Create a mapping of Neo block type IDs to Matrix block type IDs. This is used below to set the
-            // correct block type to a converted Matrix block.
-            foreach ($matrixField->getBlockTypes() as $matrixBlockType) {
-                $neoBlockTypeId = $neoBlockTypeIds[$matrixBlockType->handle];
-                $neoToMatrixBlockTypeIds[$neoBlockTypeId] = $matrixBlockType->id;
+            // Create a mapping of Neo block type IDs to Matrix entry type IDs
+            // This is used below to set the correct entry type to a converted Matrix entry
+            foreach ($matrixField->getEntryTypes() as $matrixEntryType) {
+                $neoBlockTypeId = $neoBlockTypeIds[$matrixEntryType->uid];
+                $neoToMatrixTypeIds[$neoBlockTypeId] = $matrixEntryType->id;
 
                 // Create mapping from newly saved block type field handles to their IDs.
                 // This is so that relations can be updated later on with the new field ID.
-                $matrixFields = array_map(function($field) {
-                    return $field->getField();
-                }, array_filter($matrixBlockType->getFieldLayout()->getTabs()[0]->elements, function($field) {
-                    return $field instanceof CustomField;
-                }));
+                $matrixFields = $matrixEntryType->getFieldLayout()->getCustomFields();
                 $fieldIds = [];
 
                 foreach ($matrixFields as $matrixFieldLayoutField) {
                     $fieldIds[$matrixFieldLayoutField->handle] = $matrixFieldLayoutField->id;
                 }
 
-                $matrixBlockTypeFieldIds[$matrixBlockType->id] = $fieldIds;
+                $matrixEntryTypeFieldIds[$matrixEntryType->id] = $fieldIds;
             }
 
-            foreach ($matrixBlocks as $matrixBlock) {
-                $neoBlockId = $matrixBlock->id;
+            foreach ($matrixEntries as $matrixEntry) {
+                $neoBlockId = $matrixEntry->id;
 
-                // Ensure the block doesn't have an ID.
-                $matrixBlock->id = null;
+                // Ensure the entry doesn't have an ID
+                $matrixEntry->id = null;
 
-                // Assign the correct block type ID now that it exists (from saving the field above).
-                $neoBlockTypeId = $matrixBlock->typeId;
-                $matrixBlock->typeId = $neoToMatrixBlockTypeIds[$neoBlockTypeId];
+                // Assign the correct entry type ID now that it exists (from saving the field above)
+                $neoBlockTypeId = $matrixEntry->typeId;
+                $matrixEntry->typeId = $neoToMatrixTypeIds[$neoBlockTypeId];
 
-                if (!Craft::$app->getElements()->saveElement($matrixBlock, false)) {
-                    throw new Exception("Unable to save Matrix block");
+                if (!$elementsService->saveElement($matrixEntry, false)) {
+                    throw new Exception("Unable to save Matrix entry");
                 }
 
-                // Save the new Matrix block ID for updating the relations.
-                $neoToMatrixBlockIds[$neoBlockId] = $matrixBlock->id;
-                $matrixBlockTypeIdsByBlockId[$matrixBlock->id] = $matrixBlock->typeId;
+                // Save the new Matrix entry ID for updating the relations
+                $neoToMatrixElementIds[$neoBlockId] = $matrixEntry->id;
+                $matrixEntryTypeIdsByEntryId[$matrixEntry->id] = $matrixEntry->typeId;
             }
 
-            // Update the relations with the new Matrix block IDs (sourceId) and Matrix field IDs.
+            // Update the relations with the new Matrix entry IDs (sourceId) and Matrix field IDs
             $relations = (new Query())
                 ->select('fieldId, sourceId, sourceSiteId, targetId, sortOrder')
-                ->from('{{%relations}}')
-                ->where(['in', 'sourceId', array_keys($neoToMatrixBlockIds)])
+                ->from(Table::RELATIONS)
+                ->where(['in', 'sourceId', array_keys($neoToMatrixElementIds)])
                 ->all();
 
             if ($relations) {
                 foreach ($relations as $relation) {
                     $neoBlockId = $relation['sourceId'];
-                    $matrixBlockId = $neoToMatrixBlockIds[$neoBlockId];
-                    $matrixBlockTypeId = $matrixBlockTypeIdsByBlockId[$matrixBlockId];
+                    $matrixEntryId = $neoToMatrixElementIds[$neoBlockId];
+                    $matrixEntryTypeId = $matrixEntryTypeIdsByEntryId[$matrixEntryId];
                     $globalFieldId = $relation['fieldId'];
                     $globalField = $globalFields[$globalFieldId];
-                    $matrixFieldIds = $matrixBlockTypeFieldIds[$matrixBlockTypeId];
+                    $matrixFieldIds = $matrixEntryTypeFieldIds[$matrixEntryTypeId];
                     $matrixFieldId = $matrixFieldIds[$globalField->handle];
                     $newRelations[] = [
                         $matrixFieldId,
-                        $matrixBlockId,
+                        $matrixEntryId,
                         $relation['sourceSiteId'],
                         $relation['targetId'],
                         $relation['sortOrder'],
@@ -181,7 +178,7 @@ class Conversion extends Component
                 }
             }
 
-            $dbService->createCommand()->batchInsert('{{%relations}}', [
+            $dbService->createCommand()->batchInsert(Table::RELATIONS, [
                 'fieldId',
                 'sourceId',
                 'sourceSiteId',
@@ -211,185 +208,84 @@ class Conversion extends Component
     }
 
     /**
-     * Converts Neo block types into Matrix block types.
+     * Converts Neo block types into entry types.
      *
-     * @param NeoBlockType[] $neoBlockTypes
-     * @param Field|null $neoField
-     * @return MatrixBlockType[]
+     * @param BlockType[] $blockTypes
+     * @return EntryType[]
      */
-    public function convertBlockTypesToMatrix(array $neoBlockTypes, ?Field $neoField = null): array
+    public function convertBlockTypesToEntryTypes(array $blockTypes): array
     {
-        $matrixBlockTypes = [];
-        $ids = 1;
-
-        foreach ($neoBlockTypes as $neoBlockType) {
-            $matrixBlockType = $this->convertBlockTypeToMatrix($neoBlockType, $neoField);
-            $matrixBlockType->id = 'new' . ($ids++);
-            $matrixBlockTypes[] = $matrixBlockType;
-        }
-
-        return $matrixBlockTypes;
+        return Collection::make($blockTypes)
+            ->map(fn($blockType) => $this->convertBlockTypeToEntryType($blockType))
+            ->all();
     }
 
     /**
-     * Converts a Neo block type to a Matrix block type.
+     * Converts a Neo block type to an entry type.
      *
-     * @param NeoBlockType $neoBlockType
-     * @param Field|null $field
-     * @return MatrixBlockType
+     * @param BlockType $blockType
+     * @return EntryType
      */
-    public function convertBlockTypeToMatrix(NeoBlockType $neoBlockType, Field $field = null): MatrixBlockType
+    public function convertBlockTypeToEntryType(BlockType $blockType): EntryType
     {
-        $matrixBlockType = new MatrixBlockType();
-        $matrixBlockType->fieldId = $field ? $field->id : $neoBlockType->fieldId;
-        $matrixBlockType->name = $neoBlockType->name;
-        $matrixBlockType->handle = $neoBlockType->handle;
+        $entriesService = Craft::$app->getEntries();
+        $fieldLayout = FieldLayout::createFromConfig($blockType->getFieldLayout()?->getConfig() ?? []);
 
-        $neoFieldLayout = $neoBlockType->getFieldLayout();
-        $neoBlockTypeFields = $neoFieldLayout->getCustomFields();
-        $matrixBlockTypeFields = [];
+        foreach ($fieldLayout->getTabs() as $tab) {
+            $tab->uid = StringHelper::UUID();
 
-        foreach ($neoBlockTypeFields as $neoBlockTypeField) {
-            $fieldType = get_class($neoBlockTypeField);
-
-            if (!in_array($fieldType, [MatrixField::class, Field::class])) {
-                $matrixBlockTypeField = clone $neoBlockTypeField;
-                $matrixBlockTypeField->id = null;
-                $matrixBlockTypeField->groupId = null;
-                $matrixBlockTypeField->context = null;
-                $matrixBlockTypeField->name = $neoBlockTypeField->name;
-                $matrixBlockTypeField->handle = $neoBlockTypeField->handle;
-                $matrixBlockTypeField->required = (bool)$neoBlockTypeField->required;
-                $matrixBlockTypeField->uid = null;
-
-                // Force disable translation on fields if the Neo field was also translatable
-                if ($field && $field->translatable) {
-                    $matrixBlockTypeField->translatable = false;
-                }
-
-                $matrixBlockTypeFields[] = $matrixBlockTypeField;
+            foreach ($tab->getElements() as $element) {
+                $element->uid = StringHelper::UUID();
             }
         }
 
-        $matrixBlockType->setFields($matrixBlockTypeFields);
+        $entryType = new EntryType();
+        $entryType->uid = $blockType->uid;
+        $entryType->setFieldLayout($fieldLayout);
+        $i = 0;
 
-        return $matrixBlockType;
+        do {
+            $entryType->name = $blockType->name . (++$i !== 1 ? " $i" : '');
+            $entryType->handle = $blockType->handle . ($i !== 1 ? "$i" : '');
+            $success = $entriesService->saveEntryType($entryType);
+        } while (!$success);
+
+        return $entryType;
     }
 
     /**
-     * Converts a Neo block to a Matrix block, retaining all content.
+     * Converts a Neo block to an entry, retaining all content.
      *
      * @param Block $neoBlock
-     * @param MatrixBlockType|null $matrixBlockType
-     * @return MatrixBlock
+     * @param EntryType|null $entryType
+     * @return Entry
      */
-    public function convertBlockToMatrix(Block $neoBlock, ?MatrixBlockType $matrixBlockType = null): MatrixBlock
+    public function convertBlockToEntry(Block $neoBlock, ?EntryType $entryType = null): Entry
     {
-        $blockFieldValues = [];
+        $fieldsService = Craft::$app->getFields();
+        $entryFieldValues = [];
 
         foreach ($neoBlock->getFieldValues() as $handle => $value) {
-            if ($value instanceof SuperTableBlockQuery && $matrixBlockType) {
-                // We need to get the Super Table field from the Matrix block type's field layout;
-                // Super Table serialised blocks identify their block type by ID (since Super Table
-                // fields have exactly one block type, they don't really need handles) so if we
-                // don't have the correct field from the correct layout, we have the incorrect ID.
-                $fieldLayoutFields = array_map(function($field) {
-                    return $field->getField();
-                }, array_filter($matrixBlockType->getFieldLayout()->getTabs()[0]->elements, function($field) {
-                    return $field instanceof CustomField;
-                }));
-                $superTableField = ArrayHelper::firstWhere($fieldLayoutFields, 'handle', $handle);
-
-                $value = array_map(function($block) use ($superTableField) {
-                    $block['type'] = $superTableField->getBlockTypes()[0]->id;
-                    return $block;
-                }, Craft::$app->getFields()->getFieldById($value->fieldId)->serializeValue($value));
+            if ($value instanceof EntryQuery && $value->fieldId) {
+                $value = $fieldsService->getFieldById($value->fieldId)->serializeValue($value);
             }
 
-            $blockFieldValues[$handle] = $value;
+            $entryFieldValues[$handle] = $value;
         }
 
-        $matrixBlock = new MatrixBlock();
-        $matrixBlock->id = null;
-        $matrixBlock->ownerId = $neoBlock->ownerId;
-        $matrixBlock->fieldId = $neoBlock->fieldId;
-        $matrixBlock->siteId = $neoBlock->siteId;
-        $matrixBlock->sortOrder = $neoBlock->sortOrder;
-        $matrixBlock->collapsed = $neoBlock->collapsed;
-        $matrixBlock->setFieldValues($blockFieldValues);
+        $entry = new Entry();
+        $entry->id = null;
+        $entry->ownerId = $neoBlock->ownerId;
+        $entry->fieldId = $neoBlock->fieldId;
+        $entry->siteId = $neoBlock->siteId;
+        $entry->sortOrder = $neoBlock->sortOrder;
+        $entry->collapsed = $neoBlock->collapsed;
+        $entry->setFieldValues($entryFieldValues);
 
-        if ($matrixBlockType) {
-            $matrixBlock->typeId = $matrixBlockType->id;
+        if ($entryType) {
+            $entry->typeId = $entryType->id;
         }
 
-        return $matrixBlock;
-    }
-
-    /**
-     * Creates Matrix block type data from Neo block types.
-     *
-     * @param NeoBlockType[] $oldBlockTypes
-     * @return MatrixBlockType[]
-     */
-    private function getNewBlockTypesData(array $oldBlockTypes): array
-    {
-        $newBlockTypes = [];
-        $ids = 1;
-
-        foreach ($oldBlockTypes as $oldBlockType) {
-            $newBlockTypes['new' . ($ids++)] = $this->getNewBlockTypeData($oldBlockType);
-        }
-
-        return $newBlockTypes;
-    }
-
-    /**
-     * Creates Matrix block type data from a Neo block type.
-     *
-     * @param NeoBlockType|MatrixBlockType|SuperTableBlockType $oldBlockType
-     * @return array The new block type data.
-     */
-    private function getNewBlockTypeData(NeoBlockType|MatrixBlockType|SuperTableBlockType $oldBlockType): array
-    {
-        $ids = 0;
-        $oldFieldLayout = $oldBlockType->getFieldLayout();
-        $newBlockType = [];
-
-        if (property_exists($oldBlockType, 'name')) {
-            $newBlockType['name'] = $oldBlockType->name;
-            $newBlockType['handle'] = $oldBlockType->handle;
-        }
-
-        if ($oldFieldLayout !== null) {
-            foreach ($oldFieldLayout->getCustomFields() as $field) {
-                $fieldType = get_class($field);
-                $neoContainsMatrix = $oldBlockType instanceof NeoBlockType && $field instanceof MatrixField;
-                $containsNeo = $field instanceof Field;
-                $containsItself = $oldBlockType instanceof MatrixBlockType && $field instanceof MatrixField ||
-                    class_exists(SuperTableField::class) && $oldBlockType instanceof SuperTableBlockType && $field instanceof SuperTableField;
-
-                if (!($neoContainsMatrix || $containsNeo || $containsItself)) {
-                    $newBlockType['fields']['new' . (++$ids)] = [
-                        'name' => $field->name,
-                        'handle' => $field->handle,
-                        'instructions' => $field->instructions,
-                        'required' => $field->required,
-                        'searchable' => $field->searchable,
-                        'type' => $fieldType,
-                        'translationMethod' => $field->translationMethod,
-                        'translationKeyFormat' => $field->translationKeyFormat,
-                        'typesettings' => $field->getSettings(),
-                        'width' => '100',
-                    ];
-
-                    if (in_array($fieldType, [MatrixField::class, SuperTableField::class])) {
-                        $newBlockType['fields']['new' . $ids]['typesettings']['contentTable'] = null;
-                        $newBlockType['fields']['new' . $ids]['typesettings']['blockTypes'] = $this->getNewBlockTypesData($field->getBlockTypes());
-                    }
-                }
-            }
-        }
-
-        return $newBlockType;
+        return $entry;
     }
 }

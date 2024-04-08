@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Removed `benf\neo\services\Conversion::convertBlockToEntry()`
+- Removed `benf\neo\services\Conversion::convertBlockTypeToEntryType()`
+- Removed `benf\neo\services\Conversion::convertBlockTypesToEntryTypes()`
+
+### Removed
+- Removed `benf\neo\services\Conversion::convertBlockToToMatrix()`
+- Removed `benf\neo\services\Conversion::convertBlockTypeToMatrix()`
+- Removed `benf\neo\services\Conversion::convertBlockTypesToMatrix()`
+
+### Fixed
+- Fixed Neo-to-Matrix conversion
+
 ## 5.0.0-beta.4 - 2024-04-03
 
 ### Fixed

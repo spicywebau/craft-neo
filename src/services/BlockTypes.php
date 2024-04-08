@@ -365,15 +365,20 @@ class BlockTypes extends Component
     public function delete(BlockType $blockType): bool
     {
         $projectConfig = Craft::$app->getProjectConfig();
-        $fieldSortOrderPath = 'neo.orders.' . $blockType->getConfig()['field'];
-        $fieldSortOrder = $projectConfig->get($fieldSortOrderPath);
-        $key = array_search($blockType->uid, $fieldSortOrder);
+        $fieldUid = $blockType->getConfig()['field'];
 
-        if ($key) {
-            unset($fieldSortOrder[$key]);
+        if ($fieldUid !== null) {
+            $fieldSortOrderPath = 'neo.orders.' . $blockType->getConfig()['field'];
+            $fieldSortOrder = $projectConfig->get($fieldSortOrderPath);
+            $key = array_search($blockType->uid, $fieldSortOrder);
+
+            if ($key) {
+                unset($fieldSortOrder[$key]);
+            }
+
+            $projectConfig->set($fieldSortOrderPath, array_values($fieldSortOrder));
         }
 
-        $projectConfig->set($fieldSortOrderPath, array_values($fieldSortOrder));
         $projectConfig->remove('neo.blockTypes.' . $blockType->uid);
 
         return true;

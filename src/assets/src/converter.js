@@ -5,7 +5,7 @@ import Garnish from 'garnish'
 const $fieldType = $('#type')
 const $fieldId = $('input[name="fieldId"]')
 
-if ($fieldType.val() === 'benf\\neo\\Field' && $fieldId.length > 0) {
+if ($fieldType.data('value') === 'benf\\neo\\Field' && $fieldId.length > 0) {
   const $form = Craft.cp.$primaryForm
   const $formButton = $form.find('input[type="submit"]')
   let $convert = $('#Matrix-convert_button')

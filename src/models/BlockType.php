@@ -172,9 +172,9 @@ class BlockType extends Model implements
     public bool $hasFieldErrors = false;
 
     /**
-     * @var Field|null The Neo field associated with this block type.
+     * @var Field|false|null The Neo field associated with this block type.
      */
-    private ?Field $_field = null;
+    private Field|false|null $_field = null;
 
     /**
      * @var BlockTypeGroup|null The block type group this block type belongs to, if any.
@@ -260,13 +260,13 @@ class BlockType extends Model implements
      */
     public function getField(): ?Field
     {
-        $fieldsService = Craft::$app->getFields();
-
-        if (!$this->_field && $this->fieldId) {
-            $this->_field = $fieldsService->getFieldById($this->fieldId);
+        if ($this->_field === null && $this->fieldId) {
+            // Ensure the field is still actually a Neo field
+            $field = Craft::$app->getFields()->getFieldById($this->fieldId);
+            $this->_field = $field instanceof Field ? $field : false;
         }
 
-        return $this->_field;
+        return $this->_field ?: null;
     }
 
     /**
@@ -368,7 +368,7 @@ class BlockType extends Model implements
 
         $config = [
             'childBlocks' => $this->childBlocks,
-            'field' => $this->getField()->uid,
+            'field' => $this->getField()?->uid,
             'group' => $group ? $group->uid : null,
             'groupChildBlockTypes' => (bool)$this->groupChildBlockTypes,
             'handle' => $this->handle,
