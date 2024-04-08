@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-beta.5 - 2024-04-08
 
 ### Added
 - Removed `benf\neo\services\Conversion::convertBlockToEntry()`
