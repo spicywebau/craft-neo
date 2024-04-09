@@ -113,4 +113,39 @@ return [
             ],
         ],
     ],
+    [
+        'id' => null,
+        'sectionId' => '1',
+        'typeId' => '2',
+        'authorId' => '1',
+        'uid' => 'entry-000000000000000000000000000003',
+        'title' => 'Neo-to-Matrix conversion test',
+        'slug' => 'neo-to-matrix-conversion-test',
+        'neoConversionField' => [
+            'new1' => [
+                'level' => 1,
+                'type' => 'plainText',
+                'enabled' => true,
+                'fields' => [
+                    'plainTextField' => '1',
+                ],
+            ],
+            'new2' => [
+                'level' => 2,
+                'type' => 'plainText',
+                'enabled' => true,
+                'fields' => [
+                    'plainTextField' => '2',
+                ],
+            ],
+            'new3' => [
+                'level' => 1,
+                'type' => 'plainText',
+                'enabled' => true,
+                'fields' => [
+                    'plainTextField' => '3',
+                ],
+            ],
+        ],
+    ],
 ];

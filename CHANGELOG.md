@@ -54,6 +54,11 @@
 - Removed `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`; new blocks are now always lazy loaded
 - Removed `benf\neo\services\Blocks::renderTabs()`
 
+## 4.1.2 - 2024-04-09
+
+### Fixed
+- Fixed an error that occurred during Neo-to-Matrix conversion
+
 ## 4.1.1 - 2024-04-08
 
 ### Fixed
