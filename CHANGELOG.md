@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred during Neo-to-Matrix conversion
+
 ## 4.1.1 - 2024-04-08
 
 ### Fixed
