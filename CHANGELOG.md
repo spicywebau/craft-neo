@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where action menus on existing block types' field layout designers would not open
+
 ## 5.0.0-beta.5 - 2024-04-08
 
 ### Added

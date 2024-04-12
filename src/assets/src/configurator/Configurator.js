@@ -113,6 +113,7 @@ export default Garnish.Base.extend({
         this.$fieldLayoutContainer.children('.spinner').remove()
         this.$settingsContainer.children('.spinner').remove()
         this.addItem(blockType)
+        blockType.getFieldLayout()?.initJs()
         const blockTypeSettings = blockType.getSettings()
         blockTypeSettings?.refreshChildBlockTypes(this.getBlockTypes())
         blockTypeSettings?.setChildBlocks()

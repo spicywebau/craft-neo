@@ -10,12 +10,13 @@ const _defaults = {
   id: -1,
   uid: null,
   blockId: null,
-  blockName: ''
+  initJs: true
 }
 
 export default Garnish.Base.extend({
 
   _templateNs: [],
+  _initialisedJs: false,
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -38,6 +39,16 @@ export default Garnish.Base.extend({
       }
     }
 
+    if (settings.initJs) {
+      this.initJs()
+    }
+  },
+
+  initJs () {
+    if (this._initialisedJs) {
+      return
+    }
+
     NS.enter(this._templateNs)
 
     this._fld = new Craft.FieldLayoutDesigner(this.$container, {
@@ -47,23 +58,10 @@ export default Garnish.Base.extend({
     })
 
     NS.leave()
-
-    const updateChildBlocksUiElement = () => {
-      const selector = '[data-type=benf-neo-fieldlayoutelements-ChildBlocksUiElement]'
-      const $uiLibraryElement = this._fld.$uiLibraryElements.filter(selector)
-      const $tabUiElement = this._fld.$tabContainer.find(selector)
-      $uiLibraryElement.toggleClass(
-        'hidden',
-        $tabUiElement.length > 0 || $('body.dragging .draghelper' + selector).length > 0
-      )
-      if ($tabUiElement.hasClass('velocity-animating')) {
-        $tabUiElement.removeClass('hidden')
-      }
-    }
-
-    updateChildBlocksUiElement()
-    this._tabObserver = new window.MutationObserver(updateChildBlocksUiElement)
+    this._updateChildBlocksUiElement()
+    this._tabObserver = new window.MutationObserver(() => this._updateChildBlocksUiElement())
     this._tabObserver.observe(this._fld.$tabContainer[0], { childList: true, subtree: true })
+    this._initialisedJs = true
   },
 
   getId () {
@@ -107,5 +105,18 @@ export default Garnish.Base.extend({
     }
 
     return newConfig
+  },
+
+  _updateChildBlocksUiElement () {
+    const selector = '[data-type=benf-neo-fieldlayoutelements-ChildBlocksUiElement]'
+    const $uiLibraryElement = this._fld.$uiLibraryElements.filter(selector)
+    const $tabUiElement = this._fld.$tabContainer.find(selector)
+    $uiLibraryElement.toggleClass(
+      'hidden',
+      $tabUiElement.length > 0 || $('body.dragging .draghelper' + selector).length > 0
+    )
+    if ($tabUiElement.hasClass('velocity-animating')) {
+      $tabUiElement.removeClass('hidden')
+    }
   }
 })

@@ -128,7 +128,8 @@ export default Item.extend({
             namespace: [...this._templateNs, this._id],
             html: response.data.layoutHtml,
             id: layoutId,
-            blockTypeId: data.blockTypeId
+            blockTypeId: data.blockTypeId,
+            initJs: false
           })
           this._settings.createContainer({
             html: response.data.settingsHtml.replace(/__NEOBLOCKTYPE_ID__/g, data.blockTypeId),
