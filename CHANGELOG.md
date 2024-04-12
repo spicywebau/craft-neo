@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where action menus on existing block types' field layout designers would not open
+- Fixed a bug where pasting a block copied from one entry onto a different entry, then saving the first entry, could cause the pasted block to be saved for the first entry
 
 ## 5.0.0-beta.5 - 2024-04-08
 

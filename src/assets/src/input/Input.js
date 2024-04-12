@@ -1243,7 +1243,6 @@ export default Garnish.Base.extend({
     // Get the selected blocks and their descendants
     const blockGroups = []
     let blockCount = 0
-    const ownerId = this._ownerId
 
     this._blockBatch(e.block, (block) => {
       // To prevent block descendants from being copied multiple times, determine whether the current block has
@@ -1271,8 +1270,7 @@ export default Garnish.Base.extend({
         const blockData = {
           type: block.getBlockType().getId(),
           level: block.getLevel() - firstBlockLevel,
-          content: block.getContent(),
-          ownerId
+          content: block.getContent()
         }
 
         if (block.isEnabled()) {
@@ -1303,6 +1301,7 @@ export default Garnish.Base.extend({
     if (blocks.length > 0) {
       for (const pasteBlock of blocks) {
         pasteBlock.level += baseLevel
+        pasteBlock.ownerId = this._ownerId
       }
 
       NS.enter(this._templateNs)
