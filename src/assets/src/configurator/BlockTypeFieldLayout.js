@@ -10,13 +10,13 @@ const _defaults = {
   id: -1,
   uid: null,
   blockId: null,
-  initJs: true
+  initUi: true
 }
 
 export default Garnish.Base.extend({
 
   _templateNs: [],
-  _initialisedJs: false,
+  _initialised: false,
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -39,13 +39,13 @@ export default Garnish.Base.extend({
       }
     }
 
-    if (settings.initJs) {
-      this.initJs()
+    if (settings.initUi) {
+      this.initUi()
     }
   },
 
-  initJs () {
-    if (this._initialisedJs) {
+  initUi () {
+    if (this._initialised) {
       return
     }
 
@@ -61,7 +61,7 @@ export default Garnish.Base.extend({
     this._updateChildBlocksUiElement()
     this._tabObserver = new window.MutationObserver(() => this._updateChildBlocksUiElement())
     this._tabObserver.observe(this._fld.$tabContainer[0], { childList: true, subtree: true })
-    this._initialisedJs = true
+    this._initialised = true
   },
 
   getId () {

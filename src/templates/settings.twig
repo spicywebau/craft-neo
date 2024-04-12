@@ -15,19 +15,95 @@
                     {% set id = 'new' ~ newTypeX %}
                     {% set newTypeX = newTypeX + 1 %}
                 {% endif %}
+                {% set actionBtnLabel = 'Actions'|t('neo') %}
+                {% set actionMenuId = "neoblocktype-action-menu-#{id}" %}
                 <div class="nc_sidebar_list_item{{ item.hasErrors() ? ' has-errors' : '' }}" data-neo-bt="container.{{ id }}">
                     <div class="label" data-neo-bt="text.name">{{ item.name ?? '' }}</div>
                     <div class="smalltext light code" data-neo-bt="text.handle">{{ item.handle ?? '' }}</div>
                     <a class="move icon" title="{{ 'Reorder'|t('neo') }}" role="button" data-neo-bt="button.move"></a>
-                    <button class="settings icon menubtn" title="{{ 'Actions'|t('neo') }}" role="button" type="button" data-neo-bt="button.actions"></button>
-                    <div class="menu" data-neo-bt="container.menu">
-                        <ul class="padded">
-                            <li><a data-icon="field" data-action="copy">{{ 'Copy'|t('neo') }}</a></li>
-                            <li class="disabled"><a data-icon="brush" data-action="paste">{{ 'Paste'|t('neo') }}</a></li>
-                            <li><a data-icon="share" data-action="clone">{{ 'Clone'|t('neo') }}</a></li>
-                            <li><a class="error" data-icon="remove" data-action="delete">{{ 'Delete'|t('neo') }}</a></li>
-                        </ul>
-                    </div>
+                    {{ tag('button', {
+                        class: [
+                            'btn',
+                            'action-btn',
+                            'menubtn',
+                        ],
+                        type: 'button',
+                        role: 'button',
+                        title: actionBtnLabel,
+                        aria: {
+                            controls: actionMenuId,
+                            label: actionBtnLabel,
+                        },
+                        data: {
+                            'disclosure-trigger': true,
+                            'neo-bt': "button.actions",
+                        },
+                    }) }}
+                    {% tag 'div' with {
+                        id: actionMenuId,
+                        class: [
+                            'menu',
+                            'menu--disclosure',
+                        ],
+                        data: {
+                            'neo-bt': 'container.menu',
+                        },
+                    } %}
+                        {% tag 'ul' %}
+                            {{ tag('li', {
+                                html: tag('button', {
+                                    class: [
+                                        'menu-item',
+                                    ],
+                                    data: {
+                                        action: 'copy',
+                                        icon: 'field',
+                                    },
+                                    html: 'Copy'|t('neo'),
+                                }),
+                            }) }}
+                            {{ tag('li', {
+                                class: [
+                                    'disabled',
+                                ],
+                                html: tag('button', {
+                                    class: [
+                                        'menu-item',
+                                    ],
+                                    data: {
+                                        action: 'paste',
+                                        icon: 'brush',
+                                    },
+                                    html: 'Paste'|t('neo'),
+                                }),
+                            }) }}
+                            {{ tag('li', {
+                                html: tag('button', {
+                                    class: [
+                                        'menu-item',
+                                    ],
+                                    data: {
+                                        action: 'clone',
+                                        icon: 'share',
+                                    },
+                                    html: 'Clone'|t('neo'),
+                                }),
+                            }) }}
+                            {{ tag('li', {
+                                html: tag('button', {
+                                    class: [
+                                        'menu-item',
+                                        'error',
+                                    ],
+                                    data: {
+                                        action: 'delete',
+                                        icon: 'remove',
+                                    },
+                                    html: 'Delete'|t('neo'),
+                                }),
+                            }) }}
+                        {% endtag %}
+                    {% endtag %}
                     <input type="hidden" name="items[sortOrder][]" value="blocktype:{{ id }}" data-neo-bt="input.sortOrder">
                 </div>
             {% else %}

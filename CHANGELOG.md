@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Block type action menus are now implemented as disclosure menus
+
 ### Fixed
 - Fixed a bug where action menus on existing block types' field layout designers would not open
 

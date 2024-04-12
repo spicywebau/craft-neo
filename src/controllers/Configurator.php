@@ -39,7 +39,7 @@ class Configurator extends Controller
             'settingsJs' => $renderedData['settingsJs'],
             'bodyHtml' => $renderedData['bodyHtml'],
             'headHtml' => $renderedData['headHtml'],
-            'layoutHtml' => $renderedData['layoutHtml'],
+            'fieldLayoutHtml' => $renderedData['fieldLayoutHtml'],
         ]);
     }
 
@@ -131,7 +131,7 @@ class Configurator extends Controller
             'settingsJs' => $renderedSettings['settingsJs'],
             'bodyHtml' => $renderedSettings['bodyHtml'],
             'headHtml' => $renderedSettings['headHtml'],
-            'layoutHtml' => Neo::$plugin->blockTypes->renderFieldLayoutDesigner($fieldLayout),
+            'fieldLayoutHtml' => Neo::$plugin->blockTypes->renderFieldLayoutDesigner($fieldLayout),
         ];
     }
 }
