@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-beta.6 - 2024-04-12
 
 ### Changed
 - Block type action menus are now implemented as disclosure menus
