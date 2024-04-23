@@ -851,7 +851,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->setScenario($scenario);
             }
 
-            if (!$block->validate()) {
+            if (!$block->validate(clearErrors:false)) {
                 $element->addModelErrors($block, "{$this->handle}[{$key}]");
                 $allBlocksValidate = false;
             }
