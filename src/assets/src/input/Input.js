@@ -862,6 +862,7 @@ export default Garnish.Base.extend({
           namespace: NS.toFieldName(),
           blocks: {},
           sortOrder: [],
+          blockUuids: [],
           fieldId: this._id,
           ownerCanonicalId: this._ownerId,
           ownerDraftId: elementEditor.settings.draftId,
@@ -879,6 +880,7 @@ export default Garnish.Base.extend({
             visibleLayoutElements: this._visibleLayoutElements[block.getId()] ?? {}
           }
           data.sortOrder.push(block.getDuplicatedBlockId())
+          data.blockUuids.push(block.getUuid())
           originalBlockIds[block.getDuplicatedBlockId()] = block.getId()
         })
 

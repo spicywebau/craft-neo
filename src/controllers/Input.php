@@ -215,6 +215,7 @@ class Input extends Controller
         $isProvisionalDraft = $request->getRequiredBodyParam('isProvisionalDraft');
         $siteId = $request->getRequiredBodyParam('siteId');
         $sortOrder = $request->getRequiredBodyParam('sortOrder');
+        $blockUuids = $request->getRequiredBodyParam('blockUuids');
 
         $field = $fieldsService->getFieldById($fieldId);
         $namespace = $request->getBodyParam('namespace', "fields[{$field->handle}][blocks]");
@@ -260,7 +261,8 @@ class Input extends Controller
             }
 
             $view = Craft::$app->getView();
-            $blockNamespace = "{$namespace}[{$blockId}]";
+            $blockUuid = $blockUuids[$i];
+            $blockNamespace = "{$namespace}[uid:{$blockUuid}]";
             $fieldLayout = $block->getFieldLayout();
             $form = $fieldLayout->createForm($block, false, [
                 'namespace' => $blockNamespace,

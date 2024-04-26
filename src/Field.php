@@ -1598,7 +1598,7 @@ class Field extends BaseField implements
                 isset($newBlockData[$canonicalUidMap[$blockId]])
             ) {
                 // $blockId is a draft block's UUID, but the data was sent with the canonical block UUID
-                $entryData = $newBlockData[$canonicalUidMap[$blockId]];
+                $blockData = $newBlockData[$canonicalUidMap[$blockId]];
             } else {
                 $blockData = [];
             }
