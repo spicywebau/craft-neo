@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-beta.7 - 2024-04-26
 
 ### Fixed
 - Fixed a bug where blocks' conditionally-loaded subfield values were not being saved
