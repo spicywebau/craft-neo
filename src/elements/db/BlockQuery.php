@@ -66,7 +66,9 @@ class BlockQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected array $defaultOrderBy = ['elements_owners.sortOrder' => SORT_ASC];
+    protected array $defaultOrderBy = [
+        'elements.id' => SORT_DESC,
+    ];
 
     // Private properties
 
@@ -409,21 +411,10 @@ class BlockQuery extends ElementQuery
 
         $this->joinElementTable('neoblocks');
 
-        $ownersCondition = [
-            'and',
-            '[[elements_owners.elementId]] = [[elements.id]]',
-            $this->ownerId ? ['elements_owners.ownerId' => $this->ownerId] : '[[elements_owners.ownerId]] = [[neoblocks.primaryOwnerId]]',
-        ];
-
-        $this->query->innerJoin(['elements_owners' => Table::ELEMENTS_OWNERS], $ownersCondition);
-        $this->subQuery->innerJoin(['elements_owners' => Table::ELEMENTS_OWNERS], $ownersCondition);
-
         $this->query->addSelect([
             'neoblocks.fieldId',
             'neoblocks.primaryOwnerId',
             'neoblocks.typeId',
-            'elements_owners.ownerId',
-            'elements_owners.sortOrder',
         ]);
 
         if ($this->fieldId) {
@@ -443,23 +434,44 @@ class BlockQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseNumericParam('neoblocks.typeId', $this->typeId));
         }
 
-        // Ignore revision/draft blocks by default
-        $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->primaryOwnerId || $this->ownerId || $this->_isDraftRequest());
-        $allowOwnerRevisions = $this->allowOwnerRevisions ?? ($this->id || $this->primaryOwnerId || $this->ownerId || $this->_isRevisionRequest());
+        if (!empty($this->fieldId) || !empty($this->ownerId) || !empty($this->primaryOwnerId)) {
+            // Join in the elements_owners table
+            $ownersCondition = [
+                'and',
+                '[[elements_owners.elementId]] = [[elements.id]]',
+                $this->ownerId ? ['elements_owners.ownerId' => $this->ownerId] : '[[elements_owners.ownerId]] = [[neoblocks.primaryOwnerId]]',
+            ];
 
-        if (!$allowOwnerDrafts || !$allowOwnerRevisions) {
-            $this->subQuery->innerJoin(
-                ['owners' => Table::ELEMENTS],
-                $this->ownerId ? '[[owners.id]] = [[elements_owners.ownerId]]' : '[[owners.id]] = [[neoblocks.primaryOwnerId]]'
-            );
+            $this->query
+                ->addSelect([
+                    'elements_owners.ownerId',
+                    'elements_owners.sortOrder',
+                ])
+                ->innerJoin(['elements_owners' => Table::ELEMENTS_OWNERS], $ownersCondition);
+            $this->subQuery->innerJoin(['elements_owners' => Table::ELEMENTS_OWNERS], $ownersCondition);
 
-            if (!$allowOwnerDrafts) {
-                $this->subQuery->andWhere(['owners.draftId' => null]);
+            // Ignore revision/draft blocks by default
+            $allowOwnerDrafts = $this->allowOwnerDrafts ?? ($this->id || $this->primaryOwnerId || $this->ownerId || $this->_isDraftRequest());
+            $allowOwnerRevisions = $this->allowOwnerRevisions ?? ($this->id || $this->primaryOwnerId || $this->ownerId || $this->_isRevisionRequest());
+
+            if (!$allowOwnerDrafts || !$allowOwnerRevisions) {
+                $this->subQuery->innerJoin(
+                    ['owners' => Table::ELEMENTS],
+                    $this->ownerId ? '[[owners.id]] = [[elements_owners.ownerId]]' : '[[owners.id]] = [[neoblocks.primaryOwnerId]]'
+                );
+
+                if (!$allowOwnerDrafts) {
+                    $this->subQuery->andWhere(['owners.draftId' => null]);
+                }
+
+                if (!$allowOwnerRevisions) {
+                    $this->subQuery->andWhere(['owners.revisionId' => null]);
+                }
             }
 
-            if (!$allowOwnerRevisions) {
-                $this->subQuery->andWhere(['owners.revisionId' => null]);
-            }
+            $this->defaultOrderBy = [
+                'elements_owners.sortOrder' => SORT_ASC,
+            ];
         }
 
         if ($this->status !== null) {
