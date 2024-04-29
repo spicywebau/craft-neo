@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-beta.8 - 2024-04-29
 
 ### Fixed
 - Fixed an invalid owner ID error that occurred when saving Neo revision blocks with nested inline Matrix entries
