@@ -9,6 +9,7 @@ use benf\neo\Plugin as Neo;
 use Craft;
 use craft\db\Query;
 use craft\db\Table;
+use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
 use craft\fields\Matrix as MatrixField;
 use craft\helpers\ArrayHelper;
@@ -266,8 +267,9 @@ class Conversion extends Component
         $entryFieldValues = [];
 
         foreach ($neoBlock->getFieldValues() as $handle => $value) {
+            // Serialise Matrix field values
             if ($value instanceof EntryQuery && $value->fieldId) {
-                $value = $fieldsService->getFieldById($value->fieldId)->serializeValue($value);
+                $value = $fieldsService->getFieldById($value->fieldId)->serializeValue($value, null);
             }
 
             $entryFieldValues[$handle] = $value;

@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an invalid owner ID error that occurred when saving Neo revision blocks with nested inline Matrix entries
+- Fixed a bug where Neo fields converted to Matrix fields would not retain nested Matrix entries
 
 ## 5.0.0-beta.7 - 2024-04-26
 
