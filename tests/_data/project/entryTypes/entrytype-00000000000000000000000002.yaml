@@ -48,7 +48,6 @@ fieldLayouts:
 handle: neoConversionTest
 hasTitleField: true
 name: 'Neo Conversion Test'
-section: section-0000000000000000000000000001
 sortOrder: 1
 titleFormat: ''
 titleLabel: Title

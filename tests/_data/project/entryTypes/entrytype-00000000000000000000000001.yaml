@@ -48,7 +48,6 @@ fieldLayouts:
 handle: neoTestChannel
 hasTitleField: true
 name: 'Neo Test Channel'
-section: section-0000000000000000000000000001
 sortOrder: 1
 titleFormat: ''
 titleLabel: Title

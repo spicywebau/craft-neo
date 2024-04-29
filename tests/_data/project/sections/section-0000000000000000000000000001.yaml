@@ -1,4 +1,7 @@
 enableVersioning: true
+entryTypes:
+  - entrytype-00000000000000000000000001
+  - entrytype-00000000000000000000000002
 handle: neoTestChannel
 name: 'Neo Test Channel'
 propagationMethod: all
