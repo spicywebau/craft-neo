@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when eager loading Neo block content
+
 ## 5.0.0-beta.8 - 2024-04-29
 
 ### Fixed

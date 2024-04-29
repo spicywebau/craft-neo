@@ -15,7 +15,6 @@ use craft\base\NestedElementInterface;
 use craft\base\NestedElementTrait;
 use craft\db\Table;
 use craft\elements\conditions\ElementConditionInterface;
-use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\ElementCollection;
 use craft\helpers\Db;
@@ -36,6 +35,7 @@ class Block extends Element implements NestedElementInterface
 {
     use NestedElementTrait {
         attributes as traitAttributes;
+        eagerLoadingMap as traitEagerLoadingMap;
         extraFields as traitExtraFields;
     }
 
@@ -133,14 +133,14 @@ class Block extends Element implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array|false|null
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         $map = false;
         $separatedHandle = explode(':', $handle);
 
         if (count($separatedHandle) === 2) {
             $fieldHandle = $separatedHandle[1];
-            $map = parent::eagerLoadingMap($sourceElements, $fieldHandle);
+            $map = self::traitEagerLoadingMap($sourceElements, $fieldHandle);
         }
 
         return $map;
@@ -482,51 +482,6 @@ class Block extends Element implements NestedElementInterface
         if ($this->id) {
             $cacheKey = "neoblock-$this->id-collapsed";
             $cacheService->delete($cacheKey);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function hasEagerLoadedElements(string $handle): bool
-    {
-        $typeHandlePrefix = $this->_getTypeHandlePrefix();
-        $typeElementHandle = $typeHandlePrefix . $handle;
-        $hasEagerLoadedElements = isset($this->_eagerLoadedBlockTypeElements[$typeElementHandle]);
-
-        if ($hasEagerLoadedElements) {
-            return true;
-        }
-
-        return parent::hasEagerLoadedElements($handle);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEagerLoadedElements(string $handle): ?ElementCollection
-    {
-        $blockTypeHandle = $this->_getTypeHandlePrefix() . $handle;
-
-        if (isset($this->_eagerLoadedBlockTypeElements[$blockTypeHandle])) {
-            return new ElementCollection($this->_eagerLoadedBlockTypeElements[$blockTypeHandle]);
-        }
-
-        return parent::getEagerLoadedElements($handle);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
-    {
-        $typeHandlePrefix = $this->_getTypeHandlePrefix();
-        $hasMatchingHandlePrefix = strpos($handle, $typeHandlePrefix) === 0;
-
-        if ($hasMatchingHandlePrefix) {
-            $this->_eagerLoadedBlockTypeElements[$handle] = $elements;
-        } else {
-            parent::setEagerLoadedElements($handle, $elements);
         }
     }
 
