@@ -135,15 +135,11 @@ class Block extends Element implements NestedElementInterface
      */
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
-        $map = false;
-        $separatedHandle = explode(':', $handle);
-
-        if (count($separatedHandle) === 2) {
-            $fieldHandle = $separatedHandle[1];
-            $map = self::traitEagerLoadingMap($sourceElements, $fieldHandle);
+        if (str_contains($handle, ':')) {
+            $handle = explode(':', $handle, 2)[1];
         }
 
-        return $map;
+        return self::traitEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
@@ -396,7 +392,12 @@ class Block extends Element implements NestedElementInterface
      */
     public function getFieldLayout(): ?FieldLayout
     {
-        return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
+        if (($fieldLayout = parent::getFieldLayout()) !== null) {
+            $fieldLayout->provider = $this->getType();
+            return $fieldLayout;
+        }
+
+        return $this->getType()->getFieldLayout();
     }
 
     /**
@@ -744,7 +745,7 @@ class Block extends Element implements NestedElementInterface
         // block so we get the child blocks.
         $descendants = parent::getDescendants($dist);
 
-        return is_array($descendants) ? $descendants : $descendants->descendantOf($this);
+        return $descendants instanceof ElementCollection ? $descendants : $descendants->descendantOf($this);
     }
 
     /**
@@ -777,7 +778,7 @@ class Block extends Element implements NestedElementInterface
         // so we get the child blocks.
         $children = parent::getChildren();
 
-        return is_array($children) ? $children : $children->descendantOf($this);
+        return $children instanceof ElementCollection ? $children : $children->descendantOf($this);
     }
 
     /**
