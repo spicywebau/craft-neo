@@ -1078,10 +1078,10 @@ export default Garnish.Base.extend({
 
   '@settingSelect' (e) {
     this._settingsMenu.hide()
-    const $option = $(e.target)
+    const option = e.target.closest('[data-action]')
 
-    if (!$option.hasClass('disabled')) {
-      switch ($option.attr('data-action')) {
+    if (!option.classList.contains('disabled')) {
+      switch (option.dataset.action) {
         case 'collapse':
           this.collapse()
           break
