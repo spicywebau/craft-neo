@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-beta.9 - 2024-04-30
 
 ### Added
 - Added `benf\neo\web\assets\configurator\ConfiguratorAsset`
