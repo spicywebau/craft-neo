@@ -2,8 +2,6 @@
 
 namespace benf\neo;
 
-use benf\neo\assets\InputAsset;
-use benf\neo\assets\SettingsAsset;
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
 use benf\neo\enums\BlockTypeGroupDropdown;
@@ -18,6 +16,9 @@ use benf\neo\models\BlockType;
 use benf\neo\models\BlockTypeGroup;
 use benf\neo\Plugin as Neo;
 use benf\neo\validators\FieldValidator;
+use benf\neo\web\assets\configurator\ConfiguratorAsset;
+use benf\neo\web\assets\converter\ConverterAsset;
+use benf\neo\web\assets\input\InputAsset;
 use Craft;
 use craft\base\EagerLoadingFieldInterface;
 use craft\base\Element;
@@ -561,8 +562,9 @@ class Field extends BaseField implements
         if ($this->_getNamespaceDepth() >= 1) {
             $html = $this->_getNestingErrorHtml();
         } else {
-            $viewService->registerAssetBundle(SettingsAsset::class);
-            $viewService->registerJs(SettingsAsset::createSettingsJs($this));
+            $viewService->registerAssetBundle(ConfiguratorAsset::class);
+            $viewService->registerAssetBundle(ConverterAsset::class);
+            $viewService->registerJs(ConfiguratorAsset::createSettingsJs($this));
 
             $html = $viewService->renderTemplate('neo/settings', [
                 'neoField' => $this,

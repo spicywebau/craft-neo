@@ -4,13 +4,15 @@ const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = {
   entry: {
-    main: path.resolve(__dirname, 'src/assets/src/main.js'),
-    configurator: path.resolve(__dirname, 'src/assets/src/configurator.js'),
-    converter: path.resolve(__dirname, 'src/assets/src/converter.js')
+    'configurator/dist/scripts/configurator': path.resolve(__dirname, 'src/web/assets/configurator/src/scripts/main.js'),
+    'configurator/dist/styles/configurator': path.resolve(__dirname, 'src/web/assets/configurator/src/styles/main.scss'),
+    'converter/dist/scripts/converter': path.resolve(__dirname, 'src/web/assets/converter/src/scripts/main.js'),
+    'input/dist/scripts/input': path.resolve(__dirname, 'src/web/assets/input/src/scripts/main.js'),
+    'input/dist/styles/input': path.resolve(__dirname, 'src/web/assets/input/src/styles/main.scss')
   },
   output: {
-    path: path.resolve(__dirname, 'src/assets/dist/'),
-    filename: 'neo-[name].js'
+    path: path.resolve(__dirname, 'src/web/assets'),
+    filename: '[name].js'
   },
   externals: {
     jquery: 'jQuery',
@@ -50,13 +52,13 @@ module.exports = {
             ]
           }
         },
-        include: [path.resolve(__dirname, 'src/assets/src')],
+        include: [path.resolve(__dirname, 'src/web/assets/src')],
         test: /\.jsx?$/
       }
     ]
   },
   devtool: 'source-map',
   plugins: [new MiniCssExtractPlugin({
-    filename: 'neo-[name].css'
+    filename: '[name].css'
   })]
 }

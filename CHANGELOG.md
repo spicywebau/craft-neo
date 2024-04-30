@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+- Added `benf\neo\web\assets\configurator\ConfiguratorAsset`
+- Added `benf\neo\web\assets\converter\ConverterAsset`
+- Added `benf\neo\web\assets\input\InputAsset`
+
+### Removed
+- Removed `benf\neo\assets\InputAsset` (`benf\neo\web\assets\input\InputAsset` is used instead)
+- Removed `benf\neo\assets\SettingsAsset` (`benf\neo\web\assets\configurator\ConfiguratorAsset` and `benf\neo\web\assets\converter\ConverterAsset` are used instead)
+
 ### Fixed
 - Fixed an error that occurred when eager loading Neo block content
 - Fixed styling issues with block action menus
