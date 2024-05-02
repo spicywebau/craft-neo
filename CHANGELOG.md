@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when condition rules were set on a block type field layout element, if a field on the field layout had an overridden handle
+
 ## 5.0.0-beta.9 - 2024-04-30
 
 ### Added

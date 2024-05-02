@@ -34,6 +34,7 @@ class BlockCondition extends ElementCondition
                 $fieldConditionRuleTypes[] = [
                     'class' => $className,
                     'fieldUid' => $ruleType['fieldUid'],
+                    'layoutElementUid' => $ruleType['layoutElementUid'],
                 ];
             }
         }
