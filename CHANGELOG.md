@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where swapping the positions of new Neo blocks could cause a mixup of field layout elements and content loss
+- Fixed an error that could occur when updating visible field layout elements after the first change to an entry
 
 ## 4.1.2 - 2024-04-09
 

@@ -197,7 +197,7 @@ class Input extends Controller
         $blocksData = $request->getRequiredBodyParam('blocks');
         $fieldId = $request->getRequiredBodyParam('fieldId');
         $ownerCanonicalId = $request->getRequiredBodyParam('ownerCanonicalId');
-        $ownerDraftId = $request->getRequiredBodyParam('ownerDraftId');
+        $ownerDraftId = $request->getBodyParam('ownerDraftId');
         $isProvisionalDraft = $request->getRequiredBodyParam('isProvisionalDraft');
         $siteId = $request->getRequiredBodyParam('siteId');
         $sortOrder = $request->getRequiredBodyParam('sortOrder');
@@ -207,8 +207,8 @@ class Input extends Controller
         $canonicalOwner = $elementsService->getElementById($ownerCanonicalId, null, $siteId);
         $draftsQueryMethod = $isProvisionalDraft ? 'provisionalDrafts' : 'drafts';
 
-        // Get the blocks belonging to the current draft
-        $draft = $canonicalOwner::find()
+        // Get the blocks belonging to the current draft, or just use the canonical owner if no draft ID provided
+        $draft = $ownerDraftId === null ? $canonicalOwner : $canonicalOwner::find()
             ->{$draftsQueryMethod}()
             ->draftId($ownerDraftId)
             ->siteId($siteId)
