@@ -176,9 +176,14 @@ export default Garnish.Base.extend({
       magnetStrength: 4,
       helperLagBase: 1.5,
       helperOpacity: 0.9,
+      onDragStart: () => {
+        this.$form.data('elementEditor')?.pause()
+      },
       onDragStop: () => {
+        this.$form.data('elementEditor')?.resume()
         this._updateBlockOrder()
         this._updateButtons()
+        this._updateAllVisibleElements()
       }
     })
 
@@ -832,69 +837,71 @@ export default Garnish.Base.extend({
    * @private
    */
   _registerDynamicBlockConditions () {
-    this._formObserver = new Craft.FormObserver(this.$form, async () => {
-      const checkNumber = Math.floor(Math.random() * 1000000)
-      this._lastFormCheck = checkNumber
-      const elementEditor = this.$form.data('elementEditor')
+    this._formObserver = new Craft.FormObserver(this.$form, () => this._updateAllVisibleElements())
+  },
 
-      // Do nothing if the draft is being resaved, or there's no element editor data
-      if (elementEditor?.submittingForm ?? true) {
-        return
+  async _updateAllVisibleElements () {
+    const checkNumber = Math.floor(Math.random() * 1000000)
+    this._lastFormCheck = checkNumber
+    const elementEditor = this.$form.data('elementEditor')
+
+    // Do nothing if the draft is being resaved, or there's no element editor data
+    if (elementEditor?.submittingForm ?? true) {
+      return
+    }
+
+    // Don't update visible elements if the draft save was the result of creating a new block
+    if (this._newBlockCount > 0) {
+      this._newBlockCount--
+      return
+    }
+
+    const siteId = elementEditor.settings.siteId
+    NS.enter(this.getNamespace())
+    const data = {
+      namespace: NS.toFieldName(),
+      blocks: {},
+      sortOrder: [],
+      fieldId: this._id,
+      ownerCanonicalId: this._ownerId,
+      ownerDraftId: elementEditor.settings.draftId,
+      isProvisionalDraft: elementEditor.settings.isProvisionalDraft,
+      siteId
+    }
+    NS.leave()
+    const originalBlockIds = {}
+    this._blocks.forEach((block) => {
+      const selectedTabId = block.$contentContainer
+        .children('[data-layout-tab]:not(.hidden)')
+        .data('layout-tab')
+      data.blocks[block.getDuplicatedBlockId()] = {
+        selectedTab: selectedTabId ?? null,
+        visibleLayoutElements: this._visibleLayoutElements[block.getId()] ?? {}
       }
-
-      // Don't update visible elements if the draft save was the result of creating a new block
-      if (this._newBlockCount > 0) {
-        this._newBlockCount--
-        return
-      }
-
-      const siteId = elementEditor.settings.siteId
-      NS.enter(this.getNamespace())
-      const data = {
-        namespace: NS.toFieldName(),
-        blocks: {},
-        sortOrder: [],
-        fieldId: this._id,
-        ownerCanonicalId: this._ownerId,
-        ownerDraftId: elementEditor.settings.draftId,
-        isProvisionalDraft: elementEditor.settings.isProvisionalDraft,
-        siteId
-      }
-      NS.leave()
-      const originalBlockIds = {}
-      this._blocks.forEach((block) => {
-        const selectedTabId = block.$contentContainer
-          .children('[data-layout-tab]:not(.hidden)')
-          .data('layout-tab')
-        data.blocks[block.getDuplicatedBlockId()] = {
-          selectedTab: selectedTabId ?? null,
-          visibleLayoutElements: this._visibleLayoutElements[block.getId()] ?? {}
-        }
-        data.sortOrder.push(block.getDuplicatedBlockId())
-        originalBlockIds[block.getDuplicatedBlockId()] = block.getId()
-      })
-
-      try {
-        const response = await Craft.sendActionRequest('POST', 'neo/input/update-visible-elements', { data })
-
-        // Ignore the response if the form has since been edited
-        if (this._lastFormCheck !== checkNumber) {
-          return
-        }
-
-        for (const blockId in response.data.blocks) {
-          const block = this._blocks.find((block) => block.getId() === originalBlockIds[blockId])
-          this._updateVisibleElements(
-            block,
-            response.data.blocks[blockId],
-            data.blocks[block.getDuplicatedBlockId()].selectedTabId
-          )
-        }
-      } catch (err) {
-        Craft.cp.displayError(err)
-        throw err
-      }
+      data.sortOrder.push(block.getDuplicatedBlockId())
+      originalBlockIds[block.getDuplicatedBlockId()] = block.getId()
     })
+
+    try {
+      const response = await Craft.sendActionRequest('POST', 'neo/input/update-visible-elements', { data })
+
+      // Ignore the response if the form has since been edited
+      if (this._lastFormCheck !== checkNumber) {
+        return
+      }
+
+      for (const blockId in response.data.blocks) {
+        const block = this._blocks.find((block) => block.getId() === originalBlockIds[blockId])
+        this._updateVisibleElements(
+          block,
+          response.data.blocks[blockId],
+          data.blocks[block.getDuplicatedBlockId()].selectedTabId
+        )
+      }
+    } catch (err) {
+      Craft.cp.displayError(err)
+      throw err
+    }
   },
 
   /**
