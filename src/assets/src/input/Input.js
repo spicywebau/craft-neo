@@ -183,7 +183,6 @@ export default Garnish.Base.extend({
         this.$form.data('elementEditor')?.resume()
         this._updateBlockOrder()
         this._updateButtons()
-        this._updateAllVisibleElements()
       }
     })
 
@@ -837,7 +836,11 @@ export default Garnish.Base.extend({
    * @private
    */
   _registerDynamicBlockConditions () {
-    this._formObserver = new Craft.FormObserver(this.$form, () => this._updateAllVisibleElements())
+    // A small timeout to let the element editor initialise
+    setTimeout(
+      () => this.$form.data('elementEditor')?.on('update', () => this._updateAllVisibleElements()),
+      200
+    )
   },
 
   async _updateAllVisibleElements () {
@@ -1143,6 +1146,7 @@ export default Garnish.Base.extend({
 
       this._removeSpinner()
       this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
+      this._updateAllVisibleElements()
     }
 
     if (e.blockType.getTabs() !== null) {
