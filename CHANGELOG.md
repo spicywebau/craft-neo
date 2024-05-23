@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-RC.1 - 2024-05-23
 
 ### Changed
 - Neo input blocks will now show their icon on the top bar, if their block type has an icon set
