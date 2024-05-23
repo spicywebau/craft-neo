@@ -153,6 +153,8 @@ $block-background-color-level-even: var(--gray-050);
             &_left,
             &_right {
                 display: flex;
+                align-items: center;
+                gap: 8px;
                 position: absolute;
                 top: 0; bottom: 0;
             }
@@ -182,7 +184,7 @@ $block-background-color-level-even: var(--gray-050);
 
             &_item {
                 cursor: default;
-                padding: 0 8px;
+                padding: 0;
                 -webkit-user-select: none;
                 -moz-user-select: none;
                 user-select: none;
@@ -229,7 +231,7 @@ $block-background-color-level-even: var(--gray-050);
 
                 &.handle {
                     display: flex;
-                    transform: translateY(3px);
+                    transform: translateY(-1px);
                     line-height: 1.42;
                 }
 
