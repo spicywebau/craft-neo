@@ -4,6 +4,7 @@ namespace benf\neo\console\controllers;
 
 use benf\neo\elements\Block;
 use benf\neo\Field;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\console\Controller;
 use craft\db\Query;
