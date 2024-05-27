@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.1.3 - 2024-05-27
 
 ### Fixed
 - Fixed an error that occurred when reapplying Neo field propagation methods via console command (thanks @pnpaes)
