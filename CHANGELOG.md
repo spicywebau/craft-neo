@@ -7,6 +7,11 @@
 - Fixed an error that could occur when updating visible field layout elements after the first change to an entry
 - Fixed a bug where condition rules for parent block field values were not always being applied
 
+## 4.1.3 - 2024-05-27
+
+### Fixed
+- Fixed an error that occurred when reapplying Neo field propagation methods via console command (thanks @pnpaes)
+
 ## 4.1.2 - 2024-04-09
 
 ### Fixed
