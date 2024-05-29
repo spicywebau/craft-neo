@@ -94,9 +94,10 @@ class Fields extends Component
     public function save(Field $field, bool $validate = true): bool
     {
         $dbService = Craft::$app->getDb();
+        $projectConfig = Craft::$app->getProjectConfig();
         $isValid = !$validate || $this->validate($field);
 
-        if ($isValid && !Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
+        if ($isValid && !$projectConfig->getIsApplyingExternalChanges()) {
             $transaction = $dbService->beginTransaction();
             try {
                 // Delete the old block types first, in case there's a handle conflict with one of the new ones
@@ -137,8 +138,9 @@ class Fields extends Component
 
                 // Save the new block types and groups, ensuring sort orders in the database are reset
                 $currentGroup = null;
+                $fieldItems = $field->getItems();
 
-                foreach ($field->getItems() as $sortOrder => $item) {
+                foreach ($fieldItems as $sortOrder => $item) {
                     $item->fieldId = $field->id;
                     $item->sortOrder = $sortOrder + 1;
 
@@ -158,6 +160,11 @@ class Fields extends Component
                         'id' => $item->id,
                     ], [], false);
                 }
+
+                // Ensure the item order in the project config has the correct number of items
+                $oldItemOrder = $projectConfig->get('neo.orders.' . $field->uid);
+                $newItemOrder = array_slice($oldItemOrder, 0, count($fieldItems));
+                $projectConfig->set('neo.orders.' . $field->uid, $newItemOrder);
 
                 $transaction->commit();
 

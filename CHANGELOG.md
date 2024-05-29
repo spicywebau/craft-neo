@@ -13,6 +13,7 @@
 - Fixed a bug where Neo would try to update an input block's visible field layout elements while dragging the block (thanks @myleshyson)
 - Fixed an error that could occur when updating visible field layout elements after the first change to an entry
 - Fixed a bug where condition rules for parent block field values were not always being applied
+- Fixed a bug where deleting Neo block types would cause duplicate items in the Neo field's item order in the project config
 
 ## 4.1.3 - 2024-05-27
 
