@@ -23,8 +23,6 @@ const _defaults = {
   showBlockTypeHandle: false
 }
 
-const _resources = {}
-
 const _escapeMap = {
   '&': '&amp;',
   '<': '&lt;',
@@ -32,23 +30,6 @@ const _escapeMap = {
   '"': '&quot;',
   "'": '&#39;',
   '/': '&#x2F;'
-}
-
-function _resourceFilter () {
-  let url = this.href || this.src
-
-  if (url) {
-    const paramIndex = url.indexOf('?')
-
-    url = (paramIndex < 0 ? url : url.substr(0, paramIndex))
-
-    const isNew = !Object.prototype.hasOwnProperty.call(_resources, url)
-    _resources[url] = 1
-
-    return isNew
-  }
-
-  return true
 }
 
 function _escapeHTML (str) {
@@ -93,17 +74,19 @@ export default Garnish.Base.extend({
     } else {
       this._tabs = null
     }
-    this._html = settings.tabs?.html ?? null
-    this._js = settings.tabs?.js ?? null
+    this._blockHtml = settings.blockHtml
+    this._bodyHtml = settings.bodyHtml
+    this._headHtml = settings.headHtml
     this._id = settings.id
     this._enabled = settings.enabled && this._blockType.getEnabled()
     this._initialEnabled = settings.enabled
     this._modified = settings.modified
     this._showButtons = settings.showButtons
     this._renderOldChildBlocksContainer = !settings.blockType.hasChildBlocksUiElement()
-    this.$container = generateElement
-      ? this._generateElement(settings.showBlockTypeHandle)
+    this.$container = this._blockHtml
+      ? $(this._blockHtml)
       : this._field.$container.find(`[data-neo-b-id=${this._id}]`)
+    this._uuid = settings.uuid ?? this.$container.data('neo-b-uuid')
 
     const $neo = this.$container.find('[data-neo-b]')
     this.$bodyContainer = $neo.filter(`[data-neo-b="${this._id}.container.body"]`)
@@ -145,193 +128,6 @@ export default Garnish.Base.extend({
     this.$container.data('block', this)
   },
 
-  _generateElement (showHandle = false) {
-    NS.enter(this._templateNs)
-    const baseInputName = NS.toFieldName()
-    const baseInputId = NS.toString('-')
-    NS.leave()
-
-    const type = this._blockType
-    const tabs = this._tabs ?? type.getTabs()
-    const hasTabs = tabs.length > 0
-    const isParent = type.isParent()
-    const actionBtnLabel = `${type.getName()} ${Craft.t('neo', 'Actions')}`
-    const actionMenuId = `neoblock-action-menu-${this._id}`
-    const tabsBtnLabel = `${type.getName()} ${Craft.t('neo', 'Tabs')}`
-    const tabsMenuId = `neoblock-tabs-menu-${this._id}`
-    const sortOrderName = `${this._templateNs[0]}[${this._templateNs.slice(1, this._templateNs.length - 2).join('][')}][sortOrder]`
-    const elementHtml = []
-    elementHtml.push(`
-      <div class="ni_block ni_block--${type.getHandle()} is-${this._collapsed ? 'collapsed' : 'expanded'} ${!hasTabs && !isParent ? 'is-empty' : ''} ${isParent ? 'is-parent' : ''}" data-neo-b-id="${this._id}" data-neo-b-name="${type.getName()}">
-        <input type="hidden" name="${baseInputName}[type]" value="${type.getHandle()}">
-        <input type="hidden" name="${baseInputName}[enabled]" value="${this._enabled ? '1' : ''}" data-neo-b="${this._id}.input.enabled">
-        <input type="hidden" name="${baseInputName}[level]" value="${this._level}" data-neo-b="${this._id}.input.level">
-        <input type="hidden" name="${sortOrderName}[]" value="${this._id}" data-neo-b="${this._id}.input.sortOrder">`)
-
-    if (isNaN(parseInt(this._id))) {
-      elementHtml.push(`
-        <input type="hidden" name="${baseInputName}[collapsed]" value="${!this._expanded ? '1' : ''}" data-neo-b="${this._id}.input.collapsed">`)
-    }
-
-    elementHtml.push(`
-        <div class="ni_block_topbar" data-neo-b="${this._id}.container.topbar">
-          <div class="ni_block_topbar_left" data-neo-b="${this._id}.container.topbarLeft">
-            <div class="ni_block_topbar_item" data-neo-b="${this._id}.select">
-              <div class="checkbox block-checkbox" title="${Craft.t('neo', 'Select')}" aria-label="${Craft.t('neo', 'Select')}"></div>
-            </div>
-            <div class="ni_block_topbar_item title">
-              <span class="blocktype" data-neo-b="${this._id}.select">${type.getName()}</span>
-            </div>
-            <div class="ni_block_topbar_item preview-container clip-text">
-              <span class="preview" data-neo-b="${this._id}.container.preview">&nbsp;</span>
-            </div>
-          </div>
-          <div class="ni_block_topbar_right" data-neo-b="${this._id}.container.topbarRight">
-            <div class="ni_block_topbar_item size-full tabs">`)
-
-    if (hasTabs || isParent) {
-      elementHtml.push(`
-              <div class="tabs_trigger" data-neo-b="${this._id}.button.toggler"></div>`)
-    }
-
-    if (tabs.length > 1) {
-      elementHtml.push(`
-              <div class="tabs_inner" data-neo-b="${this._id}.container.tabs">`)
-
-      for (let i = 0; i < tabs.length; i++) {
-        const tab = tabs[i]
-        const tabName = tab.getName()
-        const tabUid = tab.getUid()
-        elementHtml.push(`
-                <a class="tab ${!i ? 'is-selected' : ''}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}" data-neo-b-tabuid="${tabUid}">${tabName}</a>`)
-      }
-
-      elementHtml.push(`
-              </div>
-              <div>
-                <button type="button" role="button" title=${Craft.t('neo', 'Tabs')} aria-controls="${tabsMenuId}" aria-label="${tabsBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.tabs" class="tabs_btn menubtn">
-                  ${tabs[0].getName()}
-                </button>
-                <div id="${tabsMenuId}" class="neo_block_tabs-menu menu menu--disclosure">
-                  <ul>`)
-
-      for (let i = 0; i < tabs.length; i++) {
-        const tab = tabs[i]
-        const tabName = tab.getName()
-        const tabUid = tab.getUid()
-        elementHtml.push(`
-                    <li>
-                      <a${!i ? ' class="is-selected"' : ''} href="#" type="button" role="button" aria-label="${tabName}" data-neo-b="${this._id}.button.tab" data-neo-b-info="${tabName}" data-neo-b-tabuid="${tabUid}">${tabName}</a>
-                    </li>`)
-      }
-
-      elementHtml.push(`
-                  </ul>
-                </div>
-              </div>`)
-    }
-
-    elementHtml.push(`
-            </div>
-            <div class="ni_block_topbar_item hidden" data-neo-b="${this._id}.status">
-              <div class="status off" title="${Craft.t('neo', 'Disabled')}"></div>
-            </div>
-            <div class="ni_block_topbar_item block-settings">
-              <div>
-                <button class="btn settings icon menubtn" type="button" role="button" title="${Craft.t('neo', 'Actions')}" aria-controls="${actionMenuId}" aria-label="${actionBtnLabel}" data-disclosure-trigger data-neo-b="${this._id}.button.actions"></button>
-                <div id="${actionMenuId}" class="menu menu--disclosure" data-neo-b="${this._id}.container.menu">
-                  <ul class="padded">`)
-
-    if (hasTabs || isParent) {
-      elementHtml.push(`
-                    <li><a data-icon="collapse" data-action="collapse" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Collapse')}">${Craft.t('neo', 'Collapse')}</a></li>
-                    <li class="hidden"><a data-icon="expand" data-action="expand" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Expand')}">${Craft.t('neo', 'Expand')}</a></li>`)
-    }
-
-    elementHtml.push(`
-                    <li><a data-icon="disabled" data-action="disable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Disable')}">${Craft.t('neo', 'Disable')}</a></li>
-                    <li class="hidden"><a data-icon="enabled" data-action="enable" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Enable')}">${Craft.t('neo', 'Enable')}</a></li>
-                    <li class="hidden"><a data-icon="uarr" data-action="moveUp" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move up')}">${Craft.t('neo', 'Move up')}</a></li>
-                    <li class="hidden"><a data-icon="darr" data-action="moveDown" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Move down')}">${Craft.t('neo', 'Move down')}</a></li>
-                  </ul>
-                  <hr>
-                  <ul class="padded">
-                    <li><a data-icon="plus" data-action="add" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Add block above')}">${Craft.t('neo', 'Add block above')}</a></li>
-                    <li><a data-icon="field" data-action="copy" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Copy')}">${Craft.t('neo', 'Copy')}</a></li>
-                    <li><a data-icon="brush" data-action="paste" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Paste')}">${Craft.t('neo', 'Paste')}</a></li>
-                    <li><a data-icon="share" data-action="duplicate" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Clone')}">${Craft.t('neo', 'Clone')}</a></li>
-                  </ul>`)
-
-    if (type.isDeletableByUser()) {
-      elementHtml.push(`
-                  <hr>
-                  <ul class="padded">
-                    <li><a class="error" data-icon="remove" data-action="delete" href="#" type="button" role="button" aria-label="${Craft.t('neo', 'Delete')}">${Craft.t('neo', 'Delete')}</a></li>
-                  </ul>`)
-    }
-
-    elementHtml.push(`
-                </div>
-              </div>
-            </div>
-            <div class="ni_block_topbar_item block-reorder">
-              <a class="move icon" title="${Craft.t('neo', 'Reorder')}" aria-label="${Craft.t('neo', 'Reorder')}" role="button" data-neo-b="${this._id}.button.move"></a>
-            </div>
-          </div>
-        </div>`)
-
-    if (hasTabs || isParent) {
-      elementHtml.push(`
-        <div class="ni_block_body" data-neo-b="${this._id}.container.body">`)
-
-      if (hasTabs) {
-        elementHtml.push(`
-          <div class="ni_block_content" data-neo-b="${this._id}.container.content">
-            ${this.getHtml()}
-          </div>`)
-      }
-
-      if (isParent && this._renderOldChildBlocksContainer) {
-        elementHtml.push(`
-          <div class="ni_block_children" data-neo-b="${this._id}.container.children">
-            <div class="ni_blocks" data-neo-b="${this._id}.container.blocks">
-            </div>
-            <div data-neo-b="${this._id}.container.buttons" class="hidden"></div>
-            <div data-neo-b="${this._id}.container.childrenWarnings" class="hidden">
-              <p class="first warning with-icon">${Craft.t('neo', "This Neo field's maximum number of levels has been reached, so no child blocks can be added here.")}</p>
-            </div>
-          </div>`)
-      }
-
-      elementHtml.push(`
-        </div>`)
-    }
-
-    if (isParent) {
-      elementHtml.push(`
-        <div class="ni_block_collapsed-children" data-neo-b="${this._id}.container.collapsedChildren"></div>`)
-    }
-
-    elementHtml.push(`
-      <div data-neo="container.buttons"></div>`)
-
-    const $elementHtml = $(elementHtml.join(''))
-
-    if (showHandle) {
-      $('<div/>')
-        .addClass('ni_block_topbar_item handle')
-        .prop('data-neo-b', `${this._id}.container.handle`)
-        .append(Craft.ui.createCopyTextBtn({
-          id: `${baseInputId}-${type.getHandle()}-attribute`,
-          class: ['code', 'small', 'light'],
-          value: type.getHandle()
-        }))
-        .insertAfter($elementHtml.find('.ni_block_topbar_item.title'))
-    }
-
-    return $elementHtml
-  },
-
   initUi (callInitUiElements = true) {
     if (this._initialised) {
       // Nothing to do here
@@ -339,8 +135,8 @@ export default Garnish.Base.extend({
     }
 
     if (callInitUiElements) {
-      this.$foot = $(this.getJs()).filter(_resourceFilter)
-      Garnish.$bod.append(this.$foot)
+      Craft.appendBodyHtml(this._bodyHtml)
+      Craft.appendHeadHtml(this._headHtml)
       Craft.initUiElements(this.$contentContainer)
     }
 
@@ -458,18 +254,14 @@ export default Garnish.Base.extend({
    * @since 3.9.0
    */
   getHtml () {
-    return this._html !== null
-      ? this._html.replace(/__NEOBLOCK__/g, this._id)
-      : this._blockType.getHtml(this._id)
+    return this._blockHtml.replace(/__NEOBLOCK__/g, this._id)
   },
 
   /**
    * @since 3.9.0
    */
   getJs () {
-    return this._js !== null
-      ? this._js.replace(/__NEOBLOCK__/g, this._id)
-      : this._blockType.getJs(this._id)
+    return this._bodyHtml.replace(/__NEOBLOCK__/g, this._id)
   },
 
   destroy () {
@@ -492,6 +284,15 @@ export default Garnish.Base.extend({
 
   getId () {
     return this._id
+  },
+
+  /**
+   * @public
+   * @returns the block UUID
+   * @since 4.2.0
+   */
+  getUuid () {
+    return this._uuid
   },
 
   /**

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Changed
+- New Neo input blocks are now always loaded from the server, regardless of the `enableLazyLoadingNewBlocks` plugin setting
+
+### Deprecated
+- Deprecated `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`
+- Deprecated `benf\neo\services\Blocks::renderTabs()`
+
 ### Fixed
 - Fixed a bug where swapping the positions of new Neo blocks could cause a mixup of field layout elements and content loss
 - Fixed an error that could occur when updating visible field layout elements after the first change to an entry

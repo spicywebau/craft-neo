@@ -65,6 +65,7 @@ class Settings extends Model
     /**
      * @var bool Whether to lazy load input block HTML for the first new block of a type.
      * @since 3.9.3
+     * @deprecated in 4.2.0
      */
     public bool $enableLazyLoadingNewBlocks = true;
 

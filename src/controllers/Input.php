@@ -57,6 +57,7 @@ use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\Plugin as Neo;
 use Craft;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 use craft\web\Controller;
 use craft\web\View;
 use yii\web\Response;
@@ -81,18 +82,20 @@ class Input extends Controller
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $requestService = Craft::$app->getRequest();
+        $request = Craft::$app->getRequest();
         $view = $this->getView();
 
-        $blocks = $requestService->getRequiredBodyParam('blocks');
-        $namespace = $requestService->getParam('namespace');
+        $blocks = $request->getRequiredBodyParam('blocks');
+        $fieldId = $request->getRequiredBodyParam('fieldId');
+        $siteId = $request->getParam('siteId');
+        $namespace = $request->getParam('namespace');
 
         // Remove the ending section from the namespace, since we're adding it back in renderTabs
         if (($whereToStop = strrpos($namespace, '[')) !== false) {
             $namespace = substr($namespace, 0, $whereToStop);
         }
 
-        $siteId = $requestService->getParam('siteId');
+        $field = Craft::$app->getFields()->getFieldById($fieldId);
         $renderedBlocks = [];
 
         foreach ($blocks as $rawBlock) {
@@ -101,30 +104,42 @@ class Input extends Controller
             if (isset($rawBlock['ownerId']) && $rawBlock['ownerId']) {
                 $block->ownerId = $rawBlock['ownerId'];
             }
+            $block->fieldId = $fieldId;
             $block->typeId = $rawBlock['type'];
             $block->level = $rawBlock['level'];
             $block->enabled = isset($rawBlock['enabled']) && (bool)$rawBlock['enabled'];
             $block->setCollapsed(isset($rawBlock['collapsed']) && (bool)$rawBlock['collapsed']);
             $block->siteId = $siteId ?? Craft::$app->getSites()->getPrimarySite()->id;
+            $block->uid = StringHelper::UUID();
 
             if (!empty($rawBlock['content'])) {
                 $block->setFieldValues($rawBlock['content']);
             }
 
+            Craft::$app->getElements()->saveElement($block, false);
+
+            $html = $view->renderTemplate('neo/block.twig', [
+                'handle' => $namespace ?? $field->handle,
+                'block' => $block,
+                'static' => false,
+            ]);
+
             $renderedBlocks[] = [
+                'blockHtml' => $html,
+                'bodyHtml' => $view->getBodyHtml(),
+                'headHtml' => $view->getHeadHtml(),
+                'collapsed' => $block->getCollapsed(),
                 'type' => (int)$type->id,
                 'level' => $block->level,
                 'enabled' => $block->enabled,
-                'collapsed' => $block->getCollapsed(),
-                'tabs' => Neo::$plugin->blocks->renderTabs($block, $namespace),
+                'id' => $block->id,
+                'uuid' => $block->uid,
             ];
         }
 
         return $this->asJson([
             'success' => true,
             'blocks' => $renderedBlocks,
-            'bodyHtml' => $view->getBodyHtml(),
-            'headHtml' => $view->getHeadHtml(),
         ]);
     }
 

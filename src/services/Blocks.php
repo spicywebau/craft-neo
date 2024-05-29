@@ -43,6 +43,7 @@ class Blocks extends Component
      * @param string|null $namespace
      * @throws
      * @return array The tabs data.
+     * @deprecated in 4.2.0
      */
     public function renderTabs(Block $block, ?string $namespace = null): array
     {

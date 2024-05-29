@@ -87,7 +87,14 @@ export default Garnish.Base.extend({
   getTopLevel () { return this._topLevel },
   getTabNames () { return this._tabNames },
 
+  /**
+   * @deprecated in 4.2.0
+   */
   getTabs () { return this._tabs !== null ? Array.from(this._tabs) : null },
+
+  /**
+   * @deprecated in 4.2.0
+   */
   async loadTabs () {
     if (this._tabs !== null) {
       return
@@ -127,6 +134,29 @@ export default Garnish.Base.extend({
       this._html = tabs.html
       this._js = tabs.js
     }
+  },
+
+  /**
+   * @since 4.2.0
+   */
+  async newBlock () {
+    NS.enter(this._field.getNamespace())
+    const data = {
+      namespace: NS.toFieldName(),
+      fieldId: this._field?.getId(),
+      siteId: this._field?.getSiteId(),
+      blocks: [{
+        collapsed: false,
+        enabled: true,
+        level: 1,
+        ownerId: this._field?.getOwnerId(),
+        type: this._id
+      }]
+    }
+    NS.leave()
+    const response = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
+
+    return response.data.blocks[0]
   },
 
   getHtml (blockId = null) {
