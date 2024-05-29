@@ -10,7 +10,7 @@
 - Deprecated `benf\neo\services\Blocks::renderTabs()`
 
 ### Fixed
-- Fixed a bug where swapping the positions of new Neo blocks could cause a mixup of field layout elements and content loss
+- Fixed a bug where Neo would try to update an input block's visible field layout elements while dragging the block (thanks @myleshyson)
 - Fixed an error that could occur when updating visible field layout elements after the first change to an entry
 - Fixed a bug where condition rules for parent block field values were not always being applied
 
