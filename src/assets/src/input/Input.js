@@ -1180,7 +1180,14 @@ export default Garnish.Base.extend({
         await this._addSpinnerBefore(siblingBlock)
       }
 
-      const newBlock = await e.blockType.newBlock()
+      const prevSiblingId = addAfter ? siblingBlock?.getDuplicatedBlockId() : null
+      const parentId = siblingBlock?.getParent()?.getDuplicatedBlockId() ?? null
+      const newBlock = await e.blockType.newBlock({
+        prevSiblingId: prevSiblingId ?? null,
+        parentId,
+        level,
+        ownerId: elementEditor.settings.elementId
+      })
       const blockId = newBlock.id
       const block = new Block({
         namespace: [...this._templateNs, blockId],

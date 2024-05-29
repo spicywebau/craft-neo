@@ -84,6 +84,7 @@ class Input extends Controller
 
         $request = Craft::$app->getRequest();
         $view = $this->getView();
+        $structuresService = Craft::$app->getStructures();
 
         $blocks = $request->getRequiredBodyParam('blocks');
         $fieldId = $request->getRequiredBodyParam('fieldId');
@@ -118,11 +119,29 @@ class Input extends Controller
 
             Craft::$app->getElements()->saveElement($block, false);
 
+            // Temporarily save the block's position in the block structure before rendering the block template,
+            // so the block template shows the correct visible field layout elements
+            $structure = (isset($rawBlock['prevSiblingId']) || isset($rawBlock['parentId'])) && isset($rawBlock['ownerId'])
+                ? Neo::$plugin->blocks->getStructure($fieldId, $rawBlock['ownerId'], $siteId)?->getStructure()
+                : null;
+
+            if ($structure !== null) {
+                if (isset($rawBlock['prevSiblingId'])) {
+                    $structuresService->moveAfter($structure->id, $block, (int)$rawBlock['prevSiblingId']);
+                } elseif (isset($rawBlock['parentId'])) {
+                    $structuresService->prepend($structure->id, $block, (int)$rawBlock['parentId']);
+                }
+            }
+
             $html = $view->renderTemplate('neo/block.twig', [
                 'handle' => $namespace ?? $field->handle,
                 'block' => $block,
                 'static' => false,
             ]);
+
+            if ($structure !== null) {
+                $structuresService->remove($structure->id, $block);
+            }
 
             $renderedBlocks[] = [
                 'blockHtml' => $html,

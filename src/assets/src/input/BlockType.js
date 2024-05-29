@@ -139,19 +139,19 @@ export default Garnish.Base.extend({
   /**
    * @since 4.2.0
    */
-  async newBlock () {
+  async newBlock (settings = {}) {
     NS.enter(this._field.getNamespace())
     const data = {
       namespace: NS.toFieldName(),
       fieldId: this._field?.getId(),
       siteId: this._field?.getSiteId(),
-      blocks: [{
+      blocks: [Object.assign({
         collapsed: false,
         enabled: true,
         level: 1,
         ownerId: this._field?.getOwnerId(),
         type: this._id
-      }]
+      }, settings)]
     }
     NS.leave()
     const response = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
