@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.0 - 2024-05-30
 
 ### Changed
 - New Neo input blocks are now always loaded from the server, regardless of the `enableLazyLoadingNewBlocks` plugin setting
