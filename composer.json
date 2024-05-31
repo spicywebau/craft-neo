@@ -1,6 +1,6 @@
 {
   "name": "spicyweb/craft-neo",
-  "description": "A Matrix-like field type that uses existing fields",
+  "description": "A Matrix-like field type with block hierarchy",
   "version": "5.0.0-RC.1",
   "type": "craft-plugin",
   "keywords": [
