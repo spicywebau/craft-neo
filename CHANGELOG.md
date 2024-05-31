@@ -96,8 +96,28 @@
 - Removed Craft 4 compatibility
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
-- Removed `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`; new blocks are now always lazy loaded
+- Removed `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`
 - Removed `benf\neo\services\Blocks::renderTabs()`
+
+## 4.2.0 - 2024-05-30
+
+### Changed
+- New Neo input blocks are now always loaded from the server, regardless of the `enableLazyLoadingNewBlocks` plugin setting
+
+### Deprecated
+- Deprecated `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`
+- Deprecated `benf\neo\services\Blocks::renderTabs()`
+
+### Fixed
+- Fixed a bug where Neo would try to update an input block's visible field layout elements while dragging the block (thanks @myleshyson)
+- Fixed an error that could occur when updating visible field layout elements after the first change to an entry
+- Fixed a bug where condition rules for parent block field values were not always being applied
+- Fixed a bug where deleting Neo block types would cause duplicate items in the Neo field's item order in the project config
+
+## 4.1.3 - 2024-05-27
+
+### Fixed
+- Fixed an error that occurred when reapplying Neo field propagation methods via console command (thanks @pnpaes)
 
 ## 4.1.2 - 2024-04-09
 

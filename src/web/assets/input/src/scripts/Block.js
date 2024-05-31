@@ -271,7 +271,7 @@ export default Garnish.Base.extend({
   /**
    * @public
    * @returns the block UUID
-   * @since 5.0.0
+   * @since 4.2.0
    */
   getUuid () {
     return this._uuid
