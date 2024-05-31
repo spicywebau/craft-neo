@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.0-RC.2 - 2024-05-31
 
 ### Added
 - Added `benf\neo\web\twig\Extension` (new provider of the `neoblock` test)
