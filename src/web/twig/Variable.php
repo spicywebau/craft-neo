@@ -1,6 +1,6 @@
 <?php
 
-namespace benf\neo;
+namespace benf\neo\web\twig;
 
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
@@ -9,10 +9,10 @@ use Craft;
 /**
  * Class Variable
  *
- * @package benf\neo
+ * @package benf\neo\web\twig
  * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
- * @since 2.0.0
+ * @since 5.0.0
  */
 class Variable
 {

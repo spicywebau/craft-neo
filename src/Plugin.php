@@ -14,6 +14,8 @@ use benf\neo\services\Blocks as BlocksService;
 use benf\neo\services\BlockTypes as BlockTypesService;
 use benf\neo\services\Conversion as ConversionService;
 use benf\neo\services\Fields as FieldsService;
+use benf\neo\web\twig\Extension as TwigExtension;
+use benf\neo\web\twig\Variable;
 use Craft;
 use craft\base\conditions\BaseCondition;
 use craft\base\Model;

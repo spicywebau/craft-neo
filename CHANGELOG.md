@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `benf\neo\web\twig\Extension` (new provider of the `neoblock` test)
+- Added `benf\neo\web\twig\Variable` (new provider of the `craft.neo` Twig variable)
+
+### Removed
+- Removed `benf\neo\TwigExtension` (`benf\neo\web\twig\Extension` now provides the `neoblock` test)
+- Removed `benf\neo\Variable` (`benf\neo\web\twig\Variable` now provides the `craft.neo` Twig variable)
+
 ## 5.0.0-RC.1 - 2024-05-23
 
 ### Changed

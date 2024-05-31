@@ -1,20 +1,20 @@
 <?php
 
-namespace benf\neo;
+namespace benf\neo\web\twig;
 
 use benf\neo\elements\Block;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigTest;
 
 /**
- * Class TwigExtension
+ * Class Extension
  *
- * @package benf\neo
+ * @package benf\neo\web\twig
  * @author Spicy Web <plugins@spicyweb.com.au>
  * @author Benjamin Fleming
- * @since 2.0.0
+ * @since 5.0.0
  */
-class TwigExtension extends AbstractExtension
+class Extension extends AbstractExtension
 {
     /**
      * @return TwigTest[]
