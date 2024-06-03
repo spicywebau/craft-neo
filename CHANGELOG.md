@@ -1,113 +1,43 @@
 # Changelog
 
-## 5.0.0-RC.2 - 2024-05-31
+## 5.0.0 - 2024-06-03
 
 ### Added
-- Added `benf\neo\web\twig\Extension` (new provider of the `neoblock` test)
-- Added `benf\neo\web\twig\Variable` (new provider of the `craft.neo` Twig variable)
-
-### Removed
-- Removed `benf\neo\TwigExtension` (`benf\neo\web\twig\Extension` now provides the `neoblock` test)
-- Removed `benf\neo\Variable` (`benf\neo\web\twig\Variable` now provides the `craft.neo` Twig variable)
-
-## 5.0.0-RC.1 - 2024-05-23
-
-### Changed
-- Neo input blocks will now show their icon on the top bar, if their block type has an icon set
-
-## 5.0.0-beta.10 - 2024-05-02
-
-### Fixed
-- Fixed an error that occurred when condition rules were set on a block type field layout element, if a field on the field layout had an overridden handle
-
-## 5.0.0-beta.9 - 2024-04-30
-
-### Added
-- Added `benf\neo\web\assets\configurator\ConfiguratorAsset`
-- Added `benf\neo\web\assets\converter\ConverterAsset`
-- Added `benf\neo\web\assets\input\InputAsset`
-
-### Removed
-- Removed `benf\neo\assets\InputAsset` (`benf\neo\web\assets\input\InputAsset` is used instead)
-- Removed `benf\neo\assets\SettingsAsset` (`benf\neo\web\assets\configurator\ConfiguratorAsset` and `benf\neo\web\assets\converter\ConverterAsset` are used instead)
-
-### Fixed
-- Fixed an error that occurred when eager loading Neo block content
-- Fixed styling issues with block action menus
-
-## 5.0.0-beta.8 - 2024-04-29
-
-### Fixed
-- Fixed an invalid owner ID error that occurred when saving Neo revision blocks with nested inline Matrix entries
-- Fixed a bug where Neo fields converted to Matrix fields would not retain nested Matrix entries
-
-## 5.0.0-beta.7 - 2024-04-26
-
-### Fixed
-- Fixed a bug where blocks' conditionally-loaded subfield values were not being saved
-
-## 5.0.0-beta.6 - 2024-04-12
-
-### Changed
-- Block type action menus are now implemented as disclosure menus
-
-### Fixed
-- Fixed a bug where action menus on existing block types' field layout designers would not open
-- Fixed a bug where pasting a block copied from one entry onto a different entry, then saving the first entry, could cause the pasted block to be saved for the first entry
-
-## 5.0.0-beta.5 - 2024-04-08
-
-### Added
+- Added Craft 5 compatibility
+- Added `benf\neo\models\BlockType::$color` and the `neoblocktypes.color` column
 - Added `benf\neo\services\Conversion::convertBlockToEntry()`
 - Added `benf\neo\services\Conversion::convertBlockTypeToEntryType()`
 - Added `benf\neo\services\Conversion::convertBlockTypesToEntryTypes()`
-
-### Removed
-- Removed `benf\neo\services\Conversion::convertBlockToToMatrix()`
-- Removed `benf\neo\services\Conversion::convertBlockTypeToMatrix()`
-- Removed `benf\neo\services\Conversion::convertBlockTypesToMatrix()`
-
-### Fixed
-- Fixed Neo-to-Matrix conversion
-
-## 5.0.0-beta.4 - 2024-04-03
-
-### Fixed
-- Fixed a bug where action menus would not open on new blocks that contained at least one dropdown field
-
-## 5.0.0-beta.3 - 2024-04-03
-
-> {note} See also the release notes for [4.0.8](https://github.com/spicywebau/craft-neo/blob/5.x/CHANGELOG.md#408---2024-03-22) and [4.1.0](https://github.com/spicywebau/craft-neo/blob/5.x/CHANGELOG.md#410---2024-04-03).
-
-### Fixed
-- Fixed a bug where content would be lost when upgrading from Craft 4
-
-## 5.0.0-beta.2 - 2024-03-11
-
-### Added
-- Added `benf\neo\models\BlockType::$color` and the `neoblocktypes.color` column
+- Added `benf\neo\web\assets\configurator\ConfiguratorAsset`
+- Added `benf\neo\web\assets\converter\ConverterAsset`
+- Added `benf\neo\web\assets\input\InputAsset`
+- Added `benf\neo\web\twig\Extension` (new provider of the `neoblock` test)
+- Added `benf\neo\web\twig\Variable` (new provider of the `craft.neo` Twig variable)
 
 ### Changed
+- Block type action menus are now implemented as disclosure menus
+- Neo input blocks will now show their icon on the top bar, if their block type has an icon set
 - `benf\neo\models\BlockType` now implements `craft\base\Colorable`
+- Neo block validation on save no longer clears out errors added previously in the request, allowing other plugins or modules to set their own validation errors (thanks @JasonStainton)
 
 ### Removed
+- Removed Craft 4 compatibility
+- Removed `benf\neo\assets\InputAsset` (`benf\neo\web\assets\input\InputAsset` is used instead)
+- Removed `benf\neo\assets\SettingsAsset` (`benf\neo\web\assets\configurator\ConfiguratorAsset` and `benf\neo\web\assets\converter\ConverterAsset` are used instead)
 - Removed `benf\neo\Field::PROPAGATION_METHOD_ALL`; use `craft\enums\PropagationMethod::All` instead
 - Removed `benf\neo\Field::PROPAGATION_METHOD_CUSTOM`; use `craft\enums\PropagationMethod::Custom` instead
 - Removed `benf\neo\Field::PROPAGATION_METHOD_LANGUAGE`; use `craft\enums\PropagationMethod::Language` instead
 - Removed `benf\neo\Field::PROPAGATION_METHOD_NONE`; use `craft\enums\PropagationMethod::None` instead
 - Removed `benf\neo\Field::PROPAGATION_METHOD_SITE_GROUP`; use `craft\enums\PropagationMethod::SiteGroup` instead
-
-## 5.0.0-beta.1 - 2024-03-10
-
-### Added
-- Added Craft 5 compatibility
-
-### Removed
-- Removed Craft 4 compatibility
-- Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
-- Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 - Removed `benf\neo\models\Settings::$enableLazyLoadingNewBlocks`
 - Removed `benf\neo\services\Blocks::renderTabs()`
+- Removed `benf\neo\services\Conversion::convertBlockToToMatrix()`
+- Removed `benf\neo\services\Conversion::convertBlockTypeToMatrix()`
+- Removed `benf\neo\services\Conversion::convertBlockTypesToMatrix()`
+- Removed `benf\neo\TwigExtension` (`benf\neo\web\twig\Extension` now provides the `neoblock` test)
+- Removed `benf\neo\Variable` (`benf\neo\web\twig\Variable` now provides the `craft.neo` Twig variable)
+- Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
+- Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
 ## 4.2.0 - 2024-05-30
 
