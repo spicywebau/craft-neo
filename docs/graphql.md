@@ -1,6 +1,6 @@
 # GraphQL
 
-As of version 2.5.0, Neo supports GraphQL that's now a feature within Craft CMS.
+Neo fields, and content within them, can be accessed and manipulated using Craft's GraphQL API.
 
 ## Fragment syntax
 `{neo field handle}_{neo block type handle}_BlockType`
@@ -209,7 +209,7 @@ body(level: 0) {
 
 ## Mutations
 
-Mutating Neo fields is largely the same process as with [Matrix fields](https://craftcms.com/docs/4.x/graphql.html#matrix-fields-in-mutations), but with two differences:
+Mutating Neo fields is largely the same process as with [Matrix fields in Craft 4](https://craftcms.com/docs/4.x/graphql.html#matrix-fields-in-mutations), but with two differences:
 
 - Neo-related input types have Neo in their name, rather than Matrix; e.g. the input type for a Neo field with the handle `yourNeoField` is `yourNeoField_NeoInput`.
 - Neo block data can include a `level` argument for setting the block's level. If `level` isn't specified for new blocks, it will default to 1.

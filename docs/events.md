@@ -31,8 +31,8 @@ Note that, if Neo blocks already exist in a context where their block type is fi
 This example removes the ability to use a block type with the handle `quote`, and a block type group with the name `Structure`, from a `contentBlocks` Neo field when loading an entry from the `blog` section.
 
 ```php
-use benf\neo\assets\InputAsset;
 use benf\neo\events\FilterBlockTypesEvent;
+use benf\neo\web\assets\input\InputAsset;
 use craft\elements\Entry;
 use yii\base\Event;
 

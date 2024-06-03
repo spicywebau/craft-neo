@@ -2,7 +2,7 @@
 
 Neo versions 3.5.0 and later include support for the [Feed Me](https://plugins.craftcms.com/feed-me) plugin.
 
-Feed Me support in Neo works in largely the same way as [importing into Matrix fields](https://docs.craftcms.com/feed-me/v4/guides/importing-into-matrix.html), with the exception that Neo blocks can have their level set. To adapt the second example from the [Note on structure](https://docs.craftcms.com/feed-me/v4/guides/importing-into-matrix.html#note-on-structure) section of the Matrix import guide, setting the block levels in the data to be imported would look something like this:
+Feed Me support in Neo works in largely the same way as [importing into Matrix fields in Craft 4](https://docs.craftcms.com/feed-me/v4/guides/importing-into-matrix.html), with the exception that Neo blocks can have their level set. To adapt the second example from the [Note on structure](https://docs.craftcms.com/feed-me/v4/guides/importing-into-matrix.html#note-on-structure) section of the Matrix import guide, setting the block levels in the data to be imported would look something like this:
 
 XML:
 

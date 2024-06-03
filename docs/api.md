@@ -2,7 +2,7 @@
 
 ## Element Query
 
-Like Matrix field values, Neo field values are [element queries](https://docs.craftcms.com/v3/dev/element-queries/). As Neo fields contain structure, this API contains a bit more than the Matrix field.
+Like Matrix field values, Neo field values are [element queries](https://craftcms.com/docs/5.x/development/element-queries.html). As Neo fields contain structure, this API contains a bit more than the Matrix field.
 
 ### Parameters
 

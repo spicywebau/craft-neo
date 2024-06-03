@@ -42,9 +42,9 @@ One of `--type-id` and `--handle` must be specified, and if `--handle` is specif
 Edits a Neo block type.
 
 ### Options
-- `--type-id`: The ID of the block type to delete.
-- `--handle`: The handle of the block type to delete.
-- `--field-id`: The field ID of the block type to delete.
+- `--type-id`: The ID of the block type to edit.
+- `--handle`: The handle of the block type to edit.
+- `--field-id`: The field ID of the block type to edit.
 - `--set-name`: A new name to set for the block type.
 - `--set-handle`: A new handle to set for the block type.
 - `--set-description`: A new description to set for the block type.
@@ -91,4 +91,4 @@ This command reapplies the propagation methods for Neo fields' blocks, optionall
 
 ## `resave/neo-blocks`
 
-This command resaves Neo blocks and has the same options as Craft's in-built [`resave/matrix-blocks`](https://craftcms.com/docs/4.x/console-commands.html#resave-matrix-blocks) command.
+This command resaves Neo blocks and has the same options as Craft 4's in-built [`resave/matrix-blocks`](https://craftcms.com/docs/4.x/console-commands.html#resave-matrix-blocks) command.

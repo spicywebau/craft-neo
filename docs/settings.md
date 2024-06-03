@@ -16,7 +16,7 @@ This setting, which defaults to `true`, controls whether to skip updating search
 
 This setting, which defaults to `'classic'`, controls the type of new block buttons/dropdowns that will be used on Neo input fields. The following options ara available:
 
-- `'classic'`: buttons in the style of a Matrix field's buttons (prior to Neo 3.6.0 the only style available)
+- `'classic'`: buttons in the style of Matrix field buttons from Craft 4
 - `'grid'`: a new block grid using block type icons, inspired by [Vizy](https://github.com/verbb/vizy)
 - `'list'`: show new block buttons in a permanent dropdown style, that also shows block type icons
 
@@ -38,10 +38,3 @@ Type: `bool`
 Default: `true`
 
 This setting controls whether to allow setting user permissions for creating, editing and deleting blocks of a certain type. Note that, if disabled, resaving a user's or user group's permissions will cause any existing block type permissions to be lost.
-
-## `enableLazyLoadingNewBlocks`
-
-Type: `bool`
-Default: `true`
-
-This setting controls whether to lazy load input block HTML for the first new block of a type created after loading an element editor page.

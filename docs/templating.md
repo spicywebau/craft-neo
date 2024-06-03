@@ -21,7 +21,7 @@
 </ol>
 ```
 
-This is typically the most you'd need to know. Similar to how Matrix fields work, but with a notable difference. For Neo fields that have child blocks, you will first need to filter for blocks on the first level. It's essentially the same API as the [`craft.entries()`](https://docs.craftcms.com/v3/dev/element-queries/entry-queries.html) element query.
+This is typically the most you'd need to know. Similar to how Matrix fields work, but with a notable difference. For Neo fields that have child blocks, you will first need to filter for blocks on the first level. It's essentially the same API as the [`craft.entries()`](https://craftcms.com/docs/5.x/reference/element-types/entries.html#querying-entries) element query.
 
 ### Recursive
 
@@ -40,11 +40,11 @@ This is typically the most you'd need to know. Similar to how Matrix fields work
 </ol>
 ```
 
-Because Neo blocks have a `level` attribute, Neo fields are compatible with the [`{% nav %}`](https://docs.craftcms.com/v3/dev/tags/nav.html) tag.
+Because Neo blocks have a `level` attribute, Neo fields are compatible with the [`{% nav %}`](https://craftcms.com/docs/5.x/reference/twig/tags.html#nav) tag.
 
 ### `craft.neo.blocks()`
 
-If you need to get Neo blocks in your template in a way that isn't connected to a Neo field value on a specific Craft element, you can use `craft.neo.blocks()`. This returns a [Neo block query](api.md#element-query) which can then be used in the same way as a typical [Craft element query](https://docs.craftcms.com/v3/dev/element-queries/).
+If you need to get Neo blocks in your template in a way that isn't connected to a Neo field value on a specific Craft element, you can use `craft.neo.blocks()`. This returns a [Neo block query](api.md#element-query) which can then be used in the same way as a typical [Craft element query](https://craftcms.com/docs/5.x/development/element-queries.html).
 
 ### More information
 

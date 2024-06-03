@@ -1,10 +1,10 @@
 # Eager Loading
 
-As of version 1.4.0, Neo supports [eager-loading](https://docs.craftcms.com/v3/dev/eager-loading-elements.html). However, given the nature of eager-loading, templating an eager-loaded Neo field is quite different to a non-eager-loaded Neo field. This page will attempt to educate you on the differences and provide an example of how to template with it. Keep in mind it expects you have a fairly solid understanding of the Elements system in Craft.
+As of version 1.4.0, Neo supports [eager-loading](https://craftcms.com/docs/5.x/development/eager-loading.html). However, given the nature of eager-loading, templating an eager-loaded Neo field is quite different to a non-eager-loaded Neo field. This page will attempt to educate you on the differences and provide an example of how to template with it. Keep in mind it expects you have a fairly solid understanding of the Elements system in Craft.
 
 ## How it works with Neo
 
-The typical value of a Neo field is something called an [Element Query](https://docs.craftcms.com/v3/dev/element-queries/). At its core, it's simply a wrapper for creating database queries that retrieve elements, or in this case, Neo blocks. You can modify these element queries to more finely select elements &mdash; for example, you can add a level filter to only select Neo blocks from that particular level: `entry.neoField.level(1)`.
+The typical value of a Neo field is something called an [Element Query](https://craftcms.com/docs/5.x/development/element-queries.html). At its core, it's simply a wrapper for creating database queries that retrieve elements, or in this case, Neo blocks. You can modify these element queries to more finely select elements &mdash; for example, you can add a level filter to only select Neo blocks from that particular level: `entry.neoField.level(1)`.
 
 An eager-loaded Neo field is no longer an element query. The database query that an element query would make has already been made when eager-loading, with the resulting value of `entry.neoField` being a simple array. This means you can no longer filter your results like above.
 
@@ -90,7 +90,7 @@ The `useMemoized` method can be called without passing it an argument, which tel
 
 ## Eager loading fields inside Neo blocks
 
-From here on out, eager-loading behaves the same way as the Matrix field type. [Refer to the official Craft documentation](https://docs.craftcms.com/v3/dev/eager-loading-elements.html#eager-loading-elements-related-to-matrix-blocks).
+From here on out, eager-loading behaves the same way as the Matrix field type. [Refer to the official Craft documentation](https://craftcms.com/docs/5.x/development/eager-loading.html).
 
 ### Complete Example
 
