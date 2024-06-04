@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.0.1 - 2024-06-04
+
+### Fixed
+- Fixed an error that occurred when trying to create a Neo block when editing a global set
+
 ## 5.0.0 - 2024-06-03
 
 ### Added
