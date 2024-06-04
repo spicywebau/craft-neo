@@ -1184,7 +1184,7 @@ export default Garnish.Base.extend({
         prevSiblingId: prevSiblingId ?? null,
         parentId,
         level,
-        ownerId: elementEditor.settings.elementId
+        ownerId: elementEditor?.settings.elementId ?? this._ownerId
       })
       const blockId = newBlock.id
       const block = new Block({
@@ -1204,7 +1204,8 @@ export default Garnish.Base.extend({
       this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
     } catch (error) {
       this._removeSpinner()
-      Craft.cp.displayError(error)
+      console.error(error)
+      Craft.cp.displayError(error.message)
     } finally {
       elementEditor?.resume()
     }
