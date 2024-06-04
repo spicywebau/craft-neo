@@ -84,6 +84,7 @@ class Input extends Controller
 
         $request = Craft::$app->getRequest();
         $view = $this->getView();
+        $elementsService = Craft::$app->getElements();
         $structuresService = Craft::$app->getStructures();
 
         $blocks = $request->getRequiredBodyParam('blocks');
@@ -119,9 +120,9 @@ class Input extends Controller
 
             Craft::$app->getElements()->saveElement($block, false);
 
-            // Temporarily save the block's position in the block structure before rendering the block template,
-            // so the block template shows the correct visible field layout elements
-            $structure = (isset($rawBlock['prevSiblingId']) || isset($rawBlock['parentId'])) && isset($rawBlock['ownerId'])
+            // If the owner supports drafts, temporarily save the block's position in the block structure before
+            // rendering the block template, so the block template shows the correct visible field layout elements
+            $structure = $elementsService->canCreateDrafts($block->getOwner()) && (isset($rawBlock['prevSiblingId']) || isset($rawBlock['parentId']))
                 ? Neo::$plugin->blocks->getStructure($fieldId, $rawBlock['ownerId'], $siteId)?->getStructure()
                 : null;
 
