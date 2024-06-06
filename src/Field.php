@@ -1655,11 +1655,15 @@ class Field extends BaseField implements
                 $block->setOwner($element);
                 $block->siteId = $element->siteId;
                 $block->enabled = (bool)($blockData['enabled'] ?? true);
-                $block->unsavedId = $i;
 
                 // Use the provided UUID, so the block can persist across future autosaves
                 if ($uids) {
                     $block->uid = $blockId;
+                    $block->id = Db::idByUid(Table::ELEMENTS, $blockId);
+                }
+
+                if ($block->id === null) {
+                    $block->unsavedId = $i;
                 }
             }
 
