@@ -1464,7 +1464,14 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $block->primaryOwnerId = $block->ownerId = $element->id;
                 $block->siteId = $element->siteId;
                 $block->enabled = (bool)($blockData['enabled'] ?? true);
-                $block->unsavedId = $i;
+
+                // If the block ID is numeric and not in the `newX` format,
+                // it's a saved block that just isn't in the structure yet
+                if (is_numeric($blockId)) {
+                    $block->id = (int)$blockId;
+                } else {
+                    $block->unsavedId = $i;
+                }
             }
 
             $blockLevel = (int)($blockData['level'] ?? $block->level);
