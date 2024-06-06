@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.2 - 2024-06-06
 
 ### Fixed
 - Fixed an error that occurred when trying to create more than one Neo block on a new entry
