@@ -81,6 +81,7 @@ class Conversion extends Component
 
             $neoBlocks = [];
             $matrixEntries = [];
+            $neoBlockTypeIdsByBlockId = [];
             $matrixEntryTypeIdsByEntryId = [];
             $neoToMatrixTypeIds = [];
             $neoToMatrixElementIds = [];
@@ -109,10 +110,10 @@ class Conversion extends Component
                 $matrixEntryType = ArrayHelper::firstWhere($matrixField->getEntryTypes(), 'handle', $neoBlockType->handle);
                 $matrixEntry = $this->convertBlockToEntry($neoBlock, $matrixEntryType);
 
-                // The Neo block's block type ID is added here so it can be grabbed (and replaced with the Matrix entry
-                // type ID) when looping over these Matrix entries later on
+                // Store the Neo block's block type ID so it can be grabbed (and replaced with the Matrix entry type ID)
+                // when looping over these Matrix entries later on
                 $matrixEntry->id = $neoBlock->id;
-                $matrixEntry->typeId = $neoBlock->typeId;
+                $neoBlockTypeIdsByBlockId[$neoBlock->id] = $neoBlock->typeId;
                 $matrixEntries[] = $matrixEntry;
             }
 
@@ -141,7 +142,7 @@ class Conversion extends Component
                 $matrixEntry->id = null;
 
                 // Assign the correct entry type ID now that it exists (from saving the field above)
-                $neoBlockTypeId = $matrixEntry->typeId;
+                $neoBlockTypeId = $neoBlockTypeIdsByBlockId[$neoBlockId];
                 $matrixEntry->typeId = $neoToMatrixTypeIds[$neoBlockTypeId];
 
                 if (!$elementsService->saveElement($matrixEntry, false)) {

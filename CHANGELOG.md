@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur during Neo-to-Matrix conversion
+
 ## 5.0.2 - 2024-06-06
 
 ### Fixed
