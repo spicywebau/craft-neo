@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (4.x)
+## 4.2.3 - 2024-06-18
 
 ### Fixed
 - Fixed an error that occurred when pasting a Neo block on a different site from where it was copied
