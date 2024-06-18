@@ -1323,6 +1323,9 @@ export default Garnish.Base.extend({
     if (blocks.length > 0) {
       for (const pasteBlock of blocks) {
         pasteBlock.level += baseLevel
+
+        // Ensure the block data has the current owner ID
+        pasteBlock.ownerId = this._ownerId
       }
 
       NS.enter(this._templateNs)
