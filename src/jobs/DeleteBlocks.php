@@ -41,7 +41,7 @@ class DeleteBlocks extends BaseJob
                 ->anyStatus()
                 ->fieldId($this->fieldId)
                 ->siteId($siteId)
-                ->ownerId($this->elementId)
+                ->primaryOwnerId($this->elementId)
                 ->inReverse()
                 ->all();
 

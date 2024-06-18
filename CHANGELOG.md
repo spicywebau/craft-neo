@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an error that occurred when pasting a Neo block on a different site from where it was copied
+- Fixed a bug where unedited Neo blocks would be deleted from an entry, after editing the entry and saving as a new entry
 
 ## 4.2.2 - 2024-06-06
 
