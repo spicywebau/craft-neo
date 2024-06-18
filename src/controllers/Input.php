@@ -91,6 +91,8 @@ class Input extends Controller
         $fieldId = $request->getRequiredBodyParam('fieldId');
         $siteId = $request->getParam('siteId');
         $namespace = $request->getParam('namespace');
+        $unsavedIds = array_flip($request->getParam('unsavedIds', []));
+        $nextUnsavedId = 0;
 
         // Remove the ending section from the namespace, since we're adding it back in renderTabs
         if (($whereToStop = strrpos($namespace, '[')) !== false) {
@@ -99,6 +101,7 @@ class Input extends Controller
 
         $field = Craft::$app->getFields()->getFieldById($fieldId);
         $renderedBlocks = [];
+        $autosaveDrafts = Craft::$app->getConfig()->getGeneral()->autosaveDrafts;
 
         foreach ($blocks as $rawBlock) {
             $type = Neo::$plugin->blockTypes->getById((int)$rawBlock['type']);
@@ -118,20 +121,27 @@ class Input extends Controller
                 $block->setFieldValues($rawBlock['content']);
             }
 
-            Craft::$app->getElements()->saveElement($block, false);
+            if ($autosaveDrafts) {
+                Craft::$app->getElements()->saveElement($block, false);
 
-            // If the owner supports drafts, temporarily save the block's position in the block structure before
-            // rendering the block template, so the block template shows the correct visible field layout elements
-            $structure = $elementsService->canCreateDrafts($block->getOwner()) && (isset($rawBlock['prevSiblingId']) || isset($rawBlock['parentId']))
-                ? Neo::$plugin->blocks->getStructure($fieldId, $rawBlock['ownerId'], $siteId)?->getStructure()
-                : null;
+                // If the owner supports drafts, temporarily save the block's position in the block structure before
+                // rendering the block template, so the block template shows the correct visible field layout elements
+                $structure = $elementsService->canCreateDrafts($block->getOwner()) && (isset($rawBlock['prevSiblingId']) || isset($rawBlock['parentId']))
+                    ? Neo::$plugin->blocks->getStructure($fieldId, $rawBlock['ownerId'], $siteId)?->getStructure()
+                    : null;
 
-            if ($structure !== null) {
-                if (isset($rawBlock['prevSiblingId'])) {
-                    $structuresService->moveAfter($structure->id, $block, (int)$rawBlock['prevSiblingId']);
-                } elseif (isset($rawBlock['parentId'])) {
-                    $structuresService->prepend($structure->id, $block, (int)$rawBlock['parentId']);
+                if ($structure !== null) {
+                    if (isset($rawBlock['prevSiblingId'])) {
+                        $structuresService->moveAfter($structure->id, $block, (int)$rawBlock['prevSiblingId']);
+                    } elseif (isset($rawBlock['parentId'])) {
+                        $structuresService->prepend($structure->id, $block, (int)$rawBlock['parentId']);
+                    }
                 }
+            } else {
+                while (isset($unsavedIds[$nextUnsavedId])) {
+                    $nextUnsavedId++;
+                }
+                $block->unsavedId = $nextUnsavedId++;
             }
 
             $html = $view->renderTemplate('neo/block.twig', [
@@ -140,7 +150,7 @@ class Input extends Controller
                 'static' => false,
             ]);
 
-            if ($structure !== null) {
+            if ($autosaveDrafts && $structure !== null) {
                 $structuresService->remove($structure->id, $block);
             }
 
@@ -152,7 +162,7 @@ class Input extends Controller
                 'type' => (int)$type->id,
                 'level' => $block->level,
                 'enabled' => $block->enabled,
-                'id' => $block->id,
+                'id' => $block->id ?? "new{$block->unsavedId}",
                 'uuid' => $block->uid,
             ];
         }

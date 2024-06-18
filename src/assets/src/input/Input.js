@@ -639,6 +639,15 @@ export default Garnish.Base.extend({
     return this._siteId
   },
 
+  /**
+   * @since 4.2.4
+   */
+  getUnsavedIds () {
+    return this.$blocksContainer.find('.ni_block[data-neo-b-id^="new"]')
+      .map((_, element) => element.getAttribute('data-neo-b-id').substring(3))
+      .get()
+  },
+
   _setMatrixClassErrors () {
     // TODO: will need probably need to find a method within php instead of JS
     // temp solution for now.
@@ -1092,6 +1101,7 @@ export default Garnish.Base.extend({
   },
 
   async _duplicate (data, block) {
+    data.unsavedIds = this.getUnsavedIds()
     try {
       this.$form.data('elementEditor')?.pause()
       await this._addSpinnerAfter(block)
