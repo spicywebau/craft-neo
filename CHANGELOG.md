@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.4 - 2024-06-18
 
 ### Fixed
 - Fixed a bug where setting Craft's `autosaveDrafts` general config setting to `false` would cause Neo blocks created on new entries to lose their content when saved
