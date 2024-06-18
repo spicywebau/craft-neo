@@ -54,6 +54,12 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.3 - 2024-06-18
+
+### Fixed
+- Fixed an error that occurred when pasting a Neo block on a different site from where it was copied
+- Fixed a bug where unedited Neo blocks would be deleted from an entry, after editing the entry and saving as a new entry
+
 ## 4.2.2 - 2024-06-06
 
 ### Fixed
