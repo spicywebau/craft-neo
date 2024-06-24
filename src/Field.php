@@ -1394,8 +1394,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 $baseBlockFieldNamespace .= '.blocks';
             }
         } else {
-            $newBlockData = $value;
-            $newSortOrder = array_keys($value);
+            $newBlockData = [];
+            $newSortOrder = [];
+
+            foreach ($value as $i => $blockData) {
+                $newBlockData["new$i"] = $blockData;
+                $newSortOrder[] = "new$i";
+            }
         }
 
         /** @var Block[] $blocks */
