@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (4.x)
+## 4.2.5 - 2024-06-24
 
 ### Fixed
 - Fixed a bug where content migrations that set Neo field values could fail to set more than one block in some cases
