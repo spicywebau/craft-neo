@@ -82,6 +82,7 @@ export default Garnish.Base.extend({
       namespace: NS.toFieldName(),
       fieldId: this._field?.getId(),
       siteId: this._field?.getSiteId(),
+      unsavedIds: this._field?.getUnsavedIds(),
       blocks: [Object.assign({
         collapsed: false,
         enabled: true,
