@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where collapsed input block previews were misaligned
 - Fixed a bug where asset thumbnails in collapsed input block previews were not working
+- Fixed a bug where setting Craft's `autosaveDrafts` general config setting to `false` would cause Neo blocks created on new entries to lose their content when saved
 
 ## 5.0.3 - 2024-06-15
 
