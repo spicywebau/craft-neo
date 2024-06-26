@@ -60,6 +60,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.5 - 2024-06-24
+
+### Fixed
+- Fixed a bug where content migrations that set Neo field values could fail to set more than one block in some cases
+
 ## 4.2.4 - 2024-06-18
 
 ### Fixed

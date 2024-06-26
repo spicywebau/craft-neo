@@ -1584,8 +1584,13 @@ class Field extends BaseField implements
                 $baseBlockFieldNamespace .= '.blocks';
             }
         } else {
-            $newBlockData = $value;
-            $newSortOrder = array_keys($value);
+            $newBlockData = [];
+            $newSortOrder = [];
+
+            foreach ($value as $i => $blockData) {
+                $newBlockData["new$i"] = $blockData;
+                $newSortOrder[] = "new$i";
+            }
         }
 
         $blocks = [];
