@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.4 - 2024-06-26
 
 ### Fixed
 - Fixed a bug where collapsed input block previews were misaligned
