@@ -236,6 +236,8 @@ $block-background-color-level-even: var(--gray-050);
                 }
 
                 &.preview-container {
+                    height: 100%;
+
                     .preview {
                         pointer-events: none; // Allow the double-click expand/collapse work it's magic
                         position: absolute;

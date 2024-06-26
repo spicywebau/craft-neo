@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where collapsed input block previews were misaligned
+- Fixed a bug where asset thumbnails in collapsed input block previews were not working
+
 ## 5.0.3 - 2024-06-15
 
 ### Fixed

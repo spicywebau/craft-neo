@@ -438,7 +438,7 @@ export default Garnish.Base.extend({
 
             $assets.each(function () {
               const $asset = $(this)
-              const $thumbContainer = $asset.find('.elementthumb')
+              const $thumbContainer = $asset.find('.thumb')
               const $thumb = $thumbContainer.children('img')
               let srcset = $thumb.prop('srcset')
 
