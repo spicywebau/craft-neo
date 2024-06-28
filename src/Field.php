@@ -268,36 +268,23 @@ class Field extends BaseField implements
      */
     public function getBlockTypeFields(?array $typeIds = null): array
     {
-        if (!isset($this->_blockTypeFields)) {
-            $this->_blockTypeFields = [];
-            $fieldsService = Craft::$app->getFields();
-            $blockTypes = array_filter($this->getBlockTypes(), fn($blockType) => $blockType->fieldLayoutId !== null);
-            $layoutIds = array_map(fn($blockType) => $blockType->fieldLayoutId, $blockTypes);
-            $fieldsById = ArrayHelper::index($fieldsService->getAllFields(), 'id');
-            $fieldIdsByLayoutId = $fieldsService->getFieldIdsByLayoutIds($layoutIds);
-            $blockTypesWithFields = array_filter(
+        $fields = [];
+        $typeIds = $typeIds !== null ? array_flip($typeIds) : null;
+
+        if (!empty($blockTypes = $this->getBlockTypes())) {
+            $blockTypesToGet = array_filter(
                 $blockTypes,
-                fn($blockType) => isset($fieldIdsByLayoutId[$blockType->fieldLayoutId])
+                fn($blockType) => $typeIds === null || isset($typeIds[$blockType->id]),
             );
 
-            foreach ($blockTypesWithFields as $blockType) {
-                foreach ($fieldIdsByLayoutId[$blockType->fieldLayoutId] as $fieldId) {
-                    $this->_blockTypeFields[$blockType->id][] = $fieldsById[$fieldId];
+            foreach ($blockTypesToGet as $blockType) {
+                foreach ($blockType->getFieldLayout()?->getCustomFields() as $field) {
+                    $fields[] = $field;
                 }
             }
         }
 
-        $fields = [];
-
-        foreach ($this->_blockTypeFields as $blockTypeId => $blockTypeFields) {
-            if ($typeIds === null || in_array($blockTypeId, $typeIds)) {
-                foreach (array_filter($blockTypeFields, fn($field) => !isset($fields[$field->id])) as $field) {
-                    $fields[$field->id] = $field;
-                }
-            }
-        }
-
-        return array_values($fields);
+        return $fields;
     }
 
     /**

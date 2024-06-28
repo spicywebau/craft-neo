@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when calling `benf\neo\Field::getBlockTypeFields()`
+
 ## 5.0.4 - 2024-06-26
 
 ### Fixed
