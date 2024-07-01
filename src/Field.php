@@ -1525,6 +1525,7 @@ class Field extends BaseField implements
                 ->limit(null)
                 ->status(null)
                 ->siteId($element->siteId)
+                ->findStructureId(false)
                 ->orderBy(['sortOrder' => SORT_ASC])
                 ->indexBy($uids ? 'uid' : 'id')
                 ->all();
@@ -1657,6 +1658,11 @@ class Field extends BaseField implements
                 if ($block->id === null) {
                     $block->unsavedId = $i;
                 }
+            }
+
+            if (isset($blockData['fresh'])) {
+                $block->setIsFresh();
+                $block->propagateAll = true;
             }
 
             $blockLevel = (int)($blockData['level'] ?? $block->level);

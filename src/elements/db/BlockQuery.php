@@ -61,6 +61,12 @@ class BlockQuery extends ElementQuery
      */
     public ?bool $allowOwnerRevisions = null;
 
+    /**
+     * @var bool Whether to try to set the [[structureId]] if [[fieldId]], [[ownerId]] and [[siteId]] are set.
+     * @since 5.0.5
+     */
+    public bool $findStructureId = true;
+
     // Protected properties
 
     /**
@@ -239,6 +245,20 @@ class BlockQuery extends ElementQuery
     }
 
     /**
+     * Whether to try to set the [[structureId]] if [[fieldId]], [[ownerId]] and [[siteId]] are set.
+     *
+     * @param bool $value
+     * @return self
+     * @since 5.0.5
+     */
+    public function findStructureId(bool $value = true): self
+    {
+        $this->findStructureId = $value;
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function count($q = '*', $db = null): string|int|bool|null
@@ -381,7 +401,7 @@ class BlockQuery extends ElementQuery
         }
 
         // Add the structure ID if it isn't already set, and we know exactly which field/owner/site structure we need
-        if (!$this->structureId) {
+        if (!$this->structureId && $this->findStructureId) {
             $fieldIdForStructure = $this->fieldId !== null && count($this->fieldId) === 1 ? $this->fieldId[0] : null;
             $ownerIdForStructure = $this->ownerId !== null && count($this->ownerId) === 1 ? $this->ownerId[0] : null;
 
@@ -482,7 +502,7 @@ class BlockQuery extends ElementQuery
             );
         }
 
-        if ((!$this->fieldId || !$this->ownerId || !$this->siteId) && $this->id && !$this->structureId) {
+        if (!$this->structureId && (!$this->findStructureId || (!$this->fieldId || !$this->ownerId || !$this->siteId) && $this->id)) {
             $this->_joinBlockStructuresTable = false;
         }
 

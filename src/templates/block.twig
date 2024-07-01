@@ -233,12 +233,17 @@
         'neo-b-name': "#{typeName}",
     },
 } %}
-    {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': blockId ~ '.input.type'}) }}
-    {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '', {'data-neo-b': blockId ~ '.input.enabled'}) }}
-    {{ hiddenInput("#{baseInputName}[level]", block.level, {'data-neo-b': blockId ~ '.input.level'}) }}
-    {{ hiddenInput("#{handle}[sortOrder][]", block.uid, {'data-neo-b': blockId ~ '.input.sortOrder'}) }}
-    {% if not isNew %}
-        {% do view.registerDeltaName(baseInputName) %}
+    {% if not static %}
+        {{ hiddenInput("#{handle}[sortOrder][]", block.uid, {'data-neo-b': blockId ~ '.input.sortOrder'}) }}
+        {{ hiddenInput("#{baseInputName}[level]", block.level, {'data-neo-b': blockId ~ '.input.level'}) }}
+        {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': blockId ~ '.input.type'}) }}
+        {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '', {'data-neo-b': blockId ~ '.input.enabled'}) }}
+        {% if isFresh ?? false %}
+            {{ hiddenInput("#{baseInputName}[fresh]", '1') }}
+        {% endif %}
+        {% if not isNew %}
+            {% do view.registerDeltaName(baseInputName) %}
+        {% endif %}
     {% endif %}
 
     {% tag 'div' with {
