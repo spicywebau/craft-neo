@@ -8,7 +8,7 @@
 
 ### Fixed
 - Fixed an error that occurred when calling `benf\neo\Field::getBlockTypeFields()`
-- Fixed a bug where nested Matrix entries could not be created in new Neo blocks until after saving the owner element
+- Fixed a bug where nested Matrix entries could not be created in new Neo blocks until after saving the owner element, if Craft's `autosaveDrafts` general config setting was set to `false`
 
 ## 5.0.4 - 2024-06-26
 
