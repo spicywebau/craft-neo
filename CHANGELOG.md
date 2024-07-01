@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.5 - 2024-07-01
 
 ### Added
 - Added `benf\neo\elements\db\BlockQuery::findStructureId()`
