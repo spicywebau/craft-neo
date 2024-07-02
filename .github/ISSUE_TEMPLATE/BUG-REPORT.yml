@@ -1,8 +1,8 @@
 name: Bug Report
 description: Let us know about a problem with Neo
 labels:
-  - bug
-  - "bug status: new"
+  - "bug report"
+  - "bug report status: new"
 body:
   - type: markdown
     attributes:
