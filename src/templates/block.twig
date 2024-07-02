@@ -96,6 +96,9 @@
     {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '', {'data-neo-b': blockId ~ '.input.enabled'}) }}
     {{ hiddenInput("#{baseInputName}[level]", block.level, {'data-neo-b': blockId ~ '.input.level'}) }}
     {{ hiddenInput("#{handle}[sortOrder][]", blockId, {'data-neo-b': blockId ~ '.input.sortOrder'}) }}
+    {% if isFresh ?? false %}
+        {{ hiddenInput("#{baseInputName}[fresh]", '1') }}
+    {% endif %}
     {% if not isNew %}
         {% do view.registerDeltaName(baseInputName) %}
     {% endif %}

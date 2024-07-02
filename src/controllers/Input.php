@@ -148,6 +148,7 @@ class Input extends Controller
                 'handle' => $namespace ?? $field->handle,
                 'block' => $block,
                 'static' => false,
+                'isFresh' => true,
             ]);
 
             if ($autosaveDrafts && $structure !== null) {

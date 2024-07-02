@@ -1479,6 +1479,11 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 }
             }
 
+            if (isset($blockData['fresh'])) {
+                $block->setIsFresh();
+                $block->propagateAll = true;
+            }
+
             $blockLevel = (int)($blockData['level'] ?? $block->level);
 
             $block->setOwner($element);
