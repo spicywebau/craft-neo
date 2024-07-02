@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.6 - 2024-07-02
 
 ### Fixed
 - Fixed a bug where the contents of translatable fields within new Neo blocks were not being propagated to other sites
