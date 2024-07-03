@@ -1,5 +1,5 @@
 /*
-The `_registerDynamicBlockConditions()` and `_updateVisibleElements()` methods are based on a large
+The `_updateAllVisibleElements()` and `_updateVisibleElements()` methods are based on a large
 section of `Craft.ElementEditor.saveDraft()` from Craft CMS 4.3.6.1, by Pixel & Tonic, Inc.
 https://github.com/craftcms/cms/blob/4.3.6.1/src/web/assets/cp/src/js/ElementEditor.js#L1144
 Craft CMS is released under the terms of the Craft License, a copy of which is included below.
@@ -264,7 +264,7 @@ export default Garnish.Base.extend({
       .filter(block => !block.isExpanded())
       .forEach(block => block.updatePreview())
 
-    this._registerDynamicBlockConditions()
+    this._registerStateUpdate()
 
     this.trigger('afterInit')
   },
@@ -852,12 +852,15 @@ export default Garnish.Base.extend({
   /**
    * @private
    */
-  _registerDynamicBlockConditions () {
+  _registerStateUpdate () {
     // A small timeout to let the element editor initialise
-    setTimeout(
-      () => this.$form.data('elementEditor')?.on('update', () => this._updateAllVisibleElements()),
-      200
-    )
+    setTimeout(() => {
+      const elementEditor = this.$form.data('elementEditor')
+      elementEditor?.on('update', () => {
+        this._ownerId = elementEditor.settings.elementId
+        this._updateAllVisibleElements()
+      })
+    }, 200)
   },
 
   async _updateAllVisibleElements () {

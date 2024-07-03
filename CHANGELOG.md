@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where pasted copies of a new block would not be saved
+
 ## 4.2.6 - 2024-07-02
 
 ### Fixed
