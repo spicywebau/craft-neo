@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when trying to create a block on a Solspace calendar event
+
 ## 4.2.7 - 2024-07-03
 
 ### Fixed
