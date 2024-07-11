@@ -4,6 +4,7 @@ namespace benf\neo\migrations;
 
 use benf\neo\Plugin as Neo;
 use craft\db\Migration;
+use craft\db\Table;
 
 /**
  * Class Install
@@ -58,6 +59,7 @@ class Install extends Migration
                 'fieldId' => $this->integer()->notNull(),
                 'fieldLayoutId' => $this->integer(),
                 'groupId' => $this->integer(),
+                'entryTypeId' => $this->integer(),
                 'name' => $this->string()->notNull(),
                 'handle' => $this->string()->notNull(),
                 'description' => $this->string(),
@@ -113,7 +115,7 @@ class Install extends Migration
 
         if (!$hasBlockTypesTable) {
             $this->createIndex(null, '{{%neoblocktypes}}', ['name', 'fieldId'], false);
-            $this->createIndex(null, '{{%neoblocktypes}}', ['handle', 'fieldId'], true);
+            $this->createIndex(null, '{{%neoblocktypes}}', ['handle', 'fieldId', 'entryTypeId'], true);
             $this->createIndex(null, '{{%neoblocktypes}}', ['fieldId'], false);
             $this->createIndex(null, '{{%neoblocktypes}}', ['fieldLayoutId'], false);
             $this->createIndex(null, '{{%neoblocktypes}}', ['groupId'], false);
@@ -149,6 +151,7 @@ class Install extends Migration
                 null);
             $this->addForeignKey(null, '{{%neoblocktypes}}', ['groupId'], '{{%neoblocktypegroups}}', ['id'], 'SET NULL',
                 null);
+            $this->addForeignKey(null, '{{%neoblocktypes}}', ['entryTypeId'], Table::ENTRYTYPES, ['id'], 'SET NULL', null);
             $this->addForeignKey(null, '{{%neoblocktypes}}', ['iconId'], '{{%assets}}', ['id'], 'SET NULL', null);
         }
 

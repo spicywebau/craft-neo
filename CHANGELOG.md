@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `benf\neo\models\BlockType::getEntryType()`
+- Added `benf\neo\models\BlockType::setEntryType()`
+- Added `benf\neo\models\BlockType::entryTypeId`
+
+### Changed
+- The `neoblocktypes` table now has an `entryTypeId` column
+
 ## 5.0.5 - 2024-07-01
 
 ### Added

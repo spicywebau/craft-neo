@@ -18,6 +18,7 @@ use craft\enums\Color;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use craft\models\EntryType;
 use craft\models\FieldLayout;
 
 /**
@@ -53,6 +54,12 @@ class BlockType extends Model implements
      * @since 2.13.0
      */
     public ?int $groupId = null;
+
+    /**
+     * @var int|null The ID of the entry type associated with this block type, if any.
+     * @since 5.1.0
+     */
+    public ?int $entryTypeId = null;
 
     /**
      * @var string|null The block type's name.
@@ -182,6 +189,11 @@ class BlockType extends Model implements
     private ?BlockTypeGroup $_group = null;
 
     /**
+     * @var EntryType|null The entry type associated with this block type, if any.
+     */
+    private ?EntryType $_entryType = null;
+
+    /**
      * @var bool|null
      */
     private ?bool $_hasChildBlocksUiElement = null;
@@ -285,6 +297,37 @@ class BlockType extends Model implements
     }
 
     /**
+     * Returns the entry type associated with this block type, if any.
+     *
+     * @return EntryType|null
+     * @since 5.1.0
+     */
+    public function getEntryType(): ?EntryType
+    {
+        if ($this->entryTypeId === null) {
+            return null;
+        }
+
+        if ($this->_entryType === null) {
+            $this->_entryType = Craft::$app->getEntries()->getEntryTypeById($this->entryTypeId);
+        }
+
+        return $this->_entryType;
+    }
+
+    /**
+     * Sets the entry type associated with this block type.
+     *
+     * @param EntryType|null $entryType
+     * @since 5.1.0
+     */
+    public function setEntryType(?EntryType $entryType): void
+    {
+        $this->_entryType = $entryType;
+        $this->entryTypeId = $entryType?->id;
+    }
+
+    /**
      * Gets this block type's icon path, if an icon filename is set.
      *
      * @return string|null
@@ -368,6 +411,7 @@ class BlockType extends Model implements
 
         $config = [
             'childBlocks' => $this->childBlocks,
+            'entryType' => $this->getEntryType()?->uid,
             'field' => $this->getField()?->uid,
             'group' => $group ? $group->uid : null,
             'groupChildBlockTypes' => (bool)$this->groupChildBlockTypes,

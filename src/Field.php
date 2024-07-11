@@ -456,6 +456,10 @@ class Field extends BaseField implements
         $newBlockType->conditions = $blockType['conditions'] ?? [];
         $newBlockType->groupId = isset($blockType['groupId']) ? (int)$blockType['groupId'] : null;
 
+        if (isset($blockType['entryType']) && !empty($blockType['entryType'])) {
+            $newBlockType->setEntryType(Craft::$app->getEntries()->getEntryTypeById((int)$blockType['entryType']));
+        }
+
         // Allow the `fieldLayoutId` to be set in the blockType settings
         if ($fieldLayoutId = ($blockType['fieldLayoutId'] ?? null)) {
             if ($fieldLayout = $fieldsService->getLayoutById($fieldLayoutId)) {

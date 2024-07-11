@@ -14,6 +14,17 @@
 
 <div>
     <div>
+        {{ forms.entryTypeSelectField({
+            label: 'Entry Type'|t('neo'),
+            instructions: 'Choose the entry type this block type will take its name, handle, and field layout from.'|t('neo'),
+            id: 'entry-type',
+            name: 'entryType',
+            value: blockType ? blockType.getEntryType() : null,
+            limit: 1,
+            errors: blockType ? blockType.getErrors('entryTypes') : null,
+            create: true,
+        }, 'template:_includes/forms/entryType.twig') }}
+
         {{ forms.textField({
             id: 'name',
             name: 'name',

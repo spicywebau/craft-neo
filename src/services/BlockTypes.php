@@ -484,6 +484,7 @@ class BlockTypes extends Component
         }
 
         $groupId = isset($data['group']) ? Db::idByUid('{{%neoblocktypegroups}}', $data['group']) : null;
+        $entryTypeId = isset($data['entryType']) ? Db::idByUid(Table::ENTRYTYPES, $data['entryType']) : null;
 
         $transaction = $dbService->beginTransaction();
 
@@ -552,6 +553,7 @@ class BlockTypes extends Component
 
             $record->fieldId = $fieldId;
             $record->groupId = $groupId;
+            $record->entryTypeId = $entryTypeId;
             $record->name = $data['name'];
             $record->handle = $data['handle'];
             $record->description = $data['description'] ?? '';
@@ -578,6 +580,7 @@ class BlockTypes extends Component
             $blockType->id = $record->id;
             $blockType->fieldId = $fieldId;
             $blockType->groupId = $groupId;
+            $blockType->entryTypeId = $entryTypeId;
             $blockType->name = $data['name'];
             $blockType->handle = $data['handle'];
             $blockType->description = $data['description'] ?? '';
@@ -1017,10 +1020,6 @@ class BlockTypes extends Component
             'topLevel',
             'sortOrder',
             'uid',
-        ];
-
-        // Columns that didn't exist in Neo 3.0.0
-        $maybeColumns = [
             'description',
             'iconFilename',
             'iconId',
@@ -1032,6 +1031,11 @@ class BlockTypes extends Component
             'minSiblingBlocks',
             'groupChildBlockTypes',
             'conditions',
+        ];
+
+        // Columns that didn't exist in Neo 5.0.0
+        $maybeColumns = [
+            'entryTypeId',
         ];
 
         foreach ($maybeColumns as $column) {
