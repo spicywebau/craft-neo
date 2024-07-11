@@ -325,6 +325,13 @@ class BlockType extends Model implements
     {
         $this->_entryType = $entryType;
         $this->entryTypeId = $entryType?->id;
+
+        if ($entryType !== null) {
+            $this->name = $entryType->name;
+            $this->handle = $entryType->handle;
+            $this->color = $entryType->color;
+            $this->fieldLayoutId = $entryType->getFieldLayout()?->id;
+        }
     }
 
     /**
@@ -398,6 +405,7 @@ class BlockType extends Model implements
     {
         $group = $this->getGroup();
         $icon = $this->getIcon();
+        $entryType = $this->getEntryType();
 
         if ($icon) {
             $iconData = [
@@ -411,7 +419,7 @@ class BlockType extends Model implements
 
         $config = [
             'childBlocks' => $this->childBlocks,
-            'entryType' => $this->getEntryType()?->uid,
+            'entryType' => $entryType?->uid,
             'field' => $this->getField()?->uid,
             'group' => $group ? $group->uid : null,
             'groupChildBlockTypes' => (bool)$this->groupChildBlockTypes,
@@ -433,23 +441,28 @@ class BlockType extends Model implements
             'ignorePermissions' => (bool)$this->ignorePermissions,
             'conditions' => $this->conditions ?: null,
         ];
-        $fieldLayout = $this->getFieldLayout();
 
-        // Field layout ID might not be set even if the block type already had one -- just grab it from the block type
-        $fieldLayout->id = $fieldLayout->id ?? $this->fieldLayoutId;
-        $fieldLayoutConfig = $fieldLayout->getConfig();
+        if ($entryType === null) {
+            $fieldLayout = $this->getFieldLayout();
 
-        // No need to bother with the field layout if it has no tabs
-        if ($fieldLayoutConfig !== null) {
-            $fieldLayoutUid = $fieldLayout->uid ??
-                ($fieldLayout->id ? Db::uidById(Table::FIELDLAYOUTS, $fieldLayout->id) : null) ??
-                StringHelper::UUID();
+            // Field layout ID might not be set even if the block type already had one -- just grab it from the block type
+            $fieldLayout->id = $fieldLayout->id ?? $this->fieldLayoutId;
+            $fieldLayoutConfig = $fieldLayout->getConfig();
 
-            if (!$fieldLayout->uid) {
-                $fieldLayout->uid = $fieldLayoutUid;
+            // No need to bother with the field layout if it has no tabs
+            if ($fieldLayoutConfig !== null) {
+                $fieldLayoutUid = $fieldLayout->uid ??
+                    ($fieldLayout->id ? Db::uidById(Table::FIELDLAYOUTS, $fieldLayout->id) : null) ??
+                    StringHelper::UUID();
+
+                if (!$fieldLayout->uid) {
+                    $fieldLayout->uid = $fieldLayoutUid;
+                }
+
+                $config['fieldLayouts'][$fieldLayoutUid] = $fieldLayoutConfig;
             }
-
-            $config['fieldLayouts'][$fieldLayoutUid] = $fieldLayoutConfig;
+        } else {
+            $config['fieldLayouts'] = '__entrytype__';
         }
 
         return $config;
