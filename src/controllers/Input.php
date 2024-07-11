@@ -103,9 +103,10 @@ class Input extends Controller
 
         foreach ($blocks as $rawBlock) {
             $type = Neo::$plugin->blockTypes->getById((int)$rawBlock['type']);
+            $ownerId = $rawBlock['ownerId'] ?? null;
             $block = new Block();
-            if (isset($rawBlock['ownerId']) && $rawBlock['ownerId']) {
-                $block->ownerId = $rawBlock['ownerId'];
+            if ($ownerId) {
+                $block->ownerId = $ownerId;
             }
             $block->fieldId = $fieldId;
             $block->typeId = $rawBlock['type'];
@@ -121,11 +122,11 @@ class Input extends Controller
 
             Craft::$app->getElements()->saveElement($block, false);
 
-            if ($autosaveDrafts) {
+            if ($autosaveDrafts && $ownerId) {
                 // If the owner supports drafts, temporarily save the block's position in the block structure before
                 // rendering the block template, so the block template shows the correct visible field layout elements
                 $structure = $elementsService->canCreateDrafts($block->getOwner()) && (isset($rawBlock['prevSiblingId']) || isset($rawBlock['parentId']))
-                    ? Neo::$plugin->blocks->getStructure($fieldId, $rawBlock['ownerId'], $siteId)?->getStructure()
+                    ? Neo::$plugin->blocks->getStructure($fieldId, $ownerId, $siteId)?->getStructure()
                     : null;
 
                 if ($structure !== null) {
@@ -144,7 +145,7 @@ class Input extends Controller
                 'isFresh' => true,
             ]);
 
-            if ($autosaveDrafts && $structure !== null) {
+            if ($autosaveDrafts && isset($structure)) {
                 $structuresService->remove($structure->id, $block);
             }
 

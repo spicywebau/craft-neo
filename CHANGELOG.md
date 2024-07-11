@@ -71,6 +71,21 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.8 - 2024-07-10
+
+### Fixed
+- Fixed an error that occurred when trying to create a block on a Solspace calendar event
+
+## 4.2.7 - 2024-07-03
+
+### Fixed
+- Fixed a bug where pasted copies of a new block would not be saved
+
+## 4.2.6 - 2024-07-02
+
+### Fixed
+- Fixed a bug where the contents of translatable fields within new Neo blocks were not being propagated to other sites
+
 ## 4.2.5 - 2024-06-24
 
 ### Fixed
