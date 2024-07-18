@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report! Please check to make sure your bug hasn't already been reported before proceeding.
+        Thanks for taking the time to fill out this bug report! Please check to make sure your bug hasn't already been reported before proceeding. Please also make sure you correctly follow all instructions when filling out this form. Failure to do so may result in your bug report being closed as invalid.
   - type: textarea
     id: bug-description
     attributes:
@@ -30,17 +30,19 @@ body:
     id: expected-behaviour
     attributes:
       label: Expected behaviour
-      description: What should be expected to happen instead of the buggy behaviour, if not already covered in the above sections.
+      description: What should be expected to happen instead of the buggy behaviour.
   - type: input
     id: neo-version
     attributes:
       label: Neo version
+      description: Enter the exact Neo version number you are using.
     validations:
       required: true
   - type: input
     id: craft-cms-version
     attributes:
       label: Craft CMS version
+      description: Enter the exact Craft CMS version number you are using.
     validations:
       required: true
   - type: input
