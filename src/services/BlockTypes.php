@@ -167,18 +167,34 @@ class BlockTypes extends Component
         if (isset(Memoize::$blockTypesByFieldId[$fieldId]) && !empty(Memoize::$blockTypesByFieldId[$fieldId])) {
             $blockTypes = Memoize::$blockTypesByFieldId[$fieldId];
         } else {
-            $results = $this->_createQuery()
-                ->where(['fieldId' => $fieldId])
-                ->all();
-
-            foreach ($results as $result) {
-                $blockType = new BlockType($result);
-                $blockTypes[] = $blockType;
-                Memoize::$blockTypesById[$blockType->id] = $blockType;
-                Memoize::$blockTypesByHandle[$blockType->handle] = $blockType;
-            }
-
+            $blockTypes = $this->getByCriteria([
+                'fieldId' => $fieldId,
+            ]);
             Memoize::$blockTypesByFieldId[$fieldId] = $blockTypes;
+        }
+
+        return $blockTypes;
+    }
+
+    /**
+     * Gets block types based on the given criteria.
+     *
+     * @param array $criteria
+     * @return BlockType[]
+     * @since 5.1.0
+     */
+    public function getByCriteria(array $criteria): array
+    {
+        $blockTypes = [];
+        $results = $this->_createQuery()
+            ->where($criteria)
+            ->all();
+
+        foreach ($results as $result) {
+            $blockType = new BlockType($result);
+            $blockTypes[] = $blockType;
+            Memoize::$blockTypesById[$blockType->id] = $blockType;
+            Memoize::$blockTypesByHandle[$blockType->handle] = $blockType;
         }
 
         return $blockTypes;

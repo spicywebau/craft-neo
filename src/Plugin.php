@@ -29,6 +29,7 @@ use craft\elements\conditions\SlugConditionRule;
 use craft\elements\GlobalSet;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutElementsEvent;
+use craft\events\EntryTypeEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterConditionRulesEvent;
@@ -43,6 +44,7 @@ use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\models\FieldLayout;
 use craft\services\Elements;
+use craft\services\Entries;
 use craft\services\Fields;
 use craft\services\Gc;
 use craft\services\Gql;
@@ -126,6 +128,7 @@ class Plugin extends BasePlugin
         $this->_registerGatsbyHelper();
         $this->_registerFeedMeSupport();
         $this->_registerConditionFieldRuleRemoval();
+        $this->_registerEntryTypeSaveListener();
     }
 
     /**
@@ -402,6 +405,33 @@ class Plugin extends BasePlugin
                     );
                 }
             }
+        );
+    }
+
+    /**
+     * Updates block type settings when any associated entry types are saved.
+     */
+    private function _registerEntryTypeSaveListener(): void
+    {
+        Event::on(
+            Entries::class,
+            Entries::EVENT_BEFORE_SAVE_ENTRY_TYPE,
+            function(EntryTypeEvent $event) {
+                // If it's a new entry type, then no saved block types could be associated with it yet
+                if ($event->isNew) {
+                    return;
+                }
+
+                $entryType = $event->entryType;
+                $blockTypes = $this->blockTypes->getByCriteria([
+                    'entryTypeId' => $entryType->id,
+                ]);
+
+                foreach ($blockTypes as $blockType) {
+                    $blockType->setEntryType($entryType);
+                    $this->blockTypes->save($blockType);
+                }
+            },
         );
     }
 }
