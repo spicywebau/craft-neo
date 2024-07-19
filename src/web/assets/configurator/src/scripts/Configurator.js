@@ -70,6 +70,7 @@ export default Garnish.Base.extend({
         name: btInfo.name,
         handle: btInfo.handle,
         description: btInfo.description,
+        color: btInfo.color,
         iconId: btInfo.iconId,
         enabled: btInfo.enabled,
         ignorePermissions: btInfo.ignorePermissions,

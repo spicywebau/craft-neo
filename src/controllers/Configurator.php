@@ -66,6 +66,30 @@ class Configurator extends Controller
         ]);
     }
 
+    /**
+     * @return Response
+     * @since 5.1.0
+     */
+    public function actionGetCommonEntryTypeSettings(): Response
+    {
+        $this->requireAcceptsJson();
+        $this->requireAdmin();
+        $entryType = $this->request->getBodyParam('entryTypeId');
+
+        if ($entryType !== null) {
+            $entryType = Craft::$app->getEntries()->getEntryTypeById((int)$entryType);
+            $entryType = [
+                'name' => $entryType->name,
+                'handle' => $entryType->handle,
+                'color' => $entryType->color?->value,
+            ];
+        }
+
+        return $this->asJson([
+            'entryType' => $entryType,
+        ]);
+    }
+
     private function _renderBlockType(): array
     {
         $request = Craft::$app->getRequest();

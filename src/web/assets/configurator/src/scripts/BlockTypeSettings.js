@@ -11,8 +11,10 @@ const _defaults = {
   sortOrder: 0,
   fieldLayoutId: null,
   fieldLayoutConfig: null,
+  entryType: null,
   name: '',
   handle: '',
+  color: null,
   description: '',
   enabled: true,
   ignorePermissions: true,
@@ -37,9 +39,11 @@ export default Settings.extend({
   _initialised: false,
 
   $container: null,
+  $entryTypeInput: new $(),
   $nameInput: new $(),
   $handleInput: new $(),
   $descriptionInput: new $(),
+  $colorInput: new $(),
   $minBlocksInput: new $(),
   $maxBlocksInput: new $(),
   $minSiblingBlocksInput: new $(),
@@ -62,9 +66,11 @@ export default Settings.extend({
     this._originalSettings = settings
     this._iconSelector = null
     this._afterCreateContainer = () => {
+      this.setEntryType(settings.entryType)
       this.setName(settings.name)
       this.setHandle(settings.handle)
       this.setDescription(settings.description)
+      this.setColor(settings.color)
       this._setIconId(settings.iconId)
       this.setEnabled(settings.enabled)
       this.setIgnorePermissions(settings.ignorePermissions)
@@ -99,9 +105,11 @@ export default Settings.extend({
     this._js = containerData.js ?? ''
 
     const $neo = this.$container.find('[data-neo-bts]')
+    this.$entryTypeInput = $neo.filter('[data-neo-bts="input.entryType"]')
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
+    this.$colorInput = $neo.filter('[data-neo-bts="input.color"]')
     this.$iconContainer = $neo.filter('[data-neo-bts="container.iconFilename"]')
     this.$iconIdContainer = $neo.filter('[data-neo-bts="container.iconId"]')
     this.$enabledInput = $neo.filter('[data-neo-bts="input.enabled"]')
@@ -156,6 +164,22 @@ export default Settings.extend({
 
     this.setChildBlocks(this._childBlocks)
 
+    const entryTypeSelect = this.$entryTypeInput.data('componentSelect')
+    entryTypeSelect.on('change', () => {
+      const entryTypeId = entryTypeSelect.getSelectedComponentIds()[0] ?? null
+      if (entryTypeId !== null) {
+        Craft.sendActionRequest('POST', 'neo/configurator/get-common-entry-type-settings', {
+          data: {
+            entryTypeId
+          }
+        }).then(({ data }) => {
+          this.setEntryType(data.entryType)
+        })
+      } else {
+        this.setEntryType(null)
+      }
+    })
+
     this.addListener(this.$nameInput, 'keyup change', () => {
       this.setName(this.$nameInput.val())
 
@@ -167,6 +191,7 @@ export default Settings.extend({
 
     this.addListener(this.$handleInput, 'keyup change textchange', () => this.setHandle(this.$handleInput.val()))
     this.addListener(this.$descriptionInput, 'keyup change textchange', () => this.setDescription(this.$descriptionInput.val()))
+    this.addListener(this.$colorInput, 'selectizedropdownclose', () => this.setColor(this.$colorInput.data('selectize').getValue()))
     this.addListener(this.$iconIdContainer, 'change', () => {
       setTimeout(
         () => {
@@ -239,6 +264,37 @@ export default Settings.extend({
     return this._errors
   },
 
+  /**
+   * @since 5.1.0
+   */
+  getEntryType () {
+    return this._entryType ?? this._originalSettings.entryType
+  },
+
+  /**
+   * @since 5.1.0
+   */
+  setEntryType (entryType) {
+    if (this._entryType === entryType) {
+      return
+    }
+
+    const oldValue = this._entryType
+    this._entryType = entryType
+
+    if (entryType) {
+      this.setName(entryType.name)
+      this.setHandle(entryType.handle)
+      this.setColor(entryType.color)
+    }
+
+    this.trigger('change', {
+      property: 'entryType',
+      oldValue,
+      newValue: this._entryType
+    })
+  },
+
   getName () { return this._name ?? this._originalSettings.name },
   setName (name) {
     if (name !== this._name) {
@@ -291,6 +347,38 @@ export default Settings.extend({
         newValue: this._description
       })
     }
+  },
+
+  /**
+   * @since 5.1.0
+   */
+  getColor () {
+    return this._color
+  },
+
+  /**
+   * @since 5.1.0
+   */
+  setColor (color) {
+    color = (color ?? '').length > 0 ? color : '__blank__'
+
+    if (color === this._color) {
+      return
+    }
+
+    const oldColor = this._color
+    this._color = color
+    const selectize = this.$colorInput.data('selectize')
+
+    if (selectize?.getValue() !== this._color) {
+      selectize?.setValue(this._color, true)
+    }
+
+    this.trigger('change', {
+      property: 'color',
+      oldValue: oldColor,
+      newValue: this._color
+    })
   },
 
   getIconId () { return this._iconId },

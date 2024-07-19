@@ -23,6 +23,9 @@
             limit: 1,
             errors: blockType ? blockType.getErrors('entryTypes') : null,
             create: true,
+            containerAttributes: {
+                'data-neo-bts': 'input.entryType',
+            },
         }, 'template:_includes/forms/entryType.twig') }}
 
         {{ forms.textField({
@@ -115,6 +118,9 @@
             errors: blockType ? blockType.getErrors('color') : null,
             data: {
                 'error-key': 'color',
+            },
+            inputAttributes: {
+                'data-neo-bts': 'input.color',
             },
         }) }}
 

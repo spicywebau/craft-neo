@@ -298,6 +298,7 @@ class Conversion extends Component
         } else {
             $blockType->name = $entryType->name;
             $blockType->handle = $entryType->handle;
+            $blockType->color = $entryType->color;
         }
 
         return $blockType;

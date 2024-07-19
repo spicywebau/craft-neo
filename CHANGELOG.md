@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added `benf\neo\controllers\Configurator::actionGetCommonEntryTypeSettings()`
 - Added `benf\neo\models\BlockType::getEntryType()`
 - Added `benf\neo\models\BlockType::setEntryType()`
 - Added `benf\neo\models\BlockType::entryTypeId`
