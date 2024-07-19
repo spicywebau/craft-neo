@@ -334,8 +334,8 @@ class BlockType extends Model implements
             $this->color = $convertedBlockType->color;
             $fieldLayout = $convertedBlockType->getFieldLayout();
             $fieldLayout->type = Block::class;
+            $fieldLayout->id = $this->fieldLayoutId;
             $this->setFieldLayout($fieldLayout);
-            $this->fieldLayoutId = $fieldLayout->id;
         }
     }
 
