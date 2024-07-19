@@ -13,6 +13,9 @@
 ### Changed
 - The `neoblocktypes` table now has an `entryTypeId` column
 
+### Fixed
+- Fixed a bug where the 'save as new entry' option would not save any Neo blocks for the new entry
+
 ## 5.0.5 - 2024-07-01
 
 ### Added

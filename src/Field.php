@@ -1029,7 +1029,7 @@ class Field extends BaseField implements
 
         if ($element->duplicateOf !== null) {
             // If this is a draft, just duplicate the relations
-            if ($element->getIsDraft()) {
+            if ($element->getIsDraft() && !$element->getIsUnpublishedDraft()) {
                 Neo::$plugin->fields->duplicateOwnership($this, $element->duplicateOf, $element);
             } elseif ($element->getIsRevision()) {
                 Neo::$plugin->fields->createRevisionBlocks($this, $element->duplicateOf, $element);
