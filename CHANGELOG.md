@@ -6,6 +6,7 @@
 - Added `benf\neo\models\BlockType::getEntryType()`
 - Added `benf\neo\models\BlockType::setEntryType()`
 - Added `benf\neo\models\BlockType::entryTypeId`
+- Added `benf\neo\services\Conversion::convertEntryTypeToBlockType()`
 
 ### Changed
 - The `neoblocktypes` table now has an `entryTypeId` column

@@ -262,6 +262,7 @@ class Conversion extends Component
      * @param EntryType $entryType
      * @param bool $save Whether to save the block type before returning.
      * @return BlockType
+     * @since 5.1.0
      */
     public function convertEntryTypeToBlockType(EntryType $entryType, bool $save = true): BlockType
     {
