@@ -409,6 +409,9 @@ class Field extends BaseField implements
         $conditionsService = Craft::$app->getConditions();
         $fieldsService = Craft::$app->getFields();
         $request = Craft::$app->getRequest();
+        $entryTypeId = isset($blockType['entryType']) && !empty($blockType['entryType'])
+            ? (int)$blockType['entryType']
+            : null;
 
         foreach (array_keys($blockType['conditions'] ?? []) as $elementType) {
             if (!isset($blockType['conditions'][$elementType]['conditionRules'])) {
@@ -456,8 +459,8 @@ class Field extends BaseField implements
         $newBlockType->conditions = $blockType['conditions'] ?? [];
         $newBlockType->groupId = isset($blockType['groupId']) ? (int)$blockType['groupId'] : null;
 
-        if (isset($blockType['entryType']) && !empty($blockType['entryType'])) {
-            $newBlockType->setEntryType(Craft::$app->getEntries()->getEntryTypeById((int)$blockType['entryType']));
+        if ($entryTypeId !== null) {
+            $newBlockType->setEntryType(Craft::$app->getEntries()->getEntryTypeById($entryTypeId));
         }
 
         // Allow the `fieldLayoutId` to be set in the blockType settings
@@ -466,45 +469,48 @@ class Field extends BaseField implements
                 $newBlockType->setFieldLayout($fieldLayout);
                 $newBlockType->fieldLayoutId = $fieldLayout->id;
             }
-        } elseif ($request->getBodyParam('neoBlockType' . (string)$id) !== null) {
-            // Otherwise, check for a field layout in the POST data
-            $fieldLayout = $fieldsService->assembleLayoutFromPost('neoBlockType' . (string)$id);
-            $fieldLayout->type = Block::class;
+        } elseif ($entryTypeId === null) {
+            // Only check for a field layout in the POST data if an entry type isn't associated
+            // (in which case the field layout was already set when setting the entry type)
+            if ($request->getBodyParam('neoBlockType' . (string)$id) !== null) {
+                $fieldLayout = $fieldsService->assembleLayoutFromPost('neoBlockType' . (string)$id);
+                $fieldLayout->type = Block::class;
 
-            // Ensure the field layout ID and UID are set, if they exist
-            if (is_int($id)) {
-                $layoutResult = (new Query())
-                    ->select([
-                        'bt.fieldLayoutId',
-                        'fl.uid',
-                    ])
-                    ->from('{{%neoblocktypes}} bt')
-                    ->innerJoin('{{%fieldlayouts}} fl', '[[fl.id]] = [[bt.fieldLayoutId]]')
-                    ->where(['bt.id' => $id])
-                    ->one();
+                // Ensure the field layout ID and UID are set, if they exist
+                if (is_int($id)) {
+                    $layoutResult = (new Query())
+                        ->select([
+                            'bt.fieldLayoutId',
+                            'fl.uid',
+                        ])
+                        ->from('{{%neoblocktypes}} bt')
+                        ->innerJoin('{{%fieldlayouts}} fl', '[[fl.id]] = [[bt.fieldLayoutId]]')
+                        ->where(['bt.id' => $id])
+                        ->one();
 
-                if ($layoutResult !== null) {
-                    $fieldLayout->id = $layoutResult['fieldLayoutId'];
-                    $fieldLayout->uid = $layoutResult['uid'];
+                    if ($layoutResult !== null) {
+                        $fieldLayout->id = $layoutResult['fieldLayoutId'];
+                        $fieldLayout->uid = $layoutResult['uid'];
+                    }
                 }
-            }
 
-            $newBlockType->setFieldLayout($fieldLayout);
-            $newBlockType->fieldLayoutId = $fieldLayout->id;
-        } else {
-            // No field layout data was sent, which means this is an existing block type whose field layout
-            // designer was never loaded, and therefore no changes were made to any field layout the block type
-            // already has
-            $fieldLayoutId = (new Query())
-                ->select(['fieldLayoutId'])
-                ->from('{{%neoblocktypes}}')
-                ->where(['id' => $id])
-                ->scalar();
-
-            if ($fieldLayoutId) {
-                $fieldLayout = $fieldsService->getLayoutById($fieldLayoutId);
                 $newBlockType->setFieldLayout($fieldLayout);
-                $newBlockType->fieldLayoutId = $fieldLayoutId;
+                $newBlockType->fieldLayoutId = $fieldLayout->id;
+            } else {
+                // No field layout data was sent, which means this is an existing block type whose field layout
+                // designer was never loaded, and therefore no changes were made to any field layout the block type
+                // already has
+                $fieldLayoutId = (new Query())
+                    ->select(['fieldLayoutId'])
+                    ->from('{{%neoblocktypes}}')
+                    ->where(['id' => $id])
+                    ->scalar();
+
+                if ($fieldLayoutId) {
+                    $fieldLayout = $fieldsService->getLayoutById($fieldLayoutId);
+                    $newBlockType->setFieldLayout($fieldLayout);
+                    $newBlockType->fieldLayoutId = $fieldLayoutId;
+                }
             }
         }
 

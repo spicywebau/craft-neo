@@ -490,12 +490,8 @@ class BlockTypes extends Component
 
         try {
             $record = $this->_getRecordByUid($uid);
-            $fieldLayoutConfig = isset($data['fieldLayouts']) && $data['fieldLayouts'] !== '__entrytype__'
-                ? reset($data['fieldLayouts'])
-                : null;
-            $fieldLayout = isset($data['entryType']) ?
-                Craft::$app->getEntries()->getEntryTypeByUid($data['entryType'])?->getFieldLayout()
-                : null;
+            $fieldLayoutConfig = isset($data['fieldLayouts']) ? reset($data['fieldLayouts']) : null;
+            $fieldLayout = null;
             $isNew = false;
             $blockType = null;
             $blockTypeConditions = $data['conditions'] ?? [];
@@ -532,20 +528,17 @@ class BlockTypes extends Component
                 $isNew = true;
             }
 
-            // Any non-null field layout at this point belongs to an entry type and shouldn't be touched
-            if ($fieldLayout === null) {
-                if ($fieldLayoutConfig === null && $record->id !== null && $blockType->fieldLayoutId !== null) {
-                    $fieldsService->deleteLayoutById($blockType->fieldLayoutId);
-                }
+            if ($fieldLayoutConfig === null && $record->id !== null && $blockType->fieldLayoutId !== null) {
+                $fieldsService->deleteLayoutById($blockType->fieldLayoutId);
+            }
 
-                if ($fieldLayoutConfig !== null) {
-                    $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
-                    $fieldLayout->id = $record->fieldLayoutId;
-                    $fieldLayout->type = Block::class;
-                    $fieldLayout->uid = key($data['fieldLayouts']);
+            if ($fieldLayoutConfig !== null) {
+                $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
+                $fieldLayout->id = $record->fieldLayoutId;
+                $fieldLayout->type = Block::class;
+                $fieldLayout->uid = key($data['fieldLayouts']);
 
-                    $fieldsService->saveLayout($fieldLayout);
-                }
+                $fieldsService->saveLayout($fieldLayout);
             }
 
             // Find the sort order for this block type based on the orders saved in the project config
@@ -670,7 +663,7 @@ class BlockTypes extends Component
             }
 
             // Delete the block type's field layout if it exists
-            if ($blockType->entryTypeId === null && $blockType->fieldLayoutId !== null) {
+            if ($blockType->fieldLayoutId !== null) {
                 $fieldsService->deleteLayoutById($blockType->fieldLayoutId);
             }
 

@@ -11,6 +11,7 @@ use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
+use craft\fieldlayoutelements\entries\EntryTitleField;
 use craft\fields\Matrix as MatrixField;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -253,6 +254,52 @@ class Conversion extends Component
         } while (!$success);
 
         return $entryType;
+    }
+
+    /**
+     * Converts an entry type to a Neo block type.
+     *
+     * @param EntryType $entryType
+     * @param bool $save Whether to save the block type before returning.
+     * @return BlockType
+     */
+    public function convertEntryTypeToBlockType(EntryType $entryType, bool $save = true): BlockType
+    {
+        $entriesService = Craft::$app->getEntries();
+        $fieldLayout = FieldLayout::createFromConfig($entryType->getFieldLayout()?->getConfig() ?? []);
+
+        foreach ($fieldLayout->getTabs() as $tab) {
+            $tab->uid = StringHelper::UUID();
+            $elements = [];
+
+            foreach ($tab->getElements() as $element) {
+                if (!$element instanceof EntryTitleField) {
+                    $element->uid = StringHelper::UUID();
+                    $elements[] = $element;
+                }
+            }
+
+            $tab->setElements($elements);
+        }
+
+        $blockType = new BlockType();
+        $blockType->uid = $blockType->uid;
+        $blockType->setFieldLayout($fieldLayout);
+
+        if ($save) {
+            $i = 0;
+
+            do {
+                $blockType->name = $entryType->name . (++$i !== 1 ? " $i" : '');
+                $blockType->handle = $entryType->handle . ($i !== 1 ? "$i" : '');
+                $success = Neo::$plugin->blockTypes->save($blockType);
+            } while (!$success);
+        } else {
+            $blockType->name = $entryType->name;
+            $blockType->handle = $entryType->handle;
+        }
+
+        return $blockType;
     }
 
     /**

@@ -327,10 +327,15 @@ class BlockType extends Model implements
         $this->entryTypeId = $entryType?->id;
 
         if ($entryType !== null) {
-            $this->name = $entryType->name;
-            $this->handle = $entryType->handle;
-            $this->color = $entryType->color;
-            $this->fieldLayoutId = $entryType->getFieldLayout()?->id;
+            // Replicate the common settings, so nothing is lost if the entry type association is ever removed
+            $convertedBlockType = Neo::$plugin->conversion->convertEntryTypeToBlockType($entryType, false);
+            $this->name = $convertedBlockType->name;
+            $this->handle = $convertedBlockType->handle;
+            $this->color = $convertedBlockType->color;
+            $fieldLayout = $convertedBlockType->getFieldLayout();
+            $fieldLayout->type = Block::class;
+            $this->setFieldLayout($fieldLayout);
+            $this->fieldLayoutId = $fieldLayout->id;
         }
     }
 
@@ -405,7 +410,6 @@ class BlockType extends Model implements
     {
         $group = $this->getGroup();
         $icon = $this->getIcon();
-        $entryType = $this->getEntryType();
 
         if ($icon) {
             $iconData = [
@@ -419,7 +423,7 @@ class BlockType extends Model implements
 
         $config = [
             'childBlocks' => $this->childBlocks,
-            'entryType' => $entryType?->uid,
+            'entryType' => $this->getEntryType()?->uid,
             'field' => $this->getField()?->uid,
             'group' => $group ? $group->uid : null,
             'groupChildBlockTypes' => (bool)$this->groupChildBlockTypes,
@@ -442,27 +446,23 @@ class BlockType extends Model implements
             'conditions' => $this->conditions ?: null,
         ];
 
-        if ($entryType === null) {
-            $fieldLayout = $this->getFieldLayout();
+        $fieldLayout = $this->getFieldLayout();
 
-            // Field layout ID might not be set even if the block type already had one -- just grab it from the block type
-            $fieldLayout->id = $fieldLayout->id ?? $this->fieldLayoutId;
-            $fieldLayoutConfig = $fieldLayout->getConfig();
+        // Field layout ID might not be set even if the block type already had one -- just grab it from the block type
+        $fieldLayout->id = $fieldLayout->id ?? $this->fieldLayoutId;
+        $fieldLayoutConfig = $fieldLayout->getConfig();
 
-            // No need to bother with the field layout if it has no tabs
-            if ($fieldLayoutConfig !== null) {
-                $fieldLayoutUid = $fieldLayout->uid ??
-                    ($fieldLayout->id ? Db::uidById(Table::FIELDLAYOUTS, $fieldLayout->id) : null) ??
-                    StringHelper::UUID();
+        // No need to bother with the field layout if it has no tabs
+        if ($fieldLayoutConfig !== null) {
+            $fieldLayoutUid = $fieldLayout->uid ??
+                ($fieldLayout->id ? Db::uidById(Table::FIELDLAYOUTS, $fieldLayout->id) : null) ??
+                StringHelper::UUID();
 
-                if (!$fieldLayout->uid) {
-                    $fieldLayout->uid = $fieldLayoutUid;
-                }
-
-                $config['fieldLayouts'][$fieldLayoutUid] = $fieldLayoutConfig;
+            if (!$fieldLayout->uid) {
+                $fieldLayout->uid = $fieldLayoutUid;
             }
-        } else {
-            $config['fieldLayouts'] = '__entrytype__';
+
+            $config['fieldLayouts'][$fieldLayoutUid] = $fieldLayoutConfig;
         }
 
         return $config;
