@@ -135,6 +135,7 @@ class ConfiguratorAsset extends AssetBundle
         $newX = 0;
 
         foreach ($blockTypes as $blockType) {
+            $entryType = $blockType->getEntryType();
             // Ensure the field layout UID is set with the config, to prevent the UID from being regenerated on save
             $fieldLayout = $blockType->getFieldLayout();
             $fieldLayoutConfig = $fieldLayout->getConfig();
@@ -142,6 +143,13 @@ class ConfiguratorAsset extends AssetBundle
             $jsBlockTypes[] = [
                 'id' => $blockType->id ?: 'new' . $newX++,
                 'sortOrder' => $blockType->sortOrder,
+                'entryType' => $entryType === null
+                    ? null
+                    : [
+                        'name' => $entryType->name,
+                        'handle' => $entryType->handle,
+                        'color' => $entryType->color?->value,
+                    ],
                 'name' => $blockType->name,
                 'handle' => $blockType->handle,
                 'enabled' => $blockType->enabled,

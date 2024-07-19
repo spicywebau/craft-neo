@@ -237,6 +237,7 @@ export default Item.extend({
       this.$nameText.text(settings.getName())
       this.$handleText.text(settings.getHandle())
       this.$container.toggleClass('is-child', !settings.getTopLevel())
+      this.trigger('change')
     }
   },
 

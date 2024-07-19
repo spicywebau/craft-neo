@@ -67,6 +67,7 @@ export default Garnish.Base.extend({
         namespace: [...btNamespace, btInfo.id],
         sortOrder: btInfo.sortOrder,
         id: btInfo.id,
+        entryType: btInfo.entryType,
         name: btInfo.name,
         handle: btInfo.handle,
         description: btInfo.description,
@@ -96,6 +97,7 @@ export default Garnish.Base.extend({
         settings: btSettings
       })
 
+      blockType.on('change.configurator', () => this._toggleFieldLayout(blockType))
       blockType.on('copy.configurator', () => this._copyBlockType(blockType))
       blockType.on('paste.configurator', () => this._pasteBlockType())
       blockType.on('clone.configurator', () => this._createBlockTypeFrom(blockType.getConfig()))
@@ -288,12 +290,7 @@ export default Garnish.Base.extend({
       i.toggleSelect(thisIsTheItem)
 
       if (thisIsTheItem) {
-        const itemIsGroup = !(i instanceof BlockType)
-        this.$fieldLayoutButton.toggleClass('hidden', itemIsGroup)
-
-        if (itemIsGroup) {
-          this.selectTab('settings')
-        }
+        this._toggleFieldLayout(i)
       }
     }
 
@@ -478,6 +475,15 @@ export default Garnish.Base.extend({
       $element.insertAt(index, this.$blockTypesContainer)
     } else {
       this.$blockTypesContainer.append($element)
+    }
+  },
+
+  _toggleFieldLayout (blockType) {
+    const hideFieldLayout = !(blockType instanceof BlockType) || blockType.getSettings().getEntryType() !== null
+    this.$fieldLayoutButton.toggleClass('hidden', hideFieldLayout)
+
+    if (hideFieldLayout) {
+      this.selectTab('settings')
     }
   },
 

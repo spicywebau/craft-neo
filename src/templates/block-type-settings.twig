@@ -36,9 +36,16 @@
             required: true,
             value: blockType ? blockType.name : null,
             errors: blockType ? blockType.getErrors('name') : null,
+            data: {
+                'neo-bts': 'container.name',
+            },
             inputAttributes: {
                 'data-neo-bts': 'input.name',
             },
+        })|attr({
+            class: blockType and blockType.entryType ? [
+                'hidden',
+            ],
         }) }}
 
         {{ forms.textField({
@@ -50,9 +57,16 @@
             class: 'code',
             value: blockType ? blockType.handle : null,
             errors: blockType ? blockType.getErrors('handle') : null,
+            data: {
+                'neo-bts': 'container.handle',
+            },
             inputAttributes: {
                 'data-neo-bts': 'input.handle'
-            }
+            },
+        })|attr({
+            class: blockType and blockType.entryType ? [
+                'hidden',
+            ],
         }) }}
 
         {{ forms.textareaField({
@@ -118,10 +132,15 @@
             errors: blockType ? blockType.getErrors('color') : null,
             data: {
                 'error-key': 'color',
+                'neo-bts': 'container.color',
             },
             inputAttributes: {
                 'data-neo-bts': 'input.color',
             },
+        })|attr({
+            class: blockType and blockType.entryType ? [
+                'hidden',
+            ],
         }) }}
 
         <div data-neo-bts="container.enabled">

@@ -107,9 +107,12 @@ export default Settings.extend({
     const $neo = this.$container.find('[data-neo-bts]')
     this.$entryTypeInput = $neo.filter('[data-neo-bts="input.entryType"]')
     this.$nameInput = $neo.filter('[data-neo-bts="input.name"]')
+    this.$nameContainer = $neo.filter('[data-neo-bts="container.name"]')
     this.$handleInput = $neo.filter('[data-neo-bts="input.handle"]')
+    this.$handleContainer = $neo.filter('[data-neo-bts="container.handle"]')
     this.$descriptionInput = $neo.filter('[data-neo-bts="input.description"]')
     this.$colorInput = $neo.filter('[data-neo-bts="input.color"]')
+    this.$colorContainer = $neo.filter('[data-neo-bts="container.color"]')
     this.$iconContainer = $neo.filter('[data-neo-bts="container.iconFilename"]')
     this.$iconIdContainer = $neo.filter('[data-neo-bts="container.iconId"]')
     this.$enabledInput = $neo.filter('[data-neo-bts="input.enabled"]')
@@ -174,9 +177,15 @@ export default Settings.extend({
           }
         }).then(({ data }) => {
           this.setEntryType(data.entryType)
+          this._refreshSetting(this.$nameContainer, false)
+          this._refreshSetting(this.$handleContainer, false)
+          this._refreshSetting(this.$colorContainer, false)
         })
       } else {
         this.setEntryType(null)
+        this._refreshSetting(this.$nameContainer, true)
+        this._refreshSetting(this.$handleContainer, true)
+        this._refreshSetting(this.$colorContainer, true)
       }
     })
 
@@ -268,7 +277,7 @@ export default Settings.extend({
    * @since 5.1.0
    */
   getEntryType () {
-    return this._entryType ?? this._originalSettings.entryType
+    return this._entryType
   },
 
   /**
