@@ -284,7 +284,7 @@ class Conversion extends Component
         }
 
         $blockType = new BlockType();
-        $blockType->uid = $blockType->uid;
+        $blockType->uid = $entryType->uid;
         $blockType->setFieldLayout($fieldLayout);
 
         if ($save) {
