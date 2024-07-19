@@ -6,7 +6,7 @@
 - Added `benf\neo\controllers\Configurator::actionGetCommonEntryTypeSettings()`
 - Added `benf\neo\models\BlockType::getEntryType()`
 - Added `benf\neo\models\BlockType::setEntryType()`
-- Added `benf\neo\models\BlockType::entryTypeId`
+- Added `benf\neo\models\BlockType::$entryTypeId`
 - Added `benf\neo\services\BlockTypes::getByCriteria()`
 - Added `benf\neo\services\Conversion::convertEntryTypeToBlockType()`
 
