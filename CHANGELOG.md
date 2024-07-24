@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.1.0 - 2024-07-24
 
 ### Added
 - Added `benf\neo\controllers\Configurator::actionGetCommonEntryTypeSettings()`
