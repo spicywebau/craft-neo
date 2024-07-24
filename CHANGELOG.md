@@ -6,12 +6,12 @@
 - Added `benf\neo\controllers\Configurator::actionGetCommonEntryTypeSettings()`
 - Added `benf\neo\models\BlockType::getEntryType()`
 - Added `benf\neo\models\BlockType::setEntryType()`
-- Added `benf\neo\models\BlockType::$entryTypeId`
+- Added `benf\neo\models\BlockType::$entryTypeId` and the `neoblocktypes.entryTypeId` column
 - Added `benf\neo\services\BlockTypes::getByCriteria()`
 - Added `benf\neo\services\Conversion::convertEntryTypeToBlockType()`
 
 ### Changed
-- The `neoblocktypes` table now has an `entryTypeId` column
+- Block types now have an entry type setting, allowing for choosing an entry type that the block type will take its name, handle, color, and field layout from
 
 ### Fixed
 - Fixed a bug where the 'save as new entry' option would not save any Neo blocks for the new entry
