@@ -18,6 +18,8 @@ return [
     'Add a block' => 'Add a block',
     'Move up' => 'Move up',
     'Move down' => 'Move down',
+    'Entry Type' => 'Entry Type',
+    'Choose the entry type this block type will take its name, handle, color, and field layout from.' => 'Choose the entry type this block type will take its name, handle, color, and field layout from.',
     'Name' => 'Name',
     'What this block type will be called in the CP.' => 'What this block type will be called in the CP.',
     'Handle' => 'Handle',
