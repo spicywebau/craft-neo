@@ -16,7 +16,7 @@
     <div>
         {{ forms.entryTypeSelectField({
             label: 'Entry Type'|t('neo'),
-            instructions: 'Choose the entry type this block type will take its name, handle, and field layout from.'|t('neo'),
+            instructions: 'Choose the entry type this block type will take its name, handle, color, and field layout from.'|t('neo'),
             id: 'entry-type',
             name: 'entryType',
             value: blockType ? blockType.getEntryType() : null,
