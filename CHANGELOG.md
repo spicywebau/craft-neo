@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.9 - 2024-07-25
 
 ### Fixed
 - Fixed a bug where edited descendants of unedited blocks weren't being returned in GraphQL draft queries
