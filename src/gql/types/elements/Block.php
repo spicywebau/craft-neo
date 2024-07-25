@@ -45,7 +45,7 @@ class Block extends Element
 
             // The blocks at `$source->$fieldName` cannot be trusted, it will most likely be out of order and cached.
             // We should retrieve the children blocks by query instead, so it'll always be in the correct order.
-            $descendants = $source->getDescendants()->all();
+            $descendants = $source->getDescendants()->ownerId($source->ownerId)->all();
             $children = array_filter($descendants, function($block) use ($childrenLevel) {
                 return (int)$block->level === $childrenLevel;
             });

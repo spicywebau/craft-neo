@@ -87,6 +87,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.9 - 2024-07-25
+
+### Fixed
+- Fixed a bug where edited descendants of unedited blocks weren't being returned in GraphQL draft queries
+
 ## 4.2.8 - 2024-07-10
 
 ### Fixed
