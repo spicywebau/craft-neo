@@ -223,13 +223,17 @@ export default Garnish.Base.extend({
     this.$tabButton = $neo.filter(`[data-neo-b="${this._id}.button.tab"]`)
     this.$tabContainer = this.$contentContainer.children('[data-layout-tab]')
 
-    this._tabsMenu = this.$tabsButton.data('trigger') || new Garnish.DisclosureMenu(this.$tabsButton)
-    this._tabsMenu.on('show', () => this.$container.addClass('active'))
-    this._tabsMenu.on('hide', () => this.$container.removeClass('active'))
+    if (this.$tabsButton.length > 0) {
+      this._tabsMenu = this.$tabsButton.data('trigger') || new Garnish.DisclosureMenu(this.$tabsButton)
+      this._tabsMenu.on('show', () => this.$container.addClass('active'))
+      this._tabsMenu.on('hide', () => this.$container.removeClass('active'))
 
-    this.$tabButton = this.$tabButton.add(this._tabsMenu.$container.find(`[data-neo-b="${this._id}.button.tab"]`))
-    this.addListener(this.$tabButton, 'click', this['@setTab'])
-    this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
+      this.$tabButton = this.$tabButton.add(this._tabsMenu.$container.find(`[data-neo-b="${this._id}.button.tab"]`))
+      this.addListener(this.$tabButton, 'click', this['@setTab'])
+      this.addListener(this.$tabButton, 'keydown', this._handleTabKeydown)
+    } else {
+      this._tabsMenu = null
+    }
   },
 
   /**
@@ -1134,7 +1138,7 @@ export default Garnish.Base.extend({
 
   '@setTab' (e) {
     e.preventDefault()
-    this._tabsMenu.hide()
+    this._tabsMenu?.hide()
 
     const $tab = $(e.currentTarget)
     const tabName = $tab.attr('data-neo-b-info')

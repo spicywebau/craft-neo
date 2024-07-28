@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a JavaScript error that could occur in some cases when creating a new block with no tabs
+
 ## 5.1.0 - 2024-07-24
 
 ### Added
