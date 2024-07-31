@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an error that could occur when accessing a Neo field settings page after uninstalling Craft Commerce
+- Fixed a bug on Neo field settings pages, where block types that were not allowed at the top level would not be indented until the block type was selected
 
 ## 5.1.1 - 2024-07-29
 

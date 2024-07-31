@@ -48,6 +48,7 @@ export default Item.extend({
     })
 
     this.deselect()
+    this._updateTemplate()
   },
 
   _generateBlockType (settings) {
