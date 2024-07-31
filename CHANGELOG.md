@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when accessing a Neo field settings page after uninstalling Craft Commerce
+
 ## 5.1.1 - 2024-07-29
 
 ### Fixed

@@ -1201,10 +1201,12 @@ class BlockTypes extends Component
 
         // Craft Commerce element types
         if (Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
-            $elementTypes[] = Product::class;
-            $elementTypes[] = Variant::class;
-            $elementTypes[] = Order::class;
-            $elementTypes[] = Subscription::class;
+            // See https://github.com/spicywebau/craft-neo/issues/913 for why
+            foreach ([Product::class, Variant::class, Order::class, Subscription::class] as $commerceClass) {
+                if (class_exists($commerceClass)) {
+                    $elementTypes[] = $commerceClass;
+                }
+            }
         }
 
         return $elementTypes;
