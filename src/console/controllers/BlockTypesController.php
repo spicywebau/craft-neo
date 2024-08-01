@@ -385,6 +385,46 @@ class BlockTypesController extends Controller
     }
 
     /**
+     * Converts a block type to an entry type.
+     *
+     * @return int
+     * @since 4.2.0
+     */
+    public function actionConvertToEntryType(): int
+    {
+        try {
+            $blockType = $this->_getBlockType();
+        } catch (BlockTypeNotFoundException $e) {
+            $this->stderr($e->getMessage() . PHP_EOL, Console::FG_RED);
+            return ExitCode::USAGE;
+        }
+
+        if ($blockType->getEntryType()) {
+            $this->stderr('Block type alrady has an entry type.' . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        $entryType = Neo::$plugin->conversion->convertBlockTypeToEntryType($blockType, false);
+
+        if (!Craft::$app->getEntries()->saveEntryType($entryType)) {
+            foreach ($entryType->getErrorSummary(true) as $error) {
+                $this->stderr($error . PHP_EOL, Console::FG_RED);
+            }
+
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        Craft::$app->getProjectConfig()->set(
+            sprintf('neo.blockTypes.%s.entryType', $blockType->uid),
+            $entryType->uid,
+        );
+
+        $this->stdout('Done.' . PHP_EOL);
+
+        return ExitCode::OK;
+    }
+
+    /**
      * @return BlockType
      * @throws BlockTypeNotFoundException
      */

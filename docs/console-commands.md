@@ -26,6 +26,19 @@ Please note that at most one of `--set-name` and `--blank-name` can be specified
 
 Converts the icon settings from the asset source format to the filename format, for all block types that have an icon asset set but not a filename. See the documentation for the [`blockTypeIconSelectMode`](settings.md#blocktypeiconselectmode) plugin setting for more information.
 
+## `neo/block-types/convert-to-entry-type`
+
+Converts a Neo block type to an entry type, and assigns that entry type as associated with the original block type.
+
+The block type must not already be associated with an entry type, and an entry type with the same handle must not already exist.
+
+### Options
+- `--type-id`: The ID of the block type to convert.
+- `--handle`: The handle of the block type to convert.
+- `--field-id`: The field ID of the block type to convert.
+
+One of `--type-id` and `--handle` must be specified, and if `--handle` is specified and the specified handle is used on more than one Neo field, `--field-id` must also be specified.
+
 ## `neo/block-types/delete`
 
 Deletes a Neo block type.
