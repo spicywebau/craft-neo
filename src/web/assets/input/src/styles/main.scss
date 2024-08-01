@@ -464,6 +464,15 @@ $block-background-color-level-even: var(--gray-050);
                     }
                 }
             }
+
+            .status-badge {
+                body.ltr & {
+                    left: 8px;
+                }
+                body.rtl {
+                    right: 8px;
+                }
+            }
         }
 
         &_children {

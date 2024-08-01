@@ -596,7 +596,7 @@ class Field extends BaseField implements
             }
 
             if ($value instanceof BlockQuery) {
-                $value = $value->getCachedResult() ?? $value->limit(null)->status(null)->all();
+                $value = $value->getCachedResult() ?? $value->drafts(null)->status(null)->limit(null)->all();
             }
 
             $view->registerAssetBundle(InputAsset::class);
@@ -1535,6 +1535,8 @@ class Field extends BaseField implements
                 ->limit(null)
                 ->status(null)
                 ->siteId($element->siteId)
+                ->drafts(null)
+                ->revisions(null)
                 ->findStructureId(false)
                 ->orderBy(['sortOrder' => SORT_ASC])
                 ->indexBy($uids ? 'uid' : 'id')
@@ -1625,8 +1627,12 @@ class Field extends BaseField implements
                 $forceSave = !empty($blockData);
                 $blockEnabled = (bool)($blockData['enabled'] ?? $block->enabled);
 
-                // Is this a derivative element, and does the block primarily belong to the canonical?
-                if ($forceSave && $element->getIsDerivative() && $block->getPrimaryOwnerId() === $element->getCanonicalId()) {
+                if (
+                    $forceSave &&
+                    $element->getIsDerivative() &&
+                    $block->getPrimaryOwnerId() === $element->getCanonicalId() &&
+                    Craft::$app->getRequest()->actionSegments !== ['elements', 'update-field-layout']
+                ) {
                     // Duplicate it as a draft. (We'll drop its draft status from `Fields::saveValue`.)
                     $block = $draftsService->createDraft($block, $user->getId(), null, null, [
                         'canonicalId' => $block->id,

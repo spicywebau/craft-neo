@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Blocks now begin life as unpublished drafts
+
+### Fixed
+- Fixed a bug where newly-created blocks could lose their disabled status if the owner element had validation errors and `autosaveDrafts` was disabled
+
 ## 5.1.2 - 2024-07-31
 
 ### Fixed

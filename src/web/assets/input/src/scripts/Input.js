@@ -644,6 +644,14 @@ export default Garnish.Base.extend({
       .get()
   },
 
+  /**
+   * @since 5.2.0
+   */
+  getElementEditor () {
+    this._elementEditor ??= this.$form.data('elementEditor') ?? null
+    return this._elementEditor
+  },
+
   _setMatrixClassErrors () {
     // TODO: will need probably need to find a method within php instead of JS
     // temp solution for now.
@@ -1158,7 +1166,19 @@ export default Garnish.Base.extend({
   },
 
   async '@newBlock' (e) {
-    const elementEditor = this.$form.data('elementEditor')
+    const elementEditor = this.getElementEditor()
+
+    // Remove [blocks] from namespace
+    NS.enter(Array.from(this.getNamespace()).slice(0, -1))
+    if (elementEditor) {
+      // First ensure we're working with drafts for all elements leading up
+      // to this field’s element
+      await elementEditor.setFormValue(
+        NS.toFieldName(),
+        '*'
+      )
+    }
+    NS.leave()
 
     try {
       elementEditor?.pause()
