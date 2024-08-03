@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where associating an entry type with a block type would cause existing blocks of that type to lose content
+
 ## 5.1.2 - 2024-07-31
 
 ### Fixed

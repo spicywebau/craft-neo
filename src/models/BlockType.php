@@ -12,9 +12,11 @@ use craft\base\FieldLayoutProviderInterface;
 use craft\base\GqlInlineFragmentInterface;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
+use craft\db\Query;
 use craft\db\Table;
 use craft\elements\Asset;
 use craft\enums\Color;
+use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
@@ -335,6 +337,7 @@ class BlockType extends Model implements
             $fieldLayout = $convertedBlockType->getFieldLayout();
             $fieldLayout->type = Block::class;
             $fieldLayout->id = $this->fieldLayoutId;
+            $this->_copyCustomFieldUuidsTo($fieldLayout);
             $this->setFieldLayout($fieldLayout);
         }
     }
@@ -507,5 +510,43 @@ class BlockType extends Model implements
     public function getFieldLayout(): FieldLayout
     {
         return $this->getBehavior('fieldLayout')->getFieldLayout();
+    }
+
+    private function _copyCustomFieldUuidsTo($fieldLayout): void
+    {
+        // New block types clearly won't have a preexisting field layout
+        if ($this->id === null) {
+            return;
+        }
+
+        $fieldLayoutId = (new Query())
+            ->select(['fieldLayoutId'])
+            ->from('{{%neoblocktypes}}')
+            ->where(['id' => $this->id])
+            ->scalar();
+
+        // Some block types won't have previously had a field layout
+        if (!$fieldLayoutId) {
+            return;
+        }
+
+        $currentFieldLayout = Craft::$app->getFields()->getLayoutById($fieldLayoutId);
+        $handleUuidMap = [];
+
+        foreach ($currentFieldLayout->getTabs() as $tab) {
+            foreach ($tab->getElements() as $element) {
+                if ($element instanceof CustomField) {
+                    $handleUuidMap[$element->attribute()] = $element->uid;
+                }
+            }
+        }
+
+        foreach ($fieldLayout->getTabs() as $tab) {
+            foreach ($tab->getElements() as $element) {
+                if ($element instanceof CustomField && isset($handleUuidMap[$element->attribute()])) {
+                    $element->uid = $handleUuidMap[$element->attribute()];
+                }
+            }
+        }
     }
 }
