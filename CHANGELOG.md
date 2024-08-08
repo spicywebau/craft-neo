@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a server error that occurred when switching an entry's type from one with a Neo field to one without a Neo field
 - Fixed a JavaScript error that could occur in some cases when creating a new block with no tabs
 
 ## 4.2.9 - 2024-07-25
