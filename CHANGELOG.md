@@ -103,6 +103,12 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.10 - 2024-08-08
+
+### Fixed
+- Fixed a server error that occurred when switching an entry's type from one with a Neo field to one without a Neo field
+- Fixed a JavaScript error that could occur in some cases when creating a new block with no tabs
+
 ## 4.2.9 - 2024-07-25
 
 ### Fixed

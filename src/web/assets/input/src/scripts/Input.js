@@ -262,6 +262,9 @@ export default Garnish.Base.extend({
 
     this._registerStateUpdate()
 
+    // Destroy this field if the entry type is changed
+    $('#entryType-field').on('change', () => this.destroy())
+
     this.trigger('afterInit')
   },
 
@@ -852,10 +855,17 @@ export default Garnish.Base.extend({
     // A small timeout to let the element editor initialise
     setTimeout(() => {
       const elementEditor = this.$form.data('elementEditor')
-      elementEditor?.on('update', () => {
+
+      if (!elementEditor) {
+        return
+      }
+
+      const stateUpdate = () => {
         this._ownerId = elementEditor.settings.elementId
         this._updateAllVisibleElements()
-      })
+      }
+      elementEditor.on('update.neo', stateUpdate)
+      this.on('destroy', () => elementEditor.off('update.neo', stateUpdate))
     }, 200)
   },
 
