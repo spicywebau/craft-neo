@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a server error that occurred when switching an entry's type from one with a Neo field to one without a Neo field
+
 ## 5.1.3 - 2024-08-03
 
 ### Fixed
