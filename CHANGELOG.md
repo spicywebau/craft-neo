@@ -1,6 +1,6 @@
 # Changelog
 
-## 5.2.0-beta.1 - 2024-08-01
+## 5.2.0 - 2024-08-12
 
 ### Added
 - Added `benf\neo\console\controllers\BlockTypesController::actionConvertToEntryType()` (`php craft neo/block-types/convert-to-entry-type` console command)
