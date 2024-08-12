@@ -25,7 +25,7 @@
     "rss": "https://github.com/spicywebau/craft-neo/commits/5.x.atom"
   },
   "require": {
-    "craftcms/cms": "^5.3.0-beta.1",
+    "craftcms/cms": "^5.3.0",
     "php": "^8.2"
   },
   "autoload": {

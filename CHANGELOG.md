@@ -6,7 +6,7 @@
 - Added `benf\neo\console\controllers\BlockTypesController::actionConvertToEntryType()` (`php craft neo/block-types/convert-to-entry-type` console command)
 
 ### Changed
-- Neo now requires Craft 5.3.0-beta.1 or later
+- Neo now requires Craft 5.3.0 or later
 - `benf\neo\services\Conversion::convertBlockTypeToEntryType()` now has a `$save` argument
 - Blocks now begin life as unpublished drafts
 
