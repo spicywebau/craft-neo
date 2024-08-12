@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.2.0-beta.1 - 2024-08-01
+
+### Added
+- Added `benf\neo\console\controllers\BlockTypesController::actionConvertToEntryType()` (`php craft neo/block-types/convert-to-entry-type` console command)
+
+### Changed
+- Neo now requires Craft 5.3.0-beta.1 or later
+- `benf\neo\services\Conversion::convertBlockTypeToEntryType()` now has a `$save` argument
+- Blocks now begin life as unpublished drafts
+
+### Fixed
+- Fixed a bug where newly-created blocks could lose their disabled status if the owner element had validation errors and `autosaveDrafts` was disabled
+
 ## 5.1.4 - 2024-08-08
 
 ### Fixed

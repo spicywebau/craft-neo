@@ -280,14 +280,31 @@ class Fields extends Component
                         $block->cacheCollapsed();
                     }
 
-                    // If this is a draft, we can shed the draft data now
-                    if ($block->getIsDraft()) {
-                        $canonicalBlockId = $block->getCanonicalId();
+                    // If this block's primary owner is $owner, and it’s a draft of another block whose owner is
+                    // $owner's canonical (e.g. a draft block created by Field::_createBlocksFromSerializedData()),
+                    // we can shed its draft data and relation with the canonical owner now
+                    if (
+                        $block->getPrimaryOwnerId() === $owner->id &&
+                        $block->getIsDraft() &&
+                        !$block->getIsUnpublishedDraft() &&
+                        // $owner could be a draft or a non-canonical block, etc.
+                        (!$owner->getIsCanonical()) &&
+                        !$owner->getIsUnpublishedDraft()
+                    ) {
+                        $canonical = $block->getCanonical(true);
+                        if ($canonical->getPrimaryOwnerId() === $owner->getCanonicalId()) {
+                            $draftsService->removeDraftData($block);
+                            Db::delete(Table::ELEMENTS_OWNERS, [
+                                'elementId' => $canonical->id,
+                                'ownerId' => $owner->id,
+                            ]);
+                        }
+                    } elseif (
+                        $block->getIsUnpublishedDraft() &&
+                        $block->getPrimaryOwnerId() === $owner->id
+                    ) {
                         $draftsService->removeDraftData($block);
-                        Db::delete(Table::ELEMENTS_OWNERS, [
-                            'elementId' => $canonicalBlockId,
-                            'ownerId' => $owner->id,
-                        ]);
+                        $structureModified = true;
                     }
                 } elseif ((int)$block->getSortOrder() !== $sortOrder) {
                     // Just update its sort order

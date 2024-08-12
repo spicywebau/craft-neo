@@ -241,7 +241,7 @@
         {% if isFresh ?? false %}
             {{ hiddenInput("#{baseInputName}[fresh]", '1') }}
         {% endif %}
-        {% if not isNew %}
+        {% if not isNew and not block.getIsUnpublishedDraft() %}
             {% do view.registerDeltaName(baseInputName) %}
         {% endif %}
     {% endif %}

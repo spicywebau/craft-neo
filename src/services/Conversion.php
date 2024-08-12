@@ -227,9 +227,10 @@ class Conversion extends Component
      * Converts a Neo block type to an entry type.
      *
      * @param BlockType $blockType
+     * @param bool $save Whether to save the entry type before returning it
      * @return EntryType
      */
-    public function convertBlockTypeToEntryType(BlockType $blockType): EntryType
+    public function convertBlockTypeToEntryType(BlockType $blockType, bool $save = true): EntryType
     {
         $entriesService = Craft::$app->getEntries();
         $fieldLayout = FieldLayout::createFromConfig($blockType->getFieldLayout()?->getConfig() ?? []);
@@ -244,14 +245,21 @@ class Conversion extends Component
 
         $entryType = new EntryType();
         $entryType->uid = $blockType->uid;
+        $entryType->color = $blockType->color;
         $entryType->setFieldLayout($fieldLayout);
-        $i = 0;
 
-        do {
-            $entryType->name = $blockType->name . (++$i !== 1 ? " $i" : '');
-            $entryType->handle = $blockType->handle . ($i !== 1 ? "$i" : '');
-            $success = $entriesService->saveEntryType($entryType);
-        } while (!$success);
+        if ($save) {
+            $i = 0;
+
+            do {
+                $entryType->name = $blockType->name . (++$i !== 1 ? " $i" : '');
+                $entryType->handle = $blockType->handle . ($i !== 1 ? "$i" : '');
+                $success = $entriesService->saveEntryType($entryType);
+            } while (!$success);
+        } else {
+            $entryType->name = $blockType->name;
+            $entryType->handle = $blockType->handle;
+        }
 
         return $entryType;
     }

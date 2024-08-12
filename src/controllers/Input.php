@@ -56,10 +56,12 @@ use benf\neo\elements\Block;
 use benf\neo\fieldlayoutelements\ChildBlocksUiElement;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\base\Element;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use craft\web\Controller;
 use craft\web\View;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -84,6 +86,7 @@ class Input extends Controller
 
         $request = Craft::$app->getRequest();
         $view = $this->getView();
+        $draftsService = Craft::$app->getDrafts();
         $elementsService = Craft::$app->getElements();
         $structuresService = Craft::$app->getStructures();
 
@@ -100,6 +103,7 @@ class Input extends Controller
         $field = Craft::$app->getFields()->getFieldById($fieldId);
         $renderedBlocks = [];
         $autosaveDrafts = Craft::$app->getConfig()->getGeneral()->autosaveDrafts;
+        $user = static::currentUser();
 
         foreach ($blocks as $rawBlock) {
             $type = Neo::$plugin->blockTypes->getById((int)$rawBlock['type']);
@@ -120,7 +124,12 @@ class Input extends Controller
                 $block->setFieldValues($rawBlock['content']);
             }
 
-            Craft::$app->getElements()->saveElement($block, false);
+            if (!$elementsService->canSave($block, $user)) {
+                throw new ForbiddenHttpException('User not authorized to create this element.');
+            }
+
+            $block->setScenario(Element::SCENARIO_ESSENTIALS);
+            $draftsService->saveElementAsDraft($block, $user->id, markAsSaved: false);
 
             if ($autosaveDrafts && $ownerId) {
                 // If the owner supports drafts, temporarily save the block's position in the block structure before
