@@ -12,6 +12,7 @@
 
 ### Fixed
 - Fixed a bug where newly-created blocks could lose their disabled status if the owner element had validation errors and `autosaveDrafts` was disabled
+- Fixed an undefined array key error that could occur if parent block condition rules were set on block type field layout elements on Craft 4
 
 ## 5.1.4 - 2024-08-08
 
