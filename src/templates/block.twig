@@ -233,11 +233,11 @@
         'neo-b-name': "#{typeName}",
     },
 } %}
+    {{ hiddenInput("#{handle}[sortOrder][]", block.uid, {'data-neo-b': blockId ~ '.input.sortOrder'}) }}
+    {{ hiddenInput("#{baseInputName}[level]", block.level, {'data-neo-b': blockId ~ '.input.level'}) }}
+    {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': blockId ~ '.input.type'}) }}
+    {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '', {'data-neo-b': blockId ~ '.input.enabled'}) }}
     {% if not static %}
-        {{ hiddenInput("#{handle}[sortOrder][]", block.uid, {'data-neo-b': blockId ~ '.input.sortOrder'}) }}
-        {{ hiddenInput("#{baseInputName}[level]", block.level, {'data-neo-b': blockId ~ '.input.level'}) }}
-        {{ hiddenInput("#{baseInputName}[type]", type.handle, {'data-neo-b': blockId ~ '.input.type'}) }}
-        {{ hiddenInput("#{baseInputName}[enabled]", block.enabled ? '1' : '', {'data-neo-b': blockId ~ '.input.enabled'}) }}
         {% if isFresh ?? false %}
             {{ hiddenInput("#{baseInputName}[fresh]", '1') }}
         {% endif %}

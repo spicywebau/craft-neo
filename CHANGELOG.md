@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug when viewing a revision, where Neo content would disappear after initially loading 
+
 ## 5.2.0 - 2024-08-12
 
 ### Added
