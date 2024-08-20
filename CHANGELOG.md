@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.2 - 2024-08-20
 
 ### Fixed
 - Fixed an error that occurred when upgrading from Craft 4
