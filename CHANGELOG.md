@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.11 - 2024-08-20
 
 ### Fixed
 - Fixed a bug where newly-created blocks were collapsed when the `collapseAllBlocks` plugin setting was enabled
