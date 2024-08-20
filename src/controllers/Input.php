@@ -152,6 +152,7 @@ class Input extends Controller
                 'block' => $block,
                 'static' => false,
                 'isFresh' => true,
+                'collapsed' => false,
             ]);
 
             if ($autosaveDrafts && isset($structure)) {

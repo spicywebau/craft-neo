@@ -127,6 +127,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.11 - 2024-08-20
+
+### Fixed
+- Fixed a bug where newly-created blocks were collapsed when the `collapseAllBlocks` plugin setting was enabled
+
 ## 4.2.10 - 2024-08-08
 
 ### Fixed
