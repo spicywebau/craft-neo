@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## 5.2.1 - 2024-08-20
 
 ### Fixed
 - Fixed a bug when viewing a revision, where Neo content would disappear after initially loading 
+- Fixed a bug where newly-created blocks were collapsed when the `collapseAllBlocks` plugin setting was enabled
 
 ## 5.2.0 - 2024-08-12
 
