@@ -1039,7 +1039,6 @@ class BlockTypes extends Component
             'description',
             'iconFilename',
             'iconId',
-            'color',
             'enabled',
             'ignorePermissions',
             'minBlocks',
@@ -1049,8 +1048,9 @@ class BlockTypes extends Component
             'conditions',
         ];
 
-        // Columns that didn't exist in Neo 5.0.0
+        // Columns that didn't exist before Neo 5.0.0
         $maybeColumns = [
+            'color',
             'entryTypeId',
         ];
 
