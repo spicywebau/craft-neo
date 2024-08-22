@@ -243,6 +243,17 @@ class Fields extends Component
             if ($blocks !== null) {
                 $saveAll = false;
             } else {
+                // Check for an existing block structure, in case $value has an outdated structureId
+                $blockStructure = Neo::$plugin->blocks->getStructures([
+                    'fieldId' => $field->id,
+                    'ownerId' => $owner->id,
+                    'siteId' => $owner->siteId,
+                ])[0] ?? null;
+
+                if ($blockStructure !== null) {
+                    $value->structureId = $blockStructure->structureId;
+                }
+
                 $blocks = (clone $value)
                     ->drafts(null)
                     ->savedDraftsOnly()

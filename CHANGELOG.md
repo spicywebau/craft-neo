@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where moving an entry between sections would cause nested Neo content to lose structure data
+
 ## 5.2.2 - 2024-08-20
 
 ### Fixed
