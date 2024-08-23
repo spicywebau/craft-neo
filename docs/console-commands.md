@@ -30,7 +30,7 @@ Converts the icon settings from the asset source format to the filename format, 
 
 Converts a Neo block type to an entry type, and assigns that entry type as associated with the original block type.
 
-The block type must not already be associated with an entry type, and an entry type with the same handle must not already exist.
+The block type must not already be associated with an entry type, and an entry type with the same handle must not already exist. Any parent block condition rules associated with any of the block type's field layout tabs or elements will be removed.
 
 ### Options
 - `--type-id`: The ID of the block type to convert.

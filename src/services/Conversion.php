@@ -9,6 +9,7 @@ use benf\neo\Plugin as Neo;
 use Craft;
 use craft\db\Query;
 use craft\db\Table;
+use craft\elements\conditions\entries\EntryCondition;
 use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
 use craft\fieldlayoutelements\entries\EntryTitleField;
@@ -233,20 +234,10 @@ class Conversion extends Component
     public function convertBlockTypeToEntryType(BlockType $blockType, bool $save = true): EntryType
     {
         $entriesService = Craft::$app->getEntries();
-        $fieldLayout = FieldLayout::createFromConfig($blockType->getFieldLayout()?->getConfig() ?? []);
-
-        foreach ($fieldLayout->getTabs() as $tab) {
-            $tab->uid = StringHelper::UUID();
-
-            foreach ($tab->getElements() as $element) {
-                $element->uid = StringHelper::UUID();
-            }
-        }
-
         $entryType = new EntryType();
         $entryType->uid = $blockType->uid;
         $entryType->color = $blockType->color;
-        $entryType->setFieldLayout($fieldLayout);
+        $entryType->setFieldLayout($this->_createFieldLayout($blockType));
 
         if ($save) {
             $i = 0;
@@ -347,5 +338,34 @@ class Conversion extends Component
         }
 
         return $entry;
+    }
+
+    private function _createFieldLayout(BlockType $blockType): FieldLayout
+    {
+        $config = $blockType->getFieldLayout()?->getConfig() ?? [];
+
+        for ($i = 0; $i < count($config['tabs'] ?? []); $i++) {
+            $config['tabs'][$i] = $this->_clearNeoConditions($config['tabs'][$i]);
+            $config['tabs'][$i]['elements'] = array_map(
+                [$this, '_clearNeoConditions'],
+                $config['tabs'][$i]['elements'] ?? [],
+            );
+        }
+
+        return FieldLayout::createFromConfig($config);
+    }
+
+    private function _clearNeoConditions(array $component): array
+    {
+        if (isset($component['elementCondition'])) {
+            $component['elementCondition']['class'] = EntryCondition::class;
+            $component['elementCondition']['elementType'] = Entry::class;
+            $component['elementCondition']['conditionRules'] = array_values(array_filter(
+                $component['elementCondition']['conditionRules'],
+                fn($rule) => !str_starts_with($rule['class'], 'benf'),
+            ));
+        }
+
+        return $component;
     }
 }
