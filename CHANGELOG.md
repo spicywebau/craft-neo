@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where moving an entry between sections would cause nested Neo content to lose structure data
 - Fixed an error that occurred when converting a block type to an entry type (including during Neo-to-Matrix conversion) if any block type field layout tabs or elements had condition rules applied
+- Fixed an error that occurred when setting parent block condition rules on block type field layout elements
 - Fixed a style bug that occurred when input blocks had UI elements
 
 ## 5.2.2 - 2024-08-20

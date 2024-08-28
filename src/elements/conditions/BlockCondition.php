@@ -3,8 +3,10 @@
 namespace benf\neo\elements\conditions;
 
 use benf\neo\Plugin as Neo;
+use craft\db\Table;
 use craft\elements\conditions\ElementCondition;
 use craft\elements\conditions\LevelConditionRule;
+use craft\helpers\Db;
 use craft\models\FieldLayout;
 
 /**
@@ -19,6 +21,25 @@ class BlockCondition extends ElementCondition
     /**
      * @inheritdoc
      */
+    public function getBuilderConfig(): array
+    {
+        $config = parent::getBuilderConfig();
+
+        // Ensure UUIDs set on field layouts
+        if (isset($config['fieldLayouts'])) {
+            $fieldLayouts = $this->getFieldLayouts();
+
+            for ($i = 0; $i < count($fieldLayouts); $i++) {
+                $config['fieldLayouts'][$i]['uid'] = $fieldLayouts[$i]->uid;
+            }
+        }
+
+        return $config;
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function selectableConditionRules(): array
     {
         $parentConditionRuleTypes = parent::selectableConditionRules();
@@ -26,8 +47,12 @@ class BlockCondition extends ElementCondition
 
         // Get all field layouts associated with this object's associated Neo field(s), then temporarily replace this
         // object's field layouts so we get all possible parent block condition rules
+        $layoutIds = array_values(Db::idsByUids(
+            Table::FIELDLAYOUTS,
+            array_map(fn($layout) => $layout->uid, $this->getFieldLayouts()),
+        ));
         $layoutBlockTypes = Neo::$plugin->blockTypes->getByCriteria([
-            'fieldLayoutId' => array_map(fn($layout) => $layout->id, $this->getFieldLayouts()),
+            'fieldLayoutId' => $layoutIds,
         ]);
         $fieldBlockTypes = Neo::$plugin->blockTypes->getByCriteria([
             'fieldId' => array_values(array_unique(array_map(fn($blockType) => $blockType->fieldId, $layoutBlockTypes))),

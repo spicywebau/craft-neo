@@ -6,6 +6,8 @@ use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
 use craft\base\FieldInterface;
+use craft\db\Table;
+use craft\helpers\Db;
 use yii\base\InvalidConfigException;
 
 /**
@@ -71,8 +73,12 @@ trait ParentFieldConditionRuleTrait
             $selectedInstanceLabel = null;
 
             // Get all of the block type field layouts associated with the Neo field(s)
+            $layoutIds = array_values(Db::idsByUids(
+                Table::FIELDLAYOUTS,
+                array_map(fn($layout) => $layout->uid, $this->getCondition()->getFieldLayouts()),
+            ));
             $layoutBlockTypes = Neo::$plugin->blockTypes->getByCriteria([
-                'fieldLayoutId' => array_map(fn($layout) => $layout->id, $this->getCondition()->getFieldLayouts()),
+                'fieldLayoutId' => $layoutIds,
             ]);
             $fieldBlockTypes = Neo::$plugin->blockTypes->getByCriteria([
                 'fieldId' => array_values(array_unique(array_map(fn($blockType) => $blockType->fieldId, $layoutBlockTypes))),
