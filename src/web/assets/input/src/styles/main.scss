@@ -452,6 +452,7 @@ $block-background-color-level-even: var(--gray-050);
 
                 &.flex-fields {
                     --row-gap: var(--m) !important;
+                    --padding: var(--m);
 
                     > .field {
                         &::before {
@@ -467,10 +468,10 @@ $block-background-color-level-even: var(--gray-050);
 
             .status-badge {
                 body.ltr & {
-                    left: 8px;
+                    left: -2px;
                 }
                 body.rtl {
-                    right: 8px;
+                    right: -2px;
                 }
             }
         }
