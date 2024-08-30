@@ -740,7 +740,11 @@ SQL
             $otherSites[$siteId] = $supportedSites;
         }
 
-        Db::batchInsert('{{%neoblocks_owners}}', ['blockId', 'ownerId', 'sortOrder'], $ownershipData);
+        Db::batchInsert(
+            '{{%neoblocks_owners}}',
+            ['blockId', 'ownerId', 'sortOrder'],
+            array_unique($ownershipData, SORT_REGULAR),
+        );
 
         foreach ($jobData as $siteId => $data) {
             $queue->push(new SaveBlockStructures([

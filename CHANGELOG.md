@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an error that could occur while resaving Neo block structures
+- Fixed an error that could occur on multi-site Craft installs when saving revision blocks
 
 ## 4.2.11 - 2024-08-20
 
