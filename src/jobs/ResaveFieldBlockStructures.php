@@ -12,6 +12,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use craft\i18n\Translation;
 use craft\queue\BaseJob;
+use yii\base\InvalidConfigException;
 
 /**
  * Class ResaveFieldBlockStructures
@@ -55,10 +56,16 @@ class ResaveFieldBlockStructures extends BaseJob
                 'status' => null,
                 'trashed' => null,
             ]);
-            $supportedSiteIds = $owner !== null
-                ? $this->_supportedSiteIds($owner)
-                : [];
             $blocks = [];
+
+            try {
+                $supportedSiteIds = $owner !== null
+                    ? $this->_supportedSiteIds($owner)
+                    : [];
+            } catch (InvalidConfigException $e) {
+                // Owner's section was deleted, no supported sites then
+                $supportedSiteIds = [];
+            }
 
             // Get the blocks with the existing structure data first
             foreach ($supportedSiteIds as $siteId) {
