@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.12 - 2024-08-30
 
 ### Fixed
 - Fixed an error that could occur while resaving Neo block structures
