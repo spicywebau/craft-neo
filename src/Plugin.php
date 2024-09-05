@@ -274,7 +274,30 @@ class Plugin extends BasePlugin
                     'id' => $neoStructureIdChunk,
                 ]);
             }
+            $stdout("done\n", Console::FG_GREEN);
 
+            // Delete any elements_owners rows for Neo blocks, where no row in structureelements with the block's
+            // elementId has a structureId that matches the block's owner in neoblockstructures
+            $stdout('    > deleting orphaned Neo block element owner data ... ');
+            $elementsOwnersRows = (new Query())
+                ->select([
+                    'eo.elementId',
+                    'eo.ownerId',
+                    'eo.sortOrder',
+                ])
+                ->from(['eo' => Table::ELEMENTS_OWNERS])
+                ->innerJoin(['nb' => '{{%neoblocks}}'], '[[nb.id]] = [[eo.elementId]]')
+                ->innerJoin(['nbs' => '{{%neoblockstructures}}'], '[[nbs.ownerId]] = [[eo.ownerId]]')
+                ->leftJoin(['se' => Table::STRUCTUREELEMENTS], [
+                    'and',
+                    '[[nbs.structureId]] = [[se.structureId]]',
+                    '[[eo.elementId]] = [[se.elementId]]',
+                ])
+                ->where(['se.structureId' => null])
+                ->all();
+            foreach ($elementsOwnersRows as $elementsOwnersRow) {
+                Db::delete(Table::ELEMENTS_OWNERS, $elementsOwnersRow);
+            }
             $stdout("done\n", Console::FG_GREEN);
         });
     }
