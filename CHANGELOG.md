@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.4 - 2024-09-05
 
 ### Changed
 - Craft garbage collection now removes any `elements_owners` rows for Neo blocks where there is no structure data in `structureelements` associated with the row's block and owner
