@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.5 - 2024-09-07
 
 ### Fixed
 - Fixed content loss with Craft garbage collection on multi-site Craft installs
