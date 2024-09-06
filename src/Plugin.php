@@ -279,7 +279,7 @@ class Plugin extends BasePlugin
             // Delete any elements_owners rows for Neo blocks, where no row in structureelements with the block's
             // elementId has a structureId that matches the block's owner in neoblockstructures
             $stdout('    > deleting orphaned Neo block element owner data ... ');
-            $elementsOwnersRows = (new Query())
+            $blockOwnersRows = (new Query())
                 ->select([
                     'eo.elementId',
                     'eo.ownerId',
@@ -287,17 +287,31 @@ class Plugin extends BasePlugin
                 ])
                 ->from(['eo' => Table::ELEMENTS_OWNERS])
                 ->innerJoin(['nb' => '{{%neoblocks}}'], '[[nb.id]] = [[eo.elementId]]')
-                ->innerJoin(['nbs' => '{{%neoblockstructures}}'], '[[nbs.ownerId]] = [[eo.ownerId]]')
-                ->leftJoin(['se' => Table::STRUCTUREELEMENTS], [
-                    'and',
-                    '[[nbs.structureId]] = [[se.structureId]]',
-                    '[[eo.elementId]] = [[se.elementId]]',
-                ])
-                ->where(['se.structureId' => null])
                 ->all();
-            foreach ($elementsOwnersRows as $elementsOwnersRow) {
-                Db::delete(Table::ELEMENTS_OWNERS, $elementsOwnersRow);
+
+            foreach (array_chunk($blockOwnersRows, 1000) as $blockOwnersRowChunk) {
+                foreach ($blockOwnersRowChunk as $blockOwnersRow) {
+                    $hasStructureElementData = (new Query())
+                        ->from(['eo' => Table::ELEMENTS_OWNERS])
+                        ->innerJoin(['nb' => '{{%neoblocks}}'], '[[nb.id]] = [[eo.elementId]]')
+                        ->innerJoin(['nbs' => '{{%neoblockstructures}}'], '[[nbs.ownerId]] = [[eo.ownerId]]')
+                        ->innerJoin(['se' => Table::STRUCTUREELEMENTS], [
+                            'and',
+                            '[[nbs.structureId]] = [[se.structureId]]',
+                            '[[eo.elementId]] = [[se.elementId]]',
+                        ])
+                        ->where([
+                            'eo.elementId' => $blockOwnersRow['elementId'],
+                            'eo.ownerId' => $blockOwnersRow['ownerId'],
+                        ])
+                        ->exists();
+
+                    if (!$hasStructureElementData) {
+                        Db::delete(Table::ELEMENTS_OWNERS, $blockOwnersRow);
+                    }
+                }
             }
+
             $stdout("done\n", Console::FG_GREEN);
         });
     }
