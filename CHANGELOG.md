@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.13 - 2024-09-15
 
 ### Fixed
 - Fixed an error that occurred when creating Neo blocks in a slideout editor on a non-primary site
