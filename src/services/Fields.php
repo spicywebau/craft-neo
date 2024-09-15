@@ -761,7 +761,11 @@ class Fields extends Component
             $otherSites[$siteId] = $supportedSites;
         }
 
-        Db::batchInsert(Table::ELEMENTS_OWNERS, ['elementId', 'ownerId', 'sortOrder'], $ownershipData);
+        Db::batchInsert(
+            Table::ELEMENTS_OWNERS,
+            ['elementId', 'ownerId', 'sortOrder'],
+            array_unique($ownershipData, SORT_REGULAR),
+        );
 
         foreach ($jobData as $siteId => $data) {
             $queue->push(new SaveBlockStructures([

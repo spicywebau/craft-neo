@@ -152,6 +152,7 @@ class InputAsset extends AssetBundle
         $jsSettings = [
             'id' => $field->id,
             'ownerId' => $owner?->id,
+            'siteId' => $owner?->siteId,
             'name' => $name,
             'namespace' => $view->namespaceInputName($name) . '[blocks]',
             'blockTypes' => self::_getBlockTypesJsSettings($field, $event->blockTypes, $owner),

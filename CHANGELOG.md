@@ -151,6 +151,17 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.13 - 2024-09-15
+
+### Fixed
+- Fixed an error that occurred when creating Neo blocks in a slideout editor on a non-primary site
+
+## 4.2.12 - 2024-08-30
+
+### Fixed
+- Fixed an error that could occur while resaving Neo block structures
+- Fixed an error that could occur on multi-site Craft installs when saving revision blocks
+
 ## 4.2.11 - 2024-08-20
 
 ### Fixed
