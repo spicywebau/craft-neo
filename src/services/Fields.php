@@ -1099,6 +1099,20 @@ SQL
         if (!empty($blocks)) {
             $this->_rebuildIfDeleted = true;
         }
+
+        // Restore any 'except' blocks that were previously deleted
+        $keepBlocks = Block::find()
+            ->status(null)
+            ->trashed()
+            ->ownerId($owner->id)
+            ->fieldId($field->id)
+            ->siteId($siteId)
+            ->andWhere(['elements.id' => $except])
+            ->all();
+
+        foreach ($keepBlocks as $block) {
+            $elementsService->restoreElement($block);
+        }
     }
 
     /**

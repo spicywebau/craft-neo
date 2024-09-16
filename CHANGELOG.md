@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Neo blocks on provisional drafts could be lost if they were created too quickly
+
 ## 4.2.13 - 2024-09-15
 
 ### Fixed
