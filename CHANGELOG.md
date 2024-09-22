@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## 5.2.7 - 2024-09-22
 
 ### Fixed
 - Fixed a bug where Command/Ctrl+A was not selecting all Neo blocks when a Neo block's checkbox was focused
+- Fixed a bug where Neo blocks on provisional drafts could be lost if they were created too quickly
 
 ## 5.2.6 - 2024-09-15
 
