@@ -156,6 +156,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.14 - 2024-09-22
+
+### Fixed
+- Fixed a bug where Neo blocks on provisional drafts could be lost if they were created too quickly
+
 ## 4.2.13 - 2024-09-15
 
 ### Fixed
