@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Command/Ctrl+A was not selecting all Neo blocks when a Neo block's checkbox was focused
+
 ## 5.2.6 - 2024-09-15
 
 ### Fixed

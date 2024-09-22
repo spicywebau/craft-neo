@@ -184,9 +184,8 @@ export default Garnish.Base.extend({
     this.blockSelect = new Garnish.Select(this.$blocksContainer, null, {
       multi: true,
       vertical: true,
-      handle: '> .ni_block_topbar [data-neo-b$=".select"]',
-      checkboxMode: true,
-      selectedClass: 'is-selected sel'
+      handle: '> .ni_block_topbar [data-neo-b$=".select"] > .checkbox',
+      checkboxMode: true
     })
 
     this.$blocksContainer.find('.ni_block').each((i, blockDiv) => {
