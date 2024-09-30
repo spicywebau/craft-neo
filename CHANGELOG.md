@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- When running Craft garbage collection, Neo will now delete any orphaned Neo block owner data
+
 ## 4.2.14 - 2024-09-22
 
 ### Fixed

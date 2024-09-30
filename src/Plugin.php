@@ -272,6 +272,28 @@ class Plugin extends BasePlugin
             }
 
             $stdout("done\n", Console::FG_GREEN);
+
+            // Delete any orphaned neoblocks_owners rows
+            $stdout('    > deleting orphaned Neo block owner data ... ');
+            $orphanedBlockIds = (new Query())
+                ->select(['blockId'])
+                ->distinct()
+                ->from(['nbo' => '{{%neoblocks_owners}}'])
+                ->where([
+                    'not exists',
+                    (new Query())
+                        ->from(['e' => Table::ELEMENTS])
+                        ->where('[[e.id]] = [[nbo.blockId]]'),
+                ])
+                ->column();
+
+            if (!empty($orphanedBlockIds)) {
+                Db::delete('{{%neoblocks_owners}}', [
+                    'blockId' => $orphanedBlockIds,
+                ]);
+            }
+
+            $stdout("done\n", Console::FG_GREEN);
         });
     }
 
