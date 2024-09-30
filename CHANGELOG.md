@@ -162,6 +162,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.15 - 2024-09-30
+
+### Changed
+- When running Craft garbage collection, Neo will now delete any orphaned Neo block owner data
+
 ## 4.2.14 - 2024-09-22
 
 ### Fixed
