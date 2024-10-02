@@ -1453,20 +1453,13 @@ class Field extends BaseField implements
      */
     protected function searchKeywords(mixed $value, ElementInterface $element): string
     {
-        $allFields = Craft::$app->getFields()->getAllFields();
         $keywords = [];
 
         foreach ($value->all() as $block) {
-            $fieldLayout = $block->getFieldLayout();
-
-            if ($fieldLayout === null) {
-                continue;
-            }
-
-            foreach ($allFields as $field) {
-                if ($field->searchable && $fieldLayout->isFieldIncluded($field->handle)) {
+            foreach ($block->getFieldLayout()?->getCustomFields() ?? [] as $field) {
+                if ($field->searchable) {
                     $fieldValue = $block->getFieldValue($field->handle);
-                    $keywords[] = $field->getSearchKeywords($fieldValue, $element);
+                    $keywords[] = $field->getSearchKeywords($fieldValue, $block);
                 }
             }
         }
