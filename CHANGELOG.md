@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an 'Invalid field handle' error that could occur when updating search indexes
+- Fixed a bug where cloned or pasted block types would have no field layout data
 
 ## 5.2.7 - 2024-09-22
 

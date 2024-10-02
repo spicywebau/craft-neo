@@ -96,7 +96,7 @@ class Configurator extends Controller
         $blockTypeId = $request->getBodyParam('blockTypeId');
         $settings = $request->getBodyParam('settings');
         $errors = $request->getBodyParam('errors', []);
-        $layoutConfig = $request->getBodyParam('layout');
+        $layoutConfig = $request->getBodyParam('fieldLayout');
         $blockType = $blockTypeId ? Neo::$plugin->blockTypes->getById((int)$blockTypeId) : null;
 
         // Prioritise the config
