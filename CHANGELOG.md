@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.8 - 2024-10-02
 
 ### Fixed
 - Fixed an 'Invalid field handle' error that could occur when updating search indexes
