@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.9 - 2024-10-03
 
 ### Fixed
 - Fixed a bug where trying to perform a batch action on Neo input blocks would only perform the action on one block
