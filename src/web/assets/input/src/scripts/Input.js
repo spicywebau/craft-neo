@@ -185,6 +185,7 @@ export default Garnish.Base.extend({
       multi: true,
       vertical: true,
       handle: '> .ni_block_topbar [data-neo-b$=".select"] > .checkbox',
+      selectedClass: 'sel is-selected',
       checkboxMode: true
     })
 
