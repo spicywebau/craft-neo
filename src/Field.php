@@ -37,6 +37,7 @@ use craft\helpers\Gql as GqlHelper;
 use craft\helpers\Html;
 use craft\helpers\Queue;
 use craft\helpers\StringHelper;
+use craft\models\Structure;
 use craft\services\Elements;
 use craft\validators\ArrayValidator;
 use GraphQL\Type\Definition\Type;
@@ -1544,6 +1545,35 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 if ($adjustLevels) {
                     $block->level++;
                 }
+            }
+        }
+
+        // When autosaveDrafts is disabled, some validation relies on possibly outdated block structure data
+        // TODO: autosaveDrafts is deprecated, remove this when it is removed from Craft
+        if (!$element->getIsRevision() && !Craft::$app->getConfig()->getGeneral()->autosaveDrafts) {
+            $structure = new Structure();
+            $structure->maxLevels = $this->maxLevels ?: null;
+            Craft::$app->getStructures()->saveStructure($structure);
+            $blockStructure = new BlockStructure();
+            $blockStructure->structureId = $structure->id;
+            Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
+
+            // New structure data not being added to blocks, even though it should be?
+            // https://github.com/craftcms/cms/blob/5.4.6/src/services/Structures.php#L576-L590
+            $values = (new Query())
+                ->select(['elementId', 'root', 'lft', 'rgt', 'level'])
+                ->from(Table::STRUCTUREELEMENTS)
+                ->where(['structureId' => $structure->id])
+                ->andWhere(['not', ['elementId' => null]])
+                ->indexBy('elementId')
+                ->all();
+
+            foreach ($blocks as $block) {
+                $blockValues = $values[$block->id];
+                $block->root = $blockValues['root'];
+                $block->level = $blockValues['level'];
+                $block->lft = $blockValues['lft'];
+                $block->rgt = $blockValues['rgt'];
             }
         }
 
