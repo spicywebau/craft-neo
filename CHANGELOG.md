@@ -178,6 +178,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.16 - 2024-10-07
+
+### Fixed
+- Fixed a bug where incorrect validation errors could occur after moving blocks if `autosaveDrafts` was disabled
+
 ## 4.2.15 - 2024-09-30
 
 ### Changed
