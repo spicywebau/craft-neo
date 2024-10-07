@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where incorrect validation errors could occur after moving blocks if `autosaveDrafts` was disabled
+
 ## 5.2.9 - 2024-10-03
 
 ### Fixed
