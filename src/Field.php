@@ -1569,11 +1569,13 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                 ->all();
 
             foreach ($blocks as $block) {
-                $blockValues = $values[$block->id];
-                $block->root = $blockValues['root'];
-                $block->level = $blockValues['level'];
-                $block->lft = $blockValues['lft'];
-                $block->rgt = $blockValues['rgt'];
+                if (isset($values[$block->id])) {
+                    $blockValues = $values[$block->id];
+                    $block->root = $blockValues['root'];
+                    $block->level = $blockValues['level'];
+                    $block->lft = $blockValues['lft'];
+                    $block->rgt = $blockValues['rgt'];
+                }
             }
         }
 

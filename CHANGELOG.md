@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when saving new blocks if `autosaveDrafts` was disabled
+
 ## 4.2.16 - 2024-10-07
 
 ### Fixed
