@@ -1623,6 +1623,7 @@ class Field extends BaseField implements
 
                 if (
                     $forceSave &&
+                    !$block->getIsDraft() &&
                     $element->getIsDerivative() &&
                     $block->getPrimaryOwnerId() === $element->getCanonicalId() &&
                     Craft::$app->getRequest()->actionSegments !== ['elements', 'update-field-layout']

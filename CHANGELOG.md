@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed an error that occurred when a block was cloned if `autosaveDrafts` was enabled
 - Fixed a bug where incorrect validation errors could occur after moving blocks if `autosaveDrafts` was disabled
 
 ## 5.2.9 - 2024-10-03
