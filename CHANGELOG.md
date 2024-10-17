@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.10 - 2024-10-17
 
 ### Fixed
 - Fixed an error that occurred when a block was cloned if `autosaveDrafts` was enabled
