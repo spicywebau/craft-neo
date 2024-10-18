@@ -73,9 +73,15 @@ trait ParentFieldConditionRuleTrait
             $selectedInstanceLabel = null;
 
             // Get all of the block type field layouts associated with the Neo field(s)
+            // (ensuring we retain the unsaved layouts set on the condition)
+            $conditionLayouts = $this->getCondition()->getFieldLayouts();
+            $fieldLayouts = array_values(array_filter(
+                $conditionLayouts,
+                fn($layout) => $layout->id === null,
+            ));
             $layoutIds = array_values(Db::idsByUids(
                 Table::FIELDLAYOUTS,
-                array_map(fn($layout) => $layout->uid, $this->getCondition()->getFieldLayouts()),
+                array_map(fn($layout) => $layout->uid, $conditionLayouts),
             ));
             $layoutBlockTypes = Neo::$plugin->blockTypes->getByCriteria([
                 'fieldLayoutId' => $layoutIds,
@@ -83,7 +89,10 @@ trait ParentFieldConditionRuleTrait
             $fieldBlockTypes = Neo::$plugin->blockTypes->getByCriteria([
                 'fieldId' => array_values(array_unique(array_map(fn($blockType) => $blockType->fieldId, $layoutBlockTypes))),
             ]);
-            $fieldLayouts = array_map(fn($blockType) => $blockType->getFieldLayout(), $fieldBlockTypes);
+            $fieldLayouts = array_merge(
+                $fieldLayouts,
+                array_map(fn($blockType) => $blockType->getFieldLayout(), $fieldBlockTypes),
+            );
 
             foreach ($fieldLayouts as $fieldLayout) {
                 foreach ($fieldLayout->getCustomFields() as $field) {
