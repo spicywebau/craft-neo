@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.11 - 2024-10-18
 
 ### Fixed
 - Fixed an error that occurred when editing the settings of field layout elements of new block types
