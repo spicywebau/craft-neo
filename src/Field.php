@@ -1407,6 +1407,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         /** @var Block[] $blocks */
         $blocks = [];
         $prevBlock = null;
+        $anyNewBlocks = false;
 
         foreach ($newSortOrder as $i => $blockId) {
             if (isset($newBlockData[$blockId])) {
@@ -1477,6 +1478,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                     $block->id = (int)$blockId;
                 } else {
                     $block->unsavedId = $i;
+                    $anyNewBlocks = true;
                 }
             }
 
@@ -1551,6 +1553,19 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         // When autosaveDrafts is disabled, some validation relies on possibly outdated block structure data
         // TODO: autosaveDrafts is deprecated, remove this when it is removed from Craft
         if (!$element->getIsRevision() && !Craft::$app->getConfig()->getGeneral()->autosaveDrafts) {
+            if ($anyNewBlocks) {
+                // Prevent potential 'problem getting parent element' error if blocks nested in new blocks, by setting a
+                // temporary fake ID on new blocks
+                $fakeElementId = (new Query())
+                    ->from([Table::ELEMENTS])
+                    ->max('[[id]]') + 100;
+                foreach ($blocks as $block) {
+                    if ($block->unsavedId !== null) {
+                        $block->id = $fakeElementId++;
+                    }
+                }
+            }
+
             $structure = new Structure();
             $structure->maxLevels = $this->maxLevels ?: null;
             Craft::$app->getStructures()->saveStructure($structure);
@@ -1559,7 +1574,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             Neo::$plugin->blocks->buildStructure($blocks, $blockStructure);
 
             // New structure data not being added to blocks, even though it should be?
-            // https://github.com/craftcms/cms/blob/5.4.6/src/services/Structures.php#L576-L590
+            // https://github.com/craftcms/cms/blob/4.12.7/src/services/Structures.php#L576-L590
             $values = (new Query())
                 ->select(['elementId', 'root', 'lft', 'rgt', 'level'])
                 ->from(Table::STRUCTUREELEMENTS)
@@ -1576,7 +1591,18 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
                     $block->lft = $blockValues['lft'];
                     $block->rgt = $blockValues['rgt'];
                 }
+
+                if ($block->unsavedId !== null) {
+                    $block->id = null;
+                }
             }
+
+            // Structure cleanup now that it's served its purpose
+            Craft::$app->getDb()->createCommand()
+                ->delete(Table::STRUCTURES, [
+                    'id' => $structure->id,
+                ])
+                ->execute();
         }
 
         return $blocks;
