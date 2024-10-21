@@ -2,6 +2,7 @@
 
 namespace benf\neo\elements\conditions\fields;
 
+use benf\neo\helpers\Memoize;
 use benf\neo\Plugin as Neo;
 use Craft;
 use craft\base\ElementInterface;
@@ -62,6 +63,14 @@ trait ParentFieldConditionRuleTrait
 
             if (!isset($config['fieldUid'])) {
                 throw new InvalidConfigException('No field UUID set on the field condition rule yet.');
+            }
+
+            if (
+                isset($config['layoutElementUid']) &&
+                isset(Memoize::$parentFieldInstancesByLayoutElementUuid[$config['layoutElementUid']])
+            ) {
+                $this->_fieldInstances = Memoize::$parentFieldInstancesByLayoutElementUuid[$config['layoutElementUid']];
+                return $this->_fieldInstances;
             }
 
             // Loop through all the layout's fields, and look for the selected field instance
@@ -145,6 +154,10 @@ trait ParentFieldConditionRuleTrait
                 ) {
                     $this->_fieldInstances[] = $field;
                 }
+            }
+
+            if (isset($config['layoutElementUid'])) {
+                Memoize::$parentFieldInstancesByLayoutElementUuid[$config['layoutElementUid']] = $this->_fieldInstances;
             }
         }
 

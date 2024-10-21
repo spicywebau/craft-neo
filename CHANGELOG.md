@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `benf\neo\helpers\Memoize::$parentFieldInstancesByLayoutElementUuid`
+
+### Fixed
+- Fixed performance issues with Neo fields with a large number of block types and field instances
+
 ## 5.2.11 - 2024-10-18
 
 ### Fixed

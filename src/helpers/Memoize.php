@@ -18,4 +18,9 @@ class Memoize
     public static array $blockTypesByFieldId = [];
     public static array $blockTypeGroupsById = [];
     public static array $blockTypeGroupsByFieldId = [];
+
+    /**
+     * @since 5.2.12
+     */
+    public static array $parentFieldInstancesByLayoutElementUuid = [];
 }
