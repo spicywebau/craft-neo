@@ -192,6 +192,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.18 - 2024-10-21
+
+### Fixed
+- Fixed a 'There was a problem getting the parent element' error that occurred when saving child blocks of new blocks if `autosaveDrafts` was disabled
+
 ## 4.2.17 - 2024-10-16
 
 ### Fixed
