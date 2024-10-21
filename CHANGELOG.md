@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.12 - 2024-10-21
 
 ### Added
 - Added `benf\neo\helpers\Memoize::$parentFieldInstancesByLayoutElementUuid`
