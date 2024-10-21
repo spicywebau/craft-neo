@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.18 - 2024-10-21
 
 ### Fixed
 - Fixed a 'There was a problem getting the parent element' error that occurred when saving child blocks of new blocks if `autosaveDrafts` was disabled
