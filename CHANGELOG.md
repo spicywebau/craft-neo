@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.13 - 2024-10-24
 
 ### Fixed
 - Fixed a bug where previously existing blocks could be lost when new blocks had validation errors, if `autosaveDrafts` was disabled
