@@ -32,7 +32,6 @@ use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
-use craft\enums\AttributeStatus;
 use craft\enums\Color;
 use craft\enums\PropagationMethod;
 use craft\errors\InvalidFieldException;
@@ -644,6 +643,12 @@ class Field extends BaseField implements
                 $view->setInitialDeltaValue($this->handle, null);
             }
 
+            // If not autosaving drafts and validation errors occurred, ensure previously existing blocks don't get lost
+            // TODO: autosaveDrafts is deprecated, remove this when it is removed from Craft
+            if (!Craft::$app->getConfig()->getGeneral()->autosaveDrafts && $element?->hasErrors()) {
+                $view->setInitialDeltaValue($this->handle, null);
+            }
+
             return $view->renderTemplate('neo/input', [
                 'handle' => $this->handle,
                 'blocks' => $blocks,
@@ -800,17 +805,6 @@ class Field extends BaseField implements
     public function getIsTranslatable(?ElementInterface $element = null): bool
     {
         return $this->propagationMethod !== PropagationMethod::All;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getStatus(ElementInterface $element): ?array
-    {
-        return $element->isFieldOutdated($this->handle) ? [
-            AttributeStatus::Outdated,
-            Craft::t('app', 'This field was updated in the Current revision.'),
-        ] : null;
     }
 
     /**
