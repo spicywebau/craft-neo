@@ -7,6 +7,7 @@ use benf\neo\Field;
 use benf\neo\models\BlockType;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\web\Controller;
 use yii\web\Response;
@@ -123,6 +124,17 @@ class Configurator extends Controller
                 $newBlockType,
                 'types[' . Field::class . ']',
             );
+
+            // Reset all UUIDs
+            $fieldLayout->uid = StringHelper::UUID();
+
+            foreach ($fieldLayout->tabs as $tab) {
+                $tab->uid = StringHelper::UUID();
+
+                foreach ($tab->elements as $element) {
+                    $element->uid = StringHelper::UUID();
+                }
+            }
         }
 
         return [
