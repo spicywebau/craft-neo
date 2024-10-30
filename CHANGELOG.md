@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.19 - 2024-10-31
 
 ### Fixed
 - Fixed a bug where new block types cloned from the same block type could share a field layout
