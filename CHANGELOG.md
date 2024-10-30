@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where new block types cloned from the same block type could share a field layout
+- The `php craft neo/block-types/fix-field-layouts` console command now ensures field layouts have valid UUIDs, fixing an effect of cloned block types sharing a field layout
 
 ## 4.2.18 - 2024-10-21
 

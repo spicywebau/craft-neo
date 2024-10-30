@@ -343,12 +343,20 @@ class BlockTypesController extends Controller
                 continue;
             }
 
+            $layout = $blockType->getFieldLayout();
+
             if (!isset($processedFieldLayouts[$blockType->fieldLayoutId])) {
+                // Ensure layout has a UUID
+                if (!$layout->uid) {
+                    $newLayouts[$blockType->uid] = [
+                        StringHelper::UUID(),
+                        $layout->getConfig(),
+                    ];
+                }
+
                 $processedFieldLayouts[$blockType->fieldLayoutId] = true;
                 continue;
             }
-
-            $layout = $blockType->getFieldLayout();
 
             // Reset all tab/element UUIDs
             foreach ($layout->tabs as $tab) {
