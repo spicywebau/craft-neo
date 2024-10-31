@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.14 - 2024-10-31
 
 ### Fixed
 - Fixed an error that occurred when saving cloned block types
