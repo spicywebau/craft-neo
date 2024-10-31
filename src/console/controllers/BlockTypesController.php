@@ -358,15 +358,6 @@ class BlockTypesController extends Controller
                 continue;
             }
 
-            // Reset all tab/element UUIDs
-            foreach ($layout->tabs as $tab) {
-                $tab->uid = StringHelper::UUID();
-
-                foreach ($tab->elements as $element) {
-                    $element->uid = StringHelper::UUID();
-                }
-            }
-
             $newLayouts[$blockType->uid] = [
                 StringHelper::UUID(),
                 $layout->getConfig(),
@@ -382,7 +373,7 @@ class BlockTypesController extends Controller
 
         // Set the new layout in the project config
         foreach ($newLayouts as $blockTypeUuid => $layoutData) {
-            $projectConfig->set("neoBlockTypes.$blockTypeUuid.fieldLayouts", [
+            $projectConfig->set("neo.blockTypes.$blockTypeUuid.fieldLayouts", [
                 $layoutData[0] => $layoutData[1],
             ]);
         }
