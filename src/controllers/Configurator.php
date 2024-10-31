@@ -98,6 +98,7 @@ class Configurator extends Controller
         $errors = $request->getBodyParam('errors', []);
         $layoutConfig = $request->getBodyParam('fieldLayout');
         $blockType = $blockTypeId ? Neo::$plugin->blockTypes->getById((int)$blockTypeId) : null;
+        $namespace = 'types[' . str_replace('\\', '-', Field::class) . ']';
 
         // Prioritise the config
         if ($layoutConfig) {
@@ -115,10 +116,7 @@ class Configurator extends Controller
                 }
             }
 
-            $renderedSettings = Neo::$plugin->blockTypes->renderSettings(
-                $blockType,
-                'types[' . str_replace('\\', '-', Field::class) . ']',
-            );
+            $renderedSettings = Neo::$plugin->blockTypes->renderSettings($blockType, $namespace);
         } else {
             $newBlockType = new BlockType();
 
@@ -144,10 +142,7 @@ class Configurator extends Controller
                 $newBlockType->conditions = $settings['conditions'] ?? [];
             }
 
-            $renderedSettings = Neo::$plugin->blockTypes->renderSettings(
-                $newBlockType,
-                'types[' . Field::class . ']',
-            );
+            $renderedSettings = Neo::$plugin->blockTypes->renderSettings($newBlockType, $namespace);
         }
 
         return [
