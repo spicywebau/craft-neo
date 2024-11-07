@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an incorrect validation error that could occur when saving cloned blocks with cloned child blocks, if `autosaveDrafts` was disabled
+
 ## 5.2.14 - 2024-10-31
 
 ### Fixed

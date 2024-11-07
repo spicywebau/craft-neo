@@ -1231,9 +1231,14 @@ class BlockQuery extends ElementQuery
             return $elements;
         }
 
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+
+        $needEnabled = in_array('enabled', $value);
         $newElements = array_filter(
             $elements,
-            fn($element) => is_array($value) ? in_array($element->status, $value) : $element->status == $value
+            fn($element) => $needEnabled && $element->enabled || in_array($element->status, $value),
         );
 
         return array_values($newElements);
