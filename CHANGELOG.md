@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where reverting content on an entry with a provisional draft could cause Neo content on the provisional draft to be lost
+
 ## 4.2.19 - 2024-10-31
 
 ### Fixed

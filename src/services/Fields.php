@@ -860,7 +860,7 @@ SQL
                             $allBlocks[] = $derivativeBlock;
                         }
                     }
-                } elseif (!$canonicalBlock->trashed && $canonicalBlock->dateCreated > $owner->dateCreated) {
+                } elseif (!$canonicalBlock->trashed && $canonicalBlock->dateUpdated > $owner->dateCreated) {
                     $allBlocks[] = $newBlock = $elementsService->duplicateElement($canonicalBlock, [
                         'canonicalId' => $canonicalBlock->id,
                         'level' => $canonicalBlock->level,
