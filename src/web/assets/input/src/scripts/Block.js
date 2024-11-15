@@ -110,16 +110,16 @@ export default Garnish.Base.extend({
     this.$container.data('block', this)
   },
 
-  initUi (callInitUiElements = true) {
+  async initUi (callInitUiElements = true) {
     if (this._initialised) {
       // Nothing to do here
       return
     }
 
     if (callInitUiElements) {
-      Craft.appendBodyHtml(this._bodyHtml)
-      Craft.appendHeadHtml(this._headHtml)
       Craft.initUiElements(this.$contentContainer)
+      await Craft.appendBodyHtml(this._bodyHtml)
+      await Craft.appendHeadHtml(this._headHtml)
     }
 
     this.$form = this.$container.closest('form')

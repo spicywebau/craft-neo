@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a JavaScript error that occurred when a new block containing a link field was created
+
 ## 5.2.15 - 2024-11-07
 
 ### Fixed
