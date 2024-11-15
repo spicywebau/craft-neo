@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- When running Craft garbage collection, Neo will now delete Neo block owner data where the owner has previously been deleted
+
 ## 4.2.20 - 2024-11-13
 
 ### Fixed

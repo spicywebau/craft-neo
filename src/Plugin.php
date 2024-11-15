@@ -280,16 +280,25 @@ class Plugin extends BasePlugin
                 ->distinct()
                 ->from(['nbo' => '{{%neoblocks_owners}}'])
                 ->where([
-                    'not exists',
-                    (new Query())
-                        ->from(['e' => Table::ELEMENTS])
-                        ->where('[[e.id]] = [[nbo.blockId]]'),
+                    'or',
+                    [
+                        'not exists',
+                        (new Query())
+                            ->from(['e' => Table::ELEMENTS])
+                            ->where('[[e.id]] = [[nbo.blockId]]'),
+                    ],
+                    [
+                        'not exists',
+                        (new Query())
+                            ->from(['e' => Table::ELEMENTS])
+                            ->where('[[e.id]] = [[nbo.ownerId]]'),
+                    ],
                 ])
                 ->column();
 
-            if (!empty($orphanedBlockIds)) {
+            foreach (array_chunk($orphanedBlockIds, 1000) as $orphanedBlockIdsChunk) {
                 Db::delete('{{%neoblocks_owners}}', [
-                    'blockId' => $orphanedBlockIds,
+                    'blockId' => $orphanedBlockIdsChunk,
                 ]);
             }
 
