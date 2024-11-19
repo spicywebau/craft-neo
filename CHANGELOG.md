@@ -5,6 +5,9 @@
 ### Changed
 - When running Craft garbage collection, Neo will now delete Neo block owner data where the owner has previously been deleted
 
+### Fixed
+- Fixed a Neo-to-Matrix conversion bug where disabled Neo blocks were being converted to enabled Matrix blocks
+
 ## 4.2.20 - 2024-11-13
 
 ### Fixed

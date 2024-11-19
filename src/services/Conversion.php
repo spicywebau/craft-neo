@@ -316,6 +316,9 @@ class Conversion extends Component
         $matrixBlock->siteId = $neoBlock->siteId;
         $matrixBlock->sortOrder = $neoBlock->sortOrder;
         $matrixBlock->collapsed = $neoBlock->collapsed;
+        $matrixBlock->enabled = $neoBlock->enabled;
+        $matrixBlock->setEnabledForSite($neoBlock->getEnabledForSite());
+        $matrixBlock->setScenario($neoBlock->getScenario());
         $matrixBlock->setFieldValues($blockFieldValues);
 
         if ($matrixBlockType) {
