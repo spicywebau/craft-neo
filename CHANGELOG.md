@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## 5.2.16 - 2024-11-19
 
 ### Fixed
 - Fixed a JavaScript error that occurred when a new block containing a link field was created
+- Fixed a Neo-to-Matrix conversion bug where disabled Neo blocks were being converted to enabled Matrix entries
 
 ## 5.2.15 - 2024-11-07
 
