@@ -213,6 +213,14 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.21 - 2024-11-19
+
+### Changed
+- When running Craft garbage collection, Neo will now delete Neo block owner data where the owner has previously been deleted
+
+### Fixed
+- Fixed a Neo-to-Matrix conversion bug where disabled Neo blocks were being converted to enabled Matrix blocks
+
 ## 4.2.20 - 2024-11-13
 
 ### Fixed

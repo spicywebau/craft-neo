@@ -331,6 +331,9 @@ class Conversion extends Component
         $entry->siteId = $neoBlock->siteId;
         $entry->sortOrder = $neoBlock->sortOrder;
         $entry->collapsed = $neoBlock->collapsed;
+        $entry->enabled = $neoBlock->enabled;
+        $entry->setEnabledForSite($neoBlock->getEnabledForSite());
+        $entry->setScenario($neoBlock->getScenario());
         $entry->setFieldValues($entryFieldValues);
 
         if ($entryType) {
