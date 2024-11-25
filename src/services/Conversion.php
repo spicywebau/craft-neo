@@ -334,6 +334,8 @@ class Conversion extends Component
         $entry->enabled = $neoBlock->enabled;
         $entry->setEnabledForSite($neoBlock->getEnabledForSite());
         $entry->setScenario($neoBlock->getScenario());
+        // postDate required for the entry to be considered live
+        $entry->postDate = $neoBlock->dateCreated;
         $entry->setFieldValues($entryFieldValues);
 
         if ($entryType) {

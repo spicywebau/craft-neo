@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a Neo-to-Matrix conversion bug where enabled Neo blocks were being converted to enabled, but not live, Matrix entries
+
 ## 5.2.16 - 2024-11-19
 
 ### Fixed
