@@ -84,6 +84,7 @@ export default Garnish.Base.extend({
   _siteId: null,
   _visibleLayoutElements: {},
   _newBlockCount: 0,
+  _creatingBlock: false,
 
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
@@ -1067,6 +1068,22 @@ export default Garnish.Base.extend({
     }
   },
 
+  _setCreatingBlock () {
+    if (this._creatingBlock) {
+      return false
+    }
+
+    this._creatingBlock = true
+    this.$container.find('.ni_buttons').addClass('disabled')
+
+    return true
+  },
+
+  _unsetCreatingBlock () {
+    this._creatingBlock = false
+    this.$container.find('.ni_buttons').removeClass('disabled')
+  },
+
   _addSpinnerAfter (block) {
     if (typeof block !== 'undefined') {
       block.$container.after(this._$spinner)
@@ -1114,6 +1131,11 @@ export default Garnish.Base.extend({
   },
 
   async _duplicate (data, block) {
+    if (!this._setCreatingBlock()) {
+      console.warning('Tried to create a new block during the creation of another new block.')
+      return
+    }
+
     data.unsavedIds = this.getUnsavedIds()
     try {
       this.$form.data('elementEditor')?.pause()
@@ -1166,10 +1188,16 @@ export default Garnish.Base.extend({
     } finally {
       this._removeSpinner()
       this.$form.data('elementEditor')?.resume()
+      this._unsetCreatingBlock()
     }
   },
 
   async '@newBlock' (e) {
+    if (!this._setCreatingBlock()) {
+      console.warning('Tried to create a new block during the creation of another new block.')
+      return
+    }
+
     const elementEditor = this.$form.data('elementEditor')
 
     try {
@@ -1233,6 +1261,7 @@ export default Garnish.Base.extend({
       Craft.cp.displayError(error.message)
     } finally {
       elementEditor?.resume()
+      this._unsetCreatingBlock()
     }
   },
 
