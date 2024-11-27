@@ -1073,6 +1073,22 @@ export default Garnish.Base.extend({
     }
   },
 
+  async _setDirty () {
+    const elementEditor = this.getElementEditor()
+
+    // Remove [blocks] from namespace
+    NS.enter(Array.from(this.getNamespace()).slice(0, -1))
+    if (elementEditor) {
+      // First ensure we're working with drafts for all elements leading up
+      // to this field’s element
+      await elementEditor.setFormValue(
+        NS.toFieldName(),
+        '*'
+      )
+    }
+    NS.leave()
+  },
+
   _addSpinnerAfter (block) {
     if (typeof block !== 'undefined') {
       block.$container.after(this._$spinner)
@@ -1176,19 +1192,8 @@ export default Garnish.Base.extend({
   },
 
   async '@newBlock' (e) {
+    await this._setDirty()
     const elementEditor = this.getElementEditor()
-
-    // Remove [blocks] from namespace
-    NS.enter(Array.from(this.getNamespace()).slice(0, -1))
-    if (elementEditor) {
-      // First ensure we're working with drafts for all elements leading up
-      // to this field’s element
-      await elementEditor.setFormValue(
-        NS.toFieldName(),
-        '*'
-      )
-    }
-    NS.leave()
 
     try {
       elementEditor?.pause()
@@ -1354,7 +1359,8 @@ export default Garnish.Base.extend({
     Craft.cp.displayNotice(Craft.t('neo', notice, { n: blockCount }))
   },
 
-  '@pasteBlock' (e) {
+  async '@pasteBlock' (e) {
+    await this._setDirty()
     const block = e.block
     const baseLevel = (block?.getLevel() ?? 1) - 1
     const blocks = this.getCopiedBlocks()
@@ -1364,7 +1370,7 @@ export default Garnish.Base.extend({
         pasteBlock.level += baseLevel
 
         // Ensure the block data has the current owner ID
-        pasteBlock.ownerId = this._ownerId
+        pasteBlock.ownerId = this.getElementEditor()?.settings.elementId ?? this._ownerId
       }
 
       NS.enter(this._templateNs)
@@ -1382,11 +1388,12 @@ export default Garnish.Base.extend({
     }
   },
 
-  '@duplicateBlock' (e) {
+  async '@duplicateBlock' (e) {
+    await this._setDirty()
     const block = e.block
     const blockIndex = this._blocks.indexOf(block)
     const subBlocks = this._findChildBlocks(blockIndex, true)
-    const ownerId = this._ownerId
+    const ownerId = this.getElementEditor()?.settings.elementId ?? this._ownerId
 
     const getBlockData = block => {
       return {

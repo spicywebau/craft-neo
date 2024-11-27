@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where cloned and pasted blocks weren't having their draft status removed on owner element save
+
 ## 5.2.17 - 2024-11-25
 
 ### Fixed
