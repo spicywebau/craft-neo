@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where condition rules for parent block field values were not being applied for new child blocks
+
 ## 5.2.18 - 2024-11-27
 
 ### Fixed

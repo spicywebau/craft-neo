@@ -102,7 +102,6 @@ class Input extends Controller
 
         $field = Craft::$app->getFields()->getFieldById($fieldId);
         $renderedBlocks = [];
-        $autosaveDrafts = Craft::$app->getConfig()->getGeneral()->autosaveDrafts;
         $user = static::currentUser();
 
         foreach ($blocks as $rawBlock) {
@@ -120,6 +119,10 @@ class Input extends Controller
             $block->siteId = $siteId ?? Craft::$app->getSites()->getPrimarySite()->id;
             $block->uid = StringHelper::UUID();
 
+            if (!empty($rawBlock['parentId'])) {
+                $block->setParentId($rawBlock['parentId']);
+            }
+
             if (!empty($rawBlock['content'])) {
                 $block->setFieldValues($rawBlock['content']);
             }
@@ -131,7 +134,7 @@ class Input extends Controller
             $block->setScenario(Element::SCENARIO_ESSENTIALS);
             $draftsService->saveElementAsDraft($block, $user->id, markAsSaved: false);
 
-            if ($autosaveDrafts && $ownerId) {
+            if ($ownerId) {
                 // If the owner supports drafts, temporarily save the block's position in the block structure before
                 // rendering the block template, so the block template shows the correct visible field layout elements
                 $structure = $elementsService->canCreateDrafts($block->getOwner()) && (isset($rawBlock['prevSiblingId']) || isset($rawBlock['parentId']))
@@ -154,10 +157,6 @@ class Input extends Controller
                 'isFresh' => true,
                 'collapsed' => false,
             ]);
-
-            if ($autosaveDrafts && isset($structure)) {
-                $structuresService->remove($structure->id, $block);
-            }
 
             $renderedBlocks[] = [
                 'blockHtml' => $html,
