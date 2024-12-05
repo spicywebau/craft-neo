@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.19 - 2024-12-05
 
 ### Fixed
 - Fixed a bug where condition rules for parent block field values were not being applied for new child blocks
