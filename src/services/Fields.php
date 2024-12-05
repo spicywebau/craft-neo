@@ -476,6 +476,7 @@ class Fields extends Component
         bool $deleteOtherBlocks = true,
         bool $force = false,
     ): void {
+        $draftsService = Craft::$app->getDrafts();
         $elementsService = Craft::$app->getElements();
         $value = $source->getFieldValue($field->handle);
 
@@ -539,6 +540,16 @@ class Fields extends Component
                     ], [
                         'sortOrder' => $block->getSortOrder(),
                     ], updateTimestamp: false);
+
+                    // Clean up after a bug that left cloned blocks in a draft state
+                    if ($block->getIsUnpublishedDraft() && !$target->getIsDraft()) {
+                        $draftsService->removeDraftData($block);
+                        Db::delete(Table::ELEMENTS_OWNERS, [
+                            'elementId' => $block->id,
+                            'ownerId' => $source->id,
+                        ]);
+                    }
+
                     $newBlock = $block;
                 } else {
                     $newBlock = $elementsService->duplicateElement($block, $newAttributes);
@@ -669,7 +680,10 @@ class Fields extends Component
                 )
                 ->unique()
                 ->status(null)
+                // Account for a bug that left cloned blocks in a draft state
+                ->drafts(null)
                 ->all();
+
             // Opt out of creating structures for other supported sites - we'll be doing that from here if necessary
             $this->_saveNeoStructuresForSites($field, $draft, $blocks, $siteId, false);
         }

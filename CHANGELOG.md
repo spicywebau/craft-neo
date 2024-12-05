@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where condition rules for parent block field values were not being applied for new child blocks
+- Fixed an error that occurred when creating new blocks whose previous sibling was a cloned or pasted block
 
 ## 5.2.18 - 2024-11-27
 
