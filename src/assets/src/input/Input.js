@@ -1084,6 +1084,54 @@ export default Garnish.Base.extend({
     this.$container.find('.ni_buttons').removeClass('disabled')
   },
 
+  async _setDirty () {
+    // Remove [blocks] from namespace
+    NS.enter(Array.from(this.getNamespace()).slice(0, -1))
+    // Ensure we're working with an owner draft if drafts haven't been disabled
+    await this._setFormValue(
+      NS.toFieldName(),
+      '*'
+    )
+    NS.leave()
+  },
+
+  async _setFormValue (name, value) {
+    const elementEditor = this.$form.data('elementEditor')
+
+    if (!elementEditor) {
+      return
+    }
+
+    if (elementEditor.settings.revisionId) {
+      throw new Error('Unable to set form values on a revision.')
+    }
+
+    // Make sure any existing changes have already been dealt with
+    // (https://github.com/craftcms/cms/issues/15069)
+    await elementEditor.checkForm()
+
+    // See if the value is already set
+    const params = elementEditor.$container.serialize().split('&')
+    if (
+      params.includes(
+        `${encodeURIComponent(name)}=${encodeURIComponent(value)}`
+      )
+    ) {
+      return false
+    }
+
+    $('<input/>', {
+      type: 'hidden',
+      name,
+      value
+    }).prependTo(elementEditor.$container)
+    if (elementEditor.settings.canCreateDrafts) {
+      await elementEditor.checkForm()
+    }
+
+    return true
+  },
+
   _addSpinnerAfter (block) {
     if (typeof block !== 'undefined') {
       block.$container.after(this._$spinner)
@@ -1198,6 +1246,7 @@ export default Garnish.Base.extend({
       return
     }
 
+    await this._setDirty()
     const elementEditor = this.$form.data('elementEditor')
 
     try {
@@ -1367,7 +1416,8 @@ export default Garnish.Base.extend({
     Craft.cp.displayNotice(Craft.t('neo', notice, { n: blockCount }))
   },
 
-  '@pasteBlock' (e) {
+  async '@pasteBlock' (e) {
+    await this._setDirty()
     const block = e.block
     const baseLevel = (block?.getLevel() ?? 1) - 1
     const blocks = this.getCopiedBlocks()
@@ -1395,7 +1445,8 @@ export default Garnish.Base.extend({
     }
   },
 
-  '@duplicateBlock' (e) {
+  async '@duplicateBlock' (e) {
+    await this._setDirty()
     const block = e.block
     const blockIndex = this._blocks.indexOf(block)
     const subBlocks = this._findChildBlocks(blockIndex, true)

@@ -4,6 +4,7 @@
 
 ### Changed
 - New block buttons are now disabled while a new block is being created
+- When Craft's `autosaveDrafts` setting is enabled, and a Neo field's owner element supports drafts, creating a new block now forces a provisional draft of the owner element to exist first
 
 ## 4.2.21 - 2024-11-19
 
