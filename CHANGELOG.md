@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.22 - 2024-12-09
 
 ### Changed
 - New block buttons are now disabled while a new block is being created
