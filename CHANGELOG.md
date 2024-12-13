@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.23 - 2024-12-13
 
 ### Changed
 - When running a console command that deletes Craft elements that own Neo blocks, the Neo blocks will now be deleted during the running of the command, rather than using queue jobs
