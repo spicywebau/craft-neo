@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- When running a console command that deletes Craft elements that own Neo blocks, the Neo blocks will now be deleted during the running of the command, rather than using queue jobs
+- New block buttons are now disabled while a new block is being created
+
 ## 5.2.19 - 2024-12-05
 
 ### Fixed
@@ -229,6 +235,17 @@
 - Removed `benf\neo\Variable` (`benf\neo\web\twig\Variable` now provides the `craft.neo` Twig variable)
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
+
+## 4.2.23 - 2024-12-13
+
+### Changed
+- When running a console command that deletes Craft elements that own Neo blocks, the Neo blocks will now be deleted during the running of the command, rather than using queue jobs
+
+## 4.2.22 - 2024-12-09
+
+### Changed
+- New block buttons are now disabled while a new block is being created
+- When Craft's `autosaveDrafts` setting is enabled, and a Neo field's owner element supports drafts, creating a new block now forces a provisional draft of the owner element to exist first
 
 ## 4.2.21 - 2024-11-19
 

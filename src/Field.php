@@ -1133,11 +1133,30 @@ class Field extends BaseField implements
         }
 
         // Delete all Neo blocks for this element and field
-        Queue::push(new DeleteBlocks([
-            'fieldId' => $this->id,
-            'elementId' => $element->id,
-            'hardDelete' => $element->hardDelete,
-        ]));
+        if (Craft::$app->request->getIsConsoleRequest()) {
+            $elementsService = Craft::$app->getElements();
+
+            foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
+                $blocks = Block::find()
+                    ->anyStatus()
+                    ->fieldId($this->id)
+                    ->siteId($siteId)
+                    ->primaryOwnerId($element->id)
+                    ->inReverse()
+                    ->all();
+
+                foreach ($blocks as $block) {
+                    $block->deletedWithOwner = true;
+                    $elementsService->deleteElement($block, $element->hardDelete);
+                }
+            }
+        } else {
+            Queue::push(new DeleteBlocks([
+                'fieldId' => $this->id,
+                'elementId' => $element->id,
+                'hardDelete' => $element->hardDelete,
+            ]));
+        }
 
         // Recreate the block structures with the original block data, if not hard-deleting the owner
         if (!$element->hardDelete) {
