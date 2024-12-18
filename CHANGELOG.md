@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an 'Undefined array key' error that occurred during Neo-to-Matrix conversion, if any of the Neo field's block types had fields with overridden handles
+
 ## 5.2.20 - 2024-12-13
 
 ### Changed

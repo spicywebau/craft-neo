@@ -125,13 +125,13 @@ class Conversion extends Component
                 $neoBlockTypeId = $neoBlockTypeIds[$matrixEntryType->uid];
                 $neoToMatrixTypeIds[$neoBlockTypeId] = $matrixEntryType->id;
 
-                // Create mapping from newly saved block type field handles to their IDs.
+                // Create mapping from newly saved block type's field UUIDs to their IDs.
                 // This is so that relations can be updated later on with the new field ID.
                 $matrixFields = $matrixEntryType->getFieldLayout()->getCustomFields();
                 $fieldIds = [];
 
                 foreach ($matrixFields as $matrixFieldLayoutField) {
-                    $fieldIds[$matrixFieldLayoutField->handle] = $matrixFieldLayoutField->id;
+                    $fieldIds[$matrixFieldLayoutField->uid] = $matrixFieldLayoutField->id;
                 }
 
                 $matrixEntryTypeFieldIds[$matrixEntryType->id] = $fieldIds;
@@ -171,7 +171,7 @@ class Conversion extends Component
                     $globalFieldId = $relation['fieldId'];
                     $globalField = $globalFields[$globalFieldId];
                     $matrixFieldIds = $matrixEntryTypeFieldIds[$matrixEntryTypeId];
-                    $matrixFieldId = $matrixFieldIds[$globalField->handle];
+                    $matrixFieldId = $matrixFieldIds[$globalField->uid];
                     $newRelations[] = [
                         $matrixFieldId,
                         $matrixEntryId,
