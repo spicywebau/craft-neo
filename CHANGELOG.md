@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where a Neo block's sort order could be lost when creating a nested CKEditor field entry
+
 ## 5.2.21 - 2024-12-18
 
 ### Fixed

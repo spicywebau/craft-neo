@@ -535,23 +535,7 @@ class Block extends Element implements NestedElementInterface
 
             $record->save(false);
 
-            // ownerId will be null when creating a revision
-            if ($this->saveOwnership) {
-                if ($isNew) {
-                    Db::insert(Table::ELEMENTS_OWNERS, [
-                        'elementId' => $this->id,
-                        'ownerId' => $this->ownerId,
-                        'sortOrder' => $this->sortOrder ?? 0,
-                    ]);
-                } else {
-                    Db::update(Table::ELEMENTS_OWNERS, [
-                        'sortOrder' => $this->sortOrder ?? 0,
-                    ], [
-                        'elementId' => $this->id,
-                        'ownerId' => $this->ownerId,
-                    ]);
-                }
-            }
+            $this->saveOwnership($isNew, '{{%neoblocks}}');
         }
 
         parent::afterSave($isNew);
