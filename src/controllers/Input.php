@@ -137,7 +137,7 @@ class Input extends Controller
             if ($ownerId) {
                 // If the owner supports drafts, temporarily save the block's position in the block structure before
                 // rendering the block template, so the block template shows the correct visible field layout elements
-                $structure = $elementsService->canCreateDrafts($block->getOwner()) && (isset($rawBlock['prevSiblingId']) || isset($rawBlock['parentId']))
+                $structure = $elementsService->canCreateDrafts($block->getOwner())
                     ? Neo::$plugin->blocks->getStructure($fieldId, $ownerId, $siteId)?->getStructure()
                     : null;
 
@@ -146,6 +146,9 @@ class Input extends Controller
                         $structuresService->moveAfter($structure->id, $block, (int)$rawBlock['prevSiblingId']);
                     } elseif (isset($rawBlock['parentId'])) {
                         $structuresService->prepend($structure->id, $block, (int)$rawBlock['parentId']);
+                    } else {
+                        // First block in the field
+                        $structuresService->prependToRoot($structure->id, $block);
                     }
                 }
             }

@@ -1254,7 +1254,9 @@ export default Garnish.Base.extend({
       }
 
       const prevSiblingId = addAfter ? siblingBlock?.getDuplicatedBlockId() : null
-      const parentId = siblingBlock?.getParent()?.getDuplicatedBlockId() ?? null
+      const parentId = siblingBlock?.getParent()?.getDuplicatedBlockId() ??
+        e.target.$container?.data('block')?.getDuplicatedBlockId() ??
+        null
       const newBlock = await e.blockType.newBlock({
         prevSiblingId: prevSiblingId ?? null,
         parentId,

@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where a Neo block's sort order could be lost when creating a nested CKEditor field entry
+- Fixed an error that occurred when two new child blocks of a new parent block were created, if `autosaveDrafts` was disabled
 
 ## 5.2.21 - 2024-12-18
 
