@@ -70,6 +70,13 @@ Default: `true`
 
 This setting controls whether to skip updating search indexes for Neo blocks that have no sub-fields set to use their values as search keywords, or that belong to Neo fields that aren't set to use the field's values as search keywords.
 
+## `resaveFieldBlockStructuresInIndividualJobs`
+
+Type: `bool`
+Default: `false`
+
+This setting controls whether block structure resave jobs spawned while changing a Neo field's propagation method will spawn individual jobs for each block structure. Note that, if enabled, the number of jobs spawned when changing a Neo field's propagation method might be very large.
+
 [1]: #newblockmenustyle
 [2]: #blocktypeiconselectmode
 [3]: #blocktypeiconpath

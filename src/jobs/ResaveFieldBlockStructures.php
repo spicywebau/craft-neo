@@ -10,6 +10,7 @@ use craft\db\Query;
 use craft\errors\InvalidFieldException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
+use craft\helpers\Queue;
 use craft\i18n\Translation;
 use craft\queue\BaseJob;
 use yii\base\InvalidConfigException;
@@ -97,22 +98,40 @@ class ResaveFieldBlockStructures extends BaseJob
                     continue;
                 }
 
-                $oldBlockStructures = Neo::$plugin->blocks->getStructures([
-                    'fieldId' => $this->fieldId,
-                    'ownerId' => $ownerId,
-                    'siteId' => $siteId,
-                ]);
+                if (Neo::$plugin->getSettings()->resaveFieldBlockStructuresInIndividualJobs) {
+                    Queue::push(new SaveBlockStructures([
+                        'fieldId' => $this->fieldId,
+                        'ownerId' => $ownerId,
+                        'siteId' => $siteId,
+                        'otherSupportedSiteIds' => [],
+                        'blocks' => array_map(
+                            fn($block) => [
+                                'id' => $block->id,
+                                'level' => $block->level,
+                                'lft' => $block->lft,
+                                'rgt' => $block->rgt,
+                            ],
+                            $blocks[$siteId],
+                        ),
+                    ]));
+                } else {
+                    $oldBlockStructures = Neo::$plugin->blocks->getStructures([
+                        'fieldId' => $this->fieldId,
+                        'ownerId' => $ownerId,
+                        'siteId' => $siteId,
+                    ]);
 
-                foreach ($oldBlockStructures as $oldBlockStructure) {
-                    Neo::$plugin->blocks->deleteStructure($oldBlockStructure, true);
+                    foreach ($oldBlockStructures as $oldBlockStructure) {
+                        Neo::$plugin->blocks->deleteStructure($oldBlockStructure, true);
+                    }
+
+                    $blockStructure = new BlockStructure();
+                    $blockStructure->fieldId = $this->fieldId;
+                    $blockStructure->ownerId = $ownerId;
+                    $blockStructure->siteId = $siteId;
+                    Neo::$plugin->blocks->saveStructure($blockStructure);
+                    Neo::$plugin->blocks->buildStructure($blocks[$siteId], $blockStructure);
                 }
-
-                $blockStructure = new BlockStructure();
-                $blockStructure->fieldId = $this->fieldId;
-                $blockStructure->ownerId = $ownerId;
-                $blockStructure->siteId = $siteId;
-                Neo::$plugin->blocks->saveStructure($blockStructure);
-                Neo::$plugin->blocks->buildStructure($blocks[$siteId], $blockStructure);
             }
 
             $this->setProgress($queue, ++$ownerIdsCounter / $ownerIdsTotal);
