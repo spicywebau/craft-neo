@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.2.24 - 2025-01-16
+
+### Added
+- Added the `resaveFieldBlockStructuresInIndividualJobs` plugin setting (defaults to `false`)
+
 ## 4.2.23 - 2024-12-13
 
 ### Changed
