@@ -92,7 +92,7 @@ class Input extends Controller
 
         $blocks = $request->getRequiredBodyParam('blocks');
         $fieldId = $request->getRequiredBodyParam('fieldId');
-        $siteId = $request->getParam('siteId');
+        $siteId = $request->getParam('siteId', Craft::$app->getSites()->getPrimarySite()->id);
         $namespace = $request->getParam('namespace');
 
         // Remove the ending section from the namespace, since we're adding it back in later
@@ -103,6 +103,8 @@ class Input extends Controller
         $field = Craft::$app->getFields()->getFieldById($fieldId);
         $renderedBlocks = [];
         $user = static::currentUser();
+        $prevBlockAtLevel = [];
+        $prevBlockLevel = null;
 
         foreach ($blocks as $rawBlock) {
             $type = Neo::$plugin->blockTypes->getById((int)$rawBlock['type']);
@@ -116,8 +118,25 @@ class Input extends Controller
             $block->level = $rawBlock['level'];
             $block->enabled = isset($rawBlock['enabled']) && (bool)$rawBlock['enabled'];
             $block->setCollapsed(isset($rawBlock['collapsed']) && (bool)$rawBlock['collapsed']);
-            $block->siteId = $siteId ?? Craft::$app->getSites()->getPrimarySite()->id;
+            $block->siteId = $siteId;
             $block->uid = StringHelper::UUID();
+
+            // Try to set parentId/prevSiblingId on block if not specified and this isn't the first block
+            for ($i = $prevBlockLevel ?? 0; $i > $block->level; $i--) {
+                $prevBlockAtLevel[$i] = null;
+            }
+
+            $prevBlock = $prevBlockLevel
+                ? ($prevBlockAtLevel[$prevBlockLevel] ?? null)
+                : null;
+
+            if (empty($rawBlock['parentId']) && $prevBlock && $prevBlock->level < $block->level) {
+                $rawBlock['parentId'] = $prevBlock->id;
+            }
+
+            if (empty($rawBlock['prevSiblingId']) && $prevBlock?->level === $block->level) {
+                $rawBlock['prevSiblingId'] = $prevBlock->id;
+            }
 
             if (!empty($rawBlock['parentId'])) {
                 $block->setParentId($rawBlock['parentId']);
@@ -172,6 +191,9 @@ class Input extends Controller
                 'id' => $block->id ?? "new{$block->unsavedId}",
                 'uuid' => $block->uid,
             ];
+
+            $prevBlockAtLevel[$block->level] = $block;
+            $prevBlockLevel = $block->level;
         }
 
         return $this->asSuccess(data: [

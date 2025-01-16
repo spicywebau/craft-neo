@@ -1161,6 +1161,12 @@ export default Garnish.Base.extend({
     try {
       this.$form.data('elementEditor')?.pause()
       await this._addSpinnerAfter(block)
+
+      // Set prevSiblingId on the first block, all other siblings/parents will be figured out server-side
+      if (typeof data.blocks[0].prevSiblingId === 'undefined') {
+        data.blocks[0].prevSiblingId = block.getId()
+      }
+
       const response = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
       const newBlocks = []
 
