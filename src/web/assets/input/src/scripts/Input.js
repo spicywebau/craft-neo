@@ -1163,7 +1163,7 @@ export default Garnish.Base.extend({
       await this._addSpinnerAfter(block)
 
       // Set prevSiblingId on the first block, all other siblings/parents will be figured out server-side
-      if (typeof data.blocks[0].prevSiblingId === 'undefined') {
+      if (typeof data.blocks[0].prevSiblingId === 'undefined' && typeof block !== 'undefined') {
         data.blocks[0].prevSiblingId = block.getId()
       }
 
