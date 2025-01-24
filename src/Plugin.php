@@ -228,6 +228,7 @@ class Plugin extends BasePlugin
 
             // Reset the sort order array keys, in case anything's been deleted recently
             foreach ($sortOrderData as $fieldUid => $order) {
+                ksort($order);
                 $sortOrderData[$fieldUid] = array_values($order);
             }
 
