@@ -63,6 +63,12 @@ class Settings extends Model
     public bool $enableBlockTypeUserPermissions = true;
 
     /**
+     * @var bool Whether `ResaveFieldBlockStructures` jobs will spawn individual `SaveBlockStructures` jobs.
+     * @since 4.2.24
+     */
+    public bool $resaveFieldBlockStructuresInIndividualJobs = false;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
