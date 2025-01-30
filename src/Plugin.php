@@ -276,8 +276,11 @@ class Plugin extends BasePlugin
 
             // Delete any orphaned neoblocks_owners rows
             $stdout('    > deleting orphaned Neo block owner data ... ');
-            $orphanedBlockIds = (new Query())
-                ->select(['blockId'])
+            $orphanedOwnerRows = (new Query())
+                ->select([
+                    'blockId',
+                    'ownerId',
+                ])
                 ->distinct()
                 ->from(['nbo' => '{{%neoblocks_owners}}'])
                 ->where([
@@ -295,12 +298,10 @@ class Plugin extends BasePlugin
                             ->where('[[e.id]] = [[nbo.ownerId]]'),
                     ],
                 ])
-                ->column();
+                ->all();
 
-            foreach (array_chunk($orphanedBlockIds, 1000) as $orphanedBlockIdsChunk) {
-                Db::delete('{{%neoblocks_owners}}', [
-                    'blockId' => $orphanedBlockIdsChunk,
-                ]);
+            foreach ($orphanedOwnerRows as $orphanedOwnerRow) {
+                Db::delete('{{%neoblocks_owners}}', $orphanedOwnerRow);
             }
 
             $stdout("done\n", Console::FG_GREEN);

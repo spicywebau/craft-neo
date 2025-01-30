@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where Neo field sort order data in the project config would set block type groups in the incorrect place when rebuilding the project config
+- Fixed a bug where Craft garbage collection would delete all `neoblocks_owners` rows relating to a block, if any of that block's owner elements no longer existed in the `elements` table
 
 ## 4.2.24 - 2025-01-16
 
