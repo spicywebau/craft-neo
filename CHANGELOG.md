@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.25 - 2025-01-30
 
 ### Fixed
 - Fixed a bug where Neo field sort order data in the project config would set block type groups in the incorrect place when rebuilding the project config
