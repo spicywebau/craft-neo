@@ -1,10 +1,12 @@
 <?php
 
+use Craft;
+
 return [
     [
         'id' => null,
         'sectionId' => '1',
-        'typeId' => '1',
+        'typeId' => Craft::$app->getSections()->getEntryTypeByUid('entrytype-00000000000000000000000001')->id,
         'authorId' => '1',
         'uid' => 'entry-000000000000000000000000000001',
         'title' => 'Block Children Test',
@@ -81,7 +83,7 @@ return [
     [
         'id' => null,
         'sectionId' => '1',
-        'typeId' => '1',
+        'typeId' => Craft::$app->getSections()->getEntryTypeByUid('entrytype-00000000000000000000000001')->id,
         'authorId' => '1',
         'uid' => 'entry-000000000000000000000000000002',
         'title' => 'Block query for ID gets only live block test',
@@ -116,7 +118,7 @@ return [
     [
         'id' => null,
         'sectionId' => '1',
-        'typeId' => '2',
+        'typeId' => Craft::$app->getSections()->getEntryTypeByUid('entrytype-00000000000000000000000002')->id,
         'authorId' => '1',
         'uid' => 'entry-000000000000000000000000000003',
         'title' => 'Neo-to-Matrix conversion test',
