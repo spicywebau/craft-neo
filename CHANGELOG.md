@@ -1,9 +1,13 @@
 # Changelog
 
-## Unreleased
+## 5.2.23 - 2025-01-31
+
+### Added
+- Added the `resaveFieldBlockStructuresInIndividualJobs` plugin setting (previously added in 4.2.24, defaults to `false`)
 
 ### Fixed
 - Fixed a bug where queries for elements with empty or nonempty Neo fields weren't working
+- Fixed a bug where Neo field sort order data in the project config would set block type groups in the incorrect place when rebuilding the project config
 
 ## 5.2.22 - 2025-01-16
 
