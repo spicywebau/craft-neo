@@ -49,6 +49,7 @@ use craft\validators\ArrayValidator;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Collection;
 use yii\base\InvalidArgumentException;
+use yii\db\Expression;
 
 /**
  * Class Field
@@ -85,6 +86,50 @@ class Field extends BaseField implements
     public static function dbType(): array|string|null
     {
         return null;
+    }
+
+    /**
+     * @inheritdoc
+     * @see \craft\fields\Matrix::queryCondition() which this is very heavily based on
+     */
+    public static function queryCondition(array $instances, mixed $value, array &$params): array
+    {
+        $field = reset($instances);
+        $ns = $field->handle . '_' . StringHelper::randomString(5);
+
+        $existsQuery = (new Query())
+            ->from(["neoblocks_$ns" => '{{%neoblocks}}'])
+            ->innerJoin(["elements_$ns" => Table::ELEMENTS], "[[elements_$ns.id]] = [[neoblocks_$ns.id]]")
+            ->innerJoin(["elements_owners_$ns" => Table::ELEMENTS_OWNERS], "[[elements_owners_$ns.elementId]] = [[elements_$ns.id]]")
+            ->andWhere([
+                "neoblocks_$ns.fieldId" => $field->id,
+                "elements_$ns.enabled" => true,
+                "elements_$ns.dateDeleted" => null,
+                "[[elements_owners_$ns.ownerId]]" => new Expression('[[elements.id]]'),
+            ]);
+
+        if ($value === 'not :empty:') {
+            $value = ':notempty:';
+        }
+
+        if ($value === ':empty:') {
+            return ['not exists', $existsQuery];
+        }
+
+        if ($value !== ':notempty:') {
+            $ids = $value;
+            if (!is_array($ids)) {
+                $ids = is_string($ids) ? StringHelper::split($ids) : [$ids];
+            }
+
+            $ids = array_map(function($id) {
+                return $id instanceof Block ? $id->id : (int)$id;
+            }, $ids);
+
+            $existsQuery->andWhere(["neoblocks_$ns.id" => $ids]);
+        }
+
+        return ['exists', $existsQuery];
     }
 
     /**
@@ -767,36 +812,6 @@ class Field extends BaseField implements
     public function getElementConditionRuleType(): array|string|null
     {
         return class_exists(EmptyFieldConditionRule::class) ? EmptyFieldConditionRule::class : null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function modifyElementsQuery(ElementQueryInterface $query, mixed $value): void
-    {
-        if ($value === 'not :empty:') {
-            $value = ':notempty:';
-        }
-
-        if ($value === ':notempty:' || $value === ':empty:') {
-            $ns = $this->handle . '_' . StringHelper::randomString(5);
-            $query->subQuery->andWhere([
-                $value === ':empty:' ? 'not exists' : 'exists',
-                (new Query())
-                    ->from(["neoblocks_$ns" => '{{%neoblocks}}'])
-                    ->innerJoin(["elements_$ns" => Table::ELEMENTS], "[[elements_$ns.id]] = [[neoblocks_$ns.id]]")
-                    ->innerJoin(["elements_owners_$ns" => Table::ELEMENTS_OWNERS], [
-                        'and',
-                        "[[elements_owners_$ns.elementId]] = [[elements_$ns.id]]",
-                        "[[elements_owners_$ns.ownerId]] = [[elements.id]]",
-                    ])
-                    ->andWhere([
-                        "neoblocks_$ns.fieldId" => $this->id,
-                        "elements_$ns.enabled" => true,
-                        "elements_$ns.dateDeleted" => null,
-                    ]),
-            ]);
-        }
     }
 
     /**

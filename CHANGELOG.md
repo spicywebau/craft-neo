@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where queries for elements with empty or nonempty Neo fields weren't working
+
 ## 5.2.22 - 2025-01-16
 
 ### Fixed
