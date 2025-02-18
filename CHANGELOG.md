@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.2.24 - 2025-02-18
 
 ### Fixed
 - Fixed a GraphQL bug where parameters on entries fields on child blocks weren't being applied
