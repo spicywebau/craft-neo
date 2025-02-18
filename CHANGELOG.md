@@ -256,6 +256,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.2.26 - 2025-02-18
+
+### Fixed
+- Fixed a GraphQL bug where parameters on entries fields on child blocks weren't being applied
+
 ## 4.2.25 - 2025-01-30
 
 ### Fixed
