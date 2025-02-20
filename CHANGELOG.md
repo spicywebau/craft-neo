@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.3.0 - 2025-02-20
+
+### Added
+- Added `benf\neo\Field::$newBlockButtonLabel` (previously added in 4.3.0; field setting for defining the block creation button text, on menu styles where it is shown)
+- Added `benf\neo\Field::newBlockButtonLabelWithFallback()` (previously added in 4.3.0)
+
 ## 5.2.24 - 2025-02-18
 
 ### Fixed
