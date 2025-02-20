@@ -161,6 +161,7 @@ class InputAsset extends AssetBundle
             'maxLevels' => (int)$field->maxLevels,
             'showBlockTypeHandles' => Craft::$app->getUser()->getIdentity()->getPreference('showFieldHandles'),
             'newBlockMenuStyle' => Neo::$plugin->getSettings()->newBlockMenuStyle,
+            'newBlockButtonLabel' => $field->newBlockButtonLabelWithFallback(),
         ];
 
         $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);

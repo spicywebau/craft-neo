@@ -176,6 +176,12 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
      */
     public ?string $propagationKeyFormat = null;
 
+    /**
+     * @var string|null The “Add a block” button label.
+     * @since 4.3.0
+     */
+    public ?string $newBlockButtonLabel = null;
+
     private ?\Exception $_inputHtmlException = null;
 
     /**
@@ -565,6 +571,7 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
             $html = $viewService->renderTemplate('neo/settings', [
                 'neoField' => $this,
                 'items' => $this->getItems(),
+                'defaultNewBlockButtonLabel' => $this->_defaultNewBlockButtonLabel(),
             ]);
         }
 
@@ -1317,6 +1324,22 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
         }
 
         return $blockType;
+    }
+
+    /**
+     * @var string|null The new block button label, with fallback 'Add a block' if `newBlockButtonLabel` isn't set.
+     * @since 4.3.0
+     */
+    public function newBlockButtonLabelWithFallback(): string
+    {
+        return isset($this->newBlockButtonLabel)
+            ? Craft::t('site', $this->newBlockButtonLabel)
+            : $this->_defaultNewBlockButtonLabel();
+    }
+
+    private function _defaultNewBlockButtonLabel(): string
+    {
+        return Craft::t('neo', 'Add a block');
     }
 
     /**
