@@ -261,7 +261,7 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
-## Unreleased
+## 4.3.0 - 2025-02-20
 
 ### Added
 - Added `benf\neo\Field::$newBlockButtonLabel` (field setting for defining the block creation button text, on menu styles where it is shown)
