@@ -149,4 +149,6 @@ return [
     'Enable block type user permissions' => 'Enable block type user permissions',
     'Whether to allow setting user permissions for creating, editing and deleting blocks of a certain type.' => 'Whether to allow setting user permissions for creating, editing and deleting blocks of a certain type.',
     'Deleting old Neo blocks' => 'Deleting old Neo blocks',
+    'New Block Button Label' => 'New Block Button Label',
+    'The text label for the block creation button, on menu styles where it is shown.' => 'The text label for the block creation button, on menu styles where it is shown.',
 ];

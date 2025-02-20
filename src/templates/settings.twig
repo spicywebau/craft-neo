@@ -260,3 +260,13 @@
     size: 3,
     errors: neoField.getErrors('maxLevels'),
 }) }}
+
+{{ forms.textField({
+    label: "New Block Button Label"|t('neo'),
+    instructions: "The text label for the block creation button, on menu styles where it is shown."|t('neo'),
+    id: 'newBlockButtonLabel',
+    name: 'newBlockButtonLabel',
+    value: neoField.newBlockButtonLabel,
+    placeholder: defaultNewBlockButtonLabel,
+    errors: neoField.getErrors('newBlockButtonLabel'),
+}) }}

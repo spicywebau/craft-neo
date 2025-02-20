@@ -1,5 +1,4 @@
 import $ from 'jquery'
-import Craft from 'craft'
 import Garnish from 'garnish'
 
 const _defaults = {
@@ -54,11 +53,12 @@ class NewBlockMenu {
    * @returns string
    */
   renderButtons () {
+    const field = this.getField()
     const ownerBlockType = this.$ownerContainer?.hasClass('ni_block')
       ? this.$ownerContainer.attr('class').match(/ni_block--([^\s]+)/)[1]
       : null
     const ungroupChildBlockTypes = ownerBlockType !== null &&
-      !this.getField().getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
+      !field.getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
     const buttonsHtml = []
     let blockTypesHtml = []
     let currentGroup = null
@@ -132,7 +132,7 @@ class NewBlockMenu {
     buttonsHtml.push(`
         </div>
         <div class="btn dashed add icon menubtn hidden" data-neo-bn="container.menu">
-          ${Craft.t('neo', 'Add a block')}
+          ${field.getNewBlockButtonLabel()}
         </div>`)
 
     // Menu, for views where the buttons would exceed the editor width

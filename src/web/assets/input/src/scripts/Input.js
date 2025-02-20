@@ -70,6 +70,7 @@ const _defaults = {
   maxTopBlocks: 0,
   minLevels: 0,
   maxLevels: 0,
+  newBlockButtonLabel: Craft.t('neo', 'Add a block'),
   ownerId: null
 }
 
@@ -98,6 +99,7 @@ export default Garnish.Base.extend({
     this._maxLevels = settings.maxLevels
     this._ownerId = settings.ownerId
     this._showBlockTypeHandles = settings.showBlockTypeHandles
+    this._newBlockButtonLabel = settings.newBlockButtonLabel
 
     const animate = !Garnish.prefersReducedMotion()
     this._$spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : Craft.t('neo', 'Loading')}</div>`)
@@ -585,6 +587,13 @@ export default Garnish.Base.extend({
 
   atMaxLevels (level) {
     return this._maxLevels > 0 && level + 1 > this._maxLevels
+  },
+
+  /**
+   * @since 4.3.0
+   */
+  getNewBlockButtonLabel () {
+    return this._newBlockButtonLabel
   },
 
   getSelectedBlocks () {

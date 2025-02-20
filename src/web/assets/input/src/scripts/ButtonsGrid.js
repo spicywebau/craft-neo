@@ -1,5 +1,4 @@
 import $ from 'jquery'
-import Craft from 'craft'
 import { NewBlockMenu, GarnishNewBlockMenu } from './NewBlockMenu'
 
 class ButtonsGrid extends NewBlockMenu {
@@ -7,18 +6,19 @@ class ButtonsGrid extends NewBlockMenu {
    * @inheritdoc
    */
   renderButtons () {
+    const field = this.getField()
     const ownerBlockType = this.$ownerContainer?.hasClass('ni_block')
       ? this.$ownerContainer.attr('class').match(/ni_block--([^\s]+)/)[1]
       : null
     const ungroupChildBlockTypes = ownerBlockType !== null &&
-      !this.getField().getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
+      !field.getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
     const buttonsHtml = []
     let currentGroup = null
 
     buttonsHtml.push(`
         <div class="ni_buttons">
           <div class="btn dashed add icon menubtn" data-neo-bn="container.menu">
-            ${Craft.t('neo', 'Add a block')}
+            ${field.getNewBlockButtonLabel()}
           </div>`)
 
     currentGroup = null
@@ -48,7 +48,7 @@ class ButtonsGrid extends NewBlockMenu {
         }
 
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
-        const blockTypeIconId = `fields-ni-icon-${this.getField().getName()}-${item.getHandle()}`
+        const blockTypeIconId = `fields-ni-icon-${field.getName()}-${item.getHandle()}`
         const hasBlockTypeIcon = this._field?.$container.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
         buttonsHtml.push(`
               <li>
