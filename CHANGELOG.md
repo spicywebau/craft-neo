@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.3.0 - 2025-02-20
 
 ### Added
 - Added `benf\neo\Field::$newBlockButtonLabel` (field setting for defining the block creation button text, on menu styles where it is shown)
