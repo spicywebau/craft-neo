@@ -130,8 +130,8 @@ class Input extends Controller
                 ? ($prevBlockAtLevel[$prevBlockLevel] ?? null)
                 : null;
 
-            if (empty($rawBlock['parentId']) && $prevBlock && $prevBlock->level < $block->level) {
-                $rawBlock['parentId'] = $prevBlock->id;
+            if (empty($rawBlock['parentId']) && isset($prevBlockAtLevel[$block->level - 1])) {
+                $rawBlock['parentId'] = $prevBlockAtLevel[$block->level - 1]->id;
             }
 
             if (empty($rawBlock['prevSiblingId']) && $prevBlock?->level === $block->level) {
