@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.3.1 - 2025-02-21
 
 ### Fixed
 - Fixed a bug where cloned block descendants could be placed at an incorrect level
