@@ -276,10 +276,11 @@ class BlockTypes extends Component
      *
      * @param BlockType $blockType The block type to save.
      * @param bool $validate Whether to perform validation on the block type.
+     * @param bool $force Whether to force the block type to be saved, regardless of whether any changes were made to it.
      * @return bool Whether saving the block type was successful.
      * @throws \Throwable
      */
-    public function save(BlockType $blockType, bool $validate = true): bool
+    public function save(BlockType $blockType, bool $validate = true, bool $force = false): bool
     {
         // Ensure that the block type passes validation or that validation is disabled
         if ($validate && !$this->validate($blockType)) {
@@ -306,7 +307,7 @@ class BlockTypes extends Component
         $this->trigger(self::EVENT_BEFORE_SAVE_BLOCK_TYPE, $event);
 
         $path = 'neoBlockTypes.' . $blockType->uid;
-        $projectConfigService->set($path, $data);
+        $projectConfigService->set($path, $data, force: $force);
 
         return true;
     }

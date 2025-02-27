@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added `benf\neo\console\controllers\BlockTypesController::actionResave()` (added the `php craft neo/block-types/resave` console command)
+
+### Changed
+- `benf\neo\services\BlockTypes::save()` now has a `$force` argument
+
 ## 3.9.11 - 2023-12-08
 
 ### Added

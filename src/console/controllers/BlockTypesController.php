@@ -282,6 +282,23 @@ class BlockTypesController extends Controller
     }
 
     /**
+     * Resaves all block types.
+     *
+     * @return int
+     * @since 3.10.0
+     */
+    public function actionResave(): int
+    {
+        foreach (Neo::$plugin->blockTypes->getAllBlockTypes() as $blockType) {
+            Neo::$plugin->blockTypes->save($blockType, force: true);
+        }
+
+        $this->stdout('Done.' . PHP_EOL);
+
+        return ExitCode::OK;
+    }
+
+    /**
      * @return BlockType
      * @throws BlockTypeNotFoundException
      */
