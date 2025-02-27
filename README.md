@@ -59,6 +59,7 @@ A copied block can be pasted anywhere within its Neo field that allows that bloc
 - Upgrade Guides:
     - [Upgrading to Neo 2.7 and Craft 3.4](docs/upgrade-guides/neo-2.7-craft-3.4.md)
     - [Upgrading to Neo 4](docs/upgrade-guides/neo-4.md)
+    - [Upgrading to Neo 5](docs/upgrade-guides/neo-5.md)
 - [Changelog](CHANGELOG.md)
 
 
