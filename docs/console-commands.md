@@ -76,6 +76,10 @@ The following restrictions exist on using options:
 
 Ensures each block type has a unique field layout. Checks all block types and has no options.
 
+## `neo/block-types/resave`
+
+Resaves all Neo block types.
+
 ## `neo/fields/fix-block-structure-site-ids`
 
 Changes `null` block structure site IDs to the primary site ID. Checks all block structures and has no options.

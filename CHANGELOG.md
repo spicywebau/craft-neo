@@ -282,6 +282,14 @@
 - Fixed a bug where queries for Neo blocks with a specific owner entry/category could return duplicate blocks, if the entry/category had any drafts and the duplicated blocks were owned by both the entry/category and the drafts
 - Fixed an error that occurred when lazy loading a new block that requires at least two child blocks
 
+## 3.10.0 - 2025-02-27
+
+### Added
+- Added `benf\neo\console\controllers\BlockTypesController::actionResave()` (added the `php craft neo/block-types/resave` console command)
+
+### Changed
+- `benf\neo\services\BlockTypes::save()` now has a `$force` argument
+
 ## 3.9.11 - 2023-12-08
 
 ### Added
