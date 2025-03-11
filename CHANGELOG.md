@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.4.0 - 2025-03-11
+
+### Added
+- Added `benf\neo\console\controllers\BlockTypesController::actionResave()` (previously added in 3.10.0 and 4.4.0; added the `php craft neo/block-types/resave` console command)
+
+### Changed
+- `benf\neo\services\BlockTypes::save()` now has a `$force` argument (previously changed in 3.10.0 and 4.4.0)
+
+### Fixed
+- Fixed an error that occurred when saving an element containing an eager loaded Neo field
+
 ## 5.3.1 - 2025-02-21
 
 ### Fixed
