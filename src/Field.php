@@ -849,24 +849,34 @@ class Field extends BaseField implements EagerLoadingFieldInterface, GqlInlineFr
     public function validateBlocks(ElementInterface $element)
     {
         $value = $element->getFieldValue($this->handle);
-        $allBlocks = (clone $value)->status(null)->all();
-        $enabledBlocks = array_filter($allBlocks, fn($block) => $block->enabled);
-        $scenario = $element->getScenario();
-        $allBlocksValidate = true;
 
-        foreach ($enabledBlocks as $key => $block) {
-            if (in_array($scenario, [Element::SCENARIO_ESSENTIALS, Element::SCENARIO_LIVE])) {
-                $block->setScenario($scenario);
-            }
-
-            if (!$block->validate()) {
-                $element->addModelErrors($block, "{$this->handle}[{$key}]");
-                $allBlocksValidate = false;
-            }
+        // $value might be a collection instead of a block query
+        if ($value instanceof BlockQuery) {
+            $allBlocks = (clone $value)->status(null)->all();
+        } else {
+            $allBlocks = $value->all();
         }
 
-        if (!$allBlocksValidate) {
-            $value->setCachedResult($allBlocks);
+        $enabledBlocks = array_filter($allBlocks, fn($block) => $block->enabled);
+        $scenario = $element->getScenario();
+
+        if ($value instanceof BlockQuery) {
+            $allBlocksValidate = true;
+
+            foreach ($enabledBlocks as $key => $block) {
+                if (in_array($scenario, [Element::SCENARIO_ESSENTIALS, Element::SCENARIO_LIVE])) {
+                    $block->setScenario($scenario);
+                }
+
+                if (!$block->validate()) {
+                    $element->addModelErrors($block, "{$this->handle}[{$key}]");
+                    $allBlocksValidate = false;
+                }
+            }
+
+            if (!$allBlocksValidate) {
+                $value->setCachedResult($allBlocks);
+            }
         }
 
         if ($scenario === Element::SCENARIO_LIVE) {
