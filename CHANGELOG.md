@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.4.1 - 2025-03-11
+
+### Fixed
+- Fixed an error that occurred when saving an element containing an eager loaded Neo field
+
 ## 4.4.0 - 2025-02-27
 
 ### Added
