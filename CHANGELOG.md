@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.4.1 - 2025-04-10
 
 ### Fixed
 - Fixed an exception that could occur when converting a Neo field to Matrix
