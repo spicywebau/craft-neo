@@ -12,6 +12,7 @@ use craft\db\Table;
 use craft\elements\conditions\entries\EntryCondition;
 use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
+use craft\fieldlayoutelements\CustomField;
 use craft\fieldlayoutelements\entries\EntryTitleField;
 use craft\fields\Matrix as MatrixField;
 use craft\helpers\ArrayHelper;
@@ -137,10 +138,41 @@ class Conversion extends Component
                 $matrixEntryTypeFieldIds[$matrixEntryType->id] = $fieldIds;
             }
 
+            $ownerHasLayoutField = [];
+
             foreach ($matrixEntries as $matrixEntry) {
-                $neoBlockId = $matrixEntry->id;
+                // See if we can get the field from owner's field layout
+                // If not, then the field was removed from the layout at some point, so no need to save a Matrix entry
+                $owner = $matrixEntry->getOwner();
+                $layout = $owner->getFieldLayout();
+                $layoutField = $layout->getFieldById($matrixField->id);
+                $ownerHasLayoutField[$owner->id] ??= $layoutField !== null;
+
+                if (!$ownerHasLayoutField[$owner->id]) {
+                    continue;
+                }
+
+                // Field layout elements take a clone of the original field object, so $layoutField might still be Neo
+                // Reset it to the Matrix field, and reset the field layout's memoised custom fields, to avoid an
+                // exception occurring later on
+                // IMPORTANT NOTE: FieldLayout::reset() is technically public, but is marked as an internal method, so
+                // could be removed at any time. It's only being used here because there doesn't appear to be any other
+                // way for us to reset the layout's privately stored custom element array. If this ever breaks, we're
+                // going to need to ask P&T for a way for us to do this (unless they have Neo-to-Matrix conversion built
+                // in at that point, which I believe is still planned).
+                if ($layoutField instanceof Field) {
+                    foreach ($layout->getElementsByType(CustomField::class) as $customField) {
+                        if ($customField->getFieldUid() === $matrixField->uid) {
+                            $customField->setField($matrixField);
+                            break;
+                        }
+                    }
+
+                    $layout->reset();
+                }
 
                 // Ensure the entry doesn't have an ID
+                $neoBlockId = $matrixEntry->id;
                 $matrixEntry->id = null;
 
                 // Assign the correct entry type ID now that it exists (from saving the field above)
