@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.4.2 - 2025-04-17
+
+### Fixed
+- Fixed JavaScript errors that occurred on Craft 5.7
+
 ## 5.4.1 - 2025-04-10
 
 ### Fixed
