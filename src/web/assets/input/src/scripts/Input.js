@@ -1,6 +1,6 @@
 /*
 The `_updateAllVisibleElements()` and `_updateVisibleElements()` methods are based on a large
-section of `Craft.ElementEditor.saveDraft()` from Craft CMS 4.3.6.1, by Pixel & Tonic, Inc.
+section of `window.Craft.ElementEditor.saveDraft()` from Craft CMS 4.3.6.1, by Pixel & Tonic, Inc.
 https://github.com/craftcms/cms/blob/4.3.6.1/src/web/assets/cp/src/js/ElementEditor.js#L1144
 Craft CMS is released under the terms of the Craft License, a copy of which is included below.
 https://github.com/craftcms/cms/blob/4.3.6.1/LICENSE.md
@@ -49,7 +49,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import $ from 'jquery'
 import Garnish from 'garnish'
-import Craft from 'craft'
+// import Craft from 'craft'
 import NS from './namespace'
 import BlockSort from './BlockSort'
 import BlockType from './BlockType'
@@ -70,7 +70,7 @@ const _defaults = {
   maxTopBlocks: 0,
   minLevels: 0,
   maxLevels: 0,
-  newBlockButtonLabel: Craft.t('neo', 'Add a block'),
+  newBlockButtonLabel: window.Craft.t('neo', 'Add a block'),
   ownerId: null
 }
 
@@ -102,7 +102,7 @@ export default Garnish.Base.extend({
     this._newBlockButtonLabel = settings.newBlockButtonLabel
 
     const animate = !Garnish.prefersReducedMotion()
-    this._$spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : Craft.t('neo', 'Loading')}</div>`)
+    this._$spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : window.Craft.t('neo', 'Loading')}</div>`)
 
     switch (settings.newBlockMenuStyle) {
       case 'grid':
@@ -452,7 +452,7 @@ export default Garnish.Base.extend({
   _setBlockEvents (block) {
     block.on('removeBlock.input', _ => {
       if (this.getSelectedBlocks().length > 1) {
-        if (window.confirm(Craft.t('neo', 'Are you sure you want to delete the selected blocks?'))) {
+        if (window.confirm(window.Craft.t('neo', 'Are you sure you want to delete the selected blocks?'))) {
           this._blockBatch(block, b => this.removeBlock(b))
         }
       } else {
@@ -932,7 +932,7 @@ export default Garnish.Base.extend({
     })
 
     try {
-      const response = await Craft.sendActionRequest('POST', 'neo/input/update-visible-elements', { data })
+      const response = await window.Craft.sendActionRequest('POST', 'neo/input/update-visible-elements', { data })
 
       // Ignore the response if the form has since been edited
       if (this._lastFormCheck !== checkNumber) {
@@ -948,7 +948,7 @@ export default Garnish.Base.extend({
         )
       }
     } catch (err) {
-      Craft.cp.displayError(err)
+      window.Craft.cp.displayError(err)
       throw err
     }
   },
@@ -1002,7 +1002,7 @@ export default Garnish.Base.extend({
             } else {
               $newElement.appendTo($tabContainer)
             }
-            Craft.initUiElements($newElement)
+            window.Craft.initUiElements($newElement)
             if ($newElement.hasClass('ni_child-blocks-ui-element')) {
               block.resetButtons()
             }
@@ -1071,8 +1071,8 @@ export default Garnish.Base.extend({
     block.initTabs()
     block.updateResponsiveness()
 
-    Craft.appendHeadHtml(blockData.headHtml.replaceAll('__NEOBLOCK__', block.getId()))
-    Craft.appendBodyHtml(blockData.bodyHtml.replaceAll('__NEOBLOCK__', block.getId()))
+    window.Craft.appendHeadHtml(blockData.headHtml.replaceAll('__NEOBLOCK__', block.getId()))
+    window.Craft.appendBodyHtml(blockData.bodyHtml.replaceAll('__NEOBLOCK__', block.getId()))
 
     // Did any layout elements get added or removed?
     if (changedElements && blockData.initialDeltaValues) {
@@ -1176,7 +1176,7 @@ export default Garnish.Base.extend({
         data.blocks[0].prevSiblingId = block.getId()
       }
 
-      const response = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
+      const response = await window.Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
       const newBlocks = []
 
       for (const renderedBlock of response.data.blocks) {
@@ -1220,7 +1220,7 @@ export default Garnish.Base.extend({
           }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(firstBlock.$container)))
       }
     } catch (err) {
-      Craft.cp.displayError(err.message)
+      window.Craft.cp.displayError(err.message)
     } finally {
       this._removeSpinner()
       this.$form.data('elementEditor')?.resume()
@@ -1297,7 +1297,7 @@ export default Garnish.Base.extend({
     } catch (error) {
       this._removeSpinner()
       console.error(error)
-      Craft.cp.displayError(error.message)
+      window.Craft.cp.displayError(error.message)
     } finally {
       elementEditor?.resume()
       this._unsetCreatingBlock()
@@ -1401,7 +1401,7 @@ export default Garnish.Base.extend({
     this._updateButtons()
 
     const notice = blockCount === 1 ? '1 block copied' : '{n} blocks copied'
-    Craft.cp.displayNotice(Craft.t('neo', notice, { n: blockCount }))
+    window.Craft.cp.displayNotice(window.Craft.t('neo', notice, { n: blockCount }))
   },
 
   async '@pasteBlock' (e) {

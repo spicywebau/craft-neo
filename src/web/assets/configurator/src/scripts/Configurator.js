@@ -1,7 +1,7 @@
 import $ from 'jquery'
 import './jquery-extensions'
 import Garnish from 'garnish'
-import Craft from 'craft'
+// import Craft from 'craft'
 import { v4 as uuidv4 } from 'uuid'
 import NS from './namespace'
 import BlockType from './BlockType'
@@ -28,7 +28,7 @@ export default Garnish.Base.extend({
   init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
 
-    const inputIdPrefix = Craft.formatInputId(settings.namespace)
+    const inputIdPrefix = window.Craft.formatInputId(settings.namespace)
     const $field = $(`#${inputIdPrefix}-neo-configurator`)
     this.$container = $field.children('.field').children('.input')
 
@@ -225,7 +225,7 @@ export default Garnish.Base.extend({
     showConfirm = (typeof showConfirm === 'boolean' ? showConfirm : false)
 
     if (showConfirm) {
-      const message = Craft.t('neo', 'Are you sure you want to delete this {type}?', {
+      const message = window.Craft.t('neo', 'Are you sure you want to delete this {type}?', {
         type:
         item instanceof BlockType
           ? 'block type'
@@ -294,7 +294,7 @@ export default Garnish.Base.extend({
       }
     }
 
-    Craft.ElementThumbLoader.retryAll()
+    window.Craft.ElementThumbLoader.retryAll()
 
     if (focusInput && settings && !Garnish.isMobileBrowser()) {
       setTimeout(() => settings.getFocusInput().focus(), 100)
@@ -402,8 +402,8 @@ export default Garnish.Base.extend({
         fieldLayout: fieldLayoutConfig.tabs.length > 0 ? fieldLayoutConfig : null
       }
 
-      Craft.queue.push(() => new Promise((resolve, reject) => {
-        Craft.sendActionRequest('POST', 'neo/configurator/render-block-type', { data })
+      window.Craft.queue.push(() => new Promise((resolve, reject) => {
+        window.Craft.sendActionRequest('POST', 'neo/configurator/render-block-type', { data })
           .then(response => {
             const fieldLayout = new BlockTypeFieldLayout({
               blockTypeId: id,
@@ -421,7 +421,7 @@ export default Garnish.Base.extend({
           .catch((err) => {
             reject(err)
             console.error(err)
-            Craft.cp.displayError(Craft.t('neo', 'Couldn’t create new block type.'))
+            window.Craft.cp.displayError(window.Craft.t('neo', 'Couldn’t create new block type.'))
           })
           .finally(() => this.$blockTypesContainer.find('.type-spinner').remove())
       }))
@@ -454,7 +454,7 @@ export default Garnish.Base.extend({
       })
       .catch((e) => {
         console.error(e)
-        Craft.cp.displayError(Craft.t('neo', 'Couldn’t copy block type.'))
+        window.Craft.cp.displayError(window.Craft.t('neo', 'Couldn’t copy block type.'))
       })
   },
 

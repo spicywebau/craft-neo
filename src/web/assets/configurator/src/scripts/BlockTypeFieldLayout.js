@@ -1,6 +1,6 @@
 import $ from 'jquery'
 import Garnish from 'garnish'
-import Craft from 'craft'
+// import Craft from 'craft'
 import NS from './namespace'
 
 const _defaults = {
@@ -51,7 +51,7 @@ export default Garnish.Base.extend({
 
     NS.enter(this._templateNs)
 
-    this._fld = new Craft.FieldLayoutDesigner(this.$container, {
+    this._fld = new window.Craft.FieldLayoutDesigner(this.$container, {
       elementType: 'benf\\neo\\elements\\Block',
       customizableTabs: true,
       customizableUi: true

@@ -1,6 +1,6 @@
 import $ from 'jquery'
 import Garnish from 'garnish'
-import Craft from 'craft'
+// import Craft from 'craft'
 import NS from './namespace'
 import { addFieldLinks } from './plugins/cpfieldinspect/main'
 
@@ -117,9 +117,9 @@ export default Garnish.Base.extend({
     }
 
     if (callInitUiElements) {
-      Craft.initUiElements(this.$contentContainer)
-      await Craft.appendBodyHtml(this._bodyHtml)
-      await Craft.appendHeadHtml(this._headHtml)
+      window.Craft.initUiElements(this.$contentContainer)
+      await window.Craft.appendBodyHtml(this._bodyHtml)
+      await window.Craft.appendHeadHtml(this._headHtml)
     }
 
     this.$form = this.$container.closest('form')
@@ -166,7 +166,7 @@ export default Garnish.Base.extend({
           .add(parentBlock.$tabButton.filter(':not(.tab)').eq(tabIndex)) // Mobile tab buttons
           .add(parentBlock.$container.find('> .ni_block_topbar .tabs_btn')) // Mobile tab dropdown button
           .addClass('has-errors')
-          .append(`<span data-icon="alert" aria-label="${Craft.t('neo', 'Error')}"></span>`)
+          .append(`<span data-icon="alert" aria-label="${window.Craft.t('neo', 'Error')}"></span>`)
       })
     }
 
@@ -570,10 +570,10 @@ export default Garnish.Base.extend({
           break
         case 'craft\\redactor\\Field':
         case 'spicyweb\\tinymce\\fields\\TinyMCE':
-          value = _escapeHTML(_limit(Craft.getText($input.find('textarea').val())))
+          value = _escapeHTML(_limit(window.Craft.getText($input.find('textarea').val())))
           break
         case 'craft\\ckeditor\\Field':
-          value = _escapeHTML(_limit(Craft.getText($input.find('[role="textbox"]').html())))
+          value = _escapeHTML(_limit(window.Craft.getText($input.find('[role="textbox"]').html())))
           break
         case 'craft\\fields\\Url':
           value = _escapeHTML(_limit($input.children('input[type="url"]').val()))
@@ -591,7 +591,7 @@ export default Garnish.Base.extend({
               let subValue = null
 
               if ($subInput.is('input, textarea')) {
-                subValue = Craft.getText(Garnish.getInputPostVal($subInput))
+                subValue = window.Craft.getText(Garnish.getInputPostVal($subInput))
               } else if ($subInput.is('select')) {
                 subValue = $subInput.find('option:selected').text()
               } else if ($subInput.hasClass('label')) {
@@ -761,8 +761,8 @@ export default Garnish.Base.extend({
         siteId: this.getSiteId()
       }
 
-      Craft.queue.push(() => new Promise((resolve, reject) => {
-        Craft.sendActionRequest('POST', 'neo/input/save-expansion', { data }).then(resolve).catch(reject)
+      window.Craft.queue.push(() => new Promise((resolve, reject) => {
+        window.Craft.sendActionRequest('POST', 'neo/input/save-expansion', { data }).then(resolve).catch(reject)
       }))
     }
   },
@@ -820,7 +820,7 @@ export default Garnish.Base.extend({
       .filter(`[data-layout-tab="${tabUid}"]`)
       .removeClass('hidden')
     this.$tabsButton.text(tabName)
-    Craft.ElementThumbLoader.retryAll()
+    window.Craft.ElementThumbLoader.retryAll()
 
     this.trigger('selectTab', { tabName, $tabButton, $tabContainer })
   },
@@ -1005,7 +1005,7 @@ export default Garnish.Base.extend({
 
   namespaceId (id) {
     NS.enter(this._templateNs)
-    const namespacedId = `${NS.toString('-')}-${Craft.formatInputId(id)}`
+    const namespacedId = `${NS.toString('-')}-${window.Craft.formatInputId(id)}`
     NS.leave()
     return namespacedId
   },
@@ -1051,7 +1051,7 @@ export default Garnish.Base.extend({
       const initial = this._initialState
       const content = this._getPostData()
 
-      const modified = !Craft.compare(content, initial.content, false) ||
+      const modified = !window.Craft.compare(content, initial.content, false) ||
         initial.enabled !== this._enabled ||
         initial.level !== this._level
 

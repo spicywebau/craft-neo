@@ -1,4 +1,4 @@
-import Craft from 'craft'
+// import Craft from 'craft'
 
 /**
  * Class for managing the selected icon for a block type.
@@ -84,7 +84,7 @@ export default class BlockTypeIconSelect {
     }
 
     if (this.btnSet !== null) {
-      this.btnSet.textContent = Craft.t('neo', 'Replace')
+      this.btnSet.textContent = window.Craft.t('neo', 'Replace')
     }
   }
 
@@ -98,11 +98,11 @@ export default class BlockTypeIconSelect {
     this.btnRemove?.classList.add('hidden')
 
     if (this.imageText !== null) {
-      this.imageText.textContent = Craft.t('neo', 'None set')
+      this.imageText.textContent = window.Craft.t('neo', 'None set')
     }
 
     if (this.btnSet !== null) {
-      this.btnSet.textContent = Craft.t('neo', 'Add')
+      this.btnSet.textContent = window.Craft.t('neo', 'Add')
     }
   }
 }

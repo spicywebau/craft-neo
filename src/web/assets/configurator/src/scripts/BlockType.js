@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import Craft from 'craft'
+// import Craft from 'craft'
 import Garnish from 'garnish'
 import Item from './Item'
 import NS from './namespace'
@@ -65,14 +65,14 @@ export default Item.extend({
       <div class="nc_sidebar_list_item${hasErrors ? ' has-errors' : ''}" data-neo-bt="container.${this.getId()}">
         <div class="label" data-neo-bt="text.name">${settings.getName()}</div>
         <div class="smalltext light code" data-neo-bt="text.handle">${settings.getHandle()}</div>
-        <a class="move icon" title="${Craft.t('neo', 'Reorder')}" role="button" data-neo-bt="button.move"></a>
-        <button class="btn action-btn menubtn" title="${Craft.t('neo', 'Actions')}" role="button" type="button" aria-controls="${menuId}" data-neo-bt="button.actions"></button>
+        <a class="move icon" title="${window.Craft.t('neo', 'Reorder')}" role="button" data-neo-bt="button.move"></a>
+        <button class="btn action-btn menubtn" title="${window.Craft.t('neo', 'Actions')}" role="button" type="button" aria-controls="${menuId}" data-neo-bt="button.actions"></button>
         <div id="${menuId}" class="menu menu--disclosure" data-neo-bt="container.menu">
           <ul>
-            <li><button class="menu-item" data-icon="field" data-action="copy">${Craft.t('neo', 'Copy')}</button></li>
-            <li class="disabled"><button class="menu-item" data-icon="brush" data-action="paste">${Craft.t('neo', 'Paste')}</button></li>
-            <li><button class="menu-item" data-icon="share" data-action="clone">${Craft.t('neo', 'Clone')}</button></li>
-            <li><button class="menu-item error" data-icon="remove" data-action="delete">${Craft.t('neo', 'Delete')}</button></li>
+            <li><button class="menu-item" data-icon="field" data-action="copy">${window.Craft.t('neo', 'Copy')}</button></li>
+            <li class="disabled"><button class="menu-item" data-icon="brush" data-action="paste">${window.Craft.t('neo', 'Paste')}</button></li>
+            <li><button class="menu-item" data-icon="share" data-action="clone">${window.Craft.t('neo', 'Clone')}</button></li>
+            <li><button class="menu-item error" data-icon="remove" data-action="delete">${window.Craft.t('neo', 'Delete')}</button></li>
           </ul>
         </div>
         <input type="hidden" name="${sortOrderName}[]" value="blocktype:${this.getId()}" data-neo-gs="input.sortOrder">
@@ -114,14 +114,14 @@ export default Item.extend({
     }
 
     return new Promise((resolve, reject) => {
-      Craft.sendActionRequest('POST', 'neo/configurator/render-block-type', { data })
+      window.Craft.sendActionRequest('POST', 'neo/configurator/render-block-type', { data })
         .then(response => {
           if (response.data.headHtml) {
-            Craft.appendHeadHtml(response.data.headHtml)
+            window.Craft.appendHeadHtml(response.data.headHtml)
           }
 
           if (response.data.bodyHtml) {
-            Craft.appendBodyHtml(response.data.bodyHtml)
+            window.Craft.appendBodyHtml(response.data.bodyHtml)
           }
 
           this._fieldLayout = new BlockTypeFieldLayout({
@@ -262,7 +262,7 @@ export default Item.extend({
         this.trigger('clone')
         break
       case 'delete':
-        if (window.confirm(Craft.t('neo', 'Are you sure you want to delete this block type?'))) {
+        if (window.confirm(window.Craft.t('neo', 'Are you sure you want to delete this block type?'))) {
           this.getSettings().destroy()
         }
     }

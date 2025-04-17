@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import Craft from 'craft'
+// import Craft from 'craft'
 import Garnish from 'garnish'
 import NS from './namespace'
 import Settings from './Settings'
@@ -147,14 +147,14 @@ export default Settings.extend({
     this.$foot = $(this._js)
     Garnish.$bod.append(this.$foot)
 
-    Craft.initUiElements(this.$container)
+    window.Craft.initUiElements(this.$container)
 
     this._childBlocksSelect = this.$childBlocksInput.data('checkboxSelect')
     this._enabledLightswitch = this.$enabledInput.data('lightswitch')
     this._ignorePermissionsLightswitch = this.$ignorePermissionsInput.data('lightswitch')
     this._topLevelLightswitch = this.$topLevelInput.data('lightswitch')
     this._groupChildBlockTypesLightswitch = this.$groupChildBlockTypesInput.data('lightswitch')
-    this._handleGenerator = new Craft.HandleGenerator(this.$nameInput, this.$handleInput)
+    this._handleGenerator = new window.Craft.HandleGenerator(this.$nameInput, this.$handleInput)
 
     // Ensure that an existing block type's handle will not be changed if the name is edited first.
     if (this.getHandle() !== '') {
@@ -171,7 +171,7 @@ export default Settings.extend({
     entryTypeSelect.on('change', () => {
       const entryTypeId = entryTypeSelect.getSelectedComponentIds()[0] ?? null
       if (entryTypeId !== null) {
-        Craft.sendActionRequest('POST', 'neo/configurator/get-common-entry-type-settings', {
+        window.Craft.sendActionRequest('POST', 'neo/configurator/get-common-entry-type-settings', {
           data: {
             entryTypeId
           }
@@ -222,7 +222,7 @@ export default Settings.extend({
     this.addListener(this.$topLevelInput, 'change', () => this.setTopLevel(this._topLevelLightswitch.on))
     this.addListener(this.$groupChildBlockTypesInput, 'change', () => this.setTopLevel(this._groupChildBlockTypesLightswitch.on))
     this.addListener(this.$deleteButton, 'click', () => {
-      if (window.confirm(Craft.t('neo', 'Are you sure you want to delete this block type?'))) {
+      if (window.confirm(window.Craft.t('neo', 'Are you sure you want to delete this block type?'))) {
         this.destroy()
       }
     })

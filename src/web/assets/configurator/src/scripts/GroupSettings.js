@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import Craft from 'craft'
+// import Craft from 'craft'
 import NS from './namespace'
 import Settings from './Settings'
 
@@ -57,7 +57,7 @@ export default Settings.extend({
 
     this.addListener(this.$nameInput, 'keyup change', () => this.setName(this.$nameInput.val()))
     this.addListener(this.$deleteButton, 'click', () => {
-      if (window.confirm(Craft.t('neo', 'Are you sure you want to delete this group?'))) {
+      if (window.confirm(window.Craft.t('neo', 'Are you sure you want to delete this group?'))) {
         this.destroy()
       }
     })

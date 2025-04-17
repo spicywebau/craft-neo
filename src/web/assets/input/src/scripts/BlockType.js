@@ -1,5 +1,5 @@
 import Garnish from 'garnish'
-import Craft from 'craft'
+// import Craft from 'craft'
 import NS from './namespace'
 
 const _defaults = {
@@ -92,7 +92,7 @@ export default Garnish.Base.extend({
       }, settings)]
     }
     NS.leave()
-    const response = await Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
+    const response = await window.Craft.sendActionRequest('POST', 'neo/input/render-blocks', { data })
 
     return response.data.blocks[0]
   },

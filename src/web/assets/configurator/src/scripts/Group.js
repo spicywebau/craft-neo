@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import Craft from 'craft'
+// import Craft from 'craft'
 import Item from './Item'
 import NS from './namespace'
 
@@ -48,7 +48,7 @@ export default Item.extend({
     return $(`
       <div class="nc_sidebar_list_item type-heading" data-neo-g="container.${this.getId()}">
         <div class="label" data-neo-g="text.name">${settings.getName() ?? ''}</div>
-        <a class="move icon" title="${Craft.t('neo', 'Reorder')}" role="button" data-neo-g="button.move"></a>
+        <a class="move icon" title="${window.Craft.t('neo', 'Reorder')}" role="button" data-neo-g="button.move"></a>
         <input type="hidden" name="${sortOrderName}[]" value="group:${this.getId()}" data-neo-g="input.sortOrder">
       </div>`)
   },
@@ -68,7 +68,7 @@ export default Item.extend({
     }
 
     return new Promise((resolve, reject) => {
-      Craft.sendActionRequest('POST', 'neo/configurator/render-block-type-group', { data })
+      window.Craft.sendActionRequest('POST', 'neo/configurator/render-block-type-group', { data })
         .then(response => {
           this.getSettings().createContainer({
             html: response.data.settingsHtml.replace(/__NEOBLOCKTYPEGROUP_ID__/g, data.groupId),
