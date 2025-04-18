@@ -146,14 +146,15 @@ class Input extends Controller
                 $block->setFieldValues($rawBlock['content']);
             }
 
-            if (!$elementsService->canSave($block, $user)) {
+            if ($ownerId && !$elementsService->canSave($block, $user)) {
                 throw new ForbiddenHttpException('User not authorized to create this element.');
             }
 
             $block->setScenario(Element::SCENARIO_ESSENTIALS);
-            $draftsService->saveElementAsDraft($block, $user->id, markAsSaved: false);
 
             if ($ownerId) {
+               $draftsService->saveElementAsDraft($block, $user->id, markAsSaved: false);
+               
                 // If the owner supports drafts, temporarily save the block's position in the block structure before
                 // rendering the block template, so the block template shows the correct visible field layout elements
                 $structure = $elementsService->canCreateDrafts($block->getOwner())
