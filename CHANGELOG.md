@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an error that could occur with the `resave/neo-blocks` console command if pre-Craft 4 revision blocks existed
+- Fixed an error that occurred with Solspace Calendar (thanks @mike-moreau)
 
 ## 5.4.2 - 2025-04-17
 
