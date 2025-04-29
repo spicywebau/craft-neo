@@ -153,7 +153,7 @@ class Input extends Controller
             $block->setScenario(Element::SCENARIO_ESSENTIALS);
 
             if ($ownerId) {
-               $draftsService->saveElementAsDraft($block, $user->id, markAsSaved: false);
+                $draftsService->saveElementAsDraft($block, $user->id, markAsSaved: false);
                
                 // If the owner supports drafts, temporarily save the block's position in the block structure before
                 // rendering the block template, so the block template shows the correct visible field layout elements
