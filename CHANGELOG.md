@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur with the `resave/neo-blocks` console command if pre-Craft 4 revision blocks existed
+
 ## 5.4.2 - 2025-04-17
 
 ### Fixed
