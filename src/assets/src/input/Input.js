@@ -87,7 +87,7 @@ export default Garnish.Base.extend({
   _newBlockCount: 0,
   _creatingBlock: false,
 
-  init (settings = {}) {
+  async init (settings = {}) {
     settings = Object.assign({}, _defaults, settings)
 
     this._templateNs = NS.parse(settings.namespace)
@@ -239,7 +239,7 @@ export default Garnish.Base.extend({
 
       if (topLevelBlockTypes.length === 1 && missingBlockCount > 0) {
         for (let i = this._blocks.length; i < this._minBlocks; i++) {
-          this['@newBlock']({
+          await this['@newBlock']({
             blockType: topLevelBlockTypes[0],
             createChildBlocks: false,
             index: i,
@@ -1189,7 +1189,7 @@ export default Garnish.Base.extend({
 
   async _duplicate (data, block) {
     if (!this._setCreatingBlock()) {
-      console.warning('Tried to create a new block during the creation of another new block.')
+      console.warn('Tried to create a new block during the creation of another new block.')
       return
     }
 
@@ -1251,7 +1251,7 @@ export default Garnish.Base.extend({
 
   async '@newBlock' (e) {
     if (!this._setCreatingBlock()) {
-      console.warning('Tried to create a new block during the creation of another new block.')
+      console.warn('Tried to create a new block during the creation of another new block.')
       return
     }
 

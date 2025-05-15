@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Neo fields with Min Blocks set, and one top level block type, would only create one new block when a new entry was created
+
 ## 4.4.1 - 2025-03-11
 
 ### Fixed
