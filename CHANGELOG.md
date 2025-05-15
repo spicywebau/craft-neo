@@ -299,6 +299,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.4.2 - 2025-05-15
+
+### Fixed
+- Fixed a bug where Neo fields with Min Blocks set, and one top level block type, would only create one new block when a new entry was created
+
 ## 4.4.1 - 2025-03-11
 
 ### Fixed
