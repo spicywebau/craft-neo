@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 5.4.3 - 2025-05-15
 
 ### Fixed
 - Fixed an error that could occur with the `resave/neo-blocks` console command if pre-Craft 4 revision blocks existed
 - Fixed an error that occurred with Solspace Calendar (thanks @mike-moreau)
+- Fixed a bug where Neo fields with Min Blocks set, and one top level block type, would only create one new block when a new entry was created
 
 ## 5.4.2 - 2025-04-17
 
