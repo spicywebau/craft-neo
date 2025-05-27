@@ -35,7 +35,6 @@ class Block extends Element implements NestedElementInterface
 {
     use NestedElementTrait {
         attributes as traitAttributes;
-        eagerLoadingMap as traitEagerLoadingMap;
         extraFields as traitExtraFields;
     }
 
@@ -128,18 +127,6 @@ class Block extends Element implements NestedElementInterface
     public static function createCondition(): ElementConditionInterface
     {
         return Craft::createObject(BlockCondition::class, [static::class]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
-    {
-        if (str_contains($handle, ':')) {
-            $handle = explode(':', $handle, 2)[1];
-        }
-
-        return self::traitEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
