@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an eager loading bug that occurred when two block types on the same Neo field had two different nested Matrix fields, where the Matrix field handles had been overridden to have the same handle
+- Fixed a bug where Neo project config data was left behind after Neo was uninstalled
 
 ## 5.4.3 - 2025-05-15
 

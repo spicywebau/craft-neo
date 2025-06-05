@@ -180,8 +180,6 @@ class Install extends Migration
         $this->dropTableIfExists('{{%neoblocktypes}}');
         $this->dropTableIfExists('{{%neoblocktypegroups}}');
         Craft::$app->projectConfig->remove('neo');
-        Craft::$app->projectConfig->remove('neoBlockTypes');
-        Craft::$app->projectConfig->remove('neoBlockTypeGroups');
 
         return true;
     }
