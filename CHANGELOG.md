@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Neo project config data was left behind after Neo was uninstalled
+
 ## 4.4.2 - 2025-05-15
 
 ### Fixed
