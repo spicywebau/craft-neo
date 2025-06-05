@@ -305,6 +305,11 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.4.3 - 2025-06-05
+
+### Fixed
+- Fixed a bug where Neo project config data was left behind after Neo was uninstalled
+
 ## 4.4.2 - 2025-05-15
 
 ### Fixed

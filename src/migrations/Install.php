@@ -3,6 +3,7 @@
 namespace benf\neo\migrations;
 
 use benf\neo\Plugin as Neo;
+use Craft;
 use craft\db\Migration;
 use craft\db\Table;
 
@@ -178,6 +179,9 @@ class Install extends Migration
         $this->dropTableIfExists('{{%neoblockstructures}}');
         $this->dropTableIfExists('{{%neoblocktypes}}');
         $this->dropTableIfExists('{{%neoblocktypegroups}}');
+        Craft::$app->projectConfig->remove('neo');
+        Craft::$app->projectConfig->remove('neoBlockTypes');
+        Craft::$app->projectConfig->remove('neoBlockTypeGroups');
 
         return true;
     }
