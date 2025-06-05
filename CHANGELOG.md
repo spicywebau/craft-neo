@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.4.4 - 2025-06-05
 
 ### Fixed
 - Fixed an eager loading bug that occurred when two block types on the same Neo field had two different nested Matrix fields, where the Matrix field handles had been overridden to have the same handle
