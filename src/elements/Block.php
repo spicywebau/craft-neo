@@ -132,6 +132,17 @@ class Block extends Element implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    protected static function defineFieldLayouts(?string $source): array
+    {
+        return array_map(
+            fn(BlockType $blockType) => $blockType->getFieldLayout(),
+            Neo::$plugin->blockTypes->getAllBlockTypes(),
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function gqlTypeNameByContext(mixed $context): string
     {
         /** @var BlockType $context */

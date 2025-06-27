@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an eager loading bug
+
 ## 5.4.4 - 2025-06-05
 
 ### Fixed
