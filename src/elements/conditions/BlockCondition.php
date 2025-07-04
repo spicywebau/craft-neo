@@ -89,6 +89,7 @@ class BlockCondition extends ElementCondition
                 OwnerCategoryGroupConditionRule::class,
                 OwnerEntryTypeConditionRule::class,
                 OwnerHasUrlConditionRule::class,
+                OwnerLevelConditionRule::class,
                 OwnerSectionConditionRule::class,
                 OwnerSlugConditionRule::class,
                 OwnerTagGroupConditionRule::class,
