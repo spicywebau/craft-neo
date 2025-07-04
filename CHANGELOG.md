@@ -6,6 +6,7 @@
 
 ### Added
 - Added `benf\neo\elements\conditions\OwnerHasUrlConditionRule`
+- Added `benf\neo\elements\conditions\OwnerSlugConditionRule`
 - Added `benf\neo\elements\conditions\OwnerUriConditionRule`
 
 ### Fixed
