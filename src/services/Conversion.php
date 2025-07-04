@@ -7,6 +7,7 @@ use benf\neo\Field;
 use benf\neo\models\BlockType;
 use benf\neo\Plugin as Neo;
 use Craft;
+use craft\base\FieldLayoutComponent;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\conditions\entries\EntryCondition;
@@ -305,7 +306,10 @@ class Conversion extends Component
             $elements = [];
 
             foreach ($tab->getElements() as $element) {
+                $this->_removeEntryConditionRulesFromComponent($tab);
+
                 if (!$element instanceof EntryTitleField) {
+                    $this->_removeEntryConditionRulesFromComponent($element);
                     $element->uid = StringHelper::UUID();
                     $elements[] = $element;
                 }
@@ -404,5 +408,26 @@ class Conversion extends Component
         }
 
         return $component;
+    }
+
+    /**
+     * Strips out condition rules that are invalid for blocks
+     */
+    private function _removeEntryConditionRulesFromComponent(FieldLayoutComponent $component): void
+    {
+        // Strip out invalid condition rules for blocks
+        $entryCondition = $component->getElementCondition();
+
+        if ($entryCondition !== null) {
+            $blockCondition = Block::createCondition();
+
+            $retainedConditionRules = array_filter(
+                $entryCondition->getConditionRules(),
+                fn($rule) => !str_starts_with($rule::class, 'craft\\elements\\conditions\\entries'),
+            );
+
+            $blockCondition->setConditionRules($retainedConditionRules);
+            $component->setElementCondition($blockCondition);
+        }
     }
 }

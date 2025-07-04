@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+> {note} If you are affected by the entry condition rule bug, you will need to resave either the entry type or block type.
+
+### Fixed
+- Fixed a bug that occurred when an entry type was set on a block type, where entry-specific condition rules on field layout components were being saved on the block type, causing errors when creating blocks of that type
+
 ## 5.4.5 - 2025-06-27
 
 ### Fixed
