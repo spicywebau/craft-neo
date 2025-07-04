@@ -35,12 +35,14 @@ trait OwnerConditionRuleTrait
      * Returns whether a Neo block matches condition rules based on its owner element.
      *
      * @var Block $element
-     * @var string $ownerType The expected element type of the block's owner
+     * @var string|null $ownerType The expected element type of the block's owner, if any
      * @return bool
      */
-    private function _matchElement(Block $element, string $ownerType): bool
+    private function _matchElement(Block $element, ?string $ownerType = null): bool
     {
         $owner = $element->ownerId !== null ? $element->getOwner() : null;
-        return $owner === null || $owner::class !== $ownerType || parent::matchElement($owner);
+        return $owner === null ||
+            ($ownerType !== null && $owner::class !== $ownerType) ||
+            parent::matchElement($owner);
     }
 }

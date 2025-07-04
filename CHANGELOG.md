@@ -4,6 +4,9 @@
 
 > {note} If you are affected by the entry condition rule bug, you will need to resave either the entry type or block type.
 
+### Added
+- Added `benf\neo\elements\conditions\OwnerUriConditionRule`
+
 ### Fixed
 - Fixed a bug that occurred when an entry type was set on a block type, where entry-specific condition rules on field layout components were being saved on the block type, causing errors when creating blocks of that type
 
