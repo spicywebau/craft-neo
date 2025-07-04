@@ -5,6 +5,7 @@
 > {note} If you are affected by the entry condition rule bug, you will need to resave either the entry type or block type.
 
 ### Added
+- Added `benf\neo\elements\conditions\OwnerHasUrlConditionRule`
 - Added `benf\neo\elements\conditions\OwnerUriConditionRule`
 
 ### Fixed
