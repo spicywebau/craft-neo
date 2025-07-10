@@ -69,6 +69,12 @@ class Settings extends Model
     public bool $resaveFieldBlockStructuresInIndividualJobs = false;
 
     /**
+     * @var bool Whether to always show new block buttons above Neo fields.
+     * @since 5.5.0
+     */
+    public bool $alwaysShowButtonsAboveField = false;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array

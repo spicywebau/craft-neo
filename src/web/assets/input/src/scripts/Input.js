@@ -100,6 +100,7 @@ export default Garnish.Base.extend({
     this._ownerId = settings.ownerId
     this._showBlockTypeHandles = settings.showBlockTypeHandles
     this._newBlockButtonLabel = settings.newBlockButtonLabel
+    this._alwaysShowButtonsAboveField = settings.alwaysShowButtonsAboveField ?? false
 
     const animate = !Garnish.prefersReducedMotion()
     this._$spinner = $(`<div class="ni_spinner">${animate ? '<div class="spinner"></div>' : window.Craft.t('neo', 'Loading')}</div>`)
@@ -264,6 +265,10 @@ export default Garnish.Base.extend({
       .forEach(block => block.updatePreview())
 
     this._registerStateUpdate()
+
+    if (this._alwaysShowButtonsAboveField) {
+      this._addButtonsAbove()
+    }
 
     // Destroy this field if the entry type is changed
     $('#entryType-field').on('change', () => this.destroy())
@@ -596,6 +601,13 @@ export default Garnish.Base.extend({
     return this._newBlockButtonLabel
   },
 
+  /**
+   * @since 5.5.0
+   */
+  getAlwaysShowButtonsAboveField () {
+    return this._alwaysShowButtonsAboveField
+  },
+
   getSelectedBlocks () {
     const $selectedBlocks = this.blockSelect.getSelectedItems()
     return this._blocks.filter(block => block.$container.closest($selectedBlocks).length > 0)
@@ -742,6 +754,7 @@ export default Garnish.Base.extend({
 
   _updateButtons () {
     const blocks = this.getBlocks()
+    this._updateTopButtonStates()
     this._buttons.updateButtonStates(blocks)
     this._tempButtons?.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock))
 
@@ -1228,6 +1241,76 @@ export default Garnish.Base.extend({
     }
   },
 
+  _addButtonsAbove (block, animate) {
+    animate = !Garnish.prefersReducedMotion() && animate
+    const addAboveField = !block
+    const index = !addAboveField ? this._blocks.indexOf(block) : null
+    const parent = index !== null ? this._findParentBlock(index) : null
+    const blocks = this.getBlocks()
+    const buttons = new this.ButtonClass({
+      $ownerContainer: addAboveField || block.isTopLevel() ? this.$container : block.getParent().$container,
+      field: this,
+      blockTypes: !parent ? this.getBlockTypes(true) : [],
+      blocks,
+      groups: !parent ? this.getGroups() : [],
+      items: parent ? parent.getBlockType().getChildBlockItems(this.getItems()) : null,
+      maxBlocks: this.getMaxBlocks()
+    })
+
+    if (addAboveField) {
+      buttons.$container.attr('data-neo', 'container.topbuttons')
+      this.$container.prepend(buttons.$container)
+    } else {
+      block.$container.before(buttons.$container)
+    }
+
+    buttons.on('newBlock', e => this['@newBlock']({
+      blockType: e.blockType,
+      index: index ?? 0,
+      level: addAboveField ? 1 : block.getLevel()
+    }))
+
+    buttons.initUi()
+
+    if (animate) {
+      buttons.$container
+        .css({
+          opacity: 0,
+          marginBottom: -(buttons.$container.outerHeight())
+        })
+        .velocity({
+          opacity: 1,
+          marginBottom: 10
+        }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(buttons.$container)))
+    }
+
+    if (addAboveField) {
+      this._topButtons = buttons
+      this._updateTopButtonStates()
+    } else {
+      this._tempButtons = buttons
+      this._tempButtonsBlock = this._findParentBlock(block)
+      this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock), this._tempButtonsBlock)
+    }
+  },
+
+  _updateTopButtonStates () {
+    if (typeof this._topButtons === 'undefined') {
+      return
+    }
+
+    const blocks = this.getBlocks()
+
+    if (blocks.length > 0) {
+      this._topButtons.updateButtonStates(blocks)
+      this._topButtons.$container.removeClass('hidden')
+      this._topButtons.$container.removeAttr('aria-hidden')
+    } else {
+      this._topButtons.$container.addClass('hidden')
+      this._topButtons.$container.attr('aria-hidden', 'true')
+    }
+  },
+
   async '@newBlock' (e) {
     if (!this._setCreatingBlock()) {
       console.warn('Tried to create a new block during the creation of another new block.')
@@ -1306,48 +1389,9 @@ export default Garnish.Base.extend({
 
   '@addBlockAbove' (e) {
     this._destroyTempButtons()
-
-    const animate = !Garnish.prefersReducedMotion() && e.animate !== false
+    const animate = e.animate !== false
     const block = e.block
-    const index = this._blocks.indexOf(block)
-    const parent = this._findParentBlock(index)
-    const blocks = this.getBlocks()
-    const buttons = new this.ButtonClass({
-      $ownerContainer: block.isTopLevel() ? this.$container : block.getParent().$container,
-      field: this,
-      blockTypes: !parent ? this.getBlockTypes(true) : [],
-      blocks,
-      groups: !parent ? this.getGroups() : [],
-      items: parent ? parent.getBlockType().getChildBlockItems(this.getItems()) : null,
-      maxBlocks: this.getMaxBlocks()
-    })
-
-    block.$container.before(buttons.$container)
-
-    buttons.on('newBlock', e => this['@newBlock']({
-      blockType: e.blockType,
-      index,
-      level: block.getLevel()
-    }))
-
-    buttons.initUi()
-
-    if (animate) {
-      buttons.$container
-        .css({
-          opacity: 0,
-          marginBottom: -(buttons.$container.outerHeight())
-        })
-        .velocity({
-          opacity: 1,
-          marginBottom: 10
-        }, 'fast', _ => Garnish.requestAnimationFrame(() => Garnish.scrollContainerToElement(buttons.$container)))
-    }
-
-    this._tempButtons = buttons
-    this._tempButtonsBlock = this._findParentBlock(block)
-
-    this._tempButtons.updateButtonStates(blocks, this._checkMaxChildren(this._tempButtonsBlock), this._tempButtonsBlock)
+    this._addButtonsAbove(block, animate)
   },
 
   '@copyBlock' (e) {

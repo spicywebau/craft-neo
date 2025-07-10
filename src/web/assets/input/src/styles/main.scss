@@ -31,6 +31,10 @@ $block-background-color-level-even: var(--gray-050);
             margin-bottom: 0;
         }
     }
+
+    > [data-neo="container.topbuttons"] {
+        margin-bottom: 14px;
+    }
 }
 
 .ni {

@@ -956,12 +956,31 @@ export default Garnish.Base.extend({
     this.$menuContainer.find('[data-action="duplicate"]').toggleClass('disabled', cloneDisabled)
 
     // Paste/add actions should be hidden if there is no chance of them being enabled later
-    if (noAllowedBlockTypes) {
-      this.$menuContainer.find('[data-action="add"]').parent().toggleClass('hidden', addDisabled)
-      this.$menuContainer.find('[data-action="paste"]').parent().toggleClass('hidden', pasteDisabled)
-    } else {
-      this.$menuContainer.find('[data-action="add"]').toggleClass('disabled', addDisabled)
-      this.$menuContainer.find('[data-action="paste"]').toggleClass('disabled', pasteDisabled)
+    // Add actions should also be hidden if this is the first block, and alwaysShowButtonsAboveField is on
+    const addElement = this.$menuContainer.find('[data-action="add"]')
+    const pasteElement = this.$menuContainer.find('[data-action="paste"]')
+    const addParent = addElement.parent()
+    const pasteParent = pasteElement.parent()
+    const hideAddAnyway = this._field.getAlwaysShowButtonsAboveField() && this === blocks[0]
+
+    if (noAllowedBlockTypes || hideAddAnyway) {
+      addParent.addClass('hidden')
+      addParent.attr('aria-hidden', 'true')
+
+      if (noAllowedBlockTypes) {
+        pasteParent.addClass('hidden')
+        pasteParent.attr('aria-hidden', 'true')
+      }
+    } else if (!noAllowedBlockTypes) {
+      addElement.toggleClass('disabled', addDisabled)
+      pasteElement.toggleClass('disabled', pasteDisabled)
+      pasteParent.removeClass('hidden')
+      pasteParent.removeAttr('aria-hidden')
+
+      if (!hideAddAnyway) {
+        addParent.removeClass('hidden')
+        addParent.removeAttr('aria-hidden')
+      }
     }
 
     // If there are no visible items in the second list, hide the separator as well

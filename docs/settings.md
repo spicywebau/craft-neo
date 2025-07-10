@@ -1,5 +1,12 @@
 # Settings
 
+## `alwaysShowButtonsAboveField`
+
+Type: `bool`
+Default: `false`
+
+Whether to always show new block buttons above Neo fields, as well as below.
+
 ## `blockTypeIconPath`
 
 Type: `string`

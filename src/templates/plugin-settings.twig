@@ -89,6 +89,14 @@
         name: 'enableBlockTypeUserPermissions',
         on: settings.enableBlockTypeUserPermissions,
     }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Always show buttons above Neo fields?'|t('neo'),
+        instructions: 'Whether to always show new block buttons above Neo fields, as well as below.'|t('neo'),
+        id: 'alwaysShowButtonsAboveField',
+        name: 'alwaysShowButtonsAboveField',
+        on: settings.alwaysShowButtonsAboveField,
+    }) }}
 </div>
 
 {% js %}

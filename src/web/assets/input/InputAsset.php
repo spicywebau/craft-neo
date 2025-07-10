@@ -119,6 +119,7 @@ class InputAsset extends AssetBundle
         $name = $field->handle;
         $id = $view->formatInputId($name);
         $blockTypeGroups = $field->getGroups();
+        $neoSettings = Neo::$plugin->getSettings();
 
         if ($owner) {
             // Filter block types based on the block types' condition rules
@@ -164,8 +165,9 @@ class InputAsset extends AssetBundle
             'minLevels' => (int)$field->minLevels,
             'maxLevels' => (int)$field->maxLevels,
             'showBlockTypeHandles' => Craft::$app->getUser()->getIdentity()->getPreference('showFieldHandles'),
-            'newBlockMenuStyle' => Neo::$plugin->getSettings()->newBlockMenuStyle,
+            'newBlockMenuStyle' => $neoSettings->newBlockMenuStyle,
             'newBlockButtonLabel' => $field->newBlockButtonLabelWithFallback(),
+            'alwaysShowButtonsAboveField' => $neoSettings->alwaysShowButtonsAboveField,
         ];
 
         $encodedJsSettings = Json::encode($jsSettings, JSON_UNESCAPED_UNICODE);
