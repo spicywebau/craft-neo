@@ -4,8 +4,8 @@
   "description": "A Matrix-like field type with block hierarchy",
   "main": "webpack.config.js",
   "scripts": {
-    "build": "./node_modules/.bin/standard && ./node_modules/.bin/webpack",
-    "check-style": "./node_modules/.bin/standard && (ddev composer run-script check-cs || composer run-script check-cs)",
+    "build": "./node_modules/.bin/webpack",
+    "check-style": "ddev composer run-script check-cs || composer run-script check-cs",
     "test": "ddev php vendor/bin/codecept run unit || php vendor/bin/codecept run unit"
   },
   "repository": {
@@ -33,16 +33,10 @@
     "pre-commit": "^1.2.2",
     "sass": "^1.56.1",
     "sass-loader": "^13.1.0",
-    "standard": "^17.0.0",
     "terser-webpack-plugin": "^5.3.6",
     "uuid": "^9.0.0",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
-  },
-  "standard": {
-    "ignore": [
-      "src/web/assets/*/dist/**/*.js"
-    ]
   },
   "pre-commit": [
     "check-style",
