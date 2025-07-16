@@ -13,6 +13,7 @@
 - Added `benf\neo\elements\conditions\OwnerTitleConditionRule`
 - Added `benf\neo\elements\conditions\OwnerUriConditionRule`
 - Added `benf\neo\models\Settings::$alwaysShowButtonsAboveField`
+- Added `benf\neo\web\twig\Variable::previewHighlightAttribute()`
 
 ### Fixed
 - Fixed a bug that occurred when an entry type was set on a block type, where entry-specific condition rules on field layout components were being saved on the block type, causing errors when creating blocks of that type

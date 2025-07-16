@@ -273,6 +273,28 @@ export default Garnish.Base.extend({
     // Destroy this field if the entry type is changed
     $('#entryType-field').on('change', () => this.destroy())
 
+    // Set up preview highlighting
+    Garnish.on(Craft.Preview, 'afterUpdateIframe', (e) => e.$iframe.on('load', () => {
+      const iframeDocument = e.$iframe[0].contentDocument
+      const previewEditor = e.target.$content[0]
+
+      this.getBlocks().forEach((block) => {
+        iframeDocument.querySelectorAll(`[data-neo-preview-highlight="${block.getId()}"]`).forEach((blockPreview) => {
+          blockPreview.addEventListener('mouseover', () => block.$container.addClass('is-preview-highlighted'))
+          blockPreview.addEventListener('mouseout', () => block.$container.removeClass('is-preview-highlighted'))
+          blockPreview.addEventListener('click', () => {
+            const previewHeaderHeight = e.target.$editorHeader[0].offsetHeight
+            const previewEditorScrollPos = previewEditor.scrollTop
+            const blockPosTop = block.$container[0].getBoundingClientRect().top
+            previewEditor.scrollTo({
+              top: previewEditorScrollPos + blockPosTop - previewHeaderHeight,
+              behavior: 'smooth'
+            })
+          })
+        })
+      })
+    }))
+
     this.trigger('afterInit')
   },
 

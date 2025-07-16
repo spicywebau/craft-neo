@@ -639,6 +639,10 @@ $block-background-color-level-even: var(--gray-050);
                 background-color: $topbar-background-color-level-even;
             }
         }
+
+        &.is-preview-highlighted {
+            border-color: var(--focus-ring-color);
+        }
     }
 
     &_child-blocks-ui-element {

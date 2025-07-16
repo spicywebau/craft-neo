@@ -5,6 +5,8 @@ namespace benf\neo\web\twig;
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
 use Craft;
+use craft\helpers\Template;
+use Twig\Markup;
 
 /**
  * Class Variable
@@ -29,5 +31,18 @@ class Variable
     public function blocks(?array $criteria = null): BlockQuery
     {
         return Craft::configure(Block::find(), ($criteria ?? []));
+    }
+
+    /**
+     * Get data attribute for preview mode block highlighting.
+     *
+     * @param Block $block
+     * @return Markup containing the data attribute, or an empty string outside of preview mode
+     */
+    public function previewHighlightAttribute(Block $block): Markup
+    {
+        return Template::raw(Craft::$app->getRequest()->getIsPreview()
+            ? sprintf('data-neo-preview-highlight="%s"', $block->id)
+            : '');
     }
 }

@@ -42,10 +42,16 @@ This is typically the most you'd need to know. Similar to how Matrix fields work
 
 Because Neo blocks have a `level` attribute, Neo fields are compatible with the [`{% nav %}`](https://craftcms.com/docs/5.x/reference/twig/tags.html#nav) tag.
 
+## Functions
+
 ### `craft.neo.blocks()`
 
 If you need to get Neo blocks in your template in a way that isn't connected to a Neo field value on a specific Craft element, you can use `craft.neo.blocks()`. This returns a [Neo block query](api.md#element-query) which can then be used in the same way as a typical [Craft element query](https://craftcms.com/docs/5.x/development/element-queries.html).
 
-### More information
+### `craft.neo.previewHighlightAttribute()`
+
+This function takes a Neo block as its only argument, and outputs HTML attribute code when the template is rendered in Craft's preview mode. For example, if your block's ID is 12345, `craft.neo.previewHighlightAttribute(block)` will return `'data-neo-preview-highlight="12345"'`. This allows highlighting of blocks in the content editor sidebar when their previewed content is hovered over, and scrolling the content editor sidebar to blocks when their previewed content is clicked, just like the [Preview Mate](https://plugins.craftcms.com/preview-mate) plugin for Matrix fields that inspired this functionality.
+
+## More information
 
 For a more in-depth breakdown of templating for Neo, [see this issue](https://github.com/spicywebau/craft-neo/issues/34).
