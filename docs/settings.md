@@ -7,6 +7,13 @@ Default: `false`
 
 Whether to always show new block buttons above Neo fields, as well as below.
 
+## `blockAnchorIdPrefix`
+
+Type: `string`
+Default: `'blockAnchorId'`
+
+The prefix to use for [block anchor IDs](templating#craftneoblockanchorid).
+
 ## `blockTypeIconPath`
 
 Type: `string`

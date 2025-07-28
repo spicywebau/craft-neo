@@ -75,6 +75,12 @@ class Settings extends Model
     public bool $alwaysShowButtonsAboveField = false;
 
     /**
+     * @var string The prefix to use for block anchor IDs.
+     * @since 5.5.0
+     */
+    public string $blockAnchorIdPrefix = 'blockAnchorId';
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array

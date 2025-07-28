@@ -1121,6 +1121,9 @@ export default Garnish.Base.extend({
         case 'moveDown':
           this.trigger('moveDownBlock', { block: this })
           break
+        case 'copyAnchor':
+          this.trigger('copyAnchor', { block: this })
+          break
         case 'delete':
           this.trigger('removeBlock', { block: this })
           break

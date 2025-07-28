@@ -490,6 +490,7 @@ export default Garnish.Base.extend({
     block.on('toggleExpansion.input', e => this._blockBatch(block, b => b.toggleExpansion(e.expanded)))
     block.on('moveUpBlock.input', _ => this._moveBlock(block, 'up'))
     block.on('moveDownBlock.input', _ => this._moveBlock(block, 'down'))
+    block.on('copyAnchor.input', _ => this._copyAnchor(block))
     block.on('newBlock.input', e => this['@newBlock'](Object.assign(e, { index: this._getNextBlockIndex(block) })))
     block.on('addBlockAbove.input', e => this['@addBlockAbove'](e))
     block.on('copyBlock.input', e => this['@copyBlock'](e))
@@ -628,6 +629,18 @@ export default Garnish.Base.extend({
    */
   getAlwaysShowButtonsAboveField () {
     return this._alwaysShowButtonsAboveField
+  },
+
+  /**
+   * @since 5.5.0
+   */
+  _copyAnchor (block) {
+    if (navigator.clipboard) {
+      const action = block.$menuContainer.find('[data-action="copyAnchor"]')
+      const anchor = action[0].dataset.anchor
+      navigator.clipboard.writeText(anchor);
+      Craft.cp.displayNotice(Craft.t('app', 'Copied to clipboard.'));
+    }
   },
 
   getSelectedBlocks () {

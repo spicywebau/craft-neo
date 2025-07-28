@@ -4,6 +4,7 @@ namespace benf\neo\web\twig;
 
 use benf\neo\elements\Block;
 use benf\neo\elements\db\BlockQuery;
+use benf\neo\Plugin as Neo;
 use Craft;
 use craft\helpers\Template;
 use Twig\Markup;
@@ -44,5 +45,17 @@ class Variable
         return Template::raw(Craft::$app->getRequest()->getIsPreview()
             ? sprintf('data-neo-preview-highlight="%s"', $block->id)
             : '');
+    }
+
+    /**
+     * Get prefix to use for block anchor IDs.
+     *
+     * @param Block $block
+     * @return string
+     * @since 5.5.0
+     */
+    public function blockAnchorId(Block $block): string
+    {
+        return Neo::$plugin->blocks->blockAnchorId($block);
     }
 }

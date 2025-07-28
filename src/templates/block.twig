@@ -127,6 +127,19 @@
         hr: true,
     },
     {
+        icon: 'hash',
+        label: 'Copy block anchor ID'|t('neo'),
+        attributes: {
+            data: {
+                action: 'copyAnchor',
+                anchor: craft.neo.blockAnchorId(block),
+            },
+        },
+    },
+    {
+        hr: true,
+    },
+    {
         icon: 'plus',
         label: 'Add block above'|t('neo'),
         attributes: {

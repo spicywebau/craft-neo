@@ -9,6 +9,7 @@ return [
     'Expand' => 'Expand',
     'Disable' => 'Disable',
     'Enable' => 'Enable',
+    'Copy block anchor ID' => 'Copy block anchor ID',
     'Add block above' => 'Add block above',
     'Copy' => 'Copy',
     'Paste' => 'Paste',
@@ -153,4 +154,6 @@ return [
     'The text label for the block creation button, on menu styles where it is shown.' => 'The text label for the block creation button, on menu styles where it is shown.',
     'Always show buttons above Neo fields?' => 'Always show buttons above Neo fields?',
     'Whether to always show new block buttons above Neo fields, as well as below.' => 'Whether to always show new block buttons above Neo fields, as well as below.',
+    'Block anchor ID prefix' => 'Block anchor ID prefix',
+    'The prefix to use for block anchor IDs.' => 'The prefix to use for block anchor IDs.',
 ];

@@ -97,6 +97,15 @@
         name: 'alwaysShowButtonsAboveField',
         on: settings.alwaysShowButtonsAboveField,
     }) }}
+
+    {{ forms.textField({
+        label: 'Block anchor ID prefix'|t('neo'),
+        instructions: 'The prefix to use for block anchor IDs.'|t('neo'),
+        id: 'blockAnchorIdPrefix',
+        name: 'blockAnchorIdPrefix',
+        value: settings.blockAnchorIdPrefix,
+        errors: settings.getErrors('blockAnchorIdPrefix'),
+    }) }}
 </div>
 
 {% js %}

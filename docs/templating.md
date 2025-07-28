@@ -48,6 +48,12 @@ Because Neo blocks have a `level` attribute, Neo fields are compatible with the 
 
 If you need to get Neo blocks in your template in a way that isn't connected to a Neo field value on a specific Craft element, you can use `craft.neo.blocks()`. This returns a [Neo block query](api.md#element-query) which can then be used in the same way as a typical [Craft element query](https://craftcms.com/docs/5.x/development/element-queries.html).
 
+### `craft.neo.blockAnchorId()`
+
+This function takes a Neo block as its only argument, and outputs a string, based on the block's ID and the [`blockAnchorIdPrefix`](settings.md#blockanchoridprefix) plugin setting, that is intended to be used as an HTML element ID. For example, using the default `blockAnchorIdPrefix` setting of `'blockAnchorId'` and a block with id 12345, `craft.neo.blockAnchorId(block)` will return `'blockAnchorId-12345'`. This should then be set as the ID of the HTML element representing the block in your templates; e.g. `<div id="{{ craft.neo.blockAnchorId(block) }}">`.
+
+This functionality was inspired by the [Matrix Block Anchor](https://plugins.craftcms.com/matrix-block-anchor) plugin.
+
 ### `craft.neo.previewHighlightAttribute()`
 
 This function takes a Neo block as its only argument, and outputs HTML attribute code when the template is rendered in Craft's preview mode. For example, if your block's ID is 12345, `craft.neo.previewHighlightAttribute(block)` will return `'data-neo-preview-highlight="12345"'`. This allows highlighting of blocks in the content editor sidebar when their previewed content is hovered over, and scrolling the content editor sidebar to blocks when their previewed content is clicked, just like the [Preview Mate](https://plugins.craftcms.com/preview-mate) plugin for Matrix fields that inspired this functionality.

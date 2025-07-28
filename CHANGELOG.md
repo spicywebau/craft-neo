@@ -13,6 +13,9 @@
 - Added `benf\neo\elements\conditions\OwnerTitleConditionRule`
 - Added `benf\neo\elements\conditions\OwnerUriConditionRule`
 - Added `benf\neo\models\Settings::$alwaysShowButtonsAboveField`
+- Added `benf\neo\models\Settings::$blockAnchorIdPrefix`
+- Added `benf\neo\services\Blocks::blockAnchorId()`
+- Added `benf\neo\web\twig\Variable::blockAnchorId()`
 - Added `benf\neo\web\twig\Variable::previewHighlightAttribute()`
 
 ### Fixed

@@ -261,6 +261,21 @@ class Blocks extends Component
     }
 
     /**
+     * Get prefix to use for block anchor IDs.
+     *
+     * @param Block $block
+     * @return string
+     * @since 5.5.0
+     */
+    public function blockAnchorId(Block $block): string
+    {
+        $prefix = Neo::$plugin->getSettings()->blockAnchorIdPrefix;
+        return !empty($prefix)
+            ? sprintf('%s-%s', $prefix, $block->id)
+            : (string)$block->id;
+    }
+
+    /**
      * Creates a basic Neo block structure query.
      *
      * @param array|null $criteria
