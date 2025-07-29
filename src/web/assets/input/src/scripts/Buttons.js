@@ -3,7 +3,6 @@ import { NewBlockMenu, GarnishNewBlockMenu } from './NewBlockMenu'
 
 class Buttons extends NewBlockMenu {
   initUi () {
-    $('.menubtn', this.$container).menubtn()
     this.updateResponsiveness()
 
     // If no buttons were rendered (e.g. if all valid block types are disabled for the user), hide the button container

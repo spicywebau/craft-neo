@@ -1,5 +1,6 @@
 import $ from 'jquery'
 import Garnish from 'garnish'
+import { v4 as uuidv4 } from 'uuid'
 
 const _defaults = {
   $ownerContainer: null,
@@ -41,6 +42,16 @@ class NewBlockMenu {
     this.$menuContainer = $neo.filter('[data-neo-bn="container.menu"]')
     this.$blockButtons = $neo.filter('[data-neo-bn="button.addBlock"]')
     this.$groupButtons = $neo.filter('[data-neo-bn="button.group"]')
+    this._menuDisclosure = this.$menuContainer.data('disclosureMenu') || new Garnish.DisclosureMenu(this.$menuContainer)
+    this._groupDisclosures = this.$groupButtons.map((_, element) => {
+      const $menuBtn = $(element)
+      return $menuBtn.data('disclosureMenu') || new Garnish.DisclosureMenu($menuBtn)
+    }).get()
+    this.$blockButtons = this.$blockButtons.add(this._menuDisclosure.$container.find('[data-neo-bn="button.addBlock"]'))
+
+    this._groupDisclosures.forEach((disclosureMenu) => {
+      this.$blockButtons = this.$blockButtons.add(disclosureMenu.$container.find('[data-neo-bn="button.addBlock"]'))
+    })
 
     if (settings.blocks) {
       this.updateState(settings.blocks)
@@ -65,11 +76,12 @@ class NewBlockMenu {
     let firstButton = true
 
     const generateGroupDropdown = () => {
+      const groupId = uuidv4()
       buttonsHtml.push(`
-          <div class="btn dashed${firstButton ? ' add icon' : ''} menubtn" data-neo-bn="button.group">
+          <button class="btn dashed${firstButton ? ' add icon' : ''} menubtn" aria-controls="${groupId}" data-disclosure-trigger="true" data-neo-bn="button.group">
             ${currentGroup.getName()}
-          </div>
-          <div class="menu">
+          </button>
+          <div id="${groupId}" class="menu menu--disclosure">
             <ul>${blockTypesHtml.join('')}
             </ul>
           </div>`)
@@ -96,7 +108,9 @@ class NewBlockMenu {
         if (currentGroup !== null) {
           blockTypesHtml.push(`
             <li>
-              <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">${item.getName()}</a>
+              <button${titleAttr} aria-label="${item.getName()}" class="menu-item" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">
+                ${item.getName()}
+              </button>
             </li>`)
         } else {
           buttonsHtml.push(`
@@ -129,17 +143,18 @@ class NewBlockMenu {
       generateGroupDropdown()
     }
 
+    // Button and menu for views where the button row would exceed the editor width
+    const fallbackId = uuidv4()
     buttonsHtml.push(`
         </div>
-        <div class="btn dashed add icon menubtn hidden" data-neo-bn="container.menu">
+        <button aria-controls="${fallbackId}" class="btn dashed add icon menubtn hidden" data-disclosure-trigger="true" data-neo-bn="container.menu">
           ${field.getNewBlockButtonLabel()}
-        </div>`)
+        </button>`)
 
-    // Menu, for views where the buttons would exceed the editor width
     currentGroup = null
     let lastGroupHadBlockTypes = false
     buttonsHtml.push(`
-        <div class="menu">
+        <div id="${fallbackId}" class="menu menu--disclosure">
           <ul>`)
 
     for (const item of this._items) {
@@ -162,9 +177,9 @@ class NewBlockMenu {
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         buttonsHtml.push(`
             <li>
-              <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">
+              <button${titleAttr} aria-label="${item.getName()}" class="menu-item" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">
                 ${item.getName()}
-              </a>
+              </button>
             </li>`)
       } else if (type === 'group') {
         if (currentGroup === null || lastGroupHadBlockTypes) {
@@ -303,6 +318,7 @@ const GarnishNewBlockMenu = Garnish.Base.extend({
     const $button = $(e.currentTarget)
     const blockTypeHandle = $button.attr(NewBlockMenu.BUTTON_INFO)
     const blockType = this._buttons.getBlockTypes().find(bt => bt.getHandle() === blockTypeHandle)
+    $button.closest('.menu--disclosure').data('disclosureMenu')?.hide()
 
     this.trigger('newBlock', {
       blockType

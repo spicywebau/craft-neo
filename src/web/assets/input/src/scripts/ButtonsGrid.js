@@ -1,4 +1,5 @@
 import $ from 'jquery'
+import { v4 as uuidv4 } from 'uuid'
 import { NewBlockMenu, GarnishNewBlockMenu } from './NewBlockMenu'
 
 class ButtonsGrid extends NewBlockMenu {
@@ -13,18 +14,19 @@ class ButtonsGrid extends NewBlockMenu {
     const ungroupChildBlockTypes = ownerBlockType !== null &&
       !field.getBlockTypeByHandle(ownerBlockType).getGroupChildBlockTypes()
     const buttonsHtml = []
+    const menuId = uuidv4()
     let currentGroup = null
 
     buttonsHtml.push(`
         <div class="ni_buttons">
-          <div class="btn dashed add icon menubtn" data-neo-bn="container.menu">
+          <button aria-controls="${menuId}" class="btn dashed add icon menubtn" data-disclosure-trigger="true" data-neo-bn="container.menu">
             ${field.getNewBlockButtonLabel()}
-          </div>`)
+          </button>`)
 
     currentGroup = null
     let lastGroupHadBlockTypes = false
     buttonsHtml.push(`
-          <div class="menu ni_newblockgrid" data-neo-bn="container.buttons">`)
+          <div id="${menuId}" class="menu menu--disclosure ni_newblockgrid" data-neo-bn="container.buttons">`)
 
     for (const item of this._items) {
       const type = item.getType()
@@ -52,7 +54,7 @@ class ButtonsGrid extends NewBlockMenu {
         const hasBlockTypeIcon = this._field?.$container.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
         buttonsHtml.push(`
               <li>
-                <a${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">`)
+                <button${titleAttr} aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">`)
 
         if (hasBlockTypeIcon) {
           buttonsHtml.push(`
@@ -67,7 +69,7 @@ class ButtonsGrid extends NewBlockMenu {
 
         buttonsHtml.push(`
                   <span>${item.getName()}</span>
-                </a>
+                </button>
               </li>`)
       } else if (type === 'group') {
         if (lastGroupHadBlockTypes) {
@@ -89,7 +91,6 @@ class ButtonsGrid extends NewBlockMenu {
   }
 
   initUi () {
-    $('.menubtn', this.$container).menubtn()
     this.updateResponsiveness()
 
     // If no buttons were rendered (e.g. if all valid block types are disabled for the user), hide the button container
