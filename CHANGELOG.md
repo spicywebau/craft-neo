@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.4.4 - 2025-08-08
 
 ### Fixed
 - Fixed a bug where blocks on new Solspace Calendar events would lose their content
