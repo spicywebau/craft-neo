@@ -274,7 +274,7 @@ export default Garnish.Base.extend({
     $('#entryType-field').on('change', () => this.destroy())
 
     // Set up preview highlighting
-    Garnish.on(Craft.Preview, 'afterUpdateIframe', (e) => e.$iframe.on('load', () => {
+    Garnish.on(window.Craft.Preview, 'afterUpdateIframe', (e) => e.$iframe.on('load', () => {
       const iframeDocument = e.$iframe[0].contentDocument
       const previewEditor = e.target.$content[0]
 
@@ -638,8 +638,8 @@ export default Garnish.Base.extend({
     if (navigator.clipboard) {
       const action = block.$menuContainer.find('[data-action="copyAnchor"]')
       const anchor = action[0].dataset.anchor
-      navigator.clipboard.writeText(anchor);
-      Craft.cp.displayNotice(Craft.t('app', 'Copied to clipboard.'));
+      navigator.clipboard.writeText(anchor)
+      window.Craft.cp.displayNotice(window.Craft.t('app', 'Copied to clipboard.'))
     }
   },
 

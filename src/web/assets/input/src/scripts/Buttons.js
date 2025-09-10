@@ -1,4 +1,3 @@
-import $ from 'jquery'
 import { NewBlockMenu, GarnishNewBlockMenu } from './NewBlockMenu'
 
 class Buttons extends NewBlockMenu {
