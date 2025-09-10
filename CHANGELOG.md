@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.5.0 - 2025-09-10
 
 > {note} If you are affected by the entry condition rule bug, you will need to resave either the entry type or block type.
 
