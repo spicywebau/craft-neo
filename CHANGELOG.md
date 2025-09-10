@@ -21,6 +21,7 @@
 ### Fixed
 - Fixed a bug that occurred when an entry type was set on a block type, where entry-specific condition rules on field layout components were being saved on the block type, causing errors when creating blocks of that type
 - Fixed accessibility issues with new block menus and buttons
+- Fixed a bug where Neo block validation on save was clearing out errors added previously in the request
 
 ## 5.4.5 - 2025-06-27
 
