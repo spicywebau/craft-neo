@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.4.5 - 2025-09-11
 
 ### Fixed
 - Fixed a bug where Matrix content nested in a revision of a deleted Neo block would disappear when restoring the revision
