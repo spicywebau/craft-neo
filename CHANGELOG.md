@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred during Neo-to-Matrix conversion, if there was relational data in the database for a relational field that was since removed from a Neo block type's field layout
+
 ## 4.4.5 - 2025-09-11
 
 ### Fixed
