@@ -204,14 +204,18 @@ class Conversion extends Component
                     $globalFieldId = $relation['fieldId'];
                     $globalField = $globalFields[$globalFieldId];
                     $matrixFieldIds = $matrixEntryTypeFieldIds[$matrixEntryTypeId];
-                    $matrixFieldId = $matrixFieldIds[$globalField->uid];
-                    $newRelations[] = [
-                        $matrixFieldId,
-                        $matrixEntryId,
-                        $relation['sourceSiteId'],
-                        $relation['targetId'],
-                        $relation['sortOrder'],
-                    ];
+
+                    // In case there's data left from a relational field that was removed from the Neo block type
+                    $matrixFieldId = $matrixFieldIds[$globalField->uid] ?? null;
+                    if ($matrixFieldId) {
+                        $newRelations[] = [
+                            $matrixFieldId,
+                            $matrixEntryId,
+                            $relation['sourceSiteId'],
+                            $relation['targetId'],
+                            $relation['sortOrder'],
+                        ];
+                    }
                 }
             }
 
