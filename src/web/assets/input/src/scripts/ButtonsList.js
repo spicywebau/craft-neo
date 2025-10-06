@@ -50,15 +50,15 @@ class ButtonsList extends NewBlockMenu {
 
         const titleAttr = item.getDescription() ? ` title="${item.getDescription()}"` : ''
         const blockTypeIconId = `fields-ni-icon-${field.getName()}-${item.getHandle()}`
-        const hasBlockTypeIcon = this._field?.$container.closest('form').find(`#${blockTypeIconId}`).length > 0 ?? false
+        const blockTypeIcon = this._field?.$container.closest('form').find(`[id$=${blockTypeIconId}]`)
         buttonsHtml.push(`
               <li>
                 <button${titleAttr} class="menu-item" aria-label="${item.getName()}" data-neo-bn="button.addBlock" ${NewBlockMenu.BUTTON_INFO}="${item.getHandle()}">`)
 
-        if (hasBlockTypeIcon) {
+        if (blockTypeIcon.length > 0) {
           buttonsHtml.push(`
                   <svg class="ni_newblocklist_icon">
-                    <use href="#${blockTypeIconId}"></use>
+                    <use href="#${blockTypeIcon.attr('id')}"></use>
                   </svg>`)
         } else {
           buttonsHtml.push(`

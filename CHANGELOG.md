@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where block type icons weren't appearing in preview mode
+
 ## 5.5.1 - 2025-09-19
 
 ### Fixed
