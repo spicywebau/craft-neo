@@ -746,6 +746,16 @@ SQL
             array_unique($ownershipData, SORT_REGULAR),
         );
 
+        // Ensure unedited revision blocks have their primaryOwnerId updated,
+        // so they don't get deleted for newer owners when an older owner gets pruned
+        foreach ($ownershipData as $ownershipRow) {
+            Db::update('{{%neoblocks}}', [
+                'primaryOwnerId' => $ownershipRow[1],
+            ], [
+                'id' => $ownershipRow[0],
+            ], [], false);
+        }
+
         foreach ($jobData as $siteId => $data) {
             $queue->push(new SaveBlockStructures([
                 'fieldId' => $field->id,

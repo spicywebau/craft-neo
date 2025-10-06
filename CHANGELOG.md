@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.4.7 - 2025-10-06
+
+### Fixed
+- Fixed a bug where revision Neo blocks shared by revision owners would be deleted for newer owners when the oldest owner was pruned
+
 ## 4.4.6 - 2025-09-19
 
 ### Fixed
