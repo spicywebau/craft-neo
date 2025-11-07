@@ -1721,6 +1721,7 @@ class Field extends BaseField implements
                 $block->setOwner($element);
                 $block->siteId = $element->siteId;
                 $block->enabled = (bool)($blockData['enabled'] ?? true);
+                $block->dirty = true;
 
                 // Use the provided UUID, so the block can persist across future autosaves
                 if ($uids) {

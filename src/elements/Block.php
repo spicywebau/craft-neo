@@ -328,6 +328,7 @@ class Block extends Element implements NestedElementInterface
             ->preferSites([$this->siteId])
             ->unique()
             ->status(null)
+            ->trashed(null)
             ->ignorePlaceholders()
             ->one();
 

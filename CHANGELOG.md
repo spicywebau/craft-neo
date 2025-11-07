@@ -344,6 +344,26 @@
 - Removed the `neoblocks_owners` table; the Craft 5 `elements_owners` table is used instead
 - Removed the `neoblocks.deletedWithOwner` column; the Craft 5 `elements.deletedWithOwner` column is used instead
 
+## 4.4.7 - 2025-10-06
+
+### Fixed
+- Fixed a bug where revision Neo blocks shared by revision owners would be deleted for newer owners when the oldest owner was pruned
+
+## 4.4.6 - 2025-09-19
+
+### Fixed
+- Fixed an error that occurred during Neo-to-Matrix conversion, if there was relational data in the database for a relational field that was since removed from a Neo block type's field layout
+
+## 4.4.5 - 2025-09-11
+
+### Fixed
+- Fixed a bug where Matrix content nested in a revision of a deleted Neo block would disappear when restoring the revision
+
+## 4.4.4 - 2025-08-08
+
+### Fixed
+- Fixed a bug where blocks on new Solspace Calendar events would lose their content
+
 ## 4.4.3 - 2025-06-05
 
 ### Fixed
