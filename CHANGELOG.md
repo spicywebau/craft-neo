@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where revision Neo blocks shared by revision owners would be deleted for newer owners when the oldest owner was pruned
+- Fixed a style issue with disabled Neo block visual indicators
 
 ## 5.5.2 - 2025-10-06
 
