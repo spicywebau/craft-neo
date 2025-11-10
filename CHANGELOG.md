@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Improved garbage collection of orphaned Neo data
+
 ### Fixed
 - Fixed a bug where revision Neo blocks shared by revision owners would be deleted for newer owners when the oldest owner was pruned
 - Fixed a style issue with disabled Neo block visual indicators

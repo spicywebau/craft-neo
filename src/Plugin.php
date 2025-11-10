@@ -255,6 +255,7 @@ class Plugin extends BasePlugin
             };
             $gc = Craft::$app->getGc();
             $gc->deletePartialElements(Block::class, '{{%neoblocks}}', 'id');
+            $gc->deleteOrphanedNestedElements(Block::class, '{{%neoblocks}}');
 
             // Delete anything in the structures table that's a Neo block structure, but doesn't exist in the
             // neoblockstructures table
@@ -277,8 +278,7 @@ class Plugin extends BasePlugin
             }
             $stdout("done\n", Console::FG_GREEN);
 
-            // Delete any elements_owners rows for Neo blocks, where no row in structureelements with the block's
-            // elementId has a structureId that matches the block's owner in neoblockstructures
+            // Delete any orphaned elements_owners rows that can be determined as being related to Neo blocks
             $stdout('    > deleting orphaned Neo block element owner data ... ');
             $blockOwnersRows = (new Query())
                 ->select([
@@ -292,6 +292,8 @@ class Plugin extends BasePlugin
 
             foreach (array_chunk($blockOwnersRows, 1000) as $blockOwnersRowChunk) {
                 foreach ($blockOwnersRowChunk as $blockOwnersRow) {
+                    // Delete this row if no row in structureelements with the same elementId has a structureId such
+                    // that a row exists in neoblockstructures with the same ownerId and structureId
                     $hasStructureElementData = (new Query())
                         ->from(['eo' => Table::ELEMENTS_OWNERS])
                         ->innerJoin(['nb' => '{{%neoblocks}}'], '[[nb.id]] = [[eo.elementId]]')
@@ -307,7 +309,15 @@ class Plugin extends BasePlugin
                         ])
                         ->exists();
 
-                    if (!$hasStructureElementData) {
+                    // Delete this row if the owner no longer exists in the elements table
+                    $hasValidOwner = (new Query())
+                        ->from(Table::ELEMENTS)
+                        ->where([
+                            'id' => $blockOwnersRow['ownerId'],
+                        ])
+                        ->exists();
+
+                    if (!$hasStructureElementData || !$hasValidOwner) {
                         Db::delete(Table::ELEMENTS_OWNERS, $blockOwnersRow);
                     }
                 }
