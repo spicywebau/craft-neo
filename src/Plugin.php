@@ -255,7 +255,11 @@ class Plugin extends BasePlugin
             };
             $gc = Craft::$app->getGc();
             $gc->deletePartialElements(Block::class, '{{%neoblocks}}', 'id');
-            $gc->deleteOrphanedNestedElements(Block::class, '{{%neoblocks}}');
+
+            // TODO: remove method check after moving Craft minimum version requirement to at least 5.4.2
+            if (method_exists($gc, 'deleteOrphanedNestedElements')) {
+                $gc->deleteOrphanedNestedElements(Block::class, '{{%neoblocks}}');
+            }
 
             // Delete anything in the structures table that's a Neo block structure, but doesn't exist in the
             // neoblockstructures table
