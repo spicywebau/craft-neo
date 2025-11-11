@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.5.3 - 2025-11-11
 
 ### Changed
 - Improved garbage collection of orphaned Neo data
