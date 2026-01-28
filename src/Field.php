@@ -1439,9 +1439,8 @@ class Field extends BaseField implements
 
         if ($value instanceof BlockQuery) {
             return (clone $value)
-                ->drafts(null)
                 ->status(null)
-                ->site('*')
+                ->siteId($owner->siteId)
                 ->limit(null)
                 ->unique()
                 ->count();
