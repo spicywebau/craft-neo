@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.5.4 - 2026-01-28
 
 ### Fixed
 - Fixed an error that could occur when creating a new block in a Neo field with Max Blocks set
