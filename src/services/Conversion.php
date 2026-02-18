@@ -180,8 +180,13 @@ class Conversion extends Component
                 $neoBlockTypeId = $neoBlockTypeIdsByBlockId[$neoBlockId];
                 $matrixEntry->typeId = $neoToMatrixTypeIds[$neoBlockTypeId];
 
-                if (!$elementsService->saveElement($matrixEntry, false)) {
-                    throw new Exception("Unable to save Matrix entry");
+                try {
+                    if (!$elementsService->saveElement($matrixEntry, false)) {
+                        throw new Exception("Unable to save Matrix entry");
+                    }
+                } catch (UnsupportedSiteException $e) {
+                    // Old junk block data, ignore
+                    continue;
                 }
 
                 // Save the new Matrix entry ID for updating the relations

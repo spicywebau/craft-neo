@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred during Neo-to-Matrix conversion, if Neo block data still existed in the database for a site that was no longer a supported site for the block
+
 ## 5.5.4 - 2026-01-28
 
 ### Fixed
