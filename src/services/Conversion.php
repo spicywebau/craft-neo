@@ -13,6 +13,7 @@ use craft\db\Table;
 use craft\elements\conditions\entries\EntryCondition;
 use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
+use craft\errors\UnsupportedSiteException;
 use craft\fieldlayoutelements\CustomField;
 use craft\fieldlayoutelements\entries\EntryTitleField;
 use craft\fields\Matrix as MatrixField;

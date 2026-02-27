@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a missing PHP use statement that caused the fix from 5.5.5 not to work
+
 ## 5.5.5 - 2026-02-18
 
 ### Fixed
