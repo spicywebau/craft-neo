@@ -353,6 +353,10 @@
                     {{ splitOnChildBlocks[0]|raw }}
                     {% if splitOnChildBlocks|length > 1 %}
                         {% set splitAfterChildBlocks = splitOnChildBlocks[1]|split('"></div>', 2) %}
+                        {% if splitAfterChildBlocks|length == 1 %}
+                            {% set splitAfterChildBlocks = splitOnChildBlocks[1]|split('" data-static></div>', 2) %}
+                        {% endif %}
+
                         {% include 'neo/child-blocks' with { block, handle, static, uid: splitAfterChildBlocks[0] } %}
                         {{ errorList }}
                         {{ splitAfterChildBlocks[1]|raw }}

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when viewing entry revisions with Neo blocks with child block UI elements
+
 ## 5.5.6 - 2026-02-27
 
 ### Fixed
