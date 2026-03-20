@@ -277,20 +277,30 @@ class Input extends Controller
         $sortOrder = $request->getRequiredBodyParam('sortOrder');
         $blockUuids = $request->getRequiredBodyParam('blockUuids');
 
-        $field = $fieldsService->getFieldById($fieldId);
-        $namespace = $request->getBodyParam('namespace', "fields[{$field->handle}][blocks]");
         $canonicalOwner = $elementsService->getElementById($ownerCanonicalId, null, $siteId);
         $draftsQueryMethod = $isProvisionalDraft ? 'provisionalDrafts' : 'drafts';
 
-        // Get the blocks belonging to the current draft, or just use the canonical owner if no draft ID provided
+        // Get the current draft, or just use the canonical owner if no draft ID provided
         $draft = $ownerDraftId === null ? $canonicalOwner : $canonicalOwner::find()
             ->{$draftsQueryMethod}()
             ->draftId($ownerDraftId)
             ->siteId($siteId)
             ->status(null)
             ->one();
+
+        // Get the layout element for the Neo field so we have the correct handle in case it's been overridden
+        $field = $fieldsService->getFieldById($fieldId);
+        $layoutCustomFields = $draft->getFieldLayout()->getCustomFieldElements();
+        $layoutField = array_values(array_filter(
+            $layoutCustomFields,
+            fn($layoutCustomField) => $layoutCustomField->getField()->uid === $field->uid,
+        ))[0];
+        $fieldHandle = $layoutField->handle ?? $field->handle;
+        $namespace = $request->getBodyParam('namespace', "fields[{$fieldHandle}][blocks]");
+
+        // Get the blocks belonging to the current draft or canonical owner
         $blocks = $draft
-            ->getFieldValue($field->handle)
+            ->getFieldValue($fieldHandle)
             ->status(null)
             ->all();
 

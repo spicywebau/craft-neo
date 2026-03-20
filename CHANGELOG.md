@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an error that occurred when viewing entry revisions with Neo blocks with child block UI elements
+- Fixed an error that occurred when autosaving drafts if a Neo field handle had been overridden
 
 ## 5.5.6 - 2026-02-27
 
