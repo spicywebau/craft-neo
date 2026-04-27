@@ -138,7 +138,13 @@ class Input extends Controller
                 $rawBlock['prevSiblingId'] = $prevBlock->id;
             }
 
-            if (!empty($rawBlock['parentId'])) {
+            if (
+                !empty($rawBlock['parentId']) &&
+                (
+                    !is_string($rawBlock['parentId']) ||
+                    !str_starts_with($rawBlock['parentId'], 'new')
+                )
+            ) {
                 $block->setParentId($rawBlock['parentId']);
             }
 

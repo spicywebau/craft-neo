@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when adding a new child block to a Neo field on a new Solspace Calendar event
+
 ## 5.5.7 - 2026-03-20
 
 ### Fixed
