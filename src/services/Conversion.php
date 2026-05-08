@@ -196,13 +196,16 @@ class Conversion extends Component
             }
 
             // Update the relations with the new Matrix entry IDs (sourceId) and Matrix field IDs
-            $relations = (new Query())
-                ->select('fieldId, sourceId, sourceSiteId, targetId, sortOrder')
-                ->from(Table::RELATIONS)
-                ->where(['in', 'sourceId', array_keys($neoToMatrixElementIds)])
-                ->all();
+            $relationChunks = [];
+            foreach (array_chunk(array_keys($neoToMatrixElementIds), 1000) as $neoIdsChunk) {
+                $relationChunks[] = (new Query())
+                    ->select('fieldId, sourceId, sourceSiteId, targetId, sortOrder')
+                    ->from(Table::RELATIONS)
+                    ->where(['in', 'sourceId', $neoIdsChunk])
+                    ->all();
+            }
 
-            if ($relations) {
+            foreach ($relationChunks as $relations) {
                 foreach ($relations as $relation) {
                     $neoBlockId = $relation['sourceId'];
                     $matrixEntryId = $neoToMatrixElementIds[$neoBlockId];
@@ -225,13 +228,15 @@ class Conversion extends Component
                 }
             }
 
-            $dbService->createCommand()->batchInsert(Table::RELATIONS, [
-                'fieldId',
-                'sourceId',
-                'sourceSiteId',
-                'targetId',
-                'sortOrder',
-            ], $newRelations);
+            foreach (array_chunk($newRelations, 1000) as $newRelationsChunk) {
+                $dbService->createCommand()->batchInsert(Table::RELATIONS, [
+                    'fieldId',
+                    'sourceId',
+                    'sourceSiteId',
+                    'targetId',
+                    'sortOrder',
+                ], $newRelationsChunk)->execute();
+            }
 
             if ($deleteOldBlockTypesAndGroups) {
                 foreach ($neoBlockTypes as $neoBlockType) {

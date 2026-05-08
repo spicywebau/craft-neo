@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an error that occurred when adding a new child block to a Neo field on a new Solspace Calendar event
+- Fixed an error that occurred during Neo-to-Matrix conversion, if relations table queries had more than 65535 parameters
 
 ## 5.5.7 - 2026-03-20
 
