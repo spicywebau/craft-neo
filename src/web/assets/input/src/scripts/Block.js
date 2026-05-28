@@ -117,9 +117,9 @@ export default Garnish.Base.extend({
     }
 
     if (callInitUiElements) {
-      window.Craft.initUiElements(this.$contentContainer)
-      await window.Craft.appendBodyHtml(this._bodyHtml)
       await window.Craft.appendHeadHtml(this._headHtml)
+      await window.Craft.appendBodyHtml(this._bodyHtml)
+      window.Craft.initUiElements(this.$contentContainer)
     }
 
     this.$form = this.$container.closest('form')
@@ -834,8 +834,8 @@ export default Garnish.Base.extend({
     const hasRoomForIndividualTabs = this.$topbarContainer.width() < this._topbarLeftWidth + this._topbarRightWidth
 
     this.$handleContainer.toggleClass('hidden', isMobileBrowser)
-    this.$tabsContainer.toggleClass('invisible', hasRoomForIndividualTabs)
-    this.$tabsButton.toggleClass('invisible', !hasRoomForIndividualTabs)
+    this.$tabsContainer?.toggleClass('invisible', hasRoomForIndividualTabs)
+    this.$tabsButton?.toggleClass('invisible', !hasRoomForIndividualTabs)
   },
 
   updateActionsMenu () {

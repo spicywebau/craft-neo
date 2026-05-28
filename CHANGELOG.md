@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where the first CKEditor field in a Neo field wasn't being rendered if no CKEditor field existed outside of the Neo field
+
 ## 5.5.8 - 2026-05-08
 
 ### Fixed
