@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an infinite recursion bug that occurred when the Twig sandbox was enabled
+
 ## 5.5.9 - 2026-05-28
 
 ### Fixed

@@ -214,10 +214,9 @@ class Block extends Element implements NestedElementInterface
      */
     public function attributes(): array
     {
-        $names = parent::attributes();
-        $names[] = 'owner';
-
-        return $names;
+        $names = array_flip($this->traitAttributes());
+        $names['typeId'] = true;
+        return array_keys($names);
     }
 
     /**
@@ -225,10 +224,8 @@ class Block extends Element implements NestedElementInterface
      */
     public function extraFields(): array
     {
-        $names = parent::extraFields();
-        $names[] = 'owner';
+        $names = $this->traitExtraFields();
         $names[] = 'type';
-
         return $names;
     }
 
