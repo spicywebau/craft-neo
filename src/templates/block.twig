@@ -352,10 +352,17 @@
                     {% set splitOnChildBlocks = renderedForm|split('<div data-neo-child-blocks-ui-element="' ~ blockId ~ '" data-layout-element="') %}
                     {{ splitOnChildBlocks[0]|raw }}
                     {% if splitOnChildBlocks|length > 1 %}
-                        {% set splitAfterChildBlocks = splitOnChildBlocks[1]|split('"></div>', 2) %}
-                        {% if splitAfterChildBlocks|length == 1 %}
-                            {% set splitAfterChildBlocks = splitOnChildBlocks[1]|split('" data-static></div>', 2) %}
-                        {% endif %}
+                        {#
+                            The placeholder closing tag differs by render mode:
+                              - dynamic: ...data-layout-element="UID"></div>
+                              - static:  ...data-layout-element="UID" data-static></div>
+                            Pick the delimiter from the known `static` flag. Don't infer it from the split
+                            length: a `"></div>` can appear deeper in a later field's markup, which falsely
+                            matches the dynamic delimiter in static mode and swallows the rest of the form
+                            into `uid` (rendered as encoded `&quot;`/`&gt;` garbage). See #1036.
+                        #}
+                        {% set childBlocksUiClose = static ? '" data-static></div>' : '"></div>' %}
+                        {% set splitAfterChildBlocks = splitOnChildBlocks[1]|split(childBlocksUiClose, 2) %}
 
                         {% include 'neo/child-blocks' with { block, handle, static, uid: splitAfterChildBlocks[0] } %}
                         {{ errorList }}

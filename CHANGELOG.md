@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Neo blocks with a child blocks UI element rendered HTML-encoded markup that broke the layout when the field was rendered in a read-only / static context ([#1036](https://github.com/spicywebau/craft-neo/issues/1036))
+
 ## 5.5.10 - 2026-06-02
 
 ### Fixed
