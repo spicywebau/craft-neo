@@ -1083,10 +1083,20 @@ export default Garnish.Base.extend({
   },
 
   _getPostData () {
+    let fieldNamespace
+
+    if (NS.getNamespace().length === 0) {
+      NS.enter(this._field.getNamespace())
+      fieldNamespace = NS.toFieldName()
+      NS.leave()
+    } else {
+      fieldNamespace = NS.toFieldName()
+    }
+
     const content = Garnish.getPostData(this.$contentContainer)
     // Remove keys associated with child block subfields (occurs when using child blocks UI element)
     const badKeys = Object.keys(content)
-      .filter((key) => !key.startsWith(`fields[${this._field.getName()}][blocks][uid:${this._uuid}]`))
+      .filter((key) => !key.startsWith(`${fieldNamespace}[uid:${this._uuid}]`))
 
     for (const key of badKeys) {
       delete content[key]
