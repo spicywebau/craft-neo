@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.5.12 - 2026-07-14
 
 ### Fixed
 - Fixed a bug where cloning Neo blocks in an entry slideout editor would cause the clone block to be missing content
