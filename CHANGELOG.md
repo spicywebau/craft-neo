@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur during Neo-to-Matrix conversion on multisite Craft installs
+
 ## 5.5.12 - 2026-07-14
 
 ### Fixed

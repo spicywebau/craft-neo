@@ -229,13 +229,36 @@ class Conversion extends Component
             }
 
             foreach (array_chunk($newRelations, 1000) as $newRelationsChunk) {
-                $dbService->createCommand()->batchInsert(Table::RELATIONS, [
-                    'fieldId',
-                    'sourceId',
-                    'sourceSiteId',
-                    'targetId',
-                    'sortOrder',
-                ], $newRelationsChunk)->execute();
+                // Ensure no relations get inserted that have already been created
+                $existingKeys = [];
+                $existingRelations = (new Query())
+                    ->select(['fieldId', 'sourceId', 'sourceSiteId', 'targetId'])
+                    ->from(Table::RELATIONS)
+                    ->where([
+                        'in',
+                        'sourceId',
+                        array_unique(array_column($newRelationsChunk, 1)),
+                    ])
+                    ->all();
+
+                foreach ($existingRelations as $existingRelation) {
+                    $existingKeys[implode('-', $existingRelation)] = true;
+                }
+
+                $actualNewRelations = array_filter(
+                    $newRelationsChunk,
+                    fn($relation) => !isset($existingKeys[implode('-', array_slice($relation, 0, 4))]),
+                );
+
+                if (!empty($actualNewRelations)) {
+                    $dbService->createCommand()->batchInsert(Table::RELATIONS, [
+                        'fieldId',
+                        'sourceId',
+                        'sourceSiteId',
+                        'targetId',
+                        'sortOrder',
+                    ], $actualNewRelations)->execute();
+                }
             }
 
             if ($deleteOldBlockTypesAndGroups) {
