@@ -321,7 +321,7 @@ export default Garnish.Base.extend({
     this._tempButtons?.updateResponsiveness()
   },
 
-  addBlock (block, index = -1, level = 1, animate = null, createChildBlocks = true) {
+  async addBlock (block, index = -1, level = 1, animate = null, createChildBlocks = true) {
     this._newBlockCount++
     this.$form.data('elementEditor')?.pause()
     const blockCount = this._blocks.length
@@ -355,7 +355,7 @@ export default Garnish.Base.extend({
     this._blockSort.addBlock(block)
     this.blockSelect.addItems(block.$container)
 
-    block.initUi()
+    await block.initUi()
     this._setBlockEvents(block)
     this._destroyTempButtons()
     this._updateBlockOrder()
@@ -1251,7 +1251,7 @@ export default Garnish.Base.extend({
       let newIndex = this._getNextBlockIndex(block)
 
       for (const newBlock of newBlocks) {
-        this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
+        await this.addBlock(newBlock, newIndex++, newBlock.getLevel(), false)
       }
 
       if (!Garnish.prefersReducedMotion() && newBlocks.length > 0) {
@@ -1411,7 +1411,7 @@ export default Garnish.Base.extend({
       }, true)
 
       this._removeSpinner()
-      this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
+      await this.addBlock(block, e.index, e.level, e.createChildBlocks, e.createChildBlocks)
     } catch (error) {
       this._removeSpinner()
       console.error(error)
