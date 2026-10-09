@@ -179,6 +179,9 @@ class Input extends Controller
                 }
             }
 
+            $view->startScriptBuffer();
+            $view->startHtmlBuffer();
+
             $html = $view->renderTemplate('neo/block.twig', [
                 'handle' => $namespace ?? $field->handle,
                 'block' => $block,
@@ -187,10 +190,15 @@ class Input extends Controller
                 'collapsed' => false,
             ]);
 
+            $bodyHtml = $view->getBodyHtml();
+            $headHtml = $view->getHeadHtml();
+            $view->clearScriptBuffer();
+            $view->clearHtmlBuffer();
+
             $renderedBlocks[] = [
                 'blockHtml' => $html,
-                'bodyHtml' => $view->getBodyHtml(),
-                'headHtml' => $view->getHeadHtml(),
+                'bodyHtml' => $bodyHtml,
+                'headHtml' => $headHtml,
                 'collapsed' => $block->getCollapsed(),
                 'type' => (int)$type->id,
                 'level' => $block->level,
