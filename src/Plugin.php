@@ -284,47 +284,33 @@ class Plugin extends BasePlugin
 
             // Delete any orphaned elements_owners rows that can be determined as being related to Neo blocks
             $stdout('    > deleting orphaned Neo block element owner data ... ');
-            $blockOwnersRows = (new Query())
+            // A row is orphaned if its owner no longer exists in the elements table, or if no row in
+            // structureelements with the same elementId has a structureId such that a row exists in
+            // neoblockstructures with the same ownerId and structureId
+            $orphanedBlockOwnersRows = (new Query())
                 ->select([
                     'eo.elementId',
                     'eo.ownerId',
-                    'eo.sortOrder',
                 ])
                 ->from(['eo' => Table::ELEMENTS_OWNERS])
                 ->innerJoin(['nb' => '{{%neoblocks}}'], '[[nb.id]] = [[eo.elementId]]')
+                ->leftJoin(['e' => Table::ELEMENTS], '[[e.id]] = [[eo.ownerId]]')
+                ->where([
+                    'or',
+                    ['e.id' => null],
+                    [
+                        'not exists',
+                        (new Query())
+                            ->from(['nbs' => '{{%neoblockstructures}}'])
+                            ->innerJoin(['se' => Table::STRUCTUREELEMENTS], '[[se.structureId]] = [[nbs.structureId]]')
+                            ->where('[[nbs.ownerId]] = [[eo.ownerId]]')
+                            ->andWhere('[[se.elementId]] = [[eo.elementId]]'),
+                    ],
+                ])
                 ->all();
 
-            foreach (array_chunk($blockOwnersRows, 1000) as $blockOwnersRowChunk) {
-                foreach ($blockOwnersRowChunk as $blockOwnersRow) {
-                    // Delete this row if no row in structureelements with the same elementId has a structureId such
-                    // that a row exists in neoblockstructures with the same ownerId and structureId
-                    $hasStructureElementData = (new Query())
-                        ->from(['eo' => Table::ELEMENTS_OWNERS])
-                        ->innerJoin(['nb' => '{{%neoblocks}}'], '[[nb.id]] = [[eo.elementId]]')
-                        ->innerJoin(['nbs' => '{{%neoblockstructures}}'], '[[nbs.ownerId]] = [[eo.ownerId]]')
-                        ->innerJoin(['se' => Table::STRUCTUREELEMENTS], [
-                            'and',
-                            '[[nbs.structureId]] = [[se.structureId]]',
-                            '[[eo.elementId]] = [[se.elementId]]',
-                        ])
-                        ->where([
-                            'eo.elementId' => $blockOwnersRow['elementId'],
-                            'eo.ownerId' => $blockOwnersRow['ownerId'],
-                        ])
-                        ->exists();
-
-                    // Delete this row if the owner no longer exists in the elements table
-                    $hasValidOwner = (new Query())
-                        ->from(Table::ELEMENTS)
-                        ->where([
-                            'id' => $blockOwnersRow['ownerId'],
-                        ])
-                        ->exists();
-
-                    if (!$hasStructureElementData || !$hasValidOwner) {
-                        Db::delete(Table::ELEMENTS_OWNERS, $blockOwnersRow);
-                    }
-                }
+            foreach (array_chunk($orphanedBlockOwnersRows, 1000) as $orphanedBlockOwnersRowChunk) {
+                Db::delete(Table::ELEMENTS_OWNERS, ['in', ['elementId', 'ownerId'], $orphanedBlockOwnersRowChunk]);
             }
 
             $stdout("done\n", Console::FG_GREEN);
