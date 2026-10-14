@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Improved the performance of deleting orphaned Neo block element owner data during garbage collection
+
 ### Fixed
 - Fixed a bug where cloning a Neo parent block with child blocks with CKEditor fields would cause duplicate CKEditor instances on the cloned blocks
 
