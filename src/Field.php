@@ -1169,15 +1169,20 @@ class Field extends BaseField implements
             $elementsService = Craft::$app->getElements();
 
             foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
-                $blocks = Block::find()
+                $query = Block::find()
                     ->anyStatus()
                     ->fieldId($this->id)
                     ->siteId($siteId)
                     ->primaryOwnerId($element->id)
-                    ->inReverse()
-                    ->all();
+                    ->inReverse();
 
-                foreach ($blocks as $block) {
+                // On a hard delete, the block structures were already deleted above,
+                // and the owner can be a revision (pruned by `maxRevisions`)
+                if ($element->hardDelete) {
+                    $query->revisions(null)->findStructureId(false);
+                }
+
+                foreach ($query->all() as $block) {
                     $block->deletedWithOwner = true;
                     $elementsService->deleteElement($block, $element->hardDelete);
                 }

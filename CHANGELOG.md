@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where cloning a Neo parent block with child blocks with CKEditor fields would cause duplicate CKEditor instances on the cloned blocks
+- Fixed a bug where pruning entry revisions from a console queue runner could leave revision blocks behind, causing garbage collection to delete nested entries still used by newer revisions ([#1043](https://github.com/spicywebau/craft-neo/issues/1043))
 
 ## 5.5.13 - 2026-09-07
 

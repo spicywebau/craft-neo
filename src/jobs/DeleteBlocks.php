@@ -37,15 +37,19 @@ class DeleteBlocks extends BaseJob
         $elementsService = Craft::$app->getElements();
 
         foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
-            $blocks = Block::find()
+            $query = Block::find()
                 ->anyStatus()
                 ->fieldId($this->fieldId)
                 ->siteId($siteId)
                 ->primaryOwnerId($this->elementId)
-                ->inReverse()
-                ->all();
+                ->inReverse();
 
-            foreach ($blocks as $block) {
+            // See `Field::beforeElementDelete()`
+            if ($this->hardDelete) {
+                $query->revisions(null)->findStructureId(false);
+            }
+
+            foreach ($query->all() as $block) {
                 $block->deletedWithOwner = true;
                 $elementsService->deleteElement($block, $this->hardDelete);
             }
