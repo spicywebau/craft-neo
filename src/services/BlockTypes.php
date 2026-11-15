@@ -662,21 +662,14 @@ class BlockTypes extends Component
                 return;
             }
 
-            $sitesService = Craft::$app->getSites();
             $elementsService = Craft::$app->getElements();
             $fieldsService = Craft::$app->getFields();
 
-            // Delete all blocks of this type
-            foreach ($sitesService->getAllSiteIds() as $siteId) {
-                $blocks = Block::find()
-                    ->siteId($siteId)
-                    ->typeId($blockType->id)
-                    ->inReverse()
-                    ->all();
-
-                foreach ($blocks as $block) {
-                    $elementsService->deleteElement($block);
-                }
+            // Delete all blocks of this type, along with their descendants, regardless of status or whether they
+            // belong to drafts or revisions. Otherwise, their `neoblocks` rows will be deleted along with the block
+            // type, leaving any child blocks orphaned in their block structures.
+            foreach ($this->_getBlockIdsToDeleteWithBlockType($blockType) as $blockId) {
+                $elementsService->deleteElementById($blockId, Block::class);
             }
 
             // Delete the block type's field layout if it exists
@@ -696,6 +689,52 @@ class BlockTypes extends Component
         }
 
         Craft::$app->getElements()->invalidateCachesForElementType(Block::class);
+    }
+
+    /**
+     * Gets the IDs of all non-deleted blocks of the given block type, and of all of their descendant blocks.
+     *
+     * @param BlockType $blockType
+     * @return int[]
+     */
+    private function _getBlockIdsToDeleteWithBlockType(BlockType $blockType): array
+    {
+        $blockIds = (new Query())
+            ->select(['neoblocks.id'])
+            ->from(['neoblocks' => '{{%neoblocks}}'])
+            ->innerJoin(['elements' => Table::ELEMENTS], '[[elements.id]] = [[neoblocks.id]]')
+            ->where([
+                'neoblocks.typeId' => $blockType->id,
+                'elements.dateDeleted' => null,
+            ])
+            ->column();
+
+        if (empty($blockIds)) {
+            return [];
+        }
+
+        // Find the descendants of those blocks, in every block structure they belong to
+        $descendantIds = (new Query())
+            ->select(['descendants.elementId'])
+            ->distinct()
+            ->from(['blocks' => Table::STRUCTUREELEMENTS])
+            ->innerJoin(
+                ['descendants' => Table::STRUCTUREELEMENTS],
+                [
+                    'and',
+                    '[[descendants.structureId]] = [[blocks.structureId]]',
+                    '[[descendants.lft]] > [[blocks.lft]]',
+                    '[[descendants.rgt]] < [[blocks.rgt]]',
+                ]
+            )
+            ->innerJoin(['elements' => Table::ELEMENTS], '[[elements.id]] = [[descendants.elementId]]')
+            ->where([
+                'blocks.elementId' => $blockIds,
+                'elements.dateDeleted' => null,
+            ])
+            ->column();
+
+        return array_values(array_unique(array_map('intval', array_merge($blockIds, $descendantIds))));
     }
 
     /**

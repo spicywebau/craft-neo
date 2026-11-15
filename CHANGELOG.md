@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where cloning a Neo parent block with child blocks with CKEditor fields would cause duplicate CKEditor instances on the cloned blocks
 - Fixed an error that occurred when saving a new draft from a draft that contained a Neo field
+- Fixed a bug where deleting a block type would not clear the `elements`/`structureelements` tables of data belonging to disabled blocks of that type or their descendant blocks
 
 ## 5.5.13 - 2026-09-07
 
