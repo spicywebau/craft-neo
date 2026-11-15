@@ -1055,13 +1055,22 @@ class Field extends BaseField implements
         $resetValue = false;
 
         if ($element->duplicateOf !== null) {
-            // If this is a draft, just duplicate the relations
-            if ($element->getIsDraft() && !$element->getIsUnpublishedDraft()) {
+            // If this is a draft of a canonical element, just duplicate the relations
+            // If it was duplicated from another draft, fall through to full block duplication
+            if (
+                $element->getIsDraft() &&
+                !$element->getIsUnpublishedDraft() &&
+                $element->duplicateOf->getIsCanonical()
+            ) {
                 Neo::$plugin->fields->duplicateOwnership($this, $element->duplicateOf, $element);
             } elseif ($element->getIsRevision()) {
                 Neo::$plugin->fields->createRevisionBlocks($this, $element->duplicateOf, $element);
             // getIsUnpublishedDraft is needed for "save as new" duplication
-            } elseif (!$element->getIsDraft() || $element->getIsUnpublishedDraft()) {
+            } elseif (
+                !$element->getIsDraft() ||
+                $element->getIsUnpublishedDraft() ||
+                !$element->duplicateOf->getIsCanonical()
+            ) {
                 Neo::$plugin->fields->duplicateBlocks($this, $element->duplicateOf, $element, true, !$isNew);
             }
             $resetValue = true;

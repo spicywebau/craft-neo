@@ -501,7 +501,7 @@ class Fields extends Component
                 $collapsed = $block->getCollapsed();
                 $newBlock = null;
                 $newAttributes = [
-                    'canonicalId' => $setCanonicalId ? $block->id : null,
+                    'canonicalId' => $setCanonicalId ? $block->getCanonicalId() : null,
                     'primaryOwner' => $target,
                     'owner' => $target,
                     'siteId' => $target->siteId,

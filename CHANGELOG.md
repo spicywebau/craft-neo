@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where cloning a Neo parent block with child blocks with CKEditor fields would cause duplicate CKEditor instances on the cloned blocks
+- Fixed an error that occurred when saving a new draft from a draft that contained a Neo field
 
 ## 5.5.13 - 2026-09-07
 
