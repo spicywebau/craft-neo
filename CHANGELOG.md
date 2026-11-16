@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.5.14 - 2026-11-16
 
 ### Fixed
 - Fixed a bug where cloning a Neo parent block with child blocks with CKEditor fields would cause duplicate CKEditor instances on the cloned blocks
